@@ -1,13 +1,12 @@
 {
   "/planner": {
-    "description": "Provides operations to manage the planner property of the microsoft.graph.user entity.",
+    "description": "Provides operations to manage the planner singleton.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.planner"
       ],
-      "summary": "Get planner from users",
-      "description": "Entry-point to the Planner resource that might exist for a user. Read-only.",
-      "operationId": "users.GetPlanner",
+      "summary": "Get planner",
+      "operationId": "planner.planner.GetPlanner",
       "parameters": [
         {
           "either": {
@@ -34,6 +33,7 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "id",
+                    "buckets",
                     "plans",
                     "tasks"
                   ],
@@ -78,6 +78,7 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "*",
+                    "buckets",
                     "plans",
                     "tasks"
                   ],
@@ -99,95 +100,35 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
-              "description": "Retrieved navigation property",
+              "description": "Retrieved entity",
               "content": {
                 "application/json": {
                   "schema": {
                     "either": {
                       "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.plannerUser"
+                        "$ref": "#/components/schemas/microsoft.graph.planner"
                       }
                     }
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "delete": {
-      "tags": [
-        "users.plannerUser"
-      ],
-      "summary": "Delete navigation property planner for users",
-      "operationId": "users.DeletePlanner",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "If-Match",
-              "in": "header",
-              "description": "ETag",
-              "required": false,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -196,49 +137,20 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.planner"
       ],
-      "summary": "Update the navigation property planner in users",
-      "operationId": "users.UpdatePlanner",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "If-Match",
-              "in": "header",
-              "description": "ETag value.",
-              "required": true,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
+      "summary": "Update planner",
+      "operationId": "planner.planner.UpdatePlanner",
       "requestBody": {
         "either": {
           "Left": {
-            "description": "New navigation property values",
+            "description": "New property values",
             "content": {
               "application/json": {
                 "schema": {
                   "either": {
                     "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.plannerUser"
+                      "$ref": "#/components/schemas/microsoft.graph.planner"
                     }
                   }
                 }
@@ -272,7 +184,7 @@
                   "schema": {
                     "either": {
                       "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.plannerUser"
+                        "$ref": "#/components/schemas/microsoft.graph.planner"
                       }
                     }
                   }
@@ -283,37 +195,7 @@
         }
       },
       "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      }
-    ]
+    }
   },
   "/planner/buckets": {
     "description": "Provides operations to manage the buckets property of the microsoft.graph.planner entity.",
@@ -617,17 +499,17 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -743,20 +625,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -772,6 +640,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -821,14 +703,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -893,13 +775,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -922,6 +797,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1208,13 +1090,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Right": {
@@ -1223,6 +1098,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1258,20 +1140,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -1287,6 +1155,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1353,17 +1235,17 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1526,6 +1408,20 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -1541,20 +1437,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1597,13 +1479,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -1615,6 +1490,13 @@
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1647,20 +1529,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -1676,6 +1544,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1843,20 +1725,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -1872,6 +1740,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1997,14 +1879,14 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2192,6 +2074,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2214,13 +2103,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2263,6 +2145,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -2271,13 +2160,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2544,6 +2426,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2566,13 +2455,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2615,6 +2497,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -2623,13 +2512,6 @@
           }
         },
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2698,7 +2580,7 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2723,7 +2605,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2911,14 +2793,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2971,17 +2853,17 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3047,6 +2929,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -3062,13 +2951,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -3142,18 +3024,18 @@
     ]
   },
   "/planner/plans": {
-    "description": "Provides operations to manage the plans property of the microsoft.graph.plannerUser entity.",
+    "description": "Provides operations to manage the plans property of the microsoft.graph.planner entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "List plans",
-      "description": "Retrieve a list of **plannerplan** objects shared with a user object.",
+      "description": "Retrieve a list of **plannerplan** objects.",
       "externalDocs": {
         "description": "Find more info here",
-        "url": "https://docs.microsoft.com/graph/api/planneruser-list-plans?view=graph-rest-1.0"
+        "url": "https://docs.microsoft.com/graph/api/planner-list-plans?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.ListPlans",
+      "operationId": "planner.ListPlans",
       "parameters": [
         {
           "either": {
@@ -3340,6 +3222,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.plannerPlanCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -3353,23 +3242,21 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.plannerPlanCollectionResponse"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "post": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Create new navigation property to plans for users",
-      "operationId": "users.planner.CreatePlans",
+      "summary": "Create plannerPlan",
+      "description": "Use this API to create a new **plannerPlan**.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/planner-post-plans?view=graph-rest-1.0"
+      },
+      "operationId": "planner.CreatePlans",
       "requestBody": {
         "either": {
           "Left": {
@@ -3397,6 +3284,13 @@
             }
           }
         },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -3414,53 +3308,16 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      }
-    ]
+    }
   },
   "/planner/plans/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.plans-b724",
+      "operationId": "Get.Count.plans-e322",
       "parameters": [
         {
           "either": {
@@ -3485,14 +3342,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3501,47 +3358,17 @@
         }
       },
       "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      }
-    ]
+    }
   },
   "/planner/plans/{plannerPlan-id}": {
-    "description": "Provides operations to manage the plans property of the microsoft.graph.plannerUser entity.",
+    "description": "Provides operations to manage the plans property of the microsoft.graph.planner entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Get plans from users",
-      "description": "Read-only. Nullable. Returns the plannerTasks assigned to the user.",
-      "operationId": "users.planner.GetPlans",
+      "summary": "Get plans from planner",
+      "description": "Read-only. Nullable. Returns a collection of the specified plans",
+      "operationId": "planner.GetPlans",
       "parameters": [
         {
           "either": {
@@ -3640,13 +3467,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -3671,16 +3491,23 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property plans for users",
-      "operationId": "users.planner.DeletePlans",
+      "summary": "Delete navigation property plans for planner",
+      "operationId": "planner.DeletePlans",
       "parameters": [
         {
           "either": {
@@ -3711,13 +3538,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -3731,16 +3551,23 @@
               "description": "Success"
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property plans in users",
-      "operationId": "users.planner.UpdatePlans",
+      "summary": "Update the navigation property plans in planner",
+      "operationId": "planner.UpdatePlans",
       "requestBody": {
         "either": {
           "Left": {
@@ -3768,6 +3595,13 @@
             }
           }
         },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -3785,46 +3619,11 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -3859,7 +3658,7 @@
     "description": "Provides operations to manage the buckets property of the microsoft.graph.plannerPlan entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "List buckets",
       "description": "Retrieve a list of plannerBucket objects contained by a plannerPlan object.",
@@ -3867,7 +3666,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerplan-list-buckets?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.ListBuckets",
+      "operationId": "planner.plans.ListBuckets",
       "parameters": [
         {
           "either": {
@@ -4051,17 +3850,17 @@
             }
           }
         },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.plannerBucketCollectionResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.plannerBucketCollectionResponse"
             }
           }
         }
@@ -4070,10 +3869,10 @@
     },
     "post": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Create new navigation property to buckets for users",
-      "operationId": "users.planner.plans.CreateBuckets",
+      "summary": "Create new navigation property to buckets for planner",
+      "operationId": "planner.plans.CreateBuckets",
       "requestBody": {
         "either": {
           "Left": {
@@ -4094,6 +3893,13 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -4118,46 +3924,11 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -4192,7 +3963,7 @@
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.buckets-f7f0",
+      "operationId": "Get.Count.buckets-240a",
       "parameters": [
         {
           "either": {
@@ -4238,34 +4009,6 @@
       {
         "either": {
           "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
-      {
-        "either": {
-          "Left": {
             "name": "plannerPlan-id",
             "in": "path",
             "description": "The unique identifier of plannerPlan",
@@ -4297,11 +4040,11 @@
     "description": "Provides operations to manage the buckets property of the microsoft.graph.plannerPlan entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Get buckets from users",
+      "summary": "Get buckets from planner",
       "description": "Read-only. Nullable. Collection of buckets in the plan.",
-      "operationId": "users.planner.plans.GetBuckets",
+      "operationId": "planner.plans.GetBuckets",
       "parameters": [
         {
           "either": {
@@ -4431,10 +4174,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property buckets for users",
-      "operationId": "users.planner.plans.DeleteBuckets",
+      "summary": "Delete navigation property buckets for planner",
+      "operationId": "planner.plans.DeleteBuckets",
       "parameters": [
         {
           "either": {
@@ -4465,6 +4208,13 @@
         }
       ],
       "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -4478,23 +4228,16 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property buckets in users",
-      "operationId": "users.planner.plans.UpdateBuckets",
+      "summary": "Update the navigation property buckets in planner",
+      "operationId": "planner.plans.UpdateBuckets",
       "requestBody": {
         "either": {
           "Left": {
@@ -4515,6 +4258,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -4539,46 +4289,11 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -4641,7 +4356,7 @@
     "description": "Provides operations to manage the tasks property of the microsoft.graph.plannerBucket entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "List tasks",
       "description": "Retrieve a list of plannerTask objects associated to a plannerBucket object.",
@@ -4649,7 +4364,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerbucket-list-tasks?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.ListTasks",
+      "operationId": "planner.plans.buckets.ListTasks",
       "parameters": [
         {
           "either": {
@@ -4893,14 +4608,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4912,10 +4627,10 @@
     },
     "post": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Create new navigation property to tasks for users",
-      "operationId": "users.planner.plans.buckets.CreateTasks",
+      "summary": "Create new navigation property to tasks for planner",
+      "operationId": "planner.plans.buckets.CreateTasks",
       "requestBody": {
         "either": {
           "Left": {
@@ -4936,6 +4651,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -4960,46 +4682,11 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -5062,7 +4749,7 @@
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.tasks-de1b",
+      "operationId": "Get.Count.tasks-8a6a",
       "parameters": [
         {
           "either": {
@@ -5105,34 +4792,6 @@
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -5195,11 +4854,11 @@
     "description": "Provides operations to manage the tasks property of the microsoft.graph.plannerBucket entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Get tasks from users",
+      "summary": "Get tasks from planner",
       "description": "Read-only. Nullable. The collection of tasks in the bucket.",
-      "operationId": "users.planner.plans.buckets.GetTasks",
+      "operationId": "planner.plans.buckets.GetTasks",
       "parameters": [
         {
           "either": {
@@ -5316,20 +4975,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -5347,16 +4992,30 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property tasks for users",
-      "operationId": "users.planner.plans.buckets.DeleteTasks",
+      "summary": "Delete navigation property tasks for planner",
+      "operationId": "planner.plans.buckets.DeleteTasks",
       "parameters": [
         {
           "either": {
@@ -5387,6 +5046,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -5400,23 +5066,16 @@
               "description": "Success"
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property tasks in users",
-      "operationId": "users.planner.plans.buckets.UpdateTasks",
+      "summary": "Update the navigation property tasks in planner",
+      "operationId": "planner.plans.buckets.UpdateTasks",
       "requestBody": {
         "either": {
           "Left": {
@@ -5437,6 +5096,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -5461,46 +5127,11 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -5591,7 +5222,7 @@
     "description": "Provides operations to manage the assignedToTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerAssignedToTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of a **plannerAssignedToTaskBoardTaskFormat** object.",
@@ -5599,7 +5230,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerassignedtotaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.tasks.GetAssignedToTaskBoardFormat",
+      "operationId": "planner.plans.buckets.tasks.GetAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -5707,14 +5338,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5726,10 +5357,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property assignedToTaskBoardFormat for users",
-      "operationId": "users.planner.plans.buckets.tasks.DeleteAssignedToTaskBoardFormat",
+      "summary": "Delete navigation property assignedToTaskBoardFormat for planner",
+      "operationId": "planner.plans.buckets.tasks.DeleteAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -5760,10 +5391,10 @@
         }
       ],
       "responses": {
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -5774,10 +5405,10 @@
             }
           }
         },
-        "5XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -5786,14 +5417,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property assignedToTaskBoardFormat in users",
+      "summary": "Update the navigation property assignedToTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerassignedtotaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.tasks.UpdateAssignedToTaskBoardFormat",
+      "operationId": "planner.plans.buckets.tasks.UpdateAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -5850,13 +5481,6 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -5874,39 +5498,18 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -5997,7 +5600,7 @@
     "description": "Provides operations to manage the bucketTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerBucketTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of **plannerBucketTaskBoardTaskFormat** object.",
@@ -6005,7 +5608,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerbuckettaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.tasks.GetBucketTaskBoardFormat",
+      "operationId": "planner.plans.buckets.tasks.GetBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -6094,20 +5697,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -6125,16 +5714,30 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property bucketTaskBoardFormat for users",
-      "operationId": "users.planner.plans.buckets.tasks.DeleteBucketTaskBoardFormat",
+      "summary": "Delete navigation property bucketTaskBoardFormat for planner",
+      "operationId": "planner.plans.buckets.tasks.DeleteBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -6165,13 +5768,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
@@ -6185,20 +5781,27 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property bucketTaskBoardFormat in users",
+      "summary": "Update the navigation property bucketTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerbuckettaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.tasks.UpdateBucketTaskBoardFormat",
+      "operationId": "planner.plans.buckets.tasks.UpdateBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -6248,6 +5851,20 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -6265,53 +5882,11 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -6402,7 +5977,7 @@
     "description": "Provides operations to manage the details property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerTaskDetails",
       "description": "Retrieve the properties and relationships of a **plannerTaskDetails** object.",
@@ -6410,7 +5985,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannertaskdetails-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.tasks.GetDetails",
+      "operationId": "planner.plans.buckets.tasks.GetDetails",
       "parameters": [
         {
           "either": {
@@ -6520,14 +6095,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -6539,10 +6114,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property details for users",
-      "operationId": "users.planner.plans.buckets.tasks.DeleteDetails",
+      "summary": "Delete navigation property details for planner",
+      "operationId": "planner.plans.buckets.tasks.DeleteDetails",
       "parameters": [
         {
           "either": {
@@ -6599,14 +6174,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property details in users",
+      "summary": "Update the navigation property details in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannertaskdetails-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.tasks.UpdateDetails",
+      "operationId": "planner.plans.buckets.tasks.UpdateDetails",
       "parameters": [
         {
           "either": {
@@ -6656,13 +6231,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -6687,39 +6255,18 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -6810,7 +6357,7 @@
     "description": "Provides operations to manage the progressTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerProgressTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of **plannerProgressTaskBoardTaskFormat** object.",
@@ -6818,7 +6365,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerprogresstaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.tasks.GetProgressTaskBoardFormat",
+      "operationId": "planner.plans.buckets.tasks.GetProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -6907,6 +6454,20 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -6924,30 +6485,16 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property progressTaskBoardFormat for users",
-      "operationId": "users.planner.plans.buckets.tasks.DeleteProgressTaskBoardFormat",
+      "summary": "Delete navigation property progressTaskBoardFormat for planner",
+      "operationId": "planner.plans.buckets.tasks.DeleteProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -6978,6 +6525,13 @@
         }
       ],
       "responses": {
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -6991,27 +6545,20 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property progressTaskBoardFormat in users",
+      "summary": "Update the navigation property progressTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerprogresstaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.buckets.tasks.UpdateProgressTaskBoardFormat",
+      "operationId": "planner.plans.buckets.tasks.UpdateProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -7097,34 +6644,6 @@
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -7215,7 +6734,7 @@
     "description": "Provides operations to manage the details property of the microsoft.graph.plannerPlan entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerPlanDetails",
       "description": "Retrieve the properties and relationships of a **plannerPlanDetails** object.",
@@ -7223,7 +6742,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerplandetails-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.GetDetails",
+      "operationId": "planner.plans.GetDetails",
       "parameters": [
         {
           "either": {
@@ -7313,13 +6832,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -7338,6 +6850,13 @@
             }
           }
         },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -7350,10 +6869,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property details for users",
-      "operationId": "users.planner.plans.DeleteDetails",
+      "summary": "Delete navigation property details for planner",
+      "operationId": "planner.plans.DeleteDetails",
       "parameters": [
         {
           "either": {
@@ -7384,7 +6903,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -7398,7 +6917,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -7410,14 +6929,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property details in users",
+      "summary": "Update the navigation property details in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerplandetails-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.UpdateDetails",
+      "operationId": "planner.plans.UpdateDetails",
       "parameters": [
         {
           "either": {
@@ -7467,20 +6986,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -7498,39 +7003,25 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -7565,7 +7056,7 @@
     "description": "Provides operations to manage the tasks property of the microsoft.graph.plannerPlan entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "List tasks",
       "description": "Retrieve a list of plannerTask objects associated with a plannerPlan object.",
@@ -7573,7 +7064,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerplan-list-tasks?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.ListTasks",
+      "operationId": "planner.plans.ListTasks",
       "parameters": [
         {
           "either": {
@@ -7810,17 +7301,17 @@
         }
       ],
       "responses": {
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.plannerTaskCollectionResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.plannerTaskCollectionResponse"
             }
           }
         },
@@ -7836,10 +7327,10 @@
     },
     "post": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Create new navigation property to tasks for users",
-      "operationId": "users.planner.plans.CreateTasks",
+      "summary": "Create new navigation property to tasks for planner",
+      "operationId": "planner.plans.CreateTasks",
       "requestBody": {
         "either": {
           "Left": {
@@ -7860,6 +7351,20 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -7877,53 +7382,11 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -7958,7 +7421,7 @@
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.tasks-082b",
+      "operationId": "Get.Count.tasks-09d1",
       "parameters": [
         {
           "either": {
@@ -7976,17 +7439,17 @@
         }
       ],
       "responses": {
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -8001,34 +7464,6 @@
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -8063,11 +7498,11 @@
     "description": "Provides operations to manage the tasks property of the microsoft.graph.plannerPlan entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Get tasks from users",
+      "summary": "Get tasks from planner",
       "description": "Read-only. Nullable. Collection of tasks in the plan.",
-      "operationId": "users.planner.plans.GetTasks",
+      "operationId": "planner.plans.GetTasks",
       "parameters": [
         {
           "either": {
@@ -8184,6 +7619,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -8208,23 +7650,16 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property tasks for users",
-      "operationId": "users.planner.plans.DeleteTasks",
+      "summary": "Delete navigation property tasks for planner",
+      "operationId": "planner.plans.DeleteTasks",
       "parameters": [
         {
           "either": {
@@ -8255,7 +7690,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -8269,7 +7704,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -8281,10 +7716,10 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property tasks in users",
-      "operationId": "users.planner.plans.UpdateTasks",
+      "summary": "Update the navigation property tasks in planner",
+      "operationId": "planner.plans.UpdateTasks",
       "requestBody": {
         "either": {
           "Left": {
@@ -8312,6 +7747,13 @@
             }
           }
         },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -8329,46 +7771,11 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -8431,7 +7838,7 @@
     "description": "Provides operations to manage the assignedToTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerAssignedToTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of a **plannerAssignedToTaskBoardTaskFormat** object.",
@@ -8439,7 +7846,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerassignedtotaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.tasks.GetAssignedToTaskBoardFormat",
+      "operationId": "planner.plans.tasks.GetAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -8547,14 +7954,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -8566,10 +7973,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property assignedToTaskBoardFormat for users",
-      "operationId": "users.planner.plans.tasks.DeleteAssignedToTaskBoardFormat",
+      "summary": "Delete navigation property assignedToTaskBoardFormat for planner",
+      "operationId": "planner.plans.tasks.DeleteAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -8600,6 +8007,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -8613,27 +8027,20 @@
               "description": "Success"
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property assignedToTaskBoardFormat in users",
+      "summary": "Update the navigation property assignedToTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerassignedtotaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.tasks.UpdateAssignedToTaskBoardFormat",
+      "operationId": "planner.plans.tasks.UpdateAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -8722,34 +8129,6 @@
       {
         "either": {
           "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
-      {
-        "either": {
-          "Left": {
             "name": "plannerPlan-id",
             "in": "path",
             "description": "The unique identifier of plannerPlan",
@@ -8809,7 +8188,7 @@
     "description": "Provides operations to manage the bucketTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerBucketTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of **plannerBucketTaskBoardTaskFormat** object.",
@@ -8817,7 +8196,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerbuckettaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.tasks.GetBucketTaskBoardFormat",
+      "operationId": "planner.plans.tasks.GetBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -8943,10 +8322,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property bucketTaskBoardFormat for users",
-      "operationId": "users.planner.plans.tasks.DeleteBucketTaskBoardFormat",
+      "summary": "Delete navigation property bucketTaskBoardFormat for planner",
+      "operationId": "planner.plans.tasks.DeleteBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -8984,14 +8363,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -9003,14 +8382,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property bucketTaskBoardFormat in users",
+      "summary": "Update the navigation property bucketTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerbuckettaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.tasks.UpdateBucketTaskBoardFormat",
+      "operationId": "planner.plans.tasks.UpdateBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -9060,6 +8439,20 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -9077,53 +8470,11 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -9186,7 +8537,7 @@
     "description": "Provides operations to manage the details property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerTaskDetails",
       "description": "Retrieve the properties and relationships of a **plannerTaskDetails** object.",
@@ -9194,7 +8545,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannertaskdetails-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.tasks.GetDetails",
+      "operationId": "planner.plans.tasks.GetDetails",
       "parameters": [
         {
           "either": {
@@ -9286,6 +8637,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -9310,23 +8668,16 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property details for users",
-      "operationId": "users.planner.plans.tasks.DeleteDetails",
+      "summary": "Delete navigation property details for planner",
+      "operationId": "planner.plans.tasks.DeleteDetails",
       "parameters": [
         {
           "either": {
@@ -9357,7 +8708,7 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -9371,7 +8722,7 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -9383,14 +8734,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property details in users",
+      "summary": "Update the navigation property details in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannertaskdetails-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.tasks.UpdateDetails",
+      "operationId": "planner.plans.tasks.UpdateDetails",
       "parameters": [
         {
           "either": {
@@ -9440,6 +8791,13 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -9464,46 +8822,11 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -9566,7 +8889,7 @@
     "description": "Provides operations to manage the progressTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
       "summary": "Get plannerProgressTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of **plannerProgressTaskBoardTaskFormat** object.",
@@ -9574,7 +8897,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerprogresstaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.tasks.GetProgressTaskBoardFormat",
+      "operationId": "planner.plans.tasks.GetProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -9663,20 +8986,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -9694,16 +9003,30 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Delete navigation property progressTaskBoardFormat for users",
-      "operationId": "users.planner.plans.tasks.DeleteProgressTaskBoardFormat",
+      "summary": "Delete navigation property progressTaskBoardFormat for planner",
+      "operationId": "planner.plans.tasks.DeleteProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -9760,14 +9083,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerPlan"
       ],
-      "summary": "Update the navigation property progressTaskBoardFormat in users",
+      "summary": "Update the navigation property progressTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerprogresstaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.plans.tasks.UpdateProgressTaskBoardFormat",
+      "operationId": "planner.plans.tasks.UpdateProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -9817,14 +9140,14 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -9853,34 +9176,6 @@
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -9940,18 +9235,18 @@
     ]
   },
   "/planner/tasks": {
-    "description": "Provides operations to manage the tasks property of the microsoft.graph.plannerUser entity.",
+    "description": "Provides operations to manage the tasks property of the microsoft.graph.planner entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
       "summary": "List tasks",
-      "description": "Retrieve a list of **plannertask** objects assigned to a User.",
+      "description": "Retrieve a list of **plannertask** objects.",
       "externalDocs": {
         "description": "Find more info here",
-        "url": "https://docs.microsoft.com/graph/api/planneruser-list-tasks?view=graph-rest-1.0"
+        "url": "https://docs.microsoft.com/graph/api/planner-list-tasks?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.ListTasks",
+      "operationId": "planner.ListTasks",
       "parameters": [
         {
           "either": {
@@ -10214,10 +9509,15 @@
     },
     "post": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Create new navigation property to tasks for users",
-      "operationId": "users.planner.CreateTasks",
+      "summary": "Create plannerTask",
+      "description": "Create a new **plannerTask**.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/planner-post-tasks?view=graph-rest-1.0"
+      },
+      "operationId": "planner.CreateTasks",
       "requestBody": {
         "either": {
           "Left": {
@@ -10272,43 +9572,13 @@
         }
       },
       "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      }
-    ]
+    }
   },
   "/planner/tasks/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.tasks-8740",
+      "operationId": "Get.Count.tasks-bfd2",
       "parameters": [
         {
           "either": {
@@ -10349,47 +9619,17 @@
         }
       },
       "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      }
-    ]
+    }
   },
   "/planner/tasks/{plannerTask-id}": {
-    "description": "Provides operations to manage the tasks property of the microsoft.graph.plannerUser entity.",
+    "description": "Provides operations to manage the tasks property of the microsoft.graph.planner entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Get tasks from users",
-      "description": "Read-only. Nullable. Returns the plannerPlans shared with the user.",
-      "operationId": "users.planner.GetTasks",
+      "summary": "Get tasks from planner",
+      "description": "Read-only. Nullable. Returns a collection of the specified tasks",
+      "operationId": "planner.GetTasks",
       "parameters": [
         {
           "either": {
@@ -10506,7 +9746,7 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -10531,7 +9771,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -10543,10 +9783,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Delete navigation property tasks for users",
-      "operationId": "users.planner.DeleteTasks",
+      "summary": "Delete navigation property tasks for planner",
+      "operationId": "planner.DeleteTasks",
       "parameters": [
         {
           "either": {
@@ -10603,10 +9843,39 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Update the navigation property tasks in users",
-      "operationId": "users.planner.UpdateTasks",
+      "summary": "Update the navigation property tasks in planner",
+      "operationId": "planner.UpdateTasks",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag value.",
+              "required": true,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
       "requestBody": {
         "either": {
           "Left": {
@@ -10666,34 +9935,6 @@
       {
         "either": {
           "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
-      {
-        "either": {
-          "Left": {
             "name": "plannerTask-id",
             "in": "path",
             "description": "The unique identifier of plannerTask",
@@ -10725,7 +9966,7 @@
     "description": "Provides operations to manage the assignedToTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
       "summary": "Get plannerAssignedToTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of a **plannerAssignedToTaskBoardTaskFormat** object.",
@@ -10733,7 +9974,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerassignedtotaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.tasks.GetAssignedToTaskBoardFormat",
+      "operationId": "planner.tasks.GetAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -10860,10 +10101,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Delete navigation property assignedToTaskBoardFormat for users",
-      "operationId": "users.planner.tasks.DeleteAssignedToTaskBoardFormat",
+      "summary": "Delete navigation property assignedToTaskBoardFormat for planner",
+      "operationId": "planner.tasks.DeleteAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -10894,17 +10135,17 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -10920,14 +10161,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Update the navigation property assignedToTaskBoardFormat in users",
+      "summary": "Update the navigation property assignedToTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerassignedtotaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.tasks.UpdateAssignedToTaskBoardFormat",
+      "operationId": "planner.tasks.UpdateAssignedToTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -10977,13 +10218,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -11008,39 +10242,18 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -11075,7 +10288,7 @@
     "description": "Provides operations to manage the bucketTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
       "summary": "Get plannerBucketTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of **plannerBucketTaskBoardTaskFormat** object.",
@@ -11083,7 +10296,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerbuckettaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.tasks.GetBucketTaskBoardFormat",
+      "operationId": "planner.tasks.GetBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -11172,13 +10385,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -11197,6 +10403,13 @@
             }
           }
         },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -11209,10 +10422,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Delete navigation property bucketTaskBoardFormat for users",
-      "operationId": "users.planner.tasks.DeleteBucketTaskBoardFormat",
+      "summary": "Delete navigation property bucketTaskBoardFormat for planner",
+      "operationId": "planner.tasks.DeleteBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -11250,14 +10463,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -11269,14 +10482,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Update the navigation property bucketTaskBoardFormat in users",
+      "summary": "Update the navigation property bucketTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerbuckettaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.tasks.UpdateBucketTaskBoardFormat",
+      "operationId": "planner.tasks.UpdateBucketTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -11326,20 +10539,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -11357,39 +10556,25 @@
               }
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {
@@ -11424,7 +10609,7 @@
     "description": "Provides operations to manage the details property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
       "summary": "Get plannerTaskDetails",
       "description": "Retrieve the properties and relationships of a **plannerTaskDetails** object.",
@@ -11432,7 +10617,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannertaskdetails-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.tasks.GetDetails",
+      "operationId": "planner.tasks.GetDetails",
       "parameters": [
         {
           "either": {
@@ -11524,14 +10709,14 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -11561,10 +10746,10 @@
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Delete navigation property details for users",
-      "operationId": "users.planner.tasks.DeleteDetails",
+      "summary": "Delete navigation property details for planner",
+      "operationId": "planner.tasks.DeleteDetails",
       "parameters": [
         {
           "either": {
@@ -11595,13 +10780,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
@@ -11615,20 +10793,27 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Update the navigation property details in users",
+      "summary": "Update the navigation property details in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannertaskdetails-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.tasks.UpdateDetails",
+      "operationId": "planner.tasks.UpdateDetails",
       "parameters": [
         {
           "either": {
@@ -11717,34 +10902,6 @@
       {
         "either": {
           "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
-      {
-        "either": {
-          "Left": {
             "name": "plannerTask-id",
             "in": "path",
             "description": "The unique identifier of plannerTask",
@@ -11776,7 +10933,7 @@
     "description": "Provides operations to manage the progressTaskBoardFormat property of the microsoft.graph.plannerTask entity.",
     "get": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
       "summary": "Get plannerProgressTaskBoardTaskFormat",
       "description": "Retrieve the properties and relationships of **plannerProgressTaskBoardTaskFormat** object.",
@@ -11784,7 +10941,7 @@
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerprogresstaskboardtaskformat-get?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.tasks.GetProgressTaskBoardFormat",
+      "operationId": "planner.tasks.GetProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -11873,13 +11030,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -11904,16 +11054,23 @@
               }
             }
           }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
     },
     "delete": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Delete navigation property progressTaskBoardFormat for users",
-      "operationId": "users.planner.tasks.DeleteProgressTaskBoardFormat",
+      "summary": "Delete navigation property progressTaskBoardFormat for planner",
+      "operationId": "planner.tasks.DeleteProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -11970,14 +11127,14 @@
     },
     "patch": {
       "tags": [
-        "users.plannerUser"
+        "planner.plannerTask"
       ],
-      "summary": "Update the navigation property progressTaskBoardFormat in users",
+      "summary": "Update the navigation property progressTaskBoardFormat in planner",
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://docs.microsoft.com/graph/api/plannerprogresstaskboardtaskformat-update?view=graph-rest-1.0"
       },
-      "operationId": "users.planner.tasks.UpdateProgressTaskBoardFormat",
+      "operationId": "planner.tasks.UpdateProgressTaskBoardFormat",
       "parameters": [
         {
           "either": {
@@ -12063,34 +11220,6 @@
       "deprecated": false
     },
     "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      },
       {
         "either": {
           "Left": {

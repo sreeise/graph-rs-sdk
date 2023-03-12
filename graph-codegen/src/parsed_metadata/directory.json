@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "directory.directory.GetDirectory",
-        "operation_mapping": "directory.directory",
-        "http_method": "GET",
-        "doc": "Get directory",
+        "operation_id": "directory.directory.UpdateDirectory",
+        "operation_mapping": "directory",
+        "http_method": "PATCH",
+        "doc": "Update directory",
         "parent": "Directory",
         "original_parent": "Directory",
         "resource_identity": "Directory"
       },
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "directory.directory.UpdateDirectory",
-        "operation_mapping": "directory.directory",
-        "http_method": "PATCH",
-        "doc": "Update directory",
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "directory.directory.GetDirectory",
+        "operation_mapping": "directory",
+        "http_method": "GET",
+        "doc": "Get directory",
         "parent": "Directory",
         "original_parent": "Directory",
         "resource_identity": "Directory"
@@ -76,14 +76,14 @@
     ]
   },
   {
-    "path": "/directory/federationConfigurations/microsoft.graph.availableProviderTypes()",
+    "path": "/directory/federationConfigurations/availableProviderTypes()",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "directory.GetFederationConfigurationsAvailableProviderTypes",
+        "operation_id": "directory.federationConfigurations.availableProviderTypes",
         "operation_mapping": "directory",
         "http_method": "GET",
         "doc": "Invoke function availableProviderTypes",
@@ -113,7 +113,7 @@
       },
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "directory.UpdateFederationConfigurations",
         "operation_mapping": "directory",
         "http_method": "PATCH",
@@ -129,6 +129,95 @@
         "operation_mapping": "directory",
         "http_method": "DELETE",
         "doc": "Delete navigation property federationConfigurations for directory",
+        "parent": "Directory",
+        "original_parent": "Directory",
+        "resource_identity": "Directory"
+      }
+    ]
+  },
+  {
+    "path": "/directory/onPremisesSynchronization",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "directory.ListOnPremisesSynchronization",
+        "operation_mapping": "directory",
+        "http_method": "GET",
+        "doc": "Get onPremisesSynchronization from directory",
+        "parent": "Directory",
+        "original_parent": "Directory",
+        "resource_identity": "Directory"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "directory.CreateOnPremisesSynchronization",
+        "operation_mapping": "directory",
+        "http_method": "POST",
+        "doc": "Create new navigation property to onPremisesSynchronization for directory",
+        "parent": "Directory",
+        "original_parent": "Directory",
+        "resource_identity": "Directory"
+      }
+    ]
+  },
+  {
+    "path": "/directory/onPremisesSynchronization/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.onPremisesSynchronization-df9d",
+        "operation_mapping": "directory",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Directory",
+        "original_parent": "Get",
+        "resource_identity": "Directory"
+      }
+    ]
+  },
+  {
+    "path": "/directory/onPremisesSynchronization/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "on_premises_directory_synchronization_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "directory.GetOnPremisesSynchronization",
+        "operation_mapping": "directory",
+        "http_method": "GET",
+        "doc": "Get onPremisesSynchronization from directory",
+        "parent": "Directory",
+        "original_parent": "Directory",
+        "resource_identity": "Directory"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "directory.UpdateOnPremisesSynchronization",
+        "operation_mapping": "directory",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property onPremisesSynchronization in directory",
+        "parent": "Directory",
+        "original_parent": "Directory",
+        "resource_identity": "Directory"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "directory.DeleteOnPremisesSynchronization",
+        "operation_mapping": "directory",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property onPremisesSynchronization for directory",
         "parent": "Directory",
         "original_parent": "Directory",
         "resource_identity": "Directory"

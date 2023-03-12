@@ -73,6 +73,17 @@
     "metadata": [
       {
         "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.outlook.DeleteMasterCategories",
+        "operation_mapping": "outlook",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property masterCategories for users",
+        "parent": "Outlook",
+        "original_parent": "Outlook",
+        "resource_identity": "Outlook"
+      },
+      {
+        "has_body": false,
         "request_task": "Json",
         "operation_id": "users.outlook.GetMasterCategories",
         "operation_mapping": "outlook",
@@ -89,17 +100,6 @@
         "operation_mapping": "outlook",
         "http_method": "PATCH",
         "doc": "Update the navigation property masterCategories in users",
-        "parent": "Outlook",
-        "original_parent": "Outlook",
-        "resource_identity": "Outlook"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.outlook.DeleteMasterCategories",
-        "operation_mapping": "outlook",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property masterCategories for users",
         "parent": "Outlook",
         "original_parent": "Outlook",
         "resource_identity": "Outlook"

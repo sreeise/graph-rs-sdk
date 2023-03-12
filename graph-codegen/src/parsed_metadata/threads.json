@@ -52,20 +52,9 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.threads.UpdateThreads",
-        "operation_mapping": "GroupsThreadsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property threads in groups",
-        "parent": "GroupsThreadsId",
-        "original_parent": "GroupsThreads",
-        "resource_identity": "GroupsThreads"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "groups.threads.GetThreads",
+        "operation_id": "groups.GetThreads",
         "operation_mapping": "GroupsThreadsId",
         "http_method": "GET",
         "doc": "Get threads from groups",
@@ -83,21 +72,14 @@
         "parent": "GroupsThreadsId",
         "original_parent": "GroupsThreads",
         "resource_identity": "GroupsThreads"
-      }
-    ]
-  },
-  {
-    "path": "/threads/{{RID}}/posts",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
+      },
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "groups.threads.ListPosts",
+        "operation_id": "groups.UpdateThreads",
         "operation_mapping": "GroupsThreadsId",
-        "http_method": "GET",
-        "doc": "Get post",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property threads in groups",
         "parent": "GroupsThreadsId",
         "original_parent": "GroupsThreads",
         "resource_identity": "GroupsThreads"

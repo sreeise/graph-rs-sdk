@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.ListJoinedTeams",
-        "operation_mapping": "joinedTeams",
-        "http_method": "GET",
-        "doc": "List joinedTeams",
-        "parent": "JoinedTeams",
-        "original_parent": "JoinedTeams",
-        "resource_identity": "JoinedTeams"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.CreateJoinedTeams",
         "operation_mapping": "joinedTeams",
         "http_method": "POST",
         "doc": "Create new navigation property to joinedTeams for users",
+        "parent": "JoinedTeams",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListJoinedTeams",
+        "operation_mapping": "joinedTeams",
+        "http_method": "GET",
+        "doc": "List joinedTeams",
         "parent": "JoinedTeams",
         "original_parent": "JoinedTeams",
         "resource_identity": "JoinedTeams"
@@ -70,12 +70,12 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.DeleteJoinedTeams",
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateJoinedTeams",
         "operation_mapping": "JoinedTeamsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property joinedTeams for users",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property joinedTeams in users",
         "parent": "JoinedTeamsId",
         "original_parent": "JoinedTeams",
         "resource_identity": "JoinedTeams"
@@ -92,12 +92,12 @@
         "resource_identity": "JoinedTeams"
       },
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.UpdateJoinedTeams",
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteJoinedTeams",
         "operation_mapping": "JoinedTeamsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property joinedTeams in users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property joinedTeams for users",
         "parent": "JoinedTeamsId",
         "original_parent": "JoinedTeams",
         "resource_identity": "JoinedTeams"
@@ -344,17 +344,6 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.joinedTeams.DeleteInstalledApps",
-        "operation_mapping": "JoinedTeamsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property installedApps for users",
-        "parent": "JoinedTeamsId",
-        "original_parent": "JoinedTeams",
-        "resource_identity": "JoinedTeams"
-      },
-      {
-        "has_body": false,
         "request_task": "Json",
         "operation_id": "users.joinedTeams.GetInstalledApps",
         "operation_mapping": "JoinedTeamsId",
@@ -371,6 +360,17 @@
         "operation_mapping": "JoinedTeamsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property installedApps in users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.joinedTeams.DeleteInstalledApps",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property installedApps for users",
         "parent": "JoinedTeamsId",
         "original_parent": "JoinedTeams",
         "resource_identity": "JoinedTeams"
@@ -511,22 +511,22 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.joinedTeams.DeleteMembers",
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetMembers",
         "operation_mapping": "JoinedTeamsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property members for users",
+        "http_method": "GET",
+        "doc": "Get members from users",
         "parent": "JoinedTeamsId",
         "original_parent": "JoinedTeams",
         "resource_identity": "JoinedTeams"
       },
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.joinedTeams.GetMembers",
+        "request_task": "NoContent",
+        "operation_id": "users.joinedTeams.DeleteMembers",
         "operation_mapping": "JoinedTeamsId",
-        "http_method": "GET",
-        "doc": "Get members from users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property members for users",
         "parent": "JoinedTeamsId",
         "original_parent": "JoinedTeams",
         "resource_identity": "JoinedTeams"
@@ -639,17 +639,6 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.joinedTeams.GetPhoto",
-        "operation_mapping": "JoinedTeamsId",
-        "http_method": "GET",
-        "doc": "Get photo from users",
-        "parent": "JoinedTeamsId",
-        "original_parent": "JoinedTeams",
-        "resource_identity": "JoinedTeams"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.joinedTeams.UpdatePhoto",
@@ -667,6 +656,17 @@
         "operation_mapping": "JoinedTeamsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property photo for users",
+        "parent": "JoinedTeamsId",
+        "original_parent": "JoinedTeams",
+        "resource_identity": "JoinedTeams"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.GetPhoto",
+        "operation_mapping": "JoinedTeamsId",
+        "http_method": "GET",
+        "doc": "Get photo from users",
         "parent": "JoinedTeamsId",
         "original_parent": "JoinedTeams",
         "resource_identity": "JoinedTeams"

@@ -59,23 +59,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.GetPhotosContent",
-        "operation_mapping": "PhotosId",
-        "http_method": "GET",
-        "doc": "Get media content for the navigation property photos from users",
-        "parent": "PhotosId",
-        "original_parent": "Photos",
-        "resource_identity": "Photos"
-      },
-      {
         "has_body": true,
         "request_task": "NoContent",
         "operation_id": "users.UpdatePhotosContent",
         "operation_mapping": "PhotosId",
         "http_method": "PUT",
         "doc": "Update media content for the navigation property photos in users",
+        "parent": "PhotosId",
+        "original_parent": "Photos",
+        "resource_identity": "Photos"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.GetPhotosContent",
+        "operation_mapping": "PhotosId",
+        "http_method": "GET",
+        "doc": "Get media content for the navigation property photos from users",
         "parent": "PhotosId",
         "original_parent": "Photos",
         "resource_identity": "Photos"

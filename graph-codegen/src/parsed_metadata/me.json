@@ -6,311 +6,849 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "education.DeleteMe",
-        "operation_mapping": "me",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property me for education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
-      },
-      {
-        "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.GetMe",
+        "operation_id": "me.user.GetUser",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "Get me from education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "List manager",
+        "parent": "Me",
+        "original_parent": "User",
+        "resource_identity": "Me"
       },
       {
         "has_body": true,
         "request_task": "Json",
-        "operation_id": "education.UpdateMe",
+        "operation_id": "me.user.UpdateUser",
         "operation_mapping": "me",
         "http_method": "PATCH",
-        "doc": "Update the navigation property me in education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Update user",
+        "parent": "Me",
+        "original_parent": "User",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/classes",
+    "path": "/me/agreementAcceptances",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.me.ListClasses",
+        "operation_id": "me.ListAgreementAcceptances",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "List classes of an educationUser",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "List agreementAcceptances",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/classes/$count",
+    "path": "/me/agreementAcceptances/$count",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "Get.Count.classes-94ca",
+        "operation_id": "Get.Count.agreementAcceptances-dea5",
         "operation_mapping": "me",
         "http_method": "GET",
         "doc": "Get the number of the resource",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "parent": "Me",
+        "original_parent": "Get",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/classes/{{id}}",
+    "path": "/me/agreementAcceptances/{{id}}",
     "param_size": 1,
     "parameters": [
-      "education_class_id"
+      "agreement_acceptance_id"
     ],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.me.GetClasses",
+        "operation_id": "me.GetAgreementAcceptances",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "Get classes from education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Get agreementAcceptances from me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/rubrics",
+    "path": "/me/assignLicense",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": true,
         "request_task": "Json",
-        "operation_id": "education.me.CreateRubrics",
+        "operation_id": "me.assignLicense",
         "operation_mapping": "me",
         "http_method": "POST",
-        "doc": "Create educationRubric",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "education.me.ListRubrics",
-        "operation_mapping": "me",
-        "http_method": "GET",
-        "doc": "List rubrics",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Invoke action assignLicense",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/rubrics/$count",
+    "path": "/me/changePassword",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.rubrics-346e",
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.changePassword",
         "operation_mapping": "me",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "http_method": "POST",
+        "doc": "Invoke action changePassword",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/rubrics/{{id}}",
-    "param_size": 1,
-    "parameters": [
-      "education_rubric_id"
-    ],
+    "path": "/me/checkMemberGroups",
+    "param_size": 0,
+    "parameters": [],
     "metadata": [
       {
         "has_body": true,
         "request_task": "Json",
-        "operation_id": "education.me.UpdateRubrics",
+        "operation_id": "me.checkMemberGroups",
         "operation_mapping": "me",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property rubrics in education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberGroups",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/checkMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.checkMemberObjects",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberObjects",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/drive",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.GetDrive",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Get Drive",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/drives",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.ListDrives",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "List available drives",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/drives/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.drives-2023",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Me",
+        "original_parent": "Get",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/drives/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "drive_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.GetDrives",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Get drives from me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/exportDeviceAndAppManagementData()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.exportDeviceAndAppManagementData-1a02",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Invoke function exportDeviceAndAppManagementData",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/exportDeviceAndAppManagementData(skip={{id}},top={{id2}})",
+    "param_size": 2,
+    "parameters": [
+      "skip",
+      "top"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.exportDeviceAndAppManagementData-fd7c",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Invoke function exportDeviceAndAppManagementData",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/exportPersonalData",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.exportPersonalData",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action exportPersonalData",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/findMeetingTimes",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.findMeetingTimes",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action findMeetingTimes",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/getMailTips",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.getMailTips",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action getMailTips",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/getManagedAppDiagnosticStatuses()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.getManagedAppDiagnosticStatuses",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Invoke function getManagedAppDiagnosticStatuses",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/getManagedAppPolicies()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.getManagedAppPolicies",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Invoke function getManagedAppPolicies",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/getManagedDevicesWithAppFailures()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.getManagedDevicesWithAppFailures",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Invoke function getManagedDevicesWithAppFailures",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/getMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.getMemberGroups",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberGroups",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/getMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.getMemberObjects",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberObjects",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/manager",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.GetManager",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "List manager",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/manager/$ref",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.UpdateRefManager",
+        "operation_mapping": "me",
+        "http_method": "PUT",
+        "doc": "Update the ref of navigation property manager in me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       },
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.me.GetRubrics",
+        "operation_id": "me.GetRefManager",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "Get rubrics from education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "List manager",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       },
       {
         "has_body": false,
         "request_task": "NoContent",
-        "operation_id": "education.me.DeleteRubrics",
+        "operation_id": "me.DeleteRefManager",
         "operation_mapping": "me",
         "http_method": "DELETE",
-        "doc": "Delete navigation property rubrics for education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Delete ref of navigation property manager for me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/schools",
+    "path": "/me/people",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.me.ListSchools",
+        "operation_id": "me.ListPeople",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "List schools of an educationUser",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "List people",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/schools/$count",
+    "path": "/me/people/$count",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "Get.Count.schools-c9bf",
+        "operation_id": "Get.Count.people-eaef",
         "operation_mapping": "me",
         "http_method": "GET",
         "doc": "Get the number of the resource",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "parent": "Me",
+        "original_parent": "Count",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/schools/{{id}}",
+    "path": "/me/people/{{id}}",
     "param_size": 1,
     "parameters": [
-      "education_school_id"
+      "person_id"
     ],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.me.GetSchools",
+        "operation_id": "me.GetPeople",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "Get schools from education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Get people from me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/taughtClasses",
+    "path": "/me/photo",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.me.ListTaughtClasses",
+        "operation_id": "me.GetPhoto",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "List taughtClasses",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Get photo from me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.UpdatePhoto",
+        "operation_mapping": "me",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property photo in me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/taughtClasses/$count",
+    "path": "/me/photo/$value",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "Get.Count.taughtClasses-94df",
+        "operation_id": "me.GetPhotoContent",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Get media content for the navigation property photo from me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.UpdatePhotoContent",
+        "operation_mapping": "me",
+        "http_method": "PUT",
+        "doc": "Update media content for the navigation property photo in me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/taughtClasses/{{id}}",
-    "param_size": 1,
+    "path": "/me/planner",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.UpdatePlanner",
+        "operation_mapping": "me",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property planner in me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.GetPlanner",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Get planner from me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.DeletePlanner",
+        "operation_mapping": "me",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property planner for me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/reminderView(StartDateTime='{{id}}',EndDateTime='{{id2}}')",
+    "param_size": 2,
     "parameters": [
-      "education_class_id"
+      "start_date_time",
+      "end_date_time"
     ],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.me.GetTaughtClasses",
+        "operation_id": "me.reminderView",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "Get taughtClasses from education",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Invoke function reminderView",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   },
   {
-    "path": "/me/user",
+    "path": "/me/removeAllDevicesFromManagement",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.removeAllDevicesFromManagement",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action removeAllDevicesFromManagement",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/reprocessLicenseAssignment",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "education.me.GetUser",
+        "operation_id": "me.reprocessLicenseAssignment",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action reprocessLicenseAssignment",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/restore",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.restore",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action restore",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/revokeSignInSessions",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.revokeSignInSessions",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action revokeSignInSessions",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/sendMail",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.sendMail",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action sendMail",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/settings",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.GetSettings",
         "operation_mapping": "me",
         "http_method": "GET",
-        "doc": "Get educationUser",
-        "parent": "EducationMe",
-        "original_parent": "EducationMe",
-        "resource_identity": "EducationMe"
+        "doc": "Get settings from me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.UpdateSettings",
+        "operation_mapping": "me",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property settings in me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.DeleteSettings",
+        "operation_mapping": "me",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property settings for me",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/settings/shiftPreferences",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "me.settings.DeleteShiftPreferences",
+        "operation_mapping": "me",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property shiftPreferences for me",
+        "parent": "Me",
+        "original_parent": "Settings",
+        "resource_identity": "Me"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.settings.UpdateShiftPreferences",
+        "operation_mapping": "me",
+        "http_method": "PATCH",
+        "doc": "Update shiftPreferences",
+        "parent": "Me",
+        "original_parent": "Settings",
+        "resource_identity": "Me"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "me.settings.GetShiftPreferences",
+        "operation_mapping": "me",
+        "http_method": "GET",
+        "doc": "Get shiftPreferences",
+        "parent": "Me",
+        "original_parent": "Settings",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/translateExchangeIds",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "me.translateExchangeIds",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action translateExchangeIds",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
+      }
+    ]
+  },
+  {
+    "path": "/me/wipeManagedAppRegistrationsByDeviceTag",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "me.wipeManagedAppRegistrationsByDeviceTag",
+        "operation_mapping": "me",
+        "http_method": "POST",
+        "doc": "Invoke action wipeManagedAppRegistrationsByDeviceTag",
+        "parent": "Me",
+        "original_parent": "Me",
+        "resource_identity": "Me"
       }
     ]
   }

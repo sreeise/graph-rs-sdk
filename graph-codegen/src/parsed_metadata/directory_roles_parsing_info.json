@@ -1,7 +1,22 @@
 {
-  "modifier_name": "directoryRoles",
+  "modifier_name": null,
   "path": "/directoryRoles",
   "resource_identity": "DirectoryRoles",
   "trim_path_start": null,
-  "parameter_filter": []
+  "filter_path": [
+    "members"
+  ],
+  "replace_operation_map": "directoryRoles",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/directory_roles/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
 }

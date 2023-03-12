@@ -47,7 +47,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/microsoft.graph.delta()",
+    "path": "/directoryRoles/delta()",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -65,7 +65,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/microsoft.graph.getAvailableExtensionProperties",
+    "path": "/directoryRoles/getAvailableExtensionProperties",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -83,7 +83,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/microsoft.graph.getByIds",
+    "path": "/directoryRoles/getByIds",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -101,7 +101,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/microsoft.graph.validateProperties",
+    "path": "/directoryRoles/validateProperties",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -124,12 +124,12 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "directoryRoles.directoryRole.GetDirectoryRole",
+        "operation_id": "directoryRoles.directoryRole.UpdateDirectoryRole",
         "operation_mapping": "DirectoryRolesId",
-        "http_method": "GET",
-        "doc": "Get directoryRole",
+        "http_method": "PATCH",
+        "doc": "Update entity in directoryRoles",
         "parent": "DirectoryRolesId",
         "original_parent": "DirectoryRoles",
         "resource_identity": "DirectoryRoles"
@@ -146,12 +146,12 @@
         "resource_identity": "DirectoryRoles"
       },
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "directoryRoles.directoryRole.UpdateDirectoryRole",
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "directoryRoles.directoryRole.GetDirectoryRole",
         "operation_mapping": "DirectoryRolesId",
-        "http_method": "PATCH",
-        "doc": "Update entity in directoryRoles",
+        "http_method": "GET",
+        "doc": "Get directoryRole",
         "parent": "DirectoryRolesId",
         "original_parent": "DirectoryRoles",
         "resource_identity": "DirectoryRoles"
@@ -159,7 +159,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/{{RID}}/microsoft.graph.checkMemberGroups",
+    "path": "/directoryRoles/{{RID}}/checkMemberGroups",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -177,7 +177,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/{{RID}}/microsoft.graph.checkMemberObjects",
+    "path": "/directoryRoles/{{RID}}/checkMemberObjects",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -195,7 +195,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/{{RID}}/microsoft.graph.getMemberGroups",
+    "path": "/directoryRoles/{{RID}}/getMemberGroups",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -213,7 +213,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/{{RID}}/microsoft.graph.getMemberObjects",
+    "path": "/directoryRoles/{{RID}}/getMemberObjects",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -231,7 +231,7 @@
     ]
   },
   {
-    "path": "/directoryRoles/{{RID}}/microsoft.graph.restore",
+    "path": "/directoryRoles/{{RID}}/restore",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -254,23 +254,23 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "directoryRoles.ListScopedMembers",
+        "operation_mapping": "DirectoryRolesId",
+        "http_method": "GET",
+        "doc": "List scopedMembers for a directory role",
+        "parent": "DirectoryRolesId",
+        "original_parent": "DirectoryRoles",
+        "resource_identity": "DirectoryRoles"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "directoryRoles.CreateScopedMembers",
         "operation_mapping": "DirectoryRolesId",
         "http_method": "POST",
         "doc": "Create new navigation property to scopedMembers for directoryRoles",
-        "parent": "DirectoryRolesId",
-        "original_parent": "DirectoryRoles",
-        "resource_identity": "DirectoryRoles"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "directoryRoles.ListScopedMembers",
-        "operation_mapping": "DirectoryRolesId",
-        "http_method": "GET",
-        "doc": "Get scopedMembers from directoryRoles",
         "parent": "DirectoryRolesId",
         "original_parent": "DirectoryRoles",
         "resource_identity": "DirectoryRoles"
@@ -314,23 +314,23 @@
         "resource_identity": "DirectoryRoles"
       },
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "directoryRoles.UpdateScopedMembers",
-        "operation_mapping": "DirectoryRolesId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property scopedMembers in directoryRoles",
-        "parent": "DirectoryRolesId",
-        "original_parent": "DirectoryRoles",
-        "resource_identity": "DirectoryRoles"
-      },
-      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "directoryRoles.DeleteScopedMembers",
         "operation_mapping": "DirectoryRolesId",
         "http_method": "DELETE",
         "doc": "Delete navigation property scopedMembers for directoryRoles",
+        "parent": "DirectoryRolesId",
+        "original_parent": "DirectoryRoles",
+        "resource_identity": "DirectoryRoles"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "directoryRoles.UpdateScopedMembers",
+        "operation_mapping": "DirectoryRolesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property scopedMembers in directoryRoles",
         "parent": "DirectoryRolesId",
         "original_parent": "DirectoryRoles",
         "resource_identity": "DirectoryRoles"

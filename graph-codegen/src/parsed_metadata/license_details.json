@@ -63,23 +63,23 @@
         "resource_identity": "LicenseDetails"
       },
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.UpdateLicenseDetails",
-        "operation_mapping": "LicenseDetailsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property licenseDetails in users",
-        "parent": "LicenseDetailsId",
-        "original_parent": "LicenseDetails",
-        "resource_identity": "LicenseDetails"
-      },
-      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "users.DeleteLicenseDetails",
         "operation_mapping": "LicenseDetailsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property licenseDetails for users",
+        "parent": "LicenseDetailsId",
+        "original_parent": "LicenseDetails",
+        "resource_identity": "LicenseDetails"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateLicenseDetails",
+        "operation_mapping": "LicenseDetailsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property licenseDetails in users",
         "parent": "LicenseDetailsId",
         "original_parent": "LicenseDetails",
         "resource_identity": "LicenseDetails"

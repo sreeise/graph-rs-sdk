@@ -119,6 +119,73 @@
     ]
   },
   {
+    "path": "/calendarView/{{RID}}/attachments/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.attachments-ed80",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/attachments/createUploadSession",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "UploadSession",
+        "operation_id": "users.user.calendarView.event.attachments.createUploadSession",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "POST",
+        "doc": "Invoke action createUploadSession",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
+    "path": "/calendarView/{{RID}}/attachments/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "attachment_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.calendarView.DeleteAttachments",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property attachments for users",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.GetAttachments",
+        "operation_mapping": "CalendarViewId",
+        "http_method": "GET",
+        "doc": "Get attachments from users",
+        "parent": "CalendarViewId",
+        "original_parent": "CalendarView",
+        "resource_identity": "CalendarView"
+      }
+    ]
+  },
+  {
     "path": "/calendarView/{{RID}}/calendar",
     "param_size": 0,
     "parameters": [],
@@ -245,12 +312,12 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.calendarView.DeleteExtensions",
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendarView.UpdateExtensions",
         "operation_mapping": "CalendarViewId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property extensions for users",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property extensions in users",
         "parent": "CalendarViewId",
         "original_parent": "CalendarView",
         "resource_identity": "CalendarView"
@@ -267,12 +334,12 @@
         "resource_identity": "CalendarView"
       },
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.calendarView.UpdateExtensions",
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.calendarView.DeleteExtensions",
         "operation_mapping": "CalendarViewId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property extensions in users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for users",
         "parent": "CalendarViewId",
         "original_parent": "CalendarView",
         "resource_identity": "CalendarView"

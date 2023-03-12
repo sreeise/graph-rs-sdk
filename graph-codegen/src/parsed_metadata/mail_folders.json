@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.ListMailFolders",
-        "operation_mapping": "mailFolders",
-        "http_method": "GET",
-        "doc": "List mailFolders",
-        "parent": "MailFolders",
-        "original_parent": "MailFolders",
-        "resource_identity": "MailFolders"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.CreateMailFolders",
         "operation_mapping": "mailFolders",
         "http_method": "POST",
         "doc": "Create MailFolder",
+        "parent": "MailFolders",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.ListMailFolders",
+        "operation_mapping": "mailFolders",
+        "http_method": "GET",
+        "doc": "List mailFolders",
         "parent": "MailFolders",
         "original_parent": "MailFolders",
         "resource_identity": "MailFolders"
@@ -70,6 +70,17 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteMailFolders",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property mailFolders for users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.UpdateMailFolders",
@@ -87,17 +98,6 @@
         "operation_mapping": "MailFoldersId",
         "http_method": "GET",
         "doc": "Get mailFolders from users",
-        "parent": "MailFoldersId",
-        "original_parent": "MailFolders",
-        "resource_identity": "MailFolders"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.DeleteMailFolders",
-        "operation_mapping": "MailFoldersId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property mailFolders for users",
         "parent": "MailFoldersId",
         "original_parent": "MailFolders",
         "resource_identity": "MailFolders"
@@ -128,23 +128,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.mailFolders.CreateMessageRules",
-        "operation_mapping": "MailFoldersId",
-        "http_method": "POST",
-        "doc": "Create rule",
-        "parent": "MailFoldersId",
-        "original_parent": "MailFolders",
-        "resource_identity": "MailFolders"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.mailFolders.ListMessageRules",
         "operation_mapping": "MailFoldersId",
         "http_method": "GET",
         "doc": "List rules",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.CreateMessageRules",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "POST",
+        "doc": "Create rule",
         "parent": "MailFoldersId",
         "original_parent": "MailFolders",
         "resource_identity": "MailFolders"
@@ -178,6 +178,17 @@
     "metadata": [
       {
         "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.mailFolders.DeleteMessageRules",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property messageRules for users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": false,
         "request_task": "Json",
         "operation_id": "users.mailFolders.GetMessageRules",
         "operation_mapping": "MailFoldersId",
@@ -197,14 +208,199 @@
         "parent": "MailFoldersId",
         "original_parent": "MailFolders",
         "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/move",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.user.mailFolders.mailFolder.move",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "POST",
+        "doc": "Invoke action move",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/multiValueExtendedProperties",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.ListMultiValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get multiValueExtendedProperties from users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.CreateMultiValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to multiValueExtendedProperties for users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/multiValueExtendedProperties/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.multiValueExtendedProperties-0976",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/multiValueExtendedProperties/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "multi_value_legacy_extended_property_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.mailFolders.DeleteMultiValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property multiValueExtendedProperties for users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.UpdateMultiValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property multiValueExtendedProperties in users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.GetMultiValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get multiValueExtendedProperties from users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/singleValueExtendedProperties",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.ListSingleValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get singleValueExtendedProperties from users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.CreateSingleValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to singleValueExtendedProperties for users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/singleValueExtendedProperties/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.singleValueExtendedProperties-8fea",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      }
+    ]
+  },
+  {
+    "path": "/mailFolders/{{RID}}/singleValueExtendedProperties/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "single_value_legacy_extended_property_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.UpdateSingleValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property singleValueExtendedProperties in users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
       },
       {
         "has_body": false,
         "request_task": "NoContent",
-        "operation_id": "users.mailFolders.DeleteMessageRules",
+        "operation_id": "users.mailFolders.DeleteSingleValueExtendedProperties",
         "operation_mapping": "MailFoldersId",
         "http_method": "DELETE",
-        "doc": "Delete navigation property messageRules for users",
+        "doc": "Delete navigation property singleValueExtendedProperties for users",
+        "parent": "MailFoldersId",
+        "original_parent": "MailFolders",
+        "resource_identity": "MailFolders"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.mailFolders.GetSingleValueExtendedProperties",
+        "operation_mapping": "MailFoldersId",
+        "http_method": "GET",
+        "doc": "Get singleValueExtendedProperties from users",
         "parent": "MailFoldersId",
         "original_parent": "MailFolders",
         "resource_identity": "MailFolders"

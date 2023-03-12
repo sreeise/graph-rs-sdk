@@ -5,17 +5,6 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.DeleteInsights",
-        "operation_mapping": "insights",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property insights for users",
-        "parent": "Insights",
-        "original_parent": "Insights",
-        "resource_identity": "Insights"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.UpdateInsights",
@@ -33,6 +22,17 @@
         "operation_mapping": "insights",
         "http_method": "GET",
         "doc": "Get insights from users",
+        "parent": "Insights",
+        "original_parent": "Insights",
+        "resource_identity": "Insights"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteInsights",
+        "operation_mapping": "insights",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property insights for users",
         "parent": "Insights",
         "original_parent": "Insights",
         "resource_identity": "Insights"
@@ -94,17 +94,6 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.insights.GetShared",
-        "operation_mapping": "insights",
-        "http_method": "GET",
-        "doc": "Get shared from users",
-        "parent": "Insights",
-        "original_parent": "Insights",
-        "resource_identity": "Insights"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.insights.UpdateShared",
@@ -122,6 +111,17 @@
         "operation_mapping": "insights",
         "http_method": "DELETE",
         "doc": "Delete navigation property shared for users",
+        "parent": "Insights",
+        "original_parent": "Insights",
+        "resource_identity": "Insights"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.insights.GetShared",
+        "operation_mapping": "insights",
+        "http_method": "GET",
+        "doc": "Get shared from users",
         "parent": "Insights",
         "original_parent": "Insights",
         "resource_identity": "Insights"
@@ -283,23 +283,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.insights.ListUsed",
-        "operation_mapping": "insights",
-        "http_method": "GET",
-        "doc": "List used",
-        "parent": "Insights",
-        "original_parent": "Insights",
-        "resource_identity": "Insights"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.insights.CreateUsed",
         "operation_mapping": "insights",
         "http_method": "POST",
         "doc": "Create new navigation property to used for users",
+        "parent": "Insights",
+        "original_parent": "Insights",
+        "resource_identity": "Insights"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.insights.ListUsed",
+        "operation_mapping": "insights",
+        "http_method": "GET",
+        "doc": "List used",
         "parent": "Insights",
         "original_parent": "Insights",
         "resource_identity": "Insights"
@@ -332,6 +332,17 @@
     ],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.insights.GetUsed",
+        "operation_mapping": "insights",
+        "http_method": "GET",
+        "doc": "Get used from users",
+        "parent": "Insights",
+        "original_parent": "Insights",
+        "resource_identity": "Insights"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.insights.UpdateUsed",
@@ -349,17 +360,6 @@
         "operation_mapping": "insights",
         "http_method": "DELETE",
         "doc": "Delete navigation property used for users",
-        "parent": "Insights",
-        "original_parent": "Insights",
-        "resource_identity": "Insights"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.insights.GetUsed",
-        "operation_mapping": "insights",
-        "http_method": "GET",
-        "doc": "Get used from users",
         "parent": "Insights",
         "original_parent": "Insights",
         "resource_identity": "Insights"

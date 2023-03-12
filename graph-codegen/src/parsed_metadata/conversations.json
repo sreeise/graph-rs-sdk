@@ -7,7 +7,7 @@
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "groups.conversations.ListConversations",
+        "operation_id": "groups.ListConversations",
         "operation_mapping": "conversations",
         "http_method": "GET",
         "doc": "List conversations",
@@ -18,7 +18,7 @@
       {
         "has_body": true,
         "request_task": "Json",
-        "operation_id": "groups.conversations.CreateConversations",
+        "operation_id": "groups.CreateConversations",
         "operation_mapping": "conversations",
         "http_method": "POST",
         "doc": "Create conversation",
@@ -53,51 +53,22 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "groups.DeleteConversations",
-        "operation_mapping": "GroupsConversationsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property conversations for groups",
-        "parent": "GroupsConversationsId",
-        "original_parent": "GroupsConversations",
-        "resource_identity": "GroupsConversations"
-      },
-      {
-        "has_body": false,
         "request_task": "Json",
-        "operation_id": "groups.conversations.GetConversations",
+        "operation_id": "groups.GetConversations",
         "operation_mapping": "GroupsConversationsId",
         "http_method": "GET",
         "doc": "Get conversations from groups",
         "parent": "GroupsConversationsId",
         "original_parent": "GroupsConversations",
         "resource_identity": "GroupsConversations"
-      }
-    ]
-  },
-  {
-    "path": "/conversations/{{RID}}/threads",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "groups.conversations.ListThreads",
-        "operation_mapping": "GroupsConversationsId",
-        "http_method": "GET",
-        "doc": "List threads",
-        "parent": "GroupsConversationsId",
-        "original_parent": "GroupsConversations",
-        "resource_identity": "GroupsConversations"
       },
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.conversations.CreateThreads",
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "groups.DeleteConversations",
         "operation_mapping": "GroupsConversationsId",
-        "http_method": "POST",
-        "doc": "Create thread",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property conversations for groups",
         "parent": "GroupsConversationsId",
         "original_parent": "GroupsConversations",
         "resource_identity": "GroupsConversations"

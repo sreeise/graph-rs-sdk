@@ -176,6 +176,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -183,17 +190,10 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -226,7 +226,21 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -243,20 +257,6 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -267,11 +267,27 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.deletedItems-665f",
-      "responses": {
-        "200": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -282,10 +298,10 @@
             }
           }
         },
-        "4XX": {
+        "2XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -293,14 +309,14 @@
       "deprecated": false
     }
   },
-  "/deletedItems/microsoft.graph.application": {
-    "description": "Casts the previous resource to application.",
+  "/deletedItems/delta()": {
+    "description": "Provides operations to call the delta method.",
     "get": {
       "tags": [
-        "directoryObject.application"
+        "directory.Functions"
       ],
-      "summary": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-512e",
+      "summary": "Invoke function delta",
+      "operationId": "directory.deletedItems.delta",
       "parameters": [
         {
           "either": {
@@ -334,51 +350,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/parameters/count"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$orderby",
-              "in": "query",
-              "description": "Order items by property values",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "id desc",
-                    "deletedDateTime",
-                    "deletedDateTime desc"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
             }
           }
         },
@@ -428,9 +399,9 @@
         {
           "either": {
             "Left": {
-              "name": "$expand",
+              "name": "$orderby",
               "in": "query",
-              "description": "Expand related entities",
+              "description": "Order items by property values",
               "required": false,
               "deprecated": false,
               "style": "form",
@@ -449,7 +420,10 @@
                   "uniqueItems": false,
                   "additionalPropertiesAllowed": false,
                   "enum": [
-                    "*"
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -469,21 +443,117 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "title": "Collection of directoryObject",
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseDeltaFunctionResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.directoryObject"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": false,
+                                      "deprecated": false,
+                                      "unresolvedReference": false
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
-            }
-          }
-        },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -494,44 +564,18 @@
       "deprecated": false
     }
   },
-  "/deletedItems/microsoft.graph.application/$count": {
-    "description": "Provides operations to count the resources in the collection.",
-    "get": {
-      "summary": "Get the number of the resource",
-      "operationId": "Get.Count.microsoft.graph.application-09ac",
-      "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    }
-  },
-  "/deletedItems/microsoft.graph.getAvailableExtensionProperties": {
+  "/deletedItems/getAvailableExtensionProperties": {
     "description": "Provides operations to call the getAvailableExtensionProperties method.",
     "post": {
       "tags": [
         "directory.Actions"
       ],
       "summary": "Invoke action getAvailableExtensionProperties",
+      "description": "Return all directory extension definitions that have been registered in a directory, including through multi-tenant apps. The following entities support extension properties:\n+ user\n+ group\n+ administrativeUnit\n+ application\n+ device\n+ organization",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directoryobject-getavailableextensionproperties?view=graph-rest-1.0"
+      },
       "operationId": "directory.deletedItems.getAvailableExtensionProperties",
       "requestBody": {
         "either": {
@@ -584,7 +628,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -593,38 +637,63 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "title": "Collection of directoryObject",
+                        "title": "Collection of extensionProperty",
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": false,
+                                      "deprecated": false,
+                                      "unresolvedReference": false,
+                                      "$ref": "#/components/schemas/microsoft.graph.extensionProperty"
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
                         "required": [],
                         "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false,
-                              "$ref": "#/components/schemas/microsoft.graph.extensionProperty"
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -649,13 +718,18 @@
       "deprecated": false
     }
   },
-  "/deletedItems/microsoft.graph.getByIds": {
+  "/deletedItems/getByIds": {
     "description": "Provides operations to call the getByIds method.",
     "post": {
       "tags": [
         "directory.Actions"
       ],
       "summary": "Invoke action getByIds",
+      "description": "Return the directory objects specified in a list of IDs. Some common uses for this function are to:",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directoryobject-getbyids?view=graph-rest-1.0"
+      },
       "operationId": "directory.deletedItems.getByIds",
       "requestBody": {
         "either": {
@@ -736,7 +810,7 @@
         }
       },
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -749,34 +823,59 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": false,
+                                      "deprecated": false,
+                                      "unresolvedReference": false,
+                                      "$ref": "#/components/schemas/microsoft.graph.directoryObject"
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
                         "required": [],
                         "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false,
-                              "$ref": "#/components/schemas/microsoft.graph.directoryObject"
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -808,14 +907,14 @@
       "deprecated": false
     }
   },
-  "/deletedItems/microsoft.graph.group": {
-    "description": "Casts the previous resource to group.",
+  "/deletedItems/graph.application": {
+    "description": "Casts the previous resource to application.",
     "get": {
       "tags": [
-        "directoryObject.group"
+        "directoryObject.application"
       ],
-      "summary": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-3eab",
+      "summary": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-bdd6",
       "parameters": [
         {
           "either": {
@@ -998,7 +1097,255 @@
             }
           }
         },
-        "200": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/deletedItems/graph.application/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.microsoft.graph.application-09ac",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    }
+  },
+  "/deletedItems/graph.group": {
+    "description": "Casts the previous resource to group.",
+    "get": {
+      "tags": [
+        "directoryObject.group"
+      ],
+      "summary": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-21e4",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
@@ -1009,19 +1356,28 @@
       "deprecated": false
     }
   },
-  "/deletedItems/microsoft.graph.group/$count": {
+  "/deletedItems/graph.group/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.group-255d",
-      "responses": {
-        "5XX": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "4XX": {
           "either": {
             "Right": {
@@ -1029,7 +1385,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -1040,14 +1403,14 @@
       "deprecated": false
     }
   },
-  "/deletedItems/microsoft.graph.user": {
+  "/deletedItems/graph.user": {
     "description": "Casts the previous resource to user.",
     "get": {
       "tags": [
         "directoryObject.user"
       ],
       "summary": "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-b663",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-a4ef",
       "parameters": [
         {
           "either": {
@@ -1223,7 +1586,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
@@ -1241,23 +1604,32 @@
       "deprecated": false
     }
   },
-  "/deletedItems/microsoft.graph.user/$count": {
+  "/deletedItems/graph.user/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.user-bc15",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -1267,18 +1639,30 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
         }
       },
       "deprecated": false
     }
   },
-  "/deletedItems/microsoft.graph.validateProperties": {
+  "/deletedItems/validateProperties": {
     "description": "Provides operations to call the validateProperties method.",
     "post": {
       "tags": [
         "directory.Actions"
       ],
       "summary": "Invoke action validateProperties",
+      "description": "Validate that a Microsoft 365 group's display name or mail nickname complies with naming policies.  Clients can use this API to determine whether a display name or mail nickname is valid before trying to create a Microsoft 365 group. To validate the properties of an existing group, use the group: validateProperties function. The following policy validations are performed for the display name and mail nickname properties:\n1. Validate the prefix and suffix naming policy\n2. Validate the custom banned words policy\n3. Validate that the mail nickname is unique This API only returns the first validation failure that is encountered. If the properties fail multiple validations, only the first validation failure is returned. However, you can validate both the mail nickname and the display name and receive a collection of validation errors if you are only validating the prefix and suffix naming policy. To learn more about configuring naming policies, see Configure naming policy.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directoryobject-validateproperties?view=graph-rest-1.0"
+      },
       "operationId": "directory.deletedItems.validateProperties",
       "requestBody": {
         "either": {
@@ -1361,13 +1745,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
@@ -1376,6 +1753,13 @@
           }
         },
         "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1483,6 +1867,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -1490,7 +1881,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1505,13 +1896,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1554,6 +1938,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -1562,13 +1953,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1604,167 +1988,23 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
-        }
-      },
-      "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "directoryObject-id",
-            "in": "path",
-            "description": "key: id of directoryObject",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "directoryObject"
-          }
-        }
-      }
-    ]
-  },
-  "/deletedItems/{directoryObject-id}/microsoft.graph.application": {
-    "description": "Casts the previous resource to application.",
-    "get": {
-      "tags": [
-        "directoryObject.application"
-      ],
-      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-e9d2",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "deletedDateTime"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
         },
-        {
+        "2XX": {
           "either": {
             "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "200": {
-          "either": {
-            "Left": {
-              "description": "Result entities",
+              "description": "",
               "content": {
                 "application/json": {
                   "schema": {
                     "either": {
                       "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.application"
+                        "$ref": "#/components/schemas/microsoft.graph.directoryObject"
                       }
                     }
                   }
@@ -1779,13 +2019,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -1796,7 +2029,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1821,13 +2054,18 @@
       }
     ]
   },
-  "/deletedItems/{directoryObject-id}/microsoft.graph.checkMemberGroups": {
+  "/deletedItems/{directoryObject-id}/checkMemberGroups": {
     "description": "Provides operations to call the checkMemberGroups method.",
     "post": {
       "tags": [
         "directory.Actions"
       ],
       "summary": "Invoke action checkMemberGroups",
+      "description": "Check for membership in a specified list of group IDs, and return from that list those groups (identified by IDs) of which the specified user, group, service principal, organizational contact, device, or directory object is a member. This function is transitive. You can check up to a maximum of 20 groups per request. This function supports all groups provisioned in Azure AD. Because Microsoft 365 groups cannot contain other groups, membership in a Microsoft 365 group is always direct.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directoryobject-checkmembergroups?view=graph-rest-1.0"
+      },
       "operationId": "directory.deletedItems.directoryObject.checkMemberGroups",
       "requestBody": {
         "either": {
@@ -1891,7 +2129,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -1900,38 +2145,62 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "title": "Collection of directoryObject",
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "type": "string",
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": false,
+                                      "deprecated": false,
+                                      "unresolvedReference": false
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
                         "required": [],
                         "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "type": "string",
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -1944,13 +2213,6 @@
               }
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -1961,7 +2223,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1986,7 +2248,7 @@
       }
     ]
   },
-  "/deletedItems/{directoryObject-id}/microsoft.graph.checkMemberObjects": {
+  "/deletedItems/{directoryObject-id}/checkMemberObjects": {
     "description": "Provides operations to call the checkMemberObjects method.",
     "post": {
       "tags": [
@@ -2049,14 +2311,14 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -2065,38 +2327,62 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "title": "Collection of directoryObject",
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "type": "string",
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": false,
+                                      "deprecated": false,
+                                      "unresolvedReference": false
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
                         "required": [],
                         "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "type": "string",
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -2110,7 +2396,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2126,7 +2412,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2151,13 +2437,18 @@
       }
     ]
   },
-  "/deletedItems/{directoryObject-id}/microsoft.graph.getMemberGroups": {
+  "/deletedItems/{directoryObject-id}/getMemberGroups": {
     "description": "Provides operations to call the getMemberGroups method.",
     "post": {
       "tags": [
         "directory.Actions"
       ],
       "summary": "Invoke action getMemberGroups",
+      "description": "Return all the group IDs for the groups that the specified user, group, service principal, organizational contact, device, or directory object is a member of. This function is transitive.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directoryobject-getmembergroups?view=graph-rest-1.0"
+      },
       "operationId": "directory.deletedItems.directoryObject.getMemberGroups",
       "requestBody": {
         "either": {
@@ -2203,7 +2494,7 @@
         }
       },
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -2212,38 +2503,62 @@
                   "schema": {
                     "either": {
                       "Left": {
-                        "title": "Collection of directoryObject",
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "type": "string",
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": false,
+                                      "deprecated": false,
+                                      "unresolvedReference": false
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
                         "required": [],
                         "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "type": "string",
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -2280,7 +2595,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2305,13 +2620,18 @@
       }
     ]
   },
-  "/deletedItems/{directoryObject-id}/microsoft.graph.getMemberObjects": {
+  "/deletedItems/{directoryObject-id}/getMemberObjects": {
     "description": "Provides operations to call the getMemberObjects method.",
     "post": {
       "tags": [
         "directory.Actions"
       ],
       "summary": "Invoke action getMemberObjects",
+      "description": "Return all IDs for the groups, administrative units, and directory roles that a user, group, service principal, organizational contact, device, or directory object is a member of. This function is transitive. **Note:** Only users and role-enabled groups can be members of directory roles.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directoryobject-getmemberobjects?view=graph-rest-1.0"
+      },
       "operationId": "directory.deletedItems.directoryObject.getMemberObjects",
       "requestBody": {
         "either": {
@@ -2357,6 +2677,84 @@
         }
       },
       "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Left": {
+                        "type": "object",
+                        "readOnly": false,
+                        "writeOnly": false,
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
+                                      "type": "string",
+                                      "readOnly": false,
+                                      "writeOnly": false,
+                                      "required": [],
+                                      "uniqueItems": false,
+                                      "additionalPropertiesAllowed": false,
+                                      "enum": [],
+                                      "nullable": false,
+                                      "deprecated": false,
+                                      "unresolvedReference": false
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
+                                  }
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
+                          }
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
+                        "additionalPropertiesAllowed": false,
+                        "enum": [],
+                        "nullable": false,
+                        "deprecated": false,
+                        "unresolvedReference": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2370,60 +2768,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "200": {
-          "either": {
-            "Left": {
-              "description": "Success",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Left": {
-                        "title": "Collection of directoryObject",
-                        "type": "object",
-                        "readOnly": false,
-                        "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "type": "string",
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          }
-                        },
-                        "additionalPropertiesAllowed": false,
-                        "enum": [],
-                        "nullable": false,
-                        "deprecated": false,
-                        "unresolvedReference": false
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
         }
       },
       "deprecated": false
@@ -2434,7 +2778,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2459,14 +2803,338 @@
       }
     ]
   },
-  "/deletedItems/{directoryObject-id}/microsoft.graph.group": {
+  "/deletedItems/{directoryObject-id}/graph.application": {
+    "description": "Casts the previous resource to application.",
+    "get": {
+      "tags": [
+        "directoryObject.application"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-24dc",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Result entities",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.application"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/deletedItems/{directoryObject-id}/graph.group": {
     "description": "Casts the previous resource to group.",
     "get": {
       "tags": [
         "directoryObject.group"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-3791",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-7b4a",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Result entities",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.group"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/deletedItems/{directoryObject-id}/graph.user": {
+    "description": "Casts the previous resource to user.",
+    "get": {
+      "tags": [
+        "directoryObject.user"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-6372",
       "parameters": [
         {
           "either": {
@@ -2562,7 +3230,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Result entities",
@@ -2571,7 +3239,7 @@
                   "schema": {
                     "either": {
                       "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.group"
+                        "$ref": "#/components/schemas/microsoft.graph.user"
                       }
                     }
                   }
@@ -2596,7 +3264,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2621,13 +3289,18 @@
       }
     ]
   },
-  "/deletedItems/{directoryObject-id}/microsoft.graph.restore": {
+  "/deletedItems/{directoryObject-id}/restore": {
     "description": "Provides operations to call the restore method.",
     "post": {
       "tags": [
         "directory.Actions"
       ],
       "summary": "Invoke action restore",
+      "description": "Restore a recently deleted application, group, servicePrincipal, administrative unit, or user object from deleted items. If an item was accidentally deleted, you can fully restore the item. This is not applicable to security groups, which are deleted permanently. A recently deleted item will remain available for up to 30 days. After 30 days, the item is permanently deleted.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directory-deleteditems-restore?view=graph-rest-1.0"
+      },
       "operationId": "directory.deletedItems.directoryObject.restore",
       "responses": {
         "5XX": {
@@ -2637,14 +3310,7 @@
             }
           }
         },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -2694,161 +3360,6 @@
               }
             }
           }
-        }
-      },
-      "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "directoryObject-id",
-            "in": "path",
-            "description": "key: id of directoryObject",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "directoryObject"
-          }
-        }
-      }
-    ]
-  },
-  "/deletedItems/{directoryObject-id}/microsoft.graph.user": {
-    "description": "Casts the previous resource to user.",
-    "get": {
-      "tags": [
-        "directoryObject.user"
-      ],
-      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-97ed",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "deletedDateTime"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Left": {
-              "description": "Result entities",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.user"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
         },
         "4XX": {
           "either": {
@@ -2866,7 +3377,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,

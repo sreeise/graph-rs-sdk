@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.todo.lists.CreateTasks",
-        "operation_mapping": "tasks",
-        "http_method": "POST",
-        "doc": "Create todoTask",
-        "parent": "TodoListsTasks",
-        "original_parent": "TodoListsTasks",
-        "resource_identity": "TodoListsTasks"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.todo.lists.ListTasks",
         "operation_mapping": "tasks",
         "http_method": "GET",
         "doc": "List tasks",
+        "parent": "TodoListsTasks",
+        "original_parent": "TodoListsTasks",
+        "resource_identity": "TodoListsTasks"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.todo.lists.CreateTasks",
+        "operation_mapping": "tasks",
+        "http_method": "POST",
+        "doc": "Create todoTask",
         "parent": "TodoListsTasks",
         "original_parent": "TodoListsTasks",
         "resource_identity": "TodoListsTasks"
@@ -70,12 +70,12 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "Json",
-        "operation_id": "users.todo.lists.UpdateTasks",
+        "operation_id": "users.todo.lists.GetTasks",
         "operation_mapping": "TodoListsTasksId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property tasks in users",
+        "http_method": "GET",
+        "doc": "Get tasks from users",
         "parent": "TodoListsTasksId",
         "original_parent": "TodoListsTasks",
         "resource_identity": "TodoListsTasks"
@@ -92,12 +92,12 @@
         "resource_identity": "TodoListsTasks"
       },
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "users.todo.lists.GetTasks",
+        "operation_id": "users.todo.lists.UpdateTasks",
         "operation_mapping": "TodoListsTasksId",
-        "http_method": "GET",
-        "doc": "Get tasks from users",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property tasks in users",
         "parent": "TodoListsTasksId",
         "original_parent": "TodoListsTasks",
         "resource_identity": "TodoListsTasks"
@@ -149,6 +149,17 @@
     "metadata": [
       {
         "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.todo.lists.tasks.DeleteAttachmentSessions",
+        "operation_mapping": "TodoListsTasksId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property attachmentSessions for users",
+        "parent": "TodoListsTasksId",
+        "original_parent": "TodoListsTasks",
+        "resource_identity": "TodoListsTasks"
+      },
+      {
+        "has_body": false,
         "request_task": "Json",
         "operation_id": "users.todo.lists.tasks.GetAttachmentSessions",
         "operation_mapping": "TodoListsTasksId",
@@ -168,17 +179,6 @@
         "parent": "TodoListsTasksId",
         "original_parent": "TodoListsTasks",
         "resource_identity": "TodoListsTasks"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.todo.lists.tasks.DeleteAttachmentSessions",
-        "operation_mapping": "TodoListsTasksId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property attachmentSessions for users",
-        "parent": "TodoListsTasksId",
-        "original_parent": "TodoListsTasks",
-        "resource_identity": "TodoListsTasks"
       }
     ]
   },
@@ -190,23 +190,23 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.todo.lists.tasks.GetAttachmentSessionsContent",
-        "operation_mapping": "TodoListsTasksId",
-        "http_method": "GET",
-        "doc": "Get content for the navigation property attachmentSessions from users",
-        "parent": "TodoListsTasksId",
-        "original_parent": "TodoListsTasks",
-        "resource_identity": "TodoListsTasks"
-      },
-      {
         "has_body": true,
         "request_task": "NoContent",
         "operation_id": "users.todo.lists.tasks.UpdateAttachmentSessionsContent",
         "operation_mapping": "TodoListsTasksId",
         "http_method": "PUT",
         "doc": "Update content for the navigation property attachmentSessions in users",
+        "parent": "TodoListsTasksId",
+        "original_parent": "TodoListsTasks",
+        "resource_identity": "TodoListsTasks"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.todo.lists.tasks.GetAttachmentSessionsContent",
+        "operation_mapping": "TodoListsTasksId",
+        "http_method": "GET",
+        "doc": "Get content for the navigation property attachmentSessions from users",
         "parent": "TodoListsTasksId",
         "original_parent": "TodoListsTasks",
         "resource_identity": "TodoListsTasks"
@@ -317,23 +317,23 @@
     ],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "users.todo.lists.tasks.UpdateAttachmentsContent",
-        "operation_mapping": "TodoListsTasksId",
-        "http_method": "PUT",
-        "doc": "Update media content for the navigation property attachments in users",
-        "parent": "TodoListsTasksId",
-        "original_parent": "TodoListsTasks",
-        "resource_identity": "TodoListsTasks"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.todo.lists.tasks.GetAttachmentsContent",
         "operation_mapping": "TodoListsTasksId",
         "http_method": "GET",
         "doc": "Get media content for the navigation property attachments from users",
+        "parent": "TodoListsTasksId",
+        "original_parent": "TodoListsTasks",
+        "resource_identity": "TodoListsTasks"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "users.todo.lists.tasks.UpdateAttachmentsContent",
+        "operation_mapping": "TodoListsTasksId",
+        "http_method": "PUT",
+        "doc": "Update media content for the navigation property attachments in users",
         "parent": "TodoListsTasksId",
         "original_parent": "TodoListsTasks",
         "resource_identity": "TodoListsTasks"
@@ -435,23 +435,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.todo.lists.tasks.ListExtensions",
-        "operation_mapping": "TodoListsTasksId",
-        "http_method": "GET",
-        "doc": "Get extensions from users",
-        "parent": "TodoListsTasksId",
-        "original_parent": "TodoListsTasks",
-        "resource_identity": "TodoListsTasks"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.todo.lists.tasks.CreateExtensions",
         "operation_mapping": "TodoListsTasksId",
         "http_method": "POST",
         "doc": "Create new navigation property to extensions for users",
+        "parent": "TodoListsTasksId",
+        "original_parent": "TodoListsTasks",
+        "resource_identity": "TodoListsTasks"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.todo.lists.tasks.ListExtensions",
+        "operation_mapping": "TodoListsTasksId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
         "parent": "TodoListsTasksId",
         "original_parent": "TodoListsTasks",
         "resource_identity": "TodoListsTasks"
@@ -573,23 +573,23 @@
     ],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.todo.lists.tasks.UpdateLinkedResources",
-        "operation_mapping": "TodoListsTasksId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property linkedResources in users",
-        "parent": "TodoListsTasksId",
-        "original_parent": "TodoListsTasks",
-        "resource_identity": "TodoListsTasks"
-      },
-      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "users.todo.lists.tasks.DeleteLinkedResources",
         "operation_mapping": "TodoListsTasksId",
         "http_method": "DELETE",
         "doc": "Delete navigation property linkedResources for users",
+        "parent": "TodoListsTasksId",
+        "original_parent": "TodoListsTasks",
+        "resource_identity": "TodoListsTasks"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.todo.lists.tasks.UpdateLinkedResources",
+        "operation_mapping": "TodoListsTasksId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property linkedResources in users",
         "parent": "TodoListsTasksId",
         "original_parent": "TodoListsTasks",
         "resource_identity": "TodoListsTasks"

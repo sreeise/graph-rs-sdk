@@ -4,14 +4,13 @@
   "resource_identity": "CalendarView",
   "trim_path_start": "/users/{user-id}",
   "filter_path": [
+    "/calendars/{calendar-id}",
     "calendarGroup",
     "instances",
-    "/calendars/",
     "/calendar/",
     "events",
     "multiValueExtendedProperties",
-    "singleValueExtendedProperties",
-    "/attachments/"
+    "singleValueExtendedProperties"
   ],
   "replace_operation_map": "calendarView",
   "parameter_filter": [],

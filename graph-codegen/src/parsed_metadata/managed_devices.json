@@ -146,12 +146,12 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "users.managedDevices.GetDeviceCategory",
+        "operation_id": "users.managedDevices.UpdateDeviceCategory",
         "operation_mapping": "ManagedDevicesId",
-        "http_method": "GET",
-        "doc": "Get deviceCategory from users",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deviceCategory in users",
         "parent": "ManagedDevicesId",
         "original_parent": "ManagedDevices",
         "resource_identity": "ManagedDevices"
@@ -168,12 +168,12 @@
         "resource_identity": "ManagedDevices"
       },
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "Json",
-        "operation_id": "users.managedDevices.UpdateDeviceCategory",
+        "operation_id": "users.managedDevices.GetDeviceCategory",
         "operation_mapping": "ManagedDevicesId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property deviceCategory in users",
+        "http_method": "GET",
+        "doc": "Get deviceCategory from users",
         "parent": "ManagedDevicesId",
         "original_parent": "ManagedDevices",
         "resource_identity": "ManagedDevices"
@@ -186,23 +186,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.managedDevices.CreateDeviceCompliancePolicyStates",
-        "operation_mapping": "ManagedDevicesId",
-        "http_method": "POST",
-        "doc": "Create new navigation property to deviceCompliancePolicyStates for users",
-        "parent": "ManagedDevicesId",
-        "original_parent": "ManagedDevices",
-        "resource_identity": "ManagedDevices"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.managedDevices.ListDeviceCompliancePolicyStates",
         "operation_mapping": "ManagedDevicesId",
         "http_method": "GET",
         "doc": "Get deviceCompliancePolicyStates from users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.CreateDeviceCompliancePolicyStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to deviceCompliancePolicyStates for users",
         "parent": "ManagedDevicesId",
         "original_parent": "ManagedDevices",
         "resource_identity": "ManagedDevices"
@@ -246,23 +246,23 @@
         "resource_identity": "ManagedDevices"
       },
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.managedDevices.DeleteDeviceCompliancePolicyStates",
-        "operation_mapping": "ManagedDevicesId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property deviceCompliancePolicyStates for users",
-        "parent": "ManagedDevicesId",
-        "original_parent": "ManagedDevices",
-        "resource_identity": "ManagedDevices"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.managedDevices.UpdateDeviceCompliancePolicyStates",
         "operation_mapping": "ManagedDevicesId",
         "http_method": "PATCH",
         "doc": "Update the navigation property deviceCompliancePolicyStates in users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.managedDevices.DeleteDeviceCompliancePolicyStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property deviceCompliancePolicyStates for users",
         "parent": "ManagedDevicesId",
         "original_parent": "ManagedDevices",
         "resource_identity": "ManagedDevices"
@@ -275,23 +275,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.managedDevices.ListDeviceConfigurationStates",
-        "operation_mapping": "ManagedDevicesId",
-        "http_method": "GET",
-        "doc": "Get deviceConfigurationStates from users",
-        "parent": "ManagedDevicesId",
-        "original_parent": "ManagedDevices",
-        "resource_identity": "ManagedDevices"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.managedDevices.CreateDeviceConfigurationStates",
         "operation_mapping": "ManagedDevicesId",
         "http_method": "POST",
         "doc": "Create new navigation property to deviceConfigurationStates for users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.managedDevices.ListDeviceConfigurationStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "GET",
+        "doc": "Get deviceConfigurationStates from users",
         "parent": "ManagedDevicesId",
         "original_parent": "ManagedDevices",
         "resource_identity": "ManagedDevices"
@@ -324,23 +324,23 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.managedDevices.DeleteDeviceConfigurationStates",
-        "operation_mapping": "ManagedDevicesId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property deviceConfigurationStates for users",
-        "parent": "ManagedDevicesId",
-        "original_parent": "ManagedDevices",
-        "resource_identity": "ManagedDevices"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.managedDevices.UpdateDeviceConfigurationStates",
         "operation_mapping": "ManagedDevicesId",
         "http_method": "PATCH",
         "doc": "Update the navigation property deviceConfigurationStates in users",
+        "parent": "ManagedDevicesId",
+        "original_parent": "ManagedDevices",
+        "resource_identity": "ManagedDevices"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.managedDevices.DeleteDeviceConfigurationStates",
+        "operation_mapping": "ManagedDevicesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property deviceConfigurationStates for users",
         "parent": "ManagedDevicesId",
         "original_parent": "ManagedDevices",
         "resource_identity": "ManagedDevices"

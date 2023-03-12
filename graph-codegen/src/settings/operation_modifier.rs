@@ -1003,7 +1003,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 vec![MatchTarget::OperationMap("me".to_string())],
             );
         }
-        ResourceIdentity::Notebooks => {
+        ResourceIdentity::OnenoteNotebooks => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.ListNotebooks".to_string()),
                 vec![
@@ -1042,7 +1042,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::SectionGroups => {
+        ResourceIdentity::OnenoteSectionGroups => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.CreateSectionGroups".to_string()),
                 vec![
@@ -1072,7 +1072,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Pages => {
+        ResourceIdentity::OnenotePages => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.GetPages".to_string()),
                 vec![
@@ -1102,7 +1102,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Sections => {
+        ResourceIdentity::OnenoteSections => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.ListSections".to_string()),
                 vec![

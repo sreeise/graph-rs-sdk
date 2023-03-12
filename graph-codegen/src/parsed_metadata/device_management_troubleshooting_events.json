@@ -63,23 +63,23 @@
         "resource_identity": "DeviceManagementTroubleshootingEvents"
       },
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.UpdateDeviceManagementTroubleshootingEvents",
-        "operation_mapping": "DeviceManagementTroubleshootingEventsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property deviceManagementTroubleshootingEvents in users",
-        "parent": "DeviceManagementTroubleshootingEventsId",
-        "original_parent": "DeviceManagementTroubleshootingEvents",
-        "resource_identity": "DeviceManagementTroubleshootingEvents"
-      },
-      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "users.DeleteDeviceManagementTroubleshootingEvents",
         "operation_mapping": "DeviceManagementTroubleshootingEventsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property deviceManagementTroubleshootingEvents for users",
+        "parent": "DeviceManagementTroubleshootingEventsId",
+        "original_parent": "DeviceManagementTroubleshootingEvents",
+        "resource_identity": "DeviceManagementTroubleshootingEvents"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateDeviceManagementTroubleshootingEvents",
+        "operation_mapping": "DeviceManagementTroubleshootingEventsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deviceManagementTroubleshootingEvents in users",
         "parent": "DeviceManagementTroubleshootingEventsId",
         "original_parent": "DeviceManagementTroubleshootingEvents",
         "resource_identity": "DeviceManagementTroubleshootingEvents"

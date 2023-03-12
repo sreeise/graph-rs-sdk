@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.joinedTeams.CreateChannels",
-        "operation_mapping": "channels",
-        "http_method": "POST",
-        "doc": "Create channel",
-        "parent": "Channels",
-        "original_parent": "Channels",
-        "resource_identity": "Channels"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.joinedTeams.ListChannels",
         "operation_mapping": "channels",
         "http_method": "GET",
         "doc": "List channels",
+        "parent": "Channels",
+        "original_parent": "Channels",
+        "resource_identity": "Channels"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.CreateChannels",
+        "operation_mapping": "channels",
+        "http_method": "POST",
+        "doc": "Create channel",
         "parent": "Channels",
         "original_parent": "Channels",
         "resource_identity": "Channels"
@@ -81,23 +81,23 @@
         "resource_identity": "Channels"
       },
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.joinedTeams.DeleteChannels",
-        "operation_mapping": "ChannelsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property channels for users",
-        "parent": "ChannelsId",
-        "original_parent": "Channels",
-        "resource_identity": "Channels"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.joinedTeams.UpdateChannels",
         "operation_mapping": "ChannelsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property channels in users",
+        "parent": "ChannelsId",
+        "original_parent": "Channels",
+        "resource_identity": "Channels"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.joinedTeams.DeleteChannels",
+        "operation_mapping": "ChannelsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property channels for users",
         "parent": "ChannelsId",
         "original_parent": "Channels",
         "resource_identity": "Channels"
@@ -211,23 +211,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.joinedTeams.channels.ListTabs",
-        "operation_mapping": "ChannelsId",
-        "http_method": "GET",
-        "doc": "List tabs in channel",
-        "parent": "ChannelsId",
-        "original_parent": "Channels",
-        "resource_identity": "Channels"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.joinedTeams.channels.CreateTabs",
         "operation_mapping": "ChannelsId",
         "http_method": "POST",
         "doc": "Create new navigation property to tabs for users",
+        "parent": "ChannelsId",
+        "original_parent": "Channels",
+        "resource_identity": "Channels"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.joinedTeams.channels.ListTabs",
+        "operation_mapping": "ChannelsId",
+        "http_method": "GET",
+        "doc": "List tabs in channel",
         "parent": "ChannelsId",
         "original_parent": "Channels",
         "resource_identity": "Channels"

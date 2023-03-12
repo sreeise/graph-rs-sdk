@@ -95,23 +95,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.ListAttachments",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "List attachments",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.events.instances.CreateAttachments",
         "operation_mapping": "EventsInstancesId",
         "http_method": "POST",
         "doc": "Add attachment",
+        "parent": "EventsInstancesId",
+        "original_parent": "EventsInstances",
+        "resource_identity": "EventsInstances"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.events.instances.ListAttachments",
+        "operation_mapping": "EventsInstancesId",
+        "http_method": "GET",
+        "doc": "List attachments",
         "parent": "EventsInstancesId",
         "original_parent": "EventsInstances",
         "resource_identity": "EventsInstances"
@@ -163,22 +163,22 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.events.instances.DeleteAttachments",
+        "request_task": "Json",
+        "operation_id": "users.events.instances.GetAttachments",
         "operation_mapping": "EventsInstancesId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property attachments for users",
+        "http_method": "GET",
+        "doc": "Get attachments from users",
         "parent": "EventsInstancesId",
         "original_parent": "EventsInstances",
         "resource_identity": "EventsInstances"
       },
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.GetAttachments",
+        "request_task": "NoContent",
+        "operation_id": "users.events.instances.DeleteAttachments",
         "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get attachments from users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property attachments for users",
         "parent": "EventsInstancesId",
         "original_parent": "EventsInstances",
         "resource_identity": "EventsInstances"
@@ -258,441 +258,21 @@
     ]
   },
   {
-    "path": "/instances/{{RID}}/exceptionOccurrences",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.ListExceptionOccurrences",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get exceptionOccurrences from users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/$count",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.exceptionOccurrences-7ffd",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/delta()",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Delta",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.delta",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Invoke function delta",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.GetExceptionOccurrences",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get exceptionOccurrences from users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/accept",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.event.accept",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Invoke action accept",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/attachments",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.exceptionOccurrences.ListAttachments",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "List attachments",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      },
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.exceptionOccurrences.CreateAttachments",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Add attachment",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/attachments/$count",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.attachments-64cb",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/attachments/createUploadSession",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "UploadSession",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.event.attachments.createUploadSession",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Invoke action createUploadSession",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/attachments/{{id2}}",
-    "param_size": 2,
-    "parameters": [
-      "event_id_2",
-      "attachment_id"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.exceptionOccurrences.GetAttachments",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get attachments from users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.events.instances.exceptionOccurrences.DeleteAttachments",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property attachments for users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/calendar",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.exceptionOccurrences.GetCalendar",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get calendar from users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/cancel",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.event.cancel",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Invoke action cancel",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/decline",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.event.decline",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Invoke action decline",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/dismissReminder",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.event.dismissReminder",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Invoke action dismissReminder",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/extensions",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.exceptionOccurrences.CreateExtensions",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Create openTypeExtension",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.exceptionOccurrences.ListExtensions",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get extensions from users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/extensions/$count",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.extensions-197b",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/extensions/{{id2}}",
-    "param_size": 2,
-    "parameters": [
-      "event_id_2",
-      "extension_id"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.exceptionOccurrences.UpdateExtensions",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property extensions in users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.exceptionOccurrences.GetExtensions",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "GET",
-        "doc": "Get extensions from users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.events.instances.exceptionOccurrences.DeleteExtensions",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property extensions for users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/forward",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.event.forward",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Invoke action forward",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/snoozeReminder",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.event.snoozeReminder",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Invoke action snoozeReminder",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
-    "path": "/instances/{{RID}}/exceptionOccurrences/{{id}}/tentativelyAccept",
-    "param_size": 1,
-    "parameters": [
-      "event_id_2"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "users.user.events.event.instances.event.exceptionOccurrences.event.tentativelyAccept",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Invoke action tentativelyAccept",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      }
-    ]
-  },
-  {
     "path": "/instances/{{RID}}/extensions",
     "param_size": 0,
     "parameters": [],
     "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.events.instances.CreateExtensions",
+        "operation_mapping": "EventsInstancesId",
+        "http_method": "POST",
+        "doc": "Create open extension",
+        "parent": "EventsInstancesId",
+        "original_parent": "EventsInstances",
+        "resource_identity": "EventsInstances"
+      },
       {
         "has_body": false,
         "request_task": "Json",
@@ -700,17 +280,6 @@
         "operation_mapping": "EventsInstancesId",
         "http_method": "GET",
         "doc": "Get extensions from users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      },
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.events.instances.CreateExtensions",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "POST",
-        "doc": "Create openTypeExtension",
         "parent": "EventsInstancesId",
         "original_parent": "EventsInstances",
         "resource_identity": "EventsInstances"
@@ -743,6 +312,17 @@
     ],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.events.instances.DeleteExtensions",
+        "operation_mapping": "EventsInstancesId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for users",
+        "parent": "EventsInstancesId",
+        "original_parent": "EventsInstances",
+        "resource_identity": "EventsInstances"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.events.instances.UpdateExtensions",
@@ -760,17 +340,6 @@
         "operation_mapping": "EventsInstancesId",
         "http_method": "GET",
         "doc": "Get extensions from users",
-        "parent": "EventsInstancesId",
-        "original_parent": "EventsInstances",
-        "resource_identity": "EventsInstances"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.events.instances.DeleteExtensions",
-        "operation_mapping": "EventsInstancesId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property extensions for users",
         "parent": "EventsInstancesId",
         "original_parent": "EventsInstances",
         "resource_identity": "EventsInstances"

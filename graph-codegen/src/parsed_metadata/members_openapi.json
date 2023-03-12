@@ -1,18 +1,54 @@
 {
   "/members": {
-    "description": "Provides operations to manage the members property of the microsoft.graph.team entity.",
+    "description": "Provides operations to manage the members property of the microsoft.graph.administrativeUnit entity.",
     "get": {
       "tags": [
-        "teams.conversationMember"
+        "directory.administrativeUnit"
       ],
-      "summary": "List members of team",
-      "description": "Get the conversationMember collection of a team.",
+      "summary": "Get members from directory",
+      "description": "Users and groups that are members of this administrative unit. Supports $expand.",
       "externalDocs": {
         "description": "Find more info here",
-        "url": "https://docs.microsoft.com/graph/api/team-list-members?view=graph-rest-1.0"
+        "url": "https://docs.microsoft.com/graph/api/administrativeunit-list-members?view=graph-rest-1.0"
       },
-      "operationId": "teams.ListMembers",
+      "operationId": "directory.administrativeUnits.ListMembers",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -74,12 +110,8 @@
                   "enum": [
                     "id",
                     "id desc",
-                    "displayName",
-                    "displayName desc",
-                    "roles",
-                    "roles desc",
-                    "visibleHistoryStartDateTime",
-                    "visibleHistoryStartDateTime desc"
+                    "deletedDateTime",
+                    "deletedDateTime desc"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -122,9 +154,7 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "id",
-                    "displayName",
-                    "roles",
-                    "visibleHistoryStartDateTime"
+                    "deletedDateTime"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -186,6 +216,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -194,79 +231,6 @@
           }
         },
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.conversationMemberCollectionResponse"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "post": {
-      "tags": [
-        "teams.conversationMember"
-      ],
-      "summary": "Add member to team",
-      "description": "Add a new conversationMember to a team.",
-      "externalDocs": {
-        "description": "Find more info here",
-        "url": "https://docs.microsoft.com/graph/api/team-post-members?view=graph-rest-1.0"
-      },
-      "operationId": "teams.CreateMembers",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New navigation property",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.conversationMember"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "Created navigation property.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.conversationMember"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -280,9 +244,9 @@
       {
         "either": {
           "Left": {
-            "name": "team-id",
+            "name": "administrativeUnit-id",
             "in": "path",
-            "description": "The unique identifier of team",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -301,7 +265,7 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "team"
+            "x-ms-docs-key-type": "administrativeUnit"
           }
         }
       }
@@ -311,8 +275,44 @@
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
-      "operationId": "Get.Count.members-717b",
+      "operationId": "Get.Count.members-777a",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -329,17 +329,17 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -357,9 +357,9 @@
       {
         "either": {
           "Left": {
-            "name": "team-id",
+            "name": "administrativeUnit-id",
             "in": "path",
-            "description": "The unique identifier of team",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -378,103 +378,143 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "team"
+            "x-ms-docs-key-type": "administrativeUnit"
           }
         }
       }
     ]
   },
-  "/members/add": {
-    "description": "Provides operations to call the add method.",
-    "post": {
+  "/members/$ref": {
+    "description": "Provides operations to manage the collection of directory entities.",
+    "get": {
       "tags": [
-        "teams.Actions"
+        "directory.administrativeUnit"
       ],
-      "summary": "Invoke action add",
-      "description": "Add multiple members in a single request to a team. The response provides details about which memberships could and couldn't be created.",
+      "summary": "Get ref of members from directory",
+      "description": "Users and groups that are members of this administrative unit. Supports $expand.",
       "externalDocs": {
         "description": "Find more info here",
-        "url": "https://docs.microsoft.com/graph/api/conversationmembers-add?view=graph-rest-1.0"
+        "url": "https://docs.microsoft.com/graph/api/administrativeunit-list-members?view=graph-rest-1.0"
       },
-      "operationId": "teams.team.members.add",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "Action parameters",
-            "content": {
-              "application/json": {
-                "schema": {
+      "operationId": "directory.administrativeUnits.ListRefMembers",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
                   "either": {
                     "Left": {
-                      "type": "object",
-                      "readOnly": false,
-                      "writeOnly": false,
-                      "required": [],
-                      "uniqueItems": false,
-                      "properties": {
-                        "values": {
-                          "type": "array",
-                          "readOnly": false,
-                          "writeOnly": false,
-                          "required": [],
-                          "items": {
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "anyOf": [
-                              {
-                                "either": {
-                                  "Right": {
-                                    "$ref": "#/components/schemas/microsoft.graph.conversationMember"
-                                  }
-                                }
-                              },
-                              {
-                                "either": {
-                                  "Left": {
-                                    "type": "object",
-                                    "readOnly": false,
-                                    "writeOnly": false,
-                                    "required": [],
-                                    "uniqueItems": false,
-                                    "additionalPropertiesAllowed": false,
-                                    "enum": [],
-                                    "nullable": true,
-                                    "deprecated": false,
-                                    "unresolvedReference": false
-                                  }
-                                }
-                              }
-                            ],
-                            "required": [],
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
-                          },
-                          "uniqueItems": false,
-                          "additionalPropertiesAllowed": false,
-                          "enum": [],
-                          "nullable": false,
-                          "deprecated": false,
-                          "unresolvedReference": false
-                        }
-                      },
-                      "additionalPropertiesAllowed": false,
-                      "enum": [],
-                      "nullable": false,
-                      "deprecated": false,
-                      "unresolvedReference": false
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
                     }
                   }
                 }
-              }
-            },
-            "required": true
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
           }
         }
-      },
+      ],
       "responses": {
         "4XX": {
           "either": {
@@ -485,103 +525,51 @@
         },
         "2XX": {
           "either": {
+            "Right": {
+              "$ref": "#/components/responses/StringCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "post": {
+      "tags": [
+        "directory.administrativeUnit"
+      ],
+      "summary": "Add a member",
+      "description": "Use this API to add a member (user, group, or device) to an administrative unit. Currently it's only possible to add one member at a time to an administrative unit.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/administrativeunit-post-members?view=graph-rest-1.0"
+      },
+      "operationId": "directory.administrativeUnits.CreateRefMembers",
+      "requestBody": {
+        "either": {
+          "Right": {
+            "$ref": "#/components/requestBodies/refPostBody"
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "either": {
             "Left": {
-              "description": "Success",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Left": {
-                        "type": "object",
-                        "readOnly": false,
-                        "writeOnly": false,
-                        "allOf": [
-                          {
-                            "either": {
-                              "Right": {
-                                "$ref": "#/components/schemas/BaseCollectionPaginationCountResponse"
-                              }
-                            }
-                          },
-                          {
-                            "either": {
-                              "Left": {
-                                "type": "object",
-                                "readOnly": false,
-                                "writeOnly": false,
-                                "required": [],
-                                "uniqueItems": false,
-                                "properties": {
-                                  "value": {
-                                    "type": "array",
-                                    "readOnly": false,
-                                    "writeOnly": false,
-                                    "required": [],
-                                    "items": {
-                                      "readOnly": false,
-                                      "writeOnly": false,
-                                      "anyOf": [
-                                        {
-                                          "either": {
-                                            "Right": {
-                                              "$ref": "#/components/schemas/microsoft.graph.actionResultPart"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "either": {
-                                            "Left": {
-                                              "type": "object",
-                                              "readOnly": false,
-                                              "writeOnly": false,
-                                              "required": [],
-                                              "uniqueItems": false,
-                                              "additionalPropertiesAllowed": false,
-                                              "enum": [],
-                                              "nullable": true,
-                                              "deprecated": false,
-                                              "unresolvedReference": false
-                                            }
-                                          }
-                                        }
-                                      ],
-                                      "required": [],
-                                      "uniqueItems": false,
-                                      "additionalPropertiesAllowed": false,
-                                      "enum": [],
-                                      "nullable": false,
-                                      "deprecated": false,
-                                      "unresolvedReference": false
-                                    },
-                                    "uniqueItems": false,
-                                    "additionalPropertiesAllowed": false,
-                                    "enum": [],
-                                    "nullable": false,
-                                    "deprecated": false,
-                                    "unresolvedReference": false
-                                  }
-                                },
-                                "additionalPropertiesAllowed": false,
-                                "enum": [],
-                                "nullable": false,
-                                "deprecated": false,
-                                "unresolvedReference": false
-                              }
-                            }
-                          }
-                        ],
-                        "required": [],
-                        "uniqueItems": false,
-                        "additionalPropertiesAllowed": false,
-                        "enum": [],
-                        "nullable": false,
-                        "deprecated": false,
-                        "unresolvedReference": false
-                      }
-                    }
-                  }
-                }
-              }
+              "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -599,9 +587,9 @@
       {
         "either": {
           "Left": {
-            "name": "team-id",
+            "name": "administrativeUnit-id",
             "in": "path",
-            "description": "The unique identifier of team",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -620,22 +608,137 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "team"
+            "x-ms-docs-key-type": "administrativeUnit"
           }
         }
       }
     ]
   },
-  "/members/{conversationMember-id}": {
-    "description": "Provides operations to manage the members property of the microsoft.graph.team entity.",
+  "/members/graph.application": {
+    "description": "Casts the previous resource to application.",
     "get": {
       "tags": [
-        "teams.conversationMember"
+        "directoryObject.application"
       ],
-      "summary": "Get members from teams",
-      "description": "Members and owners of the team.",
-      "operationId": "teams.GetMembers",
+      "summary": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-bbb3",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Left": {
@@ -661,9 +764,7 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "id",
-                    "displayName",
-                    "roles",
-                    "visibleHistoryStartDateTime"
+                    "deletedDateTime"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -727,19 +828,1148 @@
       "responses": {
         "2XX": {
           "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.application/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.microsoft.graph.application-12bb",
+      "parameters": [
+        {
+          "either": {
             "Left": {
-              "description": "Retrieved navigation property",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.conversationMember"
-                      }
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
                     }
                   }
                 }
-              }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.device": {
+    "description": "Casts the previous resource to device.",
+    "get": {
+      "tags": [
+        "directoryObject.device"
+      ],
+      "summary": "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.device-02b8",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.deviceCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.device/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.microsoft.graph.device-a313",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.group": {
+    "description": "Casts the previous resource to group.",
+    "get": {
+      "tags": [
+        "directoryObject.group"
+      ],
+      "summary": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-4213",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.group/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.microsoft.graph.group-af07",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.orgContact": {
+    "description": "Casts the previous resource to orgContact.",
+    "get": {
+      "tags": [
+        "directoryObject.orgContact"
+      ],
+      "summary": "Get the items of type microsoft.graph.orgContact in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.orgContact-0888",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.orgContactCollectionResponse"
             }
           }
         },
@@ -760,12 +1990,918 @@
       },
       "deprecated": false
     },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.orgContact/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.microsoft.graph.orgContact-7392",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.servicePrincipal": {
+    "description": "Casts the previous resource to servicePrincipal.",
+    "get": {
+      "tags": [
+        "directoryObject.servicePrincipal"
+      ],
+      "summary": "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-d412",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.servicePrincipalCollectionResponse"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.servicePrincipal/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.microsoft.graph.servicePrincipal-1d41",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.user": {
+    "description": "Casts the previous resource to user.",
+    "get": {
+      "tags": [
+        "directoryObject.user"
+      ],
+      "summary": "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-b020",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/graph.user/$count": {
+    "description": "Provides operations to count the resources in the collection.",
+    "get": {
+      "summary": "Get the number of the resource",
+      "operationId": "Get.Count.microsoft.graph.user-5d18",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      }
+    ]
+  },
+  "/members/{directoryObject-id}/$ref": {
+    "description": "Provides operations to manage the collection of directory entities.",
     "delete": {
       "tags": [
-        "teams.conversationMember"
+        "directory.administrativeUnit"
       ],
-      "summary": "Delete navigation property members for teams",
-      "operationId": "teams.DeleteMembers",
+      "summary": "Delete ref of navigation property members for directory",
+      "operationId": "directory.administrativeUnits.DeleteRefMembers",
       "parameters": [
         {
           "either": {
@@ -773,6 +2909,33 @@
               "name": "If-Match",
               "in": "header",
               "description": "ETag",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "@id",
+              "in": "query",
+              "description": "Delete Uri",
               "required": false,
               "deprecated": false,
               "explode": false,
@@ -820,31 +2983,196 @@
       },
       "deprecated": false
     },
-    "patch": {
-      "tags": [
-        "teams.conversationMember"
-      ],
-      "summary": "Update the navigation property members in teams",
-      "operationId": "teams.UpdateMembers",
-      "requestBody": {
+    "parameters": [
+      {
         "either": {
           "Left": {
-            "description": "New navigation property values",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.conversationMember"
-                    }
-                  }
-                }
-              }
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
             },
-            "required": true
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
           }
         }
       },
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/members/{directoryObject-id}/graph.application": {
+    "description": "Casts the previous resource to application.",
+    "get": {
+      "tags": [
+        "directoryObject.application"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-bbb3",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
       "responses": {
         "4XX": {
           "either": {
@@ -856,13 +3184,13 @@
         "2XX": {
           "either": {
             "Left": {
-              "description": "",
+              "description": "Result entities",
               "content": {
                 "application/json": {
                   "schema": {
                     "either": {
                       "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.conversationMember"
+                        "$ref": "#/components/schemas/microsoft.graph.application"
                       }
                     }
                   }
@@ -885,9 +3213,9 @@
       {
         "either": {
           "Left": {
-            "name": "team-id",
+            "name": "administrativeUnit-id",
             "in": "path",
-            "description": "The unique identifier of team",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -906,16 +3234,16 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "team"
+            "x-ms-docs-key-type": "administrativeUnit"
           }
         }
       },
       {
         "either": {
           "Left": {
-            "name": "conversationMember-id",
+            "name": "directoryObject-id",
             "in": "path",
-            "description": "The unique identifier of conversationMember",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -934,7 +3262,1137 @@
             },
             "examples": {},
             "content": {},
-            "x-ms-docs-key-type": "conversationMember"
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/members/{directoryObject-id}/graph.device": {
+    "description": "Casts the previous resource to device.",
+    "get": {
+      "tags": [
+        "directoryObject.device"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.device",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.device-02b8",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Result entities",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.device"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/members/{directoryObject-id}/graph.group": {
+    "description": "Casts the previous resource to group.",
+    "get": {
+      "tags": [
+        "directoryObject.group"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-4213",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Result entities",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.group"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/members/{directoryObject-id}/graph.orgContact": {
+    "description": "Casts the previous resource to orgContact.",
+    "get": {
+      "tags": [
+        "directoryObject.orgContact"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.orgContact",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.orgContact-0888",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Result entities",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.orgContact"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/members/{directoryObject-id}/graph.servicePrincipal": {
+    "description": "Casts the previous resource to servicePrincipal.",
+    "get": {
+      "tags": [
+        "directoryObject.servicePrincipal"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-d412",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Result entities",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.servicePrincipal"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
+          }
+        }
+      }
+    ]
+  },
+  "/members/{directoryObject-id}/graph.user": {
+    "description": "Casts the previous resource to user.",
+    "get": {
+      "tags": [
+        "directoryObject.user"
+      ],
+      "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-b020",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$expand",
+              "in": "query",
+              "description": "Expand related entities",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "*"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "Result entities",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.user"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
+      {
+        "either": {
+          "Left": {
+            "name": "administrativeUnit-id",
+            "in": "path",
+            "description": "The unique identifier of administrativeUnit",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "administrativeUnit"
+          }
+        }
+      },
+      {
+        "either": {
+          "Left": {
+            "name": "directoryObject-id",
+            "in": "path",
+            "description": "The unique identifier of directoryObject",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string",
+              "readOnly": false,
+              "writeOnly": false,
+              "required": [],
+              "uniqueItems": false,
+              "additionalPropertiesAllowed": false,
+              "enum": [],
+              "nullable": false,
+              "deprecated": false,
+              "unresolvedReference": false
+            },
+            "examples": {},
+            "content": {},
+            "x-ms-docs-key-type": "directoryObject"
           }
         }
       }

@@ -71,17 +71,6 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.todo.DeleteLists",
-        "operation_mapping": "TodoListsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property lists for users",
-        "parent": "TodoListsId",
-        "original_parent": "TodoLists",
-        "resource_identity": "TodoLists"
-      },
-      {
-        "has_body": false,
         "request_task": "Json",
         "operation_id": "users.todo.GetLists",
         "operation_mapping": "TodoListsId",
@@ -98,6 +87,17 @@
         "operation_mapping": "TodoListsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property lists in users",
+        "parent": "TodoListsId",
+        "original_parent": "TodoLists",
+        "resource_identity": "TodoLists"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.todo.DeleteLists",
+        "operation_mapping": "TodoListsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property lists for users",
         "parent": "TodoListsId",
         "original_parent": "TodoLists",
         "resource_identity": "TodoLists"
@@ -170,23 +170,23 @@
         "resource_identity": "TodoLists"
       },
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.todo.lists.DeleteExtensions",
-        "operation_mapping": "TodoListsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property extensions for users",
-        "parent": "TodoListsId",
-        "original_parent": "TodoLists",
-        "resource_identity": "TodoLists"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.todo.lists.UpdateExtensions",
         "operation_mapping": "TodoListsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property extensions in users",
+        "parent": "TodoListsId",
+        "original_parent": "TodoLists",
+        "resource_identity": "TodoLists"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.todo.lists.DeleteExtensions",
+        "operation_mapping": "TodoListsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for users",
         "parent": "TodoListsId",
         "original_parent": "TodoLists",
         "resource_identity": "TodoLists"

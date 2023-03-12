@@ -1,14 +1,14 @@
 {
   "modifier_name": null,
   "path": "/members",
-  "resource_identity": "TeamsMembers",
-  "trim_path_start": "/teams/{team-id}",
+  "resource_identity": "DirectoryMembers",
+  "trim_path_start": "/directory/administrativeUnits/{administrativeUnit-id}",
   "filter_path": [],
-  "replace_operation_map": "teamsMembers",
+  "replace_operation_map": "directoryMembers",
   "parameter_filter": [],
   "mod_file": {
     "Declarations": {
-      "file": "./src/teams/teams_members/mod.rs",
+      "file": "./src/directory/directory_members/mod.rs",
       "declarations": [
         "request"
       ]

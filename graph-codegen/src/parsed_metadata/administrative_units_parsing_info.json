@@ -1,7 +1,22 @@
 {
-  "modifier_name": "administrativeUnits",
+  "modifier_name": null,
   "path": "/administrativeUnits",
   "resource_identity": "AdministrativeUnits",
   "trim_path_start": "/directory",
-  "parameter_filter": []
+  "filter_path": [
+    "members"
+  ],
+  "replace_operation_map": "administrativeUnits",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/directory/administrative_units/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
 }

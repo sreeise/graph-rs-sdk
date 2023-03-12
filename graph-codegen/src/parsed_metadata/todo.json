@@ -16,23 +16,23 @@
         "resource_identity": "Todo"
       },
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.DeleteTodo",
-        "operation_mapping": "todo",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property todo for users",
-        "parent": "Todo",
-        "original_parent": "Todo",
-        "resource_identity": "Todo"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.UpdateTodo",
         "operation_mapping": "todo",
         "http_method": "PATCH",
         "doc": "Update the navigation property todo in users",
+        "parent": "Todo",
+        "original_parent": "Todo",
+        "resource_identity": "Todo"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteTodo",
+        "operation_mapping": "todo",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property todo for users",
         "parent": "Todo",
         "original_parent": "Todo",
         "resource_identity": "Todo"

@@ -5,23 +5,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.CreateExtensions",
-        "operation_mapping": "extensions",
-        "http_method": "POST",
-        "doc": "Create new navigation property to extensions for users",
-        "parent": "Extensions",
-        "original_parent": "Extensions",
-        "resource_identity": "Extensions"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.ListExtensions",
         "operation_mapping": "extensions",
         "http_method": "GET",
         "doc": "Get extensions from users",
+        "parent": "Extensions",
+        "original_parent": "Extensions",
+        "resource_identity": "Extensions"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.CreateExtensions",
+        "operation_mapping": "extensions",
+        "http_method": "POST",
+        "doc": "Create new navigation property to extensions for users",
         "parent": "Extensions",
         "original_parent": "Extensions",
         "resource_identity": "Extensions"
@@ -52,17 +52,6 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.UpdateExtensions",
-        "operation_mapping": "ExtensionsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property extensions in users",
-        "parent": "ExtensionsId",
-        "original_parent": "Extensions",
-        "resource_identity": "Extensions"
-      },
-      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "users.DeleteExtensions",
@@ -80,6 +69,17 @@
         "operation_mapping": "ExtensionsId",
         "http_method": "GET",
         "doc": "Get extensions from users",
+        "parent": "ExtensionsId",
+        "original_parent": "Extensions",
+        "resource_identity": "Extensions"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateExtensions",
+        "operation_mapping": "ExtensionsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property extensions in users",
         "parent": "ExtensionsId",
         "original_parent": "Extensions",
         "resource_identity": "Extensions"

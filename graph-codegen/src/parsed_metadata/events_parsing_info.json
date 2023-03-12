@@ -4,8 +4,7 @@
   "resource_identity": "Events",
   "trim_path_start": "/users/{user-id}",
   "filter_path": [
-    "/multiValueExtendedProperties",
-    "singleValueExtendedProperties"
+    "instances"
   ],
   "replace_operation_map": "events",
   "parameter_filter": [],

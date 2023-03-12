@@ -2,7 +2,7 @@
   "modifier_name": null,
   "path": "/memberOf",
   "resource_identity": "MemberOf",
-  "trim_path_start": "/me",
+  "trim_path_start": "/users/{user-id}",
   "filter_path": [
     "/multiValueExtendedProperties",
     "singleValueExtendedProperties"
@@ -11,7 +11,7 @@
   "parameter_filter": [],
   "mod_file": {
     "Declarations": {
-      "file": "./src/me/member_of/mod.rs",
+      "file": "./src/users/member_of/mod.rs",
       "declarations": [
         "request"
       ]

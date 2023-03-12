@@ -124,17 +124,6 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.group.UpdateGroup",
-        "operation_mapping": "GroupsId",
-        "http_method": "PATCH",
-        "doc": "Update group",
-        "parent": "GroupsId",
-        "original_parent": "Groups",
-        "resource_identity": "Groups"
-      },
-      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "groups.group.DeleteGroup",
@@ -152,6 +141,17 @@
         "operation_mapping": "GroupsId",
         "http_method": "GET",
         "doc": "Get group",
+        "parent": "GroupsId",
+        "original_parent": "Groups",
+        "resource_identity": "Groups"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.group.UpdateGroup",
+        "operation_mapping": "GroupsId",
+        "http_method": "PATCH",
+        "doc": "Update group",
         "parent": "GroupsId",
         "original_parent": "Groups",
         "resource_identity": "Groups"
@@ -370,6 +370,62 @@
     ]
   },
   {
+    "path": "/groups/{{RID}}/drives",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.ListDrives",
+        "operation_mapping": "GroupsId",
+        "http_method": "GET",
+        "doc": "List available drives",
+        "parent": "GroupsId",
+        "original_parent": "Groups",
+        "resource_identity": "Groups"
+      }
+    ]
+  },
+  {
+    "path": "/groups/{{RID}}/drives/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.drives-9ca4",
+        "operation_mapping": "GroupsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "GroupsId",
+        "original_parent": "Get",
+        "resource_identity": "Groups"
+      }
+    ]
+  },
+  {
+    "path": "/groups/{{RID}}/drives/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "drive_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.GetDrives",
+        "operation_mapping": "GroupsId",
+        "http_method": "GET",
+        "doc": "Get drives from groups",
+        "parent": "GroupsId",
+        "original_parent": "Groups",
+        "resource_identity": "Groups"
+      }
+    ]
+  },
+  {
     "path": "/groups/{{RID}}/getMemberGroups",
     "param_size": 0,
     "parameters": [],
@@ -447,23 +503,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "groups.CreateRefMembers",
-        "operation_mapping": "GroupsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property ref to members for groups",
-        "parent": "GroupsId",
-        "original_parent": "Groups",
-        "resource_identity": "Groups"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "groups.ListRefMembers",
         "operation_mapping": "GroupsId",
         "http_method": "GET",
         "doc": "Get ref of members from groups",
+        "parent": "GroupsId",
+        "original_parent": "Groups",
+        "resource_identity": "Groups"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "groups.CreateRefMembers",
+        "operation_mapping": "GroupsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to members for groups",
         "parent": "GroupsId",
         "original_parent": "Groups",
         "resource_identity": "Groups"
@@ -1096,6 +1152,17 @@
     ],
     "metadata": [
       {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.UpdateSettings",
+        "operation_mapping": "GroupsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property settings in groups",
+        "parent": "GroupsId",
+        "original_parent": "Groups",
+        "resource_identity": "Groups"
+      },
+      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "groups.DeleteSettings",
@@ -1113,17 +1180,6 @@
         "operation_mapping": "GroupsId",
         "http_method": "GET",
         "doc": "Get settings from groups",
-        "parent": "GroupsId",
-        "original_parent": "Groups",
-        "resource_identity": "Groups"
-      },
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.UpdateSettings",
-        "operation_mapping": "GroupsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property settings in groups",
         "parent": "GroupsId",
         "original_parent": "Groups",
         "resource_identity": "Groups"

@@ -5,17 +5,6 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.UpdateTeamwork",
-        "operation_mapping": "teamwork",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property teamwork in users",
-        "parent": "Teamwork",
-        "original_parent": "Teamwork",
-        "resource_identity": "Teamwork"
-      },
-      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "users.DeleteTeamwork",
@@ -36,6 +25,17 @@
         "parent": "Teamwork",
         "original_parent": "Teamwork",
         "resource_identity": "Teamwork"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateTeamwork",
+        "operation_mapping": "teamwork",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property teamwork in users",
+        "parent": "Teamwork",
+        "original_parent": "Teamwork",
+        "resource_identity": "Teamwork"
       }
     ]
   },
@@ -45,23 +45,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.teamwork.CreateAssociatedTeams",
-        "operation_mapping": "teamwork",
-        "http_method": "POST",
-        "doc": "Create new navigation property to associatedTeams for users",
-        "parent": "Teamwork",
-        "original_parent": "Teamwork",
-        "resource_identity": "Teamwork"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.teamwork.ListAssociatedTeams",
         "operation_mapping": "teamwork",
         "http_method": "GET",
         "doc": "List associatedTeamInfo",
+        "parent": "Teamwork",
+        "original_parent": "Teamwork",
+        "resource_identity": "Teamwork"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.teamwork.CreateAssociatedTeams",
+        "operation_mapping": "teamwork",
+        "http_method": "POST",
+        "doc": "Create new navigation property to associatedTeams for users",
         "parent": "Teamwork",
         "original_parent": "Teamwork",
         "resource_identity": "Teamwork"
@@ -105,23 +105,23 @@
         "resource_identity": "Teamwork"
       },
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.teamwork.UpdateAssociatedTeams",
-        "operation_mapping": "teamwork",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property associatedTeams in users",
-        "parent": "Teamwork",
-        "original_parent": "Teamwork",
-        "resource_identity": "Teamwork"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.teamwork.GetAssociatedTeams",
         "operation_mapping": "teamwork",
         "http_method": "GET",
         "doc": "Get associatedTeams from users",
+        "parent": "Teamwork",
+        "original_parent": "Teamwork",
+        "resource_identity": "Teamwork"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.teamwork.UpdateAssociatedTeams",
+        "operation_mapping": "teamwork",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property associatedTeams in users",
         "parent": "Teamwork",
         "original_parent": "Teamwork",
         "resource_identity": "Teamwork"
@@ -184,11 +184,11 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.teamwork.GetInstalledApps",
+        "request_task": "NoContent",
+        "operation_id": "users.teamwork.DeleteInstalledApps",
         "operation_mapping": "teamwork",
-        "http_method": "GET",
-        "doc": "Get installedApps from users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property installedApps for users",
         "parent": "Teamwork",
         "original_parent": "Teamwork",
         "resource_identity": "Teamwork"
@@ -206,11 +206,11 @@
       },
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.teamwork.DeleteInstalledApps",
+        "request_task": "Json",
+        "operation_id": "users.teamwork.GetInstalledApps",
         "operation_mapping": "teamwork",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property installedApps for users",
+        "http_method": "GET",
+        "doc": "Get installedApps from users",
         "parent": "Teamwork",
         "original_parent": "Teamwork",
         "resource_identity": "Teamwork"

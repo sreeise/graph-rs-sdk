@@ -5,17 +5,6 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "groups.GetTeam",
-        "operation_mapping": "team",
-        "http_method": "GET",
-        "doc": "Get team from groups",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "groups.UpdateTeam",
@@ -33,6 +22,17 @@
         "operation_mapping": "team",
         "http_method": "DELETE",
         "doc": "Delete navigation property team for groups",
+        "parent": "Team",
+        "original_parent": "Team",
+        "resource_identity": "Team"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.GetTeam",
+        "operation_mapping": "team",
+        "http_method": "GET",
+        "doc": "Get team from groups",
         "parent": "Team",
         "original_parent": "Team",
         "resource_identity": "Team"
@@ -229,23 +229,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.team.CreateInstalledApps",
-        "operation_mapping": "team",
-        "http_method": "POST",
-        "doc": "Add app to team",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "groups.team.ListInstalledApps",
         "operation_mapping": "team",
         "http_method": "GET",
         "doc": "List apps in team",
+        "parent": "Team",
+        "original_parent": "Team",
+        "resource_identity": "Team"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.team.CreateInstalledApps",
+        "operation_mapping": "team",
+        "http_method": "POST",
+        "doc": "Add app to team",
         "parent": "Team",
         "original_parent": "Team",
         "resource_identity": "Team"
@@ -373,128 +373,10 @@
     ]
   },
   {
-    "path": "/team/members",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "groups.team.ListMembers",
-        "operation_mapping": "team",
-        "http_method": "GET",
-        "doc": "List members of team",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      },
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.team.CreateMembers",
-        "operation_mapping": "team",
-        "http_method": "POST",
-        "doc": "Add member to team",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      }
-    ]
-  },
-  {
-    "path": "/team/members/$count",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.members-a0b1",
-        "operation_mapping": "team",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      }
-    ]
-  },
-  {
-    "path": "/team/members/add",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.group.team.members.add",
-        "operation_mapping": "team",
-        "http_method": "POST",
-        "doc": "Invoke action add",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      }
-    ]
-  },
-  {
-    "path": "/team/members/{{id}}",
-    "param_size": 1,
-    "parameters": [
-      "conversation_member_id"
-    ],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.team.UpdateMembers",
-        "operation_mapping": "team",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property members in groups",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "groups.team.DeleteMembers",
-        "operation_mapping": "team",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property members for groups",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "groups.team.GetMembers",
-        "operation_mapping": "team",
-        "http_method": "GET",
-        "doc": "Get members from groups",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      }
-    ]
-  },
-  {
     "path": "/team/operations",
     "param_size": 0,
     "parameters": [],
     "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "groups.team.CreateOperations",
-        "operation_mapping": "team",
-        "http_method": "POST",
-        "doc": "Create new navigation property to operations for groups",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      },
       {
         "has_body": false,
         "request_task": "Json",
@@ -502,6 +384,17 @@
         "operation_mapping": "team",
         "http_method": "GET",
         "doc": "Get operations from groups",
+        "parent": "Team",
+        "original_parent": "Team",
+        "resource_identity": "Team"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "groups.team.CreateOperations",
+        "operation_mapping": "team",
+        "http_method": "POST",
+        "doc": "Create new navigation property to operations for groups",
         "parent": "Team",
         "original_parent": "Team",
         "resource_identity": "Team"
@@ -535,17 +428,6 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "groups.team.DeleteOperations",
-        "operation_mapping": "team",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property operations for groups",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      },
-      {
-        "has_body": false,
         "request_task": "Json",
         "operation_id": "groups.team.GetOperations",
         "operation_mapping": "team",
@@ -565,6 +447,17 @@
         "parent": "Team",
         "original_parent": "Team",
         "resource_identity": "Team"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "groups.team.DeleteOperations",
+        "operation_mapping": "team",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property operations for groups",
+        "parent": "Team",
+        "original_parent": "Team",
+        "resource_identity": "Team"
       }
     ]
   },
@@ -573,17 +466,6 @@
     "param_size": 0,
     "parameters": [],
     "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "groups.team.GetPhoto",
-        "operation_mapping": "team",
-        "http_method": "GET",
-        "doc": "Get photo from groups",
-        "parent": "Team",
-        "original_parent": "Team",
-        "resource_identity": "Team"
-      },
       {
         "has_body": true,
         "request_task": "Json",
@@ -602,6 +484,17 @@
         "operation_mapping": "team",
         "http_method": "DELETE",
         "doc": "Delete navigation property photo for groups",
+        "parent": "Team",
+        "original_parent": "Team",
+        "resource_identity": "Team"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "groups.team.GetPhoto",
+        "operation_mapping": "team",
+        "http_method": "GET",
+        "doc": "Get photo from groups",
         "parent": "Team",
         "original_parent": "Team",
         "resource_identity": "Team"

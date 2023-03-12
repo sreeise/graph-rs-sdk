@@ -70,12 +70,12 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.DeleteOnlineMeetings",
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateOnlineMeetings",
         "operation_mapping": "OnlineMeetingsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property onlineMeetings for users",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property onlineMeetings in users",
         "parent": "OnlineMeetingsId",
         "original_parent": "OnlineMeetings",
         "resource_identity": "OnlineMeetings"
@@ -92,12 +92,12 @@
         "resource_identity": "OnlineMeetings"
       },
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.UpdateOnlineMeetings",
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.DeleteOnlineMeetings",
         "operation_mapping": "OnlineMeetingsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property onlineMeetings in users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property onlineMeetings for users",
         "parent": "OnlineMeetingsId",
         "original_parent": "OnlineMeetings",
         "resource_identity": "OnlineMeetings"
@@ -170,23 +170,23 @@
         "resource_identity": "OnlineMeetings"
       },
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.onlineMeetings.UpdateAttendanceReports",
-        "operation_mapping": "OnlineMeetingsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property attendanceReports in users",
-        "parent": "OnlineMeetingsId",
-        "original_parent": "OnlineMeetings",
-        "resource_identity": "OnlineMeetings"
-      },
-      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "users.onlineMeetings.DeleteAttendanceReports",
         "operation_mapping": "OnlineMeetingsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property attendanceReports for users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.UpdateAttendanceReports",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property attendanceReports in users",
         "parent": "OnlineMeetingsId",
         "original_parent": "OnlineMeetings",
         "resource_identity": "OnlineMeetings"
@@ -201,23 +201,23 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.onlineMeetings.attendanceReports.ListAttendanceRecords",
-        "operation_mapping": "OnlineMeetingsId",
-        "http_method": "GET",
-        "doc": "List attendanceRecords",
-        "parent": "OnlineMeetingsId",
-        "original_parent": "OnlineMeetings",
-        "resource_identity": "OnlineMeetings"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.onlineMeetings.attendanceReports.CreateAttendanceRecords",
         "operation_mapping": "OnlineMeetingsId",
         "http_method": "POST",
         "doc": "Create new navigation property to attendanceRecords for users",
+        "parent": "OnlineMeetingsId",
+        "original_parent": "OnlineMeetings",
+        "resource_identity": "OnlineMeetings"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.onlineMeetings.attendanceReports.ListAttendanceRecords",
+        "operation_mapping": "OnlineMeetingsId",
+        "http_method": "GET",
+        "doc": "List attendanceRecords",
         "parent": "OnlineMeetingsId",
         "original_parent": "OnlineMeetings",
         "resource_identity": "OnlineMeetings"

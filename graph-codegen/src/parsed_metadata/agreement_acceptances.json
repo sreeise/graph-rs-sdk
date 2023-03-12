@@ -7,28 +7,21 @@
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "users.ListAgreementAcceptances",
+        "operation_id": "agreementAcceptances.agreementAcceptance.ListAgreementAcceptance",
         "operation_mapping": "agreementAcceptances",
         "http_method": "GET",
-        "doc": "List agreementAcceptances",
+        "doc": "Get entities from agreementAcceptances",
         "parent": "AgreementAcceptances",
         "original_parent": "AgreementAcceptances",
         "resource_identity": "AgreementAcceptances"
-      }
-    ]
-  },
-  {
-    "path": "/agreementAcceptances/$count",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
+      },
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "Get.Count.agreementAcceptances-b659",
+        "operation_id": "agreementAcceptances.agreementAcceptance.CreateAgreementAcceptance",
         "operation_mapping": "agreementAcceptances",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
+        "http_method": "POST",
+        "doc": "Add new entity to agreementAcceptances",
         "parent": "AgreementAcceptances",
         "original_parent": "AgreementAcceptances",
         "resource_identity": "AgreementAcceptances"
@@ -43,10 +36,32 @@
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "users.GetAgreementAcceptances",
+        "operation_id": "agreementAcceptances.agreementAcceptance.GetAgreementAcceptance",
         "operation_mapping": "AgreementAcceptancesId",
         "http_method": "GET",
-        "doc": "Get agreementAcceptances from users",
+        "doc": "Get entity from agreementAcceptances by key",
+        "parent": "AgreementAcceptancesId",
+        "original_parent": "AgreementAcceptances",
+        "resource_identity": "AgreementAcceptances"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "agreementAcceptances.agreementAcceptance.UpdateAgreementAcceptance",
+        "operation_mapping": "AgreementAcceptancesId",
+        "http_method": "PATCH",
+        "doc": "Update entity in agreementAcceptances",
+        "parent": "AgreementAcceptancesId",
+        "original_parent": "AgreementAcceptances",
+        "resource_identity": "AgreementAcceptances"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "agreementAcceptances.agreementAcceptance.DeleteAgreementAcceptance",
+        "operation_mapping": "AgreementAcceptancesId",
+        "http_method": "DELETE",
+        "doc": "Delete entity from agreementAcceptances",
         "parent": "AgreementAcceptancesId",
         "original_parent": "AgreementAcceptances",
         "resource_identity": "AgreementAcceptances"

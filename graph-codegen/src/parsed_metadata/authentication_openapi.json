@@ -186,10 +186,10 @@
         }
       ],
       "responses": {
-        "204": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -200,10 +200,10 @@
             }
           }
         },
-        "4XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -490,14 +490,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -538,6 +538,20 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -553,20 +567,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -626,6 +626,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -637,13 +644,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -778,7 +778,7 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -803,7 +803,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -849,17 +849,17 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1185,6 +1185,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.fido2AuthenticationMethodCollectionResponse"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -1196,13 +1203,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.fido2AuthenticationMethodCollectionResponse"
             }
           }
         }
@@ -1262,6 +1262,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -1273,13 +1280,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -1419,20 +1419,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -1448,6 +1434,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1490,6 +1490,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -1498,13 +1505,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1751,6 +1751,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.authenticationMethodCollectionResponse"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -1762,13 +1769,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.authenticationMethodCollectionResponse"
             }
           }
         }
@@ -1801,13 +1801,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -1823,6 +1816,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1889,10 +1889,10 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "2XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -1903,10 +1903,10 @@
             }
           }
         },
-        "2XX": {
+        "4XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2040,20 +2040,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -2069,6 +2055,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2101,13 +2101,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -2123,6 +2116,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -2565,17 +2565,17 @@
         }
       ],
       "responses": {
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.microsoftAuthenticatorAuthenticationMethodCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.microsoftAuthenticatorAuthenticationMethodCollectionResponse"
             }
           }
         },
@@ -2642,6 +2642,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2653,13 +2660,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2799,6 +2799,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -2821,13 +2828,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2870,10 +2870,10 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         },
@@ -2884,10 +2884,10 @@
             }
           }
         },
-        "204": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3079,13 +3079,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -3108,6 +3101,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3362,10 +3362,10 @@
         }
       ],
       "responses": {
-        "2XX": {
+        "4XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/microsoft.graph.longRunningOperationCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -3376,10 +3376,10 @@
             }
           }
         },
-        "4XX": {
+        "2XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/microsoft.graph.longRunningOperationCollectionResponse"
             }
           }
         }
@@ -3656,20 +3656,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -3685,6 +3671,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3734,14 +3734,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3777,20 +3777,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -3806,6 +3792,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4062,17 +4062,17 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.passwordAuthenticationMethodCollectionResponse"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4105,14 +4105,14 @@
         }
       },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4346,13 +4346,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -4375,6 +4368,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4627,6 +4627,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Right": {
@@ -4635,13 +4642,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4682,6 +4682,13 @@
         }
       },
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -4704,13 +4711,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -4770,6 +4770,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -4781,13 +4788,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -4924,14 +4924,14 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4995,13 +4995,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
@@ -5010,6 +5003,13 @@
           }
         },
         "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5045,13 +5045,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -5067,6 +5060,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -5153,10 +5153,10 @@
       },
       "operationId": "users.user.authentication.phoneMethods.phoneAuthenticationMethod.disableSmsSignIn",
       "responses": {
-        "5XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         },
@@ -5167,10 +5167,10 @@
             }
           }
         },
-        "204": {
+        "5XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5257,14 +5257,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5514,6 +5514,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -5525,13 +5532,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.softwareOathAuthenticationMethodCollectionResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5598,14 +5598,14 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -5814,13 +5814,6 @@
         }
       ],
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -5832,6 +5825,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -6096,14 +6096,14 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -6151,20 +6151,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -6180,6 +6166,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -6239,10 +6239,10 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "2XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -6253,10 +6253,10 @@
             }
           }
         },
-        "2XX": {
+        "5XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -6404,6 +6404,13 @@
             }
           }
         },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -6419,13 +6426,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -6468,17 +6468,17 @@
         }
       ],
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         },
@@ -6740,6 +6740,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -6751,13 +6758,6 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.windowsHelloForBusinessAuthenticationMethodCollectionResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -6817,17 +6817,17 @@
         }
       ],
       "responses": {
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -6973,6 +6973,20 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -6988,20 +7002,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -7253,20 +7253,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -7282,6 +7268,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -7342,1392 +7342,6 @@
             "examples": {},
             "content": {},
             "x-ms-docs-key-type": "windowsHelloForBusinessAuthenticationMethod"
-          }
-        }
-      }
-    ]
-  },
-  "/authenticationMethodConfigurations": {
-    "description": "Provides operations to manage the collection of authenticationMethodConfiguration entities.",
-    "get": {
-      "tags": [
-        "authenticationMethodConfigurations.authenticationMethodConfiguration"
-      ],
-      "summary": "Get entities from authenticationMethodConfigurations",
-      "operationId": "authenticationMethodConfigurations.authenticationMethodConfiguration.ListAuthenticationMethodConfiguration",
-      "parameters": [
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/top"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/skip"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/search"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/filter"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/count"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$orderby",
-              "in": "query",
-              "description": "Order items by property values",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "id desc",
-                    "state",
-                    "state desc"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "state"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.authenticationMethodConfigurationCollectionResponse"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "post": {
-      "tags": [
-        "authenticationMethodConfigurations.authenticationMethodConfiguration"
-      ],
-      "summary": "Add new entity to authenticationMethodConfigurations",
-      "operationId": "authenticationMethodConfigurations.authenticationMethodConfiguration.CreateAuthenticationMethodConfiguration",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "Created entity",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    }
-  },
-  "/authenticationMethodConfigurations/$count": {
-    "description": "Provides operations to count the resources in the collection.",
-    "get": {
-      "summary": "Get the number of the resource",
-      "operationId": "Get.Count.authenticationMethodConfigurations-6d53",
-      "parameters": [
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/search"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/filter"
-            }
-          }
-        }
-      ],
-      "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    }
-  },
-  "/authenticationMethodConfigurations/{authenticationMethodConfiguration-id}": {
-    "description": "Provides operations to manage the collection of authenticationMethodConfiguration entities.",
-    "get": {
-      "tags": [
-        "authenticationMethodConfigurations.authenticationMethodConfiguration"
-      ],
-      "summary": "Get entity from authenticationMethodConfigurations by key",
-      "operationId": "authenticationMethodConfigurations.authenticationMethodConfiguration.GetAuthenticationMethodConfiguration",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "state"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "Retrieved entity",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "delete": {
-      "tags": [
-        "authenticationMethodConfigurations.authenticationMethodConfiguration"
-      ],
-      "summary": "Delete entity from authenticationMethodConfigurations",
-      "operationId": "authenticationMethodConfigurations.authenticationMethodConfiguration.DeleteAuthenticationMethodConfiguration",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "If-Match",
-              "in": "header",
-              "description": "ETag",
-              "required": false,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "patch": {
-      "tags": [
-        "authenticationMethodConfigurations.authenticationMethodConfiguration"
-      ],
-      "summary": "Update entity in authenticationMethodConfigurations",
-      "operationId": "authenticationMethodConfigurations.authenticationMethodConfiguration.UpdateAuthenticationMethodConfiguration",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New property values",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "authenticationMethodConfiguration-id",
-            "in": "path",
-            "description": "The unique identifier of authenticationMethodConfiguration",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "authenticationMethodConfiguration"
-          }
-        }
-      }
-    ]
-  },
-  "/authenticationMethodsPolicy": {
-    "description": "Provides operations to manage the authenticationMethodsPolicy singleton.",
-    "get": {
-      "tags": [
-        "authenticationMethodsPolicy.authenticationMethodsPolicy"
-      ],
-      "summary": "Get authenticationMethodsPolicy",
-      "operationId": "authenticationMethodsPolicy.authenticationMethodsPolicy.GetAuthenticationMethodsPolicy",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "description",
-                    "displayName",
-                    "lastModifiedDateTime",
-                    "policyVersion",
-                    "reconfirmationInDays",
-                    "registrationEnforcement",
-                    "authenticationMethodConfigurations"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*",
-                    "authenticationMethodConfigurations"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "Retrieved entity",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.authenticationMethodsPolicy"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "patch": {
-      "tags": [
-        "authenticationMethodsPolicy.authenticationMethodsPolicy"
-      ],
-      "summary": "Update authenticationMethodsPolicy",
-      "operationId": "authenticationMethodsPolicy.authenticationMethodsPolicy.UpdateAuthenticationMethodsPolicy",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New property values",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.authenticationMethodsPolicy"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.authenticationMethodsPolicy"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    }
-  },
-  "/authenticationMethodsPolicy/authenticationMethodConfigurations": {
-    "description": "Provides operations to manage the authenticationMethodConfigurations property of the microsoft.graph.authenticationMethodsPolicy entity.",
-    "get": {
-      "tags": [
-        "authenticationMethodsPolicy.authenticationMethodConfiguration"
-      ],
-      "summary": "Get authenticationMethodConfigurations from authenticationMethodsPolicy",
-      "description": "Represents the settings for each authentication method. Automatically expanded on GET /policies/authenticationMethodsPolicy.",
-      "operationId": "authenticationMethodsPolicy.ListAuthenticationMethodConfigurations",
-      "parameters": [
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/top"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/skip"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/search"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/filter"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/count"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$orderby",
-              "in": "query",
-              "description": "Order items by property values",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "id desc",
-                    "state",
-                    "state desc"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "state"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.authenticationMethodConfigurationCollectionResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "post": {
-      "tags": [
-        "authenticationMethodsPolicy.authenticationMethodConfiguration"
-      ],
-      "summary": "Create new navigation property to authenticationMethodConfigurations for authenticationMethodsPolicy",
-      "operationId": "authenticationMethodsPolicy.CreateAuthenticationMethodConfigurations",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New navigation property",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "Created navigation property.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    }
-  },
-  "/authenticationMethodsPolicy/authenticationMethodConfigurations/$count": {
-    "description": "Provides operations to count the resources in the collection.",
-    "get": {
-      "summary": "Get the number of the resource",
-      "operationId": "Get.Count.authenticationMethodConfigurations-e7d5",
-      "parameters": [
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/search"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/filter"
-            }
-          }
-        }
-      ],
-      "responses": {
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    }
-  },
-  "/authenticationMethodsPolicy/authenticationMethodConfigurations/{authenticationMethodConfiguration-id}": {
-    "description": "Provides operations to manage the authenticationMethodConfigurations property of the microsoft.graph.authenticationMethodsPolicy entity.",
-    "get": {
-      "tags": [
-        "authenticationMethodsPolicy.authenticationMethodConfiguration"
-      ],
-      "summary": "Get authenticationMethodConfigurations from authenticationMethodsPolicy",
-      "description": "Represents the settings for each authentication method. Automatically expanded on GET /policies/authenticationMethodsPolicy.",
-      "operationId": "authenticationMethodsPolicy.GetAuthenticationMethodConfigurations",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "state"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "Retrieved navigation property",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "delete": {
-      "tags": [
-        "authenticationMethodsPolicy.authenticationMethodConfiguration"
-      ],
-      "summary": "Delete navigation property authenticationMethodConfigurations for authenticationMethodsPolicy",
-      "operationId": "authenticationMethodsPolicy.DeleteAuthenticationMethodConfigurations",
-      "parameters": [
-        {
-          "either": {
-            "Left": {
-              "name": "If-Match",
-              "in": "header",
-              "description": "ETag",
-              "required": false,
-              "deprecated": false,
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "string",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "uniqueItems": false,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "patch": {
-      "tags": [
-        "authenticationMethodsPolicy.authenticationMethodConfiguration"
-      ],
-      "summary": "Update the navigation property authenticationMethodConfigurations in authenticationMethodsPolicy",
-      "operationId": "authenticationMethodsPolicy.UpdateAuthenticationMethodConfigurations",
-      "requestBody": {
-        "either": {
-          "Left": {
-            "description": "New navigation property values",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "either": {
-                    "Right": {
-                      "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                    }
-                  }
-                }
-              }
-            },
-            "required": true
-          }
-        }
-      },
-      "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Right": {
-                        "$ref": "#/components/schemas/microsoft.graph.authenticationMethodConfiguration"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "authenticationMethodConfiguration-id",
-            "in": "path",
-            "description": "The unique identifier of authenticationMethodConfiguration",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "authenticationMethodConfiguration"
           }
         }
       }

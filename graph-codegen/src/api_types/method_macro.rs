@@ -1,6 +1,6 @@
 use crate::api_types::RequestTask;
 use crate::parser::HttpMethod;
-use crate::settings::{MacroModifierType, MethodMacroModifier};
+use crate::settings::{GeneratedMacroType, MethodMacroModifier};
 use from_as::*;
 use inflector::Inflector;
 use std::convert::TryFrom;
@@ -46,34 +46,33 @@ impl MethodMacro {
         let mut is_match = true;
         for method_macro_type in method_macro_modifier.matching.iter() {
             match method_macro_type {
-                MacroModifierType::FnName(name) => {
+                GeneratedMacroType::FnName(name) => {
                     if self.fn_name.to_snake_case() != name.to_snake_case() {
                         return false;
                     }
                 }
-                MacroModifierType::Path(path) => {
-                    if self.path.ne(path.as_str()) {
+                GeneratedMacroType::Path(path) => {
+                    if self.path.ne(path) {
                         return false;
                     }
                 }
-                MacroModifierType::ParamSize(param_size) => {
+                GeneratedMacroType::ParamSize(param_size) => {
                     if self.param_size.ne(param_size) {
                         return false;
                     }
                 }
-                MacroModifierType::RequestTask(request_task) => {
+                GeneratedMacroType::RequestTask(request_task) => {
                     if self.request_task.ne(request_task) {
                         return false;
                     }
                 }
-                MacroModifierType::FnNameAndPath(name, path) => {
-                    if self.fn_name.to_snake_case().ne(&name.to_snake_case())
-                        || self.path.ne(path.as_str())
+                GeneratedMacroType::FnNameAndPath(name, path) => {
+                    if self.fn_name.to_snake_case().ne(&name.to_snake_case()) || self.path.ne(path)
                     {
                         return false;
                     }
                 }
-                MacroModifierType::Method(http_method) => {
+                GeneratedMacroType::Method(http_method) => {
                     if self.http_method.ne(http_method) {
                         return false;
                     }
@@ -85,23 +84,23 @@ impl MethodMacro {
 
     pub fn update(&mut self, method_macro_modifier: &MethodMacroModifier) {
         match method_macro_modifier.update.clone() {
-            MacroModifierType::FnName(name) => {
-                self.fn_name = name;
+            GeneratedMacroType::FnName(name) => {
+                self.fn_name = name.to_string();
             }
-            MacroModifierType::Path(path) => {
-                self.path = path;
+            GeneratedMacroType::Path(path) => {
+                self.path = path.to_string();
             }
-            MacroModifierType::ParamSize(param_size) => {
+            GeneratedMacroType::ParamSize(param_size) => {
                 self.param_size = param_size;
             }
-            MacroModifierType::RequestTask(request_task) => {
+            GeneratedMacroType::RequestTask(request_task) => {
                 self.request_task = request_task;
             }
-            MacroModifierType::FnNameAndPath(name, path) => {
-                self.fn_name = name;
-                self.path = path;
+            GeneratedMacroType::FnNameAndPath(name, path) => {
+                self.fn_name = name.to_string();
+                self.path = path.to_string();
             }
-            MacroModifierType::Method(http_method) => {
+            GeneratedMacroType::Method(http_method) => {
                 self.http_method = http_method;
             }
         }

@@ -74,17 +74,17 @@
             }
           }
         },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.agreementCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.agreementCollectionResponse"
             }
           }
         }
@@ -117,7 +117,14 @@
         }
       },
       "responses": {
-        "201": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created entity",
@@ -132,13 +139,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -214,13 +214,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -228,7 +221,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved entity",
@@ -243,6 +236,13 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -285,10 +285,10 @@
         }
       ],
       "responses": {
-        "204": {
+        "4XX": {
           "either": {
-            "Left": {
-              "description": "Success"
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -299,10 +299,10 @@
             }
           }
         },
-        "4XX": {
+        "204": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -342,17 +342,28 @@
             }
           }
         },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreement"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
             }
           }
         }
@@ -365,7 +376,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -396,8 +407,12 @@
       "tags": [
         "agreements.agreementAcceptance"
       ],
-      "summary": "Get acceptances from agreements",
-      "description": "Read-only. Information about acceptances of this agreement.",
+      "summary": "List acceptances",
+      "description": "Get the details about the acceptance records for a specific agreement.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/agreement-list-acceptances?view=graph-rest-1.0"
+      },
       "operationId": "agreements.ListAcceptances",
       "parameters": [
         {
@@ -603,7 +618,7 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.agreementAcceptanceCollectionResponse"
@@ -653,13 +668,6 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -667,7 +675,14 @@
             }
           }
         },
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -694,7 +709,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -724,14 +739,23 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.acceptances-9ff2",
-      "responses": {
-        "4XX": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
             }
           }
         },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
         "5XX": {
           "either": {
             "Right": {
@@ -739,7 +763,14 @@
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -755,7 +786,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -896,7 +927,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -911,13 +949,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -960,6 +991,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -968,13 +1006,6 @@
           }
         },
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1010,17 +1041,28 @@
         }
       },
       "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreementAcceptance"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
             }
           }
         },
@@ -1040,7 +1082,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1068,7 +1110,7 @@
           "Left": {
             "name": "agreementAcceptance-id",
             "in": "path",
-            "description": "key: id of agreementAcceptance",
+            "description": "The unique identifier of agreementAcceptance",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1099,8 +1141,12 @@
       "tags": [
         "agreements.agreementFile"
       ],
-      "summary": "Get file from agreements",
-      "description": "Default PDF linked to this agreement.",
+      "summary": "Get agreementFile",
+      "description": "Retrieve the details of the default file for an agreement, including the language and version information. The file information is specified through the agreementFile object.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/agreementfile-get?view=graph-rest-1.0"
+      },
       "operationId": "agreements.GetFile",
       "parameters": [
         {
@@ -1212,7 +1258,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1326,10 +1372,21 @@
             }
           }
         },
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreementFile"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -1349,7 +1406,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1571,13 +1628,6 @@
         }
       ],
       "responses": {
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.agreementFileLocalizationCollectionResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -1589,6 +1639,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.agreementFileLocalizationCollectionResponse"
             }
           }
         }
@@ -1621,7 +1678,21 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -1638,20 +1709,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -1662,7 +1719,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1692,11 +1749,27 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.localizations-37c2",
-      "responses": {
-        "200": {
+      "parameters": [
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1707,10 +1780,10 @@
             }
           }
         },
-        "4XX": {
+        "2XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -1723,7 +1796,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1860,7 +1933,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1875,13 +1955,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1974,13 +2047,6 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -1994,6 +2060,24 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreementFileLocalization"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       },
       "deprecated": false
@@ -2004,7 +2088,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2032,7 +2116,7 @@
           "Left": {
             "name": "agreementFileLocalization-id",
             "in": "path",
-            "description": "key: id of agreementFileLocalization",
+            "description": "The unique identifier of agreementFileLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2252,21 +2336,21 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.agreementFileVersionCollectionResponse"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2302,7 +2386,21 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -2319,20 +2417,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -2343,7 +2427,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2371,7 +2455,7 @@
           "Left": {
             "name": "agreementFileLocalization-id",
             "in": "path",
-            "description": "key: id of agreementFileLocalization",
+            "description": "The unique identifier of agreementFileLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2401,18 +2485,34 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.versions-c405",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -2432,7 +2532,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2460,7 +2560,7 @@
           "Left": {
             "name": "agreementFileLocalization-id",
             "in": "path",
-            "description": "key: id of agreementFileLocalization",
+            "description": "The unique identifier of agreementFileLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2588,13 +2688,6 @@
         }
       ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -2602,7 +2695,14 @@
             }
           }
         },
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -2659,6 +2759,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -2667,13 +2774,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2709,6 +2809,24 @@
         }
       },
       "responses": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreementFileVersion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2722,13 +2840,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
         }
       },
       "deprecated": false
@@ -2739,7 +2850,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2767,7 +2878,7 @@
           "Left": {
             "name": "agreementFileLocalization-id",
             "in": "path",
-            "description": "key: id of agreementFileLocalization",
+            "description": "The unique identifier of agreementFileLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2795,7 +2906,7 @@
           "Left": {
             "name": "agreementFileVersion-id",
             "in": "path",
-            "description": "key: id of agreementFileVersion",
+            "description": "The unique identifier of agreementFileVersion",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3017,21 +3128,21 @@
         }
       ],
       "responses": {
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.agreementFileLocalizationCollectionResponse"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3045,7 +3156,12 @@
       "tags": [
         "agreements.agreementFileLocalization"
       ],
-      "summary": "Create new navigation property to files for agreements",
+      "summary": "Create agreementFileLocalization",
+      "description": "Create a new localized agreement file.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/agreement-post-files?view=graph-rest-1.0"
+      },
       "operationId": "agreements.CreateFiles",
       "requestBody": {
         "either": {
@@ -3074,7 +3190,14 @@
             }
           }
         },
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -3091,13 +3214,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -3108,7 +3224,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3138,6 +3254,22 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.files-b229",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "5XX": {
           "either": {
@@ -3146,17 +3278,17 @@
             }
           }
         },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         }
@@ -3169,7 +3301,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3299,7 +3431,21 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -3314,20 +3460,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3370,17 +3502,17 @@
         }
       ],
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         },
@@ -3420,10 +3552,21 @@
         }
       },
       "responses": {
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreementFileLocalization"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -3450,7 +3593,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3478,7 +3621,7 @@
           "Left": {
             "name": "agreementFileLocalization-id",
             "in": "path",
-            "description": "key: id of agreementFileLocalization",
+            "description": "The unique identifier of agreementFileLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3698,6 +3841,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -3705,17 +3855,10 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.agreementFileVersionCollectionResponse"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3748,7 +3891,7 @@
         }
       },
       "responses": {
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -3789,7 +3932,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3817,7 +3960,7 @@
           "Left": {
             "name": "agreementFileLocalization-id",
             "in": "path",
-            "description": "key: id of agreementFileLocalization",
+            "description": "The unique identifier of agreementFileLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3847,6 +3990,22 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.versions-8216",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
         "5XX": {
           "either": {
@@ -3862,7 +4021,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -3878,7 +4037,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3906,7 +4065,7 @@
           "Left": {
             "name": "agreementFileLocalization-id",
             "in": "path",
-            "description": "key: id of agreementFileLocalization",
+            "description": "The unique identifier of agreementFileLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4034,7 +4193,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -4053,13 +4219,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4105,13 +4264,6 @@
         }
       ],
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
@@ -4123,6 +4275,13 @@
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -4155,21 +4314,32 @@
         }
       },
       "responses": {
-        "5XX": {
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreementFileVersion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -4185,7 +4355,7 @@
           "Left": {
             "name": "agreement-id",
             "in": "path",
-            "description": "key: id of agreement",
+            "description": "The unique identifier of agreement",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4213,7 +4383,7 @@
           "Left": {
             "name": "agreementFileLocalization-id",
             "in": "path",
-            "description": "key: id of agreementFileLocalization",
+            "description": "The unique identifier of agreementFileLocalization",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4241,7 +4411,7 @@
           "Left": {
             "name": "agreementFileVersion-id",
             "in": "path",
-            "description": "key: id of agreementFileVersion",
+            "description": "The unique identifier of agreementFileVersion",
             "required": true,
             "deprecated": false,
             "explode": false,

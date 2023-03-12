@@ -156,11 +156,6 @@ impl RequestParser for &str {
                                 "get_directory_object_item_as_{}_type",
                                 resource_name.to_snake_case()
                             );
-                        } else {
-                            return format!(
-                                "get_directory_object_items_as_{}_type",
-                                resource_name.to_snake_case()
-                            );
                         }
                     }
                 }
@@ -190,7 +185,7 @@ impl RequestParser for &str {
 
         if let Some(index) = self.rfind('.') {
             let last: &str = self[index + 1..].as_ref();
-            if NUM_REG.is_match(last) {
+            if NUM_REG.is_match(last) && !last.contains("OAuth2") {
                 if let Some(idx) = self[..index].rfind('.') {
                     method_name.push_str(self[idx + 1..index].as_ref());
                 }
@@ -199,6 +194,10 @@ impl RequestParser for &str {
             }
         } else {
             method_name.push_str(self);
+        }
+
+        if method_name.contains("OAuth2") {
+            return method_name.to_snake_case().replace("o_auth_2", "oauth2");
         }
 
         if method_name.is_empty() {
@@ -425,79 +424,6 @@ impl RequestParser for &str {
 
         path
     }
-
-    /*
-            let s = capture[0].to_string();
-            let mut found_match = false;
-
-            for name in capture_names.iter() {
-                if capture.name(name).is_some() {
-                    if let Ok(path_matcher) = PathMatcher::from_str(name) {
-                        if !s.contains("RID") {
-                            match path_matcher {
-                                PathMatcher::PathId => {
-                                    if count == 1 {
-                                        path = path.replacen(s.as_str(), "{{id}}", 1);
-                                        found_match = true;
-                                        break;
-                                    } else {
-                                        path = path.replacen(
-                                            s.as_str(),
-                                            &format!("{{{{id{}}}}}", count),
-                                            1,
-                                        );
-                                        found_match = true;
-                                        break;
-                                    }
-                                }
-                                PathMatcher::PathIdNamed => {
-                                    path = replace_ids(count, s.as_str(), &mut path);
-                                    found_match = true;
-                                    break;
-                                }
-                                PathMatcher::KeyValuePair => {
-                                    if let Some(_i) = s.find('=') {
-                                        if let Some(i) = s.find('=') {
-                                            path = replace_ids(count, &s[i + 1..], &mut path);
-                                            found_match = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                PathMatcher::KeyValuePairQuoted => {
-                                    if let Some(_i) = s.find('=') {
-                                        if let Some(i) = s.find('=') {
-                                            if count == 1 {
-                                                path = path.replacen(&s[i + 1..], "'{{id}}'", 1);
-                                                found_match = true;
-                                                break;
-                                            } else {
-                                                path = path.replacen(
-                                                    &s[i + 1..],
-                                                    &format!("'{{{{id{}}}}}'", count),
-                                                    1,
-                                                );
-                                                found_match = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-               if found_match {
-                   break;
-               }
-           }
-
-            if found_match {
-                found_match = false;
-                count += 1;
-            }
-    */
 
     fn shift_path_ids(&self) -> String {
         self.replacen("id2", "id", 1)

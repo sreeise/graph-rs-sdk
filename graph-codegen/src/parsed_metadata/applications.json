@@ -10,7 +10,7 @@
         "operation_id": "applications.application.ListApplication",
         "operation_mapping": "applications",
         "http_method": "GET",
-        "doc": "Get entities from applications",
+        "doc": "List applications",
         "parent": "Applications",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -21,7 +21,7 @@
         "operation_id": "applications.application.CreateApplication",
         "operation_mapping": "applications",
         "http_method": "POST",
-        "doc": "Add new entity to applications",
+        "doc": "Create application",
         "parent": "Applications",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -29,7 +29,25 @@
     ]
   },
   {
-    "path": "/applications/microsoft.graph.delta()",
+    "path": "/applications/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.applications-8398",
+        "operation_mapping": "applications",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "Applications",
+        "original_parent": "Get",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/delta()",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -47,7 +65,7 @@
     ]
   },
   {
-    "path": "/applications/microsoft.graph.getAvailableExtensionProperties",
+    "path": "/applications/getAvailableExtensionProperties",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -65,7 +83,7 @@
     ]
   },
   {
-    "path": "/applications/microsoft.graph.getByIds",
+    "path": "/applications/getByIds",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -83,7 +101,7 @@
     ]
   },
   {
-    "path": "/applications/microsoft.graph.validateProperties",
+    "path": "/applications/validateProperties",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -106,12 +124,23 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "applications.application.GetApplication",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get application",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      },
+      {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "applications.application.UpdateApplication",
         "operation_mapping": "ApplicationsId",
         "http_method": "PATCH",
-        "doc": "Update entity in applications",
+        "doc": "Update application",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -122,7 +151,97 @@
         "operation_id": "applications.application.DeleteApplication",
         "operation_mapping": "ApplicationsId",
         "http_method": "DELETE",
-        "doc": "Delete entity from applications",
+        "doc": "Delete application",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/addKey",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "applications.application.addKey",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "POST",
+        "doc": "Invoke action addKey",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/addPassword",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "applications.application.addPassword",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "POST",
+        "doc": "Invoke action addPassword",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/appManagementPolicies",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "applications.ListAppManagementPolicies",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get appManagementPolicies from applications",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/appManagementPolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.appManagementPolicies-3aad",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ApplicationsId",
+        "original_parent": "Get",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/appManagementPolicies/$ref",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "applications.CreateRefAppManagementPolicies",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to appManagementPolicies for applications",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -130,10 +249,66 @@
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "applications.application.GetApplication",
+        "operation_id": "applications.ListRefAppManagementPolicies",
         "operation_mapping": "ApplicationsId",
         "http_method": "GET",
-        "doc": "Get entity from applications by key",
+        "doc": "Get ref of appManagementPolicies from applications",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/appManagementPolicies/{{id}}/$ref",
+    "param_size": 1,
+    "parameters": [
+      "app_management_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "applications.DeleteRefAppManagementPolicies",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property appManagementPolicies for applications",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/checkMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "applications.application.checkMemberGroups",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberGroups",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/checkMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "applications.application.checkMemberObjects",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "POST",
+        "doc": "Invoke action checkMemberObjects",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -159,46 +334,6 @@
     ]
   },
   {
-    "path": "/applications/{{RID}}/createdOnBehalfOf/$ref",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "applications.GetRefCreatedOnBehalfOf",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "GET",
-        "doc": "Get ref of createdOnBehalfOf from applications",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "applications.UpdateRefCreatedOnBehalfOf",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "PUT",
-        "doc": "Update the ref of navigation property createdOnBehalfOf in applications",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      },
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "applications.DeleteRefCreatedOnBehalfOf",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "DELETE",
-        "doc": "Delete ref of navigation property createdOnBehalfOf for applications",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
     "path": "/applications/{{RID}}/extensionProperties",
     "param_size": 0,
     "parameters": [],
@@ -209,7 +344,7 @@
         "operation_id": "applications.ListExtensionProperties",
         "operation_mapping": "ApplicationsId",
         "http_method": "GET",
-        "doc": "Get extensionProperties from applications",
+        "doc": "List extensionProperties (directory extensions)",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -220,9 +355,27 @@
         "operation_id": "applications.CreateExtensionProperties",
         "operation_mapping": "ApplicationsId",
         "http_method": "POST",
-        "doc": "Create new navigation property to extensionProperties for applications",
+        "doc": "Create extensionProperty (directory extension)",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/extensionProperties/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.extensionProperties-3535",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ApplicationsId",
+        "original_parent": "Get",
         "resource_identity": "Applications"
       }
     ]
@@ -236,11 +389,22 @@
     "metadata": [
       {
         "has_body": true,
-        "request_task": "NoContent",
+        "request_task": "Json",
         "operation_id": "applications.UpdateExtensionProperties",
         "operation_mapping": "ApplicationsId",
         "http_method": "PATCH",
         "doc": "Update the navigation property extensionProperties in applications",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "applications.GetExtensionProperties",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get extensionProperties from applications",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -255,14 +419,128 @@
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/federatedIdentityCredentials",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "applications.CreateFederatedIdentityCredentials",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "POST",
+        "doc": "Create federatedIdentityCredential",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
       },
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "applications.GetExtensionProperties",
+        "operation_id": "applications.ListFederatedIdentityCredentials",
         "operation_mapping": "ApplicationsId",
         "http_method": "GET",
-        "doc": "Get extensionProperties from applications",
+        "doc": "List federatedIdentityCredentials",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/federatedIdentityCredentials/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.federatedIdentityCredentials-d653",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ApplicationsId",
+        "original_parent": "Get",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/federatedIdentityCredentials/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "federated_identity_credential_id"
+    ],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "applications.UpdateFederatedIdentityCredentials",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property federatedIdentityCredentials in applications",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "applications.DeleteFederatedIdentityCredentials",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property federatedIdentityCredentials for applications",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "applications.GetFederatedIdentityCredentials",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get federatedIdentityCredentials from applications",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/getMemberGroups",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "applications.application.getMemberGroups",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberGroups",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/getMemberObjects",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "applications.application.getMemberObjects",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "POST",
+        "doc": "Invoke action getMemberObjects",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -288,28 +566,37 @@
     ]
   },
   {
-    "path": "/applications/{{RID}}/homeRealmDiscoveryPolicies/$ref",
+    "path": "/applications/{{RID}}/homeRealmDiscoveryPolicies/$count",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "Json",
-        "operation_id": "applications.CreateRefHomeRealmDiscoveryPolicies",
+        "operation_id": "Get.Count.homeRealmDiscoveryPolicies-1662",
         "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property ref to homeRealmDiscoveryPolicies for applications",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
         "parent": "ApplicationsId",
-        "original_parent": "Applications",
+        "original_parent": "Get",
         "resource_identity": "Applications"
-      },
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/homeRealmDiscoveryPolicies/{{id}}",
+    "param_size": 1,
+    "parameters": [
+      "home_realm_discovery_policy_id"
+    ],
+    "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "applications.ListRefHomeRealmDiscoveryPolicies",
+        "operation_id": "applications.GetHomeRealmDiscoveryPolicies",
         "operation_mapping": "ApplicationsId",
         "http_method": "GET",
-        "doc": "Get ref of homeRealmDiscoveryPolicies from applications",
+        "doc": "Get homeRealmDiscoveryPolicies from applications",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -327,7 +614,7 @@
         "operation_id": "applications.application.GetLogo",
         "operation_mapping": "ApplicationsId",
         "http_method": "GET",
-        "doc": "Get media content for application from applications",
+        "doc": "Get logo for application from applications",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -338,7 +625,7 @@
         "operation_id": "applications.application.UpdateLogo",
         "operation_mapping": "ApplicationsId",
         "http_method": "PUT",
-        "doc": "Update media content for application in applications",
+        "doc": "Update logo for application in applications",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -346,115 +633,7 @@
     ]
   },
   {
-    "path": "/applications/{{RID}}/microsoft.graph.addKey",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "applications.application.addKey",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Invoke action addKey",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
-    "path": "/applications/{{RID}}/microsoft.graph.addPassword",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "applications.application.addPassword",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Invoke action addPassword",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
-    "path": "/applications/{{RID}}/microsoft.graph.checkMemberGroups",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "applications.application.checkMemberGroups",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Invoke action checkMemberGroups",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
-    "path": "/applications/{{RID}}/microsoft.graph.checkMemberObjects",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "applications.application.checkMemberObjects",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Invoke action checkMemberObjects",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
-    "path": "/applications/{{RID}}/microsoft.graph.getMemberGroups",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "applications.application.getMemberGroups",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Invoke action getMemberGroups",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
-    "path": "/applications/{{RID}}/microsoft.graph.getMemberObjects",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "applications.application.getMemberObjects",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Invoke action getMemberObjects",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
-    "path": "/applications/{{RID}}/microsoft.graph.removeKey",
+    "path": "/applications/{{RID}}/removeKey",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -472,7 +651,7 @@
     ]
   },
   {
-    "path": "/applications/{{RID}}/microsoft.graph.removePassword",
+    "path": "/applications/{{RID}}/removePassword",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -490,7 +669,7 @@
     ]
   },
   {
-    "path": "/applications/{{RID}}/microsoft.graph.restore",
+    "path": "/applications/{{RID}}/restore",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -508,7 +687,7 @@
     ]
   },
   {
-    "path": "/applications/{{RID}}/microsoft.graph.setVerifiedPublisher",
+    "path": "/applications/{{RID}}/setVerifiedPublisher",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -526,71 +705,6 @@
     ]
   },
   {
-    "path": "/applications/{{RID}}/microsoft.graph.unsetVerifiedPublisher",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "applications.application.unsetVerifiedPublisher",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Invoke action unsetVerifiedPublisher",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
-    "path": "/applications/{{RID}}/owners",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "applications.ListOwners",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "GET",
-        "doc": "Get owners from applications",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
-    "path": "/applications/{{RID}}/owners/$ref",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "applications.ListRefOwners",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "GET",
-        "doc": "Get ref of owners from applications",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      },
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "applications.CreateRefOwners",
-        "operation_mapping": "ApplicationsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property ref to owners for applications",
-        "parent": "ApplicationsId",
-        "original_parent": "Applications",
-        "resource_identity": "Applications"
-      }
-    ]
-  },
-  {
     "path": "/applications/{{RID}}/tokenIssuancePolicies",
     "param_size": 0,
     "parameters": [],
@@ -601,9 +715,27 @@
         "operation_id": "applications.ListTokenIssuancePolicies",
         "operation_mapping": "ApplicationsId",
         "http_method": "GET",
-        "doc": "Get tokenIssuancePolicies from applications",
+        "doc": "List assigned tokenIssuancePolicies",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/tokenIssuancePolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.tokenIssuancePolicies-4be5",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ApplicationsId",
+        "original_parent": "Get",
         "resource_identity": "Applications"
       }
     ]
@@ -614,8 +746,19 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "Json",
+        "operation_id": "applications.ListRefTokenIssuancePolicies",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "List assigned tokenIssuancePolicies",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      },
+      {
+        "has_body": true,
+        "request_task": "NoContent",
         "operation_id": "applications.CreateRefTokenIssuancePolicies",
         "operation_mapping": "ApplicationsId",
         "http_method": "POST",
@@ -623,14 +766,23 @@
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
-      },
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/tokenIssuancePolicies/{{id}}/$ref",
+    "param_size": 1,
+    "parameters": [
+      "token_issuance_policy_id"
+    ],
+    "metadata": [
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "applications.ListRefTokenIssuancePolicies",
+        "request_task": "NoContent",
+        "operation_id": "applications.DeleteRefTokenIssuancePolicies",
         "operation_mapping": "ApplicationsId",
-        "http_method": "GET",
-        "doc": "Get ref of tokenIssuancePolicies from applications",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property tokenIssuancePolicies for applications",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
@@ -648,9 +800,27 @@
         "operation_id": "applications.ListTokenLifetimePolicies",
         "operation_mapping": "ApplicationsId",
         "http_method": "GET",
-        "doc": "Get tokenLifetimePolicies from applications",
+        "doc": "List assigned tokenLifetimePolicy",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/tokenLifetimePolicies/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.tokenLifetimePolicies-5de4",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "ApplicationsId",
+        "original_parent": "Get",
         "resource_identity": "Applications"
       }
     ]
@@ -661,23 +831,61 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "applications.ListRefTokenLifetimePolicies",
+        "has_body": true,
+        "request_task": "NoContent",
+        "operation_id": "applications.CreateRefTokenLifetimePolicies",
         "operation_mapping": "ApplicationsId",
-        "http_method": "GET",
-        "doc": "Get ref of tokenLifetimePolicies from applications",
+        "http_method": "POST",
+        "doc": "Create new navigation property ref to tokenLifetimePolicies for applications",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"
       },
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "Json",
-        "operation_id": "applications.CreateRefTokenLifetimePolicies",
+        "operation_id": "applications.ListRefTokenLifetimePolicies",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "GET",
+        "doc": "List assigned tokenLifetimePolicy",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/tokenLifetimePolicies/{{id}}/$ref",
+    "param_size": 1,
+    "parameters": [
+      "token_lifetime_policy_id"
+    ],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "applications.DeleteRefTokenLifetimePolicies",
+        "operation_mapping": "ApplicationsId",
+        "http_method": "DELETE",
+        "doc": "Delete ref of navigation property tokenLifetimePolicies for applications",
+        "parent": "ApplicationsId",
+        "original_parent": "Applications",
+        "resource_identity": "Applications"
+      }
+    ]
+  },
+  {
+    "path": "/applications/{{RID}}/unsetVerifiedPublisher",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "applications.application.unsetVerifiedPublisher",
         "operation_mapping": "ApplicationsId",
         "http_method": "POST",
-        "doc": "Create new navigation property ref to tokenLifetimePolicies for applications",
+        "doc": "Invoke action unsetVerifiedPublisher",
         "parent": "ApplicationsId",
         "original_parent": "Applications",
         "resource_identity": "Applications"

@@ -1,119 +1,17 @@
 {
   "/agreementAcceptances": {
-    "description": "Provides operations to manage the agreementAcceptances property of the microsoft.graph.user entity.",
+    "description": "Provides operations to manage the collection of agreementAcceptance entities.",
     "get": {
       "tags": [
-        "users.agreementAcceptance"
+        "agreementAcceptances.agreementAcceptance"
       ],
-      "summary": "List agreementAcceptances",
-      "description": "Retrieve the signed-in user's agreementAcceptance objects.",
-      "externalDocs": {
-        "description": "Find more info here",
-        "url": "https://docs.microsoft.com/graph/api/user-list-agreementacceptances?view=graph-rest-1.0"
-      },
-      "operationId": "users.ListAgreementAcceptances",
+      "summary": "Get entities from agreementAcceptances",
+      "operationId": "agreementAcceptances.agreementAcceptance.ListAgreementAcceptance",
       "parameters": [
         {
           "either": {
             "Right": {
-              "$ref": "#/components/parameters/top"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/skip"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
               "$ref": "#/components/parameters/search"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/filter"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/count"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$orderby",
-              "in": "query",
-              "description": "Order items by property values",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "id desc",
-                    "agreementFileId",
-                    "agreementFileId desc",
-                    "agreementId",
-                    "agreementId desc",
-                    "deviceDisplayName",
-                    "deviceDisplayName desc",
-                    "deviceId",
-                    "deviceId desc",
-                    "deviceOSType",
-                    "deviceOSType desc",
-                    "deviceOSVersion",
-                    "deviceOSVersion desc",
-                    "expirationDateTime",
-                    "expirationDateTime desc",
-                    "recordedDateTime",
-                    "recordedDateTime desc",
-                    "state",
-                    "state desc",
-                    "userDisplayName",
-                    "userDisplayName desc",
-                    "userEmail",
-                    "userEmail desc",
-                    "userId",
-                    "userId desc",
-                    "userPrincipalName",
-                    "userPrincipalName desc"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
             }
           }
         },
@@ -171,51 +69,16 @@
               "content": {}
             }
           }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -229,78 +92,44 @@
               "$ref": "#/components/responses/microsoft.graph.agreementAcceptanceCollectionResponse"
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
     },
-    "parameters": [
-      {
+    "post": {
+      "tags": [
+        "agreementAcceptances.agreementAcceptance"
+      ],
+      "summary": "Add new entity to agreementAcceptances",
+      "operationId": "agreementAcceptances.agreementAcceptance.CreateAgreementAcceptance",
+      "requestBody": {
         "either": {
           "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
+            "description": "New entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.agreementAcceptance"
+                    }
+                  }
+                }
+              }
             },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
+            "required": true
           }
         }
-      }
-    ]
-  },
-  "/agreementAcceptances/$count": {
-    "description": "Provides operations to count the resources in the collection.",
-    "get": {
-      "summary": "Get the number of the resource",
-      "operationId": "Get.Count.agreementAcceptances-b659",
-      "parameters": [
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/search"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/filter"
-            }
-          }
-        }
-      ],
+      },
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -309,54 +138,34 @@
         },
         "2XX": {
           "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+            "Left": {
+              "description": "Created entity",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreementAcceptance"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
       },
       "deprecated": false
-    },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
-              "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
-          }
-        }
-      }
-    ]
+    }
   },
   "/agreementAcceptances/{agreementAcceptance-id}": {
-    "description": "Provides operations to manage the agreementAcceptances property of the microsoft.graph.user entity.",
+    "description": "Provides operations to manage the collection of agreementAcceptance entities.",
     "get": {
       "tags": [
-        "users.agreementAcceptance"
+        "agreementAcceptances.agreementAcceptance"
       ],
-      "summary": "Get agreementAcceptances from users",
-      "description": "The user's terms of use acceptance statuses. Read-only. Nullable.",
-      "operationId": "users.GetAgreementAcceptances",
+      "summary": "Get entity from agreementAcceptances by key",
+      "operationId": "agreementAcceptances.agreementAcceptance.GetAgreementAcceptance",
       "parameters": [
         {
           "either": {
@@ -412,55 +221,13 @@
               "content": {}
             }
           }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$expand",
-              "in": "query",
-              "description": "Expand related entities",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "*"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
         }
       ],
       "responses": {
         "2XX": {
           "either": {
             "Left": {
-              "description": "Retrieved navigation property",
+              "description": "Retrieved entity",
               "content": {
                 "application/json": {
                   "schema": {
@@ -492,35 +259,128 @@
       },
       "deprecated": false
     },
-    "parameters": [
-      {
-        "either": {
-          "Left": {
-            "name": "user-id",
-            "in": "path",
-            "description": "The unique identifier of user",
-            "required": true,
-            "deprecated": false,
-            "explode": false,
-            "allowReserved": false,
-            "schema": {
-              "type": "string",
-              "readOnly": false,
-              "writeOnly": false,
-              "required": [],
-              "uniqueItems": false,
-              "additionalPropertiesAllowed": false,
-              "enum": [],
-              "nullable": false,
+    "delete": {
+      "tags": [
+        "agreementAcceptances.agreementAcceptance"
+      ],
+      "summary": "Delete entity from agreementAcceptances",
+      "operationId": "agreementAcceptances.agreementAcceptance.DeleteAgreementAcceptance",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "If-Match",
+              "in": "header",
+              "description": "ETag",
+              "required": false,
               "deprecated": false,
-              "unresolvedReference": false
-            },
-            "examples": {},
-            "content": {},
-            "x-ms-docs-key-type": "user"
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
+      "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
+            }
           }
         }
       },
+      "deprecated": false
+    },
+    "patch": {
+      "tags": [
+        "agreementAcceptances.agreementAcceptance"
+      ],
+      "summary": "Update entity in agreementAcceptances",
+      "operationId": "agreementAcceptances.agreementAcceptance.UpdateAgreementAcceptance",
+      "requestBody": {
+        "either": {
+          "Left": {
+            "description": "New property values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "either": {
+                    "Right": {
+                      "$ref": "#/components/schemas/microsoft.graph.agreementAcceptance"
+                    }
+                  }
+                }
+              }
+            },
+            "required": true
+          }
+        }
+      },
+      "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.agreementAcceptance"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        }
+      },
+      "deprecated": false
+    },
+    "parameters": [
       {
         "either": {
           "Left": {

@@ -17,7 +17,7 @@
     "createdObjects",
     "deviceManagementTroubleshootingEvents",
     "directReports",
-    "drives",
+    "childFolders",
     "events",
     "extensions",
     "followedSites",
@@ -36,15 +36,16 @@
     "outlook",
     "ownedDevices",
     "ownedObjects",
-    "people",
     "photos",
-    "planner",
     "presence",
     "registeredDevices",
     "scopedRoleMemberOf",
     "teamwork",
     "todo",
-    "transitiveMemberOf"
+    "threads",
+    "transitiveMemberOf",
+    "tasks",
+    "buckets"
   ],
   "replace_operation_map": "users",
   "parameter_filter": [],
@@ -61,12 +62,12 @@
         "calendar_view",
         "calendars",
         "channels",
+        "child_folders",
         "contact_folders",
         "contacts",
         "created_objects",
         "device_management_troubleshooting_events",
         "direct_reports",
-        "drives",
         "events",
         "extensions",
         "followed_sites",
@@ -78,15 +79,14 @@
         "mail_folders",
         "managed_app_registrations",
         "managed_devices",
+        "member_of",
         "users_messages",
         "oauth_2_permission_grants",
         "online_meetings",
         "outlook",
         "owned_devices",
         "owned_objects",
-        "people",
         "photos",
-        "planner",
         "presence",
         "registered_devices",
         "scoped_role_member_of",
@@ -172,19 +172,17 @@
     },
     {
       "modifier_name": null,
-      "path": "/calendar",
+      "path": "/calendar/",
       "resource_identity": "DefaultCalendar",
       "trim_path_start": "/users/{user-id}",
       "filter_path": [
         "calendars",
+        "events/{{id}}",
         "calendarGroup",
         "instances",
         "calendarView",
-        "events",
         "multiValueExtendedProperties",
-        "singleValueExtendedProperties",
-        "/calendars/{calendar-id}",
-        "/attachments/"
+        "singleValueExtendedProperties"
       ],
       "replace_operation_map": "defaultCalendar",
       "parameter_filter": [],
@@ -206,8 +204,13 @@
       "resource_identity": "CalendarGroups",
       "trim_path_start": "/users/{user-id}",
       "filter_path": [
-        "/multiValueExtendedProperties",
-        "singleValueExtendedProperties"
+        "instances",
+        "/calendars/{calendar-id}",
+        "/calendar/",
+        "events",
+        "multiValueExtendedProperties",
+        "singleValueExtendedProperties",
+        "calendarView"
       ],
       "replace_operation_map": "calendarGroups",
       "parameter_filter": [],
@@ -229,14 +232,13 @@
       "resource_identity": "CalendarView",
       "trim_path_start": "/users/{user-id}",
       "filter_path": [
+        "/calendars/{calendar-id}",
         "calendarGroup",
         "instances",
-        "/calendars/",
         "/calendar/",
         "events",
         "multiValueExtendedProperties",
-        "singleValueExtendedProperties",
-        "/attachments/"
+        "singleValueExtendedProperties"
       ],
       "replace_operation_map": "calendarView",
       "parameter_filter": [],
@@ -258,7 +260,11 @@
       "resource_identity": "Calendars",
       "trim_path_start": "/users/{user-id}",
       "filter_path": [
-        "/multiValueExtendedProperties",
+        "events/{{id}}",
+        "calendarGroup",
+        "instances",
+        "calendarView",
+        "multiValueExtendedProperties",
         "singleValueExtendedProperties"
       ],
       "replace_operation_map": "calendars",
@@ -302,11 +308,36 @@
     },
     {
       "modifier_name": null,
+      "path": "/childFolders",
+      "resource_identity": "ChildFolders",
+      "trim_path_start": "/users/{user-id}",
+      "filter_path": [
+        "/multiValueExtendedProperties",
+        "singleValueExtendedProperties"
+      ],
+      "replace_operation_map": "childFolders",
+      "parameter_filter": [],
+      "mod_file": {
+        "Declarations": {
+          "file": "./src/users/child_folders/mod.rs",
+          "declarations": [
+            "request"
+          ]
+        }
+      },
+      "mod_file_writer": null,
+      "mod_write_override": null,
+      "children": []
+    },
+    {
+      "modifier_name": null,
       "path": "/contactFolders",
       "resource_identity": "ContactFolders",
       "trim_path_start": "/users/{user-id}",
       "filter_path": [
-        "/multiValueExtendedProperties",
+        "contacts",
+        "childFolders",
+        "multiValueExtendedProperties",
         "singleValueExtendedProperties"
       ],
       "replace_operation_map": "contactFolders",
@@ -417,35 +448,11 @@
     },
     {
       "modifier_name": null,
-      "path": "/drives",
-      "resource_identity": "Drives",
-      "trim_path_start": "/users/{user-id}",
-      "filter_path": [
-        "/multiValueExtendedProperties",
-        "singleValueExtendedProperties"
-      ],
-      "replace_operation_map": "drives",
-      "parameter_filter": [],
-      "mod_file": {
-        "Declarations": {
-          "file": "./src/users/drives/mod.rs",
-          "declarations": [
-            "request"
-          ]
-        }
-      },
-      "mod_file_writer": null,
-      "mod_write_override": null,
-      "children": []
-    },
-    {
-      "modifier_name": null,
       "path": "/events",
       "resource_identity": "Events",
       "trim_path_start": "/users/{user-id}",
       "filter_path": [
-        "/multiValueExtendedProperties",
-        "singleValueExtendedProperties"
+        "instances"
       ],
       "replace_operation_map": "events",
       "parameter_filter": [],
@@ -630,8 +637,8 @@
       "resource_identity": "MailFolders",
       "trim_path_start": "/users/{user-id}",
       "filter_path": [
-        "/multiValueExtendedProperties",
-        "singleValueExtendedProperties"
+        "childFolders",
+        "messages"
       ],
       "replace_operation_map": "mailFolders",
       "parameter_filter": [],
@@ -684,6 +691,29 @@
       "mod_file": {
         "Declarations": {
           "file": "./src/users/managed_devices/mod.rs",
+          "declarations": [
+            "request"
+          ]
+        }
+      },
+      "mod_file_writer": null,
+      "mod_write_override": null,
+      "children": []
+    },
+    {
+      "modifier_name": null,
+      "path": "/memberOf",
+      "resource_identity": "MemberOf",
+      "trim_path_start": "/users/{user-id}",
+      "filter_path": [
+        "/multiValueExtendedProperties",
+        "singleValueExtendedProperties"
+      ],
+      "replace_operation_map": "memberOf",
+      "parameter_filter": [],
+      "mod_file": {
+        "Declarations": {
+          "file": "./src/users/member_of/mod.rs",
           "declarations": [
             "request"
           ]
@@ -832,29 +862,6 @@
     },
     {
       "modifier_name": null,
-      "path": "/people",
-      "resource_identity": "People",
-      "trim_path_start": "/users/{user-id}",
-      "filter_path": [
-        "/multiValueExtendedProperties",
-        "singleValueExtendedProperties"
-      ],
-      "replace_operation_map": "people",
-      "parameter_filter": [],
-      "mod_file": {
-        "Declarations": {
-          "file": "./src/users/people/mod.rs",
-          "declarations": [
-            "request"
-          ]
-        }
-      },
-      "mod_file_writer": null,
-      "mod_write_override": null,
-      "children": []
-    },
-    {
-      "modifier_name": null,
       "path": "/photos",
       "resource_identity": "Photos",
       "trim_path_start": "/users/{user-id}",
@@ -867,29 +874,6 @@
       "mod_file": {
         "Declarations": {
           "file": "./src/users/photos/mod.rs",
-          "declarations": [
-            "request"
-          ]
-        }
-      },
-      "mod_file_writer": null,
-      "mod_write_override": null,
-      "children": []
-    },
-    {
-      "modifier_name": null,
-      "path": "/planner",
-      "resource_identity": "Planner",
-      "trim_path_start": "/users/{user-id}",
-      "filter_path": [
-        "/multiValueExtendedProperties",
-        "singleValueExtendedProperties"
-      ],
-      "replace_operation_map": "planner",
-      "parameter_filter": [],
-      "mod_file": {
-        "Declarations": {
-          "file": "./src/users/planner/mod.rs",
           "declarations": [
             "request"
           ]

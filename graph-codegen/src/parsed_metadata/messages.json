@@ -70,6 +70,17 @@
     "parameters": [],
     "metadata": [
       {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.UpdateMessages",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property messages in users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "users.DeleteMessages",
@@ -87,17 +98,6 @@
         "operation_mapping": "UsersMessagesId",
         "http_method": "GET",
         "doc": "Get messages from users",
-        "parent": "UsersMessagesId",
-        "original_parent": "UsersMessages",
-        "resource_identity": "UsersMessages"
-      },
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.UpdateMessages",
-        "operation_mapping": "UsersMessagesId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property messages in users",
         "parent": "UsersMessagesId",
         "original_parent": "UsersMessages",
         "resource_identity": "UsersMessages"
@@ -207,22 +207,22 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.messages.GetAttachments",
+        "request_task": "NoContent",
+        "operation_id": "users.messages.DeleteAttachments",
         "operation_mapping": "UsersMessagesId",
-        "http_method": "GET",
-        "doc": "Get attachments from users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property attachments for users",
         "parent": "UsersMessagesId",
         "original_parent": "UsersMessages",
         "resource_identity": "UsersMessages"
       },
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.messages.DeleteAttachments",
+        "request_task": "Json",
+        "operation_id": "users.messages.GetAttachments",
         "operation_mapping": "UsersMessagesId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property attachments for users",
+        "http_method": "GET",
+        "doc": "Get attachments from users",
         "parent": "UsersMessagesId",
         "original_parent": "UsersMessages",
         "resource_identity": "UsersMessages"
@@ -307,23 +307,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.messages.ListExtensions",
-        "operation_mapping": "UsersMessagesId",
-        "http_method": "GET",
-        "doc": "Get extensions from users",
-        "parent": "UsersMessagesId",
-        "original_parent": "UsersMessages",
-        "resource_identity": "UsersMessages"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.messages.CreateExtensions",
         "operation_mapping": "UsersMessagesId",
         "http_method": "POST",
         "doc": "Create open extension",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.messages.ListExtensions",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
         "parent": "UsersMessagesId",
         "original_parent": "UsersMessages",
         "resource_identity": "UsersMessages"
@@ -356,6 +356,17 @@
     ],
     "metadata": [
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.messages.GetExtensions",
+        "operation_mapping": "UsersMessagesId",
+        "http_method": "GET",
+        "doc": "Get extensions from users",
+        "parent": "UsersMessagesId",
+        "original_parent": "UsersMessages",
+        "resource_identity": "UsersMessages"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.messages.UpdateExtensions",
@@ -373,17 +384,6 @@
         "operation_mapping": "UsersMessagesId",
         "http_method": "DELETE",
         "doc": "Delete navigation property extensions for users",
-        "parent": "UsersMessagesId",
-        "original_parent": "UsersMessages",
-        "resource_identity": "UsersMessages"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.messages.GetExtensions",
-        "operation_mapping": "UsersMessagesId",
-        "http_method": "GET",
-        "doc": "Get extensions from users",
         "parent": "UsersMessagesId",
         "original_parent": "UsersMessages",
         "resource_identity": "UsersMessages"

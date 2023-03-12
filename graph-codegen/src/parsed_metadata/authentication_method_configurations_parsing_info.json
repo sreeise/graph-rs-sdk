@@ -1,7 +1,20 @@
 {
-  "modifier_name": "authenticationMethodConfigurations",
+  "modifier_name": null,
   "path": "/authenticationMethodConfigurations",
   "resource_identity": "AuthenticationMethodConfigurations",
   "trim_path_start": null,
-  "parameter_filter": []
+  "filter_path": [],
+  "replace_operation_map": "authenticationMethodConfigurations",
+  "parameter_filter": [],
+  "mod_file": {
+    "Declarations": {
+      "file": "./src/authentication_method_configurations/mod.rs",
+      "declarations": [
+        "request"
+      ]
+    }
+  },
+  "mod_file_writer": null,
+  "mod_write_override": null,
+  "children": []
 }

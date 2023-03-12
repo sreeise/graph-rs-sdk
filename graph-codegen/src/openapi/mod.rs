@@ -100,8 +100,9 @@ pub struct OpenApi {
     /// target server. If the servers property is not provided, or is an
     /// empty array, the default value would be a Server Object with a url
     /// value of /.
-    #[serde(default)]
-    #[serde(skip_serializing_if = "VecDeque::is_empty")]
+    //#[serde(default)]
+    //#[serde(skip_serializing_if = "VecDeque::is_empty")]
+    #[serde(skip)]
     pub servers: VecDeque<Server>,
 
     /// The available paths and operations for the API.
@@ -164,6 +165,26 @@ impl OpenApi {
             .into_par_iter()
             .filter(|(path, _path_item)| path.contains(pat))
             .collect()
+    }
+
+    pub fn filter_path_not_contains(&self, pat: &str) -> BTreeMap<String, PathItem> {
+        self.paths
+            .clone()
+            .into_par_iter()
+            .filter(|(path, _path_item)| !path.contains(pat))
+            .collect()
+    }
+
+    pub fn filter_path_contains_all(
+        &self,
+        pat_vec: Vec<&str>,
+    ) -> VecDeque<BTreeMap<String, PathItem>> {
+        let mut deque = VecDeque::new();
+        for pat in pat_vec.iter() {
+            deque.push_back(self.filter_path_contains(pat));
+        }
+
+        deque
     }
 
     pub fn filter_resource_parsing_info_path(
@@ -338,13 +359,7 @@ impl OpenApi {
 
 impl Default for OpenApi {
     fn default() -> Self {
-        match OpenApi::try_from(GraphUrl::parse(MS_GRAPH_METADATA_URL).unwrap()) {
-            Ok(open_api) => open_api,
-            Err(e) => {
-                println!("Error parsing v1.0 metadata: {e:#?}\n\nAttempting beta Api metadata");
-                OpenApi::try_from(GraphUrl::parse(MS_GRAPH_BETA_METADATA_URL).unwrap()).unwrap()
-            }
-        }
+        OpenApi::try_from(GraphUrl::parse(MS_GRAPH_METADATA_URL).unwrap()).unwrap()
     }
 }
 

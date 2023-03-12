@@ -4,8 +4,10 @@
   "resource_identity": "Onenote",
   "trim_path_start": "/users/{user-id}",
   "filter_path": [
-    "/multiValueExtendedProperties",
-    "singleValueExtendedProperties"
+    "sectionGroups",
+    "sections",
+    "notebooks",
+    "pages"
   ],
   "replace_operation_map": "onenote",
   "parameter_filter": [],

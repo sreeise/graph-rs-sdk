@@ -106,22 +106,22 @@
       },
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.authentication.DeleteEmailMethods",
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetEmailMethods",
         "operation_mapping": "authentication",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property emailMethods for users",
+        "http_method": "GET",
+        "doc": "Get emailMethods from users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
       },
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.authentication.GetEmailMethods",
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteEmailMethods",
         "operation_mapping": "authentication",
-        "http_method": "GET",
-        "doc": "Get emailMethods from users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property emailMethods for users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
@@ -173,22 +173,22 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.authentication.DeleteFido2Methods",
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetFido2Methods",
         "operation_mapping": "authentication",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property fido2Methods for users",
+        "http_method": "GET",
+        "doc": "Get fido2Methods from users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
       },
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.authentication.GetFido2Methods",
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteFido2Methods",
         "operation_mapping": "authentication",
-        "http_method": "GET",
-        "doc": "Get fido2Methods from users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property fido2Methods for users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
@@ -201,23 +201,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.authentication.CreateMethods",
-        "operation_mapping": "authentication",
-        "http_method": "POST",
-        "doc": "Create new navigation property to methods for users",
-        "parent": "Authentication",
-        "original_parent": "Authentication",
-        "resource_identity": "Authentication"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.authentication.ListMethods",
         "operation_mapping": "authentication",
         "http_method": "GET",
         "doc": "List methods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreateMethods",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create new navigation property to methods for users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
@@ -338,22 +338,22 @@
     "metadata": [
       {
         "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.authentication.DeleteMicrosoftAuthenticatorMethods",
+        "request_task": "Json",
+        "operation_id": "users.authentication.GetMicrosoftAuthenticatorMethods",
         "operation_mapping": "authentication",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property microsoftAuthenticatorMethods for users",
+        "http_method": "GET",
+        "doc": "Get microsoftAuthenticatorMethods from users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
       },
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.authentication.GetMicrosoftAuthenticatorMethods",
+        "request_task": "NoContent",
+        "operation_id": "users.authentication.DeleteMicrosoftAuthenticatorMethods",
         "operation_mapping": "authentication",
-        "http_method": "GET",
-        "doc": "Get microsoftAuthenticatorMethods from users",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property microsoftAuthenticatorMethods for users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
@@ -542,23 +542,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.authentication.CreatePhoneMethods",
-        "operation_mapping": "authentication",
-        "http_method": "POST",
-        "doc": "Create phoneMethod",
-        "parent": "Authentication",
-        "original_parent": "Authentication",
-        "resource_identity": "Authentication"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.authentication.ListPhoneMethods",
         "operation_mapping": "authentication",
         "http_method": "GET",
         "doc": "List phoneMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreatePhoneMethods",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create phoneMethod",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
@@ -591,12 +591,12 @@
     ],
     "metadata": [
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "Json",
-        "operation_id": "users.authentication.UpdatePhoneMethods",
+        "operation_id": "users.authentication.GetPhoneMethods",
         "operation_mapping": "authentication",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property phoneMethods in users",
+        "http_method": "GET",
+        "doc": "Get phoneMethods from users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
@@ -613,12 +613,12 @@
         "resource_identity": "Authentication"
       },
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "users.authentication.GetPhoneMethods",
+        "operation_id": "users.authentication.UpdatePhoneMethods",
         "operation_mapping": "authentication",
-        "http_method": "GET",
-        "doc": "Get phoneMethods from users",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property phoneMethods in users",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"
@@ -738,23 +738,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.authentication.CreateTemporaryAccessPassMethods",
-        "operation_mapping": "authentication",
-        "http_method": "POST",
-        "doc": "Create temporaryAccessPassMethod",
-        "parent": "Authentication",
-        "original_parent": "Authentication",
-        "resource_identity": "Authentication"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.authentication.ListTemporaryAccessPassMethods",
         "operation_mapping": "authentication",
         "http_method": "GET",
         "doc": "List temporaryAccessPassMethods",
+        "parent": "Authentication",
+        "original_parent": "Authentication",
+        "resource_identity": "Authentication"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.authentication.CreateTemporaryAccessPassMethods",
+        "operation_mapping": "authentication",
+        "http_method": "POST",
+        "doc": "Create temporaryAccessPassMethod",
         "parent": "Authentication",
         "original_parent": "Authentication",
         "resource_identity": "Authentication"

@@ -1,34 +1,5 @@
 [
   {
-    "path": "/calendar",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.calendar.GetCalendar",
-        "operation_mapping": "calendar",
-        "http_method": "GET",
-        "doc": "Get calendar",
-        "parent": "DefaultCalendar",
-        "original_parent": "DefaultCalendar",
-        "resource_identity": "DefaultCalendar"
-      },
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.calendar.UpdateCalendar",
-        "operation_mapping": "calendar",
-        "http_method": "PATCH",
-        "doc": "Update calendar",
-        "parent": "DefaultCalendar",
-        "original_parent": "DefaultCalendar",
-        "resource_identity": "DefaultCalendar"
-      }
-    ]
-  },
-  {
     "path": "/calendar/allowedCalendarSharingRoles(User='{{id}}')",
     "param_size": 1,
     "parameters": [
@@ -54,23 +25,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.calendar.CreateCalendarPermissions",
-        "operation_mapping": "calendar",
-        "http_method": "POST",
-        "doc": "Create calendarPermission",
-        "parent": "DefaultCalendar",
-        "original_parent": "DefaultCalendar",
-        "resource_identity": "DefaultCalendar"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.calendar.ListCalendarPermissions",
         "operation_mapping": "calendar",
         "http_method": "GET",
         "doc": "Get calendarPermissions from users",
+        "parent": "DefaultCalendar",
+        "original_parent": "DefaultCalendar",
+        "resource_identity": "DefaultCalendar"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.calendar.CreateCalendarPermissions",
+        "operation_mapping": "calendar",
+        "http_method": "POST",
+        "doc": "Create calendarPermission",
         "parent": "DefaultCalendar",
         "original_parent": "DefaultCalendar",
         "resource_identity": "DefaultCalendar"
@@ -103,12 +74,12 @@
     ],
     "metadata": [
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "users.calendar.GetCalendarPermissions",
+        "operation_id": "users.calendar.UpdateCalendarPermissions",
         "operation_mapping": "calendar",
-        "http_method": "GET",
-        "doc": "Get calendarPermissions from users",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property calendarPermissions in users",
         "parent": "DefaultCalendar",
         "original_parent": "DefaultCalendar",
         "resource_identity": "DefaultCalendar"
@@ -125,12 +96,77 @@
         "resource_identity": "DefaultCalendar"
       },
       {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendar.GetCalendarPermissions",
+        "operation_mapping": "calendar",
+        "http_method": "GET",
+        "doc": "Get calendarPermissions from users",
+        "parent": "DefaultCalendar",
+        "original_parent": "DefaultCalendar",
+        "resource_identity": "DefaultCalendar"
+      }
+    ]
+  },
+  {
+    "path": "/calendar/events",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "users.calendar.ListEvents",
+        "operation_mapping": "calendar",
+        "http_method": "GET",
+        "doc": "List events",
+        "parent": "DefaultCalendar",
+        "original_parent": "DefaultCalendar",
+        "resource_identity": "DefaultCalendar"
+      },
+      {
         "has_body": true,
         "request_task": "Json",
-        "operation_id": "users.calendar.UpdateCalendarPermissions",
+        "operation_id": "users.calendar.CreateEvents",
         "operation_mapping": "calendar",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property calendarPermissions in users",
+        "http_method": "POST",
+        "doc": "Create event",
+        "parent": "DefaultCalendar",
+        "original_parent": "DefaultCalendar",
+        "resource_identity": "DefaultCalendar"
+      }
+    ]
+  },
+  {
+    "path": "/calendar/events/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.events-1a22",
+        "operation_mapping": "calendar",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DefaultCalendar",
+        "original_parent": "DefaultCalendar",
+        "resource_identity": "DefaultCalendar"
+      }
+    ]
+  },
+  {
+    "path": "/calendar/events/delta()",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Delta",
+        "operation_id": "users.user.calendar.events.delta",
+        "operation_mapping": "calendar",
+        "http_method": "GET",
+        "doc": "Invoke function delta",
         "parent": "DefaultCalendar",
         "original_parent": "DefaultCalendar",
         "resource_identity": "DefaultCalendar"

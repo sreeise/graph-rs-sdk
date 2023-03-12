@@ -70,16 +70,10 @@
                   "enum": [
                     "id",
                     "id desc",
-                    "additionalInformation",
-                    "additionalInformation desc",
                     "correlationId",
                     "correlationId desc",
                     "eventDateTime",
-                    "eventDateTime desc",
-                    "eventName",
-                    "eventName desc",
-                    "troubleshootingErrorDetails",
-                    "troubleshootingErrorDetails desc"
+                    "eventDateTime desc"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -122,11 +116,8 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "id",
-                    "additionalInformation",
                     "correlationId",
-                    "eventDateTime",
-                    "eventName",
-                    "troubleshootingErrorDetails"
+                    "eventDateTime"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -238,6 +229,13 @@
         }
       },
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -257,13 +255,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -326,6 +317,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Right": {
@@ -334,13 +332,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -416,11 +407,8 @@
                   "additionalPropertiesAllowed": false,
                   "enum": [
                     "id",
-                    "additionalInformation",
                     "correlationId",
-                    "eventDateTime",
-                    "eventName",
-                    "troubleshootingErrorDetails"
+                    "eventDateTime"
                   ],
                   "nullable": false,
                   "deprecated": false,
@@ -553,6 +541,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "204": {
           "either": {
             "Left": {
@@ -561,13 +556,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -603,20 +591,6 @@
         }
       },
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "2XX": {
           "either": {
             "Left": {
@@ -632,6 +606,20 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }

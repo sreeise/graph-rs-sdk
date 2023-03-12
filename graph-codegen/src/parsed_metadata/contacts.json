@@ -70,12 +70,12 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
+        "has_body": false,
         "request_task": "Json",
-        "operation_id": "users.UpdateContacts",
+        "operation_id": "users.GetContacts",
         "operation_mapping": "ContactsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property contacts in users",
+        "http_method": "GET",
+        "doc": "Get contacts from users",
         "parent": "ContactsId",
         "original_parent": "Contacts",
         "resource_identity": "Contacts"
@@ -92,12 +92,12 @@
         "resource_identity": "Contacts"
       },
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "users.GetContacts",
+        "operation_id": "users.UpdateContacts",
         "operation_mapping": "ContactsId",
-        "http_method": "GET",
-        "doc": "Get contacts from users",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property contacts in users",
         "parent": "ContactsId",
         "original_parent": "Contacts",
         "resource_identity": "Contacts"
@@ -110,23 +110,23 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.contacts.CreateExtensions",
-        "operation_mapping": "ContactsId",
-        "http_method": "POST",
-        "doc": "Create new navigation property to extensions for users",
-        "parent": "ContactsId",
-        "original_parent": "Contacts",
-        "resource_identity": "Contacts"
-      },
-      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "users.contacts.ListExtensions",
         "operation_mapping": "ContactsId",
         "http_method": "GET",
         "doc": "Get extensions from users",
+        "parent": "ContactsId",
+        "original_parent": "Contacts",
+        "resource_identity": "Contacts"
+      },
+      {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "users.contacts.CreateExtensions",
+        "operation_mapping": "ContactsId",
+        "http_method": "POST",
+        "doc": "Create new navigation property to extensions for users",
         "parent": "ContactsId",
         "original_parent": "Contacts",
         "resource_identity": "Contacts"
@@ -159,17 +159,6 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.contacts.DeleteExtensions",
-        "operation_mapping": "ContactsId",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property extensions for users",
-        "parent": "ContactsId",
-        "original_parent": "Contacts",
-        "resource_identity": "Contacts"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.contacts.UpdateExtensions",
@@ -187,6 +176,17 @@
         "operation_mapping": "ContactsId",
         "http_method": "GET",
         "doc": "Get extensions from users",
+        "parent": "ContactsId",
+        "original_parent": "Contacts",
+        "resource_identity": "Contacts"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.contacts.DeleteExtensions",
+        "operation_mapping": "ContactsId",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property extensions for users",
         "parent": "ContactsId",
         "original_parent": "Contacts",
         "resource_identity": "Contacts"

@@ -5,7 +5,6 @@
   "trim_path_start": null,
   "filter_path": [
     "activities",
-    "agreementAcceptances",
     "appRoleAssignments",
     "authentication",
     "calendar",
@@ -18,7 +17,6 @@
     "createdObjects",
     "deviceManagementTroubleshootingEvents",
     "directReports",
-    "drives",
     "events",
     "extensions",
     "followedSites",
@@ -37,7 +35,6 @@
     "outlook",
     "ownedDevices",
     "ownedObjects",
-    "people",
     "photos",
     "planner",
     "presence",
@@ -79,7 +76,13 @@
       "path": "/conversations",
       "resource_identity": "GroupsConversations",
       "trim_path_start": "/groups/{group-id}",
-      "filter_path": [],
+      "filter_path": [
+        "conversations/{{RID}}/threads",
+        "posts",
+        "threads",
+        "multiValueExtendedProperties",
+        "singleValueExtendedProperties"
+      ],
       "replace_operation_map": "groupsConversations",
       "parameter_filter": [],
       "mod_file": {
@@ -99,7 +102,11 @@
       "path": "/threads",
       "resource_identity": "GroupsThreads",
       "trim_path_start": "/groups/{group-id}",
-      "filter_path": [],
+      "filter_path": [
+        "posts",
+        "multiValueExtendedProperties",
+        "singleValueExtendedProperties"
+      ],
       "replace_operation_map": "groupsThreads",
       "parameter_filter": [],
       "mod_file": {
@@ -167,7 +174,8 @@
         "primaryChannel",
         "channels",
         "tags",
-        "schedule"
+        "schedule",
+        "members"
       ],
       "replace_operation_map": "team",
       "parameter_filter": [],

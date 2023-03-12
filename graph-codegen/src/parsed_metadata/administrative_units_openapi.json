@@ -5,8 +5,12 @@
       "tags": [
         "directory.administrativeUnit"
       ],
-      "summary": "Get administrativeUnits from directory",
-      "description": "Conceptual container for user and group directory objects.",
+      "summary": "List administrativeUnits",
+      "description": "Retrieve a list of administrativeUnit objects.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directory-list-administrativeunits?view=graph-rest-1.0"
+      },
       "operationId": "directory.ListAdministrativeUnits",
       "parameters": [
         {
@@ -191,21 +195,21 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.administrativeUnitCollectionResponse"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -219,7 +223,12 @@
       "tags": [
         "directory.administrativeUnit"
       ],
-      "summary": "Create new navigation property to administrativeUnits for directory",
+      "summary": "Create administrativeUnit",
+      "description": "Use this API to create a new administrativeUnit.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/directory-post-administrativeunits?view=graph-rest-1.0"
+      },
       "operationId": "directory.CreateAdministrativeUnits",
       "requestBody": {
         "either": {
@@ -241,7 +250,21 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -258,20 +281,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -282,22 +291,38 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.administrativeUnits-a5a1",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -308,7 +333,7 @@
       "deprecated": false
     }
   },
-  "/administrativeUnits/microsoft.graph.delta()": {
+  "/administrativeUnits/delta()": {
     "description": "Provides operations to call the delta method.",
     "get": {
       "tags": [
@@ -316,8 +341,145 @@
       ],
       "summary": "Invoke function delta",
       "operationId": "directory.administrativeUnits.delta",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/top"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/skip"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/count"
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$select",
+              "in": "query",
+              "description": "Select properties to be returned",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "deletedDateTime",
+                    "description",
+                    "displayName",
+                    "visibility",
+                    "members",
+                    "scopedRoleMembers",
+                    "extensions"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Left": {
+              "name": "$orderby",
+              "in": "query",
+              "description": "Order items by property values",
+              "required": false,
+              "deprecated": false,
+              "style": "form",
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "array",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "items": {
+                  "type": "string",
+                  "readOnly": false,
+                  "writeOnly": false,
+                  "required": [],
+                  "uniqueItems": false,
+                  "additionalPropertiesAllowed": false,
+                  "enum": [
+                    "id",
+                    "id desc",
+                    "deletedDateTime",
+                    "deletedDateTime desc",
+                    "description",
+                    "description desc",
+                    "displayName",
+                    "displayName desc",
+                    "visibility",
+                    "visibility desc"
+                  ],
+                  "nullable": false,
+                  "deprecated": false,
+                  "unresolvedReference": false
+                },
+                "uniqueItems": true,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {},
+              "content": {}
+            }
+          }
+        }
+      ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Success",
@@ -330,58 +492,83 @@
                         "type": "object",
                         "readOnly": false,
                         "writeOnly": false,
-                        "required": [],
-                        "uniqueItems": false,
-                        "properties": {
-                          "value": {
-                            "type": "array",
-                            "readOnly": false,
-                            "writeOnly": false,
-                            "required": [],
-                            "items": {
-                              "readOnly": false,
-                              "writeOnly": false,
-                              "anyOf": [
-                                {
-                                  "either": {
-                                    "Right": {
-                                      "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
-                                    }
-                                  }
-                                },
-                                {
-                                  "either": {
-                                    "Left": {
-                                      "type": "object",
+                        "allOf": [
+                          {
+                            "either": {
+                              "Right": {
+                                "$ref": "#/components/schemas/BaseDeltaFunctionResponse"
+                              }
+                            }
+                          },
+                          {
+                            "either": {
+                              "Left": {
+                                "type": "object",
+                                "readOnly": false,
+                                "writeOnly": false,
+                                "required": [],
+                                "uniqueItems": false,
+                                "properties": {
+                                  "value": {
+                                    "type": "array",
+                                    "readOnly": false,
+                                    "writeOnly": false,
+                                    "required": [],
+                                    "items": {
                                       "readOnly": false,
                                       "writeOnly": false,
+                                      "anyOf": [
+                                        {
+                                          "either": {
+                                            "Right": {
+                                              "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "either": {
+                                            "Left": {
+                                              "type": "object",
+                                              "readOnly": false,
+                                              "writeOnly": false,
+                                              "required": [],
+                                              "uniqueItems": false,
+                                              "additionalPropertiesAllowed": false,
+                                              "enum": [],
+                                              "nullable": true,
+                                              "deprecated": false,
+                                              "unresolvedReference": false
+                                            }
+                                          }
+                                        }
+                                      ],
                                       "required": [],
                                       "uniqueItems": false,
                                       "additionalPropertiesAllowed": false,
                                       "enum": [],
-                                      "nullable": true,
+                                      "nullable": false,
                                       "deprecated": false,
                                       "unresolvedReference": false
-                                    }
+                                    },
+                                    "uniqueItems": false,
+                                    "additionalPropertiesAllowed": false,
+                                    "enum": [],
+                                    "nullable": false,
+                                    "deprecated": false,
+                                    "unresolvedReference": false
                                   }
-                                }
-                              ],
-                              "required": [],
-                              "uniqueItems": false,
-                              "additionalPropertiesAllowed": false,
-                              "enum": [],
-                              "nullable": false,
-                              "deprecated": false,
-                              "unresolvedReference": false
-                            },
-                            "uniqueItems": false,
-                            "additionalPropertiesAllowed": false,
-                            "enum": [],
-                            "nullable": false,
-                            "deprecated": false,
-                            "unresolvedReference": false
+                                },
+                                "additionalPropertiesAllowed": false,
+                                "enum": [],
+                                "nullable": false,
+                                "deprecated": false,
+                                "unresolvedReference": false
+                              }
+                            }
                           }
-                        },
+                        ],
+                        "required": [],
+                        "uniqueItems": false,
                         "additionalPropertiesAllowed": false,
                         "enum": [],
                         "nullable": false,
@@ -395,14 +582,14 @@
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -526,7 +713,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -640,10 +827,21 @@
         }
       },
       "responses": {
-        "204": {
+        "2XX": {
           "either": {
             "Left": {
-              "description": "Success"
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.administrativeUnit"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -670,7 +868,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -869,17 +1067,17 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.extensionCollectionResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.extensionCollectionResponse"
             }
           }
         },
@@ -919,7 +1117,7 @@
         }
       },
       "responses": {
-        "201": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -960,7 +1158,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -990,22 +1188,38 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.extensions-48cb",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1021,7 +1235,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1156,7 +1370,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -1220,17 +1434,17 @@
             }
           }
         },
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "204": {
+          "either": {
+            "Left": {
+              "description": "Success"
             }
           }
         }
@@ -1263,17 +1477,28 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.extension"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -1293,7 +1518,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1321,7 +1546,7 @@
           "Left": {
             "name": "extension-id",
             "in": "path",
-            "description": "key: id of extension",
+            "description": "The unique identifier of extension",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1354,8 +1579,48 @@
       ],
       "summary": "Get members from directory",
       "description": "Users and groups that are members of this administrative unit. Supports $expand.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/administrativeunit-list-members?view=graph-rest-1.0"
+      },
       "operationId": "directory.administrativeUnits.ListMembers",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -1523,10 +1788,10 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "2XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
             }
           }
         },
@@ -1537,10 +1802,10 @@
             }
           }
         },
-        "200": {
+        "5XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/microsoft.graph.directoryObjectCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1553,7 +1818,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1583,11 +1848,63 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.members-777a",
-      "responses": {
-        "4XX": {
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -1598,10 +1915,10 @@
             }
           }
         },
-        "200": {
+        "4XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -1614,7 +1931,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1647,8 +1964,48 @@
       ],
       "summary": "Get ref of members from directory",
       "description": "Users and groups that are members of this administrative unit. Supports $expand.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/administrativeunit-list-members?view=graph-rest-1.0"
+      },
       "operationId": "directory.administrativeUnits.ListRefMembers",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -1731,7 +2088,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/StringCollectionResponse"
@@ -1739,13 +2103,6 @@
           }
         },
         "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -1759,7 +2116,12 @@
       "tags": [
         "directory.administrativeUnit"
       ],
-      "summary": "Create new navigation property ref to members for directory",
+      "summary": "Add a member",
+      "description": "Use this API to add a member (user, group, or device) to an administrative unit. Currently it's only possible to add one member at a time to an administrative unit.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/administrativeunit-post-members?view=graph-rest-1.0"
+      },
       "operationId": "directory.administrativeUnits.CreateRefMembers",
       "requestBody": {
         "either": {
@@ -1769,17 +2131,17 @@
         }
       },
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -1799,7 +2161,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -1824,15 +2186,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.application": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.application": {
     "description": "Casts the previous resource to application.",
     "get": {
       "tags": [
         "directoryObject.application"
       ],
       "summary": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-a88b",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-bbb3",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -2000,10 +2398,10 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "2XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
             }
           }
         },
@@ -2014,10 +2412,10 @@
             }
           }
         },
-        "200": {
+        "5XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/microsoft.graph.applicationCollectionResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -2030,7 +2428,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2055,13 +2453,72 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.application/$count": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.application/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.application-12bb",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
@@ -2074,13 +2531,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -2091,7 +2541,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2116,15 +2566,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.device": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.device": {
     "description": "Casts the previous resource to device.",
     "get": {
       "tags": [
         "directoryObject.device"
       ],
       "summary": "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.device-d7ae",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.device-02b8",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -2292,7 +2778,14 @@
         }
       ],
       "responses": {
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.deviceCollectionResponse"
@@ -2305,13 +2798,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -2322,7 +2808,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2347,12 +2833,71 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.device/$count": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.device/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.device-a313",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2366,13 +2911,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
         }
       },
       "deprecated": false
@@ -2383,7 +2921,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2408,15 +2946,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.group": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.group": {
     "description": "Casts the previous resource to group.",
     "get": {
       "tags": [
         "directoryObject.group"
       ],
       "summary": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-7246",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-4213",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -2591,17 +3165,17 @@
             }
           }
         },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.groupCollectionResponse"
             }
           }
         }
@@ -2614,7 +3188,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2639,12 +3213,71 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.group/$count": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.group/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.group-af07",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
+            }
+          }
+        },
         "4XX": {
           "either": {
             "Right": {
@@ -2652,13 +3285,6 @@
             }
           }
         },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -2675,7 +3301,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2700,15 +3326,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.orgContact": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.orgContact": {
     "description": "Casts the previous resource to orgContact.",
     "get": {
       "tags": [
         "directoryObject.orgContact"
       ],
       "summary": "Get the items of type microsoft.graph.orgContact in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.orgContact-3ab1",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.orgContact-0888",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -2876,6 +3538,13 @@
         }
       ],
       "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.orgContactCollectionResponse"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -2889,13 +3558,6 @@
               "$ref": "#/components/responses/error"
             }
           }
-        },
-        "200": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.orgContactCollectionResponse"
-            }
-          }
         }
       },
       "deprecated": false
@@ -2906,7 +3568,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2931,27 +3593,79 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.orgContact/$count": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.orgContact/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.orgContact-7392",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -2967,7 +3681,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -2992,15 +3706,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.servicePrincipal": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.servicePrincipal": {
     "description": "Casts the previous resource to servicePrincipal.",
     "get": {
       "tags": [
         "directoryObject.servicePrincipal"
       ],
       "summary": "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-88a7",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.servicePrincipal-d412",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -3168,26 +3918,26 @@
         }
       ],
       "responses": {
-        "200": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.servicePrincipalCollectionResponse"
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -3198,7 +3948,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3223,32 +3973,84 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.servicePrincipal/$count": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.servicePrincipal/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.servicePrincipal-1d41",
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
             }
           }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
         }
       },
       "deprecated": false
@@ -3259,7 +4061,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3284,15 +4086,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.user": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.user": {
     "description": "Casts the previous resource to user.",
     "get": {
       "tags": [
         "directoryObject.user"
       ],
       "summary": "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
-      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-b145",
+      "operationId": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-b020",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Right": {
@@ -3460,7 +4298,7 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.userCollectionResponse"
@@ -3490,7 +4328,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3515,16 +4353,68 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/microsoft.graph.user/$count": {
+  "/administrativeUnits/{administrativeUnit-id}/members/graph.user/$count": {
     "description": "Provides operations to count the resources in the collection.",
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.microsoft.graph.user-5d18",
-      "responses": {
-        "5XX": {
+      "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
+        {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/error"
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/ODataCountResponse"
             }
           }
         },
@@ -3535,10 +4425,10 @@
             }
           }
         },
-        "200": {
+        "5XX": {
           "either": {
             "Right": {
-              "$ref": "#/components/responses/ODataCountResponse"
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -3551,7 +4441,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3641,17 +4531,17 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         },
@@ -3671,7 +4561,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3699,7 +4589,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3724,15 +4614,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.application": {
+  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/graph.application": {
     "description": "Casts the previous resource to application.",
     "get": {
       "tags": [
         "directoryObject.application"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-a88b",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-bbb3",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Left": {
@@ -3820,14 +4746,14 @@
         }
       ],
       "responses": {
-        "5XX": {
+        "4XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Result entities",
@@ -3845,7 +4771,7 @@
             }
           }
         },
-        "4XX": {
+        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -3861,7 +4787,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3889,7 +4815,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -3914,15 +4840,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.device": {
+  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/graph.device": {
     "description": "Casts the previous resource to device.",
     "get": {
       "tags": [
         "directoryObject.device"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.device",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.device-d7ae",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.device-02b8",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Left": {
@@ -4024,7 +4986,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Result entities",
@@ -4051,7 +5013,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4079,7 +5041,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4104,15 +5066,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.group": {
+  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/graph.group": {
     "description": "Casts the previous resource to group.",
     "get": {
       "tags": [
         "directoryObject.group"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-7246",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-4213",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Left": {
@@ -4207,7 +5205,14 @@
             }
           }
         },
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Result entities",
@@ -4224,13 +5229,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -4241,7 +5239,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4269,7 +5267,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4294,15 +5292,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.orgContact": {
+  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/graph.orgContact": {
     "description": "Casts the previous resource to orgContact.",
     "get": {
       "tags": [
         "directoryObject.orgContact"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.orgContact",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.orgContact-3ab1",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.orgContact-0888",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Left": {
@@ -4390,6 +5424,13 @@
         }
       ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -4397,7 +5438,7 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Result entities",
@@ -4414,13 +5455,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -4431,7 +5465,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4459,7 +5493,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4484,15 +5518,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.servicePrincipal": {
+  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/graph.servicePrincipal": {
     "description": "Casts the previous resource to servicePrincipal.",
     "get": {
       "tags": [
         "directoryObject.servicePrincipal"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.servicePrincipal",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-88a7",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.servicePrincipal-d412",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Left": {
@@ -4580,14 +5650,7 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Result entities",
@@ -4605,6 +5668,13 @@
             }
           }
         },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -4621,7 +5691,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4649,7 +5719,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4674,15 +5744,51 @@
       }
     ]
   },
-  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/microsoft.graph.user": {
+  "/administrativeUnits/{administrativeUnit-id}/members/{directoryObject-id}/graph.user": {
     "description": "Casts the previous resource to user.",
     "get": {
       "tags": [
         "directoryObject.user"
       ],
       "summary": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
-      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-b145",
+      "operationId": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-b020",
       "parameters": [
+        {
+          "either": {
+            "Left": {
+              "name": "ConsistencyLevel",
+              "in": "header",
+              "description": "Indicates the requested consistency level. Documentation URL: https://docs.microsoft.com/graph/aad-advanced-queries",
+              "required": false,
+              "deprecated": false,
+              "explode": false,
+              "allowReserved": false,
+              "schema": {
+                "type": "string",
+                "readOnly": false,
+                "writeOnly": false,
+                "required": [],
+                "uniqueItems": false,
+                "additionalPropertiesAllowed": false,
+                "enum": [],
+                "nullable": false,
+                "deprecated": false,
+                "unresolvedReference": false
+              },
+              "examples": {
+                "example-1": {
+                  "either": {
+                    "Left": {
+                      "description": "$search and $count queries require the client to set the ConsistencyLevel HTTP header to 'eventual'.",
+                      "value": "eventual"
+                    }
+                  }
+                }
+              },
+              "content": {}
+            }
+          }
+        },
         {
           "either": {
             "Left": {
@@ -4770,7 +5876,7 @@
         }
       ],
       "responses": {
-        "200": {
+        "2XX": {
           "either": {
             "Left": {
               "description": "Result entities",
@@ -4811,7 +5917,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4839,7 +5945,7 @@
           "Left": {
             "name": "directoryObject-id",
             "in": "path",
-            "description": "key: id of directoryObject",
+            "description": "The unique identifier of directoryObject",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -4870,8 +5976,12 @@
       "tags": [
         "directory.administrativeUnit"
       ],
-      "summary": "Get scopedRoleMembers from directory",
-      "description": "Scoped-role members of this administrative unit.",
+      "summary": "List scopedRoleMembers",
+      "description": "List Azure Active Directory (Azure AD) role assignments with administrative unit scope.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/administrativeunit-list-scopedrolemembers?view=graph-rest-1.0"
+      },
       "operationId": "directory.administrativeUnits.ListScopedRoleMembers",
       "parameters": [
         {
@@ -5047,13 +6157,6 @@
         }
       ],
       "responses": {
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -5061,10 +6164,17 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/microsoft.graph.scopedRoleMembershipCollectionResponse"
+            }
+          }
+        },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5075,7 +6185,12 @@
       "tags": [
         "directory.administrativeUnit"
       ],
-      "summary": "Create new navigation property to scopedRoleMembers for directory",
+      "summary": "Add a scopedRoleMember",
+      "description": "Assign an Azure Active Directory (Azure AD) role with administrative unit scope. For a list of roles that can be assigned with administrative unit scope, see Assign Azure AD roles with administrative unit scope.",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://docs.microsoft.com/graph/api/administrativeunit-post-scopedrolemembers?view=graph-rest-1.0"
+      },
       "operationId": "directory.administrativeUnits.CreateScopedRoleMembers",
       "requestBody": {
         "either": {
@@ -5097,7 +6212,21 @@
         }
       },
       "responses": {
-        "201": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Created navigation property.",
@@ -5114,20 +6243,6 @@
               }
             }
           }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
         }
       },
       "deprecated": false
@@ -5138,7 +6253,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5168,7 +6283,30 @@
     "get": {
       "summary": "Get the number of the resource",
       "operationId": "Get.Count.scopedRoleMembers-cb3a",
+      "parameters": [
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/search"
+            }
+          }
+        },
+        {
+          "either": {
+            "Right": {
+              "$ref": "#/components/parameters/filter"
+            }
+          }
+        }
+      ],
       "responses": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "5XX": {
           "either": {
             "Right": {
@@ -5176,17 +6314,10 @@
             }
           }
         },
-        "200": {
+        "2XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/ODataCountResponse"
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5199,7 +6330,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5323,7 +6454,21 @@
         }
       ],
       "responses": {
-        "200": {
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
           "either": {
             "Left": {
               "description": "Retrieved navigation property",
@@ -5338,20 +6483,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5401,17 +6532,17 @@
             }
           }
         },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
         "204": {
           "either": {
             "Left": {
               "description": "Success"
+            }
+          }
+        },
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
             }
           }
         }
@@ -5444,13 +6575,6 @@
         }
       },
       "responses": {
-        "204": {
-          "either": {
-            "Left": {
-              "description": "Success"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
@@ -5464,6 +6588,24 @@
               "$ref": "#/components/responses/error"
             }
           }
+        },
+        "2XX": {
+          "either": {
+            "Left": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "either": {
+                      "Right": {
+                        "$ref": "#/components/schemas/microsoft.graph.scopedRoleMembership"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       },
       "deprecated": false
@@ -5474,7 +6616,7 @@
           "Left": {
             "name": "administrativeUnit-id",
             "in": "path",
-            "description": "key: id of administrativeUnit",
+            "description": "The unique identifier of administrativeUnit",
             "required": true,
             "deprecated": false,
             "explode": false,
@@ -5502,7 +6644,7 @@
           "Left": {
             "name": "scopedRoleMembership-id",
             "in": "path",
-            "description": "key: id of scopedRoleMembership",
+            "description": "The unique identifier of scopedRoleMembership",
             "required": true,
             "deprecated": false,
             "explode": false,

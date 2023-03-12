@@ -192,17 +192,17 @@
         }
       ],
       "responses": {
-        "2XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/microsoft.graph.oAuth2PermissionGrantCollectionResponse"
-            }
-          }
-        },
         "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
+            }
+          }
+        },
+        "2XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/microsoft.graph.oAuth2PermissionGrantCollectionResponse"
             }
           }
         },
@@ -269,6 +269,13 @@
         }
       ],
       "responses": {
+        "5XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Right": {
@@ -277,13 +284,6 @@
           }
         },
         "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
           "either": {
             "Right": {
               "$ref": "#/components/responses/error"
@@ -323,273 +323,6 @@
         }
       }
     ]
-  },
-  "/oauth2PermissionGrants/delta()": {
-    "description": "Provides operations to call the delta method.",
-    "get": {
-      "tags": [
-        "oauth2PermissionGrants.Functions"
-      ],
-      "summary": "Invoke function delta",
-      "operationId": "oauth2PermissionGrants.delta",
-      "parameters": [
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/top"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/skip"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/search"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/filter"
-            }
-          }
-        },
-        {
-          "either": {
-            "Right": {
-              "$ref": "#/components/parameters/count"
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$select",
-              "in": "query",
-              "description": "Select properties to be returned",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "clientId",
-                    "consentType",
-                    "principalId",
-                    "resourceId",
-                    "scope"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        },
-        {
-          "either": {
-            "Left": {
-              "name": "$orderby",
-              "in": "query",
-              "description": "Order items by property values",
-              "required": false,
-              "deprecated": false,
-              "style": "form",
-              "explode": false,
-              "allowReserved": false,
-              "schema": {
-                "type": "array",
-                "readOnly": false,
-                "writeOnly": false,
-                "required": [],
-                "items": {
-                  "type": "string",
-                  "readOnly": false,
-                  "writeOnly": false,
-                  "required": [],
-                  "uniqueItems": false,
-                  "additionalPropertiesAllowed": false,
-                  "enum": [
-                    "id",
-                    "id desc",
-                    "clientId",
-                    "clientId desc",
-                    "consentType",
-                    "consentType desc",
-                    "principalId",
-                    "principalId desc",
-                    "resourceId",
-                    "resourceId desc",
-                    "scope",
-                    "scope desc"
-                  ],
-                  "nullable": false,
-                  "deprecated": false,
-                  "unresolvedReference": false
-                },
-                "uniqueItems": true,
-                "additionalPropertiesAllowed": false,
-                "enum": [],
-                "nullable": false,
-                "deprecated": false,
-                "unresolvedReference": false
-              },
-              "examples": {},
-              "content": {}
-            }
-          }
-        }
-      ],
-      "responses": {
-        "2XX": {
-          "either": {
-            "Left": {
-              "description": "Success",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "either": {
-                      "Left": {
-                        "title": "Collection of oAuth2PermissionGrant",
-                        "type": "object",
-                        "readOnly": false,
-                        "writeOnly": false,
-                        "allOf": [
-                          {
-                            "either": {
-                              "Right": {
-                                "$ref": "#/components/schemas/BaseDeltaFunctionResponse"
-                              }
-                            }
-                          },
-                          {
-                            "either": {
-                              "Left": {
-                                "type": "object",
-                                "readOnly": false,
-                                "writeOnly": false,
-                                "required": [],
-                                "uniqueItems": false,
-                                "properties": {
-                                  "value": {
-                                    "type": "array",
-                                    "readOnly": false,
-                                    "writeOnly": false,
-                                    "required": [],
-                                    "items": {
-                                      "readOnly": false,
-                                      "writeOnly": false,
-                                      "anyOf": [
-                                        {
-                                          "either": {
-                                            "Right": {
-                                              "$ref": "#/components/schemas/microsoft.graph.oAuth2PermissionGrant"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "either": {
-                                            "Left": {
-                                              "type": "object",
-                                              "readOnly": false,
-                                              "writeOnly": false,
-                                              "required": [],
-                                              "uniqueItems": false,
-                                              "additionalPropertiesAllowed": false,
-                                              "enum": [],
-                                              "nullable": true,
-                                              "deprecated": false,
-                                              "unresolvedReference": false
-                                            }
-                                          }
-                                        }
-                                      ],
-                                      "required": [],
-                                      "uniqueItems": false,
-                                      "additionalPropertiesAllowed": false,
-                                      "enum": [],
-                                      "nullable": false,
-                                      "deprecated": false,
-                                      "unresolvedReference": false
-                                    },
-                                    "uniqueItems": false,
-                                    "additionalPropertiesAllowed": false,
-                                    "enum": [],
-                                    "nullable": false,
-                                    "deprecated": false,
-                                    "unresolvedReference": false
-                                  }
-                                },
-                                "additionalPropertiesAllowed": false,
-                                "enum": [],
-                                "nullable": false,
-                                "deprecated": false,
-                                "unresolvedReference": false
-                              }
-                            }
-                          }
-                        ],
-                        "required": [],
-                        "uniqueItems": false,
-                        "additionalPropertiesAllowed": false,
-                        "enum": [],
-                        "nullable": false,
-                        "deprecated": false,
-                        "unresolvedReference": false
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        },
-        "5XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
-            }
-          }
-        }
-      },
-      "deprecated": false
-    }
   },
   "/oauth2PermissionGrants/{oAuth2PermissionGrant-id}": {
     "description": "Provides operations to manage the oauth2PermissionGrants property of the microsoft.graph.user entity.",
@@ -698,6 +431,13 @@
             }
           }
         },
+        "4XX": {
+          "either": {
+            "Right": {
+              "$ref": "#/components/responses/error"
+            }
+          }
+        },
         "2XX": {
           "either": {
             "Left": {
@@ -713,13 +453,6 @@
                   }
                 }
               }
-            }
-          }
-        },
-        "4XX": {
-          "either": {
-            "Right": {
-              "$ref": "#/components/responses/error"
             }
           }
         }

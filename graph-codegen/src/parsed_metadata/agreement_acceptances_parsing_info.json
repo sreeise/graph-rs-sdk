@@ -2,16 +2,13 @@
   "modifier_name": null,
   "path": "/agreementAcceptances",
   "resource_identity": "AgreementAcceptances",
-  "trim_path_start": "/users/{user-id}",
-  "filter_path": [
-    "/multiValueExtendedProperties",
-    "singleValueExtendedProperties"
-  ],
+  "trim_path_start": null,
+  "filter_path": [],
   "replace_operation_map": "agreementAcceptances",
   "parameter_filter": [],
   "mod_file": {
     "Declarations": {
-      "file": "./src/users/agreement_acceptances/mod.rs",
+      "file": "./src/agreement_acceptances/mod.rs",
       "declarations": [
         "request"
       ]

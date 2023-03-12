@@ -7,7 +7,8 @@
     "primaryChannel",
     "channels",
     "tags",
-    "schedule"
+    "schedule",
+    "members"
   ],
   "replace_operation_map": "team",
   "parameter_filter": [],

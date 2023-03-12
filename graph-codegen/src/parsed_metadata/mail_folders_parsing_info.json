@@ -4,8 +4,8 @@
   "resource_identity": "MailFolders",
   "trim_path_start": "/users/{user-id}",
   "filter_path": [
-    "/multiValueExtendedProperties",
-    "singleValueExtendedProperties"
+    "childFolders",
+    "messages"
   ],
   "replace_operation_map": "mailFolders",
   "parameter_filter": [],

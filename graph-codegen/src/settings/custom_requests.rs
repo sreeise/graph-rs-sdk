@@ -306,7 +306,7 @@ pub fn get_custom_requests(
                 operation_mapping: "items".into(),
                 doc: Some("# Delete navigation property items".into()),
             }],
-            ResourceIdentity::Pages => vec![
+            ResourceIdentity::OnenotePages => vec![
                 Request {
                     path: "/pages/{{RID}}".into(),
                     method: HttpMethod::DELETE,

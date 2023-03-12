@@ -36,7 +36,7 @@
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "authenticationMethodConfigurations.authenticationMethodConfiguration.GetAuthenticationMethodsConfigurationsCount",
+        "operation_id": "Get.Count.authenticationMethodConfigurations-6d53",
         "operation_mapping": "authenticationMethodConfigurations",
         "http_method": "GET",
         "doc": "Get the number of the resource",
@@ -63,23 +63,23 @@
         "resource_identity": "AuthenticationMethodConfigurations"
       },
       {
+        "has_body": true,
+        "request_task": "Json",
+        "operation_id": "authenticationMethodConfigurations.authenticationMethodConfiguration.UpdateAuthenticationMethodConfiguration",
+        "operation_mapping": "AuthenticationMethodConfigurationsId",
+        "http_method": "PATCH",
+        "doc": "Update entity in authenticationMethodConfigurations",
+        "parent": "AuthenticationMethodConfigurationsId",
+        "original_parent": "AuthenticationMethodConfigurations",
+        "resource_identity": "AuthenticationMethodConfigurations"
+      },
+      {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "authenticationMethodConfigurations.authenticationMethodConfiguration.GetAuthenticationMethodConfiguration",
         "operation_mapping": "AuthenticationMethodConfigurationsId",
         "http_method": "GET",
         "doc": "Get entity from authenticationMethodConfigurations by key",
-        "parent": "AuthenticationMethodConfigurationsId",
-        "original_parent": "AuthenticationMethodConfigurations",
-        "resource_identity": "AuthenticationMethodConfigurations"
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "authenticationMethodConfigurations.authenticationMethodConfiguration.UpdateAuthenticationMethodConfiguration",
-        "operation_mapping": "AuthenticationMethodConfigurationsId",
-        "http_method": "PATCH",
-        "doc": "Update entity in authenticationMethodConfigurations",
         "parent": "AuthenticationMethodConfigurationsId",
         "original_parent": "AuthenticationMethodConfigurations",
         "resource_identity": "AuthenticationMethodConfigurations"

@@ -5,52 +5,12 @@
     "parameters": [],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.DeletePlanner",
-        "operation_mapping": "planner",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property planner for users",
-        "parent": "Planner",
-        "original_parent": "Planner",
-        "resource_identity": "Planner"
-      },
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.GetPlanner",
-        "operation_mapping": "planner",
-        "http_method": "GET",
-        "doc": "Get planner from users",
-        "parent": "Planner",
-        "original_parent": "Planner",
-        "resource_identity": "Planner"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
-        "operation_id": "users.UpdatePlanner",
+        "operation_id": "planner.planner.UpdatePlanner",
         "operation_mapping": "planner",
         "http_method": "PATCH",
-        "doc": "Update the navigation property planner in users",
-        "parent": "Planner",
-        "original_parent": "Planner",
-        "resource_identity": "Planner"
-      }
-    ]
-  },
-  {
-    "path": "/planner/plans",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.planner.CreatePlans",
-        "operation_mapping": "planner",
-        "http_method": "POST",
-        "doc": "Create new navigation property to plans for users",
+        "doc": "Update planner",
         "parent": "Planner",
         "original_parent": "Planner",
         "resource_identity": "Planner"
@@ -58,39 +18,10 @@
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "users.planner.ListPlans",
+        "operation_id": "planner.planner.GetPlanner",
         "operation_mapping": "planner",
         "http_method": "GET",
-        "doc": "List plans",
-        "parent": "Planner",
-        "original_parent": "Planner",
-        "resource_identity": "Planner"
-      }
-    ]
-  },
-  {
-    "path": "/planner/tasks",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "users.planner.ListTasks",
-        "operation_mapping": "planner",
-        "http_method": "GET",
-        "doc": "List tasks",
-        "parent": "Planner",
-        "original_parent": "Planner",
-        "resource_identity": "Planner"
-      },
-      {
-        "has_body": true,
-        "request_task": "Json",
-        "operation_id": "users.planner.CreateTasks",
-        "operation_mapping": "planner",
-        "http_method": "POST",
-        "doc": "Create new navigation property to tasks for users",
+        "doc": "Get planner",
         "parent": "Planner",
         "original_parent": "Planner",
         "resource_identity": "Planner"

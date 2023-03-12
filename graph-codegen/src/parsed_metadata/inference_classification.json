@@ -83,23 +83,23 @@
     ],
     "metadata": [
       {
-        "has_body": false,
-        "request_task": "NoContent",
-        "operation_id": "users.inferenceClassification.DeleteOverrides",
-        "operation_mapping": "inferenceClassification",
-        "http_method": "DELETE",
-        "doc": "Delete navigation property overrides for users",
-        "parent": "InferenceClassification",
-        "original_parent": "InferenceClassification",
-        "resource_identity": "InferenceClassification"
-      },
-      {
         "has_body": true,
         "request_task": "Json",
         "operation_id": "users.inferenceClassification.UpdateOverrides",
         "operation_mapping": "inferenceClassification",
         "http_method": "PATCH",
         "doc": "Update the navigation property overrides in users",
+        "parent": "InferenceClassification",
+        "original_parent": "InferenceClassification",
+        "resource_identity": "InferenceClassification"
+      },
+      {
+        "has_body": false,
+        "request_task": "NoContent",
+        "operation_id": "users.inferenceClassification.DeleteOverrides",
+        "operation_mapping": "inferenceClassification",
+        "http_method": "DELETE",
+        "doc": "Delete navigation property overrides for users",
         "parent": "InferenceClassification",
         "original_parent": "InferenceClassification",
         "resource_identity": "InferenceClassification"

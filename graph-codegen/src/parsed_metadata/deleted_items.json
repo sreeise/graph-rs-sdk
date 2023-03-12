@@ -11,9 +11,9 @@
         "operation_mapping": "deletedItems",
         "http_method": "POST",
         "doc": "Create new navigation property to deletedItems for directory",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       },
       {
         "has_body": false,
@@ -22,9 +22,9 @@
         "operation_mapping": "deletedItems",
         "http_method": "GET",
         "doc": "Get deletedItems from directory",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
@@ -40,50 +40,32 @@
         "operation_mapping": "deletedItems",
         "http_method": "GET",
         "doc": "Get the number of the resource",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/microsoft.graph.application",
+    "path": "/deletedItems/delta()",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-512e",
+        "request_task": "Delta",
+        "operation_id": "directory.deletedItems.delta",
         "operation_mapping": "deletedItems",
         "http_method": "GET",
-        "doc": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "doc": "Invoke function delta",
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/microsoft.graph.application/$count",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.Count.microsoft.graph.application-09ac",
-        "operation_mapping": "deletedItems",
-        "http_method": "GET",
-        "doc": "Get the number of the resource",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
-      }
-    ]
-  },
-  {
-    "path": "/deletedItems/microsoft.graph.getAvailableExtensionProperties",
+    "path": "/deletedItems/getAvailableExtensionProperties",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -94,14 +76,14 @@
         "operation_mapping": "deletedItems",
         "http_method": "POST",
         "doc": "Invoke action getAvailableExtensionProperties",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/microsoft.graph.getByIds",
+    "path": "/deletedItems/getByIds",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -112,32 +94,68 @@
         "operation_mapping": "deletedItems",
         "http_method": "POST",
         "doc": "Invoke action getByIds",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/microsoft.graph.group",
+    "path": "/deletedItems/graph.application",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-3eab",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.application-bdd6",
         "operation_mapping": "deletedItems",
         "http_method": "GET",
-        "doc": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "doc": "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/microsoft.graph.group/$count",
+    "path": "/deletedItems/graph.application/$count",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.Count.microsoft.graph.application-09ac",
+        "operation_mapping": "deletedItems",
+        "http_method": "GET",
+        "doc": "Get the number of the resource",
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
+      }
+    ]
+  },
+  {
+    "path": "/deletedItems/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.group-21e4",
+        "operation_mapping": "deletedItems",
+        "http_method": "GET",
+        "doc": "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
+      }
+    ]
+  },
+  {
+    "path": "/deletedItems/graph.group/$count",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -148,32 +166,32 @@
         "operation_mapping": "deletedItems",
         "http_method": "GET",
         "doc": "Get the number of the resource",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/microsoft.graph.user",
+    "path": "/deletedItems/graph.user",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-b663",
+        "operation_id": "Get.microsoft.graph.directoryObject.Items.As.microsoft.graph.user-a4ef",
         "operation_mapping": "deletedItems",
         "http_method": "GET",
         "doc": "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/microsoft.graph.user/$count",
+    "path": "/deletedItems/graph.user/$count",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -184,14 +202,14 @@
         "operation_mapping": "deletedItems",
         "http_method": "GET",
         "doc": "Get the number of the resource",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/microsoft.graph.validateProperties",
+    "path": "/deletedItems/validateProperties",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -202,9 +220,9 @@
         "operation_mapping": "deletedItems",
         "http_method": "POST",
         "doc": "Invoke action validateProperties",
-        "parent": "DirectoryDeletedItems",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItems",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
@@ -217,57 +235,39 @@
         "has_body": false,
         "request_task": "NoContent",
         "operation_id": "directory.DeleteDeletedItems",
-        "operation_mapping": "deletedItemsId",
+        "operation_mapping": "DeletedItemsId",
         "http_method": "DELETE",
         "doc": "Delete navigation property deletedItems for directory",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
-      },
-      {
-        "has_body": true,
-        "request_task": "NoContent",
-        "operation_id": "directory.UpdateDeletedItems",
-        "operation_mapping": "deletedItemsId",
-        "http_method": "PATCH",
-        "doc": "Update the navigation property deletedItems in directory",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       },
       {
         "has_body": false,
         "request_task": "Json",
         "operation_id": "directory.GetDeletedItems",
-        "operation_mapping": "deletedItemsId",
+        "operation_mapping": "DeletedItemsId",
         "http_method": "GET",
         "doc": "Get deletedItems from directory",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
-      }
-    ]
-  },
-  {
-    "path": "/deletedItems/{{RID}}/microsoft.graph.application",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
+      },
       {
-        "has_body": false,
+        "has_body": true,
         "request_task": "Json",
-        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-e9d2",
-        "operation_mapping": "deletedItemsId",
-        "http_method": "GET",
-        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "operation_id": "directory.UpdateDeletedItems",
+        "operation_mapping": "DeletedItemsId",
+        "http_method": "PATCH",
+        "doc": "Update the navigation property deletedItems in directory",
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/{{RID}}/microsoft.graph.checkMemberGroups",
+    "path": "/deletedItems/{{RID}}/checkMemberGroups",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -275,17 +275,17 @@
         "has_body": true,
         "request_task": "Json",
         "operation_id": "directory.deletedItems.directoryObject.checkMemberGroups",
-        "operation_mapping": "deletedItemsId",
+        "operation_mapping": "DeletedItemsId",
         "http_method": "POST",
         "doc": "Invoke action checkMemberGroups",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/{{RID}}/microsoft.graph.checkMemberObjects",
+    "path": "/deletedItems/{{RID}}/checkMemberObjects",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -293,17 +293,17 @@
         "has_body": true,
         "request_task": "Json",
         "operation_id": "directory.deletedItems.directoryObject.checkMemberObjects",
-        "operation_mapping": "deletedItemsId",
+        "operation_mapping": "DeletedItemsId",
         "http_method": "POST",
         "doc": "Invoke action checkMemberObjects",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/{{RID}}/microsoft.graph.getMemberGroups",
+    "path": "/deletedItems/{{RID}}/getMemberGroups",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -311,17 +311,17 @@
         "has_body": true,
         "request_task": "Json",
         "operation_id": "directory.deletedItems.directoryObject.getMemberGroups",
-        "operation_mapping": "deletedItemsId",
+        "operation_mapping": "DeletedItemsId",
         "http_method": "POST",
         "doc": "Invoke action getMemberGroups",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/{{RID}}/microsoft.graph.getMemberObjects",
+    "path": "/deletedItems/{{RID}}/getMemberObjects",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -329,35 +329,71 @@
         "has_body": true,
         "request_task": "Json",
         "operation_id": "directory.deletedItems.directoryObject.getMemberObjects",
-        "operation_mapping": "deletedItemsId",
+        "operation_mapping": "DeletedItemsId",
         "http_method": "POST",
         "doc": "Invoke action getMemberObjects",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/{{RID}}/microsoft.graph.group",
+    "path": "/deletedItems/{{RID}}/graph.application",
     "param_size": 0,
     "parameters": [],
     "metadata": [
       {
         "has_body": false,
         "request_task": "Json",
-        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-3791",
-        "operation_mapping": "deletedItemsId",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.application-24dc",
+        "operation_mapping": "DeletedItemsId",
         "http_method": "GET",
-        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.application",
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   },
   {
-    "path": "/deletedItems/{{RID}}/microsoft.graph.restore",
+    "path": "/deletedItems/{{RID}}/graph.group",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.group-7b4a",
+        "operation_mapping": "DeletedItemsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.group",
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
+      }
+    ]
+  },
+  {
+    "path": "/deletedItems/{{RID}}/graph.user",
+    "param_size": 0,
+    "parameters": [],
+    "metadata": [
+      {
+        "has_body": false,
+        "request_task": "Json",
+        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-6372",
+        "operation_mapping": "DeletedItemsId",
+        "http_method": "GET",
+        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
+      }
+    ]
+  },
+  {
+    "path": "/deletedItems/{{RID}}/restore",
     "param_size": 0,
     "parameters": [],
     "metadata": [
@@ -365,30 +401,12 @@
         "has_body": false,
         "request_task": "Json",
         "operation_id": "directory.deletedItems.directoryObject.restore",
-        "operation_mapping": "deletedItemsId",
+        "operation_mapping": "DeletedItemsId",
         "http_method": "POST",
         "doc": "Invoke action restore",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
-      }
-    ]
-  },
-  {
-    "path": "/deletedItems/{{RID}}/microsoft.graph.user",
-    "param_size": 0,
-    "parameters": [],
-    "metadata": [
-      {
-        "has_body": false,
-        "request_task": "Json",
-        "operation_id": "Get.microsoft.graph.directoryObject.Item.As.microsoft.graph.user-97ed",
-        "operation_mapping": "deletedItemsId",
-        "http_method": "GET",
-        "doc": "Get the item of type microsoft.graph.directoryObject as microsoft.graph.user",
-        "parent": "DirectoryDeletedItemsId",
-        "original_parent": "DirectoryDeletedItems",
-        "resource_identity": "DirectoryDeletedItems"
+        "parent": "DeletedItemsId",
+        "original_parent": "DeletedItems",
+        "resource_identity": "DeletedItems"
       }
     ]
   }

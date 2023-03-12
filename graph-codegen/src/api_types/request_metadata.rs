@@ -89,6 +89,7 @@ impl RequestMetadata {
         self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
     }
 
+    /*
     // Replace parts of a doc comment to prevent confusion on apis that are used by
     // multiple resources.
     pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
@@ -100,6 +101,7 @@ impl RequestMetadata {
             }
         }
     }
+     */
 
     pub fn resource_identity(&self) -> Option<ResourceIdentity> {
         self.resource_identity
@@ -260,12 +262,6 @@ impl PathMetadata {
         }
 
         self.metadata = metadata;
-    }
-
-    pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
-        for m in self.metadata.iter_mut() {
-            m.filter_doc_comments(resource_identity);
-        }
     }
 
     pub fn format_named_path_parameters(&mut self) {
@@ -504,12 +500,6 @@ impl PathMetadataQueue {
         self.0 = metadata;
     }
 
-    pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
-        for m in self.0.iter_mut() {
-            m.filter_doc_comments(resource_identity);
-        }
-    }
-
     pub fn transform_id_metadata(&mut self, path_start: &str) {
         for path_metadata in self.0.iter_mut() {
             //dbg!(path_metadata);
@@ -646,6 +636,93 @@ impl From<ResourceIdentity> for PathMetadataQueue {
     }
 }
 
+impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
+    fn from(value: (WriteConfiguration, &OpenApi)) -> Self {
+        let resource_parsing_info = value.0;
+        let open_api = value.1;
+
+        let mut requests = {
+            if let Some(trim_pat) = resource_parsing_info.trim_path_start.as_ref() {
+                open_api
+                    .requests_secondary(trim_pat.as_str(), &resource_parsing_info.parameter_filter)
+            } else {
+                open_api.requests()
+            }
+        };
+
+        let name = {
+            if let Some(name) = resource_parsing_info.modifier_name.as_ref() {
+                name.to_string()
+            } else {
+                resource_parsing_info.resource_identity.to_string()
+            }
+        };
+
+        if resource_parsing_info.trim_path_start.is_some() {
+            let path_item_map =
+                PathItemMap(open_api.filter_resource_parsing_info_path(&resource_parsing_info));
+
+            let path_item_file = format!(
+                "./graph-codegen/src/parsed_metadata/{}_openapi.json",
+                name.to_snake_case()
+            );
+            path_item_map.as_file_pretty(&path_item_file).unwrap();
+        } else {
+            let path_item_map = PathItemMap(open_api.filter_path(&resource_parsing_info.path));
+
+            let path_item_file = format!(
+                "./graph-codegen/src/parsed_metadata/{}_openapi.json",
+                name.to_snake_case()
+            );
+            path_item_map.as_file_pretty(&path_item_file).unwrap();
+        }
+
+        let path_filter = resource_parsing_info.path.clone();
+
+        let mut metadata: VecDeque<PathMetadata> = requests
+            .iter()
+            .filter(|r| r.path_starts_with(&path_filter))
+            .filter(|r| {
+                !resource_parsing_info
+                    .filter_path
+                    .iter()
+                    .any(|s| r.path.contains(s))
+            })
+            .cloned()
+            .collect();
+
+        if let Some(operation_map) = resource_parsing_info.replace_operation_map.as_ref() {
+            metadata
+                .iter_mut()
+                .for_each(|m| m.replace_operation_map(operation_map.to_string()));
+        }
+
+        let mut metadata_queue = PathMetadataQueue(metadata);
+
+        /*
+        let modifier_map =
+            ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
+        metadata_queue.update_targets(&modifier_map);
+         */
+
+        metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
+
+        if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
+            metadata_queue.format_path_parameters();
+
+            metadata_queue.transform_secondary_id_metadata(
+                resource_parsing_info.path.as_str(),
+                name.as_str(),
+                resource_parsing_info.resource_identity,
+            );
+        } else {
+            metadata_queue.format_path_parameters();
+            metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());
+        }
+        metadata_queue
+    }
+}
+
 impl From<WriteConfiguration> for PathMetadataQueue {
     fn from(resource_parsing_info: WriteConfiguration) -> Self {
         let open_api = OpenApi::default();
@@ -707,9 +784,11 @@ impl From<WriteConfiguration> for PathMetadataQueue {
 
         let mut metadata_queue = PathMetadataQueue(metadata);
 
+        /*
         let modifier_map =
             ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
         metadata_queue.update_targets(&modifier_map);
+         */
 
         metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
 
@@ -724,11 +803,6 @@ impl From<WriteConfiguration> for PathMetadataQueue {
         } else {
             metadata_queue.format_path_parameters();
             metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());
-        }
-
-        let filters = ParserSettings::path_filters(resource_parsing_info.resource_identity);
-        for filter in filters {
-            metadata_queue.filter_metadata_path(filter);
         }
         metadata_queue
     }
