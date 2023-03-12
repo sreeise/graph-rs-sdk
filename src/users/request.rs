@@ -128,6 +128,7 @@ impl UsersIdApiClient {
     api_client_link!(managed_app_registrations, ManagedAppRegistrationsApiClient);
     api_client_link_id!(agreement_acceptance, AgreementAcceptancesIdApiClient);
     api_client_link!(todo, TodoApiClient);
+    api_client_link!(settings, SettingsApiClient);
 
     delete!(
         doc: "Delete a user",

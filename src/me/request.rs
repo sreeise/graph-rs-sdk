@@ -85,6 +85,7 @@ impl MeApiClient {
     api_client_link!(channels, ChannelsApiClient);
     api_client_link!(calendar_groups, CalendarGroupsApiClient);
     api_client_link_id!(managed_device, ManagedDevicesIdApiClient);
+    api_client_link!(settings, SettingsApiClient);
 
     get!(
         doc: "List manager",
