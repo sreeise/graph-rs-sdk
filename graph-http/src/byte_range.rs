@@ -66,7 +66,7 @@ impl ByteRangeRead for ByteRanges<std::fs::File> {
                 }
             }
 
-            let range = end + v.len() as u64;
+            let range = end + (v.len() as u64);
             if end != 0 && range < size {
                 end += 1;
             }
@@ -118,7 +118,7 @@ impl ByteRangeRead for ByteRanges<std::fs::File> {
                 self.file.by_ref().take(byte_range).read_to_end(&mut v)?;
             }
 
-            let range = end + v.len() as u64;
+            let range = end + (v.len() as u64);
             if end != 0 && range < size {
                 end += 1;
             }
@@ -168,7 +168,7 @@ impl AsyncByteRangeRead for ByteRanges<tokio::fs::File> {
                 self.file.read_exact(&mut v).await?;
             }
 
-            let range = end + v.len() as u64;
+            let range = end + (v.len() as u64);
             if end != 0 && range < size {
                 end += 1;
             }
@@ -222,7 +222,7 @@ impl AsyncByteRangeRead for ByteRanges<tokio::fs::File> {
                 self.file.read_exact(&mut v).await?;
             }
 
-            let range = end + v.len() as u64;
+            let range = end + (v.len() as u64);
             if end != 0 && range < size {
                 end += 1;
             }

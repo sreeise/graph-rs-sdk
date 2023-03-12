@@ -407,7 +407,10 @@ where
             let status = response.status();
             let url = GraphUrl::from(response.url());
             let json: T = response.json().await.map_err(GraphFailure::from)?;
-            let mut next_link = json.next_link().clone().and_then(|url| GraphUrl::parse(&url).ok());
+            let mut next_link = json
+                .odata_next_link()
+                .clone()
+                .and_then(|url| GraphUrl::parse(&url).ok());
             let result = GraphResponse::new(url, json, status, headers);
             yield result;
 
@@ -418,7 +421,10 @@ where
                 let status = response.status();
                 let current_url = GraphUrl::from(response.url());
                 let json: T = response.json().await.map_err(GraphFailure::from)?;
-                next_link = json.next_link().clone().and_then(|url| GraphUrl::parse(&url).ok());
+                next_link = json
+                    .odata_next_link()
+                    .clone()
+                    .and_then(|url| GraphUrl::parse(&url).ok());
                 let result = GraphResponse::new(current_url, json, status, headers);
                 yield result;
             }

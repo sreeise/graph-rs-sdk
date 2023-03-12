@@ -338,23 +338,43 @@ impl RequestClient for HttpClient<RefCell<BlockingClient>> {
         let mut client = self.client.borrow_mut();
         for att in req_att {
             match att {
-                RequestAttribute::Token(token) => client.token = token,
-                RequestAttribute::Ident(ident) => client.ident = ident,
-                RequestAttribute::Url(url) => client.url = url,
-                RequestAttribute::Method(method) => client.method = method,
-                RequestAttribute::Body(body) => client.body = Some(body),
+                RequestAttribute::Token(token) => {
+                    client.token = token;
+                }
+                RequestAttribute::Ident(ident) => {
+                    client.ident = ident;
+                }
+                RequestAttribute::Url(url) => {
+                    client.url = url;
+                }
+                RequestAttribute::Method(method) => {
+                    client.method = method;
+                }
+                RequestAttribute::Body(body) => {
+                    client.body = Some(body);
+                }
                 RequestAttribute::BodyFile(path) => {
                     let mut file = File::open(path)?;
                     let mut buffer = String::new();
                     file.read_to_string(&mut buffer)?;
                     client.body = Some(buffer.into());
                 }
-                RequestAttribute::Headers(headers) => client.headers = headers,
+                RequestAttribute::Headers(headers) => {
+                    client.headers = headers;
+                }
                 RequestAttribute::ClearHeaders => client.headers.clear(),
-                RequestAttribute::Download(path) => client.download_dir = Some(path),
-                RequestAttribute::Upload(path) => client.upload_session_file = Some(path),
-                RequestAttribute::Form(form) => client.form = Some(form),
-                RequestAttribute::RequestType(req_type) => client.req_type = req_type,
+                RequestAttribute::Download(path) => {
+                    client.download_dir = Some(path);
+                }
+                RequestAttribute::Upload(path) => {
+                    client.upload_session_file = Some(path);
+                }
+                RequestAttribute::Form(form) => {
+                    client.form = Some(form);
+                }
+                RequestAttribute::RequestType(req_type) => {
+                    client.req_type = req_type;
+                }
             }
         }
         Ok(())

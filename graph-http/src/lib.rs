@@ -20,6 +20,7 @@ mod response_handler;
 mod upload_session;
 
 pub mod byte_range;
+
 pub mod client;
 pub mod iotools;
 pub mod odata_query;
@@ -43,7 +44,9 @@ pub use upload_session::*;
 pub mod api_impl {
     pub use crate::client::{ApiClientImpl, Client};
     pub use crate::odata_query::*;
-    pub use crate::response_handler::{ResourceConfig, ResponseHandler};
+    pub use crate::response_handler::{
+        RequestComponents, ResourceConfig, ResponseHandler,
+    };
     pub use crate::url::GraphUrl;
     pub use crate::{IntoResponse, RequestClient, ResourceIdentifier};
     pub use graph_error::{GraphFailure, GraphResult};

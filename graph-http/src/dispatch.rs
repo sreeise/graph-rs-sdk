@@ -270,7 +270,7 @@ where
 
         let token = self.token;
         let response = response.unwrap();
-        let mut next_link = response.body().next_link();
+        let mut next_link = response.body().odata_next_link();
         sender.send(Delta::Next(response)).unwrap();
 
         thread::spawn(move || {
@@ -296,7 +296,7 @@ where
                             let status = response.status();
                             match response.json::<T>() {
                                 Ok(value) => {
-                                    next_link = value.next_link();
+                                    next_link = value.odata_next_link();
                                     sender
                                         .send(Delta::Next(GraphResponse::new(
                                             url, value, status, headers,
@@ -353,7 +353,7 @@ where
 
         let token = self.token;
         let response = response.unwrap();
-        let mut next_link = response.body().next_link();
+        let mut next_link = response.body().odata_next_link();
         sender.send(Delta::Next(response)).await.unwrap();
 
         tokio::spawn(async move {
@@ -380,7 +380,7 @@ where
                             let status = response.status();
                             match response.json::<T>().await {
                                 Ok(value) => {
-                                    next_link = value.next_link();
+                                    next_link = value.odata_next_link();
                                     sender
                                         .send(Delta::Next(GraphResponse::new(
                                             url, value, status, headers,
