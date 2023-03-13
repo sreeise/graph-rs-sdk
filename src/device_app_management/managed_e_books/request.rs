@@ -10,13 +10,13 @@ resource_api_client!(
 );
 
 impl ManagedEBooksApiClient {
-    api_client_link!(device_states, ManagedEBooksDeviceStatesApiClient);
-    api_client_link!(user_state_summary, ManagedEBooksUserStateSummaryApiClient);
-    api_client_link_id!(device_state, ManagedEBooksDeviceStatesIdApiClient);
     api_client_link_id!(
         user_state_summary_id,
         ManagedEBooksUserStateSummaryIdApiClient
     );
+    api_client_link!(user_state_summary, ManagedEBooksUserStateSummaryApiClient);
+    api_client_link!(device_states, ManagedEBooksDeviceStatesApiClient);
+    api_client_link_id!(device_state, ManagedEBooksDeviceStatesIdApiClient);
 
     post!(
         doc: "Create new navigation property to managedEBooks for deviceAppManagement",
@@ -39,11 +39,11 @@ impl ManagedEBooksApiClient {
 impl ManagedEBooksIdApiClient {
     api_client_link_id!(device_state, ManagedEBooksDeviceStatesIdApiClient);
     api_client_link!(user_state_summary, ManagedEBooksUserStateSummaryApiClient);
-    api_client_link!(device_states, ManagedEBooksDeviceStatesApiClient);
     api_client_link_id!(
         user_state_summary_id,
         ManagedEBooksUserStateSummaryIdApiClient
     );
+    api_client_link!(device_states, ManagedEBooksDeviceStatesApiClient);
 
     delete!(
         doc: "Delete navigation property managedEBooks for deviceAppManagement",

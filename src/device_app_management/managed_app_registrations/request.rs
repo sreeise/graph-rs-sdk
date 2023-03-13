@@ -11,20 +11,20 @@ resource_api_client!(
 
 impl ManagedAppRegistrationsApiClient {
     api_client_link!(
-        intended_policies,
-        ManagedAppRegistrationsIntendedPoliciesApiClient
-    );
-    api_client_link_id!(
-        applied_policies_id,
-        ManagedAppRegistrationsAppliedPoliciesIdApiClient
+        applied_policies,
+        ManagedAppRegistrationsAppliedPoliciesApiClient
     );
     api_client_link_id!(
         intended_policies_id,
         ManagedAppRegistrationsIntendedPoliciesIdApiClient
     );
     api_client_link!(
-        applied_policies,
-        ManagedAppRegistrationsAppliedPoliciesApiClient
+        intended_policies,
+        ManagedAppRegistrationsIntendedPoliciesApiClient
+    );
+    api_client_link_id!(
+        applied_policies_id,
+        ManagedAppRegistrationsAppliedPoliciesIdApiClient
     );
 
     post!(
@@ -55,13 +55,13 @@ impl ManagedAppRegistrationsIdApiClient {
         intended_policies_id,
         ManagedAppRegistrationsIntendedPoliciesIdApiClient
     );
-    api_client_link_id!(
-        applied_policies_id,
-        ManagedAppRegistrationsAppliedPoliciesIdApiClient
-    );
     api_client_link!(
         applied_policies,
         ManagedAppRegistrationsAppliedPoliciesApiClient
+    );
+    api_client_link_id!(
+        applied_policies_id,
+        ManagedAppRegistrationsAppliedPoliciesIdApiClient
     );
     api_client_link!(
         intended_policies,
