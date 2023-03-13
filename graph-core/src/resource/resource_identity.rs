@@ -31,10 +31,10 @@ pub enum ResourceIdentity {
     Activities,
     Admin,
     AdministrativeUnits,
-    AdministrativeUnitsMembers,
     AgreementAcceptances,
     Agreements,
     AllChannels,
+    AndroidManagedAppProtections,
     AppCatalogs,
     AppConsent,
     Application,
@@ -78,30 +78,20 @@ pub enum ResourceIdentity {
     CreatedObjects,
     DataPolicyOperations,
     DefaultCalendar,
+    DefaultManagedAppProtections,
+    DeletedItems,
+    DeletedTeams,
     DeviceAppManagement,
-    DeviceAppManagementAndroidManagedAppProtections,
-    DeviceAppManagementDefaultManagedAppProtections,
-    DeviceAppManagementIosManagedAppProtections,
-    DeviceAppManagementManagedAppPolicies,
-    DeviceAppManagementManagedAppRegistrations,
-    DeviceAppManagementManagedAppStatuses,
-    DeviceAppManagementManagedEBooks,
-    DeviceAppManagementMdmWindowsInformationProtectionPolicies,
-    DeviceAppManagementMobileAppCategories,
-    DeviceAppManagementMobileAppConfigurations,
-    DeviceAppManagementMobileApps,
-    DeviceAppManagementTargetedManagedAppConfigurations,
-    DeviceAppManagementVppTokens,
-    DeviceAppManagementWindowsInformationProtectionPolicies,
     DeviceCompliancePolicies,
+    DeviceCompliancePolicySettingStateSummaries,
     DeviceConfigurations,
     DeviceEnrollmentConfigurations,
     DeviceManagement,
     DeviceManagementManagedDevices,
-    DeviceManagementTroubleshootingEvents,
+    DeviceManagementReports,
     Devices,
     Directory,
-    DirectoryDeletedItems,
+    DirectoryMembers,
     DirectoryObjects,
     DirectoryRoles,
     DirectoryRoleTemplates,
@@ -148,6 +138,7 @@ pub enum ResourceIdentity {
     InformationProtection,
     Insights,
     Invitations,
+    IosManagedAppProtections,
     Items,
     JoinedTeams,
     LicenseDetails,
@@ -155,20 +146,32 @@ pub enum ResourceIdentity {
     Lists,
     Localizations,
     MailFolders,
+    ManagedAppPolicies,
     ManagedAppRegistrations,
-    ManagedDevices,
+    ManagedAppRegistrationsAppliedPolicies,
+    ManagedAppRegistrationsIntendedPolicies,
+    ManagedAppStatuses,
+    ManagedEBooks,
+    ManagedEBooksDeviceStates,
+    ManagedEBooksUserStateSummary,
+    MdmWindowsInformationProtectionPolicies,
     Me,
     MemberOf,
-    Notebooks,
+    MobileAppCategories,
+    MobileAppConfigurations,
+    MobileApps,
     Oauth2PermissionGrants,
     Onenote,
+    OnenoteNotebooks,
+    OnenotePages,
+    OnenoteSectionGroups,
+    OnenoteSections,
     OnlineMeetings,
     Organization,
     OrgContacts,
     Outlook,
     OwnedDevices,
     OwnedObjects,
-    Pages,
     ParentNotebook,
     ParentSection,
     ParentSectionGroup,
@@ -177,6 +180,7 @@ pub enum ResourceIdentity {
     Photos,
     Places,
     Planner,
+    PlannerTasks,
     Plans,
     Policies,
     Presence,
@@ -192,10 +196,9 @@ pub enum ResourceIdentity {
     ScopedRoleMemberOf,
     ScopedRoleMemberships,
     Search,
-    SectionGroups,
-    Sections,
     Security,
     ServicePrincipals,
+    ServicePrincipalsOwners,
     Settings,
     SharedWithTeams,
     Shares,
@@ -204,6 +207,7 @@ pub enum ResourceIdentity {
     SubscribedSkus,
     Subscriptions,
     Tabs,
+    TargetedManagedAppConfigurations,
     Tasks,
     Team,
     Teams,
@@ -217,8 +221,13 @@ pub enum ResourceIdentity {
     TodoLists,
     TodoListsTasks,
     TransitiveMemberOf,
+    TroubleshootingEvents,
     Users,
+    UsersManagedDevices,
     UsersMessages,
+    VppTokens,
+    WindowsAutopilotDeviceIdentities,
+    WindowsInformationProtectionPolicies,
     Workbooks,
 }
 
@@ -231,61 +240,26 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::AccessReviewsDefinitions => "definitions".to_string(),
             ResourceIdentity::AccessReviewsDefinitionsInstances => "instances".to_string(),
             ResourceIdentity::AccessReviewsDefinitionsInstancesStages => "stages".to_string(),
-            ResourceIdentity::DeviceManagementManagedDevices => "managedDevices".to_string(),
+            ResourceIdentity::DeviceManagementManagedDevices
+            | ResourceIdentity::UsersManagedDevices => "managedDevices".to_string(),
+            ResourceIdentity::DeviceManagementReports => "reports".into(),
             ResourceIdentity::EntitlementManagementAssignments => "assignments".to_string(),
             ResourceIdentity::EntitlementManagementCatalogs => "catalogs".to_string(),
             ResourceIdentity::PrimaryChannel => "primaryChannel".to_string(),
             ResourceIdentity::TeamsTags => "tags".to_string(),
-            ResourceIdentity::TeamsMembers => "members".to_string(),
+
+            ResourceIdentity::DirectoryMembers | ResourceIdentity::TeamsMembers => {
+                "members".to_string()
+            }
+
             ResourceIdentity::SharedWithTeams => "sharedWithTeams".to_string(),
             ResourceIdentity::DrivesList => "list".to_string(),
             ResourceIdentity::DrivesItems => "items".to_string(),
             ResourceIdentity::DrivesListContentTypes => "contentTypes".to_string(),
-
-            ResourceIdentity::DeviceAppManagementAndroidManagedAppProtections => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementDefaultManagedAppProtections => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementIosManagedAppProtections => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementManagedAppPolicies => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementManagedAppRegistrations => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementManagedAppStatuses => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementManagedEBooks => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementMdmWindowsInformationProtectionPolicies => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementMobileAppCategories => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementMobileAppConfigurations => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementMobileApps => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementTargetedManagedAppConfigurations => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementVppTokens => {
-                self.replace(&device_am, "").to_camel_case()
-            }
-            ResourceIdentity::DeviceAppManagementWindowsInformationProtectionPolicies => {
-                self.replace(&device_am, "").to_camel_case()
-            }
             ResourceIdentity::GroupsConversations => "conversations".into(),
-            ResourceIdentity::GroupsOwners => "owners".into(),
+            ResourceIdentity::GroupsOwners | ResourceIdentity::ServicePrincipalsOwners => {
+                "owners".into()
+            }
             ResourceIdentity::GroupsTeam => "team".into(),
             ResourceIdentity::GroupsThreadsPosts => "posts".into(),
             ResourceIdentity::GroupsThreads => "threads".into(),
@@ -303,9 +277,6 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::ContactFolders => "contactFolders".to_string(),
             ResourceIdentity::Contacts => "contacts".to_string(),
             ResourceIdentity::CreatedObjects => "createdObjects".to_string(),
-            ResourceIdentity::DeviceManagementTroubleshootingEvents => {
-                "deviceManagementTroubleshootingEvents".to_string()
-            }
             ResourceIdentity::DirectReports => "directReports".to_string(),
             ResourceIdentity::Drives => "drives".to_string(),
             ResourceIdentity::Events => "events".to_string(),
@@ -317,7 +288,15 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::LicenseDetails => "licenseDetails".to_string(),
             ResourceIdentity::MailFolders => "mailFolders".to_string(),
             ResourceIdentity::ManagedAppRegistrations => "managedAppRegistrations".to_string(),
-            ResourceIdentity::ManagedDevices => "managedDevices".to_string(),
+            ResourceIdentity::ManagedAppRegistrationsAppliedPolicies => {
+                "appliedPolicies".to_string()
+            }
+            ResourceIdentity::ManagedAppRegistrationsIntendedPolicies => {
+                "intendedPolicies".to_string()
+            }
+            ResourceIdentity::ManagedEBooksDeviceStates => "deviceStates".to_string(),
+            ResourceIdentity::ManagedEBooksUserStateSummary => "userStateSummary".to_string(),
+            ResourceIdentity::UsersManagedDevices => "managedDevices".to_string(),
             ResourceIdentity::MemberOf => "memberOf".to_string(),
             ResourceIdentity::Oauth2PermissionGrants => "oauth2PermissionGrants".to_string(),
             ResourceIdentity::Onenote => "onenote".to_string(),
@@ -352,6 +331,12 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::TodoListsTasks => "tasks".to_string(),
             ResourceIdentity::UsersMessages => "messages".into(),
             ResourceIdentity::EventsInstances => "instances".into(),
+            ResourceIdentity::PlannerTasks => "tasks".into(),
+            ResourceIdentity::OnenoteSections => "sections".into(),
+            ResourceIdentity::OnenoteSectionGroups => "sectionGroups".into(),
+            ResourceIdentity::OnenoteNotebooks => "notebooks".into(),
+            ResourceIdentity::OnenotePages => "pages".into(),
+
             _ => self.as_ref().to_camel_case(),
         }
     }
