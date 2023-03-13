@@ -45,6 +45,12 @@ impl DeviceEnrollmentConfigurationsIdApiClient {
         body: true
     );
     post!(
+        doc: "Invoke action assign",
+        name: assign,
+        path: "/deviceEnrollmentConfigurations/{{RID}}/assign",
+        body: true
+    );
+    post!(
         doc: "Create new navigation property to assignments for deviceManagement",
         name: create_assignments,
         path: "/deviceEnrollmentConfigurations/{{RID}}/assignments",
@@ -80,15 +86,9 @@ impl DeviceEnrollmentConfigurationsIdApiClient {
         params: enrollment_configuration_assignment_id
     );
     post!(
-        doc: "Invoke action assign",
-        name: assign,
-        path: "/deviceEnrollmentConfigurations/{{RID}}/microsoft.graph.assign",
-        body: true
-    );
-    post!(
         doc: "Invoke action setPriority",
         name: set_priority,
-        path: "/deviceEnrollmentConfigurations/{{RID}}/microsoft.graph.setPriority",
+        path: "/deviceEnrollmentConfigurations/{{RID}}/setPriority",
         body: true
     );
 }

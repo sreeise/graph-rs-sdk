@@ -45,6 +45,12 @@ impl DeviceConfigurationsIdApiClient {
         body: true
     );
     post!(
+        doc: "Invoke action assign",
+        name: assign,
+        path: "/deviceConfigurations/{{RID}}/assign",
+        body: true
+    );
+    post!(
         doc: "Create new navigation property to assignments for deviceManagement",
         name: create_assignments,
         path: "/deviceConfigurations/{{RID}}/assignments",
@@ -165,16 +171,10 @@ impl DeviceConfigurationsIdApiClient {
         body: true,
         params: device_configuration_device_status_id
     );
-    post!(
-        doc: "Invoke action assign",
-        name: assign,
-        path: "/deviceConfigurations/{{RID}}/microsoft.graph.assign",
-        body: true
-    );
     get!(
         doc: "Invoke function getOmaSettingPlainTextValue",
         name: get_oma_setting_plain_text_value,
-        path: "/deviceConfigurations/{{RID}}/microsoft.graph.getOmaSettingPlainTextValue(secretReferenceValueId='{{id}}')",
+        path: "/deviceConfigurations/{{RID}}/getOmaSettingPlainTextValue(secretReferenceValueId='{{id}}')",
         params: secret_reference_value_id
     );
     delete!(

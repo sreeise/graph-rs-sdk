@@ -1,13 +1,21 @@
+mod device_compliance_policy_setting_state_summaries;
 mod device_configurations;
 mod device_enrollment_configurations;
 mod device_management_managed_devices;
+mod device_management_reports;
 mod request;
 mod role_definitions;
 mod terms_and_conditions;
+mod troubleshooting_events;
+mod windows_autopilot_device_identities;
 
+pub use device_compliance_policy_setting_state_summaries::*;
 pub use device_configurations::*;
 pub use device_enrollment_configurations::*;
 pub use device_management_managed_devices::*;
+pub use device_management_reports::*;
 pub use request::*;
 pub use role_definitions::*;
 pub use terms_and_conditions::*;
+pub use troubleshooting_events::*;
+pub use windows_autopilot_device_identities::*;

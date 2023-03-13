@@ -44,6 +44,23 @@ impl DeviceManagementManagedDevicesIdApiClient {
         path: "/managedDevices/{{RID}}",
         body: true
     );
+    post!(
+        doc: "Invoke action bypassActivationLock",
+        name: bypass_activation_lock,
+        path: "/managedDevices/{{RID}}/bypassActivationLock"
+    );
+    post!(
+        doc: "Invoke action cleanWindowsDevice",
+        name: clean_windows_device,
+        path: "/managedDevices/{{RID}}/cleanWindowsDevice",
+        body: true
+    );
+    post!(
+        doc: "Invoke action deleteUserFromSharedAppleDevice",
+        name: delete_user_from_shared_apple_device,
+        path: "/managedDevices/{{RID}}/deleteUserFromSharedAppleDevice",
+        body: true
+    );
     delete!(
         doc: "Delete navigation property deviceCategory for deviceManagement",
         name: delete_device_category,
@@ -131,103 +148,86 @@ impl DeviceManagementManagedDevicesIdApiClient {
         params: device_configuration_state_id
     );
     post!(
-        doc: "Invoke action bypassActivationLock",
-        name: bypass_activation_lock,
-        path: "/managedDevices/{{RID}}/microsoft.graph.bypassActivationLock"
-    );
-    post!(
-        doc: "Invoke action cleanWindowsDevice",
-        name: clean_windows_device,
-        path: "/managedDevices/{{RID}}/microsoft.graph.cleanWindowsDevice",
-        body: true
-    );
-    post!(
-        doc: "Invoke action deleteUserFromSharedAppleDevice",
-        name: delete_user_from_shared_apple_device,
-        path: "/managedDevices/{{RID}}/microsoft.graph.deleteUserFromSharedAppleDevice",
-        body: true
-    );
-    post!(
         doc: "Invoke action disableLostMode",
         name: disable_lost_mode,
-        path: "/managedDevices/{{RID}}/microsoft.graph.disableLostMode"
+        path: "/managedDevices/{{RID}}/disableLostMode"
     );
     post!(
         doc: "Invoke action locateDevice",
         name: locate_device,
-        path: "/managedDevices/{{RID}}/microsoft.graph.locateDevice"
+        path: "/managedDevices/{{RID}}/locateDevice"
     );
     post!(
         doc: "Invoke action logoutSharedAppleDeviceActiveUser",
         name: logout_shared_apple_device_active_user,
-        path: "/managedDevices/{{RID}}/microsoft.graph.logoutSharedAppleDeviceActiveUser"
+        path: "/managedDevices/{{RID}}/logoutSharedAppleDeviceActiveUser"
     );
     post!(
         doc: "Invoke action rebootNow",
         name: reboot_now,
-        path: "/managedDevices/{{RID}}/microsoft.graph.rebootNow"
+        path: "/managedDevices/{{RID}}/rebootNow"
     );
     post!(
         doc: "Invoke action recoverPasscode",
         name: recover_passcode,
-        path: "/managedDevices/{{RID}}/microsoft.graph.recoverPasscode"
+        path: "/managedDevices/{{RID}}/recoverPasscode"
     );
     post!(
         doc: "Invoke action remoteLock",
         name: remote_lock,
-        path: "/managedDevices/{{RID}}/microsoft.graph.remoteLock"
+        path: "/managedDevices/{{RID}}/remoteLock"
     );
     post!(
         doc: "Invoke action requestRemoteAssistance",
         name: request_remote_assistance,
-        path: "/managedDevices/{{RID}}/microsoft.graph.requestRemoteAssistance"
+        path: "/managedDevices/{{RID}}/requestRemoteAssistance"
     );
     post!(
         doc: "Invoke action resetPasscode",
         name: reset_passcode,
-        path: "/managedDevices/{{RID}}/microsoft.graph.resetPasscode"
+        path: "/managedDevices/{{RID}}/resetPasscode"
     );
     post!(
         doc: "Invoke action retire",
         name: retire,
-        path: "/managedDevices/{{RID}}/microsoft.graph.retire"
+        path: "/managedDevices/{{RID}}/retire"
     );
     post!(
         doc: "Invoke action shutDown",
         name: shut_down,
-        path: "/managedDevices/{{RID}}/microsoft.graph.shutDown"
+        path: "/managedDevices/{{RID}}/shutDown"
     );
     post!(
         doc: "Invoke action syncDevice",
         name: sync_device,
-        path: "/managedDevices/{{RID}}/microsoft.graph.syncDevice"
+        path: "/managedDevices/{{RID}}/syncDevice"
     );
     post!(
         doc: "Invoke action updateWindowsDeviceAccount",
         name: update_windows_device_account,
-        path: "/managedDevices/{{RID}}/microsoft.graph.updateWindowsDeviceAccount",
-        body: true
-    );
-    post!(
-        doc: "Invoke action windowsDefenderScan",
-        name: windows_defender_scan,
-        path: "/managedDevices/{{RID}}/microsoft.graph.windowsDefenderScan",
-        body: true
-    );
-    post!(
-        doc: "Invoke action windowsDefenderUpdateSignatures",
-        name: windows_defender_update_signatures,
-        path: "/managedDevices/{{RID}}/microsoft.graph.windowsDefenderUpdateSignatures"
-    );
-    post!(
-        doc: "Invoke action wipe",
-        name: wipe,
-        path: "/managedDevices/{{RID}}/microsoft.graph.wipe",
+        path: "/managedDevices/{{RID}}/updateWindowsDeviceAccount",
         body: true
     );
     get!(
         doc: "Get users from deviceManagement",
         name: list_users,
         path: "/managedDevices/{{RID}}/users"
+    );
+    post!(
+        doc: "Invoke action windowsDefenderScan",
+        name: windows_defender_scan,
+        path: "/managedDevices/{{RID}}/windowsDefenderScan",
+        body: true
+    );
+    post!(
+        doc: "Invoke action windowsDefenderUpdateSignatures",
+        name: windows_defender_update_signatures,
+        path: "/managedDevices/{{RID}}/windowsDefenderUpdateSignatures"
+    );
+    post!(
+        doc: "Invoke action wipe",
+        name: wipe,
+        path: "/managedDevices/{{RID}}/wipe",
+        body: true
     );
 }

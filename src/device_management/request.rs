@@ -1,13 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::device_management::{
-    DeviceConfigurationsApiClient, DeviceConfigurationsIdApiClient,
-    DeviceEnrollmentConfigurationsApiClient, DeviceEnrollmentConfigurationsIdApiClient,
-    DeviceManagementManagedDevicesApiClient, DeviceManagementManagedDevicesIdApiClient,
-    RoleDefinitionsApiClient, RoleDefinitionsIdApiClient, TermsAndConditionsApiClient,
-    TermsAndConditionsIdApiClient,
-};
+use crate::device_management::*;
 
 resource_api_client!(
     DeviceManagementApiClient,
@@ -15,22 +9,41 @@ resource_api_client!(
 );
 
 impl DeviceManagementApiClient {
-    api_client_link!(managed_devices, DeviceManagementManagedDevicesApiClient);
-    api_client_link!(device_configurations, DeviceConfigurationsApiClient);
-    api_client_link!(role_definitions, RoleDefinitionsApiClient);
-    api_client_link_id!(device_configuration, DeviceConfigurationsIdApiClient);
-    api_client_link_id!(
-        device_enrollment_configuration,
-        DeviceEnrollmentConfigurationsIdApiClient
-    );
     api_client_link!(
         device_enrollment_configurations,
         DeviceEnrollmentConfigurationsApiClient
     );
+    api_client_link_id!(
+        device_enrollment_configuration,
+        DeviceEnrollmentConfigurationsIdApiClient
+    );
+    api_client_link_id!(
+        device_compliance_policy_setting_state_summaries_id,
+        DeviceCompliancePolicySettingStateSummariesIdApiClient
+    );
+    api_client_link!(reports, DeviceManagementReportsApiClient);
+    api_client_link_id!(
+        windows_autopilot_device_identities_id,
+        WindowsAutopilotDeviceIdentitiesIdApiClient
+    );
+    api_client_link_id!(device_configuration, DeviceConfigurationsIdApiClient);
+    api_client_link!(role_definitions, RoleDefinitionsApiClient);
+    api_client_link_id!(troubleshooting_event, TroubleshootingEventsIdApiClient);
+    api_client_link!(troubleshooting_events, TroubleshootingEventsApiClient);
+    api_client_link!(managed_devices, DeviceManagementManagedDevicesApiClient);
     api_client_link_id!(managed_device, DeviceManagementManagedDevicesIdApiClient);
-    api_client_link_id!(role_definition, RoleDefinitionsIdApiClient);
-    api_client_link!(terms_and_conditions, TermsAndConditionsApiClient);
+    api_client_link_id!(
+        windows_autopilot_device_identities,
+        WindowsAutopilotDeviceIdentitiesApiClient
+    );
     api_client_link_id!(terms_and_condition, TermsAndConditionsIdApiClient);
+    api_client_link!(
+        device_compliance_policy_setting_state_summaries,
+        DeviceCompliancePolicySettingStateSummariesApiClient
+    );
+    api_client_link!(device_configurations, DeviceConfigurationsApiClient);
+    api_client_link!(terms_and_conditions, TermsAndConditionsApiClient);
+    api_client_link_id!(role_definition, RoleDefinitionsIdApiClient);
 
     get!(
         doc: "Get deviceManagement",
@@ -62,7 +75,7 @@ impl DeviceManagementApiClient {
     get!(
         doc: "Invoke function downloadApplePushNotificationCertificateSigningRequest",
         name: download_apple_push_notification_certificate_signing_request,
-        path: "/deviceManagement/applePushNotificationCertificate/microsoft.graph.downloadApplePushNotificationCertificateSigningRequest()"
+        path: "/deviceManagement/applePushNotificationCertificate/downloadApplePushNotificationCertificateSigningRequest()"
     );
     post!(
         doc: "Create new navigation property to auditEvents for deviceManagement",
@@ -83,13 +96,13 @@ impl DeviceManagementApiClient {
     get!(
         doc: "Invoke function getAuditActivityTypes",
         name: get_audit_activity_types,
-        path: "/deviceManagement/auditEvents/microsoft.graph.getAuditActivityTypes(category='{{id}}')",
+        path: "/deviceManagement/auditEvents/getAuditActivityTypes(category='{{id}}')",
         params: category
     );
     get!(
         doc: "Invoke function getAuditCategories",
         name: get_audit_categories,
-        path: "/deviceManagement/auditEvents/microsoft.graph.getAuditCategories()"
+        path: "/deviceManagement/auditEvents/getAuditCategories()"
     );
     delete!(
         doc: "Delete navigation property auditEvents for deviceManagement",
@@ -247,79 +260,6 @@ impl DeviceManagementApiClient {
         path: "/deviceManagement/deviceCompliancePolicyDeviceStateSummary",
         body: true
     );
-    post!(
-        doc: "Create new navigation property to deviceCompliancePolicySettingStateSummaries for deviceManagement",
-        name: create_device_compliance_policy_setting_state_summaries,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries",
-        body: true
-    );
-    get!(
-        doc: "Get deviceCompliancePolicySettingStateSummaries from deviceManagement",
-        name: list_device_compliance_policy_setting_state_summaries,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_device_compliance_policy_setting_state_summaries_count,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/$count"
-    );
-    delete!(
-        doc: "Delete navigation property deviceCompliancePolicySettingStateSummaries for deviceManagement",
-        name: delete_device_compliance_policy_setting_state_summaries,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}",
-        params: device_compliance_policy_setting_state_summary_id
-    );
-    get!(
-        doc: "Get deviceCompliancePolicySettingStateSummaries from deviceManagement",
-        name: get_device_compliance_policy_setting_state_summaries,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}",
-        params: device_compliance_policy_setting_state_summary_id
-    );
-    patch!(
-        doc: "Update the navigation property deviceCompliancePolicySettingStateSummaries in deviceManagement",
-        name: update_device_compliance_policy_setting_state_summaries,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}",
-        body: true,
-        params: device_compliance_policy_setting_state_summary_id
-    );
-    post!(
-        doc: "Create new navigation property to deviceComplianceSettingStates for deviceManagement",
-        name: create_device_compliance_setting_states,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}/deviceComplianceSettingStates",
-        body: true,
-        params: device_compliance_policy_setting_state_summary_id
-    );
-    get!(
-        doc: "Get deviceComplianceSettingStates from deviceManagement",
-        name: list_device_compliance_setting_states,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}/deviceComplianceSettingStates",
-        params: device_compliance_policy_setting_state_summary_id
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_device_compliance_setting_states_count,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}/deviceComplianceSettingStates/$count",
-        params: device_compliance_policy_setting_state_summary_id
-    );
-    delete!(
-        doc: "Delete navigation property deviceComplianceSettingStates for deviceManagement",
-        name: delete_device_compliance_setting_states,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}/deviceComplianceSettingStates/{{id2}}",
-        params: device_compliance_policy_setting_state_summary_id, device_compliance_setting_state_id
-    );
-    get!(
-        doc: "Get deviceComplianceSettingStates from deviceManagement",
-        name: get_device_compliance_setting_states,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}/deviceComplianceSettingStates/{{id2}}",
-        params: device_compliance_policy_setting_state_summary_id, device_compliance_setting_state_id
-    );
-    patch!(
-        doc: "Update the navigation property deviceComplianceSettingStates in deviceManagement",
-        name: update_device_compliance_setting_states,
-        path: "/deviceManagement/deviceCompliancePolicySettingStateSummaries/{{id}}/deviceComplianceSettingStates/{{id2}}",
-        body: true,
-        params: device_compliance_policy_setting_state_summary_id, device_compliance_setting_state_id
-    );
     delete!(
         doc: "Delete navigation property deviceConfigurationDeviceStateSummaries for deviceManagement",
         name: delete_device_configuration_device_state_summaries,
@@ -374,7 +314,7 @@ impl DeviceManagementApiClient {
     post!(
         doc: "Invoke action terminate",
         name: terminate,
-        path: "/deviceManagement/deviceManagementPartners/{{id}}/microsoft.graph.terminate",
+        path: "/deviceManagement/deviceManagementPartners/{{id}}/terminate",
         params: device_management_partner_id
     );
     post!(
@@ -415,9 +355,15 @@ impl DeviceManagementApiClient {
     post!(
         doc: "Invoke action sync",
         name: sync,
-        path: "/deviceManagement/exchangeConnectors/{{id}}/microsoft.graph.sync",
+        path: "/deviceManagement/exchangeConnectors/{{id}}/sync",
         body: true,
         params: device_management_exchange_connector_id
+    );
+    get!(
+        doc: "Invoke function getEffectivePermissions",
+        name: get_effective_permissions,
+        path: "/deviceManagement/getEffectivePermissions(scope='{{id}}')",
+        params: scope
     );
     post!(
         doc: "Create new navigation property to importedWindowsAutopilotDeviceIdentities for deviceManagement",
@@ -438,7 +384,7 @@ impl DeviceManagementApiClient {
     post!(
         doc: "Invoke action import",
         name: import,
-        path: "/deviceManagement/importedWindowsAutopilotDeviceIdentities/microsoft.graph.import",
+        path: "/deviceManagement/importedWindowsAutopilotDeviceIdentities/import",
         body: true
     );
     delete!(
@@ -499,18 +445,6 @@ impl DeviceManagementApiClient {
         doc: "Get managedDeviceOverview from deviceManagement",
         name: get_managed_device_overview,
         path: "/deviceManagement/managedDeviceOverview"
-    );
-    get!(
-        doc: "Invoke function getEffectivePermissions",
-        name: get_effective_permissions,
-        path: "/deviceManagement/microsoft.graph.getEffectivePermissions(scope='{{id}}')",
-        params: scope
-    );
-    get!(
-        doc: "Invoke function verifyWindowsEnrollmentAutoDiscovery",
-        name: verify_windows_enrollment_auto_discovery,
-        path: "/deviceManagement/microsoft.graph.verifyWindowsEnrollmentAutoDiscovery(domainName='{{id}}')",
-        params: domain_name
     );
     post!(
         doc: "Create new navigation property to mobileThreatDefenseConnectors for deviceManagement",
@@ -623,7 +557,7 @@ impl DeviceManagementApiClient {
     post!(
         doc: "Invoke action sendTestMessage",
         name: send_test_message,
-        path: "/deviceManagement/notificationMessageTemplates/{{id}}/microsoft.graph.sendTestMessage",
+        path: "/deviceManagement/notificationMessageTemplates/{{id}}/sendTestMessage",
         params: notification_message_template_id
     );
     post!(
@@ -664,173 +598,14 @@ impl DeviceManagementApiClient {
     post!(
         doc: "Invoke action beginOnboarding",
         name: begin_onboarding,
-        path: "/deviceManagement/remoteAssistancePartners/{{id}}/microsoft.graph.beginOnboarding",
+        path: "/deviceManagement/remoteAssistancePartners/{{id}}/beginOnboarding",
         params: remote_assistance_partner_id
     );
     post!(
         doc: "Invoke action disconnect",
         name: disconnect,
-        path: "/deviceManagement/remoteAssistancePartners/{{id}}/microsoft.graph.disconnect",
+        path: "/deviceManagement/remoteAssistancePartners/{{id}}/disconnect",
         params: remote_assistance_partner_id
-    );
-    delete!(
-        doc: "Delete navigation property reports for deviceManagement",
-        name: delete_reports,
-        path: "/deviceManagement/reports"
-    );
-    get!(
-        doc: "Get reports from deviceManagement",
-        name: get_reports,
-        path: "/deviceManagement/reports"
-    );
-    patch!(
-        doc: "Update the navigation property reports in deviceManagement",
-        name: update_reports,
-        path: "/deviceManagement/reports",
-        body: true
-    );
-    post!(
-        doc: "Create new navigation property to exportJobs for deviceManagement",
-        name: create_export_jobs,
-        path: "/deviceManagement/reports/exportJobs",
-        body: true
-    );
-    get!(
-        doc: "Get exportJobs from deviceManagement",
-        name: list_export_jobs,
-        path: "/deviceManagement/reports/exportJobs"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_export_jobs_count,
-        path: "/deviceManagement/reports/exportJobs/$count"
-    );
-    delete!(
-        doc: "Delete navigation property exportJobs for deviceManagement",
-        name: delete_export_jobs,
-        path: "/deviceManagement/reports/exportJobs/{{id}}",
-        params: device_management_export_job_id
-    );
-    get!(
-        doc: "Get exportJobs from deviceManagement",
-        name: get_export_jobs,
-        path: "/deviceManagement/reports/exportJobs/{{id}}",
-        params: device_management_export_job_id
-    );
-    patch!(
-        doc: "Update the navigation property exportJobs in deviceManagement",
-        name: update_export_jobs,
-        path: "/deviceManagement/reports/exportJobs/{{id}}",
-        body: true,
-        params: device_management_export_job_id
-    );
-    post!(
-        doc: "Invoke action getCachedReport",
-        name: get_cached_report,
-        path: "/deviceManagement/reports/microsoft.graph.getCachedReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getCompliancePolicyNonComplianceReport",
-        name: get_compliance_policy_non_compliance_report,
-        path: "/deviceManagement/reports/microsoft.graph.getCompliancePolicyNonComplianceReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getCompliancePolicyNonComplianceSummaryReport",
-        name: get_compliance_policy_non_compliance_summary_report,
-        path: "/deviceManagement/reports/microsoft.graph.getCompliancePolicyNonComplianceSummaryReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getComplianceSettingNonComplianceReport",
-        name: get_compliance_setting_non_compliance_report,
-        path: "/deviceManagement/reports/microsoft.graph.getComplianceSettingNonComplianceReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getConfigurationPolicyNonComplianceReport",
-        name: get_configuration_policy_non_compliance_report,
-        path: "/deviceManagement/reports/microsoft.graph.getConfigurationPolicyNonComplianceReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getConfigurationPolicyNonComplianceSummaryReport",
-        name: get_configuration_policy_non_compliance_summary_report,
-        path: "/deviceManagement/reports/microsoft.graph.getConfigurationPolicyNonComplianceSummaryReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getConfigurationSettingNonComplianceReport",
-        name: get_configuration_setting_non_compliance_report,
-        path: "/deviceManagement/reports/microsoft.graph.getConfigurationSettingNonComplianceReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getDeviceManagementIntentPerSettingContributingProfiles",
-        name: get_device_management_intent_per_setting_contributing_profiles,
-        path: "/deviceManagement/reports/microsoft.graph.getDeviceManagementIntentPerSettingContributingProfiles",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getDeviceManagementIntentSettingsReport",
-        name: get_device_management_intent_settings_report,
-        path: "/deviceManagement/reports/microsoft.graph.getDeviceManagementIntentSettingsReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getDeviceNonComplianceReport",
-        name: get_device_non_compliance_report,
-        path: "/deviceManagement/reports/microsoft.graph.getDeviceNonComplianceReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getDevicesWithoutCompliancePolicyReport",
-        name: get_devices_without_compliance_policy_report,
-        path: "/deviceManagement/reports/microsoft.graph.getDevicesWithoutCompliancePolicyReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getHistoricalReport",
-        name: get_historical_report,
-        path: "/deviceManagement/reports/microsoft.graph.getHistoricalReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getNoncompliantDevicesAndSettingsReport",
-        name: get_noncompliant_devices_and_settings_report,
-        path: "/deviceManagement/reports/microsoft.graph.getNoncompliantDevicesAndSettingsReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getPolicyNonComplianceMetadata",
-        name: get_policy_non_compliance_metadata,
-        path: "/deviceManagement/reports/microsoft.graph.getPolicyNonComplianceMetadata",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getPolicyNonComplianceReport",
-        name: get_policy_non_compliance_report,
-        path: "/deviceManagement/reports/microsoft.graph.getPolicyNonComplianceReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getPolicyNonComplianceSummaryReport",
-        name: get_policy_non_compliance_summary_report,
-        path: "/deviceManagement/reports/microsoft.graph.getPolicyNonComplianceSummaryReport",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getReportFilters",
-        name: get_report_filters,
-        path: "/deviceManagement/reports/microsoft.graph.getReportFilters",
-        body: true
-    );
-    post!(
-        doc: "Invoke action getSettingNonComplianceReport",
-        name: get_setting_non_compliance_report,
-        path: "/deviceManagement/reports/microsoft.graph.getSettingNonComplianceReport",
-        body: true
     );
     post!(
         doc: "Create new navigation property to resourceOperations for deviceManagement",
@@ -942,95 +717,11 @@ impl DeviceManagementApiClient {
         body: true,
         params: telecom_expense_management_partner_id
     );
-    post!(
-        doc: "Create new navigation property to troubleshootingEvents for deviceManagement",
-        name: create_troubleshooting_events,
-        path: "/deviceManagement/troubleshootingEvents",
-        body: true
-    );
     get!(
-        doc: "Get troubleshootingEvents from deviceManagement",
-        name: list_troubleshooting_events,
-        path: "/deviceManagement/troubleshootingEvents"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_troubleshooting_events_count,
-        path: "/deviceManagement/troubleshootingEvents/$count"
-    );
-    delete!(
-        doc: "Delete navigation property troubleshootingEvents for deviceManagement",
-        name: delete_troubleshooting_events,
-        path: "/deviceManagement/troubleshootingEvents/{{id}}",
-        params: device_management_troubleshooting_event_id
-    );
-    get!(
-        doc: "Get troubleshootingEvents from deviceManagement",
-        name: get_troubleshooting_events,
-        path: "/deviceManagement/troubleshootingEvents/{{id}}",
-        params: device_management_troubleshooting_event_id
-    );
-    patch!(
-        doc: "Update the navigation property troubleshootingEvents in deviceManagement",
-        name: update_troubleshooting_events,
-        path: "/deviceManagement/troubleshootingEvents/{{id}}",
-        body: true,
-        params: device_management_troubleshooting_event_id
-    );
-    post!(
-        doc: "Create new navigation property to windowsAutopilotDeviceIdentities for deviceManagement",
-        name: create_windows_autopilot_device_identities,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities",
-        body: true
-    );
-    get!(
-        doc: "Get windowsAutopilotDeviceIdentities from deviceManagement",
-        name: list_windows_autopilot_device_identities,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_windows_autopilot_device_identities_count,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities/$count"
-    );
-    delete!(
-        doc: "Delete navigation property windowsAutopilotDeviceIdentities for deviceManagement",
-        name: delete_windows_autopilot_device_identities,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities/{{id}}",
-        params: windows_autopilot_device_identity_id
-    );
-    get!(
-        doc: "Get windowsAutopilotDeviceIdentities from deviceManagement",
-        name: get_windows_autopilot_device_identities,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities/{{id}}",
-        params: windows_autopilot_device_identity_id
-    );
-    patch!(
-        doc: "Update the navigation property windowsAutopilotDeviceIdentities in deviceManagement",
-        name: update_windows_autopilot_device_identities,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities/{{id}}",
-        body: true,
-        params: windows_autopilot_device_identity_id
-    );
-    post!(
-        doc: "Invoke action assignUserToDevice",
-        name: assign_user_to_device,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities/{{id}}/microsoft.graph.assignUserToDevice",
-        body: true,
-        params: windows_autopilot_device_identity_id
-    );
-    post!(
-        doc: "Invoke action unassignUserFromDevice",
-        name: unassign_user_from_device,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities/{{id}}/microsoft.graph.unassignUserFromDevice",
-        params: windows_autopilot_device_identity_id
-    );
-    post!(
-        doc: "Invoke action updateDeviceProperties",
-        name: update_device_properties,
-        path: "/deviceManagement/windowsAutopilotDeviceIdentities/{{id}}/microsoft.graph.updateDeviceProperties",
-        body: true,
-        params: windows_autopilot_device_identity_id
+        doc: "Invoke function verifyWindowsEnrollmentAutoDiscovery",
+        name: verify_windows_enrollment_auto_discovery,
+        path: "/deviceManagement/verifyWindowsEnrollmentAutoDiscovery(domainName='{{id}}')",
+        params: domain_name
     );
     post!(
         doc: "Create new navigation property to windowsInformationProtectionAppLearningSummaries for deviceManagement",
