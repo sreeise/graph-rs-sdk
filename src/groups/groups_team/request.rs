@@ -1,21 +1,10 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::teams::*;
-use crate::users::*;
 
-resource_api_client!(TeamApiClient, ResourceIdentity::Team);
+resource_api_client!(GroupsTeamApiClient, ResourceIdentity::GroupsTeam);
 
-impl TeamApiClient {
-    api_client_link!(tags, TeamsTagsApiClient);
-    api_client_link_id!(tag, TeamsTagsIdApiClient);
-    api_client_link!(primary_channel, PrimaryChannelApiClient);
-    api_client_link!(channels, ChannelsApiClient);
-    api_client_link!(schedule, ScheduleApiClient);
-    api_client_link_id!(channel, ChannelsIdApiClient);
-    api_client_link!(members, TeamsMembersApiClient);
-    api_client_link!(member, TeamsMembersIdApiClient);
-
+impl GroupsTeamApiClient {
     patch!(
         doc: "Create team from group",
         name: update_team,

@@ -3,6 +3,9 @@
 use crate::api_default_imports::*;
 use crate::group_lifecycle_policies::*;
 use crate::groups::*;
+use crate::planner::*;
+use crate::sites::*;
+use crate::users::*;
 
 resource_api_client!(GroupsApiClient, GroupsIdApiClient, ResourceIdentity::Groups);
 
@@ -49,11 +52,25 @@ impl GroupsApiClient {
 }
 
 impl GroupsIdApiClient {
-    api_client_link!(threads, GroupsThreadsApiClient);
-    api_client_link_id!(conversation, GroupsConversationsIdApiClient);
-    api_client_link!(conversations, GroupsConversationsApiClient);
+    api_client_link!(threads, ThreadsApiClient);
     api_client_link!(group_lifecycle_policies, GroupLifecyclePoliciesApiClient);
-    api_client_link_id!(thread, GroupsThreadsIdApiClient);
+    api_client_link!(sites, SitesApiClient);
+    api_client_link!(default_calendar, DefaultCalendarApiClient);
+    api_client_link_id!(event, EventsIdApiClient);
+    api_client_link!(member_of, MemberOfApiClient);
+    api_client_link_id!(calendar_view, CalendarViewIdApiClient);
+    api_client_link_id!(thread, ThreadsIdApiClient);
+    api_client_link!(planner, PlannerApiClient);
+    api_client_link!(groups_team, GroupsTeamApiClient);
+    api_client_link_id!(site, SitesIdApiClient);
+    api_client_link!(conversations, ConversationsApiClient);
+    api_client_link_id!(conversation, ConversationsIdApiClient);
+    api_client_link!(events, EventsApiClient);
+    api_client_link!(onenote, OnenoteApiClient);
+    api_client_link!(calendar_views, CalendarViewApiClient);
+    api_client_link_id!(member_of_id, MemberOfIdApiClient);
+    api_client_link_id!(owners, GroupsOwnersApiClient);
+    api_client_link_id!(owner, GroupsOwnersIdApiClient);
 
     delete!(
         doc: "Delete group",
@@ -185,20 +202,11 @@ impl GroupsIdApiClient {
         name: list_ref_members,
         path: "/groups/{{RID}}/members/$ref"
     );
-    get!(
-        doc: "Get the items of type microsoft.graph.application in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_application_type,
-        path: "/groups/{{RID}}/members/graph.application"
-    );
+
     get!(
         doc: "Get the number of the resource",
         name: get_application_count,
         path: "/groups/{{RID}}/members/graph.application/$count"
-    );
-    get!(
-        doc: "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_device_type,
-        path: "/groups/{{RID}}/members/graph.device"
     );
     get!(
         doc: "Get the number of the resource",
@@ -206,19 +214,9 @@ impl GroupsIdApiClient {
         path: "/groups/{{RID}}/members/graph.device/$count"
     );
     get!(
-        doc: "Get the items of type microsoft.graph.group in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_group_type,
-        path: "/groups/{{RID}}/members/graph.group"
-    );
-    get!(
         doc: "Get the number of the resource",
         name: get_group_count,
         path: "/groups/{{RID}}/members/graph.group/$count"
-    );
-    get!(
-        doc: "Get the items of type microsoft.graph.orgContact in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_org_contact_type,
-        path: "/groups/{{RID}}/members/graph.orgContact"
     );
     get!(
         doc: "Get the number of the resource",
@@ -226,19 +224,9 @@ impl GroupsIdApiClient {
         path: "/groups/{{RID}}/members/graph.orgContact/$count"
     );
     get!(
-        doc: "Get the items of type microsoft.graph.servicePrincipal in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_service_principal_type,
-        path: "/groups/{{RID}}/members/graph.servicePrincipal"
-    );
-    get!(
         doc: "Get the number of the resource",
         name: get_service_principal_count,
         path: "/groups/{{RID}}/members/graph.servicePrincipal/$count"
-    );
-    get!(
-        doc: "Get the items of type microsoft.graph.user in the microsoft.graph.directoryObject collection",
-        name: get_directory_object_items_as_user_type,
-        path: "/groups/{{RID}}/members/graph.user"
     );
     get!(
         doc: "Get the number of the resource",

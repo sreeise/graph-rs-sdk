@@ -1,15 +1,14 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::groups::*;
 
 resource_api_client!(
-    GroupsConversationsApiClient,
-    GroupsConversationsIdApiClient,
-    ResourceIdentity::GroupsConversations
+    ConversationsApiClient,
+    ConversationsIdApiClient,
+    ResourceIdentity::Conversations
 );
 
-impl GroupsConversationsApiClient {
+impl ConversationsApiClient {
     post!(
         doc: "Create conversation",
         name: create_conversations,
@@ -28,7 +27,7 @@ impl GroupsConversationsApiClient {
     );
 }
 
-impl GroupsConversationsIdApiClient {
+impl ConversationsIdApiClient {
     delete!(
         doc: "Delete navigation property conversations for groups",
         name: delete_conversations,

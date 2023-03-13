@@ -4,12 +4,12 @@ use crate::api_default_imports::*;
 use crate::groups::*;
 
 resource_api_client!(
-    GroupsThreadsApiClient,
-    GroupsThreadsIdApiClient,
-    ResourceIdentity::GroupsThreads
+    ThreadsApiClient,
+    ThreadsIdApiClient,
+    ResourceIdentity::Threads
 );
 
-impl GroupsThreadsApiClient {
+impl ThreadsApiClient {
     post!(
         doc: "Create conversation thread",
         name: create_threads,
@@ -28,9 +28,9 @@ impl GroupsThreadsApiClient {
     );
 }
 
-impl GroupsThreadsIdApiClient {
-    api_client_link!(posts, GroupsThreadsPostsApiClient);
-    api_client_link!(post, GroupsThreadsPostsIdApiClient);
+impl ThreadsIdApiClient {
+    api_client_link!(post, ThreadsPostsIdApiClient);
+    api_client_link!(posts, ThreadsPostsApiClient);
 
     delete!(
         doc: "Delete navigation property threads for groups",

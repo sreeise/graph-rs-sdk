@@ -3,12 +3,12 @@
 use crate::api_default_imports::*;
 
 resource_api_client!(
-    GroupsThreadsPostsApiClient,
-    GroupsThreadsPostsIdApiClient,
-    ResourceIdentity::GroupsThreadsPosts
+    ThreadsPostsApiClient,
+    ThreadsPostsIdApiClient,
+    ResourceIdentity::ThreadsPosts
 );
 
-impl GroupsThreadsPostsApiClient {
+impl ThreadsPostsApiClient {
     get!(
         doc: "Get post",
         name: list_posts,
@@ -21,7 +21,7 @@ impl GroupsThreadsPostsApiClient {
     );
 }
 
-impl GroupsThreadsPostsIdApiClient {
+impl ThreadsPostsIdApiClient {
     get!(
         doc: "Get posts from groups",
         name: get_posts,

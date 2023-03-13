@@ -1,13 +1,13 @@
-mod groups_conversations;
+mod conversations;
 mod groups_owners;
-mod groups_threads;
-mod groups_threads_posts;
+mod groups_team;
 mod request;
-mod team;
+mod threads;
+mod threads_posts;
 
-pub use groups_conversations::*;
+pub use conversations::*;
 pub use groups_owners::*;
-pub use groups_threads::*;
-pub use groups_threads_posts::*;
+pub use groups_team::*;
 pub use request::*;
-pub use team::*;
+pub use threads::*;
+pub use threads_posts::*;
