@@ -7,7 +7,6 @@ readme = "README.md"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs"
 description = "Microsoft Graph Api Client"
-rust-version = "1.60"
 
 exclude = [
     "test_files/*",
