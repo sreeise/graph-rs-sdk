@@ -7,6 +7,7 @@ readme = "README.md"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs"
 description = "Microsoft Graph Api Client"
+rust-version = "1.60"
 
 exclude = [
     "test_files/*",
@@ -34,7 +35,7 @@ async-trait = "0.1"
 base64 = "0.13"
 futures = "0.3"
 handlebars = "2.0.2" # TODO: Update to 4
-reqwest = { version = "0.11", default-features=false, features = ["json", "rustls-tls", "gzip", "blocking", "stream","multipart"] }
+reqwest = { version = "0.11", default-features=false, features = ["json", "gzip", "blocking", "stream","multipart"] }
 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -48,6 +49,11 @@ graph-oauth = { path = "./graph-oauth", version = "0.2.0" }
 graph-http = { path = "./graph-http", version = "0.2.2" }
 graph-error = { path = "./graph-error", version = "0.1.2" }
 graph-core = { path = "./graph-core", version = "0.3.0" }
+
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
 
 [dev-dependencies]
 from_as = "0.1"
