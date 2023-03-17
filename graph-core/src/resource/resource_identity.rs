@@ -44,7 +44,6 @@ pub enum ResourceIdentity {
     AssignmentPolicies,
     AssignmentRequests,
     Assignments,
-    Attachments,
     AuditLogs,
     Authentication,
     AuthenticationMethodConfigurations,
@@ -75,6 +74,7 @@ pub enum ResourceIdentity {
     Contacts,
     ContentTypes,
     Contracts,
+    Conversations,
     CreatedObjects,
     DataPolicyOperations,
     DefaultCalendar,
@@ -123,11 +123,8 @@ pub enum ResourceIdentity {
     GroupSettings,
     GroupSettingTemplates,
     Groups,
-    GroupsConversations,
     GroupsOwners,
     GroupsTeam,
-    GroupsThreads,
-    GroupsThreadsPosts,
     HistoryItems,
     Identity,
     IdentityGovernance,
@@ -139,7 +136,6 @@ pub enum ResourceIdentity {
     Insights,
     Invitations,
     IosManagedAppProtections,
-    Items,
     JoinedTeams,
     LicenseDetails,
     List,
@@ -203,26 +199,38 @@ pub enum ResourceIdentity {
     SharedWithTeams,
     Shares,
     Sites,
+    SitesContentTypes,
+    SitesItems,
     Solutions,
     SubscribedSkus,
     Subscriptions,
     Tabs,
     TargetedManagedAppConfigurations,
     Tasks,
-    Team,
     Teams,
     TeamsMembers,
     TeamsPrimaryChannelTabs,
     TeamsTags,
     TeamsTemplates,
     Teamwork,
+    TermStore,
+    TermStoreGroups,
+    TermStoreSets,
+    TermStoreSetsChildren,
+    TermStoreSetsParentGroup,
+    TermStoreSetsRelations,
+    TermStoreSetsTerms,
+    TermStores,
     TermsAndConditions,
+    Threads,
+    ThreadsPosts,
     Todo,
     TodoLists,
     TodoListsTasks,
     TransitiveMemberOf,
     TroubleshootingEvents,
     Users,
+    UsersAttachments,
     UsersManagedDevices,
     UsersMessages,
     VppTokens,
@@ -233,8 +241,6 @@ pub enum ResourceIdentity {
 
 impl ToString for ResourceIdentity {
     fn to_string(&self) -> String {
-        let device_am = ResourceIdentity::DeviceAppManagement.exact_camel_case();
-
         match self {
             ResourceIdentity::AccessPackages => "accessPackages".to_string(),
             ResourceIdentity::AccessReviewsDefinitions => "definitions".to_string(),
@@ -247,22 +253,22 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::EntitlementManagementCatalogs => "catalogs".to_string(),
             ResourceIdentity::PrimaryChannel => "primaryChannel".to_string(),
             ResourceIdentity::TeamsTags => "tags".to_string(),
-
             ResourceIdentity::DirectoryMembers | ResourceIdentity::TeamsMembers => {
                 "members".to_string()
             }
-
             ResourceIdentity::SharedWithTeams => "sharedWithTeams".to_string(),
             ResourceIdentity::DrivesList => "list".to_string(),
-            ResourceIdentity::DrivesItems => "items".to_string(),
-            ResourceIdentity::DrivesListContentTypes => "contentTypes".to_string(),
-            ResourceIdentity::GroupsConversations => "conversations".into(),
+            ResourceIdentity::DrivesItems | ResourceIdentity::SitesItems => "items".to_string(),
+            ResourceIdentity::DrivesListContentTypes | ResourceIdentity::SitesContentTypes => {
+                "contentTypes".to_string()
+            }
+            ResourceIdentity::Conversations => "conversations".into(),
             ResourceIdentity::GroupsOwners | ResourceIdentity::ServicePrincipalsOwners => {
                 "owners".into()
             }
             ResourceIdentity::GroupsTeam => "team".into(),
-            ResourceIdentity::GroupsThreadsPosts => "posts".into(),
-            ResourceIdentity::GroupsThreads => "threads".into(),
+            ResourceIdentity::ThreadsPosts => "posts".into(),
+            ResourceIdentity::Threads => "threads".into(),
             ResourceIdentity::Activities => "activities".to_string(),
             ResourceIdentity::AgreementAcceptances => "agreementAcceptances".to_string(),
             ResourceIdentity::AppRoleAssignments => "appRoleAssignments".to_string(),
@@ -296,7 +302,6 @@ impl ToString for ResourceIdentity {
             }
             ResourceIdentity::ManagedEBooksDeviceStates => "deviceStates".to_string(),
             ResourceIdentity::ManagedEBooksUserStateSummary => "userStateSummary".to_string(),
-            ResourceIdentity::UsersManagedDevices => "managedDevices".to_string(),
             ResourceIdentity::MemberOf => "memberOf".to_string(),
             ResourceIdentity::Oauth2PermissionGrants => "oauth2PermissionGrants".to_string(),
             ResourceIdentity::Onenote => "onenote".to_string(),
@@ -330,12 +335,19 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::TodoLists => "lists".to_string(),
             ResourceIdentity::TodoListsTasks => "tasks".to_string(),
             ResourceIdentity::UsersMessages => "messages".into(),
+            ResourceIdentity::UsersAttachments => "attachments".into(),
             ResourceIdentity::EventsInstances => "instances".into(),
             ResourceIdentity::PlannerTasks => "tasks".into(),
             ResourceIdentity::OnenoteSections => "sections".into(),
             ResourceIdentity::OnenoteSectionGroups => "sectionGroups".into(),
             ResourceIdentity::OnenoteNotebooks => "notebooks".into(),
             ResourceIdentity::OnenotePages => "pages".into(),
+            ResourceIdentity::TermStoreSets => "sets".into(),
+            ResourceIdentity::TermStoreGroups => "groups".into(),
+            ResourceIdentity::TermStoreSetsChildren => "children".into(),
+            ResourceIdentity::TermStoreSetsParentGroup => "parentGroup".into(),
+            ResourceIdentity::TermStoreSetsRelations => "relations".into(),
+            ResourceIdentity::TermStoreSetsTerms => "terms".into(),
 
             _ => self.as_ref().to_camel_case(),
         }
