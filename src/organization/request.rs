@@ -1,7 +1,6 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use graph_http::types::DeltaPhantom;
 
 resource_api_client!(
     OrganizationApiClient,

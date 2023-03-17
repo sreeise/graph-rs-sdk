@@ -5,7 +5,7 @@ use crate::api_default_imports::*;
 resource_api_client!(
     DeviceManagementTroubleshootingEventsApiClient,
     DeviceManagementTroubleshootingEventsIdApiClient,
-    ResourceIdentity::DeviceManagementTroubleshootingEvents
+    ResourceIdentity::TroubleshootingEvents
 );
 
 impl DeviceManagementTroubleshootingEventsApiClient {

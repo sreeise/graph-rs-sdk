@@ -118,7 +118,6 @@ pub mod branding;
 pub mod certificate_based_auth_configuration;
 pub mod chats;
 pub mod communications;
-pub mod content_types;
 pub mod contracts;
 pub mod data_policy_operations;
 pub mod device_app_management;
@@ -138,28 +137,19 @@ pub mod groups;
 pub mod identity;
 pub mod identity_governance;
 pub mod identity_providers;
-pub mod inference_classification;
-pub mod insights;
 pub mod invitations;
 pub mod me;
 pub mod oauth2_permission_grants;
-pub mod org_contact;
 pub mod organization;
-pub mod outlook;
 pub mod places;
 pub mod planner;
 pub mod policies;
 pub mod reports;
-pub mod schedule;
 pub mod schema_extensions;
 pub mod service_principals;
-pub mod settings;
-pub mod shared_with_teams;
 pub mod sites;
 pub mod subscribed_skus;
 pub mod subscriptions;
-pub mod tabs;
-pub mod tasks;
 pub mod teams;
 pub mod teams_templates;
 pub mod teamwork;
@@ -170,10 +160,8 @@ pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 
 /// Common structs and traits.
 pub mod prelude {
-    pub use graph_http::types::Delta;
-    pub use graph_http::GraphResponse;
-
     pub use crate::client::*;
+    pub use graph_http::api_impl::ODataQuery;
 }
 
 /// Reexport of graph-oauth crate.
@@ -203,12 +191,13 @@ pub mod core {
 }
 
 pub(crate) mod api_default_imports {
-    pub use handlebars::*;
+    pub(crate) use handlebars::*;
     pub use reqwest::Method;
 
     pub use graph_error::*;
-    pub use graph_http::api_impl::*;
+    pub(crate) use graph_http::api_impl::*;
 
-    pub use crate::client::{Graph, ResourceProvisioner};
+    pub use crate::client::Graph;
+    pub(crate) use crate::client::{map_parameters, ResourceProvisioner};
     pub use crate::core::ResourceIdentity;
 }

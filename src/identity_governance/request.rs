@@ -2,8 +2,7 @@
 
 use crate::api_default_imports::*;
 use crate::identity_governance::{
-    AccessPackagesApiClient, AccessPackagesIdApiClient, AccessReviewsApiClient,
-    AppConsentApiClient, EntitlementManagementApiClient,
+    AccessReviewsApiClient, AppConsentApiClient, EntitlementManagementApiClient,
 };
 
 resource_api_client!(

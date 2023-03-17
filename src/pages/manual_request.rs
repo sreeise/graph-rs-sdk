@@ -1,16 +1,8 @@
-use crate::error::GraphRsError;
-use crate::pages::PageRequest;
-use graph_http::IntoResponse;
-use reqwest::header::{HeaderValue, CONTENT_TYPE};
-use reqwest::Method;
-use std::ffi::OsStr;
-use std::path::Path;
 
-impl<'a, Client> PageRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    pub fn create_pages_from_file<P: AsRef<Path>>(
+
+
+    /*
+        pub fn create_pages_from_file<P: AsRef<Path>>(
         &self,
         file: P,
     ) -> IntoResponse<'a, serde_json::Value, Client> {
@@ -44,4 +36,5 @@ where
         client.set_method(Method::POST);
         IntoResponse::new(&self.client.request)
     }
-}
+     */
+

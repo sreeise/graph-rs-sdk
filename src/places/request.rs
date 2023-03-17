@@ -1,56 +1,42 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(PlacesRequest,);
+use crate::api_default_imports::*;
 
-impl<'a, Client> PlacesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entity from places by key",
-        name: get_place,
-        response: serde_json::Value,
-        path: "/places/{{id}}",
-        params: 1,
-        has_body: false
-    });
+resource_api_client!(PlacesApiClient, PlacesIdApiClient, ResourceIdentity::Places);
 
-    patch!({
-        doc: "# Update entity in places",
-        name: update_place,
-        response: NoContent,
-        path: "/places/{{id}}",
-        params: 1,
-        has_body: true
-    });
+impl PlacesApiClient {
+    get!(
+        doc: "Get the number of the resource",
+        name: get_places_count,
+        path: "/places/$count"
+    );
+    get!(
+        doc: "Get the items of type microsoft.graph.room in the microsoft.graph.place collection",
+        name: graph,
+        path: "/places/graph.room"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_room_count,
+        path: "/places/graph.room/$count"
+    );
+}
 
-    delete!({
-        doc: "# Delete entity from places",
+impl PlacesIdApiClient {
+    delete!(
+        doc: "Delete entity from places",
         name: delete_place,
-        response: NoContent,
-        path: "/places/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get entities from places",
-        name: list_place,
-        response: serde_json::Value,
-        path: "/places",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Add new entity to places",
-        name: create_place,
-        response: serde_json::Value,
-        path: "/places",
-        params: 0,
-        has_body: true
-    });
+        path: "/places/{{RID}}"
+    );
+    patch!(
+        doc: "Update place",
+        name: update_place,
+        path: "/places/{{RID}}",
+        body: true
+    );
+    get!(
+        doc: "Get the item of type microsoft.graph.place as microsoft.graph.room",
+        name: graph,
+        path: "/places/{{RID}}/graph.room"
+    );
 }

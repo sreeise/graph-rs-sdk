@@ -28,8 +28,10 @@ impl CalendarViewApiClient {
 }
 
 impl CalendarViewIdApiClient {
-    api_client_link_id!(instance, EventsInstancesIdApiClient);
     api_client_link!(instances, EventsInstancesApiClient);
+    api_client_link_id!(attachment, UsersAttachmentsIdApiClient);
+    api_client_link!(attachments, UsersAttachmentsApiClient);
+    api_client_link_id!(instance, EventsInstancesIdApiClient);
 
     get!(
         doc: "Get calendarView from users",
@@ -52,29 +54,6 @@ impl CalendarViewIdApiClient {
         doc: "List attachments",
         name: list_attachments,
         path: "/calendarView/{{RID}}/attachments"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_attachments_count,
-        path: "/calendarView/{{RID}}/attachments/$count"
-    );
-    post!(
-        doc: "Invoke action createUploadSession",
-        name: create_upload_session,
-        path: "/calendarView/{{RID}}/attachments/createUploadSession",
-        body: true
-    );
-    delete!(
-        doc: "Delete navigation property attachments for users",
-        name: delete_attachments,
-        path: "/calendarView/{{RID}}/attachments/{{id}}",
-        params: attachment_id
-    );
-    get!(
-        doc: "Get attachments from users",
-        name: get_attachments,
-        path: "/calendarView/{{RID}}/attachments/{{id}}",
-        params: attachment_id
     );
     get!(
         doc: "Get calendar from users",

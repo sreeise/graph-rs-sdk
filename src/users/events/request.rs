@@ -55,40 +55,6 @@ impl EventsIdApiClient {
         path: "/events/{{RID}}/accept",
         body: true
     );
-    post!(
-        doc: "Add attachment",
-        name: create_attachments,
-        path: "/events/{{RID}}/attachments",
-        body: true
-    );
-    get!(
-        doc: "List attachments",
-        name: list_attachments,
-        path: "/events/{{RID}}/attachments"
-    );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_attachments_count,
-        path: "/events/{{RID}}/attachments/$count"
-    );
-    post!(
-        doc: "Invoke action createUploadSession",
-        name: create_upload_session,
-        path: "/events/{{RID}}/attachments/createUploadSession",
-        body: true
-    );
-    delete!(
-        doc: "Delete navigation property attachments for users",
-        name: delete_attachments,
-        path: "/events/{{RID}}/attachments/{{id}}",
-        params: attachment_id
-    );
-    get!(
-        doc: "Get attachments from users",
-        name: get_attachments,
-        path: "/events/{{RID}}/attachments/{{id}}",
-        params: attachment_id
-    );
     get!(
         doc: "Get calendar from users",
         name: get_calendar,

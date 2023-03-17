@@ -1,7 +1,6 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::users::*;
 
 resource_api_client!(
     OnenotePagesApiClient,

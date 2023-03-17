@@ -5,7 +5,7 @@ use crate::api_default_imports::*;
 resource_api_client!(
     ManagedDevicesApiClient,
     ManagedDevicesIdApiClient,
-    ResourceIdentity::ManagedDevices
+    ResourceIdentity::UsersManagedDevices
 );
 
 impl ManagedDevicesApiClient {

@@ -1,17 +1,3 @@
-use crate::core::ResourceIdentity;
-use crate::drive::DrivesRequest;
-use crate::error::{GraphFailure, GraphRsError};
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use graph_http::{
-    AsyncDownload, AsyncHttpClient, BlockingDownload, BlockingHttpClient, RequestAttribute,
-    RequestClient, RequestType, UploadSessionClient,
-};
-use reqwest::header::{HeaderValue, CONTENT_LENGTH};
-use reqwest::Method;
-use serde_json::json;
-use std::path::Path;
-
 fn template(s: &str, last: &str) -> String {
     if s.starts_with(':') {
         format!("{{{{drive_root_path}}}}{{{{id}}}}/{}", last)
@@ -20,10 +6,10 @@ fn template(s: &str, last: &str) -> String {
     }
 }
 
+/*
 // Methods that require explicit implementation.
-impl<'a, Client> DrivesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
+impl DriveApiClient
+
 {
     pub(crate) fn transfer_identity(&self) {
         let ident = self.client.ident();
@@ -202,3 +188,5 @@ impl<'a> DrivesRequest<'a, AsyncHttpClient> {
         futures::executor::block_on(self.client.request().download())
     }
 }
+
+ */

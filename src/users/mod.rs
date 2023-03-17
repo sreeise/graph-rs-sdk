@@ -44,6 +44,7 @@ mod todo;
 mod todo_lists;
 mod todo_lists_tasks;
 mod transitive_member_of;
+mod users_attachments;
 mod users_messages;
 
 pub use activities::*;
@@ -92,4 +93,5 @@ pub use todo::*;
 pub use todo_lists::*;
 pub use todo_lists_tasks::*;
 pub use transitive_member_of::*;
+pub use users_attachments::*;
 pub use users_messages::*;
