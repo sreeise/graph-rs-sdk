@@ -33,12 +33,14 @@ impl OAuthError {
     pub fn credential_error(c: OAuthCredential) -> GraphFailure {
         GraphFailure::error_kind(
             ErrorKind::NotFound,
-            format!("MISSING OR INVALID: {:#?}", c).as_str(),
+            format!("MISSING OR INVALID: {c:#?}").as_str(),
         )
     }
 
     pub fn grant_error<T>(grant: GrantType, grant_request: GrantRequest, msg: &str) -> OAuthReq<T> {
-        let error_str = format!("There was an error for the grant: {:#?} when executing a request for: {:#?}\nError: {:#?}", grant, grant_request, msg);
+        let error_str = format!(
+			"There was an error for the grant: {grant:#?} when executing a request for: {grant_request:#?}\nError: {msg:#?}",
+		);
         OAuthError::invalid_data(error_str.as_str())
     }
 }
@@ -46,7 +48,7 @@ impl OAuthError {
 impl fmt::Display for OAuthError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            OAuthError::GraphFailure(ref err) => write!(f, "Graph Failure: {}", err),
+            OAuthError::GraphFailure(ref err) => write!(f, "Graph Failure: {err}"),
         }
     }
 }

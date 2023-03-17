@@ -1,6 +1,6 @@
 use crate::idtoken::IdToken;
 use crate::jwt::{Claim, JsonWebToken, JwtParser};
-use chrono::{DateTime, Duration, TimeZone, Utc};
+use chrono::{DateTime, Duration, LocalResult, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use from_as::*;
 use graph_error::{GraphFailure, WithGraphError, WithGraphErrorAsync};
@@ -392,8 +392,11 @@ impl AccessToken {
                 {
                     let value = claim.value();
                     let number = value.as_i64().unwrap();
-                    self.timestamp = Some(Utc.timestamp(number, 0));
-                    set_timestamp = true;
+                    let local_result = Utc.timestamp_opt(number, 0);
+                    if let LocalResult::Single(date_time) = local_result {
+                        self.timestamp = Some(date_time);
+                        set_timestamp = true;
+                    }
                 }
             }
             self.jwt = Some(jwt);
@@ -501,5 +504,11 @@ impl fmt::Debug for AccessToken {
             .field("state", &self.state)
             .field("timestamp", &self.timestamp)
             .finish()
+    }
+}
+
+impl AsRef<str> for AccessToken {
+    fn as_ref(&self) -> &str {
+        self.bearer_token()
     }
 }

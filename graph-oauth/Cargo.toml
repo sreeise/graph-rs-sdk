@@ -12,18 +12,18 @@ keywords = ["microsoft-graph", "API", "REST", "OAuth"]
 categories = ["authentication", "web-programming::http-client"]
 
 [dependencies]
-base64 = "0.13"
-chrono = { version = "0.4.6", features = ["serde"] }
-chrono-humanize = "0.0.11"
+base64 = "0.21.0"
+chrono = { version = "0.4.23", features = ["serde"] }
+chrono-humanize = "0.2.2"
 from_as = "0.1"
-reqwest = { version = "0.11", features = ["json", "blocking"] }
+reqwest = { version = "0.11", default-features = false }
 ring = "0.16.15"
 serde = { version = "1", features = ["derive"] }
-serde-aux = "2"
+serde-aux = "4.1.2"
 serde_json = "1"
 serde_yaml = "0.8"
-strum = { version = "0.21", features = ["derive"] }
+strum = { version = "0.24.1", features = ["derive"] }
 url = "2"
-webbrowser = "0.4.0"
+webbrowser = "0.8.7"
 
 graph-error = { path = "../graph-error" }
