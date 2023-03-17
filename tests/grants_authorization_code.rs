@@ -23,7 +23,8 @@ pub fn authorization_url() {
     let url = oauth
         .encode_uri(GrantType::AuthorizationCode, GrantRequest::Authorization)
         .unwrap();
-    let test_url = "https://login.microsoftonline.com/common/oauth2/authorize?client_id=6731de76-14a6-49ae-97bc-6eba6914391e&redirect_uri=http%3A%2F%2Flocalhost%3A8080&state=12345&response_mode=query&response_type=code&scope=Read.Write&prompt=login&domain_hint=consumers&code_challenge=code_challenge&code_challenge_method=plain";
+    let test_url =
+		"https://login.microsoftonline.com/common/oauth2/authorize?client_id=6731de76-14a6-49ae-97bc-6eba6914391e&redirect_uri=http%3A%2F%2Flocalhost%3A8080&state=12345&response_mode=query&response_type=code&scope=Read.Write&prompt=login&domain_hint=consumers&code_challenge=code_challenge&code_challenge_method=plain";
     let parsed_url = Url::parse(url.as_str()).unwrap();
 
     assert_eq!(parsed_url.scheme(), "https");
@@ -47,7 +48,8 @@ fn access_token_uri() {
         .access_code("11201a230923f-4259-a230011201a230923f")
         .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
         .code_verifier("bb301aaab3011201a230923f-4259-a230923fds32");
-    let test_url = "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&scope=Fall.Down+Read.Write&grant_type=authorization_code&code_verifier=bb301aaab3011201a230923f-4259-a230923fds32";
+    let test_url =
+		"client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&scope=Fall.Down+Read.Write&grant_type=authorization_code&code_verifier=bb301aaab3011201a230923f-4259-a230923fds32";
     let url = oauth
         .encode_uri(GrantType::AuthorizationCode, GrantRequest::AccessToken)
         .unwrap();
@@ -73,7 +75,8 @@ fn refresh_token_uri() {
     let body = oauth
         .encode_uri(GrantType::AuthorizationCode, GrantRequest::RefreshToken)
         .unwrap();
-    let test_url = "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&grant_type=refresh_token&scope=Fall.Down+Read.Write";
+    let test_url =
+		"refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&grant_type=refresh_token&scope=Fall.Down+Read.Write";
     assert_eq!(test_url, body);
 }
 

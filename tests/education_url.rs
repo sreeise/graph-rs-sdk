@@ -1,9 +1,9 @@
-use graph_rs_sdk::client::GraphV2;
+use graph_rs_sdk::client::Graph;
 
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";
 
-fn get_graph() -> GraphV2 {
-    GraphV2::new("token")
+fn get_graph() -> Graph {
+    Graph::new("token")
 }
 
 #[test]

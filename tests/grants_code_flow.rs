@@ -15,7 +15,8 @@ fn sign_in_code_url() {
         .encode_uri(GrantType::CodeFlow, GrantRequest::Authorization)
         .unwrap();
 
-    let s = "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&response_type=code&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default".to_string();
+    let s =
+		"https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&response_type=code&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default".to_string();
     assert_eq!(u, s);
 }
 
@@ -33,7 +34,8 @@ fn sign_in_code_url_with_state() {
     let u = oauth
         .encode_uri(GrantType::CodeFlow, GrantRequest::Authorization)
         .unwrap();
-    let s = "https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&state=state&response_type=code&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default".to_string();
+    let s =
+		"https://example.com/oauth2/v2.0/authorize?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&state=state&response_type=code&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default".to_string();
     assert_eq!(u, s);
 }
 
@@ -57,7 +59,10 @@ fn access_token() {
     let code_body = oauth
         .encode_uri(GrantType::CodeFlow, GrantRequest::AccessToken)
         .unwrap();
-    assert_eq!(code_body, "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&response_type=token&grant_type=authorization_code&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL".to_string());
+    assert_eq!(
+		code_body,
+		"client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&response_type=token&grant_type=authorization_code&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL".to_string()
+	);
 }
 
 #[test]
@@ -77,7 +82,10 @@ fn refresh_token() {
     let body = oauth
         .encode_uri(GrantType::CodeFlow, GrantRequest::RefreshToken)
         .unwrap();
-    assert_eq!(body, "refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&grant_type=refresh_token&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL".to_string());
+    assert_eq!(
+		body,
+		"refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&grant_type=refresh_token&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL".to_string()
+	);
 }
 
 #[test]
@@ -119,6 +127,7 @@ fn multi_scope() {
     let url = oauth
         .encode_uri(GrantType::CodeFlow, GrantRequest::Authorization)
         .unwrap();
-    let test_url = "https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fredirect&response_type=code&scope=Files.Read+Files.Read.All+Files.ReadWrite+Files.ReadWrite.All+wl.offline_access";
+    let test_url =
+		"https://login.live.com/oauth20_authorize.srf?client_id=bb301aaa-1201-4259-a230923fds32&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fredirect&response_type=code&scope=Files.Read+Files.Read.All+Files.ReadWrite+Files.ReadWrite.All+wl.offline_access";
     assert_eq!(test_url, url.as_str())
 }

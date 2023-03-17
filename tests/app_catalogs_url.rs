@@ -8,8 +8,8 @@ lazy_static! {
     static ref ID_VEC: Vec<String> = TestTools::random_strings(2, 20);
 }
 
-pub fn graph() -> GraphV2 {
-    GraphV2::new("")
+pub fn graph() -> Graph {
+    Graph::new("")
 }
 
 #[test]

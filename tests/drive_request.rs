@@ -36,10 +36,7 @@ fn test_folder_create_delete(folder_name: &str) {
 
             TestTools::assert_success(&result, "delete folder (conflict behavior: fail)");
         } else if let Err(e) = result {
-            panic!("Request error. Method: create folder with encoding. Path: root\nFolder Name: {:#?}\nError: {:#?}",
-                   folder_name,
-                   e
-            );
+            panic!("Request error. Method: create folder with encoding. Path: root\nFolder Name: {:#?}\nError: {:#?}", folder_name, e);
         }
     }
 }

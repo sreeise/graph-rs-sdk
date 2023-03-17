@@ -63,9 +63,7 @@ async fn async_download_office_365_user_counts_reports_test() {
 
         download_client.set_file_name(OsString::from("async_user_count_report.csv"));
 
-        let path_buf = download_client.send()
-            .await
-            .expect("Request Error. API: Reports | Method: download_async get_office_365_active_user_counts.");
+        let path_buf = download_client.send().await.expect("Request Error. API: Reports | Method: download_async get_office_365_active_user_counts.");
 
         assert!(path_buf.exists());
     }

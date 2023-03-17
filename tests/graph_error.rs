@@ -179,22 +179,11 @@ fn drive_download_graph_error() {
             .download(":/non_existent_file.docx:", "./test_files");
 
         match download.send() {
-            Ok(_) => {
-                panic!("Got successful request for a downloading a file that should not exist")
-            },
-            Err(BlockingDownloadError::Graph(e)) => test_graph_error(
-                e,
-                new_error(
-                    StatusCode::NOT_FOUND,
-                    "itemNotFound",
-                    "The resource could not be found.",
-                ),
-            ),
-            Err(e) => panic!(
-                "Expected BlockingDownloadError::Graph(GraphError..), but got a different variant: {}",
-                e
-            ),
-        }
+			Ok(_) => { panic!("Got successful request for a downloading a file that should not exist") }
+			Err(BlockingDownloadError::Graph(e)) =>
+				test_graph_error(e, new_error(StatusCode::NOT_FOUND, "itemNotFound", "The resource could not be found.")),
+			Err(e) => panic!("Expected BlockingDownloadError::Graph(GraphError..), but got a different variant: {}", e),
+		}
     }
 }
 

@@ -11,7 +11,7 @@ lazy_static! {
 }
 
 fn client() -> IdentityGovernanceApiClient {
-    GraphV2::new("").identity_governance()
+    Graph::new("").identity_governance()
 }
 
 #[test]

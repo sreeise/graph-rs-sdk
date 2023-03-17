@@ -169,10 +169,7 @@ fn download_page() {
             let result = download_client.send();
 
             if let Err(e) = result {
-                panic!(
-                    "Request error. Method onenote page download page | 03 get content -> download page. Error: {:#?}",
-                    e
-                );
+                panic!("Request error. Method onenote page download page | 03 get content -> download page. Error: {:#?}", e);
             }
 
             thread::sleep(Duration::from_secs(4));
@@ -184,12 +181,12 @@ fn download_page() {
                 .delete_pages()
                 .send();
 
-            TestTools::assert_success(&delete_res, "Request error. Method onenote pages delete page (download page test) | 04 get content -> download page.")
+            TestTools::assert_success(
+				&delete_res,
+				"Request error. Method onenote pages delete page (download page test) | 04 get content -> download page."
+			)
         } else if let Err(e) = res {
-            panic!(
-                "Request error. Method onenote create page (download page test) | 01 get content -> download page. Error: {:#?}",
-                e
-            );
+            panic!("Request error. Method onenote create page (download page test) | 01 get content -> download page. Error: {:#?}", e);
         }
     }
 }

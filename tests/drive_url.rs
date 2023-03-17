@@ -28,19 +28,13 @@ fn query_mutate() {
         .select(&["name"])
         .top("3");
     client.url_ref(|url| {
-        assert_eq!(
-            "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x?%24select=name&%24top=3",
-            url.as_str()
-        );
-    });
+		assert_eq!("https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x?%24select=name&%24top=3", url.as_str());
+	});
 
     let _ = client.v1().drive(RID).get_root().expand(&["children"]);
     client.url_ref(|url| {
-        assert_eq!(
-            "https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root?%24expand=children",
-            url.as_str()
-        );
-    });
+		assert_eq!("https://graph.microsoft.com/v1.0/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root?%24expand=children", url.as_str());
+	});
 }
 
 #[test]
@@ -61,10 +55,7 @@ pub fn drive_upload_session() {
         "./test_files/item_test/complete_drive_item.json",
         &Session::default(),
     );
-    assert_url_eq(
-        &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/complete_drive_item.json:/createUploadSession",
-    );
+    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/complete_drive_item.json:/createUploadSession");
 }
 
 #[test]
@@ -344,13 +335,13 @@ fn drive_delete() {
     );
 
     let _ = client.v1().drive(RID).delete_items(ID);
-    assert_url_eq(
-        &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
-    );
+    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
 
     let _ = client.v1().site(RID).drive().delete_items(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
+    assert_url_eq(
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI"
+	);
 }
 
 #[test]
@@ -380,13 +371,13 @@ fn drive_get_item() {
     );
 
     let _ = client.v1().drive(RID).get_items(ID);
-    assert_url_eq(
-        &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI",
-    );
+    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
 
     let _ = client.v1().site(RID).drive().get_items(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI");
+    assert_url_eq(
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI"
+	);
 }
 
 #[test]
@@ -439,13 +430,16 @@ fn drive_single_thumbnail() {
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100");
 
     let _ = client.v1().drive(RID).get_thumbnail(ID, "4", "100");
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100");
+    assert_url_eq(
+		&client,
+		"/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100"
+	);
 
     let _ = client.v1().site(RID).drive().get_thumbnail(ID, "4", "100");
     assert_url_eq(
-        &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100",
-    );
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/thumbnails/4/100"
+	);
 }
 
 #[test]
@@ -479,9 +473,9 @@ pub fn drive_upload_new() {
         .drive(RID)
         .upload_new(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(
-        &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content",
-    );
+		&client,
+		"/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content"
+	);
 
     let _ = client
         .v1()
@@ -489,9 +483,9 @@ pub fn drive_upload_new() {
         .drive()
         .upload_new(ID, "./test_files/item_test/drive_info.json");
     assert_url_eq(
-        &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content",
-    );
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI:/drive_info.json:/content"
+	);
 }
 
 #[test]
@@ -502,10 +496,7 @@ pub fn drive_upload_replace() {
         .me()
         .drive()
         .upload_replace(ID, "./test_files/item_test/drive_info.json");
-    assert_url_eq(
-        &client,
-        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content",
-    );
+    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content");
 
     let _ = client
         .v1()
@@ -571,10 +562,16 @@ pub fn drive_list_children() {
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
 
     let _ = client.v1().drive(RID).list_children(ID);
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
+    assert_url_eq(
+		&client,
+		"/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children"
+	);
 
     let _ = client.v1().site(RID).drive().list_children(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children");
+    assert_url_eq(
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/children"
+	);
 
     let _ = client
         .v1()
@@ -612,19 +609,16 @@ pub fn drive_restore_version() {
         .me()
         .drive()
         .restore_item_versions(ID, "34492566a");
-    assert_url_eq(
-        &client,
-        "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion",
-    );
+    assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion");
 
     let _ = client
         .v1()
         .drive(RID)
         .restore_item_versions(ID, "34492566a");
     assert_url_eq(
-        &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion",
-    );
+		&client,
+		"/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion"
+	);
 
     let _ = client
         .v1()
@@ -632,9 +626,9 @@ pub fn drive_restore_version() {
         .drive()
         .restore_item_versions(ID, "34492566a");
     assert_url_eq(
-        &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion",
-    );
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/versions/34492566a/restoreVersion"
+	);
 }
 
 #[test]
@@ -654,39 +648,44 @@ pub fn drive_restore_version_path() {
         .v1()
         .drive(RID)
         .restore_item_versions(":/Documents/item.txt:", "34492566a");
-    assert_url_eq(
-        &client,
-        "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/item.txt:/versions/34492566a/restoreVersion",
-    );
+    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/root:/Documents/item.txt:/versions/34492566a/restoreVersion");
 
     let _ = client
         .v1()
         .site(RID)
         .drive()
         .restore_item_versions(":/Documents/item.txt:", "34492566a");
-    assert_url_eq(
-        &client,
-        "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/item.txt:/versions/34492566a/restoreVersion",
-    );
+    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/item.txt:/versions/34492566a/restoreVersion");
 }
 
 #[test]
 pub fn drive_download() {
     let client = get_drive();
     let download_client = client.v1().me().drive().download(ID, "./test_files");
-    assert_eq!(download_client.url().to_string(), format!("{}/{}", GRAPH_URL, "me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content"));
+    assert_eq!(
+		download_client.url().to_string(),
+		format!("{}/{}", GRAPH_URL, "me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content")
+	);
 
     let download_client = client.v1().drive(RID).download(ID, "./test_files");
     assert_eq!(
-        download_client.url().to_string(),
-        format!("{}/{}", GRAPH_URL, "drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content")
-    );
+		download_client.url().to_string(),
+		format!(
+			"{}/{}",
+			GRAPH_URL,
+			"drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content"
+		)
+	);
 
     let download_client = client.v1().site(RID).drive().download(ID, "./test_files");
     assert_eq!(
-        download_client.url().to_string(),
-        format!("{}/{}", GRAPH_URL, "sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content")
-    );
+		download_client.url().to_string(),
+		format!(
+			"{}/{}",
+			GRAPH_URL,
+			"sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/content"
+		)
+	);
 }
 
 #[test]
@@ -735,10 +734,16 @@ pub fn drive_check_out() {
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout");
 
     let _ = client.v1().drive(RID).check_out_item(ID);
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout");
+    assert_url_eq(
+		&client,
+		"/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout"
+	);
 
     let _ = client.v1().site(RID).drive().check_out_item(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout");
+    assert_url_eq(
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkout"
+	);
 }
 
 #[test]
@@ -755,14 +760,20 @@ pub fn drive_check_in() {
         .v1()
         .drive(RID)
         .check_in_item(ID, &serde_json::json!({}));
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
+    assert_url_eq(
+		&client,
+		"/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin"
+	);
 
     let _ = client
         .v1()
         .site(RID)
         .drive()
         .check_in_item(ID, &serde_json::json!({}));
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin");
+    assert_url_eq(
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/checkin"
+	);
 }
 
 #[test]
@@ -791,10 +802,16 @@ pub fn drive_item_activities() {
     assert_url_eq(&client, "/me/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
 
     let _ = client.v1().drive(RID).get_item_activities(ID);
-    assert_url_eq(&client, "/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
+    assert_url_eq(
+		&client,
+		"/drives/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities"
+	);
 
     let _ = client.v1().site(RID).drive().get_item_activities(ID);
-    assert_url_eq(&client, "/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities");
+    assert_url_eq(
+		&client,
+		"/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/items/b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI/activities"
+	);
 
     let _ = client
         .v1()
