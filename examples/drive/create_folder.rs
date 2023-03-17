@@ -13,17 +13,14 @@ pub fn create_new_folder() {
     let folder: HashMap<String, serde_json::Value> = HashMap::new();
 
     let drive_item: GraphResponse<serde_json::Value> = client
-        .v1()
         .me()
-        .drive()
-        .create_folder(
-            PARENT_ID,
-            &serde_json::json!({
-                "name": FOLDER_NAME,
-                "folder": folder,
-                "@microsoft.graph.conflictBehavior": "fail"
-            }),
-        )
+        .default_drive()
+        .item(PARENT_ID)
+        .create_children(&serde_json::json!({
+            "name": FOLDER_NAME,
+            "folder": folder,
+            "@microsoft.graph.conflictBehavior": "fail"
+        }))
         .send()
         .unwrap();
     println!("{:#?}", drive_item);

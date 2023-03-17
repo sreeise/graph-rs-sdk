@@ -32,7 +32,6 @@ fn upload_session_new() {
     };
 
     let session = client
-        .v1()
         .me()
         .drive()
         .create_upload_session(PATH_IN_ONE_DRIVE, PATH_TO_FILE, &upload)

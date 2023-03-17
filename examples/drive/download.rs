@@ -1,3 +1,4 @@
+use graph_http::{DownloadTask, FileConfig};
 use graph_rs_sdk::prelude::*;
 use std::ffi::OsString;
 use std::path::PathBuf;
@@ -5,24 +6,35 @@ use std::path::PathBuf;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static ITEM_ID: &str = "ITEM_ID";
 
-pub fn download_files() {
-    download();
+pub async fn download_files() {
+    download().await;
     download_and_format("pdf");
     download_and_rename("FILE_NAME");
     download_by_path(":/Documents/item.txt:");
 }
 
-pub fn download() {
+pub async fn download() {
     let client = Graph::new(ACCESS_TOKEN);
-
+    // ITEM_ID, "./examples/example_files"
     // Download the file. The file will be downloaded with the same name.
-    let download_client = client
-        .v1()
+    let response = client
         .me()
-        .drive()
-        .download(ITEM_ID, "./examples/example_files");
+        .default_drive()
+        .item(ITEM_ID)
+        .get_items_content()
+        .send()
+        .await
+        .unwrap();
 
-    let path_buf = download_client.send().unwrap();
+    let config = FileConfig::new("./examples/example_files")
+        .create_directories(true)
+        .overwrite_existing_file(false)
+        .file_name("file.pdf");
+
+    let path_buf = response
+        .download(FileConfig::new("./examples/example_files"))
+        .await
+        .unwrap();
 
     println!("{:#?}", path_buf);
 }

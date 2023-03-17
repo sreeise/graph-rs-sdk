@@ -22,18 +22,15 @@ pub fn copy_item() {
     // be changed to wherever you would like the copy placed.
 
     let response = graph
-        .v1()
         .me()
-        .drive()
-        .copy_item(
-            ITEM_ID,
-            &serde_json::json!({
-                "name": DRIVE_FILE_COPY_NAME,
-                "parent_reference": {
-                    "path": "/drive/root:/Documents"
-                }
-            }),
-        )
+        .default_drive()
+        .item(ITEM_ID)
+        .copy(&serde_json::json!({
+            "name": DRIVE_FILE_COPY_NAME,
+            "parent_reference": {
+                "path": "/drive/root:/Documents"
+            }
+        }))
         .send()
         .unwrap();
 

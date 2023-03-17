@@ -14,10 +14,9 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn download() -> Result<(), Error> {
-    let client = Graph::new_async(ACCESS_TOKEN);
+    let client = Graph::new(ACCESS_TOKEN);
 
     let download_client = client
-        .v1()
         .drive(USER_ID)
         .download(":/download.txt:", "./examples");
 

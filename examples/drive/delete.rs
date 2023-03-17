@@ -12,10 +12,10 @@ pub fn delete_by_id(item_id: &str) {
 
     // Send the request.
     let response = client
-        .v1()
         .me()
-        .drive()
-        .delete_items(item_id)
+        .default_drive()
+        .item(item_id)
+        .delete_items()
         .send()
         .unwrap();
 
@@ -23,6 +23,7 @@ pub fn delete_by_id(item_id: &str) {
     println!("\nItem was deleted. Status: {}", response.status());
 }
 
+/*
 // Deleting an item by path.
 pub fn delete_by_path(path: &str) {
     let client = Graph::new(ACCESS_TOKEN);
@@ -33,3 +34,5 @@ pub fn delete_by_path(path: &str) {
     println!("{:#?}", response);
     println!("\nItem was deleted. Status: {}", response.status());
 }
+
+ */

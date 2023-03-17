@@ -6,17 +6,53 @@ static MESSAGE_ID: &str = "MESSAGE_ID";
 
 static MAIL_FOLDER_ID: &str = "MAIL_FOLDER_ID_OR_WELL_KNOWN_FOLDER";
 
-fn main() {
-    create_mail_folder_message();
-    create_mail_folder_draft_message();
-    delete_mail_folder_message();
-    add_mail_folder_message_attachment();
+static USER_ID: &str = "USER_ID";
+
+#[tokio::main]
+async fn main() {
+    get_user_inbox_messages().await;
+    get_me_inbox_messages().await;
+    create_mail_folder_message().await;
+    create_mail_folder_draft_message().await;
+    delete_mail_folder_message().await;
+    add_mail_folder_message_attachment().await;
 }
 
-fn create_mail_folder_message() {
+// Get the top 2 inbox messages for a user.
+async fn get_user_inbox_messages() {
     let client = Graph::new(ACCESS_TOKEN);
     let response = client
-        .v1()
+        .user(USER_ID)
+        .mail_folder("Inbox")
+        .messages()
+        .list_messages()
+        .top("2")
+        .send()
+        .await
+        .unwrap();
+
+    println!("{:#?}", response);
+}
+
+// Get the top 2 inbox messages for a user.
+async fn get_me_inbox_messages() {
+    let client = Graph::new(ACCESS_TOKEN);
+    let response = client
+        .me()
+        .mail_folder("Inbox")
+        .messages()
+        .list_messages()
+        .top("2")
+        .send()
+        .await
+        .unwrap();
+
+    println!("{:#?}", response);
+}
+
+async fn create_mail_folder_message() {
+    let client = Graph::new(ACCESS_TOKEN);
+    let response = client
         .me()
         .mail_folder(MAIL_FOLDER_ID)
         .messages()
@@ -35,15 +71,16 @@ fn create_mail_folder_message() {
                 }
             ]
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", response);
 }
 
-fn create_mail_folder_draft_message() {
+async fn create_mail_folder_draft_message() {
     let client = Graph::new(ACCESS_TOKEN);
     let response = client
-        .v1()
         .me()
         .mail_folder("drafts")
         .messages()
@@ -62,39 +99,42 @@ fn create_mail_folder_draft_message() {
                 }
             ]
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", response);
 }
 
-pub fn delete_mail_folder_message() {
+async fn delete_mail_folder_message() {
     let client = Graph::new(ACCESS_TOKEN);
     let response = client
-        .v1()
         .me()
         .mail_folder(MAIL_FOLDER_ID)
-        .message(MESSAGE_ID)
+        .messages_id(MESSAGE_ID)
         .delete_messages()
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", response);
 }
 
-fn add_mail_folder_message_attachment() {
+async fn add_mail_folder_message_attachment() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
         .mail_folder(MAIL_FOLDER_ID)
-        .message(MESSAGE_ID)
-        .attachments()
+        .messages_id(MESSAGE_ID)
         .create_attachments(&serde_json::json!({
             "@odata.type": "#microsoft.graph.fileAttachment",
             "name": "smile",
             "contentBytes": "R0lGODdhEAYEAA7"
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", response);
 }

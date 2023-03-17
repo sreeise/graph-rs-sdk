@@ -5,21 +5,22 @@ use graph_rs_sdk::prelude::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static TEAMS_ID: &str = "TEAMS_ID";
 
-fn main() {
-    list_teams();
-    get_teams();
+#[tokio::main]
+async fn main() {
+    list_teams().await;
+    get_teams().await;
 }
 
-fn list_teams() {
+async fn list_teams() {
     let client = Graph::new(ACCESS_TOKEN);
-    let response = client.v1().teams().list_team().send().unwrap();
+    let response = client.teams().list_team().send().await.unwrap();
 
     println!("{:#?}", response);
 }
 
-fn get_teams() {
+async fn get_teams() {
     let client = Graph::new(ACCESS_TOKEN);
-    let response = client.v1().team(TEAMS_ID).get_team().send().unwrap();
+    let response = client.team(TEAMS_ID).get_team().send().await.unwrap();
 
     println!("{:#?}", response);
 }

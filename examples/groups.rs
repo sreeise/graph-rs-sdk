@@ -5,21 +5,18 @@ static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
 
 static GROUP_ID: &str = "<GROUP_ID>";
 
-fn main() {}
+#[tokio::main]
+async fn main() {}
 
 #[allow(dead_code)]
-fn get_or_list_groups() -> GraphResult<()> {
+async fn get_or_list_groups() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client.v1().group(GROUP_ID).get_group().send()?;
 
     println!("Group response: {:#?}", response);
 
-    let response = client
-        .v1()
-        .groups() // Won't be used
-        .list_group()
-        .send()?;
+    let response = client.groups().list_group().send().await;
 
     println!("List groups response: {:#?}", response);
 
@@ -149,19 +146,19 @@ fn list_methods() -> GraphResult<()> {
 }
 
 #[allow(dead_code)]
-fn remove_methods() -> GraphResult<()> {
+async fn remove_methods() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1().group(GROUP_ID).remove_favorite().send()?;
+    let response = client.group(GROUP_ID).remove_favorite().send().await?;
 
     println!("{:#?}", response);
 
     let member_id = "<MEMBER_ID>";
     let response = client
-        .v1()
         .group(GROUP_ID)
-        .remove_member(member_id)
-        .send()?;
+        .delete_ref_members(member_id)
+        .send()
+        .await?;
 
     println!("{:#?}", response);
 
@@ -176,75 +173,66 @@ fn remove_methods() -> GraphResult<()> {
 static GROUP_LIFECYCLE_POLICY_ID: &str = "<GROUP_LIFECYCLE_POLICY_ID>";
 
 #[allow(dead_code)]
-fn lifecycle_policies() -> GraphResult<()> {
+async fn lifecycle_policies() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .group_lifecycle_policies() // Won't be used.
         .list_group_lifecycle_policy()
-        .send()?;
+        .send()
+        .await?;
 
     println!("{:#?}", response);
 
     let response = client
-        .v1()
         .group_lifecycle_policies()
         .get_group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
-        .send()?;
+        .send()
+        .await?;
 
     println!("{:#?}", response);
 
     let response = client
-        .v1()
         .group_lifecycle_policies() // Won't be used.
         .create_group_lifecycle_policy(&serde_json::json!({
             "groupLifetimeInDays": 100,
             "managedGroupTypes": "Selected",
             "alternateNotificationEmails": "admin@contoso.com"
         }))
-        .send()?;
+        .send()
+        .await?;
 
     println!("{:#?}", response);
 
     let response = client
-        .v1()
-        .group_lifecycle_policies()
-        .update_group_lifecycle_policy(
-            GROUP_LIFECYCLE_POLICY_ID,
-            &serde_json::json!({
-                "groupLifetimeInDays": 100,
-                "managedGroupTypes": "Selected",
-                "alternateNotificationEmails": "admin@contoso.com"
-            }),
-        )
-        .send()?;
+        .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
+        .update_group_lifecycle_policy(&serde_json::json!({
+            "groupLifetimeInDays": 100,
+            "managedGroupTypes": "Selected",
+            "alternateNotificationEmails": "admin@contoso.com"
+        }))
+        .send()
+        .await?;
 
     println!("{:#?}", response);
 
     let response = client
-        .v1()
-        .group_lifecycle_policies()
-        .add_group(
-            GROUP_LIFECYCLE_POLICY_ID,
-            &serde_json::json!({
-                "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
-            }),
-        )
-        .send()?;
+        .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
+        .add_group(&serde_json::json!({
+            "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+        }))
+        .send()
+        .await?;
 
     println!("{:#?}", response);
 
     let response = client
-        .v1()
-        .group_lifecycle_policies()
-        .remove_group(
-            GROUP_LIFECYCLE_POLICY_ID,
-            &serde_json::json!({
-                "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
-            }),
-        )
-        .send()?;
+        .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
+        .remove_group(&serde_json::json!({
+            "groupId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+        }))
+        .send()
+        .await?;
 
     println!("{:#?}", response);
 

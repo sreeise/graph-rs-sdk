@@ -31,11 +31,11 @@ fn tenant_discovery() {
 async fn async_keys_discovery() {
     let signing_keys: MicrosoftSigningKeysV1 =
         GraphDiscovery::V1.async_signing_keys().await.unwrap();
-    println!("{:#?}", signing_keys);
+    println!("{signing_keys:#?}");
 
     let signing_keys2: MicrosoftSigningKeysV2 =
         GraphDiscovery::V2.async_signing_keys().await.unwrap();
-    println!("{:#?}", signing_keys2);
+    println!("{signing_keys2:#?}");
 }
 
 #[allow(dead_code)]

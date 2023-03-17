@@ -14,10 +14,10 @@ fn check_out_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
-        .drive()
-        .check_out_item(ITEM_ID)
+        .default_drive()
+        .item(ITEM_ID)
+        .checkout()
         .send()
         .unwrap();
 
@@ -38,16 +38,13 @@ fn check_in_item() {
     let comment = "COMMENT";
 
     let response = client
-        .v1()
         .me()
-        .drive()
-        .check_in_item(
-            ITEM_ID,
-            &serde_json::json!({
-                "comment": comment,
-                "checkInAs": check_in_as
-            }),
-        )
+        .default_drive()
+        .item(ITEM_ID)
+        .checkin(&serde_json::json!({
+            "comment": comment,
+            "checkInAs": check_in_as
+        }))
         .send()
         .unwrap();
 

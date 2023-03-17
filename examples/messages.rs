@@ -6,6 +6,9 @@ static MESSAGE_ID: &str = "MESSAGE_ID";
 
 static ATTACHMENT_ID: &str = "ATTACHMENT_ID";
 
+// If using the Users api:
+static USER_ID: &str = "USER_ID";
+
 fn main() {
     list_messages();
     create_message();
@@ -17,31 +20,38 @@ fn main() {
     send_mail();
 }
 
-fn list_messages() {
+async fn list_messages() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.v1().me().messages().list_messages().send();
+    let response = client.me().messages().list_messages().send().await.unwrap();
     println!("{:#?}", response);
 }
 
-fn delete_message() {
+async fn user_list_messages() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
-        .me()
-        .message(MESSAGE_ID)
-        .delete_messages()
-        .send();
+        .user(USER_ID)
+        .messages()
+        .list_messages()
+        .send()
+        .await
+        .unwrap();
+    println!("{:#?}", response);
+}
+
+async fn delete_message() {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client.me().message(ID).send().await.unwrap();
 
     println!("{:#?}", response);
 }
 
-fn create_message() {
+async fn create_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
         .messages()
         .create_messages(&serde_json::json!({
@@ -59,16 +69,17 @@ fn create_message() {
                 }
             ]
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", response);
 }
 
-fn update_message() {
+async fn update_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let update_message_response = client
-        .v1()
         .me()
         .message(MESSAGE_ID)
         .update_messages(&serde_json::json!({
@@ -79,12 +90,14 @@ fn update_message() {
             },
             "inferenceClassification": "other"
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", update_message_response);
 }
 
-pub fn send_mail() {
+async fn send_mail() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -114,12 +127,14 @@ pub fn send_mail() {
             },
             "saveToSentItems": "false"
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", response);
 }
 
-fn add_attachment() {
+async fn add_attachment() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -132,21 +147,24 @@ fn add_attachment() {
             "name": "smile",
             "contentBytes": "R0lGODdhEAYEAA7"
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", response);
 }
 
-fn get_attachment() {
+async fn get_attachment() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
         .message(MESSAGE_ID)
         .attachment(ATTACHMENT_ID)
         .get_attachments()
-        .send();
+        .send()
+        .await
+        .unwrap();
 
     println!("{:#?}", response);
 }
@@ -155,12 +173,12 @@ fn get_attachment_content() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
         .message(MESSAGE_ID)
         .attachment(ATTACHMENT_ID)
-        .get_content()
-        .send();
+        .get_attachments_content()
+        .send()
+        .unwrap();
 
     println!("{:#?}", response);
 }

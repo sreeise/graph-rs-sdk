@@ -11,7 +11,8 @@ use graph_rs_sdk::prelude::*;
 static USER_ID: &str = "USER_ID";
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let json = serde_json::json!({
@@ -44,7 +45,7 @@ fn main() {
         ]
     });
 
-    let recv = client.v1().batch(&json).send();
+    let recv = client.batch(&json).send().await.unwrap();
 
     loop {
         match recv.recv() {
