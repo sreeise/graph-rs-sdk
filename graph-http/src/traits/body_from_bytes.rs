@@ -4,7 +4,7 @@ use graph_error::{GraphFailure, GraphResult};
 use serde::de::DeserializeOwned;
 
 #[async_trait]
-pub(crate) trait BodyFromBytes {
+pub trait BodyFromBytes {
     async fn body_from_bytes<T: DeserializeOwned>(&mut self) -> GraphResult<T>;
 }
 

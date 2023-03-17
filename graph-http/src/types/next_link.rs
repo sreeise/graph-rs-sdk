@@ -7,24 +7,15 @@ pub struct NextLinkValues<V> {
     pub(crate) next_link: Option<String>,
 }
 
-use crate::byte_range::ByteRangeIterator;
-use crate::traits::BodyFromBytes;
-use crate::traits::{AsyncTryFrom, ODataNextLink};
-use async_std::prelude::FutureExt;
-use async_stream::{stream, try_stream};
+use crate::traits::ODataNextLink;
 use async_trait::async_trait;
 use bytes::{BufMut, BytesMut};
-use futures_core::Stream;
-use graph_error::{GraphError, GraphFailure, GraphResult, WithGraphErrorAsync};
-use reqwest::header::{HeaderMap, CONTENT_TYPE};
-use reqwest::{Response, StatusCode};
+use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
+use reqwest::header::CONTENT_TYPE;
+use reqwest::Response;
 use serde::de::DeserializeOwned;
-use serde_json::Value;
 use std::fmt::Debug;
-use std::future::Future;
-use std::path::Path;
 use tokio::sync::mpsc::Receiver;
-use url::Url;
 
 #[derive(Debug)]
 pub struct NextLinkResponse {
@@ -66,7 +57,7 @@ impl NextLinkResponse {
 
 #[async_trait]
 pub trait NextLinkTask {
-    async fn as_next_link_channel<
+    async fn next_link_channel<
         T: 'static + Send + ODataNextLink + Clone + Debug + DeserializeOwned,
     >(
         self,
@@ -76,7 +67,7 @@ pub trait NextLinkTask {
 
 #[async_trait]
 impl NextLinkTask for reqwest::Response {
-    async fn as_next_link_channel<
+    async fn next_link_channel<
         T: 'static + Send + ODataNextLink + Clone + Debug + DeserializeOwned,
     >(
         self,

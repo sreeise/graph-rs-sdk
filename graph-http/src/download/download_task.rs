@@ -1,4 +1,4 @@
-use crate::{iotools, DownloadConfig};
+use crate::{iotools, FileConfig};
 use async_trait::async_trait;
 use graph_error::download::AsyncDownloadError;
 use reqwest::header::HeaderMap;
@@ -40,16 +40,12 @@ fn parse_content_disposition(headers: &HeaderMap) -> Option<OsString> {
 
 #[async_trait]
 pub trait DownloadTask {
-    async fn download(self, download_config: DownloadConfig)
-        -> Result<PathBuf, AsyncDownloadError>;
+    async fn download(self, download_config: FileConfig) -> Result<PathBuf, AsyncDownloadError>;
 }
 
 #[async_trait]
 impl DownloadTask for reqwest::Response {
-    async fn download(
-        self,
-        download_config: DownloadConfig,
-    ) -> Result<PathBuf, AsyncDownloadError> {
+    async fn download(self, download_config: FileConfig) -> Result<PathBuf, AsyncDownloadError> {
         let path = download_config.path;
         let file_name = download_config.file_name;
         let create_dir_all = download_config.create_directory_all;
@@ -76,7 +72,7 @@ impl DownloadTask for reqwest::Response {
         };
 
         if let Some(ext) = extension.as_ref() {
-            path.with_extension(ext.as_str());
+            path.with_extension(ext.as_os_str());
         }
 
         if path.exists() && !overwrite_existing_file {

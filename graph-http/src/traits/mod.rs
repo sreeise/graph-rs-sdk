@@ -7,7 +7,7 @@ mod upload_session;
 
 pub use async_iterator::*;
 pub use async_try_from::*;
-pub use body_from_bytes::*;
+pub use body_from_bytes::BodyFromBytes;
 pub use byte_range::*;
 pub use odata_link::*;
 pub use upload_session::*;

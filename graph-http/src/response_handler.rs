@@ -1,15 +1,20 @@
 use crate::client::Client;
 use crate::odata_query::ODataQuery;
-use crate::traits::BodyFromBytes;
-use crate::traits::ODataNextLink;
+use crate::traits::{BodyFromBytes, ODataNextLink};
+use crate::types::NextLinkValues;
 use crate::url::GraphUrl;
-use crate::{DownloadConfig, DownloadTask};
+use crate::{DownloadTask, FileConfig};
 use async_stream::{stream, try_stream};
 use futures_core::Stream;
+use futures_util::TryFutureExt;
 use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, ACCEPT};
+use reqwest::{Method, Response, StatusCode};
+use serde::de::DeserializeOwned;
+use std::io::Read;
 use std::path::PathBuf;
+use tokio::runtime::Handle;
 
 #[derive(Clone, Builder, Debug, Default, Eq, PartialEq)]
 #[builder(
@@ -22,6 +27,22 @@ pub struct ResourceConfig {
     pub resource_identity: ResourceIdentity,
     pub url: GraphUrl,
     pub resource_identity_id: Option<String>,
+}
+
+impl ResourceConfig {
+    pub fn new(ri: ResourceIdentity, url: GraphUrl, ri_id: Option<String>) -> ResourceConfig {
+        ResourceConfig {
+            resource_identity: ri,
+            url,
+            resource_identity_id: ri_id,
+        }
+    }
+}
+
+impl ResourceConfig {
+    pub fn resource_identity(&self) -> ResourceIdentity {
+        self.resource_identity
+    }
 }
 
 impl AsRef<GraphUrl> for ResourceConfig {
@@ -69,9 +90,15 @@ impl AsMut<GraphUrl> for RequestComponents {
     }
 }
 
+impl AsMut<HeaderMap> for RequestComponents {
+    fn as_mut(&mut self) -> &mut HeaderMap {
+        &mut self.headers
+    }
+}
+
 impl RequestComponents {
     pub fn new(
-        ri: ResourceIdentity,
+        resource_identity: ResourceIdentity,
         url: GraphUrl,
         method: reqwest::Method,
         body: Option<String>,
@@ -79,65 +106,86 @@ impl RequestComponents {
         let mut headers: HeaderMap<HeaderValue> = HeaderMap::with_capacity(2);
         headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
         RequestComponents {
-            resource_identity: ri,
+            resource_identity,
             url,
             method,
             body,
             headers,
         }
     }
-
-    pub fn builder(ri: ResourceIdentity, method: reqwest::Method) -> RequestComponentsBuilder {
-        let mut headers: HeaderMap<HeaderValue> = HeaderMap::with_capacity(2);
-        headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
-        let mut builder = RequestComponentsBuilder::default();
-        builder
-            .resource_identity(ri)
-            .method(method)
-            .headers(headers);
-        builder
-    }
-
-    pub fn builder_with_body(
-        ri: ResourceIdentity,
-        method: reqwest::Method,
-        body: String,
-    ) -> RequestComponentsBuilder {
-        let mut headers: HeaderMap<HeaderValue> = HeaderMap::with_capacity(2);
-        headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
-        let mut builder = RequestComponentsBuilder::default();
-        builder
-            .resource_identity(ri)
-            .method(method)
-            .body(body)
-            .headers(headers);
-        builder
-    }
 }
 
-impl From<(ResourceIdentity, reqwest::Method, GraphResult<GraphUrl>)> for RequestComponents {
-    fn from(value: (ResourceIdentity, reqwest::Method, GraphResult<GraphUrl>)) -> Self {
-        RequestComponents::new(value.0, value.2.unwrap_or_default(), value.1, None)
+impl TryFrom<(ResourceIdentity, reqwest::Method, GraphResult<GraphUrl>)> for RequestComponents {
+    type Error = GraphFailure;
+
+    fn try_from(
+        value: (ResourceIdentity, Method, GraphResult<GraphUrl>),
+    ) -> Result<Self, Self::Error> {
+        Ok(RequestComponents::new(value.0, value.2?, value.1, None))
     }
 }
 
 impl
-    From<(
+    TryFrom<(
         ResourceIdentity,
         reqwest::Method,
         GraphResult<GraphUrl>,
         GraphResult<String>,
     )> for RequestComponents
 {
-    fn from(
+    type Error = GraphFailure;
+
+    fn try_from(
         value: (
             ResourceIdentity,
-            reqwest::Method,
+            Method,
             GraphResult<GraphUrl>,
             GraphResult<String>,
         ),
-    ) -> Self {
-        RequestComponents::new(value.0, value.2.unwrap_or_default(), value.1, value.3.ok())
+    ) -> Result<Self, Self::Error> {
+        Ok(RequestComponents::new(
+            value.0,
+            value.2.map_err(GraphFailure::from)?,
+            value.1,
+            Some(value.3.map_err(GraphFailure::from)?),
+        ))
+    }
+}
+
+async fn map_next_link_response<V: DeserializeOwned>(
+    response: reqwest::Response,
+) -> (
+    (Option<String>),
+    (
+        reqwest::Url,
+        StatusCode,
+        HeaderMap,
+        Vec<V>,
+        Option<GraphFailure>,
+    ),
+) {
+    let headers = response.headers().clone();
+    let status = response.status();
+    let url = response.url().clone();
+    let mut result: GraphResult<NextLinkValues<V>> =
+        response.json().await.map_err(GraphFailure::from);
+
+    match result {
+        Ok(body) => (
+            (body.next_link.clone()),
+            (url, status, headers, body.value, None),
+        ),
+        Err(err) => ((None), (url, status, headers, Vec::new(), Some(err))),
+    }
+}
+
+async fn map_next_link_response2<V: DeserializeOwned>(
+    response: &mut reqwest::Response,
+) -> (Option<String>, Vec<V>, Option<GraphFailure>) {
+    let mut result: GraphResult<NextLinkValues<V>> = response.body_from_bytes().await;
+    match result {
+        Ok(body) => (body.next_link.clone(), body.value, None),
+        Err(err) => (None, Vec::new(), Some(err)),
     }
 }
 
@@ -158,7 +206,7 @@ impl ResponseHandler {
     ) -> ResponseHandler {
         ResponseHandler {
             inner: inner.inner.clone(),
-            access_token: inner.access_token.clone(),
+            access_token: inner.access_token,
             request_components,
             error,
         }
@@ -190,7 +238,7 @@ impl ResponseHandler {
         request_builder.send().await.map_err(GraphFailure::from)
     }
 
-    pub async fn download(self, download_config: DownloadConfig) -> GraphResult<PathBuf> {
+    pub async fn download(self, download_config: FileConfig) -> GraphResult<PathBuf> {
         if let Some(err) = self.error {
             return Err(GraphFailure::PreFlightError {
                 url: Some(self.request_components.to_reqwest_url()),
@@ -216,6 +264,12 @@ impl ResponseHandler {
         self
     }
 
+    pub fn extend_path(mut self, value: &[&str]) -> Self {
+        self.request_components.url.extend_path(value);
+        self
+    }
+
+    /// Insert a header for the request.
     pub fn header<K: Into<HeaderName>, V: Into<HeaderValue>>(
         mut self,
         header_name: K,
@@ -227,13 +281,19 @@ impl ResponseHandler {
         self
     }
 
+    /// Set the headers for the request using reqwest::HeaderMap
     pub fn headers(mut self, header_map: HeaderMap) -> Self {
         self.request_components.headers.extend(header_map);
         self
     }
 
+    /// Get a mutable reference to the headers.
+    pub fn headers_mut(&mut self) -> &mut HeaderMap {
+        self.request_components.as_mut()
+    }
+
     pub(crate) fn default_request_builder(&self) -> reqwest::RequestBuilder {
-        let mut request_builder = self
+        let request_builder = self
             .inner
             .request(
                 self.request_components.method.clone(),
@@ -248,24 +308,43 @@ impl ResponseHandler {
         request_builder
     }
 
-    fn try_stream(&self) -> impl Stream<Item = GraphResult<reqwest::Response>> + '_ {
+    fn try_stream<'a, T>(
+        &'a self,
+    ) -> impl Stream<Item = GraphResult<(reqwest::Url, StatusCode, HeaderMap, T)>> + 'a
+    where
+        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a,
+    {
         try_stream! {
             let request = self.default_request_builder();
             let mut response = request.send().await?;
-            let json: serde_json::Value = response.body_from_bytes().await?;
+            let headers = response.headers().clone();
+            let status = response.status();
+            let url = response.url().clone();
+            let json: T = response.json().await?;
             let mut next_link = json.odata_next_link();
-            yield response;
+            yield (url, status, headers, json);
 
             while let Some(url) = next_link {
-                let mut response = self.inner.get(url).send().await?;
-                let json: serde_json::Value = response.body_from_bytes().await?;
+                let response = self.inner.get(url)
+                .bearer_auth(self.access_token.as_str())
+                .send()
+                .await?;
+                let headers = response.headers().clone();
+                let status = response.status();
+                let url = response.url().clone();
+                let json: T = response.json().await?;
                 next_link = json.odata_next_link();
-                yield response;
+                yield (url, status, headers, json);
             }
         }
     }
 
-    fn into_stream(self) -> GraphResult<impl Stream<Item = GraphResult<reqwest::Response>>> {
+    fn into_stream<'a, T>(
+        self,
+    ) -> GraphResult<impl Stream<Item = GraphResult<(reqwest::Url, StatusCode, HeaderMap, T)>> + 'a>
+    where
+        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a,
+    {
         Ok(stream! {
             let stream = self.try_stream();
             for await value in stream {
@@ -275,7 +354,12 @@ impl ResponseHandler {
     }
 
     /// Stream the current request along with any next link requests from the response body.
-    pub fn stream(self) -> GraphResult<impl Stream<Item = GraphResult<reqwest::Response>>> {
+    pub fn stream_next_links<'a, T>(
+        self,
+    ) -> GraphResult<impl Stream<Item = GraphResult<(reqwest::Url, StatusCode, HeaderMap, T)>> + 'a>
+    where
+        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a,
+    {
         if let Some(err) = self.error {
             return Err(GraphFailure::PreFlightError {
                 url: Some(self.request_components.to_reqwest_url()),
@@ -285,6 +369,48 @@ impl ResponseHandler {
         }
 
         Ok(Box::pin(self.into_stream()?))
+    }
+
+    pub async fn json_next_links<V>(
+        self,
+    ) -> GraphResult<
+        Vec<(
+            reqwest::Url,
+            StatusCode,
+            HeaderMap,
+            Vec<V>,
+            Option<GraphFailure>,
+        )>,
+    >
+    where
+        for<'de> V: serde::Deserialize<'de>,
+    {
+        if self.error.is_some() {
+            return Err(self.error.unwrap_or_default());
+        }
+
+        let mut next_link = None;
+        let mut values = vec![];
+
+        let request = self.default_request_builder();
+        let mut response = request.send().await?;
+        let next_value = map_next_link_response(response).await;
+        next_link = next_value.0;
+        values.push(next_value.1);
+
+        while let Some(url) = next_link {
+            let response = self
+                .inner
+                .get(url.as_str())
+                .bearer_auth(self.access_token.as_str())
+                .send()
+                .await?;
+            let next_value = map_next_link_response(response).await;
+            next_link = next_value.0;
+            values.push(next_value.1);
+        }
+
+        Ok(values)
     }
 }
 
@@ -303,5 +429,16 @@ impl AsRef<GraphUrl> for ResponseHandler {
 impl AsMut<GraphUrl> for ResponseHandler {
     fn as_mut(&mut self) -> &mut GraphUrl {
         self.request_components.as_mut()
+    }
+}
+
+impl From<(RequestComponents, &Client)> for ResponseHandler {
+    fn from(value: (RequestComponents, &Client)) -> Self {
+        ResponseHandler {
+            inner: value.1.inner.clone(),
+            access_token: value.1.access_token.clone(),
+            request_components: value.0,
+            error: None,
+        }
     }
 }

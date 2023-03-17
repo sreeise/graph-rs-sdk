@@ -1,9 +1,7 @@
 use crate::odata_query::ODataQuery;
 use crate::url::GraphUrl;
-use crate::RequestComponents;
 use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
-use reqwest::{Body, Method};
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::time::Duration;
@@ -165,46 +163,6 @@ impl Client {
     pub fn headers(&self) -> &HeaderMap {
         &self.headers
     }
-
-    pub fn default_builder(&self, method: Method, url: GraphUrl) -> reqwest::RequestBuilder {
-        self.inner
-            .request(method, url.to_reqwest_url())
-            .bearer_auth(self.access_token.as_str())
-    }
-
-    pub fn default_builder_with_body<T: Into<Body>>(
-        &self,
-        method: Method,
-        url: GraphUrl,
-        body: T,
-    ) -> reqwest::RequestBuilder {
-        self.inner
-            .request(method, url.to_reqwest_url())
-            .bearer_auth(self.access_token.as_str())
-            .body(body)
-    }
-
-    pub fn default_request_builder(
-        &self,
-        request_components: RequestComponents,
-    ) -> reqwest::RequestBuilder {
-        if let Some(body) = request_components.body {
-            self.inner
-                .request(
-                    request_components.method,
-                    request_components.url.to_reqwest_url(),
-                )
-                .bearer_auth(self.access_token.as_str())
-                .body(body)
-        } else {
-            self.inner
-                .request(
-                    request_components.method,
-                    request_components.url.to_reqwest_url(),
-                )
-                .bearer_auth(self.access_token.as_str())
-        }
-    }
 }
 
 impl Default for Client {
@@ -228,7 +186,7 @@ pub trait ApiClientImpl: ODataQuery + Sized {
         path_params_map: &serde_json::Value,
     ) -> GraphResult<GraphUrl> {
         let path = self.render_path(path.as_ref(), path_params_map)?;
-        let mut vec: Vec<&str> = path.split("/").collect();
+        let mut vec: Vec<&str> = path.split('/').collect();
         vec.retain(|s| !s.is_empty());
         let mut url = self.url();
         url.extend_path(&vec);
