@@ -240,9 +240,7 @@ impl OAuthTestClient {
         }
     }
 
-    pub fn graph_by_rid(
-        resource_identity: ResourceIdentity,
-    ) -> Option<(String, Graph<BlockingHttpClient>)> {
+    pub fn graph_by_rid(resource_identity: ResourceIdentity) -> Option<(String, Graph)> {
         let mut app_registration = OAuthTestClient::get_app_registration()?;
         let client = app_registration.get_by(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
@@ -256,19 +254,19 @@ impl OAuthTestClient {
 
     pub async fn graph_by_rid_async(
         resource_identity: ResourceIdentity,
-    ) -> Option<(String, Graph<AsyncHttpClient>)> {
+    ) -> Option<(String, Graph)> {
         let mut app_registration = OAuthTestClient::get_app_registration()?;
         let client = app_registration.get_by(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
 
         if let Some((id, token)) = test_client.get_access_token_async(credentials).await {
-            Some((id, Graph::new_async(token.bearer_token())))
+            Some((id, Graph::new(token.bearer_token())))
         } else {
             None
         }
     }
 
-    pub fn graph(&self) -> Option<(String, Graph<BlockingHttpClient>)> {
+    pub fn graph(&self) -> Option<(String, Graph)> {
         if let Some((id, token)) = self.request_access_token() {
             Some((id, Graph::new(token.bearer_token())))
         } else {
@@ -276,9 +274,17 @@ impl OAuthTestClient {
         }
     }
 
-    pub async fn graph_async(&self) -> Option<(String, Graph<AsyncHttpClient>)> {
+    pub async fn graph_v2(&self) -> Option<(String, Graph)> {
         if let Some((id, token)) = self.request_access_token_async().await {
-            Some((id, Graph::new_async(token.bearer_token())))
+            Some((id, Graph::new(token.bearer_token())))
+        } else {
+            None
+        }
+    }
+
+    pub async fn graph_async(&self) -> Option<(String, Graph)> {
+        if let Some((id, token)) = self.request_access_token_async().await {
+            Some((id, Graph::new(token.bearer_token())))
         } else {
             None
         }
