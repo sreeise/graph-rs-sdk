@@ -5,7 +5,7 @@ use crate::filter::Filter;
 use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
 use crate::openapi::{OpenApi, PathItem};
-use crate::parser::{HttpMethod, ParserSettings};
+use crate::parser::HttpMethod;
 use crate::traits::{FilterMetadata, HashMapExt, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
@@ -72,8 +72,8 @@ impl RequestMetadata {
     pub fn transform_secondary_id_request(&mut self, original_parent: &str) {
         if let Some(resource_identity) = self.resource_identity {
             let resource_id_string = resource_identity.exact_pascal_case();
-            self.operation_mapping = format!("{}Id", resource_id_string);
-            self.parent = format!("{}Id", resource_id_string);
+            self.operation_mapping = format!("{resource_id_string}Id");
+            self.parent = format!("{resource_id_string}Id");
             self.original_parent = resource_id_string.into();
         } else {
             self.parent = format!("{}Id", original_parent.to_pascal_case());
@@ -308,7 +308,6 @@ impl PathMetadata {
     pub fn transform_secondary_id_metadata(
         &mut self,
         operation_mapping: &str,
-        original_parent: &str,
         resource_identity: ResourceIdentity,
     ) {
         self.update_rid_path();
@@ -519,11 +518,7 @@ impl PathMetadataQueue {
         for path_metadata in self.0.iter_mut() {
             let id_path = format!("{}/{{{{id}}}}", path_start);
             if path_metadata.path_starts_with(&id_path) {
-                path_metadata.transform_secondary_id_metadata(
-                    operation_mapping,
-                    ri_exact_pascal_case.as_str(),
-                    resource_identity,
-                );
+                path_metadata.transform_secondary_id_metadata(operation_mapping, resource_identity);
             } else if path_metadata.path_starts_with(path_start) {
                 path_metadata.transform_secondary_metadata(
                     operation_mapping,
@@ -604,7 +599,7 @@ impl MacroImplWriter for PathMetadataQueue {
     }
 
     fn default_imports(&self) -> Vec<String> {
-        vec!["crate::client::Graph".to_string()]
+        vec![]
     }
 }
 
@@ -629,8 +624,6 @@ impl From<ResourceIdentity> for PathMetadataQueue {
             replace_operation_map: None,
             mod_file: None,
             parameter_filter: vec![],
-            mod_file_writer: None,
-            mod_write_override: None,
             children: vec![],
         })
     }

@@ -1,12 +1,9 @@
 use crate::api_types::ModifierMap;
 use crate::filter::{Filter, FilterIgnore};
+use crate::parser::{DirectoryModFile, RequestSet};
 use crate::settings::{get_custom_requests, get_target_map_modifier};
-use crate::{
-    builder::ClientLinkSettings,
-    parser::{DirectoryModFile, RequestSet},
-};
 use graph_core::resource::ResourceIdentity;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::HashMap;
 
 pub struct ParserSettings;
 

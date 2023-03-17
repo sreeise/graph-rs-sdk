@@ -150,13 +150,11 @@ impl RequestParser for &str {
             {
                 if let Some(capture_match) = capture.name("RESOURCE_NAME") {
                     let resource_name = capture_match.as_str();
-                    if !resource_name.is_empty() {
-                        if starts_with_directory_object_item {
-                            return format!(
-                                "get_directory_object_item_as_{}_type",
-                                resource_name.to_snake_case()
-                            );
-                        }
+                    if !resource_name.is_empty() && starts_with_directory_object_item {
+                        return format!(
+                            "get_directory_object_item_as_{}_type",
+                            resource_name.to_snake_case()
+                        );
                     }
                 }
             }

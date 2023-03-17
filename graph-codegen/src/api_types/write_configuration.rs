@@ -1,7 +1,6 @@
 use crate::api_types::{ModFile, ModFileWriter};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use inflector::Inflector;
 use std::convert::TryFrom;
 use std::io::{Read, Write};
 
@@ -58,10 +57,6 @@ pub struct WriteConfiguration {
 
     pub mod_file: Option<ModFile>,
 
-    pub mod_file_writer: Option<ModFileWriter>,
-
-    pub mod_write_override: Option<ModWriteConfiguration>,
-
     pub children: Vec<WriteConfiguration>,
 }
 
@@ -95,17 +90,6 @@ impl WriteConfiguration {
 
     pub fn implement_children_mods(&mut self) {
         if !self.children.is_empty() {
-            if let Some(mfw) = self.mod_file_writer.as_mut() {
-                let mods: Vec<String> = self
-                    .children
-                    .iter()
-                    .map(|wc| wc.mod_write_override.clone())
-                    .flatten()
-                    .map(|mwc| mwc.mod_name.to_string())
-                    .collect();
-                mfw.extend(mods);
-            }
-
             if let Some(mod_file) = self.mod_file.as_mut() {
                 let mods: Vec<String> = self
                     .children
@@ -116,7 +100,6 @@ impl WriteConfiguration {
                     ModFile::Declarations { file, declarations } => {
                         declarations.extend(mods);
                     }
-                    _ => {}
                 }
             }
         }

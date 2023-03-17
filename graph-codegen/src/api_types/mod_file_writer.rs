@@ -5,11 +5,9 @@ use graph_error::{GraphFailure, GraphResult};
 use graph_http::iotools::create_dir;
 use inflector::Inflector;
 use std::collections::HashSet;
-use std::fmt::format;
-use std::fs::{File, OpenOptions};
+use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
-use std::ptr::write_bytes;
 
 static BASE_MOD_DECLARATION: &str = "request";
 
@@ -23,7 +21,7 @@ pub enum ModFile {
 }
 
 impl ModFile {
-    pub fn format_declarations(declarations: &Vec<String>) -> BytesMut {
+    pub fn format_declarations(declarations: &[String]) -> BytesMut {
         let mut bytes = BytesMut::new();
 
         for mod_dec in declarations.iter() {

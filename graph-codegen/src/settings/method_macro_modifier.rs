@@ -15,18 +15,6 @@ pub enum GeneratedMacroType {
     Method(HttpMethod),
 }
 
-#[derive(
-    Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize, FromFile, AsFile,
-)]
-pub enum MacroModifierType {
-    FnName(String),
-    Path(String),
-    ParamSize(usize),
-    RequestTask(RequestTask),
-    FnNameAndPath(String, String),
-    Method(HttpMethod),
-}
-
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct MethodMacroModifier {
     pub matching: Vec<GeneratedMacroType>,
@@ -673,34 +661,32 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				update: GeneratedMacroType::FnName("get_section_groups_section_group"),
 			},
 		],
+		ResourceIdentity::MobileApps => vec![
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("graph", "/mobileApps/graph.managedMobileLobApp"),
+				],
+				update: GeneratedMacroType::FnName("get_mobile_app_items_as_managed_mobile_lob_app_type"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("graph", "/mobileApps/graph.managedMobileLobApp"),
+				],
+				update: GeneratedMacroType::FnName("get_mobile_app_items_as_mobile_lob_app_type"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("graph", "/mobileApps/{{RID}}/graph.managedMobileLobApp"),
+				],
+				update: GeneratedMacroType::FnName("get_mobile_app_item_as_managed_mobile_lob_app_type"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("graph", "/mobileApps/{{RID}}/graph.mobileLobApp"),
+				],
+				update: GeneratedMacroType::FnName("get_mobile_app_item_as_mobile_lob_app_type"),
+			},
+		],
 		_ => vec![],
 	}
 }
-/*
-/sectionGroups/{{RID}}/sectionGroups/{{id}}
-   get!(
-       doc: "Get the items of type microsoft.graph.appRoleAssignment in the microsoft.graph.directoryObject collection",
-       name: graph,
-       path: "/registeredDevices/graph.appRoleAssignment"
-   );
-   get!(
-       doc: "Get the number of the resource",
-       name: get_app_role_assignment_count,
-       path: "/registeredDevices/graph.appRoleAssignment/$count"
-   );
-   get!(
-       doc: "Get the items of type microsoft.graph.device in the microsoft.graph.directoryObject collection",
-       name: graph,
-       path: "/registeredDevices/graph.device"
-   );
-   get!(
-       doc: "Get the number of the resource",
-       name: get_device_count,
-       path: "/registeredDevices/graph.device/$count"
-   );
-   get!(
-       doc: "Get the items of type microsoft.graph.endpoint in the microsoft.graph.directoryObject collection",
-       name: graph,
-       path: "/registeredDevices/graph.endpoint"
-   );
-*/

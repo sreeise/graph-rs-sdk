@@ -111,7 +111,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Attachments => {
+        ResourceIdentity::UsersAttachments => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.calendar.events.ListAttachments".to_string()),
                 vec![
@@ -552,7 +552,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::GroupsConversations => {
+        ResourceIdentity::Conversations => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.ListConversations".to_string()),
                 vec![
@@ -846,7 +846,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Items => {
+        ResourceIdentity::SitesItems => {
             modify_target.map.insert(
                 MatchTarget::OperationId("sites.lists.ListItems".to_string()),
                 vec![
@@ -892,7 +892,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::ManagedDevices => {
+        ResourceIdentity::UsersManagedDevices => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetManagedDevices".to_string()),
                 vec![
@@ -1228,7 +1228,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
         ResourceIdentity::Policies => {
             modify_target.operation_map("policies.policyRoot", "policies");
         }
-        ResourceIdentity::GroupsThreadsPosts => {
+        ResourceIdentity::ThreadsPosts => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.threads.UpdatePosts".to_string()),
                 vec![
@@ -1400,7 +1400,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::GroupsThreads => {
+        ResourceIdentity::Threads => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.UpdateThreads".to_string()),
                 vec![

@@ -292,7 +292,7 @@ pub fn get_custom_requests(
                     doc: None,
                 },
             ],
-            ResourceIdentity::Items => vec![Request {
+            ResourceIdentity::SitesItems => vec![Request {
                 path: "/items/{{RID}}".into(),
                 method: HttpMethod::DELETE,
                 method_name: "delete_items".into(),
@@ -422,7 +422,7 @@ pub fn get_custom_requests(
                     doc: None,
                 },
             ],
-            ResourceIdentity::GroupsConversations => vec![Request {
+            ResourceIdentity::Conversations => vec![Request {
                 path: "/conversations/{{RID}}".into(),
                 method: HttpMethod::DELETE,
                 method_name: "delete_conversations".into(),
@@ -494,7 +494,7 @@ pub fn get_custom_requests(
                 operation_mapping: "childFolders".into(),
                 doc: None,
             }],
-            ResourceIdentity::Attachments => vec![Request {
+            ResourceIdentity::UsersAttachments => vec![Request {
                 path: "/attachments/{{RID}}/$value".into(),
                 method: HttpMethod::GET,
                 method_name: "get_content".into(),

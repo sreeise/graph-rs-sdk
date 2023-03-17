@@ -11,14 +11,12 @@ use std::io::{Read, Write};
 ///
 /// # Example Macro
 /// ```rust,ignore
-/// get!({
-///     doc: "# Get historyItems from me",
+/// get!(
+///     doc: "Get historyItems from me",
 ///     name: get_activity_history,
-///     response: serde_json::Value,
 ///     path: "/activities/{{id}}/historyItems/{{id1}}}",
-///     params: [ user_activity_id history_items_id ],
-///     has_body: false
-/// });
+///     params: user_activity_id, history_items_id
+/// );
 /// ```
 #[derive(
     Default, Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize, FromFile, AsFile,

@@ -58,7 +58,7 @@ pub use xml::*;
 
 use crate::api_types::{PathMetadata, WriteConfiguration};
 use crate::macros::OpenApiParser;
-use crate::traits::{FilterPath, RequestParser};
+use crate::traits::RequestParser;
 use from_as::*;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
@@ -66,7 +66,7 @@ use inflector::Inflector;
 use rayon::prelude::*;
 use reqwest::Url;
 use serde_json::Value;
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap};
 use std::{
     collections::{BTreeMap, VecDeque},
     convert::TryFrom,
@@ -74,7 +74,7 @@ use std::{
 };
 
 static MS_GRAPH_METADATA_URL: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml";
-static MS_GRAPH_BETA_METADATA_URL: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/beta/openapi.yaml";
+// static MS_GRAPH_BETA_METADATA_URL: &str = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/beta/openapi.yaml";
 
 /// [OpenAPI Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#oasObject)
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -138,8 +138,8 @@ pub struct OpenApi {
     /// tools. Not all tags that are used by the Operation Object must be
     /// declared. The tags that are not declared MAY be organized randomly
     /// or based on the tools' logic. Each tag name in the list MUST be unique.
-    //#[serde(skip_serializing_if = "Option::is_none")]
-    //pub tags: Option<Tag>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tags: Option<serde_json::Value>,
 
     /// Additional external documentation.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -151,6 +151,7 @@ impl OpenApi {
         &self.paths
     }
 
+    /// Filter paths based on path.starts_with(pat)
     pub fn filter_path(&self, pat: &str) -> BTreeMap<String, PathItem> {
         self.paths
             .clone()
@@ -159,6 +160,7 @@ impl OpenApi {
             .collect()
     }
 
+    /// Filter paths based on path.contains(pat)
     pub fn filter_path_contains(&self, pat: &str) -> BTreeMap<String, PathItem> {
         self.paths
             .clone()
@@ -209,7 +211,7 @@ impl OpenApi {
             .collect()
     }
 
-    pub fn filter_replace_path(&mut self, pat: &str) {
+    pub fn filter_and_set_paths(&mut self, pat: &str) {
         self.paths = self.filter_path(pat);
     }
 
@@ -306,7 +308,7 @@ impl OpenApi {
     /// This method will ignore and filter out any parts of paths used for insertions such as
     /// - `{id}` in `/resource/{id}`,
     /// - Any parts of paths that have the following chars: ['{', '(', '.', '$'] such as $count and microsoft.graph
-    /// - Any second level resource that does not appear greater than or equal to 3 times
+    /// - Any second level resource that does not appear greater than or equal to 5 times
     ///
     /// # Example
     /// ```rust
@@ -327,12 +329,11 @@ impl OpenApi {
 
         let paths = self.filter_path(pat.as_str());
         let mut set: BTreeSet<String> = BTreeSet::new();
-        let mut set_empty: BTreeSet<String> = BTreeSet::new();
         let mut frequency: HashMap<String, i64> = HashMap::new();
 
         for (path, _) in paths.iter() {
             let p = path.replace("{group-id}/", "");
-            let mut path_arr: VecDeque<String> = p
+            let path_arr: VecDeque<String> = p
                 .split('/')
                 .filter(|s| !s.trim().is_empty())
                 .filter(|s| !s.contains(['{', '(', '.', '$']))
@@ -342,12 +343,12 @@ impl OpenApi {
             if path_arr.len() > 1 {
                 frequency
                     .entry(path_arr[1].to_string())
-                    .and_modify(|mut i| *i += 1)
+                    .and_modify(|i| *i += 1)
                     .or_insert(1);
             }
 
             for (key, value) in frequency.iter() {
-                if *value >= 3 {
+                if *value >= 5 {
                     set.insert(key.to_string());
                 }
             }
@@ -419,12 +420,6 @@ impl AsMut<BTreeMap<String, PathItem>> for OpenApi {
     }
 }
 
-impl FilterPath for OpenApi {
-    fn paths(&self) -> BTreeMap<String, PathItem> {
-        self.paths.clone()
-    }
-}
-
 impl OpenApiParser for OpenApi {}
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile)]
@@ -443,9 +438,9 @@ impl OpenApiRaw {
             .collect()
     }
 
-    pub fn path_filter(&mut self, path_start: &str, key_map: Vec<String>) {
-        let mut schema = self.open_api["paths"].clone();
-        let mut schema_map = schema.as_object().unwrap().clone();
+    pub fn path_filter(&mut self) {
+        let schema = self.open_api["paths"].clone();
+        let schema_map = schema.as_object().unwrap().clone();
         self.open_api["paths"] = serde_json::to_value(schema_map).unwrap();
     }
 

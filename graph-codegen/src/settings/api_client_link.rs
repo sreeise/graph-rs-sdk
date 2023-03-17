@@ -1,10 +1,9 @@
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use std::fmt::format;
 use std::io::{Read, Write};
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
-pub struct ApiClientLinkSetting(pub Option<String>, pub Vec<ApiClientLink>);
+pub struct ApiClientLinkSettings(pub Option<String>, pub Vec<ApiClientLink>);
 
 #[derive(
     Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash, Ord, PartialOrd,

@@ -63,26 +63,3 @@ pub struct Components {
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     pub path_items: HashMap<String, EitherT<PathItem, Reference>>,
 }
-
-impl Components {
-    pub fn filter_schemas(&mut self, keys: &[&'static str]) {
-        let key_map: Vec<String> = keys.iter().map(|s| s.to_string()).collect();
-        let map: HashMap<String, Schema> = HashMap::new();
-
-        self.schemas.retain(|n, _| key_map.contains(n));
-
-        /*
-        let mut schemas = self.schemas.clone();
-
-
-        for (name, schema) in schemas.iter() {
-            println!("Checking {:#?}", name);
-            let contains_key = self.schemas.contains_key(name);
-            if contains_key {
-                println!("Dropping {:#?}", name);
-
-            }
-        }
-         */
-    }
-}

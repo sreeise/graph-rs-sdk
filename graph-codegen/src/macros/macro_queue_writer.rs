@@ -3,22 +3,17 @@ use crate::api_types::{
     RequestTask,
 };
 use crate::api_types::{ModWriteConfiguration, WriteConfiguration};
-use crate::builder::ClientLinkSettings;
 use crate::inflector::Inflector;
 use crate::openapi::OpenApi;
-use crate::parser::ParserSettings;
 use crate::settings::{get_method_macro_modifiers, ResourceSettings};
 use anyhow::anyhow;
 use bytes::{BufMut, BytesMut};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use graph_error::GraphFailure;
 use graph_http::iotools::create_dir;
-use rayon::prelude::*;
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
-use std::error::Error;
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::fmt::Debug;
 use std::fmt::Write as _;
-use std::fmt::{format, Debug};
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
@@ -190,7 +185,6 @@ pub trait MacroQueueWriter {
             buf.put(format!("\n\t{}!(", method_macro.macro_fn_name).as_bytes());
             buf.put(doc.as_bytes());
             buf.put(format!("\n\t\tname: {}", method_macro.fn_name).as_bytes());
-
             buf.put(format!(",\n\t\tpath: \"{}\"", method_macro.path).as_bytes());
 
             if method_macro.has_body {
@@ -266,26 +260,6 @@ pub trait MacroImplWriter {
     fn path_metadata_map(&self) -> BTreeMap<String, VecDeque<Self::Metadata>>;
 
     fn default_imports(&self) -> Vec<String>;
-
-    /*
-    fn path_metadata_map(&self) -> BTreeMap<String, VecDeque<Self::Metadata>> {
-        let metadata = self.path_metadata_queue();
-        let mut path_metadata_map: BTreeMap<String, VecDeque<Self::Metadata>> = BTreeMap::new();
-
-        for m in metadata {
-            path_metadata_map.entry(m.parent())
-                .and_modify(|vec| {
-                    vec.push_back(m.clone());
-                })
-                .or_insert_with(|| {
-                    let mut v = VecDeque::new();
-                    v.push_back(m.clone());
-                    v
-                });
-        }
-        path_metadata_map
-    }
-     */
 
     fn id_method(&self, struct_name: String, resource_identity: ResourceIdentity) -> String {
         format!(
@@ -367,6 +341,7 @@ pub trait MacroImplWriter {
             .unwrap()
     }
 
+    /// Creates the bytes for the api client being generated.
     fn get_impl_bytes(&self) -> anyhow::Result<BytesMut> {
         let mut v = BTreeSet::new();
         let mut buf = BytesMut::new();
@@ -375,7 +350,7 @@ pub trait MacroImplWriter {
         let keys: Vec<_> = path_metadata_map.keys().cloned().collect();
         let values: Vec<_> = path_metadata_map.values().cloned().collect();
 
-        dbg!(&keys);
+        //dbg!(&keys);
 
         for path_metadata_queue in values.iter() {
             let current_imports: Vec<String> = path_metadata_queue
@@ -388,10 +363,21 @@ pub trait MacroImplWriter {
         let ris: VecDeque<(String, ResourceIdentity)> = keys
             .iter()
             .map(|key| {
-                (
-                    key.to_pascal_case(),
-                    ResourceIdentity::from_str(&key.to_camel_case().replace("Id", "")).unwrap(),
-                )
+                let key_id = key.to_pascal_case();
+                if key_id.ends_with("Id") {
+                    let key_id_stripped = key.to_camel_case()[..key.len() - 2].to_string();
+                    (
+                        key_id.clone(),
+                        ResourceIdentity::from_str(key_id_stripped.as_str())
+                            .expect(&format!("Unable to find variant for {key_id}")),
+                    )
+                } else {
+                    (
+                        key_id.clone(),
+                        ResourceIdentity::from_str(&key.to_camel_case())
+                            .expect(&format!("Unable to find variant for {key_id}")),
+                    )
+                }
             })
             .collect();
 
@@ -422,7 +408,7 @@ pub trait MacroImplWriter {
             let client_name = format!("{}ApiClient", name.to_pascal_case());
             if client_name.contains("Id") {
                 let mut method_name = name.to_snake_case();
-                if method_name.ends_with("s_id") {
+                if method_name.ends_with("s_id") && !method_name.ends_with("es_id") {
                     method_name = method_name.replacen("s_id", "", 1);
                 }
                 v.insert(format!(
@@ -445,8 +431,6 @@ pub trait MacroImplWriter {
                 client_names.join("")
             }
         };
-
-        //println!("client_impl_string? {:#?}", client_impl_string);
 
         if keys.is_empty() || client_impl_string.is_empty() {
             dbg!("Missing keys for client impl.");
@@ -502,7 +486,7 @@ pub trait MacroImplWriter {
         }
 
         for api_client_link in v.iter() {
-            println!("Suggested Client Links To Use:\n{}", api_client_link);
+            println!("{}", api_client_link);
         }
 
         Ok(buf)
@@ -553,7 +537,6 @@ pub trait MacroImplWriter {
             ModFile::Declarations { file, declarations } => {
                 if let Ok(mut buf) = self.get_impl_bytes() {
                     let request_file = file.replace("mod.rs", "request.rs");
-                    //println!("Request file: {:#?}", request_file);
                     let mut f = OpenOptions::new()
                         .write(true)
                         .truncate(true)
@@ -563,17 +546,10 @@ pub trait MacroImplWriter {
 
                     f.write_all(buf.as_mut()).unwrap();
                     f.sync_data().unwrap();
-                    //println!("\nDone")
                 }
             }
-            _ => {}
         }
     }
-}
-
-struct ParIterWrite {
-    open_api: OpenApi,
-    write_configuration: WriteConfiguration,
 }
 
 pub trait OpenApiParser {
@@ -590,13 +566,21 @@ pub trait OpenApiParser {
 
         let open_api = OpenApi::default();
 
-        let mut par_iter_writes: Vec<ParIterWrite> = Vec::new();
         for write_config in write_configuration.children.iter() {
             let mut open_api2 = open_api.clone();
 
-            if let Some(start_path) = write_config.trim_path_start.as_ref() {
-                open_api2.paths = open_api2.filter_path(start_path);
-                open_api2.paths = open_api2.filter_path_contains(&write_configuration.path);
+            if let Some(trim_path_start) = write_config.trim_path_start.as_ref() {
+                open_api2.paths = open_api2.filter_path(trim_path_start.as_str());
+            }
+
+            for path in write_config.filter_path.iter() {
+                open_api2.paths = open_api2.filter_path_not_contains(path.as_str());
+            }
+
+            if write_config.resource_identity == ResourceIdentity::TermStoreSetsChildren {
+                for (path, _path_item) in open_api2.paths.iter() {
+                    println!("{path:#?}");
+                }
             }
             OpenApi::write_using(write_config.clone(), &open_api2);
         }
@@ -604,19 +588,16 @@ pub trait OpenApiParser {
         let mut open_api2 = open_api.clone();
         open_api2.paths = open_api2.filter_path_contains(&write_configuration.path);
         let metadata_queue = PathMetadataQueue::from((write_configuration.clone(), &open_api2));
-        dbg!(&metadata_queue);
 
-        if let Some(mod_write_configuration) = write_configuration.mod_write_override.as_ref() {
-            metadata_queue.write_impl_override(mod_write_configuration.clone());
-            // dbg!(mod_write_configuration);
-        } else if let Some(mod_file) = write_configuration.mod_file.as_ref() {
+        // Uncomment to see the metadata generated or open the directory
+        // graph-codegen/src/parsed_metadata and look for the generated metadata file
+        // These files are ignored when pushing to GitHub.
+        //dbg!(&metadata_queue);
+
+        if let Some(mod_file) = write_configuration.mod_file.as_ref() {
             metadata_queue.write_mod_file(mod_file);
         } else {
             metadata_queue.write_impl(name.as_str());
-        }
-
-        if let Some(mod_file_writer) = write_configuration.mod_file_writer.as_ref() {
-            mod_file_writer.write();
         }
 
         let metadata_file = format!(
@@ -648,19 +629,12 @@ pub trait OpenApiParser {
         write_configuration.implement_children_mods();
 
         let metadata_queue = PathMetadataQueue::from((write_configuration.clone(), open_api));
-        dbg!(&metadata_queue);
+        //dbg!(&metadata_queue);
 
-        if let Some(mod_write_configuration) = write_configuration.mod_write_override.as_ref() {
-            metadata_queue.write_impl_override(mod_write_configuration.clone());
-            // dbg!(mod_write_configuration);
-        } else if let Some(mod_file) = write_configuration.mod_file.as_ref() {
+        if let Some(mod_file) = write_configuration.mod_file.as_ref() {
             metadata_queue.write_mod_file(mod_file);
         } else {
             metadata_queue.write_impl(name.as_str());
-        }
-
-        if let Some(mod_file_writer) = write_configuration.mod_file_writer.as_ref() {
-            mod_file_writer.write();
         }
 
         let metadata_file = format!(
