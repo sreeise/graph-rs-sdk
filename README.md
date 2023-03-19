@@ -31,6 +31,13 @@ config but in general most of them are implemented.
 
 The client supports both blocking and async requests.
 
+### Cargo Feature Flags
+
+- `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
+- `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
+
+Default features: `default=["native-tls"]`
+
 ### Blocking Client
 
 To use the blocking client
