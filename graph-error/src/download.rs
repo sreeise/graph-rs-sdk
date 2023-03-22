@@ -1,5 +1,5 @@
 use crate::ioerror::{AsyncIoError, ThreadedIoError};
-use crate::GraphError;
+use crate::{GraphError, GraphFailure};
 
 #[derive(Debug, thiserror::Error)]
 #[allow(clippy::large_enum_variant)]

@@ -5,14 +5,14 @@ use serde::Deserialize;
 use serde::Serialize;
 use test_tools::oauthrequest::OAuthTestClient;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserResponse {
     #[serde(rename = "@odata.nextLink")]
     next_link: Option<String>,
     value: Vec<User>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
     pub(crate) id: Option<String>,
     #[serde(rename = "userPrincipalName")]
@@ -34,7 +34,6 @@ pub struct LicenseDetail {
 
 #[tokio::test]
 async fn buffered_requests() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let mut stream = client
             .users()
@@ -44,29 +43,28 @@ async fn buffered_requests() {
             .stream_next_links::<UserResponse>()
             .unwrap();
 
-        let mut users1: Vec<UserResponse> = Vec::new();
-        while let Some(Ok(body)) = stream.next().await {
-            users1.push(body);
-        }
-        dbg!(&users1);
-        /*
-        let users: Vec<String> = users1
-            .iter()
-            .filter_map(|user| user.id.clone())
-            .collect();
-         */
+        let mut users: Vec<String> = Vec::new();
+        while let Some(Ok(user_response)) = stream.next().await {
+            dbg!(&user_response);
+            let body = user_response.into_body();
 
-        assert!(!users1.is_empty());
+            users.extend(
+                body.iter()
+                    .flat_map(|user| user.value.clone())
+                    .flat_map(|user| user.id.clone()),
+            );
+        }
+
+        assert!(!users.is_empty());
 
         let mut stream = stream::iter(users)
             .map(|i| async {
-                let license_details: Vec<LicenseDetail> = client
-                    .v1()
+                let license_details = client
                     .users()
                     .id(i)
+                    .license_details()
                     .list_license_details()
-                    .paging()
-                    .json()
+                    .json_next_links::<LicenseDetail>()
                     .await
                     .unwrap();
 
@@ -74,8 +72,15 @@ async fn buffered_requests() {
             })
             .buffered(5);
 
-        while let Some(license_detail) = stream.next().await {
-            assert_eq!(license_detail.status(), 200);
+        while let Some(vec) = stream.next().await {
+            for next_link_response in vec {
+                if let Some(err) = next_link_response.err() {
+                    panic!("Error: {err:#?}");
+                }
+
+                assert!(next_link_response.is_success());
+                assert!(!next_link_response.into_body().is_empty());
+            }
         }
     }
 }

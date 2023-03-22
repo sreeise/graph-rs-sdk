@@ -1,10 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::drives::{
-    DrivesItemsApiClient, DrivesItemsIdApiClient, DrivesListContentTypesApiClient,
-    DrivesListContentTypesIdApiClient,
-};
+use crate::drives::*;
 
 resource_api_client!(DrivesListApiClient, ResourceIdentity::DrivesList);
 

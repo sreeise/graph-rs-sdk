@@ -3,6 +3,8 @@
 use crate::agreement_acceptances::*;
 use crate::api_default_imports::*;
 use crate::chats::*;
+use crate::default_drive::*;
+use crate::drives::*;
 use crate::oauth2_permission_grants::*;
 use crate::planner::*;
 use crate::users::*;
@@ -129,6 +131,9 @@ impl UsersIdApiClient {
     api_client_link_id!(agreement_acceptance, AgreementAcceptancesIdApiClient);
     api_client_link!(todo, TodoApiClient);
     api_client_link!(settings, SettingsApiClient);
+    api_client_link!(drives, DrivesApiClient);
+    api_client_link_id!(drive, DrivesIdApiClient);
+    api_client_link!(default_drive, DefaultDriveApiClient);
 
     delete!(
         doc: "Delete a user",

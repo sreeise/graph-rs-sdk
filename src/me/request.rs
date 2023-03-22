@@ -3,8 +3,8 @@
 use crate::agreement_acceptances::*;
 use crate::api_default_imports::*;
 use crate::chats::*;
-use crate::drive::DefaultDriveApiClient;
-use crate::drives::{DrivesApiClient, DrivesIdApiClient};
+use crate::default_drive::*;
+use crate::drives::*;
 use crate::oauth2_permission_grants::*;
 use crate::planner::*;
 use crate::teams::*;
@@ -95,6 +95,7 @@ impl MeApiClient {
     api_client_link!(default_drive, DefaultDriveApiClient);
     api_client_link_id!(drive, DrivesIdApiClient);
     api_client_link!(drives, DrivesApiClient);
+    api_client_link!(mailbox_settings, MailboxSettingsApiClient);
 
     get!(
         doc: "List manager",

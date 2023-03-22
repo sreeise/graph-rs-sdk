@@ -1,4 +1,6 @@
+use graph_error::WithGraphErrorAsync;
 use graph_http::NextSession;
+use reqwest::header::{HeaderValue, CONTENT_LENGTH, CONTENT_TYPE};
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::ffi::OsString;
@@ -12,106 +14,128 @@ use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 use test_tools::support::cleanup::CleanUp;
 
-fn test_folder_create_delete(folder_name: &str) {
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+async fn test_folder_create_delete(folder_name: &str) {
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let folder: HashMap<String, serde_json::Value> = HashMap::new();
         let result = client
-            .v1()
-            .drive(&id)
+            .drive(id.as_str())
             .create_root_folder(&serde_json::json!({
                 "name": folder_name,
                 "folder": folder,
                 "@microsoft.graph.conflictBehavior": "fail"
             }))
-            .send();
+            .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+            .send()
+            .await;
 
         if let Ok(response) = result {
-            assert!(
-                response.status() == 200 || response.status() == 201 || response.status() == 204
-            );
-            let item_id = response.body()["id"].as_str().unwrap();
+            dbg!(&response);
+            assert!(response.status().is_success());
+
+            let body: serde_json::Value = response.json().await.unwrap();
+            let item_id = body["id"].as_str().unwrap();
             thread::sleep(Duration::from_secs(2));
 
-            let result = client.v1().drive(&id).delete_items(item_id).send();
-
-            TestTools::assert_success(&result, "delete folder (conflict behavior: fail)");
+            let response = client
+                .v1()
+                .drive(&id)
+                .item(item_id)
+                .delete_items()
+                .send()
+                .await
+                .unwrap();
+            assert!(response.status().is_success());
         } else if let Err(e) = result {
             panic!("Request error. Method: create folder with encoding. Path: root\nFolder Name: {:#?}\nError: {:#?}", folder_name, e);
         }
     }
 }
 
-#[test]
-fn create_delete_folder() {
+#[tokio::test]
+async fn create_delete_folder() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    test_folder_create_delete("ci_docs");
+    std::env::set_var("GRAPH_TEST_ENV", "true");
+    test_folder_create_delete("ci_docs").await;
 }
 
-#[test]
-fn create_delete_folder_path_encode() {
+#[tokio::test]
+async fn create_delete_folder_path_encode() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    test_folder_create_delete("special folder");
+    std::env::set_var("GRAPH_TEST_ENV", "true");
+    test_folder_create_delete("special folder").await;
 }
 
-#[test]
-fn list_versions_get_item() {
+#[tokio::test]
+async fn list_versions_get_item() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let get_item_res = client
-            .v1()
             .user(id.as_str())
-            .drive()
-            .get_items(":/copy_folder:")
-            .send();
+            .default_drive()
+            .item_by_path(":/copy_folder:")
+            .get_items()
+            .send()
+            .await;
 
         if let Ok(res) = get_item_res {
-            assert!(res.body()["id"].as_str().is_some());
-            let item_id = res.body()["id"].as_str().unwrap();
+            //let res = res.with_graph_error().await.unwrap();
+            dbg!(&res);
+            let body: serde_json::Value = res.json().await.unwrap();
+            assert!(body["id"].as_str().is_some());
+            let item_id = body["id"].as_str().unwrap();
 
-            let versions_res = client
-                .v1()
+            let response = client
                 .user(id.as_str())
-                .drive()
-                .list_item_versions(item_id)
-                .send();
+                .default_drive()
+                .item(item_id)
+                .list_versions()
+                .send()
+                .await
+                .unwrap();
 
-            TestTools::assert_success(&versions_res, "list version");
+            assert!(response.status().is_success());
         } else if let Err(e) = get_item_res {
             panic!("Request Error. Method: drive get_item. Error: {:#?}", e);
         }
     }
 }
 
-#[test]
-fn drive_check_in_out() {
+#[tokio::test]
+async fn drive_check_in_out() {
+    std::env::set_var("GRAPH_TEST_ENV", "true");
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
     if Environment::is_local() {
-        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let result = client
-                .v1()
                 .drive(id.as_str())
-                .check_out_item(":/test_check_out_document.docx:")
-                .send();
+                .item_by_path(":/test_check_out_document.docx:")
+                .checkout()
+                .header(CONTENT_LENGTH, HeaderValue::from(0))
+                .send()
+                .await;
 
-            TestTools::assert_success(&result, "check_out");
+            dbg!(&result);
+            let response = result.unwrap();
+            assert!(response.status().is_success());
+            tokio::time::sleep(Duration::from_secs(3)).await;
 
-            thread::sleep(Duration::from_secs(2));
-            let result = client
-                .v1()
+            let response = client
                 .drive(id.as_str())
-                .check_in_item(
-                    ":/test_check_out_document.docx:",
-                    &serde_json::json!({
-                        "comment": "test check in",
-                    }),
-                )
-                .send();
+                .item_by_path(":/test_check_out_document.docx:")
+                .checkin(&serde_json::json!({
+                    "comment": "test check in",
+                }))
+                .send()
+                .await
+                .unwrap();
 
-            TestTools::assert_success(&result, "check_in");
+            dbg!(&response);
+
+            assert!(response.status().is_success());
         }
     }
 }
-
+/*
 #[test]
 fn drive_download() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
@@ -376,3 +400,5 @@ pub fn get_drive_base() {
         }
     }
 }
+
+ */

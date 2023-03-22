@@ -82,6 +82,7 @@ macro_rules! api_client_link {
                     .extend_path(&[resource_config.resource_identity.to_string()]);
             }
 
+            resource_config.resource_identity_id = None;
             resource_config.resource_identity = resource_identity;
             <$return_type>::new(self.client.clone(), resource_config, Handlebars::new())
         }
@@ -102,6 +103,7 @@ macro_rules! api_client_link {
                     .extend_path(&[resource_config.resource_identity.to_string()]);
             }
 
+            resource_config.resource_identity_id = None;
             resource_config.resource_identity = $resource_identity;
             <$return_type>::new(self.client.clone(), resource_config, Handlebars::new())
         }
@@ -121,6 +123,7 @@ macro_rules! api_client_link {
                     .extend_path(&[$resource_path.to_string()]);
             }
 
+            resource_config.resource_identity_id = None;
             resource_config.resource_identity = $resource_identity;
             <$return_type>::new(self.client.clone(), resource_config, Handlebars::new())
         }

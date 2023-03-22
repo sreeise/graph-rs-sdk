@@ -1,4 +1,4 @@
-use crate::{GraphHeaders, GraphResult};
+use crate::{GraphFailure, GraphHeaders, GraphResult};
 use async_trait::async_trait;
 use reqwest::StatusCode;
 use serde::Serialize;
@@ -266,20 +266,20 @@ impl ToString for ErrorType {
 }
 
 pub trait WithGraphError: Sized {
-    fn with_graph_error(self) -> Result<Self, GraphError>;
+    fn with_graph_error(self) -> GraphResult<Self>;
 }
 
 impl WithGraphError for reqwest::blocking::Response {
-    fn with_graph_error(self) -> Result<Self, GraphError> {
+    fn with_graph_error(self) -> GraphResult<Self> {
         let code = self.status();
         if code.is_client_error() || code.is_server_error() {
             let headers = Some(GraphHeaders::from(&self));
             let error_message = self.json().unwrap_or_default();
-            Err(GraphError {
+            Err(GraphFailure::GraphError(GraphError {
                 headers,
                 code,
                 error_message,
-            })
+            }))
         } else {
             Ok(self)
         }
@@ -287,21 +287,21 @@ impl WithGraphError for reqwest::blocking::Response {
 }
 #[async_trait]
 pub trait WithGraphErrorAsync: Sized {
-    async fn with_graph_error(self) -> Result<Self, GraphError>;
+    async fn with_graph_error(self) -> GraphResult<Self>;
 }
 
 #[async_trait]
 impl WithGraphErrorAsync for reqwest::Response {
-    async fn with_graph_error(self) -> Result<Self, GraphError> {
+    async fn with_graph_error(self) -> GraphResult<Self> {
         let code = self.status();
         if code.is_client_error() || code.is_server_error() {
             let headers = Some(GraphHeaders::from(&self));
             let error_message = self.json().await.unwrap_or_default();
-            Err(GraphError {
+            Err(GraphFailure::GraphError(GraphError {
                 headers,
                 code,
                 error_message,
-            })
+            }))
         } else {
             Ok(self)
         }

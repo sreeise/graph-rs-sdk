@@ -4,7 +4,7 @@ use crate::iotools;
 use crate::url::GraphUrl;
 use crate::{HttpClient, RequestClient, RequestType};
 use graph_error::download::{AsyncDownloadError, BlockingDownloadError};
-use graph_error::{WithGraphError, WithGraphErrorAsync};
+use graph_error::{GraphFailure, WithGraphError, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
 use reqwest::RequestBuilder;
 use std::cell::RefCell;
@@ -67,6 +67,7 @@ impl DownloadRequest {
     }
 }
 
+/*
 /// Provides an abstraction for downloading files.
 pub struct DownloadClient<Client, Request> {
     client: Client,
@@ -190,6 +191,8 @@ impl BlockingDownload {
     }
 }
 
+ */
+/*
 impl AsyncDownload {
     pub fn new_async(client: AsyncClient) -> AsyncDownload {
         let path = client.download_dir.clone().unwrap();
@@ -322,3 +325,5 @@ impl AsyncDownload {
         Ok(iotools::copy_async(path, response).await?)
     }
 }
+
+ */

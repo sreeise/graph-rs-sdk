@@ -1,4 +1,5 @@
 use crate::api_types::{ModFile, ModFileWriter};
+use crate::settings::{ApiClientLinkSettings, ResourceSettings};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use std::convert::TryFrom;
@@ -11,12 +12,10 @@ pub struct ModWriteConfiguration {
     pub mod_name: String,
 }
 
-#[derive(
-    Builder, Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile,
-)]
+#[derive(Builder, Debug, Default, Clone, Eq, PartialEq, Serialize, AsFile)]
 #[builder(
     pattern = "mutable",
-    derive(Debug, Eq, PartialEq, Serialize, Deserialize),
+    derive(Debug, Eq, PartialEq, Serialize),
     setter(into, strip_option),
     default
 )]
@@ -41,7 +40,7 @@ pub struct WriteConfiguration {
     /// trimmed from the path.
     pub trim_path_start: Option<String>,
 
-    pub filter_path: Vec<String>,
+    pub filter_path: Vec<&'static str>,
 
     /// Replace the name in the metadata. The operation name is typically how
     /// a given resource is identified and tells us what api client struct
@@ -56,6 +55,10 @@ pub struct WriteConfiguration {
     pub parameter_filter: Vec<String>,
 
     pub mod_file: Option<ModFile>,
+
+    pub imports: Vec<&'static str>,
+
+    pub api_client_links: Vec<ApiClientLinkSettings>,
 
     pub children: Vec<WriteConfiguration>,
 }

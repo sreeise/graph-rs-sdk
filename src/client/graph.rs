@@ -31,6 +31,7 @@ use crate::client::ResourceProvisioner;
 use crate::communications::CommunicationsApiClient;
 use crate::contracts::{ContractsApiClient, ContractsIdApiClient};
 use crate::data_policy_operations::DataPolicyOperationsApiClient;
+use crate::default_drive::DefaultDriveApiClient;
 use crate::device_app_management::DeviceAppManagementApiClient;
 use crate::device_management::DeviceManagementApiClient;
 use crate::directory::DirectoryApiClient;
@@ -41,7 +42,6 @@ use crate::directory_role_templates::{
 use crate::directory_roles::{DirectoryRolesApiClient, DirectoryRolesIdApiClient};
 use crate::domain_dns_records::{DomainDnsRecordsApiClient, DomainDnsRecordsIdApiClient};
 use crate::domains::{DomainsApiClient, DomainsIdApiClient};
-use crate::drive::DefaultDriveApiClient;
 use crate::drives::{DrivesApiClient, DrivesIdApiClient};
 use crate::education::EducationApiClient;
 use crate::group_lifecycle_policies::{

@@ -1,7 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::drives::{DrivesItemsApiClient, DrivesItemsIdApiClient, DrivesListApiClient};
+use crate::drives::*;
 
 resource_api_client!(DrivesApiClient, DrivesIdApiClient, ResourceIdentity::Drives);
 
@@ -26,6 +26,7 @@ impl DrivesApiClient {
 
 impl DrivesIdApiClient {
     api_client_link_id!(item, DrivesItemsIdApiClient);
+    api_client_link_id!(item_by_path, DrivesItemsPathIdApiClient);
     api_client_link!(items, DrivesItemsApiClient);
     api_client_link_id!(list, DrivesListApiClient);
 

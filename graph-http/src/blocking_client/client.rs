@@ -1,4 +1,3 @@
-use crate::download::{BlockingDownload, DownloadClient};
 use crate::upload_session::UploadSessionClient;
 use crate::url::GraphUrl;
 use crate::{
@@ -55,11 +54,13 @@ impl BlockingClient {
         &mut self.client
     }
 
+    /*
     pub fn download(&mut self) -> BlockingDownload {
         let request = self.clone();
         DownloadClient::new(request)
     }
 
+     */
     pub fn upload_session(&mut self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         let file = self
             .upload_session_file
@@ -171,10 +172,12 @@ impl HttpClient<RefCell<BlockingClient>> {
         }
     }
 
+    /*
     pub fn download(&self) -> BlockingDownload {
         self.client.borrow_mut().download()
     }
 
+    */
     pub fn upload_session(&self) -> GraphResult<UploadSessionClient<BlockingHttpClient>> {
         self.client.borrow_mut().upload_session()
     }

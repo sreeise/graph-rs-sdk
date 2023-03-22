@@ -3,7 +3,7 @@ use graph_core::resource::ResourceIdentity;
 use std::io::{Read, Write};
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
-pub struct ApiClientLinkSettings(pub Option<String>, pub Vec<ApiClientLink>);
+pub struct ApiClientLinkSettings(pub Option<&'static str>, pub Vec<ApiClientLink>);
 
 #[derive(
     Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash, Ord, PartialOrd,
@@ -13,8 +13,8 @@ pub enum ApiClientLink {
     Resource(String, String, ResourceIdentity),
     ResourceId(String, String, ResourceIdentity),
     // Macros that won't be formatted with a ResourceIdentity.
-    Struct(String, String),
-    StructId(String, String),
+    Struct(&'static str, &'static str),
+    StructId(&'static str, &'static str),
 }
 
 impl ApiClientLink {

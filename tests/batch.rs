@@ -1,3 +1,4 @@
+use futures_util::SinkExt;
 use graph_rs_sdk::prelude::*;
 use graph_rs_sdk::{GRAPH_URL, GRAPH_URL_BETA};
 use test_tools::oauthrequest::OAuthTestClient;
@@ -6,22 +7,20 @@ use test_tools::oauthrequest::OAuthTestClient;
 pub fn batch_url() {
     let client = Graph::new("");
 
-    client.v1().batch(&serde_json::json!({}));
+    assert_eq!(
+        "/v1.0/$batch".to_string(),
+        client.batch(&serde_json::json!({})).url().path()
+    );
 
-    client.url_ref(|url| {
-        assert_eq!(url.to_string(), format!("{}/{}", GRAPH_URL, "$batch"));
-    });
-
-    client.beta().batch(&serde_json::json!({}));
-
-    client.url_ref(|url| {
-        assert_eq!(url.to_string(), format!("{}/{}", GRAPH_URL_BETA, "$batch"));
-    });
+    assert_eq!(
+        "/beta/$batch".to_string(),
+        client.beta().batch(&serde_json::json!({})).url().path()
+    );
 }
 
-#[test]
-pub fn batch_request() {
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+#[tokio::test]
+pub async fn batch_request() {
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let mut one = false;
         let mut two = false;
         let mut three = false;
@@ -54,49 +53,32 @@ pub fn batch_request() {
                     "id": "5",
                     "method": "GET",
                     "url": format!("/users/{}/drive/special/documents", id.as_str())
-                }
+                },
             ]
         });
 
-        let recv = client.v1().batch(&json).send();
+        let mut response = client.batch(&json).send().await.unwrap();
 
-        loop {
-            match recv.recv() {
-                Ok(delta) => match delta {
-                    Delta::Next(response) => {
-                        let value = response.body().clone();
-                        for v in value["responses"].as_array().unwrap().iter() {
-                            match v["id"].as_str().unwrap().as_bytes() {
-                                b"1" => {
-                                    one = true;
-                                }
-                                b"2" => {
-                                    two = true;
-                                }
-                                b"3" => {
-                                    three = true;
-                                }
-                                b"4" => {
-                                    four = true;
-                                }
-                                b"5" => {
-                                    five = true;
-                                }
-                                _ => {}
-                            }
-                        }
-                    }
-                    Delta::Done(err) => {
-                        if let Some(err) = err {
-                            panic!("Request Error. Method: drive batch - received error on Delta::Done. Error: {:#?}", err);
-                        } else {
-                            break;
-                        }
-                    }
-                },
-                Err(e) => {
-                    panic!("Request error. Method: batch. Error: {:#?}", e);
+        let body: serde_json::Value = response.json().await.unwrap();
+
+        for v in body["responses"].as_array().unwrap().iter() {
+            match v["id"].as_str().unwrap().as_bytes() {
+                b"1" => {
+                    one = true;
                 }
+                b"2" => {
+                    two = true;
+                }
+                b"3" => {
+                    three = true;
+                }
+                b"4" => {
+                    four = true;
+                }
+                b"5" => {
+                    five = true;
+                }
+                _ => {}
             }
         }
 

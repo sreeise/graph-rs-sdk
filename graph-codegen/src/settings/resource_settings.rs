@@ -9,161 +9,17 @@ use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::io::{Read, Write};
 
-fn get_users_api_client_links(resource_identity: ResourceIdentity) -> Vec<ApiClientLinkSettings> {
-    let name = {
-        if resource_identity.eq(&ResourceIdentity::Users) {
-            Some("UsersIdApiClient".into())
-        } else {
-            Some("MeApiClient".into())
-        }
-    };
-
-    vec![ApiClientLinkSettings(
-        name,
-        vec![
-            ApiClientLink::Struct("chats".into(), "ChatsApiClient".into()),
-            ApiClientLink::StructId("chat".into(), "ChatsIdApiClient".into()),
-            // Users and Me
-            ApiClientLink::Struct(
-                "agreement_acceptances".into(),
-                "AgreementAcceptancesApiClient".into(),
-            ),
-            ApiClientLink::StructId(
-                "agreement_acceptance".into(),
-                "AgreementAcceptancesIdApiClient".into(),
-            ),
-            ApiClientLink::Struct("default_calendar".into(), "DefaultCalendarApiClient".into()),
-            ApiClientLink::Struct("calendars".into(), "CalendarsApiClient".into()),
-            ApiClientLink::StructId("calendar".into(), "CalendarsIdApiClient".into()),
-            ApiClientLink::Struct("calendar_groups".into(), "CalendarGroupsApiClient".into()),
-            ApiClientLink::StructId("calendar_group".into(), "CalendarGroupsIdApiClient".into()),
-            ApiClientLink::Struct("calendar_views".into(), "CalendarViewApiClient".into()),
-            ApiClientLink::StructId("calendar_view".into(), "CalendarViewIdApiClient".into()),
-            ApiClientLink::Struct("messages".into(), "UsersMessagesApiClient".into()),
-            ApiClientLink::StructId("message".into(), "UsersMessagesIdApiClient".into()),
-            //ApiClientLink::Struct("agreement_acceptances".into(), "AgreementAcceptancesApiClient".into()),
-            ApiClientLink::Struct(
-                "app_role_assignments".into(),
-                "AppRoleAssignmentsApiClient".into(),
-            ),
-            ApiClientLink::StructId(
-                "app_role_assignment".into(),
-                "AppRoleAssignmentsIdApiClient".into(),
-            ),
-            ApiClientLink::Struct("authentication".into(), "AuthenticationApiClient".into()),
-            ApiClientLink::Struct("channels".into(), "ChannelsApiClient".into()),
-            ApiClientLink::StructId("channel".into(), "ChannelsIdApiClient".into()),
-            ApiClientLink::Struct("contact_folders".into(), "ContactFoldersApiClient".into()),
-            ApiClientLink::StructId("contact_folder".into(), "ContactFoldersIdApiClient".into()),
-            ApiClientLink::Struct("contacts".into(), "ContactsApiClient".into()),
-            ApiClientLink::StructId("contact".into(), "ContactsIdApiClient".into()),
-            ApiClientLink::Struct("joined_teams".into(), "JoinedTeamsApiClient".into()),
-            ApiClientLink::StructId("joined_team".into(), "JoinedTeamsIdApiClient".into()),
-            ApiClientLink::Struct("insights".into(), "InsightsApiClient".into()),
-            ApiClientLink::Struct("license_details".into(), "LicenseDetailsApiClient".into()),
-            ApiClientLink::StructId("license_detail".into(), "LicenseDetailsIdApiClient".into()),
-            ApiClientLink::Struct("followed_sites".into(), "FollowedSitesApiClient".into()),
-            ApiClientLink::Struct(
-                "managed_app_registrations".into(),
-                "ManagedAppRegistrationsApiClient".into(),
-            ),
-            ApiClientLink::StructId(
-                "managed_app_registration".into(),
-                "ManagedAppRegistrationsIdApiClient".into(),
-            ),
-            ApiClientLink::Struct(
-                "scoped_role_member_of".into(),
-                "ScopedRoleMemberOfApiClient".into(),
-            ),
-            ApiClientLink::StructId(
-                "scoped_role_member_of_id".into(),
-                "ScopedRoleMemberOfIdApiClient".into(),
-            ),
-            ApiClientLink::Struct("teamwork".into(), "TeamworkApiClient".into()),
-            ApiClientLink::Struct(
-                "inference_classification".into(),
-                "InferenceClassificationApiClient".into(),
-            ),
-            ApiClientLink::Struct("mail_folders".into(), "MailFoldersApiClient".into()),
-            ApiClientLink::StructId("mail_folder".into(), "MailFoldersIdApiClient".into()),
-            ApiClientLink::Struct("activities".into(), "ActivitiesApiClient".into()),
-            ApiClientLink::StructId("activity".into(), "ActivitiesIdApiClient".into()),
-            ApiClientLink::Struct(
-                "device_management_troubleshooting_events".into(),
-                "DeviceManagementTroubleshootingEventsApiClient".into(),
-            ),
-            ApiClientLink::StructId(
-                "device_management_troubleshooting_event".into(),
-                "DeviceManagementTroubleshootingEventsIdApiClient".into(),
-            ),
-            ApiClientLink::Struct("extensions".into(), "ExtensionsApiClient".into()),
-            ApiClientLink::StructId("extension".into(), "ExtensionsIdApiClient".into()),
-            ApiClientLink::Struct("todo".into(), "TodoApiClient".into()),
-            ApiClientLink::Struct("created_objects".into(), "CreatedObjectsApiClient".into()),
-            ApiClientLink::StructId("created_object".into(), "CreatedObjectsIdApiClient".into()),
-            ApiClientLink::Struct(
-                "transitive_member_of".into(),
-                "TransitiveMemberOfApiClient".into(),
-            ),
-            ApiClientLink::StructId(
-                "transitive_member_of_id".into(),
-                "TransitiveMemberOfIdApiClient".into(),
-            ),
-            ApiClientLink::Struct("direct_reports".into(), "DirectReportsApiClient".into()),
-            ApiClientLink::StructId("direct_report".into(), "DirectReportsIdApiClient".into()),
-            ApiClientLink::Struct("managed_devices".into(), "ManagedDevicesApiClient".into()),
-            ApiClientLink::StructId("managed_device".into(), "ManagedDevicesIdApiClient".into()),
-            ApiClientLink::Struct("events".into(), "EventsApiClient".into()),
-            ApiClientLink::StructId("event".into(), "EventsIdApiClient".into()),
-            ApiClientLink::Struct("online_meetings".into(), "OnlineMeetingsApiClient".into()),
-            ApiClientLink::StructId("online_meeting".into(), "OnlineMeetingsIdApiClient".into()),
-            ApiClientLink::Struct("photos".into(), "PhotosApiClient".into()),
-            ApiClientLink::StructId("photo".into(), "PhotosIdApiClient".into()),
-            ApiClientLink::Struct("outlook".into(), "OutlookApiClient".into()),
-            ApiClientLink::Struct("presence".into(), "PresenceApiClient".into()),
-            ApiClientLink::Struct("planner".into(), "PlannerApiClient".into()),
-            ApiClientLink::Struct(
-                "registered_devices".into(),
-                "RegisteredDevicesApiClient".into(),
-            ),
-            ApiClientLink::StructId(
-                "registered_device".into(),
-                "RegisteredDevicesIdApiClient".into(),
-            ),
-            ApiClientLink::Struct("owned_devices".into(), "OwnedDevicesApiClient".into()),
-            ApiClientLink::StructId("owned_device".into(), "OwnedDevicesIdApiClient".into()),
-            ApiClientLink::Struct("owned_objects".into(), "OwnedObjectsApiClient".into()),
-            ApiClientLink::StructId("owned_object".into(), "OwnedObjectsIdApiClient".into()),
-            ApiClientLink::Struct("member_of".into(), "MemberOfApiClient".into()),
-            ApiClientLink::StructId("member_of_id".into(), "MemberOfIdApiClient".into()),
-            ApiClientLink::Struct("onenote".into(), "OnenoteApiClient".into()),
-            ApiClientLink::Struct("schedule".into(), "ScheduleApiClient".into()),
-            ApiClientLink::Struct("settings".into(), "SettingsApiClient".into()),
-            ApiClientLink::Struct(
-                "oauth2_permission_grants".into(),
-                "Oauth2PermissionGrantsApiClient".into(),
-            ),
-            ApiClientLink::StructId(
-                "oauth2_permission_grant".into(),
-                "Oauth2PermissionGrantsIdApiClient".into(),
-            ),
-        ],
-    )]
-}
-
-#[derive(
-    Builder, Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile, Hash,
-)]
+#[derive(Builder, Debug, Default, Clone, Eq, PartialEq, Serialize, AsFile, Hash)]
 #[builder(
     pattern = "mutable",
-    derive(Debug, Eq, PartialEq, Serialize, Deserialize),
+    derive(Debug, Eq, PartialEq, Serialize),
     setter(into, strip_option),
     default
 )]
 pub struct ResourceSettings {
     pub path_name: String,
     pub ri: ResourceIdentity,
-    pub imports: Vec<String>,
+    pub imports: Vec<&'static str>,
     pub api_client_links: Vec<ApiClientLinkSettings>,
 }
 
@@ -186,34 +42,34 @@ impl ResourceSettings {
     pub fn new(path_name: &str, ri: ResourceIdentity) -> ResourceSettings {
         match ri {
 			ResourceIdentity::Applications => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::service_principals::*".into()])
+				.imports(vec!["crate::service_principals::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("ApplicationsIdApiClient".into()), vec![
-							ApiClientLink::Struct("owners".into(), "ServicePrincipalsOwnersApiClient".into()),
-							ApiClientLink::StructId("owner".into(), "ServicePrincipalsOwnersIdApiClient".into()),
+						Some("ApplicationsIdApiClient"), vec![
+							ApiClientLink::Struct("owners", "ServicePrincipalsOwnersApiClient"),
+							ApiClientLink::StructId("owner", "ServicePrincipalsOwnersIdApiClient"),
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::ServicePrincipals => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::service_principals::*".into(), "crate::users::*".into()])
+				.imports(vec!["crate::service_principals::*", "crate::users::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("ServicePrincipalsIdApiClient".into()), vec![
-							ApiClientLink::Struct("owners".into(), "ServicePrincipalsOwnersApiClient".into()),
-							ApiClientLink::StructId("owner".into(), "ServicePrincipalsOwnersIdApiClient".into()),
-							ApiClientLink::Struct("transitive_member_of".into(), "TransitiveMemberOfApiClient".into()),
-							ApiClientLink::Struct("member_of".into(), "MemberOfApiClient".into()),
+						Some("ServicePrincipalsIdApiClient"), vec![
+							ApiClientLink::Struct("owners", "ServicePrincipalsOwnersApiClient"),
+							ApiClientLink::StructId("owner", "ServicePrincipalsOwnersIdApiClient"),
+							ApiClientLink::Struct("transitive_member_of", "TransitiveMemberOfApiClient"),
+							ApiClientLink::Struct("member_of", "MemberOfApiClient"),
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::AuthenticationMethodsPolicy => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::authentication_method_configurations::*".into()])
+				.imports(vec!["crate::authentication_method_configurations::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
 						None, vec![
-							ApiClientLink::Struct("authentication_method_configurations".into(), "AuthenticationMethodConfigurationsApiClient".into()),
-							ApiClientLink::StructId("authentication_method_configuration".into(), "AuthenticationMethodConfigurationsIdApiClient".into()),
+							ApiClientLink::Struct("authentication_method_configurations", "AuthenticationMethodConfigurationsApiClient"),
+							ApiClientLink::StructId("authentication_method_configuration", "AuthenticationMethodConfigurationsIdApiClient"),
 						]
 					),
 				]).build().unwrap(),
@@ -221,20 +77,18 @@ impl ResourceSettings {
 				ResourceSettings {
 					path_name: path_name.into(),
 					ri,
-					imports: vec!["crate::identity_governance::{AssignmentPoliciesApiClient, AssignmentPoliciesIdApiClient}".into()],
+					imports: vec!["crate::identity_governance::*"],
 					api_client_links: vec![
 						ApiClientLinkSettings(
-							Some("AccessPackagesIdApiClient".into()),
+							Some("AccessPackagesIdApiClient"),
 							vec![
-								ApiClientLink::Resource(
-									"assignment_policies".into(),
-									"AssignmentPoliciesApiClient".into(),
-									ResourceIdentity::AssignmentPolicies
+								ApiClientLink::Struct(
+									"assignment_policies",
+									"AssignmentPoliciesApiClient"
 								),
-								ApiClientLink::ResourceId(
-									"assignment_policy".into(),
-									"AssignmentPoliciesIdApiClient".into(),
-									ResourceIdentity::AssignmentPolicies
+								ApiClientLink::StructId(
+									"assignment_policy",
+									"AssignmentPoliciesIdApiClient"
 								)
 							]
 						)
@@ -244,19 +98,13 @@ impl ResourceSettings {
 				ResourceSettings {
 					path_name: path_name.into(),
 					ri,
-					imports: vec!["crate::identity_governance::{AccessReviewsDefinitionsApiClient, AccessReviewsDefinitionsIdApiClient}".into()],
+					imports: vec!["crate::identity_governance::*"],
 					api_client_links: vec![
 						ApiClientLinkSettings(
 							None,
 							vec![
-								ApiClientLink::Struct(
-									"definitions".into(),
-									"AccessReviewsDefinitionsApiClient".into(),
-								),
-								ApiClientLink::StructId(
-									"definition".into(),
-									"AccessReviewsDefinitionsIdApiClient".into(),
-								)
+								ApiClientLink::Struct("definitions", "AccessReviewsDefinitionsApiClient"),
+								ApiClientLink::StructId("definition", "AccessReviewsDefinitionsIdApiClient")
 							]
 						)
 					],
@@ -265,23 +113,13 @@ impl ResourceSettings {
 				ResourceSettings {
 					path_name: path_name.into(),
 					ri,
-					imports: vec![
-						"crate::identity_governance::{AccessReviewsDefinitionsInstancesApiClient, AccessReviewsDefinitionsInstancesIdApiClient}".into()
-					],
+					imports: vec!["crate::identity_governance::*"],
 					api_client_links: vec![
 						ApiClientLinkSettings(
-							Some("AccessReviewsDefinitionsIdApiClient".to_string()),
+							Some("AccessReviewsDefinitionsIdApiClient"),
 							vec![
-								ApiClientLink::Resource(
-									"instances".into(),
-									"AccessReviewsDefinitionsInstancesApiClient".into(),
-									ResourceIdentity::AccessReviewsDefinitionsInstances
-								),
-								ApiClientLink::ResourceId(
-									"instance".into(),
-									"AccessReviewsDefinitionsInstancesIdApiClient".into(),
-									ResourceIdentity::AccessReviewsDefinitionsInstances
-								)
+								ApiClientLink::Struct("instances", "AccessReviewsDefinitionsInstancesApiClient"),
+								ApiClientLink::StructId("instance", "AccessReviewsDefinitionsInstancesIdApiClient")
 							]
 						)
 					],
@@ -290,23 +128,13 @@ impl ResourceSettings {
 				ResourceSettings {
 					path_name: path_name.into(),
 					ri,
-					imports: vec![
-						"crate::identity_governance::{AccessReviewsDefinitionsInstancesStagesApiClient, AccessReviewsDefinitionsInstancesStagesIdApiClient}".into()
-					],
+					imports: vec!["crate::identity_governance::*"],
 					api_client_links: vec![
 						ApiClientLinkSettings(
-							Some("AccessReviewsDefinitionsInstancesIdApiClient".to_string()),
+							Some("AccessReviewsDefinitionsInstancesIdApiClient"),
 							vec![
-								ApiClientLink::Resource(
-									"stages".into(),
-									"AccessReviewsDefinitionsInstancesStagesApiClient".into(),
-									ResourceIdentity::AccessReviewsDefinitionsInstancesStages
-								),
-								ApiClientLink::ResourceId(
-									"stage".into(),
-									"AccessReviewsDefinitionsInstancesStagesIdApiClient".into(),
-									ResourceIdentity::AccessReviewsDefinitionsInstancesStages
-								)
+								ApiClientLink::Struct("stages", "AccessReviewsDefinitionsInstancesStagesApiClient"),
+								ApiClientLink::StructId("stage", "AccessReviewsDefinitionsInstancesStagesIdApiClient")
 							]
 						)
 					],
@@ -322,53 +150,53 @@ impl ResourceSettings {
 				ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
-					imports: vec!["crate::communications::*".into()],
+					imports: vec!["crate::communications::*"],
 					api_client_links: vec![
 						ApiClientLinkSettings(
-							Some("CallRecordsIdApiClient".into()),
+							Some("CallRecordsIdApiClient"),
 							vec![
-								ApiClientLink::Resource("sessions".into(), "CallRecordsSessionsApiClient".into(), ResourceIdentity::CallRecordsSessions),
-								ApiClientLink::ResourceId("session".into(), "CallRecordsSessionsIdApiClient".into(), ResourceIdentity::CallRecordsSessions)
+								ApiClientLink::Struct("sessions", "CallRecordsSessionsApiClient"),
+								ApiClientLink::StructId("session", "CallRecordsSessionsIdApiClient")
 							]
 						)
 					],
 				},
 			ResourceIdentity::Chats => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::chats::*".into(), "crate::teams::*".into()])
+				.imports(vec!["crate::chats::*", "crate::teams::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-							Some("ChatsIdApiClient".into()),
+							Some("ChatsIdApiClient"),
 							vec![
-								ApiClientLink::Struct("messages".into(), "ChatsMessagesApiClient".into()),
-								ApiClientLink::StructId("message".into(), "ChatsMessagesIdApiClient".into()),
-								ApiClientLink::Struct("members".into(), "TeamsMembersApiClient".into()),
-								ApiClientLink::Struct("member".into(), "TeamsMembersIdApiClient".into()),
+								ApiClientLink::Struct("messages", "ChatsMessagesApiClient"),
+								ApiClientLink::StructId("message", "ChatsMessagesIdApiClient"),
+								ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+								ApiClientLink::Struct("member", "TeamsMembersIdApiClient"),
 							]
 						)
 				]).build().unwrap(),
 			ResourceIdentity::ChatsMessages => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::chats::*".into()])
+				.imports(vec!["crate::chats::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-							Some("ChatsMessagesIdApiClient".into()),
+							Some("ChatsMessagesIdApiClient"),
 							vec![
-								ApiClientLink::Struct("replies".into(), "ChatsMessagesRepliesApiClient".into()),
-								ApiClientLink::StructId("reply".into(), "ChatsMessagesRepliesIdApiClient".into()),
+								ApiClientLink::Struct("replies", "ChatsMessagesRepliesApiClient"),
+								ApiClientLink::StructId("reply", "ChatsMessagesRepliesIdApiClient"),
 							]
 						)
 				]).build().unwrap(),
 			ResourceIdentity::Channels => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::teams::*".into(), "crate::chats::*".into()])
+				.imports(vec!["crate::teams::*", "crate::chats::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-							Some("ChannelsIdApiClient".into()),
+							Some("ChannelsIdApiClient"),
 							vec![
-								ApiClientLink::Struct("messages".into(), "ChatsMessagesApiClient".into()),
-								ApiClientLink::StructId("message".into(), "ChatsMessagesIdApiClient".into()),
-								ApiClientLink::Struct("shared_with_teams".into(), "SharedWithTeamsApiClient".into()),
-								ApiClientLink::StructId("shared_with_team".into(), "SharedWithTeamsIdApiClient".into()),
-								ApiClientLink::Struct("members".into(), "TeamsMembersApiClient".into()),
-								ApiClientLink::StructId("member".into(), "TeamsMembersIdApiClient".into()),
+								ApiClientLink::Struct("messages", "ChatsMessagesApiClient"),
+								ApiClientLink::StructId("message", "ChatsMessagesIdApiClient"),
+								ApiClientLink::Struct("shared_with_teams", "SharedWithTeamsApiClient"),
+								ApiClientLink::StructId("shared_with_team", "SharedWithTeamsIdApiClient"),
+								ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+								ApiClientLink::StructId("member", "TeamsMembersIdApiClient"),
 							]
 						)
 				]).build().unwrap(),
@@ -377,30 +205,29 @@ impl ResourceSettings {
 					path_name: path_name.into(),
 					ri,
 					imports: vec![
-						"crate::communications::{call_records::CallRecordsApiClient, call_records::CallRecordsIdApiClient, calls::CallsApiClient, calls::CallsIdApiClient}".to_string()
+						"crate::communications::{call_records::CallRecordsApiClient, call_records::CallRecordsIdApiClient, calls::CallsApiClient, calls::CallsIdApiClient}"
 					],
 					api_client_links: vec![
 						ApiClientLinkSettings(
 							None,
 							vec![
-								ApiClientLink::Resource("call_records".into(), "CallRecordsApiClient".into(), ResourceIdentity::CallRecords),
-								ApiClientLink::ResourceId(
-									"call_record".into(),
-									"CallRecordsIdApiClient".into(),
-									ResourceIdentity::CallRecords
+								ApiClientLink::Struct("call_records", "CallRecordsApiClient"),
+								ApiClientLink::StructId(
+									"call_record",
+									"CallRecordsIdApiClient"
 								),
-								ApiClientLink::Resource("calls".into(), "CallsApiClient".into(), ResourceIdentity::Calls),
-								ApiClientLink::ResourceId("call".into(), "CallsIdApiClient".into(), ResourceIdentity::Calls)
+								ApiClientLink::Struct("calls", "CallsApiClient"),
+								ApiClientLink::StructId("call", "CallsIdApiClient")
 							]
 						)
 					],
 				},
 			ResourceIdentity::ConnectedOrganizations => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::identity_governance::*".into()])
+				.imports(vec!["crate::identity_governance::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("ConnectedOrganizationsIdApiClient".into()), vec![
-						ApiClientLink::Struct("external_sponsors".into(), "ConnectedOrganizationsExternalSponsorsApiClient".into()),
-						ApiClientLink::Struct("internal_sponsors".into(), "ConnectedOrganizationsInternalSponsorsApiClient".into()),
+					ApiClientLinkSettings(Some("ConnectedOrganizationsIdApiClient"), vec![
+						ApiClientLink::Struct("external_sponsors", "ConnectedOrganizationsExternalSponsorsApiClient"),
+						ApiClientLink::Struct("internal_sponsors", "ConnectedOrganizationsInternalSponsorsApiClient"),
 					])
 				])
 				.build()
@@ -410,64 +237,64 @@ impl ResourceSettings {
 			// Device App Management
 			ResourceIdentity::ManagedEBooks =>
 				ResourceSettings::builder(path_name, ri)
-					.imports(vec!["crate::device_app_management::*".into()])
+					.imports(vec!["crate::device_app_management::*"])
 					.api_client_links(vec![
 						ApiClientLinkSettings(
 							None, 							vec![
-								ApiClientLink::Struct("device_states".into(), "ManagedEBooksDeviceStatesApiClient".into()),
-								ApiClientLink::StructId("device_state".into(), "ManagedEBooksDeviceStatesIdApiClient".into()),
-								ApiClientLink::Struct("user_state_summary".into(), "ManagedEBooksUserStateSummaryApiClient".into()),
-								ApiClientLink::StructId("user_state_summary_id".into(), "ManagedEBooksUserStateSummaryIdApiClient".into()),
+								ApiClientLink::Struct("device_states", "ManagedEBooksDeviceStatesApiClient"),
+								ApiClientLink::StructId("device_state", "ManagedEBooksDeviceStatesIdApiClient"),
+								ApiClientLink::Struct("user_state_summary", "ManagedEBooksUserStateSummaryApiClient"),
+								ApiClientLink::StructId("user_state_summary_id", "ManagedEBooksUserStateSummaryIdApiClient"),
 							]
 						),
 					]).build().unwrap(),
 			ResourceIdentity::ManagedAppRegistrations =>
 				ResourceSettings::builder(path_name, ri)
-					.imports(vec!["crate::device_app_management::*".into()])
+					.imports(vec!["crate::device_app_management::*"])
 					.api_client_links(vec![
 						ApiClientLinkSettings(
 							None, 							vec![
-								ApiClientLink::Struct("intended_policies".into(), "ManagedAppRegistrationsIntendedPoliciesApiClient".into()),
-								ApiClientLink::StructId("intended_policies_id".into(), "ManagedAppRegistrationsIntendedPoliciesIdApiClient".into()),
-								ApiClientLink::Struct("applied_policies".into(), "ManagedAppRegistrationsAppliedPoliciesApiClient".into()),
-								ApiClientLink::StructId("applied_policies_id".into(), "ManagedAppRegistrationsAppliedPoliciesIdApiClient".into()),
+								ApiClientLink::Struct("intended_policies", "ManagedAppRegistrationsIntendedPoliciesApiClient"),
+								ApiClientLink::StructId("intended_policies_id", "ManagedAppRegistrationsIntendedPoliciesIdApiClient"),
+								ApiClientLink::Struct("applied_policies", "ManagedAppRegistrationsAppliedPoliciesApiClient"),
+								ApiClientLink::StructId("applied_policies_id", "ManagedAppRegistrationsAppliedPoliciesIdApiClient"),
 							]
 						),
 					]).build().unwrap(),
 			ResourceIdentity::DeviceAppManagement =>
 				ResourceSettings::builder(path_name, ri)
-					.imports(vec!["crate::device_app_management::*".into()])
+					.imports(vec!["crate::device_app_management::*"])
 					.api_client_links(vec![
 						ApiClientLinkSettings(
 							None, vec![
-								ApiClientLink::Struct("android_managed_app_protections".into(), "AndroidManagedAppProtectionsApiClient".into()),
-								ApiClientLink::StructId("android_managed_app_protection".into(), "AndroidManagedAppProtectionsIdApiClient".into()),
-								ApiClientLink::Struct("default_managed_app_protections".into(), "DefaultManagedAppProtectionsApiClient".into()),
-								ApiClientLink::StructId("default_managed_app_protection".into(), "DefaultManagedAppProtectionsIdApiClient".into()),
-								ApiClientLink::Struct("ios_managed_app_protections".into(), "IosManagedAppProtectionsApiClient".into()),
-								ApiClientLink::StructId("ios_managed_app_protection".into(), "IosManagedAppProtectionsIdApiClient".into()),
-								ApiClientLink::Struct("managed_app_registrations".into(), "ManagedAppRegistrationsApiClient".into()),
-								ApiClientLink::StructId("managed_app_registration".into(), "ManagedAppRegistrationsIdApiClient".into()),
-								ApiClientLink::Struct("managed_app_statuses".into(), "ManagedAppStatusesApiClient".into()),
-								ApiClientLink::StructId("managed_app_statuses_id".into(), "ManagedAppStatusesIdApiClient".into()),
-								ApiClientLink::Struct("mdm_windows_information_protection_policies".into(), "MdmWindowsInformationProtectionPoliciesApiClient".into()),
-								ApiClientLink::StructId("mdm_windows_information_protection_policy".into(), "MdmWindowsInformationProtectionPoliciesIdApiClient".into()),
-								ApiClientLink::Struct("managed_app_policies".into(), "ManagedAppPoliciesApiClient".into()),
-								ApiClientLink::StructId("managed_app_policies_id".into(), "ManagedAppPoliciesIdApiClient".into()),
-								ApiClientLink::Struct("mobile_app_categories".into(), "MobileAppCategoriesApiClient".into()),
-								ApiClientLink::StructId("mobile_app_categories_id".into(), "MobileAppCategoriesIdApiClient".into()),
-								ApiClientLink::Struct("managed_e_books".into(), "ManagedEBooksApiClient".into()),
-								ApiClientLink::StructId("managed_e_book".into(), "ManagedEBooksIdApiClient".into()),
-								ApiClientLink::Struct("mobile_app_configurations".into(), "MobileAppConfigurationsApiClient".into()),
-								ApiClientLink::StructId("mobile_app_configuration".into(), "MobileAppConfigurationsIdApiClient".into()),
-								ApiClientLink::Struct("mobile_apps".into(), "MobileAppsApiClient".into()),
-								ApiClientLink::StructId("mobile_app".into(), "MobileAppsIdApiClient".into()),
-								ApiClientLink::Struct("targeted_managed_app_configurations".into(), "TargetedManagedAppConfigurationsApiClient".into()),
-								ApiClientLink::StructId("targeted_managed_app_configuration".into(), "TargetedManagedAppConfigurationsIdApiClient".into()),
-								ApiClientLink::Struct("vpp_tokens".into(), "VppTokensApiClient".into()),
-								ApiClientLink::StructId("vpp_token".into(), "VppTokensIdApiClient".into()),
-								ApiClientLink::Struct("windows_information_protection_policies".into(), "WindowsInformationProtectionPoliciesApiClient".into()),
-								ApiClientLink::StructId("windows_information_protection_policies_id".into(), "WindowsInformationProtectionPoliciesIdApiClient".into()),
+								ApiClientLink::Struct("android_managed_app_protections", "AndroidManagedAppProtectionsApiClient"),
+								ApiClientLink::StructId("android_managed_app_protection", "AndroidManagedAppProtectionsIdApiClient"),
+								ApiClientLink::Struct("default_managed_app_protections", "DefaultManagedAppProtectionsApiClient"),
+								ApiClientLink::StructId("default_managed_app_protection", "DefaultManagedAppProtectionsIdApiClient"),
+								ApiClientLink::Struct("ios_managed_app_protections", "IosManagedAppProtectionsApiClient"),
+								ApiClientLink::StructId("ios_managed_app_protection", "IosManagedAppProtectionsIdApiClient"),
+								ApiClientLink::Struct("managed_app_registrations", "ManagedAppRegistrationsApiClient"),
+								ApiClientLink::StructId("managed_app_registration", "ManagedAppRegistrationsIdApiClient"),
+								ApiClientLink::Struct("managed_app_statuses", "ManagedAppStatusesApiClient"),
+								ApiClientLink::StructId("managed_app_statuses_id", "ManagedAppStatusesIdApiClient"),
+								ApiClientLink::Struct("mdm_windows_information_protection_policies", "MdmWindowsInformationProtectionPoliciesApiClient"),
+								ApiClientLink::StructId("mdm_windows_information_protection_policy", "MdmWindowsInformationProtectionPoliciesIdApiClient"),
+								ApiClientLink::Struct("managed_app_policies", "ManagedAppPoliciesApiClient"),
+								ApiClientLink::StructId("managed_app_policies_id", "ManagedAppPoliciesIdApiClient"),
+								ApiClientLink::Struct("mobile_app_categories", "MobileAppCategoriesApiClient"),
+								ApiClientLink::StructId("mobile_app_categories_id", "MobileAppCategoriesIdApiClient"),
+								ApiClientLink::Struct("managed_e_books", "ManagedEBooksApiClient"),
+								ApiClientLink::StructId("managed_e_book", "ManagedEBooksIdApiClient"),
+								ApiClientLink::Struct("mobile_app_configurations", "MobileAppConfigurationsApiClient"),
+								ApiClientLink::StructId("mobile_app_configuration", "MobileAppConfigurationsIdApiClient"),
+								ApiClientLink::Struct("mobile_apps", "MobileAppsApiClient"),
+								ApiClientLink::StructId("mobile_app", "MobileAppsIdApiClient"),
+								ApiClientLink::Struct("targeted_managed_app_configurations", "TargetedManagedAppConfigurationsApiClient"),
+								ApiClientLink::StructId("targeted_managed_app_configuration", "TargetedManagedAppConfigurationsIdApiClient"),
+								ApiClientLink::Struct("vpp_tokens", "VppTokensApiClient"),
+								ApiClientLink::StructId("vpp_token", "VppTokensIdApiClient"),
+								ApiClientLink::Struct("windows_information_protection_policies", "WindowsInformationProtectionPoliciesApiClient"),
+								ApiClientLink::StructId("windows_information_protection_policies_id", "WindowsInformationProtectionPoliciesIdApiClient"),
 							]
 						),
 					]).build().unwrap(),
@@ -476,30 +303,30 @@ impl ResourceSettings {
 			// Device Management
 			ResourceIdentity::DeviceManagement =>
 				ResourceSettings::builder(path_name, ri)
-					.imports(vec!["crate::device_management::*".into()])
+					.imports(vec!["crate::device_management::*"])
 					.api_client_links(vec![
 						ApiClientLinkSettings(
 							None, vec![
-								ApiClientLink::Struct("device_configurations".into(), "DeviceConfigurationsApiClient".into()),
-								ApiClientLink::StructId("device_configuration".into(), "DeviceConfigurationsIdApiClient".into()),
-								ApiClientLink::Struct("device_enrollment_configurations".into(), "DeviceEnrollmentConfigurationsApiClient".into()),
+								ApiClientLink::Struct("device_configurations", "DeviceConfigurationsApiClient"),
+								ApiClientLink::StructId("device_configuration", "DeviceConfigurationsIdApiClient"),
+								ApiClientLink::Struct("device_enrollment_configurations", "DeviceEnrollmentConfigurationsApiClient"),
 								ApiClientLink::StructId(
-									"device_enrollment_configuration".into(),
-									"DeviceEnrollmentConfigurationsIdApiClient".into()
+									"device_enrollment_configuration",
+									"DeviceEnrollmentConfigurationsIdApiClient"
 								),
-								ApiClientLink::Struct("managed_devices".into(), "DeviceManagementManagedDevicesApiClient".into()),
-								ApiClientLink::StructId("managed_device".into(), "DeviceManagementManagedDevicesIdApiClient".into()),
-								ApiClientLink::Struct("role_definitions".into(), "RoleDefinitionsApiClient".into()),
-								ApiClientLink::StructId("role_definition".into(), "RoleDefinitionsIdApiClient".into()),
-								ApiClientLink::Struct("terms_and_conditions".into(), "TermsAndConditionsApiClient".into()),
-								ApiClientLink::StructId("terms_and_condition".into(), "TermsAndConditionsIdApiClient".into()),
-								ApiClientLink::Struct("troubleshooting_events".into(), "TroubleshootingEventsApiClient".into()),
-								ApiClientLink::StructId("troubleshooting_event".into(), "TroubleshootingEventsIdApiClient".into()),
-								ApiClientLink::Struct("reports".into(), "DeviceManagementReportsApiClient".into()),
-								ApiClientLink::Struct("device_compliance_policy_setting_state_summaries".into(), "DeviceCompliancePolicySettingStateSummariesApiClient".into()),
-								ApiClientLink::StructId("device_compliance_policy_setting_state_summaries_id".into(), "DeviceCompliancePolicySettingStateSummariesIdApiClient".into()),
-								ApiClientLink::StructId("windows_autopilot_device_identities".into(), "WindowsAutopilotDeviceIdentitiesApiClient".into()),
-								ApiClientLink::StructId("windows_autopilot_device_identities_id".into(), "WindowsAutopilotDeviceIdentitiesIdApiClient".into()),
+								ApiClientLink::Struct("managed_devices", "DeviceManagementManagedDevicesApiClient"),
+								ApiClientLink::StructId("managed_device", "DeviceManagementManagedDevicesIdApiClient"),
+								ApiClientLink::Struct("role_definitions", "RoleDefinitionsApiClient"),
+								ApiClientLink::StructId("role_definition", "RoleDefinitionsIdApiClient"),
+								ApiClientLink::Struct("terms_and_conditions", "TermsAndConditionsApiClient"),
+								ApiClientLink::StructId("terms_and_condition", "TermsAndConditionsIdApiClient"),
+								ApiClientLink::Struct("troubleshooting_events", "TroubleshootingEventsApiClient"),
+								ApiClientLink::StructId("troubleshooting_event", "TroubleshootingEventsIdApiClient"),
+								ApiClientLink::Struct("reports", "DeviceManagementReportsApiClient"),
+								ApiClientLink::Struct("device_compliance_policy_setting_state_summaries", "DeviceCompliancePolicySettingStateSummariesApiClient"),
+								ApiClientLink::StructId("device_compliance_policy_setting_state_summaries_id", "DeviceCompliancePolicySettingStateSummariesIdApiClient"),
+								ApiClientLink::StructId("windows_autopilot_device_identities", "WindowsAutopilotDeviceIdentitiesApiClient"),
+								ApiClientLink::StructId("windows_autopilot_device_identities_id", "WindowsAutopilotDeviceIdentitiesIdApiClient"),
 							]
 						),
 					]).build().unwrap(),
@@ -510,13 +337,13 @@ impl ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
 					imports: vec![
-						"crate::drives::{DrivesListApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient}".into()
+						"crate::drives::{DrivesListApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient}"
 					],
 					api_client_links: vec![
-						ApiClientLinkSettings(Some("DrivesIdApiClient".into()), vec![
-							ApiClientLink::StructId("list".into(), "DrivesListApiClient".into()),
-							ApiClientLink::StructId("items".into(), "DrivesItemsApiClient".into()),
-							ApiClientLink::StructId("item".into(), "DrivesItemsIdApiClient".into()),
+						ApiClientLinkSettings(Some("DrivesIdApiClient"), vec![
+							ApiClientLink::StructId("list", "DrivesListApiClient"),
+							ApiClientLink::StructId("items", "DrivesItemsApiClient"),
+							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
 						])
 					],
 				},
@@ -525,68 +352,68 @@ impl ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
 					imports: vec![
-						"crate::drives::{DrivesListContentTypesApiClient, DrivesListContentTypesIdApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient}".into()
+						"crate::drives::{DrivesListContentTypesApiClient, DrivesListContentTypesIdApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient}"
 					],
 					api_client_links: vec![
-						ApiClientLinkSettings(Some("DrivesListApiClient".into()), vec![
-							ApiClientLink::Struct("content_types".into(), "DrivesListContentTypesApiClient".into()),
-							ApiClientLink::StructId("content_type".into(), "DrivesListContentTypesIdApiClient".into()),
-							ApiClientLink::Struct("items".into(), "DrivesItemsApiClient".into()),
-							ApiClientLink::StructId("item".into(), "DrivesItemsIdApiClient".into()),
+						ApiClientLinkSettings(Some("DrivesListApiClient"), vec![
+							ApiClientLink::Struct("content_types", "DrivesListContentTypesApiClient"),
+							ApiClientLink::StructId("content_type", "DrivesListContentTypesIdApiClient"),
+							ApiClientLink::Struct("items", "DrivesItemsApiClient"),
+							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
 						])
 					],
 				},
 			ResourceIdentity::Education => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::education::*".into()])
+				.imports(vec!["crate::education::*"])
 				.api_client_links(vec![
 						ApiClientLinkSettings(None, vec![
-							ApiClientLink::Struct("classes".into(), "EducationClassesApiClient".into()),
-							ApiClientLink::StructId("class".into(), "EducationClassesIdApiClient".into()),
-							ApiClientLink::Struct("schools".into(), "EducationSchoolsApiClient".into()),
-							ApiClientLink::StructId("school".into(), "EducationSchoolsIdApiClient".into()),
-							ApiClientLink::Struct("me".into(), "EducationMeApiClient".into()),
-							ApiClientLink::Struct("users".into(), "EducationUsersApiClient".into()),
-							ApiClientLink::StructId("user".into(), "EducationUsersIdApiClient".into()),
+							ApiClientLink::Struct("classes", "EducationClassesApiClient"),
+							ApiClientLink::StructId("class", "EducationClassesIdApiClient"),
+							ApiClientLink::Struct("schools", "EducationSchoolsApiClient"),
+							ApiClientLink::StructId("school", "EducationSchoolsIdApiClient"),
+							ApiClientLink::Struct("me", "EducationMeApiClient"),
+							ApiClientLink::Struct("users", "EducationUsersApiClient"),
+							ApiClientLink::StructId("user", "EducationUsersIdApiClient"),
 						])
 					]).build().unwrap(),
 			ResourceIdentity::EducationAssignments => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::education::*".into()])
+				.imports(vec!["crate::education::*"])
 				.api_client_links(vec![
-						ApiClientLinkSettings(Some("EducationAssignmentsIdApiClient".into()), vec![
-							ApiClientLink::Struct("submissions".into(), "EducationAssignmentsSubmissionsApiClient".into()),
-							ApiClientLink::StructId("submission".into(), "EducationAssignmentsSubmissionsIdApiClient".into()),
+						ApiClientLinkSettings(Some("EducationAssignmentsIdApiClient"), vec![
+							ApiClientLink::Struct("submissions", "EducationAssignmentsSubmissionsApiClient"),
+							ApiClientLink::StructId("submission", "EducationAssignmentsSubmissionsIdApiClient"),
 						])
 					]).build().unwrap(),
 			ResourceIdentity::EducationMe => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::education::*".into()])
+				.imports(vec!["crate::education::*"])
 				.api_client_links(vec![
-						ApiClientLinkSettings(Some("EducationMeApiClient".into()), vec![
-							ApiClientLink::Struct("assignments".into(), "EducationAssignmentsApiClient".into()),
-							ApiClientLink::StructId("assignment".into(), "EducationAssignmentsIdApiClient".into()),
+						ApiClientLinkSettings(Some("EducationMeApiClient"), vec![
+							ApiClientLink::Struct("assignments", "EducationAssignmentsApiClient"),
+							ApiClientLink::StructId("assignment", "EducationAssignmentsIdApiClient"),
 						])
 					]).build().unwrap(),
 			ResourceIdentity::EducationSchools => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::education::*".into()])
+				.imports(vec!["crate::education::*"])
 				.api_client_links(vec![
-						ApiClientLinkSettings(Some("EducationSchoolsIdApiClient".into()), vec![
-							ApiClientLink::Struct("assignments".into(), "EducationAssignmentsApiClient".into()),
-							ApiClientLink::StructId("assignment".into(), "EducationAssignmentsIdApiClient".into()),
+						ApiClientLinkSettings(Some("EducationSchoolsIdApiClient"), vec![
+							ApiClientLink::Struct("assignments", "EducationAssignmentsApiClient"),
+							ApiClientLink::StructId("assignment", "EducationAssignmentsIdApiClient"),
 						])
 					]).build().unwrap(),
 			ResourceIdentity::EducationUsers => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::education::*".into()])
+				.imports(vec!["crate::education::*"])
 				.api_client_links(vec![
-						ApiClientLinkSettings(Some("EducationUsersIdApiClient".into()), vec![
-							ApiClientLink::Struct("assignments".into(), "EducationAssignmentsApiClient".into()),
-							ApiClientLink::StructId("assignment".into(), "EducationAssignmentsIdApiClient".into()),
+						ApiClientLinkSettings(Some("EducationUsersIdApiClient"), vec![
+							ApiClientLink::Struct("assignments", "EducationAssignmentsApiClient"),
+							ApiClientLink::StructId("assignment", "EducationAssignmentsIdApiClient"),
 						])
 					]).build().unwrap(),
 			ResourceIdentity::EducationClasses => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::education::*".into()])
+				.imports(vec!["crate::education::*"])
 				.api_client_links(vec![
-						ApiClientLinkSettings(Some("EducationClassesIdApiClient".into()), vec![
-							ApiClientLink::Struct("assignments".into(), "EducationAssignmentsApiClient".into()),
-							ApiClientLink::StructId("assignment".into(), "EducationAssignmentsIdApiClient".into()),
+						ApiClientLinkSettings(Some("EducationClassesIdApiClient"), vec![
+							ApiClientLink::Struct("assignments", "EducationAssignmentsApiClient"),
+							ApiClientLink::StructId("assignment", "EducationAssignmentsIdApiClient"),
 						])
 					]).build().unwrap(),
 			ResourceIdentity::EntitlementManagement =>
@@ -594,64 +421,64 @@ impl ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
 					imports: vec![
-						"crate::identity_governance::*".to_string(),
+						"crate::identity_governance::*",
 					],
 					api_client_links: vec![
 						ApiClientLinkSettings(
 							None,
 							vec![
-								ApiClientLink::Struct("access_packages".into(), "AccessPackagesApiClient".into()),
+								ApiClientLink::Struct("access_packages", "AccessPackagesApiClient"),
 								ApiClientLink::StructId(
-									"access_package".into(),
-									"AccessPackagesIdApiClient".into()
+									"access_package",
+									"AccessPackagesIdApiClient"
 								),
 								ApiClientLink::Struct(
-									"access_package_assignment_approvals".into(),
-									"AccessPackageAssignmentApprovalsApiClient".into()
+									"access_package_assignment_approvals",
+									"AccessPackageAssignmentApprovalsApiClient"
 								),
 								ApiClientLink::StructId(
-									"access_package_assignment_approval".into(),
-									"AccessPackageAssignmentApprovalsIdApiClient".into(),
+									"access_package_assignment_approval",
+									"AccessPackageAssignmentApprovalsIdApiClient",
 								),
 								ApiClientLink::Struct(
-									"assignment_policies".into(),
-									"AssignmentPoliciesApiClient".into()
+									"assignment_policies",
+									"AssignmentPoliciesApiClient"
 								),
 								ApiClientLink::StructId(
-									"assignment_policy".into(),
-									"AssignmentPoliciesIdApiClient".into()
+									"assignment_policy",
+									"AssignmentPoliciesIdApiClient"
 								),
 								ApiClientLink::Struct(
-									"assignments".into(),
-									"EntitlementManagementAssignmentsApiClient".into()
+									"assignments",
+									"EntitlementManagementAssignmentsApiClient"
 								),
 								ApiClientLink::StructId(
-									"assignment".into(),
-									"EntitlementManagementAssignmentsIdApiClient".into()
+									"assignment",
+									"EntitlementManagementAssignmentsIdApiClient"
 								),
 								ApiClientLink::Struct(
-									"catalogs".into(),
-									"EntitlementManagementCatalogsApiClient".into(),
+									"catalogs",
+									"EntitlementManagementCatalogsApiClient",
 								),
 								ApiClientLink::StructId(
-									"catalog".into(),
-									"EntitlementManagementCatalogsIdApiClient".into(),
+									"catalog",
+									"EntitlementManagementCatalogsIdApiClient",
 								),
 								ApiClientLink::Struct(
-									"assignment_requests".into(),
-									"AssignmentRequestsApiClient".into(),
+									"assignment_requests",
+									"AssignmentRequestsApiClient",
 								),
 								ApiClientLink::StructId(
-									"assignment_request".into(),
-									"AssignmentRequestsIdApiClient".into(),
+									"assignment_request",
+									"AssignmentRequestsIdApiClient",
 								),
 								ApiClientLink::Struct(
-									"connected_organizations".into(),
-									"ConnectedOrganizationsApiClient".into(),
+									"connected_organizations",
+									"ConnectedOrganizationsApiClient",
 								),
 								ApiClientLink::StructId(
-									"connected_organization".into(),
-									"ConnectedOrganizationsIdApiClient".into(),
+									"connected_organization",
+									"ConnectedOrganizationsIdApiClient",
 								)
 							]
 						)
@@ -661,15 +488,15 @@ impl ResourceSettings {
 				ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
-					imports: vec!["crate::identity_governance::{AccessPackagesApiClient, AccessPackagesIdApiClient}".into()],
+					imports: vec!["crate::identity_governance::{AccessPackagesApiClient, AccessPackagesIdApiClient}"],
 					api_client_links: vec![
 						ApiClientLinkSettings(
-							Some("EntitlementManagementCatalogsIdApiClient".into()),
+							Some("EntitlementManagementCatalogsIdApiClient"),
 							vec![
-								ApiClientLink::Struct("access_packages".into(), "AccessPackagesApiClient".into()),
+								ApiClientLink::Struct("access_packages", "AccessPackagesApiClient"),
 								ApiClientLink::StructId(
-									"access_package".into(),
-									"AccessPackagesIdApiClient".into()
+									"access_package",
+									"AccessPackagesIdApiClient"
 								)
 							]
 						)
@@ -680,167 +507,163 @@ impl ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
 					imports: vec![
-						"crate::identity_governance::{AccessReviewsApiClient, AccessPackagesApiClient, AccessPackagesIdApiClient, EntitlementManagementApiClient}".to_string()
+						"crate::identity_governance::{AccessReviewsApiClient, AccessPackagesApiClient, AccessPackagesIdApiClient, EntitlementManagementApiClient}"
 					],
 					api_client_links: vec![
 						ApiClientLinkSettings(
 							None,
 							vec![
-								ApiClientLink::Resource("access_reviews".into(), "AccessReviewsApiClient".into(), ResourceIdentity::AccessReviews),
-								ApiClientLink::Resource(
-									"entitlement_management".into(),
-									"EntitlementManagementApiClient".into(),
-									ResourceIdentity::EntitlementManagement
-								)
+								ApiClientLink::Struct("access_reviews", "AccessReviewsApiClient"),
+								ApiClientLink::Struct("entitlement_management", "EntitlementManagementApiClient")
 							]
 						)
 					],
 				},
 			ResourceIdentity::Events => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("EventsIdApiClient".into()),
+						Some("EventsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("instances".into(), "EventsInstancesApiClient".into()),
-							ApiClientLink::StructId("instance".into(), "EventsInstancesIdApiClient".into()),
+							ApiClientLink::Struct("instances", "EventsInstancesApiClient"),
+							ApiClientLink::StructId("instance", "EventsInstancesIdApiClient"),
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::CalendarView => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("CalendarViewIdApiClient".into()),
+						Some("CalendarViewIdApiClient"),
 						vec![
-							ApiClientLink::Struct("instances".into(), "EventsInstancesApiClient".into()),
-							ApiClientLink::StructId("instance".into(), "EventsInstancesIdApiClient".into()),
-							ApiClientLink::Struct("attachments".into(), "UsersAttachmentsApiClient".into()),
-							ApiClientLink::StructId("attachment".into(), "UsersAttachmentsIdApiClient".into()),
+							ApiClientLink::Struct("instances", "EventsInstancesApiClient"),
+							ApiClientLink::StructId("instance", "EventsInstancesIdApiClient"),
+							ApiClientLink::Struct("attachments", "UsersAttachmentsApiClient"),
+							ApiClientLink::StructId("attachment", "UsersAttachmentsIdApiClient"),
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::Calendars => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::extended_properties::*".into()])
+				.imports(vec!["crate::users::*", "crate::extended_properties::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("CalendarsIdApiClient".into()),
+						Some("CalendarsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("events".into(), "EventsApiClient".into()),
-							ApiClientLink::StructId("event".into(), "EventsIdApiClient".into()),
-							ApiClientLink::Struct("calendar_views".into(), "CalendarViewApiClient".into()),
-							ApiClientLink::StructId("calendar_view".into(), "CalendarViewIdApiClient".into()),
-							ApiClientLink::Struct("extended_properties".into(), "ExtendedPropertiesApiClient".into())
+							ApiClientLink::Struct("events", "EventsApiClient"),
+							ApiClientLink::StructId("event", "EventsIdApiClient"),
+							ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
+							ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
+							ApiClientLink::Struct("extended_properties", "ExtendedPropertiesApiClient")
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::DefaultCalendar => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::extended_properties::*".into()])
+				.imports(vec!["crate::users::*", "crate::extended_properties::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("DefaultCalendarApiClient".into()),
+						Some("DefaultCalendarApiClient"),
 						vec![
-							ApiClientLink::Struct("events".into(), "EventsApiClient".into()),
-							ApiClientLink::StructId("event".into(), "EventsIdApiClient".into()),
-							ApiClientLink::Struct("calendar_views".into(), "CalendarViewApiClient".into()),
-							ApiClientLink::StructId("calendar_view".into(), "CalendarViewIdApiClient".into()),
-							ApiClientLink::Struct("extended_properties".into(), "ExtendedPropertiesApiClient".into()),
+							ApiClientLink::Struct("events", "EventsApiClient"),
+							ApiClientLink::StructId("event", "EventsIdApiClient"),
+							ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
+							ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
+							ApiClientLink::Struct("extended_properties", "ExtendedPropertiesApiClient"),
 						]
 					),
 				]).build().unwrap(),
 
 			ResourceIdentity::Directory => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::directory::*".into()])
+				.imports(vec!["crate::directory::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
 						None, vec![
-							ApiClientLink::Struct("deleted_items".into(), "DeletedItemsApiClient".into()),
-							ApiClientLink::StructId("deleted_item".into(), "DeletedItemsIdApiClient".into()),
-							ApiClientLink::Struct("administrative_units".into(), "AdministrativeUnitsApiClient".into()),
-							ApiClientLink::StructId("administrative_unit".into(), "AdministrativeUnitsIdApiClient".into()),
+							ApiClientLink::Struct("deleted_items", "DeletedItemsApiClient"),
+							ApiClientLink::StructId("deleted_item", "DeletedItemsIdApiClient"),
+							ApiClientLink::Struct("administrative_units", "AdministrativeUnitsApiClient"),
+							ApiClientLink::StructId("administrative_unit", "AdministrativeUnitsIdApiClient"),
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::AdministrativeUnits => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::directory::*".into()])
+				.imports(vec!["crate::directory::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("AdministrativeUnitsIdApiClient".into()), vec![
-							ApiClientLink::Struct("members".into(), "DirectoryMembersApiClient".into()),
-							ApiClientLink::StructId("member".into(), "DirectoryMembersIdApiClient".into()),
+						Some("AdministrativeUnitsIdApiClient"), vec![
+							ApiClientLink::Struct("members", "DirectoryMembersApiClient"),
+							ApiClientLink::StructId("member", "DirectoryMembersIdApiClient"),
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::DirectoryRoles => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::directory::*".into()])
+				.imports(vec!["crate::directory::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("DirectoryRolesIdApiClient".into()), vec![
-							ApiClientLink::Struct("members".into(), "DirectoryMembersApiClient".into()),
-							ApiClientLink::StructId("member".into(), "DirectoryMembersIdApiClient".into()),
+						Some("DirectoryRolesIdApiClient"), vec![
+							ApiClientLink::Struct("members", "DirectoryMembersApiClient"),
+							ApiClientLink::StructId("member", "DirectoryMembersIdApiClient"),
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::CalendarGroups => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("CalendarGroupsIdApiClient".into()),
+						Some("CalendarGroupsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("calendars".into(), "CalendarsApiClient".into()),
-							ApiClientLink::StructId("calendar".into(), "CalendarsIdApiClient".into()),
+							ApiClientLink::Struct("calendars", "CalendarsApiClient"),
+							ApiClientLink::StructId("calendar", "CalendarsIdApiClient"),
 						]
 					),
 				]).build().unwrap(),
 			ResourceIdentity::Groups => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::groups::*".into(), "crate::users::*".into(), "crate::sites::*".into(), "crate::planner::*".into(),
-							  "crate::group_lifecycle_policies::*".into()])
+				.imports(vec!["crate::groups::*", "crate::users::*", "crate::sites::*", "crate::planner::*",
+							  "crate::group_lifecycle_policies::*"])
 				.api_client_links(vec![
 						ApiClientLinkSettings(
-						Some("GroupsIdApiClient".into()),
+						Some("GroupsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("group_lifecycle_policies".into(), "GroupLifecyclePoliciesApiClient".into()),
-							ApiClientLink::StructId("conversation".into(), "ConversationsIdApiClient".into()),
-							ApiClientLink::Struct("conversations".into(), "ConversationsApiClient".into()),
-							ApiClientLink::StructId("thread".into(), "ThreadsIdApiClient".into()),
-							ApiClientLink::Struct("threads".into(), "ThreadsApiClient".into()),
-							ApiClientLink::Struct("onenote".into(), "OnenoteApiClient".into()),
-							ApiClientLink::Struct("member_of".into(), "MemberOfApiClient".into()),
-							ApiClientLink::StructId("member_of_id".into(), "MemberOfIdApiClient".into()),
-							ApiClientLink::Struct("events".into(), "EventsApiClient".into()),
-							ApiClientLink::StructId("event".into(), "EventsIdApiClient".into()),
-							ApiClientLink::Struct("calendar_views".into(), "CalendarViewApiClient".into()),
-							ApiClientLink::StructId("calendar_view".into(), "CalendarViewIdApiClient".into()),
-							ApiClientLink::Struct("default_calendar".into(), "DefaultCalendarApiClient".into()),
-							ApiClientLink::Struct("planner".into(), "PlannerApiClient".into()),
-							ApiClientLink::Struct("sites".into(), "SitesApiClient".into()),
-							ApiClientLink::StructId("site".into(), "SitesIdApiClient".into()),
-							ApiClientLink::Struct("groups_team".into(), "GroupsTeamApiClient".into()),
+							ApiClientLink::Struct("group_lifecycle_policies", "GroupLifecyclePoliciesApiClient"),
+							ApiClientLink::StructId("conversation", "ConversationsIdApiClient"),
+							ApiClientLink::Struct("conversations", "ConversationsApiClient"),
+							ApiClientLink::StructId("thread", "ThreadsIdApiClient"),
+							ApiClientLink::Struct("threads", "ThreadsApiClient"),
+							ApiClientLink::Struct("onenote", "OnenoteApiClient"),
+							ApiClientLink::Struct("member_of", "MemberOfApiClient"),
+							ApiClientLink::StructId("member_of_id", "MemberOfIdApiClient"),
+							ApiClientLink::Struct("events", "EventsApiClient"),
+							ApiClientLink::StructId("event", "EventsIdApiClient"),
+							ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
+							ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
+							ApiClientLink::Struct("default_calendar", "DefaultCalendarApiClient"),
+							ApiClientLink::Struct("planner", "PlannerApiClient"),
+							ApiClientLink::Struct("sites", "SitesApiClient"),
+							ApiClientLink::StructId("site", "SitesIdApiClient"),
+							ApiClientLink::Struct("groups_team", "GroupsTeamApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::Conversations => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::groups::*".into()])
+				.imports(vec!["crate::groups::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("GroupsIdApiClient".into()),
+						Some("GroupsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("group_lifecycle_policies".into(), "GroupLifecyclePoliciesApiClient".into()),
-							ApiClientLink::StructId("conversation".into(), "GroupsConversationsIdApiClient".into()),
-							ApiClientLink::Struct("conversations".into(), "GroupsConversationsApiClient".into()),
-							ApiClientLink::StructId("thread".into(), "GroupsThreadsIdApiClient".into()),
-							ApiClientLink::Struct("threads".into(), "GroupsThreadsApiClient".into())
+							ApiClientLink::Struct("group_lifecycle_policies", "GroupLifecyclePoliciesApiClient"),
+							ApiClientLink::StructId("conversation", "GroupsConversationsIdApiClient"),
+							ApiClientLink::Struct("conversations", "GroupsConversationsApiClient"),
+							ApiClientLink::StructId("thread", "GroupsThreadsIdApiClient"),
+							ApiClientLink::Struct("threads", "GroupsThreadsApiClient")
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::Threads => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::groups::*".into()])
+				.imports(vec!["crate::groups::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("ThreadsIdApiClient".into()),
+						Some("ThreadsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("post".into(), "ThreadsPostsIdApiClient".into()),
-							ApiClientLink::Struct("posts".into(), "ThreadsPostsApiClient".into())
+							ApiClientLink::Struct("post", "ThreadsPostsIdApiClient"),
+							ApiClientLink::Struct("posts", "ThreadsPostsApiClient")
 						]
 					)
 				]).build().unwrap(),
@@ -852,290 +675,294 @@ impl ResourceSettings {
 					api_client_links: vec![],
 				},
 			ResourceIdentity::PrimaryChannel => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::teams::*".into(), "crate::chats::*".into()])
+				.imports(vec!["crate::teams::*", "crate::chats::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("PrimaryChannelApiClient".into()),
+						Some("PrimaryChannelApiClient"),
 						vec![
-							ApiClientLink::Struct("shared_with_teams".into(), "SharedWithTeamsApiClient".into()),
-							ApiClientLink::StructId("shared_with_team".into(), "SharedWithTeamsIdApiClient".into()),
-							ApiClientLink::Struct("messages".into(), "ChatsMessagesApiClient".into()),
-							ApiClientLink::StructId("message".into(), "ChatsMessagesIdApiClient".into()),
-							ApiClientLink::Struct("members".into(), "TeamsMembersApiClient".into()),
-							ApiClientLink::Struct("member".into(), "TeamsMembersIdApiClient".into()),
+							ApiClientLink::Struct("shared_with_teams", "SharedWithTeamsApiClient"),
+							ApiClientLink::StructId("shared_with_team", "SharedWithTeamsIdApiClient"),
+							ApiClientLink::Struct("messages", "ChatsMessagesApiClient"),
+							ApiClientLink::StructId("message", "ChatsMessagesIdApiClient"),
+							ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+							ApiClientLink::Struct("member", "TeamsMembersIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::Teams => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::teams::*".into()])
+				.imports(vec!["crate::users::*", "crate::teams::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("TeamsIdApiClient".into()),
+						Some("TeamsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("primary_channel".into(), "PrimaryChannelApiClient".into()),
-							ApiClientLink::Struct("channels".into(), "ChannelsApiClient".into()),
-							ApiClientLink::StructId("channel".into(), "ChannelsIdApiClient".into()),
-							ApiClientLink::Struct("tags".into(), "TeamsTagsApiClient".into()),
-							ApiClientLink::StructId("tag".into(), "TeamsTagsIdApiClient".into()),
-							ApiClientLink::Struct("schedule".into(), "ScheduleApiClient".into()),
-							ApiClientLink::Struct("members".into(), "TeamsMembersApiClient".into()),
-							ApiClientLink::Struct("member".into(), "TeamsMembersIdApiClient".into()),
+							ApiClientLink::Struct("primary_channel", "PrimaryChannelApiClient"),
+							ApiClientLink::Struct("channels", "ChannelsApiClient"),
+							ApiClientLink::StructId("channel", "ChannelsIdApiClient"),
+							ApiClientLink::Struct("tags", "TeamsTagsApiClient"),
+							ApiClientLink::StructId("tag", "TeamsTagsIdApiClient"),
+							ApiClientLink::Struct("schedule", "ScheduleApiClient"),
+							ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+							ApiClientLink::Struct("member", "TeamsMembersIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::TeamsTags => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::teams::*".into()])
+				.imports(vec!["crate::teams::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("TeamsTagsIdApiClient".into()),
+						Some("TeamsTagsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("members".into(), "TeamsMembersApiClient".into()),
-							ApiClientLink::Struct("member".into(), "TeamsMembersIdApiClient".into()),
+							ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+							ApiClientLink::Struct("member", "TeamsMembersIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::GroupsTeam => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::teams::*".into()])
+				.imports(vec!["crate::users::*", "crate::teams::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("TeamApiClient".into()),
+						Some("TeamApiClient"),
 						vec![
-							ApiClientLink::Struct("primary_channel".into(), "PrimaryChannelApiClient".into()),
-							ApiClientLink::Struct("channels".into(), "ChannelsApiClient".into()),
-							ApiClientLink::StructId("channel".into(), "ChannelsIdApiClient".into()),
-							ApiClientLink::Struct("tags".into(), "TeamsTagsApiClient".into()),
-							ApiClientLink::StructId("tag".into(), "TeamsTagsIdApiClient".into()),
-							ApiClientLink::Struct("schedule".into(), "ScheduleApiClient".into()),
-							ApiClientLink::Struct("members".into(), "TeamsMembersApiClient".into()),
-							ApiClientLink::Struct("member".into(), "TeamsMembersIdApiClient".into()),
+							ApiClientLink::Struct("primary_channel", "PrimaryChannelApiClient"),
+							ApiClientLink::Struct("channels", "ChannelsApiClient"),
+							ApiClientLink::StructId("channel", "ChannelsIdApiClient"),
+							ApiClientLink::Struct("tags", "TeamsTagsApiClient"),
+							ApiClientLink::StructId("tag", "TeamsTagsIdApiClient"),
+							ApiClientLink::Struct("schedule", "ScheduleApiClient"),
+							ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+							ApiClientLink::Struct("member", "TeamsMembersIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::Todo => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
 						None,
 						vec![
-							ApiClientLink::Struct("lists".into(), "TodoListsApiClient".into()),
-							ApiClientLink::StructId("list".into(), "TodoListsIdApiClient".into()),
+							ApiClientLink::Struct("lists", "TodoListsApiClient"),
+							ApiClientLink::StructId("list", "TodoListsIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::TodoLists => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("TodoListsIdApiClient".into()),
+						Some("TodoListsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("tasks".into(), "TodoListsTasksApiClient".into()),
-							ApiClientLink::StructId("task".into(), "TodoListsTasksIdApiClient".into()),
+							ApiClientLink::Struct("tasks", "TodoListsTasksApiClient"),
+							ApiClientLink::StructId("task", "TodoListsTasksIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::TodoListsTasks => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("TodoListsIdApiClient".into()),
+						Some("TodoListsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("tasks".into(), "TodoListsTasksApiClient".into()),
-							ApiClientLink::StructId("task".into(), "TodoListsTasksIdApiClient".into()),
+							ApiClientLink::Struct("tasks", "TodoListsTasksApiClient"),
+							ApiClientLink::StructId("task", "TodoListsTasksIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::JoinedTeams => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::teams::*".into()])
+				.imports(vec!["crate::users::*", "crate::teams::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("JoinedTeamsIdApiClient".into()),
+						Some("JoinedTeamsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("primary_channel".into(), "PrimaryChannelApiClient".into()),
-							ApiClientLink::Struct("channels".into(), "ChannelsApiClient".into()),
-							ApiClientLink::StructId("channel".into(), "ChannelsIdApiClient".into()),
-							ApiClientLink::Struct("tags".into(), "TeamsTagsApiClient".into()),
-							ApiClientLink::StructId("tag".into(), "TeamsTagsIdApiClient".into()),
-							ApiClientLink::Struct("schedule".into(), "ScheduleApiClient".into()),
-							ApiClientLink::Struct("members".into(), "TeamsMembersApiClient".into()),
-							ApiClientLink::Struct("member".into(), "TeamsMembersIdApiClient".into()),
+							ApiClientLink::Struct("primary_channel", "PrimaryChannelApiClient"),
+							ApiClientLink::Struct("channels", "ChannelsApiClient"),
+							ApiClientLink::StructId("channel", "ChannelsIdApiClient"),
+							ApiClientLink::Struct("tags", "TeamsTagsApiClient"),
+							ApiClientLink::StructId("tag", "TeamsTagsIdApiClient"),
+							ApiClientLink::Struct("schedule", "ScheduleApiClient"),
+							ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+							ApiClientLink::Struct("member", "TeamsMembersIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
 			ResourceIdentity::MailFolders => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::extended_properties::*".into()])
+				.imports(vec!["crate::users::*", "crate::extended_properties::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("MailFoldersIdApiClient".into()), vec![
-						ApiClientLink::Struct("child_folders".into(), "ChildFoldersApiClient".into()),
-						ApiClientLink::StructId("child_folder".into(), "ChildFoldersIdApiClient".into()),
-						ApiClientLink::Struct("extended_properties".into(), "ExtendedPropertiesApiClient".into()),
-						ApiClientLink::Struct("messages".into(), "UsersMessagesApiClient".into()),
-						ApiClientLink::StructId("messages_id".into(), "UsersMessagesIdApiClient".into()),
+					ApiClientLinkSettings(Some("MailFoldersIdApiClient"), vec![
+						ApiClientLink::Struct("child_folders", "ChildFoldersApiClient"),
+						ApiClientLink::StructId("child_folder", "ChildFoldersIdApiClient"),
+						ApiClientLink::Struct("extended_properties", "ExtendedPropertiesApiClient"),
+						ApiClientLink::Struct("messages", "UsersMessagesApiClient"),
+						ApiClientLink::StructId("messages_id", "UsersMessagesIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
 			ResourceIdentity::ChildFolders => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::extended_properties::*".into()])
+				.imports(vec!["crate::users::*", "crate::extended_properties::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("ChildFoldersIdApiClient".into()), vec![
-						ApiClientLink::Struct("messages".into(), "UsersMessagesApiClient".into()),
-						ApiClientLink::StructId("messages_id".into(), "UsersMessagesIdApiClient".into()),
-						ApiClientLink::Struct("extended_properties".into(), "ExtendedPropertiesApiClient".into()),
-						ApiClientLink::StructId("child_folder".into(), "ChildFoldersIdApiClient".into()),
+					ApiClientLinkSettings(Some("ChildFoldersIdApiClient"), vec![
+						ApiClientLink::Struct("messages", "UsersMessagesApiClient"),
+						ApiClientLink::StructId("messages_id", "UsersMessagesIdApiClient"),
+						ApiClientLink::Struct("extended_properties", "ExtendedPropertiesApiClient"),
+						ApiClientLink::StructId("child_folder", "ChildFoldersIdApiClient"),
 					])
 				]).build()
 				.unwrap(),
 			ResourceIdentity::ContactFolders => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::extended_properties::*".into()])
+				.imports(vec!["crate::users::*", "crate::extended_properties::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("ContactFoldersIdApiClient".into()), vec![
-						ApiClientLink::Struct("contacts".into(), "ContactsApiClient".into()),
-						ApiClientLink::StructId("contact".into(), "ContactsIdApiClient".into()),
-						ApiClientLink::Struct("child_folders".into(), "ChildFoldersApiClient".into()),
-						ApiClientLink::StructId("child_folder".into(), "ChildFoldersIdApiClient".into()),
-						ApiClientLink::Struct("extended_properties".into(), "ExtendedPropertiesApiClient".into()),
+					ApiClientLinkSettings(Some("ContactFoldersIdApiClient"), vec![
+						ApiClientLink::Struct("contacts", "ContactsApiClient"),
+						ApiClientLink::StructId("contact", "ContactsIdApiClient"),
+						ApiClientLink::Struct("child_folders", "ChildFoldersApiClient"),
+						ApiClientLink::StructId("child_folder", "ChildFoldersIdApiClient"),
+						ApiClientLink::Struct("extended_properties", "ExtendedPropertiesApiClient"),
 					])
 				]).build()
 				.unwrap(),
 			ResourceIdentity::Planner => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::planner::*".into()])
+				.imports(vec!["crate::planner::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("PlannerApiClient".into()), vec![
-						ApiClientLink::Struct("tasks".into(), "PlannerTasksApiClient".into()),
-						ApiClientLink::StructId("task".into(), "PlannerTasksIdApiClient".into()),
-						ApiClientLink::Struct("buckets".into(), "BucketsApiClient".into()),
-						ApiClientLink::StructId("bucket".into(), "BucketsIdApiClient".into()),
-						ApiClientLink::Struct("plans".into(), "PlansApiClient".into()),
-						ApiClientLink::StructId("plan".into(), "PlansIdApiClient".into()),
+					ApiClientLinkSettings(Some("PlannerApiClient"), vec![
+						ApiClientLink::Struct("tasks", "PlannerTasksApiClient"),
+						ApiClientLink::StructId("task", "PlannerTasksIdApiClient"),
+						ApiClientLink::Struct("buckets", "BucketsApiClient"),
+						ApiClientLink::StructId("bucket", "BucketsIdApiClient"),
+						ApiClientLink::Struct("plans", "PlansApiClient"),
+						ApiClientLink::StructId("plan", "PlansIdApiClient"),
 					])
 				]).build()
 				.unwrap(),
 			ResourceIdentity::Buckets => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::planner::*".into()])
+				.imports(vec!["crate::planner::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("BucketsIdApiClient".into()), vec![
-						ApiClientLink::Struct("tasks".into(), "PlannerTasksApiClient".into()),
-						ApiClientLink::StructId("task".into(), "PlannerTasksIdApiClient".into()),
+					ApiClientLinkSettings(Some("BucketsIdApiClient"), vec![
+						ApiClientLink::Struct("tasks", "PlannerTasksApiClient"),
+						ApiClientLink::StructId("task", "PlannerTasksIdApiClient"),
 					])
 				]).build()
 				.unwrap(),
 			ResourceIdentity::Plans => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::planner::*".into()])
+				.imports(vec!["crate::planner::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("PlansIdApiClient".into()), vec![
-						ApiClientLink::Struct("tasks".into(), "PlannerTasksApiClient".into()),
-						ApiClientLink::StructId("task".into(), "PlannerTasksIdApiClient".into()),
-						ApiClientLink::Struct("plans".into(), "PlansApiClient".into()),
-						ApiClientLink::StructId("plan".into(), "PlansIdApiClient".into()),
+					ApiClientLinkSettings(Some("PlansIdApiClient"), vec![
+						ApiClientLink::Struct("tasks", "PlannerTasksApiClient"),
+						ApiClientLink::StructId("task", "PlannerTasksIdApiClient"),
+						ApiClientLink::Struct("plans", "PlansApiClient"),
+						ApiClientLink::StructId("plan", "PlansIdApiClient"),
 					])
 				]).build()
 				.unwrap(),
 			ResourceIdentity::Onenote => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("OnenoteApiClient".into()), vec![
-						ApiClientLink::Struct("pages".into(), "OnenotePagesApiClient".into()),
-						ApiClientLink::StructId("page".into(), "OnenotePagesIdApiClient".into()),
-						ApiClientLink::Struct("sections".into(), "OnenoteSectionsApiClient".into()),
-						ApiClientLink::StructId("section".into(), "OnenoteSectionsIdApiClient".into()),
-						ApiClientLink::Struct("section_groups".into(), "OnenoteSectionGroupsApiClient".into()),
-						ApiClientLink::StructId("section_group".into(), "OnenoteSectionGroupsIdApiClient".into()),
-						ApiClientLink::Struct("notebooks".into(), "OnenoteNotebooksApiClient".into()),
-						ApiClientLink::StructId("notebook".into(), "OnenoteNotebooksIdApiClient".into()),
-
+					ApiClientLinkSettings(Some("OnenoteApiClient"), vec![
+						ApiClientLink::Struct("pages", "OnenotePagesApiClient"),
+						ApiClientLink::StructId("page", "OnenotePagesIdApiClient"),
+						ApiClientLink::Struct("sections", "OnenoteSectionsApiClient"),
+						ApiClientLink::StructId("section", "OnenoteSectionsIdApiClient"),
+						ApiClientLink::Struct("section_groups", "OnenoteSectionGroupsApiClient"),
+						ApiClientLink::StructId("section_group", "OnenoteSectionGroupsIdApiClient"),
+						ApiClientLink::Struct("notebooks", "OnenoteNotebooksApiClient"),
+						ApiClientLink::StructId("notebook", "OnenoteNotebooksIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
 			ResourceIdentity::OnenoteNotebooks => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("OnenoteNotebooksIdApiClient".into()), vec![
-						ApiClientLink::Struct("sections".into(), "OnenoteSectionsApiClient".into()),
-						ApiClientLink::StructId("section".into(), "OnenoteSectionsIdApiClient".into()),
-						ApiClientLink::Struct("section_groups".into(), "OnenoteSectionGroupsApiClient".into()),
-						ApiClientLink::StructId("section_group".into(), "OnenoteSectionGroupsIdApiClient".into()),
+					ApiClientLinkSettings(Some("OnenoteNotebooksIdApiClient"), vec![
+						ApiClientLink::Struct("sections", "OnenoteSectionsApiClient"),
+						ApiClientLink::StructId("section", "OnenoteSectionsIdApiClient"),
+						ApiClientLink::Struct("section_groups", "OnenoteSectionGroupsApiClient"),
+						ApiClientLink::StructId("section_group", "OnenoteSectionGroupsIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
 			ResourceIdentity::OnenoteSections => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("OnenoteSectionsIdApiClient".into()), vec![
-						ApiClientLink::Struct("sections".into(), "OnenoteSectionsApiClient".into()),
-						ApiClientLink::StructId("section".into(), "OnenoteSectionsIdApiClient".into()),
-						ApiClientLink::Struct("pages".into(), "OnenotePagesApiClient".into()),
-						ApiClientLink::StructId("page".into(), "OnenotePagesIdApiClient".into()),
+					ApiClientLinkSettings(Some("OnenoteSectionsIdApiClient"), vec![
+						ApiClientLink::Struct("sections", "OnenoteSectionsApiClient"),
+						ApiClientLink::StructId("section", "OnenoteSectionsIdApiClient"),
+						ApiClientLink::Struct("pages", "OnenotePagesApiClient"),
+						ApiClientLink::StructId("page", "OnenotePagesIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
 			ResourceIdentity::OnenoteSectionGroups => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("OnenoteSectionGroupsIdApiClient".into()), vec![
-						ApiClientLink::Struct("sections".into(), "OnenoteSectionsApiClient".into()),
-						ApiClientLink::StructId("section".into(), "OnenoteSectionsIdApiClient".into()),
+					ApiClientLinkSettings(Some("OnenoteSectionGroupsIdApiClient"), vec![
+						ApiClientLink::Struct("sections", "OnenoteSectionsApiClient"),
+						ApiClientLink::StructId("section", "OnenoteSectionsIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
 			ResourceIdentity::OnenotePages => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.build()
 				.unwrap(),
 			ResourceIdentity::Teamwork => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::teamwork::*".into()])
+				.imports(vec!["crate::teamwork::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("TeamworkApiClient".into()), vec![
-						ApiClientLink::Struct("deleted_teams".into(), "DeletedTeamsApiClient".into()),
-						ApiClientLink::StructId("deleted_team".into(), "DeletedTeamsIdApiClient".into()),
+					ApiClientLinkSettings(Some("TeamworkApiClient"), vec![
+						ApiClientLink::Struct("deleted_teams", "DeletedTeamsApiClient"),
+						ApiClientLink::StructId("deleted_team", "DeletedTeamsIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
 			ResourceIdentity::DeletedTeams => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("DeletedTeamsIdApiClient".into()), vec![
-						ApiClientLink::Struct("channels".into(), "ChannelsApiClient".into()),
-						ApiClientLink::StructId("channel".into(), "ChannelsIdApiClient".into()),
+					ApiClientLinkSettings(Some("DeletedTeamsIdApiClient"), vec![
+						ApiClientLink::Struct("channels", "ChannelsApiClient"),
+						ApiClientLink::StructId("channel", "ChannelsIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
-			// resource_api_client!(ListsApiClient, ListsIdApiClient, ResourceIdentity::Lists);
+
 			ResourceIdentity::Sites => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::sites::*".into()])
+				.imports(vec!["crate::users::*", "crate::sites::*", "crate::default_drive::*", "crate::drives::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("SitesIdApiClient".into()), vec![
-						ApiClientLink::Struct("lists".into(), "ListsApiClient".into()),
-						ApiClientLink::StructId("list".into(), "ListsIdApiClient".into()),
-						ApiClientLink::Struct("onenote".into(), "OnenoteApiClient".into()),
+					ApiClientLinkSettings(Some("SitesIdApiClient"), vec![
+						ApiClientLink::Struct("lists", "ListsApiClient"),
+						ApiClientLink::StructId("list", "ListsIdApiClient"),
+						ApiClientLink::Struct("onenote", "OnenoteApiClient"),
+						ApiClientLink::Struct("default_drive", "DefaultDriveApiClient"),
+						ApiClientLink::Struct("drives", "DrivesApiClient"),
+						ApiClientLink::StructId("drive", "DrivesIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
+
+
 			ResourceIdentity::UsersMessages => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into()])
+				.imports(vec!["crate::users::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("UsersMessagesIdApiClient".into()), vec![
-						ApiClientLink::Struct("attachments".into(), "UsersAttachmentsApiClient".into()),
-						ApiClientLink::StructId("attachment".into(), "UsersAttachmentsIdApiClient".into()),
+					ApiClientLinkSettings(Some("UsersMessagesIdApiClient"), vec![
+						ApiClientLink::Struct("attachments", "UsersAttachmentsApiClient"),
+						ApiClientLink::StructId("attachment", "UsersAttachmentsIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
 			ResourceIdentity::Users => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::chats::*".into(), "crate::agreement_acceptances::*".into(),
-							  "crate::planner::*".into(), "crate::oauth2_permission_grants::*".into(), "crate::teams::*".into()])
+				.imports(vec!["crate::users::*", "crate::chats::*", "crate::agreement_acceptances::*",
+							  "crate::planner::*", "crate::oauth2_permission_grants::*", "crate::teams::*"])
 				.api_client_links(get_users_api_client_links(ri))
 				.build()
 				.unwrap(),
 			ResourceIdentity::Me => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*".into(), "crate::chats::*".into(), "crate::agreement_acceptances::*".into(),
-							  "crate::planner::*".into(), "crate::oauth2_permission_grants::*".into(), "crate::teams::*".into()])
+				.imports(vec!["crate::users::*", "crate::chats::*", "crate::agreement_acceptances::*",
+							  "crate::planner::*", "crate::oauth2_permission_grants::*", "crate::teams::*"])
 				.api_client_links(get_users_api_client_links(ri))
 				.build()
 				.unwrap(),
@@ -1144,40 +971,10 @@ impl ResourceSettings {
     }
 }
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Eq, PartialEq, Hash)]
+#[derive(Default, Debug, Clone, Serialize, AsFile, Eq, PartialEq, Hash)]
 pub struct ResourceSettingsMap(pub BTreeMap<ResourceIdentity, ResourceSettings>);
 
-fn get_method_macros_with_same_fn_name() {
-    let set = OpenApi::get_metadata_method_macros(
-        WriteConfiguration::second_level_builder(
-            ResourceIdentity::Users,
-            ResourceIdentity::ChatsMessages,
-        )
-        .trim_path_start("/users/{user-id}/chats/{chat-id}")
-        .filter_path(get_me_child_filters(ResourceIdentity::ChatsMessages))
-        .build()
-        .unwrap(),
-    );
-
-    let mut same_method_name_map: HashMap<String, VecDeque<MethodMacro>> = HashMap::new();
-
-    for method_macro in set.iter() {
-        let mut v = VecDeque::new();
-        v.push_back(method_macro.clone());
-        same_method_name_map
-            .entry(method_macro.fn_name.clone())
-            .and_modify(|mut v| v.push_back(method_macro.clone()))
-            .or_insert(v);
-    }
-
-    for (_fn_name, method_macro) in same_method_name_map.iter() {
-        if method_macro.len() > 1 {
-            dbg!(method_macro);
-        }
-    }
-}
-
-pub fn get_me_filter() -> Vec<String> {
+pub fn get_me_filter() -> Vec<&'static str> {
     vec![
         "activities",
         "appRoleAssignments",
@@ -1226,9 +1023,6 @@ pub fn get_me_filter() -> Vec<String> {
         "buckets",
         "plans",
     ]
-    .iter()
-    .map(|s| s.to_string())
-    .collect()
 }
 
 pub fn get_me_resource_identity() -> Vec<ResourceIdentity> {
@@ -1284,7 +1078,7 @@ pub fn get_me_resource_identity() -> Vec<ResourceIdentity> {
     ]
 }
 
-pub fn get_groups_filter() -> Vec<String> {
+pub fn get_groups_filter() -> Vec<&'static str> {
     vec![
         "activities",
         //"agreementAcceptances",
@@ -1339,85 +1133,186 @@ pub fn get_groups_filter() -> Vec<String> {
         "team",
         "groupLifecyclePolicies",
     ]
-    .iter()
-    .map(|s| s.to_string())
-    .collect()
 }
 
-fn get_me_child_filters(resource_identity: ResourceIdentity) -> Vec<String> {
+fn get_me_child_filters(resource_identity: ResourceIdentity) -> Vec<&'static str> {
     match resource_identity {
         ResourceIdentity::Calendars => vec![
-            "events/{{id}}".into(),
-            "calendarGroup".into(),
-            "instances".into(),
-            "calendarView".into(),
-            "multiValueExtendedProperties".into(),
-            "singleValueExtendedProperties".into(),
+            "events/{{id}}",
+            "calendarGroup",
+            "instances",
+            "calendarView",
+            "multiValueExtendedProperties",
+            "singleValueExtendedProperties",
         ],
         ResourceIdentity::DefaultCalendar => vec![
-            "calendars".into(),
-            "events/{{id}}".into(),
-            "calendarGroup".into(),
-            "instances".into(),
-            "calendarView".into(),
-            "multiValueExtendedProperties".into(),
-            "singleValueExtendedProperties".into(),
-        ],
+        /*
+                    "calendars",
+                    "events/{{id}}",
+                    "calendarGroup",
+                    "instances",
+                    "calendarView",
+                    "multiValueExtendedProperties",
+                    "singleValueExtendedProperties",
+         */
+                ],
         ResourceIdentity::CalendarView => vec![
-            "/calendars/{calendar-id}".into(),
-            "calendarGroup".into(),
-            "instances".into(),
-            "/calendar/".into(),
-            "events".into(),
-            "multiValueExtendedProperties".into(),
-            "singleValueExtendedProperties".into(),
+            "/calendars/{calendar-id}",
+            "calendarGroup",
+            "instances",
+            "/calendar/",
+            "events",
+            "multiValueExtendedProperties",
+            "singleValueExtendedProperties",
         ],
         ResourceIdentity::CalendarGroups => vec![
-            "instances".into(),
-            "/calendars/{calendar-id}".into(),
-            "/calendar/".into(),
-            "events".into(),
-            "multiValueExtendedProperties".into(),
-            "singleValueExtendedProperties".into(),
-            "calendarView".into(),
+            "instances",
+            "/calendars/{calendar-id}",
+            "/calendar/",
+            "events",
+            "multiValueExtendedProperties",
+            "singleValueExtendedProperties",
+            "calendarView",
         ],
         // Channels doesUserHaveAccess is part of a broken path
         ResourceIdentity::Channels => vec![
-            "messages".into(),
-            "sharedWithTeams".into(),
-            "doesUserHaveAccess".into(),
-            "members".into(),
+            "messages",
+            "sharedWithTeams",
+            "doesUserHaveAccess",
+            "members",
         ],
         ResourceIdentity::JoinedTeams => {
-            vec![
-                "primaryChannel".into(),
-                "channels".into(),
-                "tags".into(),
-                "schedule".into(),
-            ]
+            vec!["primaryChannel", "channels", "tags", "schedule"]
         }
-        ResourceIdentity::Events => vec!["instances".into()],
-        ResourceIdentity::MailFolders => vec!["childFolders".into(), "messages".into()],
-        ResourceIdentity::Outlook => vec!["supportedTimeZones()".into()],
-        ResourceIdentity::Todo => vec!["lists".into()],
-        ResourceIdentity::TodoLists => vec!["tasks".into()],
-        ResourceIdentity::Users => vec!["exportDeviceAndAppManagementData()".into()],
-        ResourceIdentity::Planner => vec!["plans".into(), "tasks".into()],
+        ResourceIdentity::Events => vec!["instances"],
+        ResourceIdentity::MailFolders => vec!["childFolders", "messages"],
+        ResourceIdentity::Outlook => vec!["supportedTimeZones()"],
+        ResourceIdentity::Todo => vec!["lists"],
+        ResourceIdentity::TodoLists => vec!["tasks"],
+        ResourceIdentity::Users => vec!["exportDeviceAndAppManagementData()"],
+        ResourceIdentity::Planner => vec!["plans", "tasks"],
 
         _ => vec![
-            //"/multiValueExtendedProperties".into(),
-           // "singleValueExtendedProperties".into(),
+            //"/multiValueExtendedProperties",
+           // "singleValueExtendedProperties",
         ],
     }
 }
 
-pub fn map_child_write_config(ris: ResourceIdentity) -> WriteConfiguration {
-    WriteConfiguration::second_level_builder(ResourceIdentity::Me, ris)
-        .modifier_name("messages")
-        .trim_path_start("/users/{user-id}")
-        .filter_path(get_me_child_filters(ris))
-        .build()
-        .unwrap()
+fn get_users_api_client_links(resource_identity: ResourceIdentity) -> Vec<ApiClientLinkSettings> {
+    let name = {
+        if resource_identity.eq(&ResourceIdentity::Users) {
+            Some("UsersIdApiClient")
+        } else {
+            Some("MeApiClient")
+        }
+    };
+
+    vec![ApiClientLinkSettings(
+        name,
+        vec![
+            ApiClientLink::Struct("chats", "ChatsApiClient"),
+            ApiClientLink::StructId("chat", "ChatsIdApiClient"),
+            // Users and Me
+            ApiClientLink::Struct("agreement_acceptances", "AgreementAcceptancesApiClient"),
+            ApiClientLink::StructId("agreement_acceptance", "AgreementAcceptancesIdApiClient"),
+            ApiClientLink::Struct("default_calendar", "DefaultCalendarApiClient"),
+            ApiClientLink::Struct("calendars", "CalendarsApiClient"),
+            ApiClientLink::StructId("calendar", "CalendarsIdApiClient"),
+            ApiClientLink::Struct("calendar_groups", "CalendarGroupsApiClient"),
+            ApiClientLink::StructId("calendar_group", "CalendarGroupsIdApiClient"),
+            ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
+            ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
+            ApiClientLink::Struct("messages", "UsersMessagesApiClient"),
+            ApiClientLink::StructId("message", "UsersMessagesIdApiClient"),
+            //ApiClientLink::Struct("agreement_acceptances", "AgreementAcceptancesApiClient"),
+            ApiClientLink::Struct("app_role_assignments", "AppRoleAssignmentsApiClient"),
+            ApiClientLink::StructId("app_role_assignment", "AppRoleAssignmentsIdApiClient"),
+            ApiClientLink::Struct("authentication", "AuthenticationApiClient"),
+            ApiClientLink::Struct("channels", "ChannelsApiClient"),
+            ApiClientLink::StructId("channel", "ChannelsIdApiClient"),
+            ApiClientLink::Struct("contact_folders", "ContactFoldersApiClient"),
+            ApiClientLink::StructId("contact_folder", "ContactFoldersIdApiClient"),
+            ApiClientLink::Struct("contacts", "ContactsApiClient"),
+            ApiClientLink::StructId("contact", "ContactsIdApiClient"),
+            ApiClientLink::Struct("joined_teams", "JoinedTeamsApiClient"),
+            ApiClientLink::StructId("joined_team", "JoinedTeamsIdApiClient"),
+            ApiClientLink::Struct("insights", "InsightsApiClient"),
+            ApiClientLink::Struct("license_details", "LicenseDetailsApiClient"),
+            ApiClientLink::StructId("license_detail", "LicenseDetailsIdApiClient"),
+            ApiClientLink::Struct("followed_sites", "FollowedSitesApiClient"),
+            ApiClientLink::Struct(
+                "managed_app_registrations",
+                "ManagedAppRegistrationsApiClient",
+            ),
+            ApiClientLink::StructId(
+                "managed_app_registration",
+                "ManagedAppRegistrationsIdApiClient",
+            ),
+            ApiClientLink::Struct("scoped_role_member_of", "ScopedRoleMemberOfApiClient"),
+            ApiClientLink::StructId("scoped_role_member_of_id", "ScopedRoleMemberOfIdApiClient"),
+            ApiClientLink::Struct("teamwork", "TeamworkApiClient"),
+            ApiClientLink::Struct(
+                "inference_classification",
+                "InferenceClassificationApiClient",
+            ),
+            ApiClientLink::Struct("mail_folders", "MailFoldersApiClient"),
+            ApiClientLink::StructId("mail_folder", "MailFoldersIdApiClient"),
+            ApiClientLink::Struct("activities", "ActivitiesApiClient"),
+            ApiClientLink::StructId("activity", "ActivitiesIdApiClient"),
+            ApiClientLink::Struct(
+                "device_management_troubleshooting_events",
+                "DeviceManagementTroubleshootingEventsApiClient",
+            ),
+            ApiClientLink::StructId(
+                "device_management_troubleshooting_event",
+                "DeviceManagementTroubleshootingEventsIdApiClient",
+            ),
+            ApiClientLink::Struct("extensions", "ExtensionsApiClient"),
+            ApiClientLink::StructId("extension", "ExtensionsIdApiClient"),
+            ApiClientLink::Struct("todo", "TodoApiClient"),
+            ApiClientLink::Struct("created_objects", "CreatedObjectsApiClient"),
+            ApiClientLink::StructId("created_object", "CreatedObjectsIdApiClient"),
+            ApiClientLink::Struct("transitive_member_of", "TransitiveMemberOfApiClient"),
+            ApiClientLink::StructId("transitive_member_of_id", "TransitiveMemberOfIdApiClient"),
+            ApiClientLink::Struct("direct_reports", "DirectReportsApiClient"),
+            ApiClientLink::StructId("direct_report", "DirectReportsIdApiClient"),
+            ApiClientLink::Struct("managed_devices", "ManagedDevicesApiClient"),
+            ApiClientLink::StructId("managed_device", "ManagedDevicesIdApiClient"),
+            ApiClientLink::Struct("events", "EventsApiClient"),
+            ApiClientLink::StructId("event", "EventsIdApiClient"),
+            ApiClientLink::Struct("online_meetings", "OnlineMeetingsApiClient"),
+            ApiClientLink::StructId("online_meeting", "OnlineMeetingsIdApiClient"),
+            ApiClientLink::Struct("photos", "PhotosApiClient"),
+            ApiClientLink::StructId("photo", "PhotosIdApiClient"),
+            ApiClientLink::Struct("outlook", "OutlookApiClient"),
+            ApiClientLink::Struct("presence", "PresenceApiClient"),
+            ApiClientLink::Struct("planner", "PlannerApiClient"),
+            ApiClientLink::Struct("registered_devices", "RegisteredDevicesApiClient"),
+            ApiClientLink::StructId("registered_device", "RegisteredDevicesIdApiClient"),
+            ApiClientLink::Struct("owned_devices", "OwnedDevicesApiClient"),
+            ApiClientLink::StructId("owned_device", "OwnedDevicesIdApiClient"),
+            ApiClientLink::Struct("owned_objects", "OwnedObjectsApiClient"),
+            ApiClientLink::StructId("owned_object", "OwnedObjectsIdApiClient"),
+            ApiClientLink::Struct("member_of", "MemberOfApiClient"),
+            ApiClientLink::StructId("member_of_id", "MemberOfIdApiClient"),
+            ApiClientLink::Struct("onenote", "OnenoteApiClient"),
+            ApiClientLink::Struct("schedule", "ScheduleApiClient"),
+            ApiClientLink::Struct("settings", "SettingsApiClient"),
+            ApiClientLink::Struct(
+                "oauth2_permission_grants",
+                "Oauth2PermissionGrantsApiClient",
+            ),
+            ApiClientLink::StructId(
+                "oauth2_permission_grant",
+                "Oauth2PermissionGrantsIdApiClient",
+            ),
+            ApiClientLink::Struct("mailbox_settings", "MailboxSettingsApiClient"),
+            ApiClientLink::Struct("default_drive", "DefaultDriveApiClient"),
+            ApiClientLink::Struct("drives", "DrivesApiClient"),
+            ApiClientLink::StructId("drive", "DrivesIdApiClient"),
+        ],
+    )]
 }
 
 pub fn map_shared_write_config(ris: Vec<ResourceIdentity>) -> Vec<WriteConfiguration> {
@@ -1454,77 +1349,33 @@ pub fn map_shared_write_config(ris: Vec<ResourceIdentity>) -> Vec<WriteConfigura
             ResourceIdentity::TodoListsTasks => {
                 WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
                     .trim_path_start("/users/{user-id}/todo/lists/{todoTaskList-id}")
-                    .filter_path(vec!["attachments".into()])
+                    .filter_path(vec!["attachments"])
                     .build()
                     .unwrap()
             }
 
             ResourceIdentity::EventsInstances => {
                 WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
-                    .filter_path(vec!["attachments".into()])
+                    .filter_path(vec!["attachments"])
                     .trim_path_start("/users/{user-id}/events/{event-id}")
                     .filter_path(get_me_child_filters(*ri))
                     .build()
                     .unwrap()
             }
-            ResourceIdentity::DefaultCalendar => {
-                WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
-                    .trim_path_start("/users/{user-id}")
-                    .path("/calendar/")
-                    .filter_path(get_me_child_filters(*ri))
-                    .build()
-                    .unwrap()
-            }
-            ResourceIdentity::Onenote => {
-                WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
-                    .trim_path_start("/users/{user-id}")
-                    .filter_path(vec![
-                        "sectionGroups".into(),
-                        "sections".into(),
-                        "notebooks".into(),
-                        "pages".into(),
-                    ])
-                    .build()
-                    .unwrap()
-            }
-            ResourceIdentity::OnenoteSections => {
-                WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
-                    .trim_path_start("/users/{user-id}/onenote")
-                    .filter_path(vec!["pages".into()])
-                    .build()
-                    .unwrap()
-            }
-            ResourceIdentity::OnenoteSectionGroups => {
-                WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
-                    .trim_path_start("/users/{user-id}/onenote")
-                    .filter_path(vec!["sections".into(), "pages".into()])
-                    .build()
-                    .unwrap()
-            }
-            ResourceIdentity::OnenoteNotebooks => {
-                WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
-                    .trim_path_start("/users/{user-id}/onenote")
-                    .filter_path(vec![
-                        "sectionGroups".into(),
-                        "sections".into(),
-                        "pages".into(),
-                    ])
-                    .build()
-                    .unwrap()
-            }
-            ResourceIdentity::OnenotePages => {
-                WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
-                    .trim_path_start("/users/{user-id}/onenote")
-                    .build()
-                    .unwrap()
-            }
+            ResourceIdentity::DefaultCalendar => get_write_configuration(*ri),
+            ResourceIdentity::Onenote => get_write_configuration(*ri),
+            ResourceIdentity::OnenoteSections => get_write_configuration(*ri),
+            ResourceIdentity::OnenoteSectionGroups => get_write_configuration(*ri),
+            ResourceIdentity::OnenoteNotebooks => get_write_configuration(*ri),
+            ResourceIdentity::OnenotePages => get_write_configuration(*ri),
+
             ResourceIdentity::ContactFolders => {
                 WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
                     .filter_path(vec![
-                        "contacts".into(),
-                        "childFolders".into(),
-                        "multiValueExtendedProperties".into(),
-                        "singleValueExtendedProperties".into(),
+                        "contacts",
+                        "childFolders",
+                        "multiValueExtendedProperties",
+                        "singleValueExtendedProperties",
                     ])
                     .trim_path_start("/users/{user-id}")
                     .build()
@@ -1562,97 +1413,47 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
     match resource_identity {
 		// Teamwork
 		ResourceIdentity::Teamwork => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["channels".into(), "deletedTeams".into()])
+			.filter_path(vec!["channels", "deletedTeams"])
 			.children(map_write_config(vec![ResourceIdentity::DeletedTeams]))
 			.build()
 			.unwrap(),
 		ResourceIdentity::DeletedTeams => WriteConfiguration::second_level_builder(ResourceIdentity::Teamwork, resource_identity)
 			.trim_path_start("/teamwork")
-			.filter_path(vec!["channels".into()])
+			.filter_path(vec!["channels"])
 			.build()
 			.unwrap(),
 
 
-		// Onenote
-		ResourceIdentity::Onenote => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.trim_path_start("/users/{user-id}")
-			.filter_path(vec!["sectionGroups".into(), "sections".into(), "notebooks".into(), "pages".into()])
-			.build()
-			.unwrap(),
-		ResourceIdentity::OnenoteSections => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.trim_path_start("/users/{user-id}/onenote")
-			.filter_path(vec!["pages".into()])
-			.build()
-			.unwrap(),
-		ResourceIdentity::OnenoteSectionGroups => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.trim_path_start("/users/{user-id}/onenote")
-			.filter_path(vec!["sections".into(), "pages".into()])
-			.build()
-			.unwrap(),
-		ResourceIdentity::OnenoteNotebooks => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.trim_path_start("/users/{user-id}/onenote")
-			.filter_path(vec!["sectionGroups".into(), "sections".into(), "pages".into()])
-			.build()
-			.unwrap(),
-		ResourceIdentity::OnenotePages => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.trim_path_start("/users/{user-id}/onenote")
-			.build()
-			.unwrap(),
-
-
+		// Planner
 		ResourceIdentity::PlannerTasks => WriteConfiguration::second_level_builder(ResourceIdentity::Planner, resource_identity)
 			.trim_path_start("/planner")
 			.build()
 			.unwrap(),
 		ResourceIdentity::Plans => WriteConfiguration::second_level_builder(ResourceIdentity::Planner, resource_identity)
-			.filter_path(vec!["tasks".into(), "buckets".into()])
+			.filter_path(vec!["tasks", "buckets"])
 			.trim_path_start("/planner")
 			.build()
 			.unwrap(),
 		ResourceIdentity::Buckets => WriteConfiguration::second_level_builder(ResourceIdentity::Planner, resource_identity)
-			.filter_path(vec!["tasks".into()])
+			.filter_path(vec!["tasks"])
 			.trim_path_start("/planner")
 			.build()
 			.unwrap(),
 		ResourceIdentity::Planner => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["plans".into(), "tasks".into(), "buckets".into()])
+			.filter_path(vec!["plans", "tasks", "buckets"])
 			.children(map_write_config(vec![ResourceIdentity::PlannerTasks, ResourceIdentity::Plans, ResourceIdentity::Buckets]))
 			.build()
 			.unwrap(),
 
 
 		ResourceIdentity::Agreements => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["file".into(), "files".into()])
+			.filter_path(vec!["file", "files"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::Applications => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["owners".into()])
+			.filter_path(vec!["owners"])
 			.build()
 			.unwrap(),
-
-
-		ResourceIdentity::AccessPackages |
-		ResourceIdentity::AccessPackageAssignmentApprovals |
-		ResourceIdentity::AssignmentPolicies |
-		ResourceIdentity::AssignmentRequests => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
-			.trim_path_start("/identityGovernance/entitlementManagement")
-			.build().unwrap(),
-		ResourceIdentity::AppConsent |
-		ResourceIdentity::AccessReviews => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
-			.filter_path(vec!["definitions".into(), "/multiValueExtendedProperties".into(), "singleValueExtendedProperties".into()])
-			.trim_path_start("/identityGovernance".to_string())
-			.build().unwrap(),
-		ResourceIdentity::AccessReviewsDefinitions => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
-			.trim_path_start("/identityGovernance/accessReviews".to_string())
-			.filter_path(vec!["instance".into()])
-			.build().unwrap(),
-		ResourceIdentity::AccessReviewsDefinitionsInstances => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
-			.trim_path_start("/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}")
-			.build().unwrap(),
-		ResourceIdentity::AccessReviewsDefinitionsInstancesStages => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
-			.trim_path_start("/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}/instances/{accessReviewInstance-id}")
-			.build().unwrap(),
-
 
 
 		ResourceIdentity::Communications => WriteConfiguration::builder(resource_identity)
@@ -1673,13 +1474,13 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 
 
 		ResourceIdentity::Chats => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["messages".into(), "members".into(), "tabs".into()])
+			.filter_path(vec!["messages", "members", "tabs"])
 			.children(map_write_config(vec![ResourceIdentity::ChatsMessages, ResourceIdentity::ChatsMessagesReplies]))
 			.build()
 			.unwrap(),
 		ResourceIdentity::ChatsMessages => WriteConfiguration::second_level_builder(ResourceIdentity::Chats, resource_identity)
 			.trim_path_start("/chats/{chat-id}")
-			.filter_path(vec!["replies".into()])
+			.filter_path(vec!["replies"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ChatsMessagesReplies => WriteConfiguration::second_level_builder(ResourceIdentity::Chats, resource_identity)
@@ -1690,7 +1491,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 
 		ResourceIdentity::ConnectedOrganizations => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
 			.trim_path_start("/identityGovernance/entitlementManagement")
-			.filter_path(vec!["internalSponsors".into(), "externalSponsors".into()])
+			.filter_path(vec!["internalSponsors", "externalSponsors"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ConnectedOrganizationsInternalSponsors => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
@@ -1721,7 +1522,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.unwrap(),
 		ResourceIdentity::ManagedEBooks => WriteConfiguration::second_level_builder(ResourceIdentity::DeviceAppManagement, resource_identity)
 			.trim_path_start("/deviceAppManagement")
-			.filter_path(vec!["userStateSummary".into(), "deviceStates".into()])
+			.filter_path(vec!["userStateSummary", "deviceStates"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ManagedEBooksDeviceStates |
@@ -1731,7 +1532,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.unwrap(),
 		ResourceIdentity::ManagedAppRegistrations => WriteConfiguration::second_level_builder(ResourceIdentity::DeviceAppManagement, resource_identity)
 			.trim_path_start("/deviceAppManagement")
-			.filter_path(vec!["appliedPolicies".into(), "intendedPolicies".into()])
+			.filter_path(vec!["appliedPolicies", "intendedPolicies"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ManagedAppRegistrationsIntendedPolicies |
@@ -1741,9 +1542,9 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.unwrap(),
 		ResourceIdentity::DeviceAppManagement => WriteConfiguration::builder(resource_identity)
 			.filter_path(vec![
-				"androidManagedAppProtections".into(),"defaultManagedAppProtections".into(),"iosManagedAppProtections".into(),"managedAppPolicies".into(),
-				"managedAppRegistrations".into(),"managedAppStatuses".into(),"managedEBooks".into(),"mdmWindowsInformationProtectionPolicies".into(),"mobileAppCategories".into(),
-				"mobileAppConfigurations".into(),"mobileApps".into(),"targetedManagedAppConfigurations".into(),"vppTokens".into(),"windowsInformationProtectionPolicies".into()
+				"androidManagedAppProtections","defaultManagedAppProtections","iosManagedAppProtections","managedAppPolicies",
+				"managedAppRegistrations","managedAppStatuses","managedEBooks","mdmWindowsInformationProtectionPolicies","mobileAppCategories",
+				"mobileAppConfigurations","mobileApps","targetedManagedAppConfigurations","vppTokens","windowsInformationProtectionPolicies"
 			])
 			.children(map_write_config(vec![
 				ResourceIdentity::AndroidManagedAppProtections, ResourceIdentity::DefaultManagedAppProtections,
@@ -1776,9 +1577,9 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::DeviceManagement =>
 			WriteConfiguration::builder(resource_identity)
 				.filter_path(vec![
-					"deviceEnrollmentConfigurations".into(), "deviceConfigurations".into(), "deviceCompliancePolicies".into(),
-					"termsAndConditions".into(), "managedDevices".into(), "roleDefinitions".into(), "troubleshootingEvents".into(),
-					"reports".into(), "deviceCompliancePolicySettingStateSummaries".into(), "windowsAutopilotDeviceIdentities".into()
+					"deviceEnrollmentConfigurations", "deviceConfigurations", "deviceCompliancePolicies",
+					"termsAndConditions", "managedDevices", "roleDefinitions", "troubleshootingEvents",
+					"reports", "deviceCompliancePolicySettingStateSummaries", "windowsAutopilotDeviceIdentities"
 				])
 				.children(map_write_config(vec![
 					ResourceIdentity::DeviceConfigurations,
@@ -1798,7 +1599,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		// Directory
 		ResourceIdentity::DeletedItems | ResourceIdentity::AdministrativeUnits => WriteConfiguration::second_level_builder(ResourceIdentity::Directory, resource_identity)
 			.trim_path_start("/directory")
-			.filter_path(vec!["members".into()])
+			.filter_path(vec!["members"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::DirectoryMembers => WriteConfiguration::second_level_builder(ResourceIdentity::Directory, resource_identity)
@@ -1808,8 +1609,8 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::Directory =>
 			WriteConfiguration::builder(resource_identity)
 				.filter_path(vec![
-					"microsoft.graph.additionalAccess()".to_string(), "directoryObjects".into(), "directoryRoleTemplates".into(),
-					"directoryRoles".into(), "administrativeUnits".into(), "deletedItems".into()
+					"microsoft.graph.additionalAccess()", "directoryObjects", "directoryRoleTemplates",
+					"directoryRoles", "administrativeUnits", "deletedItems"
 				])
 				.children(vec![
 					get_write_configuration(ResourceIdentity::DeletedItems),
@@ -1822,7 +1623,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 
 		// Directory Roles
 		ResourceIdentity::DirectoryRoles => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["members".to_string()])
+			.filter_path(vec!["members"])
 			.build()
 			.unwrap(),
 
@@ -1830,24 +1631,45 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::DomainDnsRecords => WriteConfiguration::from(resource_identity),
 
 
-
+		// Identity Governance
 		ResourceIdentity::EntitlementManagement => WriteConfiguration::second_level_builder(ResourceIdentity::Directory, resource_identity)
 			.trim_path_start("/entitlementManagement")
 			.filter_path(vec![
-				"assignments".into(), "accessPackages".into(), "assignmentPolicies".into(), "assignmentRequests".into(),
-				"catalogs".into(), "$count".into(), "accessPackageAssignmentApprovals".into(), "connectedOrganizations".into()
+				"assignments", "accessPackages", "assignmentPolicies", "assignmentRequests",
+				"catalogs", "$count", "accessPackageAssignmentApprovals", "connectedOrganizations"
 			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::EntitlementManagementAssignments |
 		ResourceIdentity::EntitlementManagementCatalogs => WriteConfiguration::second_level_builder(ResourceIdentity::Directory, resource_identity)
 			.trim_path_start("/identityGovernance/entitlementManagement")
-			.filter_path(vec!["additionalAccess()".to_string(), "accessPackages/".to_string()])
+			.filter_path(vec!["additionalAccess()", "accessPackages/"])
 			.build()
 			.unwrap(),
+		ResourceIdentity::AccessPackages |
+		ResourceIdentity::AccessPackageAssignmentApprovals |
+		ResourceIdentity::AssignmentPolicies |
+		ResourceIdentity::AssignmentRequests => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.trim_path_start("/identityGovernance/entitlementManagement")
+			.build().unwrap(),
+		ResourceIdentity::AppConsent |
+		ResourceIdentity::AccessReviews => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.filter_path(vec!["definitions", "/multiValueExtendedProperties", "singleValueExtendedProperties"])
+			.trim_path_start("/identityGovernance".to_string())
+			.build().unwrap(),
+		ResourceIdentity::AccessReviewsDefinitions => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.trim_path_start("/identityGovernance/accessReviews".to_string())
+			.filter_path(vec!["instance"])
+			.build().unwrap(),
+		ResourceIdentity::AccessReviewsDefinitionsInstances => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.trim_path_start("/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}")
+			.build().unwrap(),
+		ResourceIdentity::AccessReviewsDefinitionsInstancesStages => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.trim_path_start("/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}/instances/{accessReviewInstance-id}")
+			.build().unwrap(),
 		ResourceIdentity::IdentityGovernance =>
 			WriteConfiguration::builder(resource_identity)
-				.filter_path(vec!["entitlementManagement".into(), "accessReviews".into(), "appConsent".into()])
+				.filter_path(vec!["entitlementManagement", "accessReviews", "appConsent"])
 				.children(
 					vec![
 						get_write_configuration(ResourceIdentity::AccessPackageAssignmentApprovals),
@@ -1879,12 +1701,12 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 				ResourceIdentity::TermStoreSets, ResourceIdentity::TermStoreSetsChildren, ResourceIdentity::TermStoreSetsTerms,
 				ResourceIdentity::TermStoreSetsParentGroup
 			]))
-			.filter_path(vec!["termStores".into(), "termStore".into(), "lists".into(),
-							  "getActivitiesByInterval()".into(), "onenote".into(), "contentTypes".into()])
+			.filter_path(vec!["termStores", "termStore", "lists",
+							  "getActivitiesByInterval()", "onenote", "contentTypes"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::Lists => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["items".into(), "contentTypes".into()])
+			.filter_path(vec!["items", "contentTypes"])
 			.trim_path_start("/sites/{site-id}")
 			.build()
 			.unwrap(),
@@ -1893,27 +1715,27 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::SitesItems => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["contentTypes".into()])
+			.filter_path(vec!["contentTypes"])
 			.trim_path_start("/sites/{site-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::TermStore => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["termStores".into(), "sets".into(), "groups".into()])
+			.filter_path(vec!["termStores", "sets", "groups"])
 			.trim_path_start("/sites/{site-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::TermStoreGroups => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["sets".into()])
+			.filter_path(vec!["sets"])
 			.trim_path_start("/sites/{site-id}/termStore")
 			.build()
 			.unwrap(),
 		ResourceIdentity::TermStoreSets => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["children".into(), "parentGroup".into(), "terms".into(), "relations".into()])
+			.filter_path(vec!["children", "parentGroup", "terms", "relations"])
 			.trim_path_start("/sites/{site-id}/termStore")
 			.build()
 			.unwrap(),
 		ResourceIdentity::TermStoreSetsChildren => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["children/{term-id1}".into(), "relations/{relation-id}".into()])
+			.filter_path(vec!["children/{term-id1}", "relations/{relation-id}"])
 			.trim_path_start("/sites/{site-id}/termStore/sets/{set-id}")
 			.build()
 			.unwrap(),
@@ -1922,17 +1744,17 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::TermStoreSetsTerms => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["children".into(), "relations".into()])
+			.filter_path(vec!["children", "relations"])
 			.trim_path_start("/sites/{site-id}/termStore/sets/{set-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::TermStoreSetsParentGroup => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["sets/{set-id1}/children".into(), "sets/{set-id1}/terms".into(), "sets/{set-id1}/relations".into()])
+			.filter_path(vec!["sets/{set-id1}/children", "sets/{set-id1}/terms", "sets/{set-id1}/relations"])
 			.trim_path_start("/sites/{site-id}/termStore/sets/{set-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::TermStores => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["sets".into(), "groups".into()])
+			.filter_path(vec!["sets", "groups"])
 			.trim_path_start("/sites/{site-id}")
 			.build()
 			.unwrap(),
@@ -1958,6 +1780,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 				.unwrap(),
 
 
+		// Teams
 		ResourceIdentity::Teams =>
 			WriteConfiguration::builder(resource_identity)
 				.children(vec![
@@ -1982,7 +1805,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::PrimaryChannel => WriteConfiguration::second_level_builder(ResourceIdentity::Teams, resource_identity)
 			.path("/primaryChannel".to_string())
 			.trim_path_start("/teams/{team-id}".to_string())
-			.filter_path(vec!["sharedWithTeams".into(), "tabs".into(), "messages".into(), "members".into()])
+			.filter_path(vec!["sharedWithTeams", "tabs", "messages", "members"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::SharedWithTeams => WriteConfiguration::second_level_builder(ResourceIdentity::Teams, resource_identity)
@@ -1993,58 +1816,57 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::TeamsTags => WriteConfiguration::second_level_builder(ResourceIdentity::Teams, resource_identity)
 			.path("/tags".to_string())
 			.trim_path_start("/teams/{team-id}".to_string())
-			.filter_path(vec!["members".into()])
+			.filter_path(vec!["members"])
 			.build()
 			.unwrap(),
 
 
+		// Calendars
 		ResourceIdentity::Calendars => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
 			.trim_path_start("/users/{user-id}")
 			.path("/calendars/")
 			.filter_path(vec![
-				"calendarGroup".into(),
-				"instances".into(),
-				"calendarView".into(),
-				"events".into(),
-				"multiValueExtendedProperties".into(),
-				"singleValueExtendedProperties".into(),
-				"/attachments/".into(),
+				"calendarGroup",
+				"instances",
+				"calendarView",
+				"events",
+				"multiValueExtendedProperties",
+				"singleValueExtendedProperties",
+				"/attachments/",
 			])
 			.replace_operation_map(resource_identity.exact_camel_case())
 			.build().unwrap(),
 		ResourceIdentity::DefaultCalendar => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
 			.trim_path_start("/users/{user-id}")
-			.path("/calendar/")
 			.filter_path(vec![
-				"calendarGroup".into(), "instances".into(), "calendarView".into(), "events".into(), "multiValueExtendedProperties".into(),
-				"singleValueExtendedProperties".into(), "/calendars/{calendar-id}".into(), "/attachments/".into(),
+				"calendarGroup", "instances", "calendarView", "events", "multiValueExtendedProperties",
+				"singleValueExtendedProperties", "calendars", "attachments",
 			])
 			.build().unwrap(),
 		ResourceIdentity::CalendarView => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
 			.trim_path_start("/users/{user-id}")
 			.filter_path(vec![
-				"calendarGroup".into(), "instances".into(), "/calendars/".into(), "/calendar/".into(), "events".into(),
-				"multiValueExtendedProperties".into(), "singleValueExtendedProperties".into(), "/attachments/".into(),
+				"calendarGroup", "instances", "/calendars/", "/calendar/", "events",
+				"multiValueExtendedProperties", "singleValueExtendedProperties", "/attachments/",
 			])
 			.build().unwrap(),
 		ResourceIdentity::CalendarGroups => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
 			.trim_path_start("/users/{user-id}")
-			.path("/calendarGroups")
 			.filter_path(vec![
-				"calendarView".into(), "instances".into(), "/calendars/".into(), "/calendar/".into(), "events".into(),
-				"multiValueExtendedProperties".into(), "singleValueExtendedProperties".into(), "/attachments/".into(),
+				"calendarView", "instances", "/calendars/", "/calendar/", "events",
+				"multiValueExtendedProperties", "singleValueExtendedProperties", "/attachments/",
 			])
 			.build().unwrap(),
 
 
 		ResourceIdentity::Drives => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["items".into(), "list".into()])
+			.filter_path(vec!["items", "list"])
 			.children(map_write_config(vec![ResourceIdentity::DrivesList, ResourceIdentity::DrivesItems, ResourceIdentity::DrivesListContentTypes]))
 			.build()
 			.unwrap(),
 		ResourceIdentity::DrivesList => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}")
-			.filter_path(vec!["items".into(), "contentTypes".into()])
+			.filter_path(vec!["items", "contentTypes"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::DrivesListContentTypes => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
@@ -2053,14 +1875,14 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.unwrap(),
 		ResourceIdentity::DrivesItems => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}")
-			.filter_path(vec!["workbook".into(), "getActivitiesByInterval()".into()])
+			.filter_path(vec!["workbook", "getActivitiesByInterval()"])
 			.build()
 			.unwrap(),
 
 
 		// Service Principals
 		ResourceIdentity::ServicePrincipals => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["owners".into(), "transitiveMemberOf".into(), "oauth2PermissionGrants".into(), "memberOf".into(), "createdObjects".into(), "ownedObjects".into()])
+			.filter_path(vec!["owners", "transitiveMemberOf", "oauth2PermissionGrants", "memberOf", "createdObjects", "ownedObjects"])
 			.children(vec![get_write_configuration(ResourceIdentity::ServicePrincipalsOwners)])
 			.build()
 			.unwrap(),
@@ -2083,16 +1905,16 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			ResourceIdentity::Groups,
 			ResourceIdentity::GroupsTeam)
 			.trim_path_start("/groups/{group-id}")
-			.filter_path(vec!["primaryChannel".into(), "channels".into(), "tags".into(), "schedule".into(), "members".into()])
+			.filter_path(vec!["primaryChannel", "channels", "tags", "schedule", "members"])
 			.build().unwrap(),
 		ResourceIdentity::Threads =>  WriteConfiguration::second_level_builder(
 			ResourceIdentity::Groups,
 			ResourceIdentity::Threads)
 			.trim_path_start("/groups/{group-id}")
 			.filter_path(vec![
-				"posts".into(),
-				"multiValueExtendedProperties".into(),
-				"singleValueExtendedProperties".into(),
+				"posts",
+				"multiValueExtendedProperties",
+				"singleValueExtendedProperties",
 			])
 			.build().unwrap(),
 		ResourceIdentity::GroupsOwners =>  WriteConfiguration::second_level_builder(ResourceIdentity::Groups, resource_identity)
@@ -2102,22 +1924,22 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::Conversations => WriteConfiguration::second_level_builder(ResourceIdentity::Groups, resource_identity)
 			.trim_path_start("/groups/{group-id}")
 			.filter_path(vec![
-				"conversations/{{RID}}/threads".into(),
-				"posts".into(),
-				"threads".into(),
-				"multiValueExtendedProperties".into(),
-				"singleValueExtendedProperties".into(),
+				"conversations/{{RID}}/threads",
+				"posts",
+				"threads",
+				"multiValueExtendedProperties",
+				"singleValueExtendedProperties",
 			])
 			.build().unwrap(),
 		ResourceIdentity::ThreadsPosts => WriteConfiguration::second_level_builder(ResourceIdentity::Groups, resource_identity
-		).filter_path(vec!["inReplyTo".into(), "/multiValueExtendedProperties".into(), "singleValueExtendedProperties".into()])
+		).filter_path(vec!["inReplyTo", "/multiValueExtendedProperties", "singleValueExtendedProperties"])
 			.trim_path_start("/groups/{group-id}/threads/{conversationThread-id}")
 			.build().unwrap(),
 
 
 		ResourceIdentity::Identity => WriteConfiguration::builder(resource_identity)
 			.replace_operation_map(resource_identity.exact_camel_case())
-			.filter_path(vec!["identityProviders".into(), "identityGovernance".into(), "identityProtection".into()])
+			.filter_path(vec!["identityProviders", "identityGovernance", "identityProtection"])
 			.build()
 			.unwrap(),
 
@@ -2128,12 +1950,12 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::EducationMe |
 		ResourceIdentity::EducationUsers => WriteConfiguration::second_level_builder(ResourceIdentity::Education, resource_identity)
 			.trim_path_start("/education")
-			.filter_path(vec!["assignments".into()])
+			.filter_path(vec!["assignments"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::EducationAssignments => WriteConfiguration::second_level_builder(ResourceIdentity::Education, resource_identity)
 			.trim_path_start("/education/me")
-			.filter_path(vec!["submissions".into()])
+			.filter_path(vec!["submissions"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::EducationAssignmentsSubmissions => WriteConfiguration::second_level_builder(ResourceIdentity::Education, resource_identity)
@@ -2141,7 +1963,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::Education => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["me".into(), "classes".into(), "schools".into(), "users".into()])
+			.filter_path(vec!["me", "classes", "schools", "users"])
 			.children(vec![
 				get_write_configuration(ResourceIdentity::EducationMe),
 				get_write_configuration(ResourceIdentity::EducationUsers),
@@ -2153,22 +1975,47 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 
-		// ApiClientLink::Struct("users_attachments".into(), "UsersAttachmentsApiClient".into()),
-		// ApiClientLink::StructId("users_attachment".into(), "UsersAttachmentsIdApiClient".into()),
-		// ResourceIdentity::UsersMessages
-		// /users/{user-id}/events/{event-id}
+
+		// Onenote
+		ResourceIdentity::Onenote => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
+			.trim_path_start("/users/{user-id}")
+			.filter_path(vec!["sectionGroups", "sections", "notebooks", "pages"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::OnenoteSections => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
+			.trim_path_start("/users/{user-id}/onenote")
+			.filter_path(vec!["pages"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::OnenoteSectionGroups => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
+			.trim_path_start("/users/{user-id}/onenote")
+			.filter_path(vec!["sections", "pages"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::OnenoteNotebooks => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
+			.trim_path_start("/users/{user-id}/onenote")
+			.filter_path(vec!["sectionGroups", "sections", "pages"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::OnenotePages => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
+			.trim_path_start("/users/{user-id}/onenote")
+			.build()
+			.unwrap(),
+
+
+		// Users
 		ResourceIdentity::EventsInstances=> WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.filter_path(vec!["attachments".into()])
+			.filter_path(vec!["attachments"])
 			.trim_path_start("/users/{user-id}/events/{event-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::Events => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.filter_path(vec!["attachments".into(), "instances".into()])
+			.filter_path(vec!["attachments", "instances"])
 			.trim_path_start("/users/{user-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::UsersMessages => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.filter_path(vec!["attachments".into()])
+			.filter_path(vec!["attachments"])
 			.trim_path_start("/users/{user-id}")
 			.build()
 			.unwrap(),
@@ -2177,23 +2024,22 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::ChildFolders => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.filter_path(vec!["contacts".into(), "messages".into(), "singleValueExtendedProperties".into(), "multiValueExtendedProperties".into()])
+			.filter_path(vec!["contacts", "messages", "singleValueExtendedProperties", "multiValueExtendedProperties"])
 			.trim_path_start("/users/{user-id}/mailFolders/{mailFolder-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::ContactFolders => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.filter_path(vec!["childFolders".into(), "contacts".into(), "singleValueExtendedProperties".into(), "multiValueExtendedProperties".into()])
+			.filter_path(vec!["childFolders", "contacts", "singleValueExtendedProperties", "multiValueExtendedProperties"])
 			.trim_path_start("/users/{user-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::MailFolders => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
-			.filter_path(vec!["childFolders".into(), "messages".into(), "singleValueExtendedProperties".into(), "multiValueExtendedProperties".into()])
+			.filter_path(vec!["childFolders", "messages", "singleValueExtendedProperties", "multiValueExtendedProperties"])
 			.trim_path_start("/users/{user-id}")
 			.build()
 			.unwrap(),
 		_ => WriteConfiguration::builder(resource_identity)
 			.build()
 			.unwrap(),
-
 	}
 }

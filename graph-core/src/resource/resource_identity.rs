@@ -141,6 +141,7 @@ pub enum ResourceIdentity {
     List,
     Lists,
     Localizations,
+    MailboxSettings,
     MailFolders,
     ManagedAppPolicies,
     ManagedAppRegistrations,

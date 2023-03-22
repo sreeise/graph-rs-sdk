@@ -387,7 +387,13 @@ pub trait MacroImplWriter {
             .collect();
 
         for resource_setting in settings.iter() {
-            imports.extend(resource_setting.imports.clone());
+            imports.extend(
+                resource_setting
+                    .imports
+                    .iter()
+                    .map(|s| s.to_string())
+                    .clone(),
+            );
         }
 
         buf.put("// GENERATED CODE\n\nuse crate::api_default_imports::*;\n".as_bytes());
@@ -574,14 +580,9 @@ pub trait OpenApiParser {
             }
 
             for path in write_config.filter_path.iter() {
-                open_api2.paths = open_api2.filter_path_not_contains(path.as_str());
+                open_api2.paths = open_api2.filter_path_not_contains(path);
             }
 
-            if write_config.resource_identity == ResourceIdentity::TermStoreSetsChildren {
-                for (path, _path_item) in open_api2.paths.iter() {
-                    println!("{path:#?}");
-                }
-            }
             OpenApi::write_using(write_config.clone(), &open_api2);
         }
 
@@ -590,9 +591,7 @@ pub trait OpenApiParser {
         let metadata_queue = PathMetadataQueue::from((write_configuration.clone(), &open_api2));
 
         // Uncomment to see the metadata generated or open the directory
-        // graph-codegen/src/parsed_metadata and look for the generated metadata file
-        // These files are ignored when pushing to GitHub.
-        //dbg!(&metadata_queue);
+        // dbg!(&metadata_queue);
 
         if let Some(mod_file) = write_configuration.mod_file.as_ref() {
             metadata_queue.write_mod_file(mod_file);
@@ -600,6 +599,10 @@ pub trait OpenApiParser {
             metadata_queue.write_impl(name.as_str());
         }
 
+        // Uncomment to store generated metadata.
+        // Create a directory called parsed_metadata in graph-codegen/src beforehand.
+        // These files are ignored when pushing to GitHub.
+        /*
         let metadata_file = format!(
             "./graph-codegen/src/parsed_metadata/{}.json",
             name.to_snake_case()
@@ -615,6 +618,7 @@ pub trait OpenApiParser {
         write_configuration
             .as_file_pretty(&resource_parsing_info_file)
             .unwrap();
+         */
     }
 
     fn write_using(mut write_configuration: WriteConfiguration, open_api: &OpenApi) {
@@ -629,7 +633,9 @@ pub trait OpenApiParser {
         write_configuration.implement_children_mods();
 
         let metadata_queue = PathMetadataQueue::from((write_configuration.clone(), open_api));
-        //dbg!(&metadata_queue);
+
+        // Uncomment to see the metadata generated or open the directory
+        // dbg!(&metadata_queue);
 
         if let Some(mod_file) = write_configuration.mod_file.as_ref() {
             metadata_queue.write_mod_file(mod_file);
@@ -637,6 +643,10 @@ pub trait OpenApiParser {
             metadata_queue.write_impl(name.as_str());
         }
 
+        // Uncomment to store generated metadata.
+        // Create a directory called parsed_metadata in graph-codegen/src beforehand.
+        // These files are ignored when pushing to GitHub.
+        /*
         let metadata_file = format!(
             "./graph-codegen/src/parsed_metadata/{}.json",
             name.to_snake_case()
@@ -648,10 +658,10 @@ pub trait OpenApiParser {
             "./graph-codegen/src/parsed_metadata/{}_parsing_info.json",
             name.to_snake_case()
         );
-
         write_configuration
             .as_file_pretty(&resource_parsing_info_file)
             .unwrap();
+         */
     }
 
     fn write_all(write_configurations: Vec<WriteConfiguration>) {
@@ -664,20 +674,6 @@ pub trait OpenApiParser {
             }
             OpenApi::write_using(write_configuration, &open_api2);
         }
-    }
-
-    /// Use only for top-level resources. Otherwise use `write`.
-    fn write_resource(resource_identity: ResourceIdentity) {
-        let name = resource_identity.to_string();
-        let metadata_queue = PathMetadataQueue::from(resource_identity);
-        metadata_queue.debug_print();
-        metadata_queue.write_impl(name.as_str());
-
-        let metadata_file = format!(
-            "./graph-codegen/src/parsed_metadata/{}.json",
-            name.to_snake_case()
-        );
-        metadata_queue.as_file_pretty(&metadata_file).unwrap();
     }
 
     fn write_metadata<P: AsRef<Path>>(

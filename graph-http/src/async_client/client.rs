@@ -1,5 +1,3 @@
-use crate::download::AsyncDownload;
-use crate::download::DownloadClient;
 use crate::traits::*;
 use crate::upload_session::UploadSessionClient;
 use crate::url::GraphUrl;
@@ -56,10 +54,12 @@ impl AsyncClient {
         &mut self.client
     }
 
+    /*
     pub fn download(&mut self) -> AsyncDownload {
         let request = self.clone();
         DownloadClient::new_async(request)
     }
+     */
 
     pub fn build_upload_session(&mut self) -> (Option<PathBuf>, RequestBuilder) {
         let file = self.upload_session_file.take();
@@ -144,9 +144,11 @@ impl AsyncHttpClient {
         Arc::clone(&self.client)
     }
 
+    /*
     pub async fn download(&self) -> AsyncDownload {
         self.client.lock().download()
     }
+     */
 
     fn get_upload_session_values(&self) -> GraphResult<(PathBuf, RequestBuilder)> {
         let mut client = self.client.lock();

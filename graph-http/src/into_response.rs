@@ -4,10 +4,7 @@ use crate::traits::{AsyncTryFrom, ODataNextLink};
 use crate::types::{Delta, DeltaPhantom, NextLink, NextLinkValues, NoContent};
 use crate::upload_session::UploadSessionClient;
 use crate::url::GraphUrl;
-use crate::{
-    AsyncDownload, BlockingDownload, DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse,
-    RequestClient,
-};
+use crate::{DispatchAsync, DispatchBlocking, DispatchDelta, GraphResponse, RequestClient};
 use async_stream::{stream, try_stream};
 use bytes::Bytes;
 use futures_core::Stream;
@@ -315,6 +312,7 @@ where
     }
 }
 
+/*
 impl<'a> IntoResponseBlocking<'a, BlockingDownload> {
     pub fn download<P: AsRef<Path>>(self, path: P) -> GraphResult<BlockingDownload> {
         if self.error.is_some() {
@@ -324,6 +322,7 @@ impl<'a> IntoResponseBlocking<'a, BlockingDownload> {
         Ok(self.client.download())
     }
 }
+ */
 
 // Async Impl
 
@@ -542,6 +541,7 @@ where
     }
 }
 
+/*
 impl<'a> IntoResponseAsync<'a, AsyncDownload> {
     pub async fn download<P: AsRef<Path>>(self, path: P) -> GraphResult<AsyncDownload> {
         if self.error.is_some() {
@@ -551,3 +551,5 @@ impl<'a> IntoResponseAsync<'a, AsyncDownload> {
         Ok(self.client.download().await)
     }
 }
+
+ */

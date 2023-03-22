@@ -1,6 +1,8 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::default_drive::DefaultDriveApiClient;
+use crate::drives::*;
 use crate::sites::*;
 use crate::users::*;
 
@@ -35,6 +37,9 @@ impl SitesIdApiClient {
     api_client_link!(lists, ListsApiClient);
     api_client_link!(onenote, OnenoteApiClient);
     api_client_link_id!(list, ListsIdApiClient);
+    api_client_link_id!(drive, DrivesIdApiClient);
+    api_client_link!(drives, DrivesApiClient);
+    api_client_link!(default_drive, DefaultDriveApiClient);
 
     get!(
         doc: "Get a site resource",

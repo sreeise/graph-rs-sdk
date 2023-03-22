@@ -1,5 +1,7 @@
 use crate::api_default_imports::*;
+use crate::header::{HeaderName, CONTENT_TYPE};
 use graph_http::RequestComponents;
+use reqwest::header::{HeaderMap, HeaderValue};
 
 resource_api_client!(BatchApiClient);
 
@@ -16,7 +18,11 @@ impl BatchApiClient {
         ));
 
         if let Ok(rc) = rc_result {
-            return ResponseHandler::new(self.client.clone(), rc, None);
+            let mut header_map = HeaderMap::new();
+            header_map
+                .entry(CONTENT_TYPE)
+                .or_insert(HeaderValue::from_static("application/json"));
+            return ResponseHandler::new(self.client.clone(), rc, None).headers(header_map);
         }
 
         let rc = RequestComponents::new(

@@ -12,49 +12,69 @@ lazy_static! {
 #[test]
 fn list_contacts() {
     let client = Graph::new("");
-    let _ = client.v1().me().contacts().list_contacts();
-    assert_url_eq(&client, "/me/contacts");
-}
 
-#[test]
-fn get_contacts() {
-    let client = Graph::new("");
-    let _ = client.v1().me().contact(ID_VEC[0].as_str()).get_contacts();
-    assert_url_eq(&client, &format!("/me/contacts/{}", ID_VEC[0]));
-}
+    assert_eq!(
+        "/v1.0/me/contacts".to_string(),
+        client.me().contacts().list_contacts().url().path()
+    );
 
-#[test]
-fn contacts_delta() {
-    let client = Graph::new("");
-    let _ = client.v1().me().contacts().delta();
-    assert_url_eq(&client, "/me/contacts/delta()");
+    assert_eq!(
+        format!("/v1.0/me/contacts/{}", ID_VEC[0]),
+        client
+            .me()
+            .contact(ID_VEC[0].as_str())
+            .get_contacts()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        "/v1.0/me/contacts/delta()".to_string(),
+        client.me().contacts().delta().url().path()
+    );
 }
 
 #[test]
 fn create_contacts() {
     let client = Graph::new("");
-    let _ = client.v1().me().contacts().create_contacts(&String::new());
-    assert_url_eq(&client, "/me/contacts");
+
+    assert_eq!(
+        "/v1.0/me/contacts".to_string(),
+        client
+            .me()
+            .contacts()
+            .create_contacts(&String::new())
+            .url()
+            .path()
+    );
 }
 
 #[test]
 fn update_contacts() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .contact(ID_VEC[0].as_str())
-        .update_contacts(&String::new());
-    assert_url_eq(&client, &format!("/me/contacts/{}", ID_VEC[0]));
+
+    assert_eq!(
+        format!("/v1.0/me/contacts/{}", ID_VEC[0]),
+        client
+            .me()
+            .contact(ID_VEC[0].as_str())
+            .update_contacts(&String::new())
+            .url()
+            .path()
+    );
 }
 
 #[test]
 fn delete_contacts() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .contact(ID_VEC[0].as_str())
-        .delete_contacts();
-    assert_url_eq(&client, &format!("/me/contacts/{}", ID_VEC[0]));
+
+    assert_eq!(
+        format!("/v1.0/me/contacts/{}", ID_VEC[0]),
+        client
+            .me()
+            .contact(ID_VEC[0].as_str())
+            .delete_contacts()
+            .url()
+            .path()
+    );
 }

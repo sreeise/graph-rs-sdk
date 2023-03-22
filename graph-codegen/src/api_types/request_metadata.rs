@@ -551,7 +551,7 @@ impl PathMetadataQueue {
 
     pub fn debug_print(&self) {
         for path_metadata in self.0.iter() {
-            //dbg!(path_metadata);
+            dbg!(path_metadata);
         }
     }
 
@@ -612,6 +612,7 @@ impl FilterMetadata for PathMetadataQueue {
     }
 }
 
+/*
 // Use only for top-level resources. Otherwise use `From<ResourceParsingInfo>`.
 impl From<ResourceIdentity> for PathMetadataQueue {
     fn from(resource_identity: ResourceIdentity) -> Self {
@@ -628,6 +629,7 @@ impl From<ResourceIdentity> for PathMetadataQueue {
         })
     }
 }
+ */
 
 impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
     fn from(value: (WriteConfiguration, &OpenApi)) -> Self {

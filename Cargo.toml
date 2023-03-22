@@ -33,10 +33,10 @@ async-trait = "0.1"
 base64 = "0.13"
 futures = "0.3"
 handlebars = "2.0.2" # TODO: Update to 4
-reqwest = { version = "0.11", default-features = false, features = ["json", "blocking", "stream", "multipart"] }
+reqwest = { version = "0.11", default-features = false, features = ["json", "gzip", "blocking", "stream", "multipart"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-serde_yaml = "0.8"
+serde_yaml = "0.9.19"
 strum = { version = "0.24.1", features = ["derive"] }
 rayon = "1"
 tokio = { version = "1.25.0", features = ["full"] }
@@ -65,7 +65,6 @@ debug = false
 default = ["nativetls"]
 nativetls = ["reqwest/native-tls"] # define a nativetls feature of our crate that enables reqwest's nativetls feature
 rustls-tls = ["reqwest/rustls-tls"] # define a rustls feature of our crate that that enables reqwest's rustls-tls feature
-gzip = ["reqwest/gzip"]
 brotli = ["reqwest/brotli"]
 deflate = ["reqwest/deflate"]
 trust-dns = ["reqwest/trust-dns"]
