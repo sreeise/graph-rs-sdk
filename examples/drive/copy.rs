@@ -1,3 +1,4 @@
+use graph_http::traits::ResponseExt;
 use graph_rs_sdk::prelude::*;
 use std::thread;
 use std::time::Duration;
@@ -12,7 +13,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 // that is wrapped by : Example ":/documents/my_file.txt:"
 static ITEM_ID: &str = "ITEM_ID";
 
-pub fn copy_item() {
+pub async fn copy_item() {
     let graph = Graph::new(ACCESS_TOKEN);
 
     // The DriveItem copy request uses a ItemReference (parent reference) which contains
@@ -32,30 +33,20 @@ pub fn copy_item() {
             }
         }))
         .send()
+        .await
         .unwrap();
 
     // When an item is copied the response returns a URL in the location header
     // that can be used to monitor the progress. For events that may take longer to finish
-    // such as copying an item, the GraphResponse job_status and async_job_status() methods
-    // can be used to get the metadata returned from the monitor URL. This request returns an
-    // AsyncJobStatus struct. Note, it is important to remember that AsyncJobStatus
-    // is only used for specific API requests. The word Async in the struct is what the graph
-    // api refers to it as and doesnt have anything to do with whether the request is
-    // blocking or async.
-    //
-    // job_status method: Blocking
-    // async_job_status method: async
-    //
-    // The GraphResponse success() method will return true if the status of the
-    // request returns 202 which means the request for copying an item is approved.
-    // However, this does not mean that the copy event has finished. The
-    // GraphResponse async_job_status() should be used to check if the event
-    // has finished instead of the success method.
+    // such as copying an item, the job status method can be used to get the metadata returned
+    // from the monitor URL. A copy request may return a successful response but this does not
+    // mean the copy request has finished. The job status method should be used to check if the
+    // event has finished instead of the success method.
 
     // Wait a few seconds before checking the progress (assuming the file or
     // folder size is small here).
     thread::sleep(Duration::from_secs(5));
 
-    // For async, do response.async_job_status().await
-    println!("{:#?}", &response.job_status());
+    let job_status_response = response.job_status().await;
+    println!("{:#?}", job_status_response);
 }

@@ -161,6 +161,7 @@ pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 /// Common structs and traits.
 pub mod prelude {
     pub use crate::client::*;
+    pub use graph_error::{GraphError, GraphFailure, GraphResult};
     pub use graph_http::api_impl::ODataQuery;
 }
 

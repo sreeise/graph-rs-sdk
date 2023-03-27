@@ -1,18 +1,21 @@
-use graph_error::WithGraphErrorAsync;
-use graph_http::NextSession;
+use graph_error::{GraphResult, WithGraphErrorAsync};
+use graph_http::odata_query::ODataQuery;
+use graph_http::traits::AsyncIterator;
+use graph_http::{FileConfig, NextSession, UploadSessionTask};
+use graph_rs_sdk::prelude::Graph;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH, CONTENT_TYPE};
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::Duration;
 use test_tools::common::TestTools;
-use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
+use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::CleanUp;
+use test_tools::support::cleanup::{AsyncCleanUp, CleanUp};
 
 async fn test_folder_create_delete(folder_name: &str) {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
@@ -24,7 +27,6 @@ async fn test_folder_create_delete(folder_name: &str) {
                 "folder": folder,
                 "@microsoft.graph.conflictBehavior": "fail"
             }))
-            .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
             .send()
             .await;
 
@@ -46,28 +48,29 @@ async fn test_folder_create_delete(folder_name: &str) {
                 .unwrap();
             assert!(response.status().is_success());
         } else if let Err(e) = result {
-            panic!("Request error. Method: create folder with encoding. Path: root\nFolder Name: {:#?}\nError: {:#?}", folder_name, e);
+            panic!(
+                "Request error. Method: create root folder\nFolder Name: {:#?}\nError: {:#?}",
+                folder_name, e
+            );
         }
     }
 }
 
 #[tokio::test]
 async fn create_delete_folder() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    std::env::set_var("GRAPH_TEST_ENV", "true");
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     test_folder_create_delete("ci_docs").await;
 }
 
 #[tokio::test]
 async fn create_delete_folder_path_encode() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    std::env::set_var("GRAPH_TEST_ENV", "true");
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     test_folder_create_delete("special folder").await;
 }
 
 #[tokio::test]
 async fn list_versions_get_item() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let get_item_res = client
             .user(id.as_str())
@@ -102,8 +105,7 @@ async fn list_versions_get_item() {
 
 #[tokio::test]
 async fn drive_check_in_out() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if Environment::is_local() {
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let result = client
@@ -117,7 +119,7 @@ async fn drive_check_in_out() {
             dbg!(&result);
             let response = result.unwrap();
             assert!(response.status().is_success());
-            tokio::time::sleep(Duration::from_secs(3)).await;
+            std::thread::sleep(Duration::from_secs(2));
 
             let response = client
                 .drive(id.as_str())
@@ -135,59 +137,46 @@ async fn drive_check_in_out() {
         }
     }
 }
-/*
-#[test]
-fn drive_download() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let file_location = "./test_files/test_document.docx";
-        let mut clean_up = CleanUp::new(|| {
-            let path = Path::new(file_location);
-            if path.exists() {
-                std::fs::remove_file(path).unwrap();
-            }
-        });
 
+#[tokio::test]
+async fn drive_download() {
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        let file_location = "./test_files/test_document.docx";
+        let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
         clean_up.rm_files(file_location.into());
 
-        let download = client
-            .v1()
+        let path_buf = client
             .drive(id.as_str())
-            .download(":/test_document.docx:", "./test_files");
-
-        let path_buf = download
-            .send()
-            .expect("Request Error. Method: drive check_out.");
+            .item_by_path(":/test_document.docx:")
+            .get_items_content()
+            .download(&FileConfig::new("./test_files"))
+            .await
+            .unwrap();
 
         assert!(path_buf.exists())
     }
 }
 
-#[test]
-fn drive_download_format() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+#[tokio::test]
+async fn drive_download_format() {
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if Environment::is_local() {
-        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let file_location = "./test_files/test_document.pdf";
-            let mut clean_up = CleanUp::new(|| {
-                let path = Path::new(file_location);
-                if path.exists() {
-                    std::fs::remove_file(path).unwrap();
-                }
-            });
-
+            let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
             clean_up.rm_files(file_location.into());
 
-            let download = client
-                .v1()
+            let path_buf = client
                 .drive(id.as_str())
-                .download(":/test_document.docx:", "./test_files");
-
-            download.format("pdf");
-            download.set_file_name(OsString::from("test_document.pdf"));
-            let path_buf = download
-                .send()
-                .expect("Request Error. Method: drive check_out.");
+                .item_by_path(":/test_document.docx:")
+                .get_items_content()
+                .format("pdf")
+                .download(
+                    &FileConfig::new("./test_files").file_name(OsStr::new("test_document.pdf")),
+                )
+                .await
+                .unwrap();
 
             assert!(path_buf.exists());
             assert_eq!(path_buf.extension(), Some(OsStr::new("pdf")));
@@ -196,41 +185,38 @@ fn drive_download_format() {
     }
 }
 
-#[test]
-fn drive_update() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+#[tokio::test]
+async fn drive_update() {
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let req = client
-            .v1()
             .drive(id.as_str())
-            .update_items(
-                ":/update_test_document.docx:",
-                &serde_json::json!({
-                    "name": "update_test.docx"
-                }),
-            )
-            .send();
+            .item_by_path(":/update_test_document.docx:")
+            .update_items(&serde_json::json!({
+                "name": "update_test.docx"
+            }))
+            .send()
+            .await;
 
         if let Ok(response) = req {
-            assert_eq!(response.body()["name"].as_str(), Some("update_test.docx"));
+            assert!(response.status().is_success());
+            let body: serde_json::Value = response.json().await.unwrap();
+            assert_eq!(body["name"].as_str(), Some("update_test.docx"));
             thread::sleep(Duration::from_secs(2));
 
             let req = client
-                .v1()
                 .drive(id.as_str())
-                .update_items(
-                    ":/update_test.docx:",
-                    &serde_json::json!({
-                        "name": "update_test_document.docx"
-                    }),
-                )
-                .send();
+                .item_by_path(":/update_test.docx:")
+                .update_items(&serde_json::json!({
+                    "name": "update_test_document.docx"
+                }))
+                .send()
+                .await;
 
             if let Ok(response) = req {
-                assert_eq!(
-                    response.body()["name"].as_str(),
-                    Some("update_test_document.docx")
-                );
+                assert!(response.status().is_success());
+                let body: serde_json::Value = response.json().await.unwrap();
+                assert_eq!(body["name"].as_str(), Some("update_test_document.docx"));
             } else if let Err(e) = req {
                 panic!("Request Error. Method: drive update. Error: {:#?}", e);
             }
@@ -240,66 +226,179 @@ fn drive_update() {
     }
 }
 
-#[test]
-fn drive_upload_new_and_replace_and_delete() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let upload_res = client
-            .v1()
-            .drive(id.as_str())
-            .upload_new(
-                ":/test_upload_file.txt:",
-                "./test_files/test_upload_file.txt",
-            )
-            .send();
+async fn get_special_folder_id(user_id: &str, folder: &str, client: &Graph) -> GraphResult<String> {
+    let response = client
+        .user(user_id)
+        .default_drive()
+        .get_special(folder)
+        .send()
+        .await?;
 
-        if let Ok(value) = upload_res {
-            assert!(value.body()["id"].as_str().is_some());
-            let item_id = value.body()["id"].as_str().unwrap();
+    let body: serde_json::Value = response.json().await?;
+    let parent_reference_id = body["id"].as_str().unwrap();
+    Ok(parent_reference_id.into())
+}
 
-            let mut file = OpenOptions::new()
-                .write(true)
-                .open("./test_files/test_upload_file.txt")
-                .unwrap();
+async fn upload_new_file(
+    user_id: &str,
+    parent_reference_id: &str,
+    file_name: &str,
+    local_file: &str,
+    client: &Graph,
+) -> GraphResult<reqwest::Response> {
+    client
+        .drive(user_id)
+        .item(parent_reference_id)
+        .upload_items_content(file_name, &FileConfig::new(local_file))
+        .send()
+        .await
+}
 
+async fn update_file(
+    user_id: &str,
+    onedrive_file_path: &str,
+    local_file: &str,
+    client: &Graph,
+) -> GraphResult<reqwest::Response> {
+    client
+        .user(user_id)
+        .default_drive()
+        .item_by_path(onedrive_file_path)
+        .update_items_content(&FileConfig::new(local_file))
+        .send()
+        .await
+}
+
+async fn delete_file(
+    user_id: &str,
+    item_id: &str,
+    client: &Graph,
+) -> GraphResult<reqwest::Response> {
+    client
+        .user(user_id)
+        .default_drive()
+        .item(item_id)
+        .delete_items()
+        .send()
+        .await
+}
+
+#[tokio::test]
+async fn drive_upload_item() {
+    std::env::set_var("GRAPH_TEST_ENV", "true");
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        let local_file = "./test_files/test_upload_file.txt";
+        let file_name = ":/test_upload_file.txt:";
+        let onedrive_file_path = ":/Documents/test_upload_file.txt:";
+
+        let parent_reference_id = get_special_folder_id(id.as_str(), "Documents", &client)
+            .await
+            .unwrap();
+        let upload_res = upload_new_file(
+            id.as_str(),
+            parent_reference_id.as_str(),
+            file_name,
+            local_file,
+            &client,
+        )
+        .await;
+
+        if let Ok(response) = upload_res {
+            assert!(response.status().is_success());
+            let body: serde_json::Value = response.json().await.unwrap();
+            assert!(body["id"].as_str().is_some());
+            let item_id = body["id"].as_str().unwrap();
+
+            let mut file = OpenOptions::new().write(true).open(local_file).unwrap();
             file.write_all("Test Update File".as_bytes()).unwrap();
             file.sync_all().unwrap();
 
             thread::sleep(Duration::from_secs(2));
-            let upload_replace = client
-                .v1()
-                .drive(id.as_str())
-                .upload_replace(item_id, "./test_files/test_upload_file.txt")
-                .send();
 
-            if let Ok(value) = upload_replace {
-                let item_id2 = value.body()["id"].as_str().unwrap();
+            let update_res =
+                update_file(id.as_str(), onedrive_file_path, local_file, &client).await;
+
+            if let Ok(response2) = update_res {
+                assert!(response2.status().is_success());
+                let body: serde_json::Value = response2.json().await.unwrap();
+                assert!(body["id"].as_str().is_some());
+                let item_id2 = body["id"].as_str().unwrap();
                 assert_eq!(item_id, item_id2);
-            } else if let Err(e) = upload_replace {
-                panic!(
-                    "Request Error. Method: drive upload replace. Error: {:#?}",
-                    e
-                );
+            } else if let Err(err) = update_res {
+                panic!("Request Error. Method: update item. Error: {:#?}", err);
             }
 
             thread::sleep(Duration::from_secs(2));
-            let delete_res = client.v1().drive(id.as_str()).delete_items(item_id).send();
+
+            let delete_res = delete_file(id.as_str(), item_id, &client).await;
 
             if let Ok(response) = delete_res {
-                assert!(
-                    response.status() == 200
-                        || response.status() == 201
-                        || response.status() == 204
-                );
-            } else if let Err(e) = delete_res {
-                panic!("Request Error. Method: drive delete. Error: {:#?}", e);
+                assert!(response.status().is_success());
+            } else if let Err(err) = delete_res {
+                panic!("Request Error. Method: drive delete. Error: {:#?}", err);
             }
-        } else if let Err(e) = upload_res {
-            panic!("Request Error. Method: drive upload. Error: {:#?}", e);
+        } else if let Err(err) = upload_res {
+            panic!("Request Error. Method: drive upload. Error: {:#?}", err);
         }
     }
 }
 
+#[tokio::test]
+async fn get_file_from_encoded_folder_name() {
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        let response = client
+            .v1()
+            .drive(&id)
+            .item_by_path(":/encoding_test_files/spaced folder/test.txt:")
+            .get_items()
+            .send()
+            .await
+            .unwrap();
+
+        assert!(response.status().is_success());
+        let body: serde_json::Value = response.json().await.unwrap();
+        assert!(body["id"].as_str().is_some());
+    }
+}
+
+#[tokio::test]
+async fn file_upload_session() {
+    std::env::set_var("GRAPH_TEST_ENV", "true");
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        let upload = serde_json::json!({
+            "@microsoft.graph.conflictBehavior": Some("fail".to_string())
+        });
+
+        let response = client
+            .drive(id.as_str())
+            .item_by_path(":/upload_session_file.txt:")
+            .create_upload_session(&upload)
+            .send()
+            .await
+            .unwrap();
+
+        assert!(response.status().is_success());
+
+        dbg!(&response);
+
+        let file = OpenOptions::new()
+            .read(true)
+            .open("./test_files/upload_session_file.txt")
+            .unwrap();
+
+        let mut upload_session_task = response.into_upload_session(file).await.unwrap();
+
+        while let Some(Ok(response)) = upload_session_task.next().await {
+            assert!(response.status().is_success());
+            dbg!(&response);
+        }
+    }
+}
+
+/*
 #[test]
 fn drive_upload_session() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
@@ -364,41 +463,7 @@ fn drive_upload_session() {
     }
 }
 
-#[test]
-pub fn get_file_from_encoded_folder_name() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let result = client
-            .v1()
-            .drive(&id)
-            .get_items(":/encoding_test_files/spaced folder/test.txt:")
-            .send();
 
-        TestTools::assert_success(&result, "get_item (from percent encoded folder)");
-    }
-}
 
-// Requests with /drive path (not selecting a specific drive with an id).
-
-#[test]
-pub fn get_drive_base() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let result = client.v1().drives().get_drive().send();
-
-        if let Ok(response) = result {
-            assert!(
-                response.status() == 200 || response.status() == 201 || response.status() == 204
-            );
-            let odata_context = response.body()["@odata.context"].as_str().unwrap();
-            assert_eq!(
-                "https://graph.microsoft.com/v1.0/$metadata#drives/$entity",
-                odata_context
-            );
-        } else if let Err(e) = result {
-            panic!("Request error. DriveRequest GetDrive. Error: {:#?}", e);
-        }
-    }
-}
 
  */

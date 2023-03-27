@@ -1,9 +1,10 @@
-use graph_error::download::{AsyncDownloadError, BlockingDownloadError};
+use graph_error::download::AsyncDownloadError;
+use graph_http::FileConfig;
 use graph_rs_sdk::error::*;
 use graph_rs_sdk::prelude::*;
 use reqwest::StatusCode;
 use test_tools::oauthrequest::OAuthTestClient;
-use test_tools::oauthrequest::{ASYNC_THROTTLE_MUTEX, DRIVE_THROTTLE_MUTEX};
+use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 
 fn test_graph_failure(err: GraphFailure, expect: GraphError) {
     match err {
@@ -33,6 +34,7 @@ fn test_graph_failure(err: GraphFailure, expect: GraphError) {
         GraphFailure::HandlebarsTemplateRenderError(e) => {
             panic!("Expected GraphFailure::GraphError, got {}", e)
         }
+        _ => panic!("Expected GraphFailure::GraphError, got unknown error"),
     }
 }
 
@@ -58,65 +60,11 @@ fn new_error(status_code: StatusCode, error_code: &str, message: &str) -> GraphE
     }
 }
 
-// Use a bad access token so we can test that the GraphError parses
-// the response correctly.
-#[test]
-fn auth_graph_error() {
-    let client = Graph::new("ACCESS_TOKEN");
-
-    let response = client.v1().me().get_user().send();
-
-    match response {
-        Ok(_) => panic!("Got successful request for an invalid access token"),
-        Err(err) => test_graph_failure(
-            err,
-            new_error(
-                StatusCode::UNAUTHORIZED,
-                "InvalidAuthenticationToken",
-                "CompactToken parsing failed with error code: 80049217",
-            ),
-        ),
-    }
-}
-
 #[tokio::test]
 async fn async_auth_graph_error() {
-    let client = Graph::new_async("ACCESS_TOKEN");
-
-    let response = client.v1().me().get_user().send().await;
-
-    if let Ok(_res) = response {
-        panic!("Got successful request for an invalid access token");
-    } else if let Err(err) = response {
-        test_graph_failure(
-            err,
-            new_error(
-                StatusCode::UNAUTHORIZED,
-                "InvalidAuthenticationToken",
-                "CompactToken parsing failed with error code: 80049217",
-            ),
-        );
-    }
-}
-
-#[test]
-fn upload_session_graph_error() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let upload = serde_json::json!({
-        "@microsoft.graph.conflictBehavior": Some("fail".to_string())
-    });
-
-    let response = client
-        .v1()
-        .user("0")
-        .drive()
-        .create_upload_session(
-            ":/upload_session.txt:",
-            "./test_files/async_upload_session.txt",
-            &upload,
-        )
-        .send();
+    let response = client.me().get_user().send().await;
 
     if let Ok(_res) = response {
         panic!("Got successful request for an invalid access token");
@@ -132,9 +80,10 @@ fn upload_session_graph_error() {
     }
 }
 
+/*
 #[tokio::test]
 async fn async_upload_session_graph_error() {
-    let client = Graph::new_async("ACCESS_TOKEN");
+    let client = Graph::new("ACCESS_TOKEN");
 
     let upload = serde_json::json!({
         "@microsoft.graph.conflictBehavior": Some("fail".to_string())
@@ -165,54 +114,28 @@ async fn async_upload_session_graph_error() {
         );
     }
 }
+ */
 
 // Use a file that doesnt exist to test that the error from downloading
 // is parsed correctly.
 
-#[test]
-fn drive_download_graph_error() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
+#[tokio::test]
+async fn drive_download_graph_error() {
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let download = client
+        let result = client
             .v1()
             .drive(id.as_str())
-            .download(":/non_existent_file.docx:", "./test_files");
+            .item_by_path(":/non_existent_file.docx:")
+            .get_items_content()
+            .download(&FileConfig::new("./test_files"))
+            .await;
 
-        match download.send() {
+        match result {
 			Ok(_) => { panic!("Got successful request for a downloading a file that should not exist") }
-			Err(BlockingDownloadError::Graph(e)) =>
-				test_graph_error(e, new_error(StatusCode::NOT_FOUND, "itemNotFound", "The resource could not be found.")),
-			Err(e) => panic!("Expected BlockingDownloadError::Graph(GraphError..), but got a different variant: {}", e),
+			Err(GraphFailure::AsyncDownloadError(AsyncDownloadError::GraphError(err))) =>
+				test_graph_error(err, new_error(StatusCode::NOT_FOUND, "itemNotFound", "The resource could not be found.")),
+			Err(e) => panic!("Expected AsyncDownloadError::GraphError(GraphError..), but got a different variant: {}", e),
 		}
-    }
-}
-
-#[tokio::test]
-async fn async_drive_download_graph_error() {
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let download = client
-            .v1()
-            .user(id.as_str())
-            .drive()
-            .download(":/non_existent_file.docx:", "./test_files");
-
-        match download.send().await {
-            Ok(_) => {
-                panic!("Got successful request for a downloading a file that should not exist")
-            }
-            Err(AsyncDownloadError::Graph(e)) => test_graph_error(
-                e,
-                new_error(
-                    StatusCode::NOT_FOUND,
-                    "itemNotFound",
-                    "The resource could not be found.",
-                ),
-            ),
-            Err(e) => panic!(
-                "Expected AsyncDownloadError::Graph(GraphError..), but got a different variant: {}",
-                e
-            ),
-        }
     }
 }

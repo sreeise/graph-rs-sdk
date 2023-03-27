@@ -18,7 +18,7 @@ macro_rules! into_handler {
         let params = vec![$($( $arg_name.as_ref(), )*)?];
         let json = map_parameters(&params);
         let url_result = $inner.build_url($template, &json);
-        let body_result = serde_json::to_string(&$body).map_err(GraphFailure::from);
+        let body_result = $body.as_body();
 
         let rc_result = RequestComponents::try_from(($inner.resource_config.resource_identity, $method, url_result, body_result));
         if let Ok(rc) = rc_result {
@@ -39,14 +39,14 @@ macro_rules! resource_api_method {
 
 	($(doc: $doc:expr,)? name: $name:ident, path: $template:expr, body: $body:expr, method: $method:expr $(, params: $($arg_name:ident),*)?) => {
         $( #[doc = $doc] )?
-        pub fn $name<B: serde::Serialize>(&self $(, $( $arg_name : impl AsRef<str> ),* )?, body: &B) -> ResponseHandler {
+        pub fn $name<B: BodyExt>(&self $(, $( $arg_name : impl AsRef<str> ),* )?, body: &B) -> ResponseHandler {
             into_handler!(&self, $method, $template, body $(, params: $( $arg_name ),* )?);
         }
 	};
 
 	($(doc: $doc:expr,)? name: $name:ident, path: $template:expr, method: $method:expr, body: $body:expr $(, params: $($arg_name:ident,)*)?) => {
         $( #[doc = $doc] )?
-        pub fn $name<B: serde::Serialize>(&self $(, $( $arg_name : impl AsRef<str> ),* )?, body: &B) -> ResponseHandler {
+        pub fn $name<B: BodyExt>(&self $(, $( $arg_name : impl AsRef<str> ),* )?, body: &B) -> ResponseHandler {
             into_handler!(&self, $method, $template, body $(, params: $( $arg_name ),* )?);
         }
 	};

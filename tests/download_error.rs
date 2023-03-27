@@ -16,8 +16,8 @@ async fn download_config_dir_no_exists() {
         .me()
         .default_drive()
         .item("")
-        .get_items_content_by_file()
-        .download(FileConfig::new("./test_files/download_dir"))
+        .get_items_content()
+        .download(&FileConfig::new("./test_files/download_dir"))
         .await
         .unwrap();
 }
@@ -30,9 +30,9 @@ async fn download_config_file_exists() {
         let result = client
             .user(id.as_str())
             .default_drive()
-            .item(":/downloadtestdoc.txt:")
-            .get_items_content_by_file()
-            .download(FileConfig::new("./test_files").file_name(OsStr::new("downloadtestdoc.txt")))
+            .item_by_path(":/downloadtestdoc.txt:")
+            .get_items_content()
+            .download(&FileConfig::new("./test_files").file_name(OsStr::new("downloadtestdoc.txt")))
             .await;
 
         match result {
@@ -59,9 +59,9 @@ async fn download_config_no_file_name() {
         let result = client
             .user(id.as_str())
             .default_drive()
-            .item(":/downloadtestdoc.txt:")
-            .get_items_content_by_file()
-            .download(FileConfig::new("./test_files"))
+            .item_by_path(":/downloadtestdoc.txt:")
+            .get_items_content()
+            .download(&FileConfig::new("./test_files"))
             .await;
 
         let mut matched_no_file_name = false;
@@ -86,7 +86,7 @@ async fn download_is_err_config_dir_no_exists() {
         .default_drive()
         .item("fake")
         .get_items_content()
-        .download(FileConfig::builder().path("./test_files/download_dir"))
+        .download(&FileConfig::new("./test_files/download_dir"))
         .await;
 
     match response {

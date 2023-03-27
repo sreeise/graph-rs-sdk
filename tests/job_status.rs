@@ -1,70 +1,82 @@
+use graph_error::GraphResult;
+use graph_http::traits::ResponseExt;
+use graph_rs_sdk::client::Graph;
 use std::thread;
 use std::time::Duration;
 use test_tools::common::TestTools;
-use test_tools::oauthrequest::{Environment, OAuthTestClient, THROTTLE_MUTEX};
+use test_tools::oauthrequest::{Environment, OAuthTestClient, ASYNC_THROTTLE_MUTEX};
 
-fn delete_item(item_id: &str) {
-    if let Some((drive_id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let _result = client
-            .v1()
-            .drive(drive_id.as_str())
-            .delete_items(item_id)
-            .send();
-    }
+async fn delete_item(
+    drive_id: &str,
+    item_id: &str,
+    client: &Graph,
+) -> GraphResult<reqwest::Response> {
+    client
+        .drive(drive_id)
+        .item_by_path(item_id)
+        .delete_items()
+        .send()
+        .await
 }
 
-#[test]
-fn job_status() {
+#[tokio::test]
+async fn job_status() {
     if Environment::is_appveyor() {
         return;
     }
 
-    let _lock = THROTTLE_MUTEX.lock().unwrap();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
 
     let original_file = ":/test_job_status.txt:";
     let copy_name = "test_job_status_copy.txt";
     let copy_drive_path = ":/test_job_status_copy.txt:";
 
-    // Delete file if its still there from last test run.
-    delete_item(copy_drive_path);
-    thread::sleep(Duration::from_secs(2));
-    if let Some((drive_id, client)) = OAuthTestClient::ClientCredentials.graph() {
+    if let Some((drive_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        // Delete file if its still there from last test run.
+        let _ = delete_item(drive_id.as_str(), copy_drive_path, &client).await;
+        thread::sleep(Duration::from_secs(2));
+
         let result = client
-            .v1()
             .drive(drive_id.as_str())
-            .get_items(original_file)
-            .send();
+            .item_by_path(original_file)
+            .get_items()
+            .send()
+            .await;
 
         let response = result.expect("Async get file: Drive");
-        let id_option = response.body()["id"].as_str();
-        assert!(id_option.is_some());
+        let body: serde_json::Value = response.json().await.unwrap();
+        //let id_option = body["id"].as_str();
+        assert!(body["id"].as_str().is_some());
 
         thread::sleep(Duration::from_secs(2));
 
         let copy_result = client
-            .v1()
             .drive(drive_id.as_str())
-            .copy_item(original_file, &serde_json::json!({ "name": copy_name }))
-            .send();
+            .item_by_path(original_file)
+            .copy(&serde_json::json!({ "name": copy_name }))
+            .send()
+            .await;
 
         if let Err(e) = copy_result {
             panic!("Async job status for drive copy. Error: {:#?}", e);
-        }
+        } else if let Ok(response) = copy_result {
+            assert!(response.status().is_success());
 
-        TestTools::assert_success(&copy_result, "Async copy file: Drive");
+            let job_status = response.job_status().await.unwrap();
 
-        let copy_response = copy_result.expect("Async copy file: Drive");
-        let job_status = copy_response.job_status().unwrap();
+            if let Ok(response) = job_status {
+                let body: serde_json::Value = response.json().await.unwrap();
+                let status_option = body["status"].as_str();
+                assert!(
+                    status_option.eq(&Some("inProgress")) | status_option.eq(&Some("completed"))
+                );
 
-        if let Ok(response) = job_status {
-            let status_option = response.body()["status"].as_str();
-            assert!(status_option.eq(&Some("inProgress")) | status_option.eq(&Some("completed")));
-
-            if status_option.eq(&Some("completed")) {
-                delete_item(copy_drive_path);
+                if status_option.eq(&Some("completed")) {
+                    let _ = delete_item(drive_id.as_str(), copy_drive_path, &client).await;
+                }
+            } else if let Err(e) = job_status {
+                panic!("Async job status for drive copy. Error: {:#?}", e);
             }
-        } else if let Err(e) = job_status {
-            panic!("Async job status for drive copy. Error: {:#?}", e);
         }
     }
 }
