@@ -1,5 +1,5 @@
-use crate::api_types::{ModFile, ModFileWriter};
-use crate::settings::{ApiClientLinkSettings, ResourceSettings};
+use crate::api_types::ModFile;
+use crate::settings::ApiClientLinkSettings;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use std::convert::TryFrom;
@@ -100,7 +100,10 @@ impl WriteConfiguration {
                     .map(|wc| wc.resource_identity.exact_snake_case())
                     .collect();
                 match mod_file {
-                    ModFile::Declarations { file, declarations } => {
+                    ModFile::Declarations {
+                        file: _,
+                        declarations,
+                    } => {
                         declarations.extend(mods);
                     }
                 }

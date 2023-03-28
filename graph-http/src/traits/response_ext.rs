@@ -81,12 +81,12 @@ impl ResponseExt for reqwest::Response {
         Ok(UploadSession::new(reqwest::Url::parse(url)?, range_iter))
     }
 
-    async fn download(self, download_config: &FileConfig) -> Result<PathBuf, AsyncDownloadError> {
-        let path = download_config.path.clone();
-        let file_name = download_config.file_name.clone();
-        let create_dir_all = download_config.create_directory_all.clone();
-        let overwrite_existing_file = download_config.overwrite_existing_file;
-        let extension = download_config.extension.clone();
+    async fn download(self, file_config: &FileConfig) -> Result<PathBuf, AsyncDownloadError> {
+        let path = file_config.path.clone();
+        let file_name = file_config.file_name.clone();
+        let create_dir_all = file_config.create_directory_all.clone();
+        let overwrite_existing_file = file_config.overwrite_existing_file;
+        let extension = file_config.extension.clone();
 
         if create_dir_all {
             iotools::create_dir_async(path.as_path()).await?;

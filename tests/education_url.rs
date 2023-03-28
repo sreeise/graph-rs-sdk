@@ -2,13 +2,9 @@ use graph_rs_sdk::client::Graph;
 
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";
 
-fn get_graph() -> Graph {
-    Graph::new("token")
-}
-
 #[test]
 fn education_schools() {
-    let client = get_graph();
+    let client = Graph::new("");
 
     assert_eq!(
         "/v1.0/education/schools".to_string(),
@@ -31,7 +27,7 @@ fn education_schools() {
 
 #[test]
 fn education_classes() {
-    let client = get_graph();
+    let client = Graph::new("");
 
     assert_eq!(
         "/v1.0/education/classes".to_string(),
@@ -71,7 +67,7 @@ fn education_classes() {
 
 #[test]
 fn education_users() {
-    let client = get_graph();
+    let client = Graph::new("");
 
     assert_eq!(
         "/v1.0/education/users".to_string(),
@@ -91,15 +87,6 @@ fn education_users() {
         client.education().user(ID).get_classes(ID).url().path()
     );
     assert_eq!(
-        format!("/v1.0/education/users/{}", ID),
-        client
-            .education()
-            .class(ID)
-            .update_classes(&String::new())
-            .url()
-            .path()
-    );
-    assert_eq!(
         format!("/v1.0/education/users/{}/schools", ID),
         client.education().user(ID).list_schools().url().path()
     );
@@ -115,7 +102,7 @@ fn education_users() {
 
 #[test]
 fn education_assignments() {
-    let client = get_graph();
+    let client = Graph::new("");
 
     assert_eq!(
         "/v1.0/education/me/assignments".to_string(),
@@ -170,8 +157,8 @@ fn education_assignments() {
 }
 
 #[test]
-fn education_assignments_submissions() {
-    let client = get_graph();
+fn users_assignments_submissions() {
+    let client = Graph::new("");
 
     assert_eq!(
         format!(
@@ -201,6 +188,12 @@ fn education_assignments_submissions() {
             .url()
             .path()
     );
+}
+
+#[test]
+fn schools_assignment_submission() {
+    let client = Graph::new("");
+
     assert_eq!(
         format!(
             "/v1.0/education/schools/{}/assignments/{}/submissions",
@@ -230,6 +223,12 @@ fn education_assignments_submissions() {
             .url()
             .path()
     );
+}
+
+#[test]
+fn classes_assignment_submission() {
+    let client = Graph::new("");
+
     assert_eq!(
         format!(
             "/v1.0/education/classes/{}/assignments/{}/submissions/{}/outcomes",

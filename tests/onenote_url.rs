@@ -19,7 +19,7 @@ fn list_notebooks() {
     );
 
     assert_eq!(
-        format!("/sites/{}/onenote/notebooks", RID),
+        format!("/v1.0/sites/{}/onenote/notebooks", RID),
         client
             .site(RID)
             .onenote()

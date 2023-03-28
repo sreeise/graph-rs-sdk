@@ -5,8 +5,8 @@ macro_rules! into_handler {
         let url_result = $inner.build_url($template, &json);
 
         match RequestComponents::try_from(($inner.resource_config.resource_identity, $method, url_result)) {
-            Ok(rc) => return ResponseHandler::new($inner.client.clone(), rc, None),
-            Err(err) => return ResponseHandler::new(
+            Ok(rc) => return RequestHandler::new($inner.client.clone(), rc, None),
+            Err(err) => return RequestHandler::new(
                 $inner.client.clone(),
                 RequestComponents::new($inner.resource_config.resource_identity, $inner.resource_config.url.clone(), $method, None),
                 Some(err)
@@ -22,31 +22,31 @@ macro_rules! into_handler {
 
         let rc_result = RequestComponents::try_from(($inner.resource_config.resource_identity, $method, url_result, body_result));
         if let Ok(rc) = rc_result {
-            return ResponseHandler::new($inner.client.clone(), rc, None);
+            return RequestHandler::new($inner.client.clone(), rc, None);
         }
         let rc = RequestComponents::new($inner.resource_config.resource_identity, $inner.resource_config.url.clone(), $method, None);
-        return ResponseHandler::new($inner.client.clone(), rc, rc_result.err());
+        return RequestHandler::new($inner.client.clone(), rc, rc_result.err());
 	};
 }
 
 macro_rules! resource_api_method {
 	($(doc: $doc:expr,)? name: $name:ident, path: $template:expr, method: $method:expr $(, params: $($arg_name:ident),*)?) => {
         $( #[doc = $doc] )?
-        pub fn $name(&self $(, $( $arg_name : impl AsRef<str> ),* )? ) -> ResponseHandler {
+        pub fn $name(&self $(, $( $arg_name : impl AsRef<str> ),* )? ) -> RequestHandler {
             into_handler!(&self, $method, $template $(, params: $( $arg_name ),* )?);
         }
 	};
 
 	($(doc: $doc:expr,)? name: $name:ident, path: $template:expr, body: $body:expr, method: $method:expr $(, params: $($arg_name:ident),*)?) => {
         $( #[doc = $doc] )?
-        pub fn $name<B: BodyExt>(&self $(, $( $arg_name : impl AsRef<str> ),* )?, body: &B) -> ResponseHandler {
+        pub fn $name<B: BodyExt>(&self $(, $( $arg_name : impl AsRef<str> ),* )?, body: &B) -> RequestHandler {
             into_handler!(&self, $method, $template, body $(, params: $( $arg_name ),* )?);
         }
 	};
 
 	($(doc: $doc:expr,)? name: $name:ident, path: $template:expr, method: $method:expr, body: $body:expr $(, params: $($arg_name:ident,)*)?) => {
         $( #[doc = $doc] )?
-        pub fn $name<B: BodyExt>(&self $(, $( $arg_name : impl AsRef<str> ),* )?, body: &B) -> ResponseHandler {
+        pub fn $name<B: BodyExt>(&self $(, $( $arg_name : impl AsRef<str> ),* )?, body: &B) -> RequestHandler {
             into_handler!(&self, $method, $template, body $(, params: $( $arg_name ),* )?);
         }
 	};

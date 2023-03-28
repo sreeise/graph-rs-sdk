@@ -58,17 +58,17 @@ impl ResourceProvisioner {
     }
 }
 
+#[allow(unused_imports)]
 mod tests {
-    use super::*;
-    use crate::{GRAPH_URL, GRAPH_URL_BETA};
+    use super::{GraphUrl, ResourceIdentity, ResourceProvisioner};
 
     #[test]
     fn resource_provisioner_graph_url() {
         let rp = ResourceProvisioner::resource_config_with_url(
-            GraphUrl::parse(GRAPH_URL_BETA).unwrap(),
+            GraphUrl::parse(crate::GRAPH_URL_BETA).unwrap(),
             ResourceIdentity::Me,
         );
-        assert_eq!(rp.url.as_str(), GRAPH_URL_BETA);
+        assert_eq!(rp.url.as_str(), crate::GRAPH_URL_BETA);
     }
 
     #[test]

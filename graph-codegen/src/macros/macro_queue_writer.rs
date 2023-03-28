@@ -540,7 +540,10 @@ pub trait MacroImplWriter {
         mod_file.write();
 
         match mod_file {
-            ModFile::Declarations { file, declarations } => {
+            ModFile::Declarations {
+                file,
+                declarations: _,
+            } => {
                 if let Ok(mut buf) = self.get_impl_bytes() {
                     let request_file = file.replace("mod.rs", "request.rs");
                     let mut f = OpenOptions::new()

@@ -1,10 +1,8 @@
 use crate::traits::AsyncIterator;
 use crate::RangeIter;
 use async_trait::async_trait;
-use futures_util::TryFutureExt;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
-use std::io::Read;
 
 pub struct UploadSession {
     url: reqwest::Url,

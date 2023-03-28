@@ -1,5 +1,3 @@
-#[macro_use]
-extern crate derive_builder;
 extern crate reqwest;
 #[macro_use]
 pub extern crate serde;
@@ -28,7 +26,7 @@ pub use upload_session::*;
 pub mod api_impl {
     pub use crate::client::{ApiClientImpl, Client};
     pub use crate::odata_query::*;
-    pub use crate::response_handler::{RequestComponents, ResourceConfig, ResponseHandler};
+    pub use crate::response_handler::{RequestComponents, RequestHandler, ResourceConfig};
     pub use crate::traits::{AsBytesMut, BodyExt};
     pub use crate::url::GraphUrl;
     pub use crate::ResourceIdentifier;

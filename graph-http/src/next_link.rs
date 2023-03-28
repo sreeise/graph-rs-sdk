@@ -1,13 +1,8 @@
 use crate::api_impl::GraphUrl;
-use crate::traits::ODataNextLink;
-use async_trait::async_trait;
-use bytes::{BufMut, BytesMut};
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::{HeaderMap, CONTENT_TYPE};
 use reqwest::{Response, StatusCode};
-use serde::de::DeserializeOwned;
 use std::fmt::{Debug, Formatter};
-use tokio::sync::mpsc::Receiver;
 
 pub struct NextLink;
 

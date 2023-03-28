@@ -1,9 +1,6 @@
 use crate::api_types::RequestTask;
 use crate::parser::HttpMethod;
-use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use std::convert::TryFrom;
-use std::io::{Read, Write};
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum GeneratedMacroType {

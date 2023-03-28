@@ -4,7 +4,6 @@ use crate::agreement_acceptances::*;
 use crate::api_default_imports::*;
 use crate::chats::*;
 use crate::default_drive::*;
-use crate::drives::*;
 use crate::oauth2_permission_grants::*;
 use crate::planner::*;
 use crate::users::*;

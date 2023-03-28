@@ -6,7 +6,7 @@ use graph_core::resource::ResourceIdentity;
 use graph_error::GraphFailure;
 use graph_http::client::{Client, GraphClientBuilder};
 use graph_http::url::GraphUrl;
-use graph_http::ResponseHandler;
+use graph_http::RequestHandler;
 use graph_oauth::oauth::{AccessToken, OAuth};
 
 use crate::admin::AdminApiClient;
@@ -390,7 +390,7 @@ impl Graph {
 
     api_client_impl!(users, UsersApiClient, user, UsersIdApiClient);
 
-    pub fn batch<B: serde::Serialize>(&self, batch: &B) -> ResponseHandler {
+    pub fn batch<B: serde::Serialize>(&self, batch: &B) -> RequestHandler {
         BatchApiClient::new(
             self.client.clone(),
             ResourceProvisioner::resource_config_with_url(

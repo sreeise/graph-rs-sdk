@@ -34,8 +34,8 @@ impl EducationUsersApiClient {
 }
 
 impl EducationUsersIdApiClient {
-    api_client_link!(assignments, EducationAssignmentsApiClient);
     api_client_link_id!(assignment, EducationAssignmentsIdApiClient);
+    api_client_link!(assignments, EducationAssignmentsApiClient);
 
     delete!(
         doc: "Delete navigation property users for education",

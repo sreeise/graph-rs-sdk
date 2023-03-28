@@ -6,7 +6,6 @@ extern crate serde_json;
 extern crate lazy_static;
 
 pub mod common;
-mod files;
 pub mod oauth;
 pub mod oauthrequest;
 pub mod support;

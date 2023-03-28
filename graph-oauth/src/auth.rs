@@ -583,8 +583,9 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::oauth::OAuthCredential;
+    /// # use base64::Engine;
+    /// use graph_oauth::oauth::OAuth;
+    /// use graph_oauth::oauth::OAuthCredential;
     ///
     /// let mut oauth = OAuth::new();
     /// oauth.generate_sha256_challenge_and_verifier();
@@ -599,7 +600,7 @@ impl OAuth {
     /// # let challenge = oauth.get(OAuthCredential::CodeChallenge).unwrap();
     /// # let mut context = ring::digest::Context::new(&ring::digest::SHA256);
     /// # context.update(oauth.get(OAuthCredential::CodeVerifier).unwrap().as_bytes());
-    /// # let verifier = base64::encode_config(context.finish().as_ref(), base64::URL_SAFE_NO_PAD);
+    /// # let verifier = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(context.finish().as_ref());
     /// # assert_eq!(challenge, verifier);
     /// ```
     pub fn generate_sha256_challenge_and_verifier(&mut self) -> Result<(), GraphFailure> {

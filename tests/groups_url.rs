@@ -14,23 +14,28 @@ fn client_id(id: &str) -> GroupsIdApiClient {
 #[test]
 fn groups_url() {
     assert_eq!(client().list_group().url().path(), "/v1.0/groups");
+
     assert_eq!(
         client_id(RID).get_group().url().path(),
         format!("/v1.0/groups/{}", RID)
     );
     assert_eq!(client().delta().url().path(), "/v1.0/groups/delta()");
+
     assert_eq!(
         client().create_group(&serde_json::json!({})).url().path(),
         "/v1.0/groups"
     );
+
     assert_eq!(
         client_id(RID).update_group(&String::new()).url().path(),
         format!("/v1.0/groups/{}", RID)
     );
+
     assert_eq!(
         client_id(RID).delete_group().url().path(),
         format!("/v1.0/groups/{}", RID)
     );
+
     assert_eq!(
         client_id(RID)
             .create_ref_members(&serde_json::json!({}))
@@ -38,6 +43,7 @@ fn groups_url() {
             .path(),
         format!("/v1.0/groups/{}/members/$ref", RID)
     );
+
     assert_eq!(
         client_id(RID)
             .owners()
@@ -46,6 +52,7 @@ fn groups_url() {
             .path(),
         format!("/v1.0/groups/{}/owners/$ref", RID)
     );
+
     assert_eq!(
         client_id(RID).subscribe_by_mail().url().path(),
         format!("/v1.0/groups/{}/subscribeByMail", RID)

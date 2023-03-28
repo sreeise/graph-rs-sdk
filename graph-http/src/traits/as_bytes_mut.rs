@@ -1,10 +1,8 @@
 use crate::FileConfig;
-use async_trait::async_trait;
-use bytes::{BufMut, BytesMut};
-use graph_error::{GraphFailure, GraphResult};
+use bytes::BytesMut;
+use graph_error::GraphResult;
 use std::collections::VecDeque;
 use std::error::Error;
-use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use tokio::io::AsyncReadExt;

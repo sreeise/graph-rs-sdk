@@ -1,6 +1,6 @@
 use graph_core::resource::ResourceIdentity;
 use graph_http::api_impl::ODataQuery;
-use graph_http::ResponseHandler;
+use graph_http::RequestHandler;
 use graph_rs_sdk::prelude::*;
 use test_tools::common::TestTools;
 use test_tools::oauthrequest::*;

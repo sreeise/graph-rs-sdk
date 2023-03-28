@@ -1,12 +1,11 @@
 use crate::api_default_imports::*;
-use crate::header::{HeaderName, CONTENT_TYPE};
 use graph_http::RequestComponents;
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 
 resource_api_client!(BatchApiClient);
 
 impl BatchApiClient {
-    pub fn batch<B: serde::Serialize>(&self, batch: &B) -> ResponseHandler {
+    pub fn batch<B: serde::Serialize>(&self, batch: &B) -> RequestHandler {
         let body_result = serde_json::to_string(batch).map_err(GraphFailure::from);
         let url_result = self.build_url("$batch", &serde_json::json!({}));
 
@@ -22,7 +21,7 @@ impl BatchApiClient {
             header_map
                 .entry(CONTENT_TYPE)
                 .or_insert(HeaderValue::from_static("application/json"));
-            return ResponseHandler::new(self.client.clone(), rc, None).headers(header_map);
+            return RequestHandler::new(self.client.clone(), rc, None).headers(header_map);
         }
 
         let rc = RequestComponents::new(
@@ -31,6 +30,6 @@ impl BatchApiClient {
             Method::POST,
             None,
         );
-        ResponseHandler::new(self.client.clone(), rc, rc_result.err())
+        RequestHandler::new(self.client.clone(), rc, rc_result.err())
     }
 }

@@ -14,7 +14,6 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue, ACCEPT, CONTENT_TYPE};
 use reqwest::{Method, RequestBuilder, Response, StatusCode};
 use serde::de::DeserializeOwned;
 use std::fmt::Debug;
-use std::io::Read;
 use std::path::PathBuf;
 use tokio::runtime::Handle;
 
@@ -294,20 +293,20 @@ async fn map_next_link_response_from_value<V: DeserializeOwned + ODataNextLink>(
 }
 
 #[derive(Default, Debug)]
-pub struct ResponseHandler {
+pub struct RequestHandler {
     pub(crate) inner: reqwest::Client,
     pub(crate) access_token: String,
     pub(crate) request_components: RequestComponents,
     pub(crate) error: Option<GraphFailure>,
 }
 
-impl ResponseHandler {
+impl RequestHandler {
     pub fn new(
         inner: Client,
         request_components: RequestComponents,
         error: Option<GraphFailure>,
-    ) -> ResponseHandler {
-        ResponseHandler {
+    ) -> RequestHandler {
+        RequestHandler {
             inner: inner.inner.clone(),
             access_token: inner.access_token,
             request_components,
@@ -315,10 +314,26 @@ impl ResponseHandler {
         }
     }
 
+    /// Returns true if any errors occurred prior to sending the request.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let client = Graph::new("ACCESS_TOKEN");
+    /// let response_handler = client.groups().list_group();
+    /// println!("{:#?}", response_handler.is_err());
+    /// ```
     pub fn is_err(&self) -> bool {
         self.error.is_some()
     }
 
+    /// Returns any error wrapped in an Option that occurred prior to sending a request
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let client = Graph::new("ACCESS_TOKEN");
+    /// let response_handler = client.groups().list_group();
+    /// println!("{:#?}", response_handler.err());
+    /// ```
     pub fn err(&self) -> Option<&GraphFailure> {
         self.error.as_ref()
     }
@@ -509,13 +524,12 @@ impl ResponseHandler {
             });
         }
 
-        let mut next_link = None;
-        let mut values = vec![];
-
         let request = self.default_request_builder();
         let mut response = request.send().await?;
+
         let next_value = map_next_link_response(response).await;
-        next_link = next_value.0;
+        let mut next_link = next_value.0;
+        let mut values = vec![];
         values.push(next_value.1);
 
         while let Some(url) = next_link {
@@ -644,27 +658,27 @@ impl ResponseHandler {
     }
 }
 
-impl ODataQuery for ResponseHandler {
+impl ODataQuery for RequestHandler {
     fn append_query_pair<KV: AsRef<str>>(self, key: KV, value: KV) -> Self {
         self.query(key.as_ref(), value.as_ref())
     }
 }
 
-impl AsRef<GraphUrl> for ResponseHandler {
+impl AsRef<GraphUrl> for RequestHandler {
     fn as_ref(&self) -> &GraphUrl {
         self.request_components.as_ref()
     }
 }
 
-impl AsMut<GraphUrl> for ResponseHandler {
+impl AsMut<GraphUrl> for RequestHandler {
     fn as_mut(&mut self) -> &mut GraphUrl {
         self.request_components.as_mut()
     }
 }
 
-impl From<(RequestComponents, &Client)> for ResponseHandler {
+impl From<(RequestComponents, &Client)> for RequestHandler {
     fn from(value: (RequestComponents, &Client)) -> Self {
-        ResponseHandler {
+        RequestHandler {
             inner: value.1.inner.clone(),
             access_token: value.1.access_token.clone(),
             request_components: value.0,

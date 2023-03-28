@@ -1,5 +1,5 @@
 use crate::traits::ByteRangeMultiple;
-use bytes::{Buf, BufMut, BytesMut};
+use bytes::{Buf, BytesMut};
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
 use std::collections::VecDeque;

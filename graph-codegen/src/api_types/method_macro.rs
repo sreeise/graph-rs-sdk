@@ -41,7 +41,6 @@ impl MethodMacro {
     }
 
     pub fn matches(&mut self, method_macro_modifier: &MethodMacroModifier) -> bool {
-        let mut is_match = true;
         for method_macro_type in method_macro_modifier.matching.iter() {
             match method_macro_type {
                 GeneratedMacroType::FnName(name) => {
@@ -78,7 +77,7 @@ impl MethodMacro {
                 GeneratedMacroType::Default => return false,
             }
         }
-        is_match
+        true
     }
 
     pub fn update(&mut self, method_macro_modifier: &MethodMacroModifier) {

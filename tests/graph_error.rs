@@ -3,6 +3,7 @@ use graph_http::FileConfig;
 use graph_rs_sdk::error::*;
 use graph_rs_sdk::prelude::*;
 use reqwest::StatusCode;
+use std::error::Error;
 use test_tools::oauthrequest::OAuthTestClient;
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 
@@ -80,49 +81,13 @@ async fn async_auth_graph_error() {
     }
 }
 
-/*
-#[tokio::test]
-async fn async_upload_session_graph_error() {
-    let client = Graph::new("ACCESS_TOKEN");
-
-    let upload = serde_json::json!({
-        "@microsoft.graph.conflictBehavior": Some("fail".to_string())
-    });
-
-    let response = client
-        .v1()
-        .user("0")
-        .drive()
-        .create_upload_session(
-            ":/async_upload_session.txt:",
-            "./test_files/async_upload_session.txt",
-            &upload,
-        )
-        .send()
-        .await;
-
-    if let Ok(_res) = response {
-        panic!("Got successful request for an invalid access token");
-    } else if let Err(err) = response {
-        test_graph_failure(
-            err,
-            new_error(
-                StatusCode::UNAUTHORIZED,
-                "InvalidAuthenticationToken",
-                "CompactToken parsing failed with error code: 80049217",
-            ),
-        );
-    }
-}
- */
-
 // Use a file that doesnt exist to test that the error from downloading
 // is parsed correctly.
 
 #[tokio::test]
 async fn drive_download_graph_error() {
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client
             .drive(id.as_str())
             .item_by_path(":/non_existent_file.docx:")
@@ -131,10 +96,21 @@ async fn drive_download_graph_error() {
             .await;
 
         match result {
-			Ok(_) => { panic!("Got successful request for a downloading a file that should not exist") }
-			Err(GraphFailure::AsyncDownloadError(AsyncDownloadError::GraphError(err))) =>
-				test_graph_error(err, new_error(StatusCode::NOT_FOUND, "itemNotFound", "The resource could not be found.")),
-			Err(e) => panic!("Expected AsyncDownloadError::GraphError(GraphError..), but got a different variant: {}", e),
-		}
+            Ok(_) => {
+                panic!("Got successful request for a downloading a file that should not exist")
+            }
+            Err(GraphFailure::GraphError(err)) => test_graph_error(
+                err,
+                new_error(
+                    StatusCode::NOT_FOUND,
+                    "itemNotFound",
+                    "The resource could not be found.",
+                ),
+            ),
+            Err(e) => {
+                println!("source: {:#?}", e.source());
+                panic!("Expected AsyncDownloadError::GraphError(GraphError..), but got a different variant: {}", e)
+            }
+        }
     }
 }

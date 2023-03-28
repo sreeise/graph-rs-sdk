@@ -612,31 +612,12 @@ impl FilterMetadata for PathMetadataQueue {
     }
 }
 
-/*
-// Use only for top-level resources. Otherwise use `From<ResourceParsingInfo>`.
-impl From<ResourceIdentity> for PathMetadataQueue {
-    fn from(resource_identity: ResourceIdentity) -> Self {
-        PathMetadataQueue::from(WriteConfiguration {
-            modifier_name: None,
-            path: resource_identity.to_path_start(),
-            resource_identity,
-            trim_path_start: None,
-            filter_path: vec![],
-            replace_operation_map: None,
-            mod_file: None,
-            parameter_filter: vec![],
-            children: vec![],
-        })
-    }
-}
- */
-
 impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
     fn from(value: (WriteConfiguration, &OpenApi)) -> Self {
         let resource_parsing_info = value.0;
         let open_api = value.1;
 
-        let mut requests = {
+        let requests = {
             if let Some(trim_pat) = resource_parsing_info.trim_path_start.as_ref() {
                 open_api
                     .requests_secondary(trim_pat.as_str(), &resource_parsing_info.parameter_filter)
@@ -653,6 +634,8 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
             }
         };
 
+        // Uncomment to write OpenApi metadata files.
+        /*
         if resource_parsing_info.trim_path_start.is_some() {
             let path_item_map =
                 PathItemMap(open_api.filter_resource_parsing_info_path(&resource_parsing_info));
@@ -671,6 +654,7 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
             );
             path_item_map.as_file_pretty(&path_item_file).unwrap();
         }
+         */
 
         let path_filter = resource_parsing_info.path.clone();
 
@@ -721,7 +705,7 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
 impl From<WriteConfiguration> for PathMetadataQueue {
     fn from(resource_parsing_info: WriteConfiguration) -> Self {
         let open_api = OpenApi::default();
-        let mut requests = {
+        let requests = {
             if let Some(trim_pat) = resource_parsing_info.trim_path_start.as_ref() {
                 open_api
                     .requests_secondary(trim_pat.as_str(), &resource_parsing_info.parameter_filter)
@@ -738,6 +722,8 @@ impl From<WriteConfiguration> for PathMetadataQueue {
             }
         };
 
+        // Uncomment to write OpenApi metadata files.
+        /*
         if resource_parsing_info.trim_path_start.is_some() {
             let path_item_map =
                 PathItemMap(open_api.filter_resource_parsing_info_path(&resource_parsing_info));
@@ -756,6 +742,7 @@ impl From<WriteConfiguration> for PathMetadataQueue {
             );
             path_item_map.as_file_pretty(&path_item_file).unwrap();
         }
+         */
 
         let path_filter = resource_parsing_info.path.clone();
 
