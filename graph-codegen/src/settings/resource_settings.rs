@@ -617,7 +617,7 @@ impl ResourceSettings {
 				]).build().unwrap(),
 			ResourceIdentity::Groups => ResourceSettings::builder(path_name, ri)
 				.imports(vec!["crate::groups::*", "crate::users::*", "crate::sites::*", "crate::planner::*",
-							  "crate::group_lifecycle_policies::*"])
+							  "crate::group_lifecycle_policies::*", "crate::permission_grants::*"])
 				.api_client_links(vec![
 						ApiClientLinkSettings(
 						Some("GroupsIdApiClient"),
@@ -639,6 +639,14 @@ impl ResourceSettings {
 							ApiClientLink::Struct("sites", "SitesApiClient"),
 							ApiClientLink::StructId("site", "SitesIdApiClient"),
 							ApiClientLink::Struct("groups_team", "GroupsTeamApiClient"),
+							ApiClientLink::Struct("transitive_members", "TransitiveMembersApiClient"),
+							ApiClientLink::StructId("transitive_member", "TransitiveMembersIdApiClient"),
+							ApiClientLink::Struct("members_with_license_errors", "MembersWithLicenseErrorsApiClient"),
+							ApiClientLink::StructId("members_with_license_errors_id", "MembersWithLicenseErrorsIdApiClient"),
+							ApiClientLink::Struct("owners", "GroupsOwnersApiClient"),
+							ApiClientLink::StructId("owner", "GroupsOwnersIdApiClient"),
+							ApiClientLink::Struct("permission_grants".into(), "PermissionGrantsApiClient".into()),
+							ApiClientLink::StructId("permission_grant".into(), "PermissionGrantsIdApiClient".into()),
 						]
 					)
 				]).build().unwrap(),
@@ -646,13 +654,10 @@ impl ResourceSettings {
 				.imports(vec!["crate::groups::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(
-						Some("GroupsIdApiClient"),
+						Some("ConversationsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("group_lifecycle_policies", "GroupLifecyclePoliciesApiClient"),
-							ApiClientLink::StructId("conversation", "GroupsConversationsIdApiClient"),
-							ApiClientLink::Struct("conversations", "GroupsConversationsApiClient"),
-							ApiClientLink::StructId("thread", "GroupsThreadsIdApiClient"),
-							ApiClientLink::Struct("threads", "GroupsThreadsApiClient")
+							ApiClientLink::StructId("thread", "ThreadsIdApiClient"),
+							ApiClientLink::Struct("threads", "ThreadsApiClient")
 						]
 					)
 				]).build().unwrap(),
@@ -662,7 +667,7 @@ impl ResourceSettings {
 					ApiClientLinkSettings(
 						Some("ThreadsIdApiClient"),
 						vec![
-							ApiClientLink::Struct("post", "ThreadsPostsIdApiClient"),
+							ApiClientLink::StructId("post", "ThreadsPostsIdApiClient"),
 							ApiClientLink::Struct("posts", "ThreadsPostsApiClient")
 						]
 					)
@@ -730,7 +735,7 @@ impl ResourceSettings {
 							ApiClientLink::StructId("tag", "TeamsTagsIdApiClient"),
 							ApiClientLink::Struct("schedule", "ScheduleApiClient"),
 							ApiClientLink::Struct("members", "TeamsMembersApiClient"),
-							ApiClientLink::Struct("member", "TeamsMembersIdApiClient"),
+							ApiClientLink::StructId("member", "TeamsMembersIdApiClient"),
 						]
 					)
 				]).build().unwrap(),
@@ -928,20 +933,106 @@ impl ResourceSettings {
 				.build()
 				.unwrap(),
 
-			ResourceIdentity::Sites => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::users::*", "crate::sites::*", "crate::default_drive::*", "crate::drives::*"])
+
+			// Sites
+			ResourceIdentity::SitesItems => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::sites::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("SitesIdApiClient"), vec![
-						ApiClientLink::Struct("lists", "ListsApiClient"),
-						ApiClientLink::StructId("list", "ListsIdApiClient"),
-						ApiClientLink::Struct("onenote", "OnenoteApiClient"),
-						ApiClientLink::Struct("default_drive", "DefaultDriveApiClient"),
-						ApiClientLink::Struct("drives", "DrivesApiClient"),
-						ApiClientLink::StructId("drive", "DrivesIdApiClient"),
+					ApiClientLinkSettings(Some("SitesItemsIdApiClient"), vec![
+						ApiClientLink::Struct("versions", "SitesItemsVersionsApiClient"),
+						ApiClientLink::StructId("version", "SitesItemsVersionsIdApiClient"),
 					])
 				])
 				.build()
 				.unwrap(),
+			ResourceIdentity::SitesLists => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::sites::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("SitesListsIdApiClient"), vec![
+						ApiClientLink::Struct("content_types", "SitesContentTypesApiClient"),
+						ApiClientLink::StructId("content_type", "SitesContentTypesIdApiClient"),
+						ApiClientLink::Struct("items", "SitesItemsApiClient"),
+						ApiClientLink::StructId("item", "SitesItemsIdApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::TermStores => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::sites::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("TermStoresIdApiClient"), vec![
+						ApiClientLink::Struct("sets", "TermStoreSetsApiClient"),
+						ApiClientLink::StructId("set", "TermStoreSetsIdApiClient"),
+						ApiClientLink::Struct("groups", "TermStoreGroupsApiClient"),
+						ApiClientLink::StructId("group", "TermStoreGroupsIdApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::TermStore => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::sites::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("TermStoreApiClient"), vec![
+						ApiClientLink::Struct("sets", "TermStoreSetsApiClient"),
+						ApiClientLink::StructId("set", "TermStoreSetsIdApiClient"),
+						ApiClientLink::Struct("groups", "TermStoreGroupsApiClient"),
+						ApiClientLink::StructId("group", "TermStoreGroupsIdApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::TermStoreSets => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::sites::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("TermStoreSetsIdApiClient"), vec![
+						ApiClientLink::Struct("children", "TermStoreSetsChildrenApiClient"),
+						ApiClientLink::StructId("children_id", "TermStoreSetsChildrenIdApiClient"),
+						ApiClientLink::Struct("parent_group", "TermStoreSetsParentGroupApiClient"),
+						ApiClientLink::Struct("terms", "TermStoreSetsTermsApiClient"),
+						ApiClientLink::StructId("term", "TermStoreSetsTermsIdApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::TermStoreSetsParentGroup => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::sites::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("TermStoreSetsParentGroupApiClient"), vec![
+						ApiClientLink::Struct("sets", "TermStoreSetsApiClient"),
+						ApiClientLink::StructId("set", "TermStoreSetsIdApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::TermStoreGroups => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::sites::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("TTermStoreGroupsIdApiClient"), vec![
+						ApiClientLink::Struct("sets", "TermStoreSetsApiClient"),
+						ApiClientLink::StructId("set", "TermStoreSetsIdApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::Sites => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::users::*", "crate::sites::*", "crate::default_drive::*", "crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("SitesIdApiClient"), vec![
+						ApiClientLink::Struct("lists", "SitesListsApiClient"),
+						ApiClientLink::StructId("list", "SitesListsIdApiClient"),
+						ApiClientLink::Struct("onenote", "OnenoteApiClient"),
+						ApiClientLink::Struct("drive", "DefaultDriveApiClient"),
+						ApiClientLink::Struct("term_store", "TermStoreApiClient"),
+						ApiClientLink::Struct("term_stores", "TermStoresApiClient"),
+						ApiClientLink::StructId("term_stores_id", "TermStoresIdApiClient"),
+						ApiClientLink::Struct("content_types", "SitesContentTypesApiClient"),
+						ApiClientLink::StructId("content_type", "SitesContentTypesIdApiClient"),
+						ApiClientLink::Struct("items", "SitesItemsApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+
 
 
 			ResourceIdentity::UsersMessages => ResourceSettings::builder(path_name, ri)
@@ -1696,7 +1787,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		// Sites
 		ResourceIdentity::Sites => WriteConfiguration::builder(resource_identity)
 			.children(map_write_config(vec![
-				ResourceIdentity::Lists, ResourceIdentity::SitesItems, ResourceIdentity::SitesContentTypes,
+				ResourceIdentity::SitesLists, ResourceIdentity::SitesItems, ResourceIdentity::SitesItemsVersions, ResourceIdentity::SitesContentTypes,
 				ResourceIdentity::TermStores, ResourceIdentity::TermStore, ResourceIdentity::TermStoreGroups,
 				ResourceIdentity::TermStoreSets, ResourceIdentity::TermStoreSetsChildren, ResourceIdentity::TermStoreSetsTerms,
 				ResourceIdentity::TermStoreSetsParentGroup
@@ -1705,18 +1796,22 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 							  "getActivitiesByInterval()", "onenote", "contentTypes"])
 			.build()
 			.unwrap(),
-		ResourceIdentity::Lists => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["items", "contentTypes"])
+		ResourceIdentity::SitesLists => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
+			.filter_path(vec!["items", "contentTypes", "getActivitiesByInterval()", "versions"])
 			.trim_path_start("/sites/{site-id}")
 			.build()
 			.unwrap(),
-		ResourceIdentity::SitesContentTypes=> WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
+		ResourceIdentity::SitesContentTypes => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
 			.trim_path_start("/sites/{site-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::SitesItems => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
-			.filter_path(vec!["contentTypes"])
-			.trim_path_start("/sites/{site-id}")
+			.filter_path(vec!["versions", "getActivitiesByInterval()"])
+			.trim_path_start("/sites/{site-id}/lists/{list-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::SitesItemsVersions => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
+			.trim_path_start("/sites/{site-id}/lists/{list-id}/items/{listItem-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::TermStore => WriteConfiguration::second_level_builder(ResourceIdentity::Sites, resource_identity)
@@ -1896,20 +1991,22 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.filter_path(get_groups_filter())
 			.children(map_write_config(vec![
 				ResourceIdentity::Conversations, ResourceIdentity::Threads, ResourceIdentity::ThreadsPosts,
-				ResourceIdentity::GroupsOwners, ResourceIdentity::GroupsTeam
+				ResourceIdentity::GroupsOwners, ResourceIdentity::GroupsTeam, ResourceIdentity::TransitiveMembers,
+				ResourceIdentity::MembersWithLicenseErrors
 			]))
 			.build()
 			.unwrap(),
-		// Groups Team
-		ResourceIdentity::GroupsTeam => WriteConfiguration::second_level_builder(
-			ResourceIdentity::Groups,
-			ResourceIdentity::GroupsTeam)
+		ResourceIdentity::TransitiveMembers => WriteConfiguration::second_level_builder(ResourceIdentity::Groups, resource_identity)
+			.trim_path_start("/groups/{group-id}")
+			.build().unwrap(),
+		ResourceIdentity::MembersWithLicenseErrors => WriteConfiguration::second_level_builder(ResourceIdentity::Groups, resource_identity)
+			.trim_path_start("/groups/{group-id}")
+			.build().unwrap(),
+		ResourceIdentity::GroupsTeam => WriteConfiguration::second_level_builder(ResourceIdentity::Groups, resource_identity)
 			.trim_path_start("/groups/{group-id}")
 			.filter_path(vec!["primaryChannel", "channels", "tags", "schedule", "members"])
 			.build().unwrap(),
-		ResourceIdentity::Threads =>  WriteConfiguration::second_level_builder(
-			ResourceIdentity::Groups,
-			ResourceIdentity::Threads)
+		ResourceIdentity::Threads =>  WriteConfiguration::second_level_builder(ResourceIdentity::Groups, resource_identity)
 			.trim_path_start("/groups/{group-id}")
 			.filter_path(vec![
 				"posts",

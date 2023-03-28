@@ -876,7 +876,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Lists => {
+        ResourceIdentity::SitesLists => {
             modify_target.map.insert(
                 MatchTarget::OperationId("sites.GetLists".to_string()),
                 vec![

@@ -1,7 +1,8 @@
-mod lists;
 mod request;
 mod sites_content_types;
 mod sites_items;
+mod sites_items_versions;
+mod sites_lists;
 mod term_store;
 mod term_store_groups;
 mod term_store_sets;
@@ -10,10 +11,11 @@ mod term_store_sets_parent_group;
 mod term_store_sets_terms;
 mod term_stores;
 
-pub use lists::*;
 pub use request::*;
 pub use sites_content_types::*;
 pub use sites_items::*;
+pub use sites_items_versions::*;
+pub use sites_lists::*;
 pub use term_store::*;
 pub use term_store_groups::*;
 pub use term_store_sets::*;

@@ -16,7 +16,7 @@ async fn check_out_item() {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item(ITEM_ID)
         .checkout()
         .header(CONTENT_LENGTH, HeaderValue::from(0)) // Required for checkout. When there is no body the checkin content length will just be 0
@@ -42,7 +42,7 @@ async fn check_in_item() {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item(ITEM_ID)
         .checkin(&serde_json::json!({
             "comment": comment,

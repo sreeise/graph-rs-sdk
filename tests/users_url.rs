@@ -42,16 +42,28 @@ fn delete_users() {
     );
 }
 
-/*
 #[test]
 fn update_users() {
-    let client = Graph::new("");
+    let mut client = Graph::new("");
 
-    client.beta().user(USER_ID).update_user(&String::new());
-    assert_url_beta_eq(&client, format!("/users/{}", USER_ID));
+    assert_eq!(
+        format!("/beta/users/{}", USER_ID),
+        client
+            .beta()
+            .user(USER_ID)
+            .update_user(&String::new())
+            .url()
+            .path()
+    );
 
-    client.beta().user(USER_ID).update_user(&String::new());
-    assert_url_beta_eq(&client, format!("/users/{}", USER_ID));
+    client.use_v1();
+
+    assert_eq!(
+        format!("/v1.0/users/{}", USER_ID),
+        client
+            .user(USER_ID)
+            .update_user(&String::new())
+            .url()
+            .path()
+    );
 }
-
- */

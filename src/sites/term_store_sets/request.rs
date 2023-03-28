@@ -1,6 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::sites::*;
 
 resource_api_client!(
     TermStoreSetsApiClient,
@@ -28,6 +29,12 @@ impl TermStoreSetsApiClient {
 }
 
 impl TermStoreSetsIdApiClient {
+    api_client_link!(terms, TermStoreSetsTermsApiClient);
+    api_client_link_id!(term, TermStoreSetsTermsIdApiClient);
+    api_client_link!(parent_group, TermStoreSetsParentGroupApiClient);
+    api_client_link!(children, TermStoreSetsChildrenApiClient);
+    api_client_link_id!(children_id, TermStoreSetsChildrenIdApiClient);
+
     delete!(
         doc: "Delete navigation property sets for sites",
         name: delete_sets,

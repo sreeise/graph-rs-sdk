@@ -29,8 +29,8 @@ impl ThreadsApiClient {
 }
 
 impl ThreadsIdApiClient {
-    api_client_link!(post, ThreadsPostsIdApiClient);
     api_client_link!(posts, ThreadsPostsApiClient);
+    api_client_link_id!(post, ThreadsPostsIdApiClient);
 
     delete!(
         doc: "Delete navigation property threads for groups",

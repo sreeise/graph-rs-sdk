@@ -92,9 +92,7 @@ impl MeApiClient {
     api_client_link!(oauth2_permission_grants, Oauth2PermissionGrantsApiClient);
     api_client_link!(insights, InsightsApiClient);
     api_client_link!(channels, ChannelsApiClient);
-    api_client_link!(default_drive, DefaultDriveApiClient);
-    api_client_link_id!(drive, DrivesIdApiClient);
-    api_client_link!(drives, DrivesApiClient);
+    api_client_link!(drive, DefaultDriveApiClient);
     api_client_link!(mailbox_settings, MailboxSettingsApiClient);
 
     get!(

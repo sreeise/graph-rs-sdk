@@ -1,14 +1,13 @@
-use futures::StreamExt;
+use futures_util::stream::StreamExt;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
-#[tokio::main]
-async fn main() {
+pub async fn stream_next_links() {
     let client = Graph::new(ACCESS_TOKEN);
-    let request = client.v1().users();
 
-    let mut stream = request
+    let mut stream = client
+        .users()
         .list_user()
         .select(&["id", "userPrincipalName"])
         .top("5")

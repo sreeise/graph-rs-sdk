@@ -24,7 +24,7 @@ pub async fn copy_item() {
 
     let response = graph
         .me()
-        .default_drive()
+        .drive()
         .item(ITEM_ID)
         .copy(&serde_json::json!({
             "name": DRIVE_FILE_COPY_NAME,

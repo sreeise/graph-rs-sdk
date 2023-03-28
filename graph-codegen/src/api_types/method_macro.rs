@@ -75,6 +75,7 @@ impl MethodMacro {
                         return false;
                     }
                 }
+                GeneratedMacroType::Default => return false,
             }
         }
         is_match
@@ -101,6 +102,7 @@ impl MethodMacro {
             GeneratedMacroType::Method(http_method) => {
                 self.http_method = http_method;
             }
+            GeneratedMacroType::Default => {}
         }
     }
 }

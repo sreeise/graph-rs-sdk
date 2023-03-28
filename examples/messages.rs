@@ -9,15 +9,16 @@ static ATTACHMENT_ID: &str = "ATTACHMENT_ID";
 // If using the Users api:
 static USER_ID: &str = "USER_ID";
 
-fn main() {
-    list_messages();
-    create_message();
-    update_message();
-    delete_message();
-    add_attachment();
-    get_attachment();
-    get_attachment_content();
-    send_mail();
+#[tokio::main]
+async fn main() {
+    list_messages().await;
+    create_message().await;
+    update_message().await;
+    delete_message().await;
+    add_attachment().await;
+    get_attachment().await;
+    get_attachment_content().await;
+    send_mail().await;
 }
 
 async fn list_messages() {
@@ -37,15 +38,22 @@ async fn user_list_messages() {
         .send()
         .await
         .unwrap();
-    println!("{:#?}", response);
+
+    println!("{response:#?}");
 }
 
 async fn delete_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.me().message(ID).send().await.unwrap();
+    let response = client
+        .me()
+        .message(MESSAGE_ID)
+        .delete_messages()
+        .send()
+        .await
+        .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn create_message() {
@@ -73,13 +81,13 @@ async fn create_message() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn update_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let update_message_response = client
+    let response = client
         .me()
         .message(MESSAGE_ID)
         .update_messages(&serde_json::json!({
@@ -94,14 +102,13 @@ async fn update_message() {
         .await
         .unwrap();
 
-    println!("{:#?}", update_message_response);
+    println!("{response:#?}");
 }
 
 async fn send_mail() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
         .send_mail(&serde_json::json!({
                 "message": {
@@ -131,14 +138,13 @@ async fn send_mail() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn add_attachment() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
         .message(MESSAGE_ID)
         .attachments()
@@ -151,7 +157,7 @@ async fn add_attachment() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn get_attachment() {
@@ -166,10 +172,10 @@ async fn get_attachment() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
-fn get_attachment_content() {
+async fn get_attachment_content() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -178,7 +184,8 @@ fn get_attachment_content() {
         .attachment(ATTACHMENT_ID)
         .get_attachments_content()
         .send()
+        .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }

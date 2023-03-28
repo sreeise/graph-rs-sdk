@@ -139,7 +139,6 @@ pub enum ResourceIdentity {
     JoinedTeams,
     LicenseDetails,
     List,
-    Lists,
     Localizations,
     MailboxSettings,
     MailFolders,
@@ -154,6 +153,7 @@ pub enum ResourceIdentity {
     MdmWindowsInformationProtectionPolicies,
     Me,
     MemberOf,
+    MembersWithLicenseErrors,
     MobileAppCategories,
     MobileAppConfigurations,
     MobileApps,
@@ -202,6 +202,8 @@ pub enum ResourceIdentity {
     Sites,
     SitesContentTypes,
     SitesItems,
+    SitesItemsVersions,
+    SitesLists,
     Solutions,
     SubscribedSkus,
     Subscriptions,
@@ -229,6 +231,7 @@ pub enum ResourceIdentity {
     TodoLists,
     TodoListsTasks,
     TransitiveMemberOf,
+    TransitiveMembers,
     TroubleshootingEvents,
     Users,
     UsersAttachments,
@@ -260,6 +263,8 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::SharedWithTeams => "sharedWithTeams".to_string(),
             ResourceIdentity::DrivesList => "list".to_string(),
             ResourceIdentity::DrivesItems | ResourceIdentity::SitesItems => "items".to_string(),
+            ResourceIdentity::SitesItemsVersions => "versions".to_string(),
+            ResourceIdentity::SitesLists => "lists".to_string(),
             ResourceIdentity::DrivesListContentTypes | ResourceIdentity::SitesContentTypes => {
                 "contentTypes".to_string()
             }

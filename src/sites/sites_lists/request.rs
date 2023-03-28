@@ -1,10 +1,15 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::sites::*;
 
-resource_api_client!(ListsApiClient, ListsIdApiClient, ResourceIdentity::Lists);
+resource_api_client!(
+    SitesListsApiClient,
+    SitesListsIdApiClient,
+    ResourceIdentity::SitesLists
+);
 
-impl ListsApiClient {
+impl SitesListsApiClient {
     post!(
         doc: "Create a new list",
         name: create_lists,
@@ -23,7 +28,12 @@ impl ListsApiClient {
     );
 }
 
-impl ListsIdApiClient {
+impl SitesListsIdApiClient {
+    api_client_link_id!(item, SitesItemsIdApiClient);
+    api_client_link!(items, SitesItemsApiClient);
+    api_client_link_id!(content_type, SitesContentTypesIdApiClient);
+    api_client_link!(content_types, SitesContentTypesApiClient);
+
     delete!(
         doc: "Delete navigation property lists for sites",
         name: delete_lists,

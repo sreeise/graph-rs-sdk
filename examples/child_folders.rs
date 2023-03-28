@@ -46,7 +46,6 @@ async fn get_child_folders_attachment_content() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
         .mail_folder(MAIL_FOLDER_ID)
         .child_folder(child_folder_id1)

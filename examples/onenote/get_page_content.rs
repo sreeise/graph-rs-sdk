@@ -1,5 +1,6 @@
+use graph_http::FileConfig;
 use graph_rs_sdk::prelude::*;
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 use std::str::FromStr;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -17,41 +18,33 @@ static DOWNLOAD_PATH: &str = "DOWNLOAD_PATH";
 // Include the file extension such as .html
 static FILE_NAME: &str = "FILE_NAME";
 
-fn main() {
-    get_page_html_content();
-    download_page_as_html();
-}
-
-fn get_page_html_content() {
+async fn get_page_html_content() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .user(USER_ID)
         .onenote()
         .page(PAGE_ID)
-        .content()
-        .text()
+        .get_pages_content()
+        .send()
+        .await
         .unwrap();
 
-    let html_string = response.body();
+    let html_string = response.text().await.unwrap();
     println!("{:#?}", html_string);
 }
 
-fn download_page_as_html() {
+async fn download_page_as_html() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let download_client = client
-        .v1()
+    let path_buf = client
         .user(USER_ID)
         .onenote()
         .page(PAGE_ID)
-        .content()
-        .download(DOWNLOAD_PATH)
+        .get_pages_content()
+        .download(&FileConfig::new(DOWNLOAD_PATH).file_name(OsStr::new(FILE_NAME)))
+        .await
         .unwrap();
 
-    download_client.set_file_name(OsString::from_str(FILE_NAME).unwrap());
-
-    let path_buf = download_client.send().unwrap();
     println!("{:#?}", path_buf);
 }

@@ -127,6 +127,7 @@ async fn add_mail_folder_message_attachment() {
         .me()
         .mail_folder(MAIL_FOLDER_ID)
         .messages_id(MESSAGE_ID)
+        .attachments()
         .create_attachments(&serde_json::json!({
             "@odata.type": "#microsoft.graph.fileAttachment",
             "name": "smile",

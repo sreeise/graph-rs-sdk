@@ -10,7 +10,7 @@ resource_api_client!(
 
 impl ThreadsPostsApiClient {
     get!(
-        doc: "Get post",
+        doc: "List posts",
         name: list_posts,
         path: "/posts"
     );

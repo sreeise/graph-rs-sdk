@@ -1,6 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::sites::*;
 
 resource_api_client!(
     TermStoreSetsParentGroupApiClient,
@@ -8,6 +9,9 @@ resource_api_client!(
 );
 
 impl TermStoreSetsParentGroupApiClient {
+    api_client_link!(sets, TermStoreSetsApiClient);
+    api_client_link_id!(set, TermStoreSetsIdApiClient);
+
     delete!(
         doc: "Delete navigation property parentGroup for sites",
         name: delete_parent_group,

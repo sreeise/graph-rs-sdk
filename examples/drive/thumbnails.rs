@@ -7,7 +7,7 @@ pub async fn list_thumbnails() {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item_by_path(":/") // Root folder
         .list_thumbnails()
         .send()

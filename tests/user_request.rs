@@ -1,39 +1,45 @@
 use graph_http::traits::ODataMetadataLink;
 use std::env;
-use test_tools::oauthrequest::THROTTLE_MUTEX;
+use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 
 #[tokio::test]
-async fn user_request_test() {
+async fn list_users() {
     if Environment::is_appveyor() {
         return;
     }
-    env::set_var("GRAPH_TEST_ENV", "true");
-    let _lock = THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_v2().await {
-        let users = client.users().list_user().send().await;
 
-        if let Ok(response) = users {
-            assert!(
-                response.status() == 200 || response.status() == 201 || response.status() == 204
-            );
+    let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        let result = client.users().list_user().send().await;
+
+        if let Ok(response) = result {
+            assert!(response.status().is_success());
             let value = response.json::<serde_json::Value>().await.unwrap();
             let metadata_link = value.odata_metadata_link().unwrap();
             assert_eq!(
                 "https://graph.microsoft.com/v1.0/$metadata#users",
                 metadata_link.as_str()
             );
-        } else if let Err(e) = users {
+        } else if let Err(e) = result {
             panic!("Request error. Method: users list. Error: {:#?}", e);
         }
+    }
+}
 
-        let user_res = client.users().id(id).get_user().send().await;
+#[tokio::test]
+async fn get_user() {
+    if Environment::is_appveyor() {
+        return;
+    }
 
-        if let Ok(response) = user_res {
-            assert!(
-                response.status() == 200 || response.status() == 201 || response.status() == 204
-            );
-        } else if let Err(e) = user_res {
+    let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        let result = client.users().id(id).get_user().send().await;
+
+        if let Ok(response) = result {
+            assert!(response.status().is_success());
+        } else if let Err(e) = result {
             panic!("Request error. Method: users list. Error: {:#?}", e);
         }
     }

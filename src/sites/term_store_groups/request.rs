@@ -1,6 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::sites::*;
 
 resource_api_client!(
     TermStoreGroupsApiClient,

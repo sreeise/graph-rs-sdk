@@ -8,7 +8,6 @@ async fn list_applications() {
         OAuthTestClient::graph_by_rid_async(ResourceIdentity::Applications).await
     {
         let response = client
-            .v1()
             .applications()
             .list_application()
             .send()

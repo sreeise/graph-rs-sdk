@@ -5,7 +5,7 @@ use test_tools::oauthrequest::OAuthTestClient;
 
 #[test]
 pub fn batch_url() {
-    let client = Graph::new("");
+    let mut client = Graph::new("");
 
     assert_eq!(
         "/v1.0/$batch".to_string(),

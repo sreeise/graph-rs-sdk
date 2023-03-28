@@ -13,12 +13,46 @@ pub enum GeneratedMacroType {
     RequestTask(RequestTask),
     FnNameAndPath(&'static str, &'static str),
     Method(HttpMethod),
+    Default,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Builder, Debug, Clone, Eq, PartialEq)]
+#[builder(
+    pattern = "mutable",
+    derive(Debug, Eq, PartialEq),
+    setter(into, strip_option),
+    default
+)]
 pub struct MethodMacroModifier {
     pub matching: Vec<GeneratedMacroType>,
     pub update: GeneratedMacroType,
+}
+
+impl MethodMacroModifier {
+    pub fn builder() -> MethodMacroModifierBuilder {
+        MethodMacroModifierBuilder::default()
+    }
+
+    pub fn fn_name_and_path(
+        fn_name: &'static str,
+        path: &'static str,
+        update: GeneratedMacroType,
+    ) -> MethodMacroModifier {
+        MethodMacroModifier::builder()
+            .matching(vec![GeneratedMacroType::FnNameAndPath(fn_name, path)])
+            .update(update)
+            .build()
+            .unwrap()
+    }
+}
+
+impl Default for MethodMacroModifier {
+    fn default() -> Self {
+        MethodMacroModifier {
+            matching: vec![],
+            update: GeneratedMacroType::Default,
+        }
+    }
 }
 
 pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<MethodMacroModifier> {
@@ -686,6 +720,18 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				],
 				update: GeneratedMacroType::FnName("get_mobile_app_item_as_mobile_lob_app_type"),
 			},
+		],
+		ResourceIdentity::SitesItems => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"list_item", "/items/{{RID}}/getActivitiesByInterval(startDateTime='{{id}}',endDateTime='{{id2}}',interval='{{id3}}')",
+				GeneratedMacroType::FnName("get_activities_by_interval")
+			)
+		],
+		ResourceIdentity::TransitiveMembers => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"application_eafb", "/transitiveMembers/graph.application/$count",
+				GeneratedMacroType::FnName("get_application_count")
+			)
 		],
 		_ => vec![],
 	}

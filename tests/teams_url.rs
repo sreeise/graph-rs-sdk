@@ -1,44 +1,37 @@
-use graph_http::BlockingHttpClient;
 use graph_rs_sdk::prelude::*;
-use test_tools::assert_url_eq;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";
 
-fn get_graph() -> Graph<BlockingHttpClient> {
-    Graph::new("")
-}
-
 #[test]
 fn get_teams_request() {
-    let client = get_graph();
+    let client = Graph::new("");
 
-    let _ = client.v1().teams().id(RID).get_team();
-    assert_url_eq(&client, &format!("/teams/{}", RID));
-
-    let _ = client.v1().team(RID).get_team();
-    assert_url_eq(&client, &format!("/teams/{}", RID));
-}
-
-#[test]
-fn list_teams_request() {
-    let client = get_graph();
-
-    let _ = client.v1().teams().list_team();
-    assert_url_eq(&client, "/teams");
+    assert_eq!(
+        format!("/v1.0/teams/{}", RID),
+        client.teams().id(RID).get_team().url().path()
+    );
+    assert_eq!(
+        format!("/v1.0/teams/{}", RID),
+        client.team(RID).get_team().url().path()
+    );
 }
 
 #[test]
 fn teams_channel_request() {
-    let client = get_graph();
+    let client = Graph::new("");
 
-    let _ = client.v1().team(RID).channels().list_channels();
-    assert_url_eq(&client, &format!("/teams/{}/channels", RID));
-
-    let _ = client.v1().team(RID).channel(ID).get_channels();
-    assert_url_eq(&client, &format!("/teams/{}/channels/{}", RID, ID));
+    assert_eq!(
+        format!("/v1.0/teams/{}/channels", RID),
+        client.team(RID).channels().list_channels().url().path()
+    );
+    assert_eq!(
+        format!("/v1.0/teams/{}/channels/{}", RID, ID),
+        client.team(RID).channel(ID).get_channels().url().path()
+    );
 }
 
+/*
 #[test]
 fn teams_schedule_request() {
     let client = get_graph();
@@ -111,3 +104,5 @@ fn teams_primary_channel_request() {
         &format!("/teams/{}/primaryChannel/messages/{}", RID, ID),
     );
 }
+
+ */

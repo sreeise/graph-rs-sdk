@@ -12,9 +12,8 @@ async fn download_config_dir_no_exists() {
     let client = Graph::new("");
 
     let _ = client
-        .v1()
         .me()
-        .default_drive()
+        .drive()
         .item("")
         .get_items_content()
         .download(&FileConfig::new("./test_files/download_dir"))
@@ -24,12 +23,11 @@ async fn download_config_dir_no_exists() {
 
 #[tokio::test]
 async fn download_config_file_exists() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
     let _lock = DRIVE_THROTTLE_MUTEX.lock();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client
             .user(id.as_str())
-            .default_drive()
+            .drive()
             .item_by_path(":/downloadtestdoc.txt:")
             .get_items_content()
             .download(&FileConfig::new("./test_files").file_name(OsStr::new("downloadtestdoc.txt")))
@@ -52,46 +50,21 @@ async fn download_config_file_exists() {
 }
 
 #[tokio::test]
-async fn download_config_no_file_name() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
+async fn download_is_err_config_dir_no_exists() {
     let _lock = DRIVE_THROTTLE_MUTEX.lock();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let result = client
+        let response = client
             .user(id.as_str())
-            .default_drive()
+            .drive()
             .item_by_path(":/downloadtestdoc.txt:")
             .get_items_content()
-            .download(&FileConfig::new("./test_files"))
+            .download(&FileConfig::new("./test_files/download_dir"))
             .await;
 
-        let mut matched_no_file_name = false;
-        match result {
-			Ok(path) => panic!("Download request should have thrown AsyncDownloadError::FileExists. Instead got successful PathBuf: {:#?}", path),
-			Err(GraphFailure::AsyncDownloadError(AsyncDownloadError::NoFileName)) => {
-				matched_no_file_name = true;
-			}
-			Err(err) => panic!("Incorrect error thrown. Should have been AsyncDownloadError::FileExists. Got: {:#?}", err),
+        match response {
+			Ok(path) => panic!("Download request should have thrown AsyncDownloadError::TargetDoesNotExist. Instead got successful PathBuf: {:#?}", path),
+			Err(GraphFailure::AsyncDownloadError(AsyncDownloadError::TargetDoesNotExist(dir))) => assert_eq!("./test_files/download_dir".to_string(), dir),
+			Err(err) => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err),
 		}
-        assert!(matched_no_file_name);
     }
-}
-
-#[tokio::test]
-async fn download_is_err_config_dir_no_exists() {
-    let client = Graph::new("");
-
-    let response = client
-        .v1()
-        .me()
-        .default_drive()
-        .item("fake")
-        .get_items_content()
-        .download(&FileConfig::new("./test_files/download_dir"))
-        .await;
-
-    match response {
-		Ok(path) => panic!("Download request should have thrown GraphRsError::DownloadDirNoExists. Instead got successful PathBuf: {:#?}", path),
-		Err(GraphFailure::AsyncDownloadError(AsyncDownloadError::TargetDoesNotExist(dir))) => assert_eq!("./test_files/download_dir".to_string(), dir),
-		Err(err) => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err),
-	}
 }

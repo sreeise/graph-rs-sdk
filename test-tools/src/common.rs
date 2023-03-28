@@ -1,5 +1,4 @@
 use graph_error::GraphResult;
-use graph_http::GraphResponse;
 
 pub struct TestTools;
 
@@ -24,18 +23,5 @@ impl TestTools {
         }
 
         strings
-    }
-
-    pub fn assert_success<T>(result: &GraphResult<GraphResponse<T>>, method: &str) {
-        if let Ok(response) = result {
-            assert!(
-                response.status() == 200
-                    || response.status() == 201
-                    || response.status() == 202
-                    || response.status() == 204
-            );
-        } else if let Err(e) = result {
-            panic!("Request Error. Method: {}. Error: {:#?}", method, e);
-        }
     }
 }

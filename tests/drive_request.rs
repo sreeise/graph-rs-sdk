@@ -1,7 +1,7 @@
 use graph_error::{GraphResult, WithGraphErrorAsync};
 use graph_http::odata_query::ODataQuery;
-use graph_http::traits::AsyncIterator;
-use graph_http::{FileConfig, NextSession, UploadSessionTask};
+use graph_http::traits::{AsyncIterator, ResponseExt};
+use graph_http::FileConfig;
 use graph_rs_sdk::prelude::Graph;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH, CONTENT_TYPE};
 use std::collections::HashMap;
@@ -39,7 +39,6 @@ async fn test_folder_create_delete(folder_name: &str) {
             thread::sleep(Duration::from_secs(2));
 
             let response = client
-                .v1()
                 .drive(&id)
                 .item(item_id)
                 .delete_items()
@@ -74,7 +73,7 @@ async fn list_versions_get_item() {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let get_item_res = client
             .user(id.as_str())
-            .default_drive()
+            .drive()
             .item_by_path(":/copy_folder:")
             .get_items()
             .send()
@@ -89,7 +88,7 @@ async fn list_versions_get_item() {
 
             let response = client
                 .user(id.as_str())
-                .default_drive()
+                .drive()
                 .item(item_id)
                 .list_versions()
                 .send()
@@ -229,7 +228,7 @@ async fn drive_update() {
 async fn get_special_folder_id(user_id: &str, folder: &str, client: &Graph) -> GraphResult<String> {
     let response = client
         .user(user_id)
-        .default_drive()
+        .drive()
         .get_special(folder)
         .send()
         .await?;
@@ -262,7 +261,7 @@ async fn update_file(
 ) -> GraphResult<reqwest::Response> {
     client
         .user(user_id)
-        .default_drive()
+        .drive()
         .item_by_path(onedrive_file_path)
         .update_items_content(&FileConfig::new(local_file))
         .send()
@@ -276,7 +275,7 @@ async fn delete_file(
 ) -> GraphResult<reqwest::Response> {
     client
         .user(user_id)
-        .default_drive()
+        .drive()
         .item(item_id)
         .delete_items()
         .send()
@@ -349,7 +348,6 @@ async fn get_file_from_encoded_folder_name() {
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let response = client
-            .v1()
             .drive(&id)
             .item_by_path(":/encoding_test_files/spaced folder/test.txt:")
             .get_items()
@@ -397,73 +395,3 @@ async fn file_upload_session() {
         }
     }
 }
-
-/*
-#[test]
-fn drive_upload_session() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let upload = serde_json::json!({
-            "@microsoft.graph.conflictBehavior": Some("fail".to_string())
-        });
-
-        let session = client
-            .v1()
-            .user(id.as_str())
-            .drive()
-            .create_upload_session(
-                ":/upload_session_file.txt:",
-                "./test_files/upload_session_file.txt",
-                &upload,
-            )
-            .send();
-
-        if let Ok(mut session) = session {
-            let cancel_request = session.cancel();
-
-            for next in session {
-                match next {
-                    Ok(NextSession::Next(response)) => {
-                        assert!(response.status().is_success());
-                    }
-                    Ok(NextSession::Done(response)) => {
-                        assert!(response.status().is_success());
-                        let drive_item = response.body();
-                        let drive_item_id =
-                            drive_item["id"].as_str().unwrap_or_default().to_string();
-                        thread::sleep(Duration::from_secs(3));
-
-                        let delete_res = client
-                            .v1()
-                            .user(id.as_str())
-                            .drive()
-                            .delete_items(drive_item_id.as_str())
-                            .send();
-
-                        if let Ok(response) = delete_res {
-                            assert!(
-                                response.status() == 200
-                                    || response.status() == 201
-                                    || response.status() == 204
-                            );
-                        } else if let Err(e) = delete_res {
-                            panic!("Request error. Upload session new. Error: {:#?}", e);
-                        }
-                        break;
-                    }
-                    Err(e) => {
-                        let _ = cancel_request.send().unwrap();
-                        panic!("Request error. Upload session new. Error: {:#?}", e);
-                    }
-                }
-            }
-        } else if let Err(e) = session {
-            panic!("Request error. Upload session new. Error: {:#?}", e);
-        }
-    }
-}
-
-
-
-
- */

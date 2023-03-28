@@ -5,7 +5,7 @@ pub async fn get_drive_item(item_id: &str) {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item(item_id)
         .get_items()
         .send()
@@ -26,7 +26,7 @@ pub async fn get_sites_drive_item(item_id: &str, sites_id: &str) {
 
     let response = client
         .site(sites_id)
-        .default_drive()
+        .drive()
         .item(item_id)
         .get_items()
         .send()

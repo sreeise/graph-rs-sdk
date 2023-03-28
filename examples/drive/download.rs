@@ -1,4 +1,4 @@
-use graph_http::{DownloadTask, FileConfig};
+use graph_http::FileConfig;
 use graph_rs_sdk::prelude::*;
 use std::ffi::{OsStr, OsString};
 use std::path::PathBuf;
@@ -16,16 +16,16 @@ pub async fn download_files() {
 pub async fn download() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client
+    let path_buf = client
         .me()
-        .default_drive()
+        .drive()
         .item(ITEM_ID)
         .get_items_content()
-        .download(FileConfig::new("./examples/example_files").create_directories(true))
+        .download(&FileConfig::new("./examples/example_files").create_directories(true))
         .await
         .unwrap();
 
-    println!("{:#?}", path_buf);
+    println!("{path_buf:#?}");
 }
 
 // You can convert a file to a different format using the format() method.
@@ -40,12 +40,12 @@ pub async fn download_and_format(format: &str) {
 
     let path_buf = client
         .me()
-        .default_drive()
+        .drive()
         .item(ITEM_ID)
         .get_items_content()
         .format(format)
         .download(
-            FileConfig::new("./examples/example_files")
+            &FileConfig::new("./examples/example_files")
                 .create_directories(true)
                 .file_name(OsStr::new("file.pdf")),
         )
@@ -60,11 +60,11 @@ pub async fn download_and_rename(name: &str) {
 
     let path_buf = client
         .me()
-        .default_drive()
+        .drive()
         .item(ITEM_ID)
         .get_items_content()
         .download(
-            FileConfig::new("./examples/example_files")
+            &FileConfig::new("./examples/example_files")
                 .create_directories(true)
                 .file_name(OsStr::new(name)),
         )
@@ -81,13 +81,13 @@ pub async fn download_by_path(path: &str) {
 
     let path_buf = client
         .me()
-        .default_drive()
+        .drive()
         .item_by_path(path)
         .get_items_content()
         .download(
-            FileConfig::new("./examples/example_files")
+            &FileConfig::new("./examples/example_files")
                 .create_directories(true)
-                .file_name(OsStr::new(name)),
+                .file_name(OsStr::new("item.txt")),
         )
         .await
         .unwrap();
@@ -104,11 +104,11 @@ pub async fn download_with_config() {
 
     let path_buf = client
         .me()
-        .default_drive()
+        .drive()
         .item(ITEM_ID)
         .get_items_content()
         .download(
-            FileConfig::new("./examples/example_files").create_directories(true), // Create directories in the path if they do not exist.
+            &FileConfig::new("./examples/example_files").create_directories(true), // Create directories in the path if they do not exist.
         )
         .await
         .unwrap();

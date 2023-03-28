@@ -131,7 +131,7 @@ impl UsersIdApiClient {
     api_client_link_id!(agreement_acceptance, AgreementAcceptancesIdApiClient);
     api_client_link!(todo, TodoApiClient);
     api_client_link!(settings, SettingsApiClient);
-    api_client_link!(default_drive, DefaultDriveApiClient);
+    api_client_link!(drive, DefaultDriveApiClient);
     api_client_link!(onenote, OnenoteApiClient);
 
     delete!(

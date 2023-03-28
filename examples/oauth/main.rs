@@ -23,7 +23,9 @@ mod auth_code_grant_pkce;
 mod client_credentials;
 mod code_flow;
 mod implicit_grant;
+mod logout;
 mod open_id_connect;
+mod signing_keys;
 
 #[tokio::main]
 async fn main() {

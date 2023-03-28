@@ -7,20 +7,20 @@ static SITE_ID: &str = "<SITE_ID>";
 static LIST_ID: &str = "<LIST_ID>";
 static LIST_ITEM_ID: &str = "<LIST_ITEM_ID>";
 
-fn main() {
-    create_list();
-    list_all_list_items();
-    create_list_item();
-    get_list_item();
-    update_list_item();
-    // delete_list_item();
+#[tokio::main]
+async fn main() {
+    create_list().await;
+    list_all_list_items().await;
+    create_list_item().await;
+    get_list_item().await;
+    update_list_item().await;
+    delete_list_item().await;
 }
 
-pub fn create_list() {
+async fn create_list() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let list_result = client
-        .v1()
+    let response = client
         .site(SITE_ID)
         .lists()
         .create_lists(&serde_json::json!({
@@ -39,34 +39,32 @@ pub fn create_list() {
                 "template": "genericList"
             }
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
-    if let Ok(list_response) = list_result {
-        println!("{:#?}", list_response);
-    } else if let Err(e) = list_result {
-        println!("Error: {:#?}", e);
-    }
+    println!("{response:#?}");
 }
 
-fn list_all_list_items() {
+async fn list_all_list_items() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let list_item_response = client
-        .v1()
+    let response = client
         .site(SITE_ID)
         .list(LIST_ID)
         .items()
         .list_items()
-        .send();
+        .send()
+        .await
+        .unwrap();
 
-    println!("{:#?}", list_item_response);
+    println!("{response:#?}");
 }
 
-fn create_list_item() {
+async fn create_list_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let list_item_response = client
-        .v1()
+    let response = client
         .site(SITE_ID)
         .list(LIST_ID)
         .items()
@@ -77,16 +75,17 @@ fn create_list_item() {
                 }
             }
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
-    println!("{:#?}", list_item_response);
+    println!("{response:#?}");
 }
 
-fn update_list_item() {
+async fn update_list_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let list_item_response = client
-        .v1()
+    let response = client
         .site(SITE_ID)
         .list(LIST_ID)
         .item(LIST_ITEM_ID)
@@ -98,37 +97,39 @@ fn update_list_item() {
                 }
             }
         }))
-        .send();
+        .send()
+        .await
+        .unwrap();
 
-    println!("{:#?}", list_item_response);
+    println!("{response:#?}");
 }
 
-fn get_list_item() {
+async fn get_list_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let list_item_response = client
-        .v1()
+    let response = client
         .site(SITE_ID)
         .list(LIST_ID)
         .item(LIST_ITEM_ID)
         .get_items()
-        .send();
+        .send()
+        .await
+        .unwrap();
 
-    println!("{:#?}", list_item_response);
+    println!("{response:#?}");
 }
 
-// TODO: Add back delete list item
-// fn delete_list_item() {
-// let client = Graph::new(ACCESS_TOKEN);
-//
-// let sites = client
-// .v1()
-// .site(SITE_ID)
-// .list(LIST_ID)
-// .item(LIST_ITEM_ID)
-// .delete_items()
-// .send();
-//
-// println!("{:#?}", sites);
-// }
-//
+async fn delete_list_item() {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .site(SITE_ID)
+        .list(LIST_ID)
+        .item(LIST_ITEM_ID)
+        .delete_items()
+        .send()
+        .await
+        .unwrap();
+
+    println!("{response:#?}");
+}

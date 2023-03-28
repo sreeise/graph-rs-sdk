@@ -124,7 +124,6 @@ async fn drive_download_graph_error() {
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let result = client
-            .v1()
             .drive(id.as_str())
             .item_by_path(":/non_existent_file.docx:")
             .get_items_content()

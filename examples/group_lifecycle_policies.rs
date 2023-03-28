@@ -1,24 +1,25 @@
+use graph_error::GraphResult;
 use graph_rs_sdk::prelude::Graph;
 
 static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
 
-static GROUP_ID: &str = "<GROUP_ID>";
+static GROUP_LIFECYCLE_POLICY_ID: &str = "<GROUP_ID>";
 
 #[tokio::main]
-async fn main() {
+async fn main() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policies() // Won't be used.
         .list_group_lifecycle_policy()
         .send()
-        .await?;
+        .await;
 
     println!("{:#?}", response);
 
     let response = client
-        .group_lifecycle_policies()
-        .get_group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
+        .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
+        .get_group_lifecycle_policy()
         .send()
         .await?;
 

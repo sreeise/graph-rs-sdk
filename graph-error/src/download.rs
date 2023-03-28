@@ -48,7 +48,7 @@ pub enum AsyncDownloadError {
     Request(#[from] reqwest::Error),
 
     #[error("graph error: {0}")]
-    Graph(#[from] GraphError),
+    GraphError(#[from] GraphError),
 
     #[error("file name is too long (max 255 chars)")]
     FileNameTooLong,

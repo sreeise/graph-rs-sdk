@@ -1,5 +1,4 @@
 use from_as::*;
-use graph_http::{AsyncHttpClient, BlockingHttpClient};
 use graph_rs_sdk::client::Graph;
 use graph_rs_sdk::core::ResourceIdentity;
 use graph_rs_sdk::oauth::{AccessToken, OAuth};

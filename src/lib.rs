@@ -141,6 +141,7 @@ pub mod invitations;
 pub mod me;
 pub mod oauth2_permission_grants;
 pub mod organization;
+pub mod permission_grants;
 pub mod places;
 pub mod planner;
 pub mod policies;

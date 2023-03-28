@@ -11,7 +11,7 @@ pub async fn list_drive_items() {
 pub async fn drive_root() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.me().default_drive().get_root().send().await.unwrap();
+    let response = client.me().drive().get_root().send().await.unwrap();
 
     println!("{response:#?}");
 
@@ -24,7 +24,7 @@ pub async fn drive_root_children() {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .list_root_children()
         .send()
         .await
@@ -41,7 +41,7 @@ pub async fn special_docs() {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .get_special("documents")
         .send()
         .await

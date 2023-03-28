@@ -20,7 +20,7 @@ static SPECIAL_DOCUMENT_FOLDER: &str = "Documents";
 async fn get_special_folder_id(user_id: &str, folder: &str, client: &Graph) -> GraphResult<String> {
     let response = client
         .user(user_id)
-        .default_drive()
+        .drive()
         .get_special(folder)
         .send()
         .await?;
@@ -53,7 +53,7 @@ async fn update_file(
 ) -> GraphResult<reqwest::Response> {
     client
         .user(user_id)
-        .default_drive()
+        .drive()
         .item_by_path(onedrive_file_path)
         .update_items_content(&FileConfig::new(local_file))
         .send()
@@ -67,7 +67,7 @@ async fn delete_file(
 ) -> GraphResult<reqwest::Response> {
     client
         .user(user_id)
-        .default_drive()
+        .drive()
         .item(item_id)
         .delete_items()
         .send()
@@ -82,7 +82,7 @@ async fn upload_and_update_item() -> GraphResult<()> {
         get_special_folder_id(USER_ID, SPECIAL_DOCUMENT_FOLDER, &client).await?;
 
     // Upload the new file to the Documents folder in OneDrive
-    let upload_response = upload_new_file(
+    let response = upload_new_file(
         USER_ID,
         parent_reference_id.as_str(),
         FILE_NAME,

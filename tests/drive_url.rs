@@ -9,11 +9,11 @@ pub fn drive_me() {
 
     assert_eq!(
         "/v1.0/me/drive".to_string(),
-        client.me().default_drive().get_drive().url().path()
+        client.me().drive().get_drive().url().path()
     );
     assert_eq!(
         "/v1.0/me/drive/root".to_string(),
-        client.me().default_drive().get_root().url().path()
+        client.me().drive().get_root().url().path()
     );
 }
 
@@ -37,11 +37,11 @@ fn sites() {
 
     assert_eq!(
         "/v1.0/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive".to_string(),
-        client.site(RID).default_drive().get_drive().url().path()
+        client.site(RID).drive().get_drive().url().path()
     );
     assert_eq!(
         "/v1.0/sites/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root".to_string(),
-        client.site(RID).default_drive().get_root().url().path()
+        client.site(RID).drive().get_root().url().path()
     );
 }
 
@@ -51,11 +51,11 @@ fn users() {
 
     assert_eq!(
         "/v1.0/users/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive".to_string(),
-        client.user(RID).default_drive().get_drive().url().path()
+        client.user(RID).drive().get_drive().url().path()
     );
     assert_eq!(
         "/v1.0/users/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root".to_string(),
-        client.user(RID).default_drive().get_root().url().path()
+        client.user(RID).drive().get_root().url().path()
     );
 }
 
@@ -69,11 +69,11 @@ pub fn drive_preview_path() {
         "/v1.0/me/drive/root:/Documents/preview.txt:/preview".to_string(),
         client
             .me()
-            .default_drive()
+            .drive()
             .item_by_path(":/Documents/preview.txt:")
             .preview(&serde_json::json!({}))
             .url()
             .path()
     );
-    assert_eq!("/v1.0/users/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/preview.txt:/preview".to_string(), client.user(RID).default_drive().item_by_path(":/Documents/preview.txt:").preview(&serde_json::json!({})).url().path());
+    assert_eq!("/v1.0/users/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/preview.txt:/preview".to_string(), client.user(RID).drive().item_by_path(":/Documents/preview.txt:").preview(&serde_json::json!({})).url().path());
 }

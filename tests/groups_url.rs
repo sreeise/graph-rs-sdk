@@ -33,14 +33,15 @@ fn groups_url() {
     );
     assert_eq!(
         client_id(RID)
-            .add_member(&serde_json::json!({}))
+            .create_ref_members(&serde_json::json!({}))
             .url()
             .path(),
         format!("/v1.0/groups/{}/members/$ref", RID)
     );
     assert_eq!(
         client_id(RID)
-            .add_owner(&serde_json::json!({}))
+            .owners()
+            .create_ref_owners(&serde_json::json!({}))
             .url()
             .path(),
         format!("/v1.0/groups/{}/owners/$ref", RID)
@@ -62,7 +63,12 @@ fn group_conversation() {
         format!("/v1.0/groups/{}/conversations", RID)
     );
     assert_eq!(
-        client_id(RID).conversation(ID).list_threads().url().path(),
+        client_id(RID)
+            .conversation(ID)
+            .threads()
+            .list_threads()
+            .url()
+            .path(),
         format!("/v1.0/groups/{}/conversations/{}/threads", RID, ID)
     );
     assert_eq!(
@@ -95,6 +101,7 @@ fn group_conversation_posts() {
         client_id(RID)
             .conversation(ID)
             .thread(ID)
+            .posts()
             .list_posts()
             .url()
             .path(),
@@ -128,5 +135,32 @@ fn group_conversation_posts() {
             "/v1.0/groups/{}/conversations/{}/threads/{}/posts/{}/reply",
             RID, ID, ID, ID
         )
+    );
+}
+
+#[test]
+pub fn groups_permission_grants() {
+    let client = Graph::new("");
+    assert_eq!(
+        format!("/v1.0/groups/{}/permissionGrants/getByIds", RID),
+        client
+            .group(RID)
+            .permission_grants()
+            .get_by_ids(&String::new())
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        format!(
+            "/v1.0/groups/{}/permissionGrants/{}/getMemberGroups",
+            RID, ID
+        ),
+        client
+            .group(RID)
+            .permission_grant(ID)
+            .get_member_groups(&String::new())
+            .url()
+            .path()
     );
 }

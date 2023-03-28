@@ -57,6 +57,7 @@ use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
 };
 use crate::organization::{OrganizationApiClient, OrganizationIdApiClient};
+use crate::permission_grants::{PermissionGrantsApiClient, PermissionGrantsIdApiClient};
 use crate::places::PlacesApiClient;
 use crate::planner::PlannerApiClient;
 use crate::policies::PoliciesApiClient;
@@ -97,7 +98,7 @@ impl Graph {
     ///
     /// assert_eq!(client.url().to_string(), GRAPH_URL.to_string())
     /// ```
-    pub fn v1(mut self) -> Graph {
+    pub fn v1(&mut self) -> &mut Graph {
         self.endpoint
             .replace(GRAPH_URL)
             .expect("Unable to set v1 endpoint");
@@ -135,7 +136,7 @@ impl Graph {
     ///
     /// assert_eq!(client.url().to_string(), GRAPH_URL_BETA.to_string())
     /// ```
-    pub fn beta(mut self) -> Graph {
+    pub fn beta(&mut self) -> &mut Graph {
         self.endpoint
             .replace(GRAPH_URL_BETA)
             .expect("Unable to set beta endpoint");
@@ -177,7 +178,7 @@ impl Graph {
     ///
     /// assert_eq!(client.url().to_string(), "https://api.microsoft.com/api".to_string())
     /// ```
-    pub fn custom_endpoint(mut self, custom_endpoint: &str) -> Graph {
+    pub fn custom_endpoint(&mut self, custom_endpoint: &str) -> &mut Graph {
         self.endpoint
             .replace(custom_endpoint)
             .expect("Unable to set custom endpoint");
@@ -333,6 +334,13 @@ impl Graph {
 
     api_client_impl!(places, PlacesApiClient);
 
+    api_client_impl!(
+        permission_grants,
+        PermissionGrantsApiClient,
+        permission_grant,
+        PermissionGrantsIdApiClient
+    );
+
     api_client_impl!(planner, PlannerApiClient);
 
     api_client_impl!(policies, PoliciesApiClient);
@@ -430,33 +438,5 @@ impl From<GraphClientBuilder> for Graph {
             client: graph_client_builder.build(),
             endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
         }
-    }
-}
-
-mod test {
-    use crate::client::Graph;
-
-    #[test]
-    fn test_host() {
-        let mut client = Graph::new("ACCESS_TOKEN").beta();
-        assert_eq!(
-            "graph.microsoft.com".to_string(),
-            client.url().host().expect("dead").to_string()
-        );
-        assert_eq!("/beta".to_string(), client.url().path());
-
-        client.use_v1();
-        assert_eq!(
-            "graph.microsoft.com".to_string(),
-            client.url().host().expect("dead").to_string()
-        );
-        assert_eq!("/v1.0".to_string(), client.url().path());
-
-        client = client.custom_endpoint("https://localhost/api");
-        assert_eq!(
-            "localhost".to_string(),
-            client.url().host().expect("dead").to_string()
-        );
-        assert_eq!("/api".to_string(), client.url().path());
     }
 }

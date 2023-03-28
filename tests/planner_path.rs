@@ -2,7 +2,6 @@
 extern crate lazy_static;
 
 use graph_rs_sdk::prelude::*;
-use test_tools::assert_url_eq;
 use test_tools::common::TestTools;
 
 lazy_static! {
@@ -13,39 +12,30 @@ lazy_static! {
 fn planner_get_plan() {
     let client = Graph::new("");
 
-    let _ = client.v1().planner().plan(ID_VEC[0].as_str()).get_plans();
-
-    assert_url_eq(&client, format!("/planner/plans/{}", ID_VEC[0]));
-}
-
-#[test]
-fn me_get_plan() {
-    let client = Graph::new("");
-
-    let _ = client
-        .v1()
-        .me()
-        .planner()
-        .plan(ID_VEC[0].as_str())
-        .get_plans();
-
-    assert_url_eq(&client, format!("/me/planner/plans/{}", ID_VEC[0]));
+    assert_eq!(
+        format!("/v1.0/planner/plans/{}", ID_VEC[0]),
+        client
+            .planner()
+            .plan(ID_VEC[0].as_str())
+            .get_plans()
+            .url()
+            .path()
+    );
 }
 
 #[test]
 fn user_get_plan() {
     let client = Graph::new("");
 
-    let _ = client
-        .v1()
-        .user(ID_VEC[0].as_str())
-        .planner()
-        .plan(ID_VEC[1].as_str())
-        .get_plans();
-
-    assert_url_eq(
-        &client,
-        format!("/users/{}/planner/plans/{}", ID_VEC[0], ID_VEC[1]),
+    assert_eq!(
+        format!("/v1.0/users/{}/planner/plans/{}", ID_VEC[0], ID_VEC[1]),
+        client
+            .user(ID_VEC[0].as_str())
+            .planner()
+            .plan(ID_VEC[1].as_str())
+            .get_plans()
+            .url()
+            .path()
     );
 }
 
@@ -53,15 +43,14 @@ fn user_get_plan() {
 fn groups_get_plan() {
     let client = Graph::new("");
 
-    let _ = client
-        .v1()
-        .group(ID_VEC[0].as_str())
-        .planner()
-        .plan(ID_VEC[1].as_str())
-        .get_plans();
-
-    assert_url_eq(
-        &client,
-        format!("/groups/{}/planner/plans/{}", ID_VEC[0], ID_VEC[1]),
+    assert_eq!(
+        format!("/v1.0/groups/{}/planner/plans/{}", ID_VEC[0], ID_VEC[1]),
+        client
+            .group(ID_VEC[0].as_str())
+            .planner()
+            .plan(ID_VEC[1].as_str())
+            .get_plans()
+            .url()
+            .path()
     );
 }

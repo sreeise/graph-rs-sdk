@@ -41,7 +41,7 @@ lazy_static! {
         r#"(?P<GET_COUNT>Get.Count.)(?P<RESOURCE_NAME>\w+)(?P<ARBITRARY_CHARS>-\w+[0-9])"#
     ).unwrap();
 
-    pub static ref RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING: Regex = Regex::new(r#"(?P<RESOURCE_NAME>\w+)(-\w+[0-9])"#).unwrap();
+    pub static ref RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING: Regex = Regex::new(r#"(?P<RESOURCE_NAME>\w+)(-\w*[0-9]*)"#).unwrap();
 
     pub static ref API_METHOD_MACRO: Regex = Regex::new(r#"(doc: "\#)"#).unwrap();
 }
@@ -156,11 +156,38 @@ impl RequestParser for &str {
                             resource_name.to_snake_case()
                         );
                     }
+
+                    if !resource_name.is_empty() && starts_with_directory_object_items {
+                        return format!(
+                            "get_directory_object_items_as_{}_type",
+                            resource_name.to_snake_case()
+                        );
+                    }
+                }
+            }
+        }
+
+        let get_count_microsoft_graph = "Get.Count.microsoft.graph".to_lowercase();
+        if self
+            .to_lowercase()
+            .starts_with(get_count_microsoft_graph.as_str())
+        {
+            let operation_id_clone = self.replace("Get.Count.microsoft.graph.", "");
+            for capture in
+                RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING.captures_iter(operation_id_clone.as_str())
+            {
+                if let Some(capture_match) = capture.name("RESOURCE_NAME") {
+                    let resource_name = capture_match.as_str();
+                    if !resource_name.is_empty() {
+                        return format!("get_{}_count", resource_name.to_snake_case());
+                    }
                 }
             }
         }
 
         if self.starts_with("Get.Count") {
+            // Get.Count.microsoft.graph.orgContact-7eba
+
             let operation_id_clone = {
                 if self.starts_with("Get.Count.microsoft.graph.") {
                     self.replace("microsoft.graph.", "")

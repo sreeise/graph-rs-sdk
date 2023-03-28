@@ -1,6 +1,6 @@
 use graph_rs_sdk::oauth::OAuth;
 
-fn main() {
+fn logout() {
     // First run the example: rocket_example.rs
     let mut oauth: OAuth = OAuth::new();
     oauth

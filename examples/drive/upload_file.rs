@@ -1,4 +1,4 @@
-use graph_http::{FileConfig, GraphResponse};
+use graph_rs_sdk::http::FileConfig;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -26,7 +26,7 @@ async fn upload_file() {
     let graph = Graph::new(ACCESS_TOKEN);
     let response = graph
         .me()
-        .default_drive()
+        .drive()
         .item(DRIVE_PARENT_ID)
         .update_items_content(&FileConfig::new(LOCAL_FILE_PATH))
         .send()
@@ -65,7 +65,7 @@ async fn user_upload() {
 
     let response = client
         .user(RESOURCE_ID)
-        .default_drive()
+        .drive()
         .item_by_path(DRIVE_UPLOAD_PATH)
         .update_items_content(&FileConfig::new(LOCAL_FILE_PATH))
         .send()
@@ -86,7 +86,7 @@ async fn sites_upload() {
 
     let response = client
         .site(RESOURCE_ID)
-        .default_drive()
+        .drive()
         .item_by_path(DRIVE_UPLOAD_PATH)
         .update_items_content(&FileConfig::new(LOCAL_FILE_PATH))
         .send()

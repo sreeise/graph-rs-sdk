@@ -3,7 +3,8 @@ use graph_rs_sdk::oauth::graphdiscovery::{
 };
 use graph_rs_sdk::oauth::OAuth;
 
-fn main() {
+#[allow(dead_code)]
+fn get_signing_keys() {
     // Lists info such as the authorization and token urls, jwks uri, and response types supported.
     let signing_keys: MicrosoftSigningKeysV1 = GraphDiscovery::V1.signing_keys().unwrap();
     println!("{:#?}", signing_keys);

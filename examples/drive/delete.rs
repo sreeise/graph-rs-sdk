@@ -13,7 +13,7 @@ pub async fn delete_by_id(item_id: &str) {
     // Send the request.
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item(item_id)
         .delete_items()
         .send()
@@ -31,7 +31,7 @@ pub async fn delete_by_path(path: &str) {
     // Send the request.
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item_by_path(path)
         .delete_items()
         .send()

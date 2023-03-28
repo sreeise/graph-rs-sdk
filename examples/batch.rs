@@ -19,27 +19,27 @@ async fn main() {
             {
                 "id": "1",
                 "method": "GET",
-                "url": format!("/users/{}/drive", id.as_str())
+                "url": format!("/users/{}/drive", USER_ID)
             },
             {
                 "id": "2",
                 "method": "GET",
-                "url": format!("/users/{}/drive/root", id.as_str())
+                "url": format!("/users/{}/drive/root", USER_ID)
             },
             {
                 "id": "3",
                 "method": "GET",
-                "url": format!("/users/{}/drive/recent", id.as_str())
+                "url": format!("/users/{}/drive/recent", USER_ID)
             },
             {
                 "id": "4",
                 "method": "GET",
-                "url": format!("/users/{}/drive/root/children", id.as_str())
+                "url": format!("/users/{}/drive/root/children", USER_ID)
             },
             {
                 "id": "5",
                 "method": "GET",
-                "url": format!("/users/{}/drive/special/documents", id.as_str())
+                "url": format!("/users/{}/drive/special/documents", USER_ID)
             },
         ]
     });

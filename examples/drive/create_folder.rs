@@ -14,7 +14,7 @@ pub async fn create_new_folder() {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item(PARENT_ID)
         .create_children(&serde_json::json!({
             "name": FOLDER_NAME,

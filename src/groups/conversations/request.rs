@@ -1,6 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::groups::*;
 
 resource_api_client!(
     ConversationsApiClient,
@@ -28,6 +29,9 @@ impl ConversationsApiClient {
 }
 
 impl ConversationsIdApiClient {
+    api_client_link!(threads, ThreadsApiClient);
+    api_client_link_id!(thread, ThreadsIdApiClient);
+
     delete!(
         doc: "Delete navigation property conversations for groups",
         name: delete_conversations,

@@ -13,36 +13,36 @@ use graph_rs_sdk::prelude::*;
 
 static USER_ID: &str = "USER_ID";
 
-fn main() {
-    list_users();
-    get_user();
-    create_user();
-    update_user();
-    delete_user();
+#[tokio::main]
+async fn main() {
+    list_users().await;
+    get_user().await;
+    create_user().await;
+    update_user().await;
+    delete_user().await;
 }
 
-fn list_users() {
+async fn list_users() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let collection = client.v1().users().list_user().send().unwrap();
-    println!("{:#?}", collection.body());
+    let response = client.users().list_user().send().await.unwrap();
+
+    println!("{:#?}", &response);
+    let body: serde_json::Value = response.json().await.unwrap();
+    println!("{body:#?}");
 }
 
-fn get_user() {
+async fn get_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let user = client.v1().users().id(USER_ID).get_user().send().unwrap();
+    let response = client.user(USER_ID).get_user().send().await.unwrap();
 
-    println!("{:#?}", user.body());
-
-    // Or
-
-    let user = client.v1().user(USER_ID).get_user().send().unwrap();
-
-    println!("{:#?}", user.body());
+    println!("{:#?}", &response);
+    let body: serde_json::Value = response.json().await.unwrap();
+    println!("{body:#?}");
 }
 
-fn create_user() {
+async fn create_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
     // Create a password profile. Change the password below
@@ -62,35 +62,37 @@ fn create_user() {
         "user_principal_name": "user@domain.com"
     });
 
-    let user: GraphResponse<serde_json::Value> = client
-        .v1()
-        .users()
-        .create_user(&user)
-        .json_next_links()
-        .unwrap();
+    let response = client.users().create_user(&user).send().await.unwrap();
 
-    println!("{:#?}", user);
+    println!("{:#?}", &response);
+    let body: serde_json::Value = response.json().await.unwrap();
+    println!("{body:#?}");
 }
 
 // Create a default user and update only the properties that
 // need to be updated. Properties that are left alone
 // will stay the same.
-fn update_user() {
+async fn update_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
     let user = serde_json::json!({
         "business_phones": ["888-888-8888"]
     });
 
-    let response = client.v1().user(USER_ID).update_user(&user).send().unwrap();
+    let response = client
+        .user(USER_ID)
+        .update_user(&user)
+        .send()
+        .await
+        .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
-fn delete_user() {
+async fn delete_user() {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let response = client.v1().user(USER_ID).delete_user().send().unwrap();
+    let response = client.user(USER_ID).delete_user().send().await.unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }

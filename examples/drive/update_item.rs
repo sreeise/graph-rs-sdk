@@ -18,7 +18,7 @@ async fn update() {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item(ITEM_ID)
         .update_items(&value)
         .send()

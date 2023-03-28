@@ -22,7 +22,7 @@ pub async fn get_drive_item(item_id: &str) {
 
     let response = client
         .me()
-        .default_drive()
+        .drive()
         .item_by_path(ONEDRIVE_FILE_PATH)
         .preview(&body)
         .send()

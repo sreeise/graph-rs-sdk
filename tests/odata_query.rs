@@ -1,73 +1,93 @@
 use graph_rs_sdk::prelude::*;
-use test_tools::assert_url_eq;
 use test_tools::oauthrequest::OAuthTestClient;
 
 #[test]
 fn select_query() {
-    let client = Graph::new("token");
+    let client = Graph::new("");
 
-    client.v1().me().drive().get_drive().select(&["id", "name"]);
-    assert_url_eq(&client, "/me/drive?%24select=id%2Cname");
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive?%24select=id%2Cname".to_string(),
+        client
+            .me()
+            .drive()
+            .get_drive()
+            .select(&["id", "name"])
+            .url()
+            .to_string()
+    );
 }
 
 #[test]
 fn expand_query() {
-    let client = Graph::new("token");
+    let client = Graph::new("");
 
-    client.v1().me().drive().get_drive().expand(&["users"]);
-    assert_url_eq(&client, "/me/drive?%24expand=users");
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive?%24expand=users".to_string(),
+        client
+            .me()
+            .drive()
+            .get_drive()
+            .expand(&["users"])
+            .url()
+            .to_string()
+    );
 }
 
 #[test]
 fn filter_query() {
-    let client = Graph::new("token");
+    let client = Graph::new("");
 
-    client
-        .v1()
-        .me()
-        .drive()
-        .get_drive()
-        .filter(&["startsWith(displayName,'j')"]);
-    assert_url_eq(
-        &client,
-        "/me/drive?%24filter=startsWith%28displayName%2C%27j%27%29",
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive?%24filter=startsWith%28displayName%2C%27j%27%29"
+            .to_string(),
+        client
+            .me()
+            .drive()
+            .get_drive()
+            .filter(&["startsWith(displayName,'j')"])
+            .url()
+            .to_string()
     );
 }
 
 #[test]
 fn expand_filter_query() {
-    let client = Graph::new("token");
+    let client = Graph::new("");
 
-    client
-        .v1()
-        .me()
-        .drive()
-        .get_drive()
-        .expand(&["users"])
-        .filter(&["name"]);
-    assert_url_eq(&client, "/me/drive?%24expand=users&%24filter=name");
+    assert_eq!(
+        "https://graph.microsoft.com/v1.0/me/drive?%24expand=users&%24filter=name".to_string(),
+        client
+            .me()
+            .drive()
+            .get_drive()
+            .expand(&["users"])
+            .filter(&["name"])
+            .url()
+            .to_string()
+    );
 }
 
-#[test]
-fn filter_query_request_v1() {
-    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph() {
+#[tokio::test]
+async fn filter_query_request_v1() {
+    std::env::set_var("GRAPH_TEST_ENV", "true");
+    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client
-            .v1()
             .users()
             .list_user()
             .filter(&["startswith(givenName, 'A')"])
-            .send();
+            .send()
+            .await;
 
         if let Ok(response) = result {
-            let users = response.body()["value"].as_array().unwrap();
+            dbg!(&response);
+            let body: serde_json::Value = response.json().await.unwrap();
+            let users = body["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
                 let name = user["displayName"].as_str().unwrap();
                 name.eq("Adele Vance")
             });
 
-            if found_user.is_none() {
-                panic!("Request Error. Method: filter_query_request. Error: Could not find displayName equal to Adele Vance");
-            }
+            assert!(found_user.is_some());
         } else if let Err(e) = result {
             panic!(
                 "Request Error. Method: filter_query_request. Error: {:#?}",
@@ -77,26 +97,26 @@ fn filter_query_request_v1() {
     }
 }
 
-#[test]
-fn filter_query_request_beta() {
-    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph() {
+#[tokio::test]
+async fn filter_query_request_beta() {
+    if let Some((_id, mut client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client
             .beta()
             .users()
             .list_user()
             .filter(&["startswith(givenName, 'A')"])
-            .send();
+            .send()
+            .await;
 
         if let Ok(response) = result {
-            let users = response.body()["value"].as_array().unwrap();
+            let body: serde_json::Value = response.json().await.unwrap();
+            let users = body["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
                 let name = user["displayName"].as_str().unwrap();
                 name.eq("Adele Vance")
             });
 
-            if found_user.is_none() {
-                panic!("Request Error. Method: filter_query_request. Error: Could not find displayName equal to Adele Vance");
-            }
+            assert!(found_user.is_some());
         } else if let Err(e) = result {
             panic!(
                 "Request Error. Method: filter_query_request. Error: {:#?}",
@@ -106,26 +126,25 @@ fn filter_query_request_beta() {
     }
 }
 
-#[test]
-fn order_by_query_request_v1() {
-    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph() {
+#[tokio::test]
+async fn order_by_query_request_v1() {
+    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client
-            .v1()
             .users()
             .list_user()
             .order_by(&["displayName"])
-            .send();
+            .send()
+            .await;
 
         if let Ok(response) = result {
-            let users = response.body()["value"].as_array().unwrap();
+            let body: serde_json::Value = response.json().await.unwrap();
+            let users = body["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
                 let name = user["displayName"].as_str().unwrap();
                 name.eq("Adele Vance")
             });
 
-            if found_user.is_none() {
-                panic!("Request Error. Method: filter_query_request. Error: Could not find displayName equal to Adele Vance");
-            }
+            assert!(found_user.is_some());
         } else if let Err(e) = result {
             panic!(
                 "Request Error. Method: filter_query_request. Error: {:#?}",
@@ -135,26 +154,26 @@ fn order_by_query_request_v1() {
     }
 }
 
-#[test]
-fn order_by_request_beta() {
-    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph() {
+#[tokio::test]
+async fn order_by_request_beta() {
+    if let Some((_id, mut client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client
             .beta()
             .users()
             .list_user()
             .order_by(&["displayName"])
-            .send();
+            .send()
+            .await;
 
         if let Ok(response) = result {
-            let users = response.body()["value"].as_array().unwrap();
+            let body: serde_json::Value = response.json().await.unwrap();
+            let users = body["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
                 let name = user["displayName"].as_str().unwrap();
                 name.eq("Adele Vance")
             });
 
-            if found_user.is_none() {
-                panic!("Request Error. Method: filter_query_request. Error: Could not find displayName equal to Adele Vance");
-            }
+            assert!(found_user.is_some());
         } else if let Err(e) = result {
             panic!(
                 "Request Error. Method: filter_query_request. Error: {:#?}",
