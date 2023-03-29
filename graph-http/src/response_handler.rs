@@ -486,9 +486,7 @@ impl Paging {
     ///     println!("{result:#?}");
     ///  }
     /// ```
-    pub async fn json_deque<T: DeserializeOwned>(
-        mut self,
-    ) -> GraphResult<VecDeque<http::Response<T>>> {
+    pub async fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<http::Response<T>>> {
         if let Some(err) = self.0.error {
             return Err(err);
         }

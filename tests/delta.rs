@@ -13,7 +13,7 @@ async fn delta_req() {
             .users()
             .delta()
             .paging()
-            .json_deque::<serde_json::Value>()
+            .json::<serde_json::Value>()
             .await
             .unwrap();
 

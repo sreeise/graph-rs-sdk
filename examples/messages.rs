@@ -20,7 +20,7 @@ async fn main() {
     add_attachment().await;
     get_attachment().await;
     get_attachment_content().await;
-    send_mail().await;
+    send_mail().await.unwrap();
 }
 
 async fn list_messages() {
@@ -107,7 +107,7 @@ async fn update_message() {
     println!("{response:#?}");
 }
 
-async fn send_mail() {
+async fn send_mail() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -137,10 +137,11 @@ async fn send_mail() {
             "saveToSentItems": "false"
         }))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
-    println!("{response:#?}");
+    println!("{:#?}", response);
+
+    Ok(())
 }
 
 async fn add_attachment() {

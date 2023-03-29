@@ -62,7 +62,7 @@ async fn buffered_requests() {
                     .license_details()
                     .list_license_details()
                     .paging()
-                    .json_deque::<LicenseDetail>()
+                    .json::<LicenseDetail>()
                     .await
                     .unwrap();
 
