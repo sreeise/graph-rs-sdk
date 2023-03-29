@@ -5,7 +5,7 @@
 
 ### Now available on stable Rust at [crates.io](https://crates.io/crates/graph-rs-sdk)
 
-    graph-rs-sdk = "0.3.0"
+    graph-rs-sdk = "0.3.1"
 
 0.1.0 and above use stable Rust. Anything before 0.1.0 uses nightly Rust.
 
@@ -30,6 +30,13 @@ config but in general most of them are implemented.
 ### Use
 
 The client supports both blocking and async requests.
+
+### Cargo Feature Flags
+
+- `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
+- `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
+
+Default features: `default=["native-tls"]`
 
 ### Blocking Client
 
