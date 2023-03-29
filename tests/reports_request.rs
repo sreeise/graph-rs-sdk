@@ -13,7 +13,7 @@ async fn async_download_office_365_user_counts_reports_test() {
     {
         let path_buf = client
             .reports()
-            .reports_get_office_365_active_user_counts("D90")
+            .get_office_365_active_user_counts_by_period("D90")
             .download(&FileConfig::new("./test_files").file_name(OsStr::new("async_user_count_report.csv")))
             .await
             .expect("Request Error. API: Reports | Method: download_async get_office_365_active_user_counts.");
@@ -35,7 +35,7 @@ async fn get_office_365_user_counts_reports_text() {
     {
         let response = client
             .reports()
-            .reports_get_office_365_active_user_counts("D90")
+            .get_office_365_active_user_counts_by_period("D90")
             .send()
             .await
             .unwrap();

@@ -24,7 +24,7 @@ pub trait HttpResponseExt {
 
 impl<T> HttpResponseExt for http::Response<T> {
     fn url(&self) -> Option<Url> {
-        self.extensions().get::<HttpExtUrl>().map(|url| reqwest::Url::from(url.clone().0))
+        self.extensions().get::<HttpExtUrl>().map(|url| url.clone().0)
     }
 }
 

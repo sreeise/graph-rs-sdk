@@ -11,7 +11,8 @@ pub async fn stream_next_links() {
         .list_user()
         .select(&["id", "userPrincipalName"])
         .top("5")
-        .stream_next_links::<serde_json::Value>()
+        .paging()
+        .stream::<serde_json::Value>()
         .unwrap();
 
     while let Some(Ok(value)) = stream.next().await {

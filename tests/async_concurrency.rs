@@ -3,7 +3,7 @@ use graph_http::traits::ODataNextLink;
 use graph_rs_sdk::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
-use test_tools::oauthrequest::OAuthTestClient;
+use test_tools::oauthrequest::{ASYNC_THROTTLE_MUTEX, OAuthTestClient};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserResponse {
@@ -34,13 +34,15 @@ pub struct LicenseDetail {
 
 #[tokio::test]
 async fn buffered_requests() {
+    let _ = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let mut stream = client
             .users()
             .list_user()
             .select(&["id", "userPrincipalName"])
             .top("5")
-            .stream_next_links::<UserResponse>()
+            .paging()
+            .stream::<UserResponse>()
             .unwrap();
 
         let mut users: Vec<String> = Vec::new();
@@ -49,9 +51,8 @@ async fn buffered_requests() {
             let body = user_response.into_body();
 
             users.extend(
-                body.iter()
-                    .flat_map(|user| user.value.clone())
-                    .flat_map(|user| user.id),
+                body.value.iter()
+                    .flat_map(|user| user.id.clone()),
             );
         }
 
@@ -64,7 +65,8 @@ async fn buffered_requests() {
                     .id(i)
                     .license_details()
                     .list_license_details()
-                    .json_next_links::<LicenseDetail>()
+                    .paging()
+                    .json_deque::<LicenseDetail>()
                     .await
                     .unwrap();
 
@@ -73,13 +75,10 @@ async fn buffered_requests() {
             .buffered(5);
 
         while let Some(vec) = stream.next().await {
-            for next_link_response in vec {
-                if let Some(err) = next_link_response.err() {
-                    panic!("Error: {err:#?}");
-                }
-
-                assert!(next_link_response.is_success());
-                assert!(!next_link_response.into_body().is_empty());
+            for response in vec {
+                assert!(response.status().is_success());
+                let body = response.into_body();
+                dbg!(&body);
             }
         }
     }

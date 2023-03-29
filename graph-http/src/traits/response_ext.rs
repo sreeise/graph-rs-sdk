@@ -71,6 +71,7 @@ impl ResponseExt for reqwest::Response {
         )
     }
 
+    /// Provide any [`T: std::io::Reader`] to create an upload session.
     async fn into_upload_session<T: Read + Send>(self, reader: T) -> GraphResult<UploadSession> {
         let body: serde_json::Value = self.json().await?;
         let url = body["uploadUrl"]

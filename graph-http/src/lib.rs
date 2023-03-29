@@ -13,7 +13,6 @@ pub mod byte_range;
 
 pub mod client;
 pub mod iotools;
-pub mod next_link;
 pub mod odata_query;
 pub mod traits;
 pub mod url;

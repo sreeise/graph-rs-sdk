@@ -1896,7 +1896,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::PrimaryChannel => WriteConfiguration::second_level_builder(ResourceIdentity::Teams, resource_identity)
 			.path("/primaryChannel".to_string())
 			.trim_path_start("/teams/{team-id}".to_string())
-			.filter_path(vec!["sharedWithTeams", "tabs", "messages", "members"])
+			.filter_path(vec!["sharedWithTeams", "messages", "members"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::SharedWithTeams => WriteConfiguration::second_level_builder(ResourceIdentity::Teams, resource_identity)

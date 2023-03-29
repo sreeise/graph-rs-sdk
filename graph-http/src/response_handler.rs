@@ -1,6 +1,5 @@
 use std::collections::VecDeque;
 use crate::client::Client;
-use crate::next_link::{NextLinkResponse, NextLinkValues};
 use crate::odata_query::ODataQuery;
 use crate::traits::{AsBytesMut, ODataNextLink, ResponseExt};
 use crate::url::GraphUrl;
@@ -11,14 +10,12 @@ use futures_core::Stream;
 use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, ACCEPT, CONTENT_TYPE};
-use reqwest::{Method, Response};
+use reqwest::Method;
 use serde::de::DeserializeOwned;
 use std::fmt::Debug;
-use std::future::Future;
 use std::path::PathBuf;
 use std::time::Duration;
 use futures_util::StreamExt;
-use tokio::task::JoinError;
 use crate::traits::HttpResponseBuilderExt;
 
 /// Provides components for storing resource id's and helps build the current request URL.
@@ -444,8 +441,8 @@ impl Paging {
     async fn http_response<T: DeserializeOwned>(response: reqwest::Response) -> GraphResult<(Option<String>, http::Response<T>)> {
         let status = response.status();
         let url = response.url().clone();
-        let mut headers = response.headers().clone();
-        let version = response.version().clone();
+        let headers = response.headers().clone();
+        let version = response.version();
         dbg!(&version);
 
         let json: serde_json::Value = response.json().await?;

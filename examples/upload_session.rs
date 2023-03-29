@@ -39,6 +39,7 @@ async fn main() {
 
     let file = OpenOptions::new().read(true).open(PATH_TO_FILE).unwrap();
 
+    //
     let mut iter = response.into_upload_session(file).await.unwrap();
 
     while let Some(Ok(response)) = iter.next().await {
