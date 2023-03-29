@@ -2,6 +2,7 @@ use crate::odata_query::ODataQuery;
 use crate::url::GraphUrl;
 use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
+use reqwest::tls::Version;
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::time::Duration;
@@ -112,7 +113,8 @@ impl GraphClientBuilder {
             .default_headers(self.config.headers)
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
-            .https_only(self.config.https_only);
+            .https_only(self.config.https_only)
+            .min_tls_version(Version::TLS_1_2);
 
         if let Some(timeout) = self.config.timeout {
             builder = builder.timeout(timeout);
