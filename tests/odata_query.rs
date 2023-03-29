@@ -69,7 +69,6 @@ fn expand_filter_query() {
 
 #[tokio::test]
 async fn filter_query_request_v1() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client
             .users()

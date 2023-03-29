@@ -239,9 +239,11 @@ pub struct RequestHandler {
 impl RequestHandler {
     pub fn new(
         inner: Client,
-        request_components: RequestComponents,
+        mut request_components: RequestComponents,
         err: Option<GraphFailure>,
     ) -> RequestHandler {
+        request_components.headers.extend(inner.headers.into_iter());
+
         let mut error = None;
         if let Some(err) = err {
             error = Some(GraphFailure::PreFlightError {
