@@ -47,7 +47,6 @@ async fn buffered_requests() {
 
         let mut users: Vec<String> = Vec::new();
         while let Some(Ok(user_response)) = stream.next().await {
-            dbg!(&user_response);
             let body = user_response.into_body();
 
             users.extend(body.value.iter().flat_map(|user| user.id.clone()));
@@ -75,7 +74,6 @@ async fn buffered_requests() {
             for response in vec {
                 assert!(response.status().is_success());
                 let body = response.into_body();
-                dbg!(&body);
             }
         }
     }

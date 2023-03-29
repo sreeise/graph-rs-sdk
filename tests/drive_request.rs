@@ -31,7 +31,6 @@ async fn test_folder_create_delete(folder_name: &str) {
             .await;
 
         if let Ok(response) = result {
-            dbg!(&response);
             assert!(response.status().is_success());
 
             let body: serde_json::Value = response.json().await.unwrap();
@@ -81,8 +80,6 @@ async fn list_versions_get_item() {
             .await;
 
         if let Ok(res) = get_item_res {
-            //let res = res.with_graph_error().await.unwrap();
-            dbg!(&res);
             let body: serde_json::Value = res.json().await.unwrap();
             assert!(body["id"].as_str().is_some());
             let item_id = body["id"].as_str().unwrap();
@@ -116,7 +113,6 @@ async fn drive_check_in_out() {
                 .send()
                 .await;
 
-            dbg!(&result);
             let response = result.unwrap();
             assert!(response.status().is_success());
             std::thread::sleep(Duration::from_secs(2));
@@ -130,8 +126,6 @@ async fn drive_check_in_out() {
                 .send()
                 .await
                 .unwrap();
-
-            dbg!(&response);
 
             assert!(response.status().is_success());
         }
@@ -363,8 +357,6 @@ async fn file_upload_session() {
 
         assert!(response.status().is_success());
 
-        dbg!(&response);
-
         let file = OpenOptions::new()
             .read(true)
             .open("./test_files/upload_session_file.txt")
@@ -374,7 +366,6 @@ async fn file_upload_session() {
 
         while let Some(Ok(response)) = upload_session_task.next().await {
             assert!(response.status().is_success());
-            dbg!(&response);
         }
     }
 }

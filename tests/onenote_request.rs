@@ -144,7 +144,6 @@ async fn download_page() {
             assert!(response.status().is_success());
             thread::sleep(Duration::from_secs(4));
             let body: serde_json::Value = response.json().await.unwrap();
-            println!("Page: \n{:#?}\n", &body);
             let page_id = body["id"].as_str().unwrap();
 
             let result = client

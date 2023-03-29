@@ -17,7 +17,6 @@ async fn delta_req() {
             .await
             .unwrap();
 
-        dbg!(&vec);
         assert!(!vec.is_empty());
         for response in vec.iter() {
             assert!(response.status().is_success())

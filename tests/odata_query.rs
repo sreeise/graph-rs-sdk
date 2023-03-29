@@ -79,7 +79,6 @@ async fn filter_query_request_v1() {
             .await;
 
         if let Ok(response) = result {
-            dbg!(&response);
             let body: serde_json::Value = response.json().await.unwrap();
             let users = body["value"].as_array().unwrap();
             let found_user = users.iter().find(|user| {
