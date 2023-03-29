@@ -4,7 +4,7 @@ use graph_http::FileConfig;
 use graph_rs_sdk::prelude::*;
 use std::ffi::OsStr;
 use test_tools::oauthrequest::OAuthTestClient;
-use test_tools::oauthrequest::DRIVE_THROTTLE_MUTEX;
+use test_tools::oauthrequest::DRIVE_ASYNC_THROTTLE_MUTEX;
 
 #[tokio::test]
 #[should_panic]
@@ -23,7 +23,7 @@ async fn download_config_dir_no_exists() {
 
 #[tokio::test]
 async fn download_config_file_exists() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock();
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client
             .user(id.as_str())
@@ -51,7 +51,7 @@ async fn download_config_file_exists() {
 
 #[tokio::test]
 async fn download_is_err_config_dir_no_exists() {
-    let _lock = DRIVE_THROTTLE_MUTEX.lock();
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let response = client
             .user(id.as_str())

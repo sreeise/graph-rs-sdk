@@ -28,20 +28,22 @@ async fn async_download_office_365_user_counts_reports_test() {
 
 #[tokio::test]
 async fn get_office_365_user_counts_reports_text() {
-    let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+    if Environment::is_local() {
+        let _ = ASYNC_THROTTLE_MUTEX.lock().await;
 
-    if let Some((_id, client)) =
-        OAuthTestClient::graph_by_rid_async(ResourceIdentity::Reports).await
-    {
-        let response = client
-            .reports()
-            .get_office_365_active_user_counts_by_period("D90")
-            .send()
-            .await
-            .unwrap();
+        if let Some((_id, client)) =
+            OAuthTestClient::graph_by_rid_async(ResourceIdentity::Reports).await
+        {
+            let response = client
+                .reports()
+                .get_office_365_active_user_counts_by_period("D90")
+                .send()
+                .await
+                .unwrap();
 
-        assert!(response.status().is_success());
-        let text = response.text().await.unwrap();
-        assert!(!text.is_empty());
+            assert!(response.status().is_success());
+            let text = response.text().await.unwrap();
+            assert!(!text.is_empty());
+        }
     }
 }

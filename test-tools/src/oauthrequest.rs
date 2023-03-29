@@ -14,6 +14,7 @@ lazy_static! {
     pub static ref THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
     pub static ref DRIVE_THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
     pub static ref ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
+    pub static ref DRIVE_ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]

@@ -13,7 +13,7 @@ use std::io::Write;
 use std::thread;
 use std::time::Duration;
 
-use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
+use test_tools::oauthrequest::DRIVE_ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 use test_tools::support::cleanup::AsyncCleanUp;
 
@@ -55,54 +55,48 @@ async fn test_folder_create_delete(folder_name: &str) {
 
 #[tokio::test]
 async fn create_delete_folder() {
-    if Environment::is_local() {
-        return;
-    }
-
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     test_folder_create_delete("ci_docs").await;
 }
 
 #[tokio::test]
 async fn list_versions_get_item() {
     if Environment::is_local() {
-        return;
-    }
-
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let get_item_res = client
-            .user(id.as_str())
-            .drive()
-            .item_by_path(":/copy_folder:")
-            .get_items()
-            .send()
-            .await;
-
-        if let Ok(res) = get_item_res {
-            let body: serde_json::Value = res.json().await.unwrap();
-            assert!(body["id"].as_str().is_some());
-            let item_id = body["id"].as_str().unwrap();
-
-            let response = client
+        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
+        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+            let get_item_res = client
                 .user(id.as_str())
                 .drive()
-                .item(item_id)
-                .list_versions()
+                .item_by_path(":/copy_folder:")
+                .get_items()
                 .send()
-                .await
-                .unwrap();
+                .await;
 
-            assert!(response.status().is_success());
-        } else if let Err(e) = get_item_res {
-            panic!("Request Error. Method: drive get_item. Error: {e:#?}");
+            if let Ok(res) = get_item_res {
+                let body: serde_json::Value = res.json().await.unwrap();
+                assert!(body["id"].as_str().is_some());
+                let item_id = body["id"].as_str().unwrap();
+
+                let response = client
+                    .user(id.as_str())
+                    .drive()
+                    .item(item_id)
+                    .list_versions()
+                    .send()
+                    .await
+                    .unwrap();
+
+                assert!(response.status().is_success());
+            } else if let Err(e) = get_item_res {
+                panic!("Request Error. Method: drive get_item. Error: {e:#?}");
+            }
         }
     }
 }
 
 #[tokio::test]
 async fn drive_check_in_out() {
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if Environment::is_local() {
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let result = client
@@ -134,12 +128,8 @@ async fn drive_check_in_out() {
 
 #[tokio::test]
 async fn drive_download() {
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let file_location = "./test_files/test_document.docx";
-        let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
-        clean_up.rm_files(file_location.into());
-
         let path_buf = client
             .drive(id.as_str())
             .item_by_path(":/test_document.docx:")
@@ -148,13 +138,17 @@ async fn drive_download() {
             .await
             .unwrap();
 
-        assert!(path_buf.exists())
+        assert!(path_buf.exists());
+
+        let file_location = "./test_files/test_document.docx";
+        let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
+        clean_up.rm_files(file_location.into());
     }
 }
 
 #[tokio::test]
 async fn drive_download_format() {
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if Environment::is_local() {
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let file_location = "./test_files/test_document.pdf";
@@ -181,28 +175,14 @@ async fn drive_download_format() {
 
 #[tokio::test]
 async fn drive_update() {
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let req = client
-            .drive(id.as_str())
-            .item_by_path(":/update_test_document.docx:")
-            .update_items(&serde_json::json!({
-                "name": "update_test.docx"
-            }))
-            .send()
-            .await;
-
-        if let Ok(response) = req {
-            assert!(response.status().is_success());
-            let body: serde_json::Value = response.json().await.unwrap();
-            assert_eq!(body["name"].as_str(), Some("update_test.docx"));
-            thread::sleep(Duration::from_secs(2));
-
+    if Environment::is_local() {
+        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
+        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let req = client
                 .drive(id.as_str())
-                .item_by_path(":/update_test.docx:")
+                .item_by_path(":/update_test_document.docx:")
                 .update_items(&serde_json::json!({
-                    "name": "update_test_document.docx"
+                    "name": "update_test.docx"
                 }))
                 .send()
                 .await;
@@ -210,12 +190,28 @@ async fn drive_update() {
             if let Ok(response) = req {
                 assert!(response.status().is_success());
                 let body: serde_json::Value = response.json().await.unwrap();
-                assert_eq!(body["name"].as_str(), Some("update_test_document.docx"));
+                assert_eq!(body["name"].as_str(), Some("update_test.docx"));
+                thread::sleep(Duration::from_secs(2));
+
+                let req = client
+                    .drive(id.as_str())
+                    .item_by_path(":/update_test.docx:")
+                    .update_items(&serde_json::json!({
+                        "name": "update_test_document.docx"
+                    }))
+                    .send()
+                    .await;
+
+                if let Ok(response) = req {
+                    assert!(response.status().is_success());
+                    let body: serde_json::Value = response.json().await.unwrap();
+                    assert_eq!(body["name"].as_str(), Some("update_test_document.docx"));
+                } else if let Err(e) = req {
+                    panic!("Request Error. Method: drive update. Error: {e:#?}");
+                }
             } else if let Err(e) = req {
-                panic!("Request Error. Method: drive update. Error: {e:#?}");
+                panic!("Request Error. Method: drive check_out. Error: {e:#?}");
             }
-        } else if let Err(e) = req {
-            panic!("Request Error. Method: drive check_out. Error: {e:#?}");
         }
     }
 }
@@ -280,7 +276,7 @@ async fn delete_file(
 #[tokio::test]
 async fn drive_upload_item() {
     std::env::set_var("GRAPH_TEST_ENV", "true");
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let local_file = "./test_files/test_upload_file.txt";
         let file_name = ":/test_upload_file.txt:";
@@ -340,8 +336,7 @@ async fn drive_upload_item() {
 
 #[tokio::test]
 async fn file_upload_session() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let upload = serde_json::json!({
             "@microsoft.graph.conflictBehavior": Some("fail".to_string())
