@@ -5,7 +5,7 @@ use test_tools::oauthrequest::{Environment, OAuthTestClient};
 
 #[tokio::test]
 async fn list_and_get_messages() {
-    if Environment::is_appveyor() {
+    if Environment::is_appveyor() || Environment::is_local() {
         return;
     }
 
@@ -42,7 +42,7 @@ async fn list_and_get_messages() {
 
 #[tokio::test]
 async fn mail_create_and_delete_message() {
-    if Environment::is_appveyor() {
+    if Environment::is_appveyor() || Environment::is_local() {
         return;
     }
 

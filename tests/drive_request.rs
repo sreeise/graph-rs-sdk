@@ -56,12 +56,20 @@ async fn test_folder_create_delete(folder_name: &str) {
 
 #[tokio::test]
 async fn create_delete_folder() {
+    if Environment::is_local() {
+        return;
+    }
+
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     test_folder_create_delete("ci_docs").await;
 }
 
 #[tokio::test]
 async fn list_versions_get_item() {
+    if Environment::is_local() {
+        return;
+    }
+
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let get_item_res = client

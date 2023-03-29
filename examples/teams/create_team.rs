@@ -1,3 +1,7 @@
+use graph_rs_sdk::prelude::*;
+
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
 static OWNER_ID: &str = "OWNER_ID";
 
 pub async fn create_team() {
@@ -10,9 +14,10 @@ pub async fn create_team() {
        "roles":[
           "owner"
        ],
-       "user@odata.bind": format!("https://graph.microsoft.com/v1.0/users('{}')", OWNER_ID)
+       "user@odata.bind": format!("https://graph.microsoft.com/v1.0/users('{OWNER_ID}')")
     }]});
 
+    let client = Graph::new(ACCESS_TOKEN);
     let response = client.teams().create_team(&json).send().await.unwrap();
 
     println!("{response:#?}");
