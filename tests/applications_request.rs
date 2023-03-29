@@ -1,5 +1,5 @@
 use graph_rs_sdk::core::ResourceIdentity;
-use test_tools::common::TestTools;
+
 use test_tools::oauthrequest::OAuthTestClient;
 
 #[tokio::test]

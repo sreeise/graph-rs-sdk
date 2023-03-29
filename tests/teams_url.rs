@@ -8,11 +8,11 @@ fn get_teams_request() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/teams/{}", RID),
+        format!("/v1.0/teams/{RID}"),
         client.teams().id(RID).get_team().url().path()
     );
     assert_eq!(
-        format!("/v1.0/teams/{}", RID),
+        format!("/v1.0/teams/{RID}"),
         client.team(RID).get_team().url().path()
     );
 }
@@ -22,11 +22,11 @@ fn teams_channel_request() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/teams/{}/channels", RID),
+        format!("/v1.0/teams/{RID}/channels"),
         client.team(RID).channels().list_channels().url().path()
     );
     assert_eq!(
-        format!("/v1.0/teams/{}/channels/{}", RID, ID),
+        format!("/v1.0/teams/{RID}/channels/{ID}"),
         client.team(RID).channel(ID).get_channels().url().path()
     );
 }

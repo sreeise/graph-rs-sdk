@@ -17,7 +17,7 @@ fn groups_url() {
 
     assert_eq!(
         client_id(RID).get_group().url().path(),
-        format!("/v1.0/groups/{}", RID)
+        format!("/v1.0/groups/{RID}")
     );
     assert_eq!(client().delta().url().path(), "/v1.0/groups/delta()");
 
@@ -28,12 +28,12 @@ fn groups_url() {
 
     assert_eq!(
         client_id(RID).update_group(&String::new()).url().path(),
-        format!("/v1.0/groups/{}", RID)
+        format!("/v1.0/groups/{RID}")
     );
 
     assert_eq!(
         client_id(RID).delete_group().url().path(),
-        format!("/v1.0/groups/{}", RID)
+        format!("/v1.0/groups/{RID}")
     );
 
     assert_eq!(
@@ -41,7 +41,7 @@ fn groups_url() {
             .create_ref_members(&serde_json::json!({}))
             .url()
             .path(),
-        format!("/v1.0/groups/{}/members/$ref", RID)
+        format!("/v1.0/groups/{RID}/members/$ref")
     );
 
     assert_eq!(
@@ -50,12 +50,12 @@ fn groups_url() {
             .create_ref_owners(&serde_json::json!({}))
             .url()
             .path(),
-        format!("/v1.0/groups/{}/owners/$ref", RID)
+        format!("/v1.0/groups/{RID}/owners/$ref")
     );
 
     assert_eq!(
         client_id(RID).subscribe_by_mail().url().path(),
-        format!("/v1.0/groups/{}/subscribeByMail", RID)
+        format!("/v1.0/groups/{RID}/subscribeByMail")
     );
 }
 
@@ -67,7 +67,7 @@ fn group_conversation() {
             .list_conversations()
             .url()
             .path(),
-        format!("/v1.0/groups/{}/conversations", RID)
+        format!("/v1.0/groups/{RID}/conversations")
     );
     assert_eq!(
         client_id(RID)
@@ -76,7 +76,7 @@ fn group_conversation() {
             .list_threads()
             .url()
             .path(),
-        format!("/v1.0/groups/{}/conversations/{}/threads", RID, ID)
+        format!("/v1.0/groups/{RID}/conversations/{ID}/threads")
     );
     assert_eq!(
         client_id(RID)
@@ -84,7 +84,7 @@ fn group_conversation() {
             .delete_conversations()
             .url()
             .path(),
-        format!("/v1.0/groups/{}/conversations/{}", RID, ID)
+        format!("/v1.0/groups/{RID}/conversations/{ID}")
     );
 }
 
@@ -92,7 +92,7 @@ fn group_conversation() {
 fn group_conversation_posts() {
     assert_eq!(
         client_id(RID).thread(ID).posts().list_posts().url().path(),
-        format!("/v1.0/groups/{}/threads/{}/posts", RID, ID)
+        format!("/v1.0/groups/{RID}/threads/{ID}/posts")
     );
     assert_eq!(
         client_id(RID)
@@ -101,7 +101,7 @@ fn group_conversation_posts() {
             .reply(&serde_json::json!({}))
             .url()
             .path(),
-        format!("/v1.0/groups/{}/threads/{}/posts/{}/reply", RID, ID, ID)
+        format!("/v1.0/groups/{RID}/threads/{ID}/posts/{ID}/reply")
     );
 
     assert_eq!(
@@ -113,8 +113,7 @@ fn group_conversation_posts() {
             .url()
             .path(),
         format!(
-            "/v1.0/groups/{}/conversations/{}/threads/{}/posts",
-            RID, ID, ID
+            "/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts"
         )
     );
     assert_eq!(
@@ -126,8 +125,7 @@ fn group_conversation_posts() {
             .url()
             .path(),
         format!(
-            "/v1.0/groups/{}/conversations/{}/threads/{}/posts/{}",
-            RID, ID, ID, ID
+            "/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts/{ID}"
         )
     );
     assert_eq!(
@@ -139,8 +137,7 @@ fn group_conversation_posts() {
             .url()
             .path(),
         format!(
-            "/v1.0/groups/{}/conversations/{}/threads/{}/posts/{}/reply",
-            RID, ID, ID, ID
+            "/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts/{ID}/reply"
         )
     );
 }
@@ -149,7 +146,7 @@ fn group_conversation_posts() {
 pub fn groups_permission_grants() {
     let client = Graph::new("");
     assert_eq!(
-        format!("/v1.0/groups/{}/permissionGrants/getByIds", RID),
+        format!("/v1.0/groups/{RID}/permissionGrants/getByIds"),
         client
             .group(RID)
             .permission_grants()
@@ -160,8 +157,7 @@ pub fn groups_permission_grants() {
 
     assert_eq!(
         format!(
-            "/v1.0/groups/{}/permissionGrants/{}/getMemberGroups",
-            RID, ID
+            "/v1.0/groups/{RID}/permissionGrants/{ID}/getMemberGroups"
         ),
         client
             .group(RID)

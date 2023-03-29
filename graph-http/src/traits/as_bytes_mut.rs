@@ -2,10 +2,9 @@ use crate::FileConfig;
 use bytes::BytesMut;
 use graph_error::GraphResult;
 use std::collections::VecDeque;
-use std::error::Error;
+
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use tokio::io::AsyncReadExt;
 
 pub struct AsBytesMutWrapped<T: AsBytesMut>(T);
 

@@ -1,21 +1,21 @@
-use graph_error::{GraphResult, WithGraphErrorAsync};
+use graph_error::{GraphResult};
 use graph_http::odata_query::ODataQuery;
 use graph_http::traits::{AsyncIterator, ResponseExt};
 use graph_http::FileConfig;
 use graph_rs_sdk::prelude::Graph;
-use reqwest::header::{HeaderValue, CONTENT_LENGTH, CONTENT_TYPE};
+use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::ffi::OsString;
+
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+
 use std::thread;
 use std::time::Duration;
-use test_tools::common::TestTools;
+
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::{AsyncCleanUp, CleanUp};
+use test_tools::support::cleanup::{AsyncCleanUp};
 
 async fn test_folder_create_delete(folder_name: &str) {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
@@ -48,8 +48,7 @@ async fn test_folder_create_delete(folder_name: &str) {
             assert!(response.status().is_success());
         } else if let Err(e) = result {
             panic!(
-                "Request error. Method: create root folder\nFolder Name: {:#?}\nError: {:#?}",
-                folder_name, e
+                "Request error. Method: create root folder\nFolder Name: {folder_name:#?}\nError: {e:#?}"
             );
         }
     }
@@ -97,7 +96,7 @@ async fn list_versions_get_item() {
 
             assert!(response.status().is_success());
         } else if let Err(e) = get_item_res {
-            panic!("Request Error. Method: drive get_item. Error: {:#?}", e);
+            panic!("Request Error. Method: drive get_item. Error: {e:#?}");
         }
     }
 }
@@ -217,10 +216,10 @@ async fn drive_update() {
                 let body: serde_json::Value = response.json().await.unwrap();
                 assert_eq!(body["name"].as_str(), Some("update_test_document.docx"));
             } else if let Err(e) = req {
-                panic!("Request Error. Method: drive update. Error: {:#?}", e);
+                panic!("Request Error. Method: drive update. Error: {e:#?}");
             }
         } else if let Err(e) = req {
-            panic!("Request Error. Method: drive check_out. Error: {:#?}", e);
+            panic!("Request Error. Method: drive check_out. Error: {e:#?}");
         }
     }
 }
@@ -325,7 +324,7 @@ async fn drive_upload_item() {
                 let item_id2 = body["id"].as_str().unwrap();
                 assert_eq!(item_id, item_id2);
             } else if let Err(err) = update_res {
-                panic!("Request Error. Method: update item. Error: {:#?}", err);
+                panic!("Request Error. Method: update item. Error: {err:#?}");
             }
 
             thread::sleep(Duration::from_secs(2));
@@ -335,10 +334,10 @@ async fn drive_upload_item() {
             if let Ok(response) = delete_res {
                 assert!(response.status().is_success());
             } else if let Err(err) = delete_res {
-                panic!("Request Error. Method: drive delete. Error: {:#?}", err);
+                panic!("Request Error. Method: drive delete. Error: {err:#?}");
             }
         } else if let Err(err) = upload_res {
-            panic!("Request Error. Method: drive upload. Error: {:#?}", err);
+            panic!("Request Error. Method: drive upload. Error: {err:#?}");
         }
     }
 }

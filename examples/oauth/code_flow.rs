@@ -95,7 +95,7 @@ async fn handle_redirect(
     match code_option {
         Some(access_code) => {
             // Print out the code for debugging purposes.
-            println!("{:#?}", access_code);
+            println!("{access_code:#?}");
 
             // Assert that the state is the same as the one given in the original request.
             assert_eq!("13534298", access_code.state.as_str());

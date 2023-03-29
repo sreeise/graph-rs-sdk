@@ -34,7 +34,7 @@ impl Range {
             "bytes {}-{}/{}",
             self.start_pos,
             self.end_pos,
-            size.to_string()
+            size
         )
     }
 }

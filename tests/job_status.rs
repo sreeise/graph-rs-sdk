@@ -3,7 +3,7 @@ use graph_http::traits::ResponseExt;
 use graph_rs_sdk::client::Graph;
 use std::thread;
 use std::time::Duration;
-use test_tools::common::TestTools;
+
 use test_tools::oauthrequest::{Environment, OAuthTestClient, ASYNC_THROTTLE_MUTEX};
 
 async fn delete_item(
@@ -58,7 +58,7 @@ async fn job_status() {
             .await;
 
         if let Err(e) = copy_result {
-            panic!("Async job status for drive copy. Error: {:#?}", e);
+            panic!("Async job status for drive copy. Error: {e:#?}");
         } else if let Ok(response) = copy_result {
             assert!(response.status().is_success());
 
@@ -75,7 +75,7 @@ async fn job_status() {
                     let _ = delete_item(drive_id.as_str(), copy_drive_path, &client).await;
                 }
             } else if let Err(e) = job_status {
-                panic!("Async job status for drive copy. Error: {:#?}", e);
+                panic!("Async job status for drive copy. Error: {e:#?}");
             }
         }
     }

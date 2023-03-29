@@ -60,7 +60,7 @@ async fn handle_redirect(
     match code_option {
         Some(access_code) => {
             // Print out the code for debugging purposes.
-            println!("{:#?}", access_code);
+            println!("{access_code:#?}");
 
             // Set the access code and request an access token.
             // Callers should handle the Result from requesting an access token

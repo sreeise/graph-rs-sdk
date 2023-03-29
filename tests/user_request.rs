@@ -1,5 +1,5 @@
 use graph_http::traits::ODataMetadataLink;
-use std::env;
+
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 
@@ -10,7 +10,7 @@ async fn list_users() {
     }
 
     let _ = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let result = client.users().list_user().send().await;
 
         if let Ok(response) = result {
@@ -22,7 +22,7 @@ async fn list_users() {
                 metadata_link.as_str()
             );
         } else if let Err(e) = result {
-            panic!("Request error. Method: users list. Error: {:#?}", e);
+            panic!("Request error. Method: users list. Error: {e:#?}");
         }
     }
 }
@@ -40,7 +40,7 @@ async fn get_user() {
         if let Ok(response) = result {
             assert!(response.status().is_success());
         } else if let Err(e) = result {
-            panic!("Request error. Method: users list. Error: {:#?}", e);
+            panic!("Request error. Method: users list. Error: {e:#?}");
         }
     }
 }

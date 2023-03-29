@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use crate::client::Client;
 use crate::next_link::{NextLinkResponse, NextLinkValues};
 use crate::odata_query::ODataQuery;
@@ -7,16 +8,20 @@ use crate::FileConfig;
 use async_stream::{stream, try_stream};
 use bytes::BytesMut;
 use futures_core::Stream;
-use futures_util::TryFutureExt;
 use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, ACCEPT, CONTENT_TYPE};
-use reqwest::{Method, RequestBuilder, Response, StatusCode};
+use reqwest::{Method, Response};
 use serde::de::DeserializeOwned;
 use std::fmt::Debug;
+use std::future::Future;
 use std::path::PathBuf;
-use tokio::runtime::Handle;
+use std::time::Duration;
+use futures_util::StreamExt;
+use tokio::task::JoinError;
+use crate::traits::HttpResponseBuilderExt;
 
+/// Provides components for storing resource id's and helps build the current request URL.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct ResourceConfig {
     pub resource_identity: ResourceIdentity,
@@ -52,6 +57,7 @@ impl AsMut<GraphUrl> for ResourceConfig {
     }
 }
 
+/// Provides the necessary components for building a request.
 #[derive(Debug, Default)]
 pub struct RequestComponents {
     pub resource_identity: ResourceIdentity,
@@ -225,73 +231,6 @@ impl
     }
 }
 
-async fn map_next_link_response<V: DeserializeOwned>(
-    response: Response,
-) -> (Option<String>, NextLinkResponse<Vec<V>>) {
-    let headers = response.headers().clone();
-    let status = response.status();
-    let url = response.url().clone();
-    let result_with_mapped_error = response
-        .with_graph_error()
-        .await
-        .map_err(GraphFailure::from);
-
-    match result_with_mapped_error {
-        Ok(response) => {
-            let mut result: GraphResult<NextLinkValues<V>> =
-                response.json().await.map_err(GraphFailure::from);
-
-            match result {
-                Ok(body) => (
-                    body.next_link.clone(),
-                    NextLinkResponse::new(url, status, headers, body.value, None),
-                ),
-                Err(err) => (
-                    None,
-                    NextLinkResponse::new(url, status, headers, vec![], Some(err)),
-                ),
-            }
-        }
-        Err(err) => (
-            None,
-            NextLinkResponse::new(url, status, headers, vec![], Some(err)),
-        ),
-    }
-}
-
-async fn map_next_link_response_from_value<V: DeserializeOwned + ODataNextLink>(
-    response: Response,
-) -> (Option<String>, NextLinkResponse<Option<V>>) {
-    let headers = response.headers().clone();
-    let status = response.status();
-    let url = response.url().clone();
-    let result_with_mapped_error = response
-        .with_graph_error()
-        .await
-        .map_err(GraphFailure::from);
-
-    match result_with_mapped_error {
-        Ok(response) => {
-            let mut result: GraphResult<V> = response.json().await.map_err(GraphFailure::from);
-
-            match result {
-                Ok(body) => (
-                    body.odata_next_link(),
-                    NextLinkResponse::new(url, status, headers, Some(body), None),
-                ),
-                Err(err) => (
-                    None,
-                    NextLinkResponse::new(url, status, headers, None, Some(err)),
-                ),
-            }
-        }
-        Err(err) => (
-            None,
-            NextLinkResponse::new(url, status, headers, None, Some(err)),
-        ),
-    }
-}
-
 #[derive(Default, Debug)]
 pub struct RequestHandler {
     pub(crate) inner: reqwest::Client,
@@ -304,8 +243,17 @@ impl RequestHandler {
     pub fn new(
         inner: Client,
         request_components: RequestComponents,
-        error: Option<GraphFailure>,
+        err: Option<GraphFailure>,
     ) -> RequestHandler {
+        let mut error = None;
+        if let Some(err) = err {
+            error = Some(GraphFailure::PreFlightError {
+                url: Some(request_components.to_reqwest_url()),
+                headers: request_components.headers.clone(),
+                error: Box::new(err),
+            });
+        }
+
         RequestHandler {
             inner: inner.inner.clone(),
             access_token: inner.access_token,
@@ -375,6 +323,10 @@ impl RequestHandler {
         self.request_components.as_mut()
     }
 
+    pub fn paging(self) -> Paging {
+        Paging(self)
+    }
+
     pub(crate) fn default_request_builder(&mut self) -> reqwest::RequestBuilder {
         let request_builder = self
             .inner
@@ -397,20 +349,15 @@ impl RequestHandler {
         request_builder
     }
 
+    /// Builds the request and returns a [`reqwest::RequestBuilder`].
     pub async fn build(mut self) -> GraphResult<reqwest::RequestBuilder> {
         if let Some(err) = self.error {
-            return Err(GraphFailure::PreFlightError {
-                url: Some(self.request_components.to_reqwest_url()),
-                headers: self.request_components.headers.clone(),
-                error: Box::new(err),
-            })
-            .map_err(GraphFailure::from);
+            return Err(err);
         }
-
         Ok(self.default_request_builder())
     }
 
-    pub async fn send(mut self) -> GraphResult<reqwest::Response> {
+    pub async fn send(self) -> GraphResult<reqwest::Response> {
         let request_builder = self.build().await?;
         request_builder
             .send()
@@ -422,11 +369,7 @@ impl RequestHandler {
 
     pub async fn download(mut self, file_config: &FileConfig) -> GraphResult<PathBuf> {
         if let Some(err) = self.error {
-            return Err(GraphFailure::PreFlightError {
-                url: Some(self.request_components.to_reqwest_url()),
-                headers: self.request_components.headers.clone(),
-                error: Box::new(err),
-            });
+            return Err(err);
         }
 
         let request_builder = self.default_request_builder();
@@ -439,7 +382,11 @@ impl RequestHandler {
             .map_err(GraphFailure::from)
     }
 
-    pub async fn upload<T: AsBytesMut>(mut self, input: &mut T) -> GraphResult<reqwest::Response> {
+    pub async fn upload<T: AsBytesMut>(self, input: &mut T) -> GraphResult<reqwest::Response> {
+        if let Some(err) = self.error {
+            return Err(err);
+        }
+
         let bytes_mut = input.as_bytes_mut()?;
 
         let request_builder = self
@@ -453,208 +400,6 @@ impl RequestHandler {
             .body(bytes_mut.to_vec());
 
         request_builder.send().await?.with_graph_error().await
-    }
-
-    fn try_stream<'a, T>(
-        &'a mut self,
-    ) -> impl Stream<Item = GraphResult<NextLinkResponse<Option<T>>>> + 'a
-    where
-        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a,
-    {
-        try_stream! {
-            let request = self.default_request_builder();
-            let mut response = request.send().await?;
-            let next_value = map_next_link_response_from_value(response).await;
-            let mut next_link = next_value.0;
-            yield next_value.1;
-
-            while let Some(url) = next_link {
-                let response = self.inner.get(url)
-                .bearer_auth(self.access_token.as_str())
-                .send()
-                .await?;
-                let next_value = map_next_link_response_from_value(response).await;
-                next_link = next_value.0;
-                yield next_value.1;
-            }
-        }
-    }
-
-    fn into_stream<'a, T>(
-        mut self,
-    ) -> GraphResult<impl Stream<Item = GraphResult<NextLinkResponse<Option<T>>>> + 'a>
-    where
-        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a,
-    {
-        Ok(stream! {
-            let stream = self.try_stream();
-            for await value in stream {
-                yield value
-            }
-        })
-    }
-
-    /// Stream the current request along with any next link requests from the response body.
-    pub fn stream_next_links<'a, T>(
-        mut self,
-    ) -> GraphResult<impl Stream<Item = GraphResult<NextLinkResponse<Option<T>>>> + 'a>
-    where
-        for<'de> T: serde::Deserialize<'de> + ODataNextLink + 'a,
-    {
-        if let Some(err) = self.error {
-            return Err(GraphFailure::PreFlightError {
-                url: Some(self.request_components.to_reqwest_url()),
-                headers: self.request_components.headers.clone(),
-                error: Box::new(err),
-            });
-        }
-
-        Ok(Box::pin(self.into_stream()?))
-    }
-
-    pub async fn json_next_links<V>(mut self) -> GraphResult<Vec<NextLinkResponse<Vec<V>>>>
-    where
-        for<'de> V: serde::Deserialize<'de>,
-    {
-        if let Some(err) = self.error {
-            return Err(GraphFailure::PreFlightError {
-                url: Some(self.request_components.to_reqwest_url()),
-                headers: self.request_components.headers.clone(),
-                error: Box::new(err),
-            });
-        }
-
-        let request = self.default_request_builder();
-        let mut response = request.send().await?;
-
-        let next_value = map_next_link_response(response).await;
-        let mut next_link = next_value.0;
-        let mut values = vec![];
-        values.push(next_value.1);
-
-        while let Some(url) = next_link {
-            let response = self
-                .inner
-                .get(url.as_str())
-                .bearer_auth(self.access_token.as_str())
-                .send()
-                .await?;
-            let next_value = map_next_link_response(response).await;
-            next_link = next_value.0;
-            values.push(next_value.1);
-        }
-
-        Ok(values)
-    }
-
-    pub async fn channel_next_links<V>(
-        mut self,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<NextLinkResponse<Vec<V>>>>
-    where
-        for<'de> V: serde::Deserialize<'de> + Send + ODataNextLink + Debug + 'static,
-    {
-        if let Some(err) = self.error {
-            return Err(GraphFailure::PreFlightError {
-                url: Some(self.request_components.to_reqwest_url()),
-                headers: self.request_components.headers.clone(),
-                error: Box::new(err),
-            });
-        }
-
-        let (sender, receiver) = tokio::sync::mpsc::channel(100);
-        let request = self.default_request_builder();
-        let mut response = request.send().await?.with_graph_error().await?;
-
-        let next_value = map_next_link_response(response).await;
-        let mut next_link = next_value.0;
-        sender.send(next_value.1).await.unwrap();
-
-        let client = self.inner.clone();
-        let access_token = self.access_token.clone();
-        tokio::spawn(async move {
-            while let Some(next) = next_link.as_ref() {
-                let result = client
-                    .get(next)
-                    .bearer_auth(access_token.as_str())
-                    .send()
-                    .await
-                    .map_err(GraphFailure::from);
-
-                match result {
-                    Ok(response) => {
-                        let next_value = map_next_link_response(response).await;
-                        next_link = next_value.0;
-                        sender.send(next_value.1).await.unwrap();
-                    }
-                    Err(err) => {
-                        sender
-                            .send(NextLinkResponse::from((next.clone(), err)))
-                            .await
-                            .unwrap();
-                        next_link = None;
-                    }
-                }
-            }
-        })
-        .await
-        .unwrap();
-
-        Ok(receiver)
-    }
-
-    pub async fn channel<V>(
-        mut self,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<NextLinkResponse<Option<V>>>>
-    where
-        for<'de> V: serde::Deserialize<'de> + Send + ODataNextLink + Debug + 'static,
-    {
-        if let Some(err) = self.error {
-            return Err(GraphFailure::PreFlightError {
-                url: Some(self.request_components.to_reqwest_url()),
-                headers: self.request_components.headers.clone(),
-                error: Box::new(err),
-            });
-        }
-
-        let (sender, receiver) = tokio::sync::mpsc::channel(100);
-        let request = self.default_request_builder();
-        let mut response = request.send().await?.with_graph_error().await?;
-
-        let next_value = map_next_link_response_from_value(response).await;
-        let mut next_link = next_value.0;
-        sender.send(next_value.1).await.unwrap();
-
-        let client = self.inner.clone();
-        let access_token = self.access_token.clone();
-        tokio::spawn(async move {
-            while let Some(next) = next_link.as_ref() {
-                let result = client
-                    .get(next)
-                    .bearer_auth(access_token.as_str())
-                    .send()
-                    .await
-                    .map_err(GraphFailure::from);
-
-                match result {
-                    Ok(response) => {
-                        let next_value = map_next_link_response_from_value(response).await;
-                        next_link = next_value.0;
-                        sender.send(next_value.1).await.unwrap();
-                    }
-                    Err(err) => {
-                        sender
-                            .send(NextLinkResponse::from((next.clone(), err)))
-                            .await
-                            .unwrap();
-                        next_link = None;
-                    }
-                }
-            }
-        })
-        .await
-        .unwrap();
-
-        Ok(receiver)
     }
 }
 
@@ -684,5 +429,243 @@ impl From<(RequestComponents, &Client)> for RequestHandler {
             request_components: value.0,
             error: None,
         }
+    }
+}
+
+#[derive(Debug)]
+pub enum ChannelResponse<T: Debug> {
+    Next(GraphResult<http::Response<T>>),
+    Done,
+}
+
+pub struct Paging(RequestHandler);
+
+impl Paging {
+    async fn http_response<T: DeserializeOwned>(response: reqwest::Response) -> GraphResult<(Option<String>, http::Response<T>)> {
+        let status = response.status();
+        let url = response.url().clone();
+        let mut headers = response.headers().clone();
+        let version = response.version().clone();
+        dbg!(&version);
+
+        let json: serde_json::Value = response.json().await?;
+        dbg!(&json);
+        let next_link = json.odata_next_link();
+        let body: T = serde_json::from_value(json)?;
+
+        let mut builder = http::Response::builder()
+            .url(url)
+            .status(http::StatusCode::from(&status))
+            .version(version);
+
+        for builder_header in builder.headers_mut().iter_mut() {
+            builder_header.extend(headers.clone());
+        }
+
+        Ok((next_link, builder.body(body)?))
+    }
+
+    /// Returns all next links as [`VecDeque<http::Response<T>>`]. This method may
+    /// cause significant delay in returning when there is a high volume of next links.
+    ///
+    /// This method is mainly provided for convenience in cases where the caller is sure
+    /// the requests will return successful without issue or where the caller is ok with
+    /// a return delay or does not care if errors occur. It is not recommended to use this
+    /// method in production environments.
+    ///
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut stream = client
+    ///     .users()
+    ///     .delta()
+    ///     .paging()
+    ///     .stream::<serde_json::Value>()
+    ///     .unwrap();
+    ///
+    ///  while let Some(result) = stream.next().await {
+    ///     println!("{result:#?}");
+    ///  }
+    /// ```
+    pub async fn json_deque<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<http::Response<T>>> {
+        if let Some(err) = self.0.error {
+            return Err(err);
+        }
+
+        let request = self.0.default_request_builder();
+        let response = request.send().await?.with_graph_error().await?;
+
+        let (next, http_response) = Paging::http_response(response).await?;
+        let mut next_link = next;
+        let mut vec = VecDeque::new();
+        vec.push_back(http_response);
+
+        let client = self.0.inner.clone();
+        let access_token = self.0.access_token.clone();
+        while let Some(next) = next_link {
+            let response = client
+                .get(next)
+                .bearer_auth(access_token.as_str())
+                .send()
+                .await
+                .map_err(GraphFailure::from)?
+                .with_graph_error().await?;
+
+            let (next, http_response) = Paging::http_response(response).await?;
+
+            next_link = next;
+            vec.push_back(http_response);
+        }
+
+        Ok(vec)
+    }
+
+    fn try_stream<'a, T: DeserializeOwned + 'a>(
+        &'a mut self,
+    ) -> impl Stream<Item = GraphResult<http::Response<T>>> + 'a {
+        try_stream! {
+            let request = self.0.default_request_builder();
+            let response = request.send().await?;
+            let (next, http_response) = Paging::http_response(response).await?;
+            let mut next_link = next;
+            yield http_response;
+
+            while let Some(url) = next_link {
+                let response = self.0
+                    .inner
+                    .get(url)
+                    .bearer_auth(self.0.access_token.as_str())
+                    .send()
+                    .await?;
+                let (next, http_response) = Paging::http_response(response).await?;
+                next_link = next;
+                yield http_response;
+            }
+        }
+    }
+
+    fn into_stream<'a, T: DeserializeOwned + 'a>(
+        mut self,
+    ) -> GraphResult<impl Stream<Item = GraphResult<http::Response<T>>> + 'a> {
+        Ok(stream! {
+            let stream = self.try_stream();
+            for await value in stream {
+                yield value
+            }
+        })
+    }
+
+    /// Stream the current request along with any next link requests from the response body.
+    /// Each stream.next() returns a [`GraphResult<http::Response<T>>`].
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let mut stream = client
+    ///     .users()
+    ///     .delta()
+    ///     .paging()
+    ///     .stream::<serde_json::Value>()
+    ///     .unwrap();
+    ///
+    ///  while let Some(result) = stream.next().await {
+    ///     println!("{result:#?}");
+    ///  }
+    /// ```
+    pub fn stream<'a, T: DeserializeOwned + 'a>(
+        self,
+    ) -> GraphResult<impl Stream<Item = GraphResult<http::Response<T>>> + 'a> {
+        if let Some(err) = self.0.error {
+            return Err(err);
+        }
+
+        Ok(Box::pin(self.into_stream()?))
+    }
+
+
+    /// Get next link responses using a channel Receiver [`tokio::sync::mpsc::Receiver<ChannelResponse<T>>`].
+    /// The channel Senders have a default timeout of 30 seconds when attempting a send.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use graph_http::ChannelResponse;
+    /// let client = Graph::new("ACCESS_TOKEN");
+    ///
+    /// let mut receiver = client
+    ///     .users()
+    ///     .delta()
+    ///     .paging()
+    ///     .channel::<serde_json::Value>()
+    ///     .await
+    ///     .unwrap();
+    ///
+    ///  while let Some(channel_response) = receiver.recv().await {
+    ///     match channel_response {
+    ///         ChannelResponse::Next(result) => {
+    ///             match result {
+    ///                 Ok(response) => {
+    ///                     println!("{:#?}", response);
+    ///                 }
+    ///                 Err(err) => {
+    ///                     println!("{:#?}", err);
+    ///                     break;
+    ///                 }
+    ///             }
+    ///         }
+    ///         ChannelResponse::Done => break,
+    ///     }
+    ///  }
+    /// ```
+    pub async fn channel<T: DeserializeOwned + Debug + Send + 'static>(self) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>>
+    {
+        self.channel_timeout(Duration::from_secs(30)).await
+    }
+
+    /// Get next link responses using a channel Receiver [`tokio::sync::mpsc::Receiver<ChannelResponse<T>>`] with a custom timeout [`Duration`].
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use graph_http::ChannelResponse;
+    /// let client = Graph::new("ACCESS_TOKEN");
+    ///
+    /// let mut receiver = client
+    ///     .users()
+    ///     .delta()
+    ///     .paging()
+    ///     .channel::<serde_json::Value>()
+    ///     .await
+    ///     .unwrap();
+    ///
+    ///  while let Some(channel_response) = receiver.recv().await {
+    ///     match channel_response {
+    ///         ChannelResponse::Next(result) => {
+    ///             match result {
+    ///                 Ok(response) => {
+    ///                     println!("{:#?}", response);
+    ///                 }
+    ///                 Err(err) => {
+    ///                     println!("{:#?}", err);
+    ///                     break;
+    ///                 }
+    ///             }
+    ///         }
+    ///         ChannelResponse::Done => break,
+    ///     }
+    ///  }
+    /// ```
+    pub async fn channel_timeout<T: DeserializeOwned + Debug + Send + 'static>(self, timeout: Duration) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>>
+    {
+        let mut stream = self.stream()?;
+        let (sender, receiver) = tokio::sync::mpsc::channel(100);
+
+        tokio::spawn(async move {
+            while let Some(result) = stream.next().await {
+                sender.send_timeout(ChannelResponse::Next(result), timeout).await.unwrap();
+            }
+            sender.send_timeout(ChannelResponse::Done, timeout).await.unwrap();
+        }).await.unwrap();
+
+        Ok(receiver)
     }
 }

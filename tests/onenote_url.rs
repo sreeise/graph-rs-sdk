@@ -19,7 +19,7 @@ fn list_notebooks() {
     );
 
     assert_eq!(
-        format!("/v1.0/sites/{}/onenote/notebooks", RID),
+        format!("/v1.0/sites/{RID}/onenote/notebooks"),
         client
             .site(RID)
             .onenote()
@@ -35,7 +35,7 @@ fn notebooks_list_sections() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/me/onenote/notebooks/{}/sections", ID),
+        format!("/v1.0/me/onenote/notebooks/{ID}/sections"),
         client
             .me()
             .onenote()
@@ -47,7 +47,7 @@ fn notebooks_list_sections() {
     );
 
     assert_eq!(
-        format!("/v1.0/sites/{}/onenote/notebooks/{}/sections", RID, ID),
+        format!("/v1.0/sites/{RID}/onenote/notebooks/{ID}/sections"),
         client
             .site(RID)
             .onenote()
@@ -64,7 +64,7 @@ fn get_notebook() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/me/onenote/notebooks/{}", ID),
+        format!("/v1.0/me/onenote/notebooks/{ID}"),
         client
             .me()
             .onenote()
@@ -91,7 +91,7 @@ fn create_notebook() {
     );
 
     assert_eq!(
-        format!("/v1.0/sites/{}/onenote/notebooks", RID),
+        format!("/v1.0/sites/{RID}/onenote/notebooks"),
         client
             .site(RID)
             .onenote()
@@ -107,7 +107,7 @@ fn notebook_create_section() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/me/onenote/notebooks/{}/sections", ID),
+        format!("/v1.0/me/onenote/notebooks/{ID}/sections"),
         client
             .me()
             .onenote()
@@ -119,7 +119,7 @@ fn notebook_create_section() {
     );
 
     assert_eq!(
-        format!("/v1.0/sites/{}/onenote/notebooks/{}/sections", RID, ID),
+        format!("/v1.0/sites/{RID}/onenote/notebooks/{ID}/sections"),
         client
             .site(RID)
             .onenote()
@@ -136,7 +136,7 @@ fn sections_copy_to_note_book() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/me/onenote/sections/{}/copyToNotebook", ID),
+        format!("/v1.0/me/onenote/sections/{ID}/copyToNotebook"),
         client
             .me()
             .onenote()
@@ -147,7 +147,7 @@ fn sections_copy_to_note_book() {
     );
 
     assert_eq!(
-        format!("/v1.0/sites/{}/onenote/sections/{}/copyToNotebook", RID, ID),
+        format!("/v1.0/sites/{RID}/onenote/sections/{ID}/copyToNotebook"),
         client
             .site(RID)
             .onenote()
@@ -163,7 +163,7 @@ fn sections_copy_to_section_group() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/me/onenote/sections/{}/copyToSectionGroup", ID),
+        format!("/v1.0/me/onenote/sections/{ID}/copyToSectionGroup"),
         client
             .me()
             .onenote()
@@ -189,7 +189,7 @@ fn get_page() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/me/onenote/pages/{}", ID),
+        format!("/v1.0/me/onenote/pages/{ID}"),
         client.me().onenote().page(ID).get_pages().url().path()
     );
 }

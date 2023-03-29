@@ -51,7 +51,7 @@ async fn request_access_token() {
     let mut request = oauth.build_async().client_credentials();
     let access_token = request.access_token().send().await.unwrap();
 
-    println!("{:#?}", access_token);
+    println!("{access_token:#?}");
     oauth.access_token(access_token);
 }
 
@@ -61,7 +61,7 @@ async fn handle_redirect(
     match client_credential_option {
         Some(client_credential_response) => {
             // Print out for debugging purposes.
-            println!("{:#?}", client_credential_response);
+            println!("{client_credential_response:#?}");
 
             // Request an access token.
             request_access_token().await;

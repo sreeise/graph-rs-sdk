@@ -641,8 +641,8 @@ impl ResourceSettings {
 							ApiClientLink::StructId("members_with_license_errors_id", "MembersWithLicenseErrorsIdApiClient"),
 							ApiClientLink::Struct("owners", "GroupsOwnersApiClient"),
 							ApiClientLink::StructId("owner", "GroupsOwnersIdApiClient"),
-							ApiClientLink::Struct("permission_grants".into(), "PermissionGrantsApiClient".into()),
-							ApiClientLink::StructId("permission_grant".into(), "PermissionGrantsIdApiClient".into()),
+							ApiClientLink::Struct("permission_grants", "PermissionGrantsApiClient"),
+							ApiClientLink::StructId("permission_grant", "PermissionGrantsIdApiClient"),
 						]
 					)
 				]).build().unwrap(),

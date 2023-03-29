@@ -15,7 +15,7 @@ async fn main() -> GraphResult<()> {
         .send()
         .await;
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
@@ -23,7 +23,7 @@ async fn main() -> GraphResult<()> {
         .send()
         .await?;
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 
     let response = client
         .group_lifecycle_policies() // Won't be used.
@@ -35,7 +35,7 @@ async fn main() -> GraphResult<()> {
         .send()
         .await?;
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
@@ -47,7 +47,7 @@ async fn main() -> GraphResult<()> {
         .send()
         .await?;
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
@@ -57,7 +57,7 @@ async fn main() -> GraphResult<()> {
         .send()
         .await?;
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
@@ -67,7 +67,7 @@ async fn main() -> GraphResult<()> {
         .send()
         .await?;
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 
     Ok(())
 }

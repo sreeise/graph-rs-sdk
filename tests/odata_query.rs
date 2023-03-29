@@ -90,8 +90,7 @@ async fn filter_query_request_v1() {
             assert!(found_user.is_some());
         } else if let Err(e) = result {
             panic!(
-                "Request Error. Method: filter_query_request. Error: {:#?}",
-                e
+                "Request Error. Method: filter_query_request. Error: {e:#?}"
             );
         }
     }
@@ -119,8 +118,7 @@ async fn filter_query_request_beta() {
             assert!(found_user.is_some());
         } else if let Err(e) = result {
             panic!(
-                "Request Error. Method: filter_query_request. Error: {:#?}",
-                e
+                "Request Error. Method: filter_query_request. Error: {e:#?}"
             );
         }
     }
@@ -147,8 +145,7 @@ async fn order_by_query_request_v1() {
             assert!(found_user.is_some());
         } else if let Err(e) = result {
             panic!(
-                "Request Error. Method: filter_query_request. Error: {:#?}",
-                e
+                "Request Error. Method: filter_query_request. Error: {e:#?}"
             );
         }
     }
@@ -176,8 +173,7 @@ async fn order_by_request_beta() {
             assert!(found_user.is_some());
         } else if let Err(e) = result {
             panic!(
-                "Request Error. Method: filter_query_request. Error: {:#?}",
-                e
+                "Request Error. Method: filter_query_request. Error: {e:#?}"
             );
         }
     }

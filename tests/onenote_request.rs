@@ -1,16 +1,16 @@
 use graph_http::FileConfig;
-use graph_rs_sdk::error::{GraphFailure, GraphRsError};
+
 use graph_rs_sdk::header::{HeaderValue, CONTENT_TYPE};
-use graph_rs_sdk::prelude::*;
-use std::ffi::{OsStr, OsString};
-use std::fs;
-use std::path::Path;
+
+use std::ffi::{OsStr};
+
+
 use std::thread;
 use std::time::Duration;
-use test_tools::common::TestTools;
+
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::{AsyncCleanUp, CleanUp};
+use test_tools::support::cleanup::{AsyncCleanUp};
 
 #[tokio::test]
 async fn list_get_notebooks_and_sections() {
@@ -55,8 +55,7 @@ async fn list_get_notebooks_and_sections() {
                 assert_eq!("TestNotebook", body["displayName"].as_str().unwrap());
             } else if let Err(e) = get_notebook {
                 panic!(
-                    "Request error. Method: onenote notebooks get. Error: {:#?}",
-                    e
+                    "Request error. Method: onenote notebooks get. Error: {e:#?}"
                 );
             }
 
@@ -76,14 +75,12 @@ async fn list_get_notebooks_and_sections() {
                 assert_eq!("TestSection", section_name);
             } else if let Err(e) = result {
                 panic!(
-                    "Request error. Method: onenote notebooks list sections. Error: {:#?}",
-                    e
+                    "Request error. Method: onenote notebooks list sections. Error: {e:#?}"
                 );
             }
         } else if let Err(e) = notebooks {
             panic!(
-                "Request error. Method: onenote notebooks list. Error: {:#?}",
-                e
+                "Request error. Method: onenote notebooks list. Error: {e:#?}"
             );
         }
     }
@@ -122,12 +119,11 @@ async fn create_delete_page_from_file() {
 
             if let Err(e) = delete_res {
                 panic!(
-                    "Request error. Method onenote pages delete page: Error: {:#?}",
-                    e
+                    "Request error. Method onenote pages delete page: Error: {e:#?}"
                 );
             }
         } else if let Err(e) = res {
-            panic!("Request error. Method onenote create page. Error: {:#?}", e);
+            panic!("Request error. Method onenote create page. Error: {e:#?}");
         }
     }
 }
@@ -171,7 +167,7 @@ async fn download_page() {
                 .await;
 
             if let Err(e) = result {
-                panic!("Request error. Method onenote page download page | get content -> download page. Error: {:#?}", e);
+                panic!("Request error. Method onenote page download page | get content -> download page. Error: {e:#?}");
             } else if let Ok(path_buf) = result {
                 assert!(path_buf.exists());
             }
@@ -188,7 +184,7 @@ async fn download_page() {
 
             assert!(response.status().is_success());
         } else if let Err(e) = res {
-            panic!("Request error. Method onenote create page (download page test) | 01 get content -> download page. Error: {:#?}", e);
+            panic!("Request error. Method onenote create page (download page test) | 01 get content -> download page. Error: {e:#?}");
         }
     }
 }

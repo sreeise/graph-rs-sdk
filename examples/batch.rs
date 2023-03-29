@@ -19,33 +19,33 @@ async fn main() {
             {
                 "id": "1",
                 "method": "GET",
-                "url": format!("/users/{}/drive", USER_ID)
+                "url": format!("/users/{USER_ID}/drive")
             },
             {
                 "id": "2",
                 "method": "GET",
-                "url": format!("/users/{}/drive/root", USER_ID)
+                "url": format!("/users/{USER_ID}/drive/root")
             },
             {
                 "id": "3",
                 "method": "GET",
-                "url": format!("/users/{}/drive/recent", USER_ID)
+                "url": format!("/users/{USER_ID}/drive/recent")
             },
             {
                 "id": "4",
                 "method": "GET",
-                "url": format!("/users/{}/drive/root/children", USER_ID)
+                "url": format!("/users/{USER_ID}/drive/root/children")
             },
             {
                 "id": "5",
                 "method": "GET",
-                "url": format!("/users/{}/drive/special/documents", USER_ID)
+                "url": format!("/users/{USER_ID}/drive/special/documents")
             },
         ]
     });
 
-    let mut response = client.batch(&json).send().await.unwrap();
+    let response = client.batch(&json).send().await.unwrap();
 
     let body: serde_json::Value = response.json().await.unwrap();
-    println!("{:#?}", body);
+    println!("{body:#?}");
 }

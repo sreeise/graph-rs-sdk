@@ -7,10 +7,10 @@ use graph_rs_sdk::oauth::OAuth;
 fn get_signing_keys() {
     // Lists info such as the authorization and token urls, jwks uri, and response types supported.
     let signing_keys: MicrosoftSigningKeysV1 = GraphDiscovery::V1.signing_keys().unwrap();
-    println!("{:#?}", signing_keys);
+    println!("{signing_keys:#?}");
 
     let signing_keys2: MicrosoftSigningKeysV2 = GraphDiscovery::V2.signing_keys().unwrap();
-    println!("{:#?}", signing_keys2);
+    println!("{signing_keys2:#?}");
 
     // You can also create an OAuth instance from the signing keys. OAuth will use
     // parameters such as the authorization and token urls. This can save some

@@ -84,7 +84,7 @@ async fn handle_redirect(
 
             let access_token = request.access_token().send().await.unwrap();
             oauth.access_token(access_token);
-            println!("{:#?}", oauth);
+            println!("{oauth:#?}");
 
             // Generic login page response.
             Ok(Box::new(

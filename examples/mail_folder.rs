@@ -31,7 +31,7 @@ async fn get_user_inbox_messages() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 // Get the top 2 inbox messages for a user.
@@ -47,7 +47,7 @@ async fn get_me_inbox_messages() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn create_mail_folder_message() {
@@ -75,7 +75,7 @@ async fn create_mail_folder_message() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn create_mail_folder_draft_message() {
@@ -103,7 +103,7 @@ async fn create_mail_folder_draft_message() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn delete_mail_folder_message() {
@@ -117,7 +117,7 @@ async fn delete_mail_folder_message() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn add_mail_folder_message_attachment() {
@@ -137,5 +137,5 @@ async fn add_mail_folder_message_attachment() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }

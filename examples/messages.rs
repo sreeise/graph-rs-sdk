@@ -25,7 +25,7 @@ async fn list_messages() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client.me().messages().list_messages().send().await.unwrap();
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn user_list_messages() {

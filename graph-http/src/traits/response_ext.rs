@@ -1,15 +1,15 @@
-use crate::traits::{AsBytesMut, AsBytesMutWrapped};
+use crate::traits::{AsBytesMut};
 use crate::{iotools, FileConfig, RangeIter, UploadSession};
 use async_trait::async_trait;
-use bytes::{Bytes, BytesMut};
+
 use graph_error::download::AsyncDownloadError;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::HeaderMap;
 use reqwest::{Body, Response};
 use std::ffi::OsString;
-use std::fs::File;
+
 use std::io::Read;
-use std::path::Path;
+
 use std::path::PathBuf;
 
 const MAX_FILE_NAME_LEN: usize = 255;
@@ -84,7 +84,7 @@ impl ResponseExt for reqwest::Response {
     async fn download(self, file_config: &FileConfig) -> Result<PathBuf, AsyncDownloadError> {
         let path = file_config.path.clone();
         let file_name = file_config.file_name.clone();
-        let create_dir_all = file_config.create_directory_all.clone();
+        let create_dir_all = file_config.create_directory_all;
         let overwrite_existing_file = file_config.overwrite_existing_file;
         let extension = file_config.extension.clone();
 

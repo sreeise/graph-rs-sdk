@@ -6,7 +6,7 @@ pub trait HashSetExt<T, U, RHS = Self> {
 
 impl HashSetExt<String, String> for HashSet<String> {
     fn from_vec(vec: Vec<String>) -> HashSet<String> {
-        HashSet::from_iter(vec.clone())
+        HashSet::from_iter(vec)
     }
 }
 

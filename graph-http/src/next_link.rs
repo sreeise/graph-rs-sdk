@@ -1,7 +1,7 @@
 use crate::api_impl::GraphUrl;
-use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
-use reqwest::header::{HeaderMap, CONTENT_TYPE};
-use reqwest::{Response, StatusCode};
+use graph_error::{GraphFailure};
+use reqwest::header::{HeaderMap};
+use reqwest::{StatusCode};
 use std::fmt::{Debug, Formatter};
 
 pub struct NextLink;
@@ -98,7 +98,7 @@ impl<V> From<(reqwest::Url, GraphFailure)> for NextLinkResponse<Vec<V>> {
 impl<V> From<(String, GraphFailure)> for NextLinkResponse<Vec<V>> {
     fn from(value: (String, GraphFailure)) -> Self {
         NextLinkResponse::new(
-            reqwest::Url::parse(value.0.as_str()).unwrap_or(GraphUrl::default().to_reqwest_url()),
+            reqwest::Url::parse(value.0.as_str()).unwrap(),
             StatusCode::BAD_REQUEST,
             HeaderMap::default(),
             vec![],
@@ -110,7 +110,7 @@ impl<V> From<(String, GraphFailure)> for NextLinkResponse<Vec<V>> {
 impl<V> From<(String, GraphFailure)> for NextLinkResponse<Option<V>> {
     fn from(value: (String, GraphFailure)) -> Self {
         NextLinkResponse::new(
-            reqwest::Url::parse(value.0.as_str()).unwrap_or(GraphUrl::default().to_reqwest_url()),
+            reqwest::Url::parse(value.0.as_str()).unwrap(),
             StatusCode::BAD_REQUEST,
             HeaderMap::default(),
             None,

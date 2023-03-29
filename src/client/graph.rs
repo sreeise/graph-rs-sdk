@@ -73,6 +73,8 @@ use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 
+
+
 pub struct Graph {
     client: Client,
     endpoint: GraphUrl,
@@ -89,14 +91,18 @@ impl Graph {
     /// Use the v1 endpoint for the Microsoft Graph API. This is the default
     /// endpoint used by the client.
     ///
-    /// Example
-    /// ```rust
+    /// # Example
+    /// ```rust,ignore
     /// # use graph_rs_sdk::GRAPH_URL;
     /// use graph_rs_sdk::client::Graph;
     ///
-    /// let client = Graph::new("ACCESS_TOKEN").v1();
+    /// let mut client = Graph::new("ACCESS_TOKEN");
     ///
-    /// assert_eq!(client.url().to_string(), GRAPH_URL.to_string())
+    /// client.v1()
+    ///     .me()
+    ///     .get_user()
+    ///     .send()
+    ///     .await?;
     /// ```
     pub fn v1(&mut self) -> &mut Graph {
         self.endpoint
@@ -109,7 +115,7 @@ impl Graph {
     /// `v1()` but takes a mutable reference to self and does not return
     /// self.
     ///
-    /// Example
+    /// # Example
     /// ```rust
     /// # use graph_rs_sdk::GRAPH_URL;
     /// use graph_rs_sdk::client::Graph;
@@ -127,14 +133,18 @@ impl Graph {
 
     /// Use the beta endpoint for the Microsoft Graph API
     ///
-    /// Example
-    /// ```rust
+    /// # Example
+    /// ```rust,ignore
     /// # use graph_rs_sdk::GRAPH_URL_BETA;
     /// use graph_rs_sdk::client::Graph;
     ///
-    /// let client = Graph::new("ACCESS_TOKEN").beta();
+    /// let mut client = Graph::new("ACCESS_TOKEN");
     ///
-    /// assert_eq!(client.url().to_string(), GRAPH_URL_BETA.to_string())
+    /// client.beta()
+    ///     .me()
+    ///     .get_user()
+    ///     .send()
+    ///     .await?;
     /// ```
     pub fn beta(&mut self) -> &mut Graph {
         self.endpoint
@@ -171,12 +181,16 @@ impl Graph {
     /// # See [microsoft-graph-and-graph-explorer-service-root-endpoints](https://learn.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints)
     ///
     /// Example
-    /// ```rust
+    /// ```rust,ignore
     /// use graph_rs_sdk::client::Graph;
     ///
-    /// let client = Graph::new("ACCESS_TOKEN").custom_endpoint("https://api.microsoft.com/api");
+    /// let mut client = Graph::new("ACCESS_TOKEN");
     ///
-    /// assert_eq!(client.url().to_string(), "https://api.microsoft.com/api".to_string())
+    /// client.custom_endpoint("https://api.microsoft.com/api")
+    ///     .me()
+    ///     .get_user()
+    ///     .send()
+    ///     .await?;
     /// ```
     pub fn custom_endpoint(&mut self, custom_endpoint: &str) -> &mut Graph {
         self.endpoint
@@ -185,6 +199,18 @@ impl Graph {
         self
     }
 
+    /// Set a custom endpoint for the Microsoft Graph API
+    /// # See [microsoft-graph-and-graph-explorer-service-root-endpoints](https://learn.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints)
+    ///
+    /// Example
+    /// ```rust
+    /// use graph_rs_sdk::client::Graph;
+    ///
+    /// let mut client = Graph::new("ACCESS_TOKEN");
+    /// client.use_endpoint("https://graph.microsoft.com");
+    ///
+    /// assert_eq!(client.url().to_string(), "https://graph.microsoft.com/".to_string())
+    /// ```
     pub fn use_endpoint(&mut self, custom_endpoint: &str) {
         self.endpoint
             .replace(custom_endpoint)

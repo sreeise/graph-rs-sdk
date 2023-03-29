@@ -20,7 +20,7 @@ pub async fn delete_by_id(item_id: &str) {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
     println!("\nItem deleted Status: {}", response.status());
 }
 
@@ -38,6 +38,6 @@ pub async fn delete_by_path(path: &str) {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
     println!("\nItem deleted Status: {}", response.status());
 }

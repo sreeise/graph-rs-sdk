@@ -34,7 +34,7 @@ async fn download_config_file_exists() {
             .await;
 
         match result {
-			Ok(path) => panic!("Download request should have thrown AsyncDownloadError::FileExists. Instead got successful PathBuf: {:#?}", path),
+			Ok(path) => panic!("Download request should have thrown AsyncDownloadError::FileExists. Instead got successful PathBuf: {path:#?}"),
 
 			Err(GraphFailure::AsyncDownloadError(AsyncDownloadError::FileExists(name))) => {
 				if cfg!(target_os = "windows") {
@@ -44,7 +44,7 @@ async fn download_config_file_exists() {
 				}
 			}
 
-			Err(err) => panic!("Incorrect error thrown. Should have been AsyncDownloadError::FileExists. Got: {:#?}", err),
+			Err(err) => panic!("Incorrect error thrown. Should have been AsyncDownloadError::FileExists. Got: {err:#?}"),
 		}
     }
 }
@@ -62,9 +62,9 @@ async fn download_is_err_config_dir_no_exists() {
             .await;
 
         match response {
-			Ok(path) => panic!("Download request should have thrown AsyncDownloadError::TargetDoesNotExist. Instead got successful PathBuf: {:#?}", path),
+			Ok(path) => panic!("Download request should have thrown AsyncDownloadError::TargetDoesNotExist. Instead got successful PathBuf: {path:#?}"),
 			Err(GraphFailure::AsyncDownloadError(AsyncDownloadError::TargetDoesNotExist(dir))) => assert_eq!("./test_files/download_dir".to_string(), dir),
-			Err(err) => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {:#?}", err),
+			Err(err) => panic!("Incorrect error thrown. Should have been GraphRsError::DownloadDirNoExists. Got: {err:#?}"),
 		}
     }
 }

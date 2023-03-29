@@ -1,6 +1,6 @@
 use futures_util::SinkExt;
 use graph_rs_sdk::prelude::*;
-use graph_rs_sdk::{GRAPH_URL, GRAPH_URL_BETA};
+
 use test_tools::oauthrequest::OAuthTestClient;
 
 #[test]
@@ -57,7 +57,7 @@ pub async fn batch_request() {
             ]
         });
 
-        let mut response = client.batch(&json).send().await.unwrap();
+        let response = client.batch(&json).send().await.unwrap();
 
         let body: serde_json::Value = response.json().await.unwrap();
 

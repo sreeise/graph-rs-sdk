@@ -74,7 +74,7 @@ impl RequestMetadata {
             let resource_id_string = resource_identity.exact_pascal_case();
             self.operation_mapping = format!("{resource_id_string}Id");
             self.parent = format!("{resource_id_string}Id");
-            self.original_parent = resource_id_string.into();
+            self.original_parent = resource_id_string;
         } else {
             self.parent = format!("{}Id", original_parent.to_pascal_case());
             self.original_parent = original_parent.to_pascal_case();
@@ -384,7 +384,7 @@ impl PathMetadata {
     pub fn struct_links(&mut self) -> HashMap<String, Vec<String>> {
         let links = self.links();
 
-        println!("links btreeset: {:#?}", links);
+        println!("links btreeset: {links:#?}");
 
         let mut map: HashMap<String, Vec<String>> = HashMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
@@ -502,7 +502,7 @@ impl PathMetadataQueue {
     pub fn transform_id_metadata(&mut self, path_start: &str) {
         for path_metadata in self.0.iter_mut() {
             //dbg!(path_metadata);
-            if path_metadata.path_starts_with(&format!("{}/{{{{id}}}}", path_start)) {
+            if path_metadata.path_starts_with(&format!("{path_start}/{{{{id}}}}")) {
                 path_metadata.transform_id_metadata();
             }
         }
@@ -516,7 +516,7 @@ impl PathMetadataQueue {
     ) {
         let ri_exact_pascal_case = resource_identity.exact_pascal_case();
         for path_metadata in self.0.iter_mut() {
-            let id_path = format!("{}/{{{{id}}}}", path_start);
+            let id_path = format!("{path_start}/{{{{id}}}}");
             if path_metadata.path_starts_with(&id_path) {
                 path_metadata.transform_secondary_id_metadata(operation_mapping, resource_identity);
             } else if path_metadata.path_starts_with(path_start) {

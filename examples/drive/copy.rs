@@ -48,5 +48,5 @@ pub async fn copy_item() {
     thread::sleep(Duration::from_secs(5));
 
     let job_status_response = response.job_status().await;
-    println!("{:#?}", job_status_response);
+    println!("{job_status_response:#?}");
 }

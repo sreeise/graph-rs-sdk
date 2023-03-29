@@ -43,7 +43,7 @@ fn oauth_open_id() -> OAuth {
 }
 
 async fn handle_redirect(id_token: IdToken) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
-    println!("Received IdToken: {:#?}", id_token);
+    println!("Received IdToken: {id_token:#?}");
 
     let mut oauth = oauth_open_id();
 

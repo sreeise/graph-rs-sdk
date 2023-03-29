@@ -1,4 +1,3 @@
-use graph_rs_sdk::prelude::*;
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 
@@ -10,25 +9,21 @@ async fn delta_req() {
 
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let mut delta_recv = client
+        let mut vec = client
             .users()
             .delta()
-            .top("2")
-            .channel_next_links::<serde_json::Value>()
+            .paging()
+            .json_deque::<serde_json::Value>()
             .await
             .unwrap();
 
-        let mut is_done = false;
-
-        while let Some(next_link_response) = delta_recv.recv().await {
-            if let Some(err) = next_link_response.err() {
-                panic!("Error {err:#?}");
-            }
-
-            assert!(next_link_response.is_success());
-            is_done = true;
+        dbg!(&vec);
+        assert!(!vec.is_empty());
+        for response in vec.iter() {
+           assert!(response.status().is_success())
         }
 
-        assert!(is_done);
+        let response = vec.pop_back().unwrap();
+        assert!(response.body()["@odata.deltaLink"].as_str().is_some())
     }
 }

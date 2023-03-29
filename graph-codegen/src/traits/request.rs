@@ -284,7 +284,7 @@ impl RequestParser for &str {
             if count == 1 {
                 path.replacen(s, "{{id}}", 1)
             } else {
-                path.replacen(s, &format!("{{{{id{}}}}}", count), 1)
+                path.replacen(s, &format!("{{{{id{count}}}}}"), 1)
             }
         };
 
@@ -324,7 +324,7 @@ impl RequestParser for &str {
                                             } else {
                                                 path = path.replacen(
                                                     &s[i + 1..],
-                                                    &format!("'{{{{id{}}}}}'", count),
+                                                    &format!("'{{{{id{count}}}}}'"),
                                                     1,
                                                 );
                                                 path_parameters
@@ -367,7 +367,7 @@ impl RequestParser for &str {
             if count == 1 {
                 path.replacen(s, "{{id}}", 1)
             } else {
-                path.replacen(s, &format!("{{{{id{}}}}}", count), 1)
+                path.replacen(s, &format!("{{{{id{count}}}}}"), 1)
             }
         };
 
@@ -391,7 +391,7 @@ impl RequestParser for &str {
                                     } else {
                                         path = path.replacen(
                                             s.as_str(),
-                                            &format!("{{{{id{}}}}}", count),
+                                            &format!("{{{{id{count}}}}}"),
                                             1,
                                         );
                                         found_match = true;
@@ -422,7 +422,7 @@ impl RequestParser for &str {
                                             } else {
                                                 path = path.replacen(
                                                     &s[i + 1..],
-                                                    &format!("'{{{{id{}}}}}'", count),
+                                                    &format!("'{{{{id{count}}}}}'"),
                                                     1,
                                                 );
                                                 found_match = true;
@@ -469,7 +469,7 @@ impl RequestParser for &str {
 
             while let Some(current) = iter.next() {
                 if let Some(next) = iter.peek() {
-                    links.insert(format!("{}.{}", current, next));
+                    links.insert(format!("{current}.{next}"));
                 }
             }
         } else {

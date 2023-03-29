@@ -24,5 +24,5 @@ pub async fn create_new_folder() {
         .send()
         .await
         .unwrap();
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }

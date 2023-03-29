@@ -47,7 +47,7 @@ fn update_users() {
     let mut client = Graph::new("");
 
     assert_eq!(
-        format!("/beta/users/{}", USER_ID),
+        format!("/beta/users/{USER_ID}"),
         client
             .beta()
             .user(USER_ID)
@@ -59,7 +59,7 @@ fn update_users() {
     client.use_v1();
 
     assert_eq!(
-        format!("/v1.0/users/{}", USER_ID),
+        format!("/v1.0/users/{USER_ID}"),
         client
             .user(USER_ID)
             .update_user(&String::new())

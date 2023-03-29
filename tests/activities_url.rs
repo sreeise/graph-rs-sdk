@@ -13,17 +13,17 @@ fn activities_url() {
     );
 
     assert_eq!(
-        format!("/v1.0/users/{}/activities", RID),
+        format!("/v1.0/users/{RID}/activities"),
         client.user(RID).activities().list_activities().url().path()
     );
 
     assert_eq!(
-        format!("/v1.0/me/activities/{}", ID),
+        format!("/v1.0/me/activities/{ID}"),
         client.me().activity(ID).get_activities().url().path()
     );
 
     assert_eq!(
-        format!("/v1.0/users/{}/activities/{}", RID, ID),
+        format!("/v1.0/users/{RID}/activities/{ID}"),
         client.user(RID).activity(ID).get_activities().url().path()
     );
 }

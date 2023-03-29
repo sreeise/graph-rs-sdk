@@ -6,16 +6,11 @@ use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
 async fn async_download_office_365_user_counts_reports_test() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
     let _ = ASYNC_THROTTLE_MUTEX.lock().await;
 
     if let Some((_id, client)) =
         OAuthTestClient::graph_by_rid_async(ResourceIdentity::Reports).await
     {
-        let file_location = "./test_files/async_user_count_report.csv";
-        let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
-        clean_up.rm_files(file_location.into());
-
         let path_buf = client
             .reports()
             .reports_get_office_365_active_user_counts("D90")
@@ -24,6 +19,10 @@ async fn async_download_office_365_user_counts_reports_test() {
             .expect("Request Error. API: Reports | Method: download_async get_office_365_active_user_counts.");
 
         assert!(path_buf.exists());
+
+        let file_location = "./test_files/async_user_count_report.csv";
+        let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
+        clean_up.rm_files(file_location.into());
     }
 }
 
@@ -34,10 +33,6 @@ async fn get_office_365_user_counts_reports_text() {
     if let Some((_id, client)) =
         OAuthTestClient::graph_by_rid_async(ResourceIdentity::Reports).await
     {
-        let file_location = "./test_files/async_user_count_report.csv";
-        let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
-        clean_up.rm_files(file_location.into());
-
         let response = client
             .reports()
             .reports_get_office_365_active_user_counts("D90")

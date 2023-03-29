@@ -1,7 +1,7 @@
 use graph_http::FileConfig;
 use graph_rs_sdk::prelude::*;
-use std::ffi::{OsStr, OsString};
-use std::str::FromStr;
+use std::ffi::{OsStr};
+
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
@@ -31,7 +31,7 @@ async fn get_page_html_content() {
         .unwrap();
 
     let html_string = response.text().await.unwrap();
-    println!("{:#?}", html_string);
+    println!("{html_string:#?}");
 }
 
 async fn download_page_as_html() {
@@ -46,5 +46,5 @@ async fn download_page_as_html() {
         .await
         .unwrap();
 
-    println!("{:#?}", path_buf);
+    println!("{path_buf:#?}");
 }

@@ -51,7 +51,7 @@ async fn buffered_requests() {
             users.extend(
                 body.iter()
                     .flat_map(|user| user.value.clone())
-                    .flat_map(|user| user.id.clone()),
+                    .flat_map(|user| user.id),
             );
         }
 

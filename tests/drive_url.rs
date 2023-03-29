@@ -61,7 +61,7 @@ fn users() {
 
 #[test]
 pub fn drive_preview_path() {
-    let client = Graph::new("");
+    let _client = Graph::new("");
 
     let client = Graph::new("");
 

@@ -58,7 +58,7 @@ pub trait MacroQueueWriter {
         for param in self.params().iter() {
             // Clippy lint suggested using write! - TODO verify works
             // parameter_str.push_str(&write!(" {} ", param));
-            let _ = write!(parameter_str, " {},", param);
+            let _ = write!(parameter_str, " {param},");
         }
 
         let params: Vec<String> = self.params().iter().map(|s| s.to_string()).collect();
@@ -85,7 +85,7 @@ pub trait MacroQueueWriter {
             has_download_methods = true;
             let mut doc = String::new();
             if let Some(doc_string) = m.doc() {
-                doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
+                doc = format!("\n\t\tdoc: \"{doc_string}\", ");
             }
 
             let mut name = m.fn_name();
@@ -102,23 +102,23 @@ pub trait MacroQueueWriter {
             let path = self.path();
             let params = self.macro_params();
 
-            buf.put(format!("\n\t{}!({{", macro_fn_name).as_bytes());
+            buf.put(format!("\n\t{macro_fn_name}!({{").as_bytes());
             buf.put(doc.as_bytes());
-            buf.put(format!("\n\t\tname: {}", name).as_bytes());
+            buf.put(format!("\n\t\tname: {name}").as_bytes());
 
             if is_async_download {
                 buf.put(",\n\t\tresponse: AsyncDownload".as_bytes());
             } else {
-                buf.put(format!(",\n\t\tresponse: {}", type_name).as_bytes());
+                buf.put(format!(",\n\t\tresponse: {type_name}").as_bytes());
             }
 
-            buf.put(format!(",\n\t\tpath: \"{}\"", path).as_bytes());
+            buf.put(format!(",\n\t\tpath: \"{path}\"").as_bytes());
 
             if self.param_size() > 0 {
-                buf.put(format!(",\n\t\tparams: [{}]", params).as_bytes());
+                buf.put(format!(",\n\t\tparams: [{params}]").as_bytes());
             }
 
-            buf.put(format!(",\n\t\thas_body: {}", has_body).as_bytes());
+            buf.put(format!(",\n\t\thas_body: {has_body}").as_bytes());
             buf.put("\n\t});".as_bytes());
         }
 
@@ -137,7 +137,7 @@ pub trait MacroQueueWriter {
         for method_macro in method_macros.iter() {
             let mut doc = String::new();
             if let Some(doc_string) = method_macro.doc_comment.as_ref() {
-                doc = format!("\n\t\tdoc: \"{}\", ", doc_string);
+                doc = format!("\n\t\tdoc: \"{doc_string}\", ");
             }
 
             buf.put(format!("\n\t{}!({{", method_macro.macro_fn_name).as_bytes());
@@ -369,13 +369,13 @@ pub trait MacroImplWriter {
                     (
                         key_id.clone(),
                         ResourceIdentity::from_str(key_id_stripped.as_str())
-                            .expect(&format!("Unable to find variant for {key_id}")),
+                            .unwrap_or_else(|_| panic!("Unable to find variant for {key_id}")),
                     )
                 } else {
                     (
                         key_id.clone(),
                         ResourceIdentity::from_str(&key.to_camel_case())
-                            .expect(&format!("Unable to find variant for {key_id}")),
+                            .unwrap_or_else(|_| panic!("Unable to find variant for {key_id}")),
                     )
                 }
             })
@@ -418,8 +418,7 @@ pub trait MacroImplWriter {
                     method_name = method_name.replacen("s_id", "", 1);
                 }
                 v.insert(format!(
-                    "ApiClientLink::StructId(\"{}\".into(), \"{}\".into()),",
-                    method_name, client_name
+                    "ApiClientLink::StructId(\"{method_name}\".into(), \"{client_name}\".into()),"
                 ));
             } else {
                 v.insert(format!(
@@ -456,8 +455,8 @@ pub trait MacroImplWriter {
         buf.put(resource_api_client_impl.as_bytes());
 
         for (name, path_metadata_queue) in path_metadata_map.iter() {
-            let api_client_name = format!("{}ApiClient", name);
-            buf.put(format!("\nimpl {} {{", api_client_name).as_bytes());
+            let api_client_name = format!("{name}ApiClient");
+            buf.put(format!("\nimpl {api_client_name} {{").as_bytes());
 
             let mut set = HashSet::new();
             for setting in settings.iter() {
@@ -492,7 +491,7 @@ pub trait MacroImplWriter {
         }
 
         for api_client_link in v.iter() {
-            println!("{}", api_client_link);
+            println!("{api_client_link}");
         }
 
         Ok(buf)
@@ -550,7 +549,7 @@ pub trait MacroImplWriter {
                         .write(true)
                         .truncate(true)
                         .create(true)
-                        .open(&request_file)
+                        .open(request_file)
                         .unwrap();
 
                     f.write_all(buf.as_mut()).unwrap();
@@ -589,7 +588,7 @@ pub trait OpenApiParser {
             OpenApi::write_using(write_config.clone(), &open_api2);
         }
 
-        let mut open_api2 = open_api.clone();
+        let mut open_api2 = open_api;
         open_api2.paths = open_api2.filter_path_contains(&write_configuration.path);
         let metadata_queue = PathMetadataQueue::from((write_configuration.clone(), &open_api2));
 
@@ -686,7 +685,7 @@ pub trait OpenApiParser {
         let metadata_queue = PathMetadataQueue::from(resource_parsing_info);
         metadata_queue.debug_print();
         let path_buf = path.as_ref().to_path_buf();
-        metadata_queue.as_file_pretty(&path_buf)
+        metadata_queue.as_file_pretty(path_buf)
     }
 
     fn get_metadata_method_macros(

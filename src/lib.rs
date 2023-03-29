@@ -172,11 +172,13 @@ pub mod oauth {
     pub use graph_oauth::oauth::*;
 }
 
+/*
 /// Reexport of graph-http crate.
-pub mod http {
+pub mod graph_http {
     pub use graph_http::*;
 }
 
+ */
 /// Reexport of graph-error crate.
 pub mod error {
     pub use graph_error::*;
@@ -190,6 +192,28 @@ pub mod header {
 /// Types used across multiple crates.
 pub mod core {
     pub use graph_core::resource::*;
+}
+
+pub mod components {
+    pub mod error {
+        pub use graph_error::*;
+    }
+
+    pub mod http {
+        pub use graph_http::traits::{
+            HttpResponseBuilderExt, HttpResponseExt, ODataNextLink,
+            ODataDeltaLink, ODataDownloadLink, ODataMetadataLink,
+            UploadSessionLink
+        };
+        pub use graph_http::odata_query::ODataQuery;
+        pub use graph_http::UploadSession;
+        pub use graph_http::FileConfig;
+    }
+
+    pub mod oauth {
+        pub use graph_oauth::jwt;
+        pub use graph_oauth::oauth::*;
+    }
 }
 
 pub(crate) mod api_default_imports {

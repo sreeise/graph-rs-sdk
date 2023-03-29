@@ -34,7 +34,7 @@ async fn get_child_folders_attachment() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 // You can keep calling the child_folder("id") method
@@ -57,5 +57,5 @@ async fn get_child_folders_attachment_content() {
         .await
         .unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }

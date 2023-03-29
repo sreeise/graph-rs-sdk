@@ -1,4 +1,4 @@
-use graph_error::download::AsyncDownloadError;
+
 use graph_http::FileConfig;
 use graph_rs_sdk::error::*;
 use graph_rs_sdk::prelude::*;
@@ -10,30 +10,30 @@ use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 fn test_graph_failure(err: GraphFailure, expect: GraphError) {
     match err {
         GraphFailure::GraphError(error) => test_graph_error(error, expect),
-        GraphFailure::Io(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::ParseString(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::Utf8Error(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::ReqwestError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
+        GraphFailure::Io(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::ParseString(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::Utf8Error(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::ReqwestError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
         GraphFailure::ReqwestHeaderToStr(e) => {
-            panic!("Expected GraphFailure::GraphError, got {}", e)
+            panic!("Expected GraphFailure::GraphError, got {e}")
         }
-        GraphFailure::SerdeError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::SerdeYamlError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::DecodeError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::RecvError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::BorrowMutError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::UrlParseError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::HyperError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::HyperHttpError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::HyperInvalidUri(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::Parse(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
-        GraphFailure::GraphRsError(e) => panic!("Expected GraphFailure::GraphError, got {}", e),
+        GraphFailure::SerdeError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::SerdeYamlError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::DecodeError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::RecvError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::BorrowMutError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::UrlParseError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::HyperError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::HyperHttpError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::HyperInvalidUri(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::Parse(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
+        GraphFailure::GraphRsError(e) => panic!("Expected GraphFailure::GraphError, got {e}"),
         GraphFailure::CryptoError => panic!("Expected GraphFailure::GraphError, got CryptoError"),
         GraphFailure::HandlebarsRenderError(e) => {
-            panic!("Expected GraphFailure::GraphError, got {}", e)
+            panic!("Expected GraphFailure::GraphError, got {e}")
         }
         GraphFailure::HandlebarsTemplateRenderError(e) => {
-            panic!("Expected GraphFailure::GraphError, got {}", e)
+            panic!("Expected GraphFailure::GraphError, got {e}")
         }
         _ => panic!("Expected GraphFailure::GraphError, got unknown error"),
     }
@@ -109,7 +109,7 @@ async fn drive_download_graph_error() {
             ),
             Err(e) => {
                 println!("source: {:#?}", e.source());
-                panic!("Expected AsyncDownloadError::GraphError(GraphError..), but got a different variant: {}", e)
+                panic!("Expected AsyncDownloadError::GraphError(GraphError..), but got a different variant: {e}")
             }
         }
     }

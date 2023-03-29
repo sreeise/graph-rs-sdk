@@ -8,17 +8,17 @@ fn teams_channel_request() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/teams/{}/channels", RID),
+        format!("/v1.0/teams/{RID}/channels"),
         client.team(RID).channels().list_channels().url().path()
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/channels/{}/tabs/{}", RID, ID, ID),
+        format!("/v1.0/teams/{RID}/channels/{ID}/tabs/{ID}"),
         client.team(RID).channel(ID).get_tabs(ID).url().path()
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/channels/{}/sharedWithTeams/{}", RID, ID, ID),
+        format!("/v1.0/teams/{RID}/channels/{ID}/sharedWithTeams/{ID}"),
         client
             .team(RID)
             .channel(ID)
@@ -29,7 +29,7 @@ fn teams_channel_request() {
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/channels/{}/sharedWithTeams", RID, ID),
+        format!("/v1.0/teams/{RID}/channels/{ID}/sharedWithTeams"),
         client
             .team(RID)
             .channel(ID)
@@ -40,7 +40,7 @@ fn teams_channel_request() {
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/channels/{}/messages", RID, ID),
+        format!("/v1.0/teams/{RID}/channels/{ID}/messages"),
         client
             .team(RID)
             .channel(ID)
@@ -51,7 +51,7 @@ fn teams_channel_request() {
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/channels/{}/messages/{}", RID, ID, ID),
+        format!("/v1.0/teams/{RID}/channels/{ID}/messages/{ID}"),
         client
             .team(RID)
             .channel(ID)

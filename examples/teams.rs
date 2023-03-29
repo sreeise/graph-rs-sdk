@@ -15,12 +15,12 @@ async fn list_teams() {
     let client = Graph::new(ACCESS_TOKEN);
     let response = client.teams().list_team().send().await.unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
 
 async fn get_teams() {
     let client = Graph::new(ACCESS_TOKEN);
     let response = client.team(TEAMS_ID).get_team().send().await.unwrap();
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 }
