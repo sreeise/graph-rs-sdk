@@ -51,6 +51,9 @@ graph-core = { path = "./graph-core", version = "0.3.1" }
 default = ["native-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
+brotli = ["reqwest/brotli"]
+deflate = ["reqwest/deflate"]
+trust-dns = ["reqwest/trust-dns"]
 
 [dev-dependencies]
 from_as = "0.1"
@@ -68,11 +71,3 @@ test-tools = { path = "./test-tools", version = "0.0.1" }
 
 [profile.release]
 debug = false
-
-[features]
-default = ["nativetls"]
-nativetls = ["reqwest/native-tls"] # define a nativetls feature of our crate that enables reqwest's nativetls feature
-rustls-tls = ["reqwest/rustls-tls"] # define a rustls feature of our crate that that enables reqwest's rustls-tls feature
-brotli = ["reqwest/brotli"]
-deflate = ["reqwest/deflate"]
-trust-dns = ["reqwest/trust-dns"]

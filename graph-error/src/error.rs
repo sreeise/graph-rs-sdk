@@ -1,6 +1,5 @@
 use crate::{GraphFailure, GraphHeaders, GraphResult};
 use async_trait::async_trait;
-use hyper::body::Bytes;
 use reqwest::StatusCode;
 use serde::Serialize;
 use std::error::Error;
@@ -287,11 +286,15 @@ impl WithGraphError for reqwest::blocking::Response {
                     headers,
                     code,
                     error_message,
-                    response_raw
+                    response_raw,
                 }))
             } else {
-                Err(GraphFailure::GraphError(GraphError::new(headers, code, Default::default())))
-            }
+                Err(GraphFailure::GraphError(GraphError::new(
+                    headers,
+                    code,
+                    Default::default(),
+                )))
+            };
         } else {
             Ok(self)
         }
@@ -309,7 +312,8 @@ impl WithGraphErrorAsync for reqwest::Response {
         let code = self.status();
         if code.is_client_error() || code.is_server_error() {
             let headers = Some(GraphHeaders::from(&self));
-            let result: GraphResult<serde_json::Value> = self.json().await.map_err(GraphFailure::from);
+            let result: GraphResult<serde_json::Value> =
+                self.json().await.map_err(GraphFailure::from);
 
             return if let Ok(raw) = result {
                 let response_raw = raw.clone();
@@ -318,11 +322,15 @@ impl WithGraphErrorAsync for reqwest::Response {
                     headers,
                     code,
                     error_message,
-                    response_raw
+                    response_raw,
                 }))
             } else {
-                Err(GraphFailure::GraphError(GraphError::new(headers, code, Default::default())))
-            }
+                Err(GraphFailure::GraphError(GraphError::new(
+                    headers,
+                    code,
+                    Default::default(),
+                )))
+            };
         } else {
             Ok(self)
         }
