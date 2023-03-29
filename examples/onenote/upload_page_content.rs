@@ -2,14 +2,12 @@ use graph_http::FileConfig;
 use graph_rs_sdk::header::{HeaderValue, CONTENT_TYPE};
 use graph_rs_sdk::prelude::*;
 
-
-
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 // User id that you want to access onenote for.
 static USER_ID: &str = "USER_ID";
 
-async fn upload_page_content() {
+pub async fn upload_page_content() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client

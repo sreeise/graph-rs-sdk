@@ -200,14 +200,13 @@ pub mod components {
     }
 
     pub mod http {
-        pub use graph_http::traits::{
-            HttpResponseBuilderExt, HttpResponseExt, ODataNextLink,
-            ODataDeltaLink, ODataDownloadLink, ODataMetadataLink,
-            UploadSessionLink
-        };
         pub use graph_http::odata_query::ODataQuery;
-        pub use graph_http::UploadSession;
+        pub use graph_http::traits::{
+            HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
+            ODataMetadataLink, ODataNextLink, UploadSessionLink,
+        };
         pub use graph_http::FileConfig;
+        pub use graph_http::UploadSession;
     }
 
     pub mod oauth {

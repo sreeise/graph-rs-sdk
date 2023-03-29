@@ -1,4 +1,3 @@
-
 use graph_http::FileConfig;
 use graph_rs_sdk::error::*;
 use graph_rs_sdk::prelude::*;

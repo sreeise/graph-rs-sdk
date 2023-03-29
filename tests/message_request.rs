@@ -83,14 +83,10 @@ async fn mail_create_and_delete_message() {
                 .send()
                 .await;
             if let Err(e) = delete_res {
-                panic!(
-                    "Request error. Method: mail messages delete. Error: {e:#?}"
-                );
+                panic!("Request error. Method: mail messages delete. Error: {e:#?}");
             }
         } else if let Err(e) = result {
-            panic!(
-                "Request error. Method: mail messages create. Error: {e:#?}"
-            );
+            panic!("Request error. Method: mail messages create. Error: {e:#?}");
         }
     }
 }

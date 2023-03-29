@@ -161,9 +161,7 @@ fn users_assignments_submissions() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!(
-            "/v1.0/education/users/{ID}/assignments/{ID}/submissions/$count"
-        ),
+        format!("/v1.0/education/users/{ID}/assignments/{ID}/submissions/$count"),
         client
             .education()
             .user(ID)
@@ -174,9 +172,7 @@ fn users_assignments_submissions() {
             .path()
     );
     assert_eq!(
-        format!(
-            "/v1.0/education/users/{ID}/assignments/{ID}/submissions/{ID}/outcomes"
-        ),
+        format!("/v1.0/education/users/{ID}/assignments/{ID}/submissions/{ID}/outcomes"),
         client
             .education()
             .user(ID)
@@ -193,9 +189,7 @@ fn schools_assignment_submission() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!(
-            "/v1.0/education/schools/{ID}/assignments/{ID}/submissions"
-        ),
+        format!("/v1.0/education/schools/{ID}/assignments/{ID}/submissions"),
         client
             .education()
             .school(ID)
@@ -207,9 +201,7 @@ fn schools_assignment_submission() {
     );
 
     assert_eq!(
-        format!(
-            "/v1.0/education/schools/{ID}/assignments/{ID}/submissions/$count"
-        ),
+        format!("/v1.0/education/schools/{ID}/assignments/{ID}/submissions/$count"),
         client
             .education()
             .school(ID)
@@ -226,9 +218,7 @@ fn classes_assignment_submission() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!(
-            "/v1.0/education/classes/{ID}/assignments/{ID}/submissions/{ID}/outcomes"
-        ),
+        format!("/v1.0/education/classes/{ID}/assignments/{ID}/submissions/{ID}/outcomes"),
         client
             .education()
             .class(ID)
@@ -240,9 +230,7 @@ fn classes_assignment_submission() {
     );
 
     assert_eq!(
-        format!(
-            "/v1.0/education/classes/{ID}/assignments/{ID}/submissions/$count"
-        ),
+        format!("/v1.0/education/classes/{ID}/assignments/{ID}/submissions/$count"),
         client
             .education()
             .class(ID)
@@ -253,9 +241,7 @@ fn classes_assignment_submission() {
             .path()
     );
     assert_eq!(
-        format!(
-            "/v1.0/education/classes/{ID}/assignments/{ID}/submissions/{ID}/outcomes"
-        ),
+        format!("/v1.0/education/classes/{ID}/assignments/{ID}/submissions/{ID}/outcomes"),
         client
             .education()
             .class(ID)
@@ -267,9 +253,7 @@ fn classes_assignment_submission() {
     );
 
     assert_eq!(
-        format!(
-            "/v1.0/education/classes/{ID}/assignments/{ID}/submissions/{ID}/outcomes/{ID}"
-        ),
+        format!("/v1.0/education/classes/{ID}/assignments/{ID}/submissions/{ID}/outcomes/{ID}"),
         client
             .education()
             .class(ID)

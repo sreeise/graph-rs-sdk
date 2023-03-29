@@ -1,4 +1,4 @@
-use crate::traits::{AsBytesMut};
+use crate::traits::AsBytesMut;
 use crate::{iotools, FileConfig, RangeIter, UploadSession};
 use async_trait::async_trait;
 

@@ -17,17 +17,15 @@ async fn main() -> Result<(), GraphFailure> {
 
     while let Some(channel_response) = receiver.recv().await {
         match channel_response {
-            ChannelResponse::Next(result) => {
-                match result {
-                    Ok(response) => {
-                        println!("response:\n{:#?}\n\n", response);
-                    }
-                    Err(err) => {
-                        println!("GraphFailure: {:#?}", err);
-                        break;
-                    }
+            ChannelResponse::Next(result) => match result {
+                Ok(response) => {
+                    println!("response:\n{response:#?}\n\n");
                 }
-            }
+                Err(err) => {
+                    println!("GraphFailure: {err:#?}");
+                    break;
+                }
+            },
             ChannelResponse::Done => break,
         }
     }

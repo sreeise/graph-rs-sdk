@@ -2,15 +2,14 @@ use graph_http::FileConfig;
 
 use graph_rs_sdk::header::{HeaderValue, CONTENT_TYPE};
 
-use std::ffi::{OsStr};
-
+use std::ffi::OsStr;
 
 use std::thread;
 use std::time::Duration;
 
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::{AsyncCleanUp};
+use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
 async fn list_get_notebooks_and_sections() {
@@ -54,9 +53,7 @@ async fn list_get_notebooks_and_sections() {
                 let body: serde_json::Value = notebook_response.json().await.unwrap();
                 assert_eq!("TestNotebook", body["displayName"].as_str().unwrap());
             } else if let Err(e) = get_notebook {
-                panic!(
-                    "Request error. Method: onenote notebooks get. Error: {e:#?}"
-                );
+                panic!("Request error. Method: onenote notebooks get. Error: {e:#?}");
             }
 
             let result = client
@@ -74,14 +71,10 @@ async fn list_get_notebooks_and_sections() {
                 let section_name = vec[0]["displayName"].as_str().unwrap();
                 assert_eq!("TestSection", section_name);
             } else if let Err(e) = result {
-                panic!(
-                    "Request error. Method: onenote notebooks list sections. Error: {e:#?}"
-                );
+                panic!("Request error. Method: onenote notebooks list sections. Error: {e:#?}");
             }
         } else if let Err(e) = notebooks {
-            panic!(
-                "Request error. Method: onenote notebooks list. Error: {e:#?}"
-            );
+            panic!("Request error. Method: onenote notebooks list. Error: {e:#?}");
         }
     }
 }
@@ -118,9 +111,7 @@ async fn create_delete_page_from_file() {
                 .await;
 
             if let Err(e) = delete_res {
-                panic!(
-                    "Request error. Method onenote pages delete page: Error: {e:#?}"
-                );
+                panic!("Request error. Method onenote pages delete page: Error: {e:#?}");
             }
         } else if let Err(e) = res {
             panic!("Request error. Method onenote create page. Error: {e:#?}");

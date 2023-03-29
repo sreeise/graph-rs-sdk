@@ -1,7 +1,6 @@
 use graph_http::FileConfig;
 use graph_rs_sdk::prelude::*;
-use std::ffi::{OsStr};
-
+use std::ffi::OsStr;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
@@ -18,7 +17,7 @@ static DOWNLOAD_PATH: &str = "DOWNLOAD_PATH";
 // Include the file extension such as .html
 static FILE_NAME: &str = "FILE_NAME";
 
-async fn get_page_html_content() {
+pub async fn get_page_html_content() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -34,7 +33,7 @@ async fn get_page_html_content() {
     println!("{html_string:#?}");
 }
 
-async fn download_page_as_html() {
+pub async fn download_page_as_html() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let path_buf = client

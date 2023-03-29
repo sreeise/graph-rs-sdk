@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-use graph_http::api_impl::ApiClientImpl;
 use graph_rs_sdk::identity_governance::IdentityGovernanceApiClient;
 use graph_rs_sdk::prelude::*;
 use test_tools::common::TestTools;

@@ -112,9 +112,7 @@ fn group_conversation_posts() {
             .list_posts()
             .url()
             .path(),
-        format!(
-            "/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts"
-        )
+        format!("/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts")
     );
     assert_eq!(
         client_id(RID)
@@ -124,9 +122,7 @@ fn group_conversation_posts() {
             .get_posts()
             .url()
             .path(),
-        format!(
-            "/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts/{ID}"
-        )
+        format!("/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts/{ID}")
     );
     assert_eq!(
         client_id(RID)
@@ -136,9 +132,7 @@ fn group_conversation_posts() {
             .reply(&serde_json::json!({}))
             .url()
             .path(),
-        format!(
-            "/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts/{ID}/reply"
-        )
+        format!("/v1.0/groups/{RID}/conversations/{ID}/threads/{ID}/posts/{ID}/reply")
     );
 }
 
@@ -156,9 +150,7 @@ pub fn groups_permission_grants() {
     );
 
     assert_eq!(
-        format!(
-            "/v1.0/groups/{RID}/permissionGrants/{ID}/getMemberGroups"
-        ),
+        format!("/v1.0/groups/{RID}/permissionGrants/{ID}/getMemberGroups"),
         client
             .group(RID)
             .permission_grant(ID)

@@ -36,48 +36,61 @@ fn teams_primary_channel_request() {
     let client = Graph::new("");
 
     assert_eq!(
-        format!("/v1.0/teams/{}/primaryChannel", RID),
-        client.team(RID).primary_channel().get_primary_channel().url().path()
+        format!("/v1.0/teams/{RID}/primaryChannel"),
+        client
+            .team(RID)
+            .primary_channel()
+            .get_primary_channel()
+            .url()
+            .path()
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/primaryChannel/tabs/{}", RID, ID),
+        format!("/v1.0/teams/{RID}/primaryChannel/tabs/{ID}"),
         client.team(RID).primary_channel().get_tabs(ID).url().path()
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/primaryChannel/sharedWithTeams/{}", RID, ID),
-        client.team(RID)
+        format!("/v1.0/teams/{RID}/primaryChannel/sharedWithTeams/{ID}"),
+        client
+            .team(RID)
             .primary_channel()
             .shared_with_team(ID)
             .get_shared_with_teams()
-            .url().path()
+            .url()
+            .path()
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/primaryChannel/sharedWithTeams", RID),
-        client.team(RID)
+        format!("/v1.0/teams/{RID}/primaryChannel/sharedWithTeams"),
+        client
+            .team(RID)
             .primary_channel()
             .shared_with_teams()
             .list_shared_with_teams()
-            .url().path()
+            .url()
+            .path()
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/primaryChannel/messages", RID),
-        client.team(RID)
+        format!("/v1.0/teams/{RID}/primaryChannel/messages"),
+        client
+            .team(RID)
             .primary_channel()
             .messages()
             .list_messages()
-            .url().path()
+            .url()
+            .path()
     );
 
     assert_eq!(
-        format!("/v1.0/teams/{}/primaryChannel/messages/{}", RID, ID),
-        client.team(RID)
+        format!("/v1.0/teams/{RID}/primaryChannel/messages/{ID}"),
+        client
+            .team(RID)
             .primary_channel()
             .message(ID)
             .get_messages()
-            .url().path()
+            .url()
+            .path()
     );
 }

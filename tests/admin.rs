@@ -1,8 +1,6 @@
 use graph_core::resource::ResourceIdentity;
 use graph_http::api_impl::ODataQuery;
 
-
-
 use test_tools::oauthrequest::*;
 
 #[tokio::test]

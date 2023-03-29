@@ -3,7 +3,7 @@ use graph_http::traits::ODataNextLink;
 use graph_rs_sdk::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
-use test_tools::oauthrequest::{ASYNC_THROTTLE_MUTEX, OAuthTestClient};
+use test_tools::oauthrequest::{OAuthTestClient, ASYNC_THROTTLE_MUTEX};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserResponse {
@@ -50,10 +50,7 @@ async fn buffered_requests() {
             dbg!(&user_response);
             let body = user_response.into_body();
 
-            users.extend(
-                body.value.iter()
-                    .flat_map(|user| user.id.clone()),
-            );
+            users.extend(body.value.iter().flat_map(|user| user.id.clone()));
         }
 
         assert!(!users.is_empty());

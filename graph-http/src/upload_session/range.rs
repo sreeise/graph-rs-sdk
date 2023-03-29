@@ -30,12 +30,7 @@ impl Range {
     }
 
     pub fn content_range(&self, size: u64) -> String {
-        format!(
-            "bytes {}-{}/{}",
-            self.start_pos,
-            self.end_pos,
-            size
-        )
+        format!("bytes {}-{}/{}", self.start_pos, self.end_pos, size)
     }
 }
 

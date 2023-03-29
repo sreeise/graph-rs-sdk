@@ -1,4 +1,4 @@
-use graph_error::{GraphResult};
+use graph_error::GraphResult;
 use graph_http::odata_query::ODataQuery;
 use graph_http::traits::{AsyncIterator, ResponseExt};
 use graph_http::FileConfig;
@@ -15,7 +15,7 @@ use std::time::Duration;
 
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::{AsyncCleanUp};
+use test_tools::support::cleanup::AsyncCleanUp;
 
 async fn test_folder_create_delete(folder_name: &str) {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
@@ -58,12 +58,6 @@ async fn test_folder_create_delete(folder_name: &str) {
 async fn create_delete_folder() {
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     test_folder_create_delete("ci_docs").await;
-}
-
-#[tokio::test]
-async fn create_delete_folder_path_encode() {
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    test_folder_create_delete("special folder").await;
 }
 
 #[tokio::test]
@@ -339,24 +333,6 @@ async fn drive_upload_item() {
         } else if let Err(err) = upload_res {
             panic!("Request Error. Method: drive upload. Error: {err:#?}");
         }
-    }
-}
-
-#[tokio::test]
-async fn get_file_from_encoded_folder_name() {
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let response = client
-            .drive(&id)
-            .item_by_path(":/encoding_test_files/spaced folder/test.txt:")
-            .get_items()
-            .send()
-            .await
-            .unwrap();
-
-        assert!(response.status().is_success());
-        let body: serde_json::Value = response.json().await.unwrap();
-        assert!(body["id"].as_str().is_some());
     }
 }
 

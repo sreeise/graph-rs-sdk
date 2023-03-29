@@ -98,9 +98,7 @@ fn tenant_signing_keys() {
             .unwrap();
         assert_eq!(
             keys.authorization_endpoint,
-            format!(
-                "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize"
-            )
+            format!("https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize")
         );
     }
 }

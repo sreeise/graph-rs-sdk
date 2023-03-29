@@ -7,11 +7,13 @@ static MESSAGE_ID: &str = "MESSAGE_ID";
 static ATTACHMENT_ID: &str = "ATTACHMENT_ID";
 
 // If using the Users api:
+#[allow(dead_code)]
 static USER_ID: &str = "USER_ID";
 
 #[tokio::main]
 async fn main() {
     list_messages().await;
+    user_list_messages().await;
     create_message().await;
     update_message().await;
     delete_message().await;

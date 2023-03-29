@@ -20,7 +20,7 @@ async fn delta_req() {
         dbg!(&vec);
         assert!(!vec.is_empty());
         for response in vec.iter() {
-           assert!(response.status().is_success())
+            assert!(response.status().is_success())
         }
 
         let response = vec.pop_back().unwrap();

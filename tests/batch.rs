@@ -1,4 +1,3 @@
-use futures_util::SinkExt;
 use graph_rs_sdk::prelude::*;
 
 use test_tools::oauthrequest::OAuthTestClient;

@@ -1,22 +1,22 @@
-use std::collections::VecDeque;
 use crate::client::Client;
 use crate::odata_query::ODataQuery;
+use crate::traits::HttpResponseBuilderExt;
 use crate::traits::{AsBytesMut, ODataNextLink, ResponseExt};
 use crate::url::GraphUrl;
 use crate::FileConfig;
 use async_stream::{stream, try_stream};
 use bytes::BytesMut;
 use futures_core::Stream;
+use futures_util::StreamExt;
 use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, ACCEPT, CONTENT_TYPE};
 use reqwest::Method;
 use serde::de::DeserializeOwned;
+use std::collections::VecDeque;
 use std::fmt::Debug;
 use std::path::PathBuf;
 use std::time::Duration;
-use futures_util::StreamExt;
-use crate::traits::HttpResponseBuilderExt;
 
 /// Provides components for storing resource id's and helps build the current request URL.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -438,7 +438,9 @@ pub enum ChannelResponse<T: Debug> {
 pub struct Paging(RequestHandler);
 
 impl Paging {
-    async fn http_response<T: DeserializeOwned>(response: reqwest::Response) -> GraphResult<(Option<String>, http::Response<T>)> {
+    async fn http_response<T: DeserializeOwned>(
+        response: reqwest::Response,
+    ) -> GraphResult<(Option<String>, http::Response<T>)> {
         let status = response.status();
         let url = response.url().clone();
         let headers = response.headers().clone();
@@ -484,7 +486,9 @@ impl Paging {
     ///     println!("{result:#?}");
     ///  }
     /// ```
-    pub async fn json_deque<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<http::Response<T>>> {
+    pub async fn json_deque<T: DeserializeOwned>(
+        mut self,
+    ) -> GraphResult<VecDeque<http::Response<T>>> {
         if let Some(err) = self.0.error {
             return Err(err);
         }
@@ -506,7 +510,8 @@ impl Paging {
                 .send()
                 .await
                 .map_err(GraphFailure::from)?
-                .with_graph_error().await?;
+                .with_graph_error()
+                .await?;
 
             let (next, http_response) = Paging::http_response(response).await?;
 
@@ -578,7 +583,6 @@ impl Paging {
         Ok(Box::pin(self.into_stream()?))
     }
 
-
     /// Get next link responses using a channel Receiver [`tokio::sync::mpsc::Receiver<ChannelResponse<T>>`].
     /// The channel Senders have a default timeout of 30 seconds when attempting a send.
     ///
@@ -613,8 +617,9 @@ impl Paging {
     ///     }
     ///  }
     /// ```
-    pub async fn channel<T: DeserializeOwned + Debug + Send + 'static>(self) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>>
-    {
+    pub async fn channel<T: DeserializeOwned + Debug + Send + 'static>(
+        self,
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>> {
         self.channel_timeout(Duration::from_secs(30)).await
     }
 
@@ -651,17 +656,27 @@ impl Paging {
     ///     }
     ///  }
     /// ```
-    pub async fn channel_timeout<T: DeserializeOwned + Debug + Send + 'static>(self, timeout: Duration) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>>
-    {
+    pub async fn channel_timeout<T: DeserializeOwned + Debug + Send + 'static>(
+        self,
+        timeout: Duration,
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>> {
         let mut stream = self.stream()?;
         let (sender, receiver) = tokio::sync::mpsc::channel(100);
 
         tokio::spawn(async move {
             while let Some(result) = stream.next().await {
-                sender.send_timeout(ChannelResponse::Next(result), timeout).await.unwrap();
+                sender
+                    .send_timeout(ChannelResponse::Next(result), timeout)
+                    .await
+                    .unwrap();
             }
-            sender.send_timeout(ChannelResponse::Done, timeout).await.unwrap();
-        }).await.unwrap();
+            sender
+                .send_timeout(ChannelResponse::Done, timeout)
+                .await
+                .unwrap();
+        })
+        .await
+        .unwrap();
 
         Ok(receiver)
     }

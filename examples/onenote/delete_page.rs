@@ -1,4 +1,3 @@
-
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -8,7 +7,7 @@ static USER_ID: &str = "USER_ID";
 
 static PAGE_ID: &str = "PAGE_ID";
 
-async fn upload_page_content() {
+pub async fn delete_page() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client

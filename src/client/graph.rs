@@ -73,8 +73,6 @@ use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 
-
-
 pub struct Graph {
     client: Client,
     endpoint: GraphUrl,

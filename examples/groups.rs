@@ -23,11 +23,7 @@ async fn get_groups() -> GraphResult<()> {
 async fn list_groups() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.groups()
-        .list_group()
-        .send()
-        .await
-        .unwrap();
+    let response = client.groups().list_group().send().await.unwrap();
 
     println!("{response:#?}");
 
