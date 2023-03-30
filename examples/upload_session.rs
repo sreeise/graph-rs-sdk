@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
 use graph_rs_sdk::prelude::*;
 use std::fs::OpenOptions;
@@ -20,8 +21,18 @@ static PATH_IN_ONE_DRIVE: &str = ":/Documents/file.ext:";
 // The conflict behavior can be one of: fail, rename, or replace.
 static CONFLICT_BEHAVIOR: &str = "rename";
 
+// Use the into_upload_session method on a reqwest::Response to begin the upload session.
+// The into_upload_session method takes any std::io::Reader so you can use things like
+// Bytes and BytesMut from the bytes crate, files, Path/PathBuf, etc.
+
 #[tokio::main]
-async fn main() {
+async fn main() -> GraphResult<()> {
+    upload_file().await?;
+    upload_bytes().await?;
+    Ok(())
+}
+
+async fn upload_file() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let upload = serde_json::json!({
@@ -39,10 +50,41 @@ async fn main() {
 
     let file = OpenOptions::new().read(true).open(PATH_TO_FILE).unwrap();
 
-    //
     let mut iter = response.into_upload_session(file).await.unwrap();
 
-    while let Some(Ok(response)) = iter.next().await {
+    while let Some(result) = iter.next().await {
+        let response = result?;
         println!("{response:#?}");
     }
+
+    Ok(())
+}
+
+// Requires bytes = { version = "1.4.0", features = ["serde"] }
+async fn upload_bytes() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let upload = serde_json::json!({
+        "@microsoft.graph.conflictBehavior": Some(CONFLICT_BEHAVIOR.to_string())
+    });
+
+    let response = client
+        .me()
+        .drive()
+        .item_by_path(PATH_IN_ONE_DRIVE)
+        .create_upload_session(&upload)
+        .send()
+        .await
+        .unwrap();
+
+    let bytes = Bytes::new();
+
+    let mut iter = response.into_upload_session(bytes).await.unwrap();
+
+    while let Some(result) = iter.next().await {
+        let response = result?;
+        println!("{response:#?}");
+    }
+
+    Ok(())
 }

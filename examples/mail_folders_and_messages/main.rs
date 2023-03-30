@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod attachments;
+mod child_folders;
 mod mail_folders;
 mod messages;
 

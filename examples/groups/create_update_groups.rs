@@ -1,37 +1,10 @@
-use graph_rs_sdk::error::GraphResult;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
 
 static GROUP_ID: &str = "<GROUP_ID>";
 
-#[tokio::main]
-async fn main() {}
-
-#[allow(dead_code)]
-async fn get_groups() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
-
-    let response = client.group(GROUP_ID).get_group().send().await?;
-
-    println!("{response:#?}");
-
-    Ok(())
-}
-
-#[allow(dead_code)]
-async fn list_groups() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
-
-    let response = client.groups().list_group().send().await.unwrap();
-
-    println!("{response:#?}");
-
-    Ok(())
-}
-
-#[allow(dead_code)]
-async fn create_update_delete_group() -> GraphResult<()> {
+pub async fn create_group() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -51,6 +24,15 @@ async fn create_update_delete_group() -> GraphResult<()> {
 
     println!("{response:#?}");
 
+    let body: serde_json::Value = response.json().await?;
+    println!("{body:#?}");
+
+    Ok(())
+}
+
+pub async fn update_group() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
     let response = client
         .group(GROUP_ID)
         .update_group(&serde_json::json!({
@@ -62,8 +44,7 @@ async fn create_update_delete_group() -> GraphResult<()> {
             "mail": "mail-value",
             "mailEnabled": true,
             "mailNickname": "mailNickname-value"
-            }
-        ))
+        }))
         .send()
         .await?;
 

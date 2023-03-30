@@ -1,21 +1,48 @@
-use graph_rs_sdk::error::GraphResult;
-use graph_rs_sdk::prelude::Graph;
+use graph_rs_sdk::prelude::*;
 
-static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
-static GROUP_LIFECYCLE_POLICY_ID: &str = "<GROUP_ID>";
+static GROUP_LIFECYCLE_POLICY_ID: &str = "GROUP_LIFECYCLE_POLICY_ID";
 
-#[tokio::main]
-async fn main() -> GraphResult<()> {
+pub async fn list_group_lifecycle_policies() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policies()
         .list_group_lifecycle_policy()
         .send()
-        .await;
+        .await?;
 
     println!("{response:#?}");
+
+    let body: serde_json::Value = response.json().await.unwrap();
+    println!("{body:#?}");
+
+    Ok(())
+}
+
+static GROUP_ID: &str = "<GROUP_ID>";
+
+pub async fn list_group_lifecycle_policies_as_group() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .group(GROUP_ID)
+        .group_lifecycle_policies()
+        .list_group_lifecycle_policy()
+        .send()
+        .await?;
+
+    println!("{response:#?}");
+
+    let body: serde_json::Value = response.json().await?;
+    println!("{body:#?}");
+
+    Ok(())
+}
+
+pub async fn get_group_lifecycle_policies() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
@@ -24,6 +51,15 @@ async fn main() -> GraphResult<()> {
         .await?;
 
     println!("{response:#?}");
+
+    let body: serde_json::Value = response.json().await?;
+    println!("{body:#?}");
+
+    Ok(())
+}
+
+pub async fn create_group_lifecycle_policies() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policies()
@@ -37,6 +73,12 @@ async fn main() -> GraphResult<()> {
 
     println!("{response:#?}");
 
+    Ok(())
+}
+
+pub async fn update_group_lifecycle_policies() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
         .update_group_lifecycle_policy(&serde_json::json!({
@@ -49,6 +91,12 @@ async fn main() -> GraphResult<()> {
 
     println!("{response:#?}");
 
+    Ok(())
+}
+
+pub async fn add_group() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
         .add_group(&serde_json::json!({
@@ -58,6 +106,15 @@ async fn main() -> GraphResult<()> {
         .await?;
 
     println!("{response:#?}");
+
+    let body: serde_json::Value = response.json().await?;
+    println!("{body:#?}");
+
+    Ok(())
+}
+
+pub async fn remove_group() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)

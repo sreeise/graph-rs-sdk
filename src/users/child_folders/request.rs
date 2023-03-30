@@ -37,7 +37,7 @@ impl ChildFoldersApiClient {
 impl ChildFoldersIdApiClient {
     api_client_link_id!(child_folder, ChildFoldersIdApiClient);
     api_client_link!(extended_properties, ExtendedPropertiesApiClient);
-    api_client_link_id!(messages_id, UsersMessagesIdApiClient);
+    api_client_link_id!(message, UsersMessagesIdApiClient);
     api_client_link!(messages, UsersMessagesApiClient);
 
     delete!(

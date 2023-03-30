@@ -8,26 +8,18 @@ static MAIL_FOLDER_ID: &str = "MAIL_FOLDER_ID_OR_WELL_KNOWN_FOLDER";
 
 static ATTACHMENT_ID: &str = "ATTACHMENT_ID";
 
-#[tokio::main]
-async fn main() {
-    get_child_folders_attachment().await;
-    get_child_folders_attachment_content().await;
-}
+static CHILD_FOLDER_ID_1: &str = "CHILD_FOLDER_ID1";
 
-// You can keep calling the child_folder("id") method
-// until you get to the child folder you want.
-async fn get_child_folders_attachment() {
-    let child_folder_id1 = "CHILD_FOLDER_ID1";
-    let child_folder_id2 = "CHILD_FOLDER_ID2";
+static CHILD_FOLDER_ID_2: &str = "CHILD_FOLDER_ID1";
 
+pub async fn get_child_folders_attachment() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
         .me()
         .mail_folder(MAIL_FOLDER_ID)
-        .child_folder(child_folder_id1)
-        .child_folder(child_folder_id2)
-        .messages_id(MESSAGE_ID)
+        .child_folder(CHILD_FOLDER_ID_1)
+        .message(MESSAGE_ID)
         .attachment(ATTACHMENT_ID)
         .get_attachments()
         .send()
@@ -35,22 +27,22 @@ async fn get_child_folders_attachment() {
         .unwrap();
 
     println!("{response:#?}");
+
+    let body: serde_json::Value = response.json().await.unwrap();
+    println!("{body:#?}");
 }
 
 // You can keep calling the child_folder("id") method
 // until you get to the child folder you want.
-async fn get_child_folders_attachment_content() {
-    let child_folder_id1 = "CHILD_FOLDER_ID1";
-    let child_folder_id2 = "CHILD_FOLDER_ID2";
-
+pub async fn get_child_folders_attachment_content() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
         .me()
         .mail_folder(MAIL_FOLDER_ID)
-        .child_folder(child_folder_id1)
-        .child_folder(child_folder_id2)
-        .messages_id(MESSAGE_ID)
+        .child_folder(CHILD_FOLDER_ID_1)
+        .child_folder(CHILD_FOLDER_ID_2)
+        .message(MESSAGE_ID)
         .attachment(ATTACHMENT_ID)
         .get_attachments_content()
         .send()
@@ -58,4 +50,7 @@ async fn get_child_folders_attachment_content() {
         .unwrap();
 
     println!("{response:#?}");
+
+    let text = response.text().await.unwrap();
+    println!("{text:#?}");
 }

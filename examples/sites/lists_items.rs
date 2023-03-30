@@ -5,19 +5,10 @@ static ACCESS_TOKEN: &str = "<SITE_ID>";
 static SITE_ID: &str = "<SITE_ID>";
 
 static LIST_ID: &str = "<LIST_ID>";
+
 static LIST_ITEM_ID: &str = "<LIST_ITEM_ID>";
 
-#[tokio::main]
-async fn main() {
-    create_list().await;
-    list_all_list_items().await;
-    create_list_item().await;
-    get_list_item().await;
-    update_list_item().await;
-    delete_list_item().await;
-}
-
-async fn create_list() {
+pub async fn create_list() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -40,13 +31,14 @@ async fn create_list() {
             }
         }))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     println!("{response:#?}");
+
+    Ok(())
 }
 
-async fn list_all_list_items() {
+pub async fn list_all_list_items() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -55,13 +47,17 @@ async fn list_all_list_items() {
         .items()
         .list_items()
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     println!("{response:#?}");
+
+    let body: serde_json::Value = response.json().await.unwrap();
+    println!("{body:#?}");
+
+    Ok(())
 }
 
-async fn create_list_item() {
+pub async fn create_list_item() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -76,13 +72,14 @@ async fn create_list_item() {
             }
         }))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     println!("{response:#?}");
+
+    Ok(())
 }
 
-async fn update_list_item() {
+pub async fn update_list_item() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -98,13 +95,14 @@ async fn update_list_item() {
             }
         }))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     println!("{response:#?}");
+
+    Ok(())
 }
 
-async fn get_list_item() {
+pub async fn get_list_item() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -113,13 +111,17 @@ async fn get_list_item() {
         .item(LIST_ITEM_ID)
         .get_items()
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     println!("{response:#?}");
+
+    let body: serde_json::Value = response.json().await.unwrap();
+    println!("{body:#?}");
+
+    Ok(())
 }
 
-async fn delete_list_item() {
+pub async fn delete_list_item() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -128,8 +130,9 @@ async fn delete_list_item() {
         .item(LIST_ITEM_ID)
         .delete_items()
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     println!("{response:#?}");
+
+    Ok(())
 }

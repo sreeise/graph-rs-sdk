@@ -30,7 +30,7 @@ members = [
 
 [dependencies]
 async-trait = "0.1"
-base64 = "0.13"
+base64 = "0.21.0"
 futures = "0.3"
 handlebars = "2.0.2" # TODO: Update to 4
 reqwest = { version = "0.11", default-features=false, features = ["json", "gzip", "blocking", "stream","multipart"] }
@@ -56,6 +56,7 @@ deflate = ["reqwest/deflate"]
 trust-dns = ["reqwest/trust-dns"]
 
 [dev-dependencies]
+bytes = { version = "1.4.0", features = ["serde"] }
 from_as = "0.1"
 futures-util = "0.3"
 lazy_static = "1.4"

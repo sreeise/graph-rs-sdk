@@ -5,15 +5,7 @@ use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
-#[tokio::main]
-async fn main() -> Result<(), GraphFailure> {
-    channel().await?;
-    delta_token().await?;
-    stream_delta().await?;
-    Ok(())
-}
-
-async fn channel() -> GraphResult<()> {
+pub async fn channel_delta() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
     let mut receiver = client
         .users()
@@ -42,7 +34,7 @@ async fn channel() -> GraphResult<()> {
 
 static DELTA_TOKEN: &str = "DELTA_TOKEN";
 
-async fn delta_token() -> GraphResult<()> {
+pub async fn channel_delta_token() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
     let mut receiver = client
         .users()
@@ -70,7 +62,7 @@ async fn delta_token() -> GraphResult<()> {
     Ok(())
 }
 
-async fn stream_delta() -> GraphResult<()> {
+pub async fn stream_delta() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
     let mut stream = client
         .users()
