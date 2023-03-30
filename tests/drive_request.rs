@@ -1,21 +1,15 @@
 use graph_error::GraphResult;
-use graph_http::odata_query::ODataQuery;
 use graph_http::traits::{AsyncIterator, ResponseExt};
 use graph_http::FileConfig;
 use graph_rs_sdk::prelude::Graph;
 use reqwest::header::{HeaderValue, CONTENT_LENGTH};
 use std::collections::HashMap;
-use std::ffi::OsStr;
-
 use std::fs::OpenOptions;
 use std::io::Write;
-
 use std::thread;
 use std::time::Duration;
-
 use test_tools::oauthrequest::DRIVE_ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
-use test_tools::support::cleanup::AsyncCleanUp;
 
 async fn test_folder_create_delete(folder_name: &str) {
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {

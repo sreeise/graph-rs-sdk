@@ -1,4 +1,4 @@
-use graph_http::traits::{AsyncIterator, ResponseExt};
+use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
 use graph_rs_sdk::prelude::*;
 use std::fs::OpenOptions;
 

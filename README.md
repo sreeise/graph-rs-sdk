@@ -18,8 +18,20 @@ included in the project on [GitHub](https://github.com/sreeise/graph-rs).
 
 For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
 
-The [Discussions](https://github.com/sreeise/graph-rs/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs/discussions) is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
+The [Discussions](https://github.com/sreeise/graph-rs/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs/discussions)
+is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
 an issue first. Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
+
+## Table Of Contents
+
+* [Usage](#usage)
+  * [Cargo Feature Flags](#cargo-feature-flags)
+  * [Paging (Delta, Next Links)](#paging)
+    * [Streaming](#streaming)
+    * [Channels](#channels)
+  * [API Usage](#api-usage)
+  * [Id vs Non-Id methods](#id-vs-non-id-methods-such-as-useruser-id-vs-users)
+  * [Information about the project itself (contributor section coming soon)](#for-those-interested-in-the-code-itself)
 
 ### What Api's are available
 
@@ -27,7 +39,7 @@ The Api's available are generated from OpenApi configs that are stored in Micros
 for the Graph Api. There may be some requests and/or Api's not yet included in this project that are in the OpenApi
 config but in general most of them are implemented.
 
-## Use
+## Usage
 
 For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs/tree/master/examples)
 
@@ -95,11 +107,18 @@ GraphAPI will limit the number of returned items per page even if you specify a 
 You can use the `.paging()` method to access several different ways to get/call next link requests.
 
 
-# JSON paging
+## Paging
 
 If you just want a quick and easy way to get all next link responses or the JSON bodies you can use the `paging().json()` method which will exhaust all
 next link calls and return all the responses in a `VecDeque<Response<T>>`. Keep in mind that the larger the volume of next link calls that need to be
 made the longer the return delay will be when calling this method.
+
+All paging methods have their response body read in order to get the `@odata.nextLink` for calling next link requests. Because of this
+the original `reqwest::Response` is lost. However, the paging responses are re-wrapped in a Response object (`http::Response`) that is
+similar to `reqwest::Response`. The main difference is that the paging calls must specify the type of response body in order to be
+called and the response that is returned can provide a reference to the body `response.body()` or you can take ownership of the body
+which will drop the response using `response.into_body()` whereas with `reqwest::Response` you don't have to specify the type of body
+before getting the response.
 
 ```rust
 use graph_rs_sdk::prelude::*;
@@ -127,6 +146,79 @@ async fn paging() -> GraphResult<()> {
   Ok(())
 }
 ``` 
+
+The [paging](#paging) example shows a simple way to list users and call all next links. You can also
+stream the next link responses or use a channel receiver to get the responses.
+
+#### Streaming
+
+```rust
+use futures_util::stream::StreamExt;
+use graph_rs_sdk::prelude::*;
+
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
+pub async fn stream_next_links() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let mut stream = client
+        .users()
+        .list_user()
+        .select(&["id", "userPrincipalName"])
+        .paging()
+        .stream::<serde_json::Value>()?;
+
+    while let Some(result) = stream.next().await {
+        let response = result?;
+        println!("{:#?}", response);
+
+        let body = response.into_body();
+        println!("{:#?}", body);
+    }
+
+    Ok(())
+}
+```
+
+### Channels
+
+```rust
+use graph_rs_sdk::http::ChannelResponse;
+use graph_rs_sdk::prelude::*;
+
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
+async fn channel_next_links() -> GraphResult<()> {
+  let client = Graph::new(ACCESS_TOKEN);
+  let mut receiver = client
+      .users()
+      .list_user()
+      .paging()
+      .channel::<serde_json::Value>()
+      .await?;
+
+  while let Some(channel_response) = receiver.recv().await {
+    match channel_response {
+      ChannelResponse::Next(result) => match result {
+        Ok(response) => {
+          println!("response:\n{:#?}\n", response);
+        }
+        Err(err) => {
+          println!("{:#?}", err);
+          break;
+        }
+      },
+      ChannelResponse::Done => break,
+    }
+  }
+  Ok(())
+}
+
+```
+
+## API Usage
+
+The following shows a few examples of how to use the client and a few of the APIs.
 
 ### OneDrive
 
@@ -384,26 +476,26 @@ async fn send_mail() -> GraphResult<()> {
         .me()
         .send_mail(&serde_json::json!({
             "message": {
-            "subject": "Meet for lunch?",
-            "body": {
-                "contentType": "Text",
-                "content": "The new cafeteria is open."
+              "subject": "Meet for lunch?",
+              "body": {
+                  "contentType": "Text",
+                  "content": "The new cafeteria is open."
+              },
+              "toRecipients": [
+                  {
+                      "emailAddress": {
+                      "address": "fannyd@contoso.onmicrosoft.com"
+                      }
+                  }
+              ],
+              "ccRecipients": [
+                  {
+                      "emailAddress": {
+                      "address": "danas@contoso.onmicrosoft.com"
+                      }
+                  }
+              ]
             },
-            "toRecipients": [
-                {
-                    "emailAddress": {
-                    "address": "fannyd@contoso.onmicrosoft.com"
-                    }
-                }
-            ],
-            "ccRecipients": [
-                {
-                    "emailAddress": {
-                    "address": "danas@contoso.onmicrosoft.com"
-                    }
-                }
-            ]
-          },
           "saveToSentItems": "false"
         }))
         .send()
@@ -431,13 +523,12 @@ async fn create_mail_folder_message() -> GraphResult<()> {
         .create_messages(&serde_json::json!({
             "subject":"Did you see last night's game?",
             "importance":"Low",
-            "body":{
+            "body": {
                 "contentType":"HTML",
                 "content":"They were <b>awesome</b>!"
             },
-            "toRecipients":[
-                {
-                        "emailAddress":{
+            "toRecipients":[{
+                    "emailAddress":{
                         "address":"miriamg@sreeise.onmicrosoft.com"
                     }
                 }
@@ -614,6 +705,76 @@ async fn batch() -> GraphResult<()> {
   Ok(())
 }
 ```   
+
+## Id vs Non-Id methods (such as `user("user-id")` vs `users()`)
+
+Many of the available APIs have methods that do not require an id for a resource
+as well as many of the APIs have methods that do require an id. For most all
+of these resources the methods are implemented in this sdk by using two different 
+naming schemes and letting the user go directly to the methods they want.
+
+As en example, the users API can list users without an id, and you can find `list_users()`
+by calling the `users()` method whereas getting a specific user requires a users id
+and you can find `get_users()` by calling `user<ID: AsRef<str>>(id: ID)` method.
+
+### Using the `users()` method:
+
+```rust
+use graph_rs_sdk::prelude::*;
+
+// For more info on users see: https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
+// For more examples see the examples directory on GitHub.
+
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
+async fn list_users() -> GraphResult<()> {
+  let client = Graph::new(ACCESS_TOKEN);
+
+  let response = client
+      .users()
+      .list_user()
+      .send()
+      .await
+      .unwrap();
+
+  println!("{:#?}", response);
+
+  let body: serde_json::Value = response.json().await.unwrap();
+  println!("{:#?}", body);
+  
+  Ok(())
+}
+```
+
+### Using the user id `user<ID: AsRef<str>>(id: ID)` method:
+
+```rust
+use graph_rs_sdk::prelude::*;
+
+// For more info on users see: https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
+// For more examples see the examples directory on GitHub
+
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
+static USER_ID: &str = "USER_ID";
+
+async fn get_user() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .user(USER_ID)
+        .get_user()
+        .send()
+        .await?;
+
+    println!("{:#?}", response);
+    
+    let body: serde_json::Value = response.json().await?;
+    println!("{:#?}", body);
+    
+    Ok(())
+}
+```
 
 ## For those interested in the code itself
 

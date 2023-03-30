@@ -7,30 +7,16 @@ static MESSAGE_ID: &str = "MESSAGE_ID";
 static ATTACHMENT_ID: &str = "ATTACHMENT_ID";
 
 // If using the Users api:
-#[allow(dead_code)]
 static USER_ID: &str = "USER_ID";
 
-#[tokio::main]
-async fn main() {
-    list_messages().await;
-    user_list_messages().await;
-    create_message().await;
-    update_message().await;
-    delete_message().await;
-    add_attachment().await;
-    get_attachment().await;
-    get_attachment_content().await;
-    send_mail().await.unwrap();
-}
-
-async fn list_messages() {
+pub async fn list_messages() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client.me().messages().list_messages().send().await.unwrap();
     println!("{response:#?}");
 }
 
-async fn user_list_messages() {
+pub async fn user_list_messages() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -44,7 +30,7 @@ async fn user_list_messages() {
     println!("{response:#?}");
 }
 
-async fn delete_message() {
+pub async fn delete_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -58,7 +44,7 @@ async fn delete_message() {
     println!("{response:#?}");
 }
 
-async fn create_message() {
+pub async fn create_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -86,7 +72,7 @@ async fn create_message() {
     println!("{response:#?}");
 }
 
-async fn update_message() {
+pub async fn update_message() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -107,7 +93,7 @@ async fn update_message() {
     println!("{response:#?}");
 }
 
-async fn send_mail() -> GraphResult<()> {
+pub async fn send_mail() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
@@ -139,56 +125,7 @@ async fn send_mail() -> GraphResult<()> {
         .send()
         .await?;
 
-    println!("{:#?}", response);
+    println!("{response:#?}");
 
     Ok(())
-}
-
-async fn add_attachment() {
-    let client = Graph::new(ACCESS_TOKEN);
-
-    let response = client
-        .me()
-        .message(MESSAGE_ID)
-        .attachments()
-        .create_attachments(&serde_json::json!({
-            "@odata.type": "#microsoft.graph.fileAttachment",
-            "name": "smile",
-            "contentBytes": "R0lGODdhEAYEAA7"
-        }))
-        .send()
-        .await
-        .unwrap();
-
-    println!("{response:#?}");
-}
-
-async fn get_attachment() {
-    let client = Graph::new(ACCESS_TOKEN);
-
-    let response = client
-        .me()
-        .message(MESSAGE_ID)
-        .attachment(ATTACHMENT_ID)
-        .get_attachments()
-        .send()
-        .await
-        .unwrap();
-
-    println!("{response:#?}");
-}
-
-async fn get_attachment_content() {
-    let client = Graph::new(ACCESS_TOKEN);
-
-    let response = client
-        .me()
-        .message(MESSAGE_ID)
-        .attachment(ATTACHMENT_ID)
-        .get_attachments_content()
-        .send()
-        .await
-        .unwrap();
-
-    println!("{response:#?}");
 }

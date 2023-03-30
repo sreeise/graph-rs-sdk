@@ -92,7 +92,7 @@ impl Graph {
     /// # Example
     /// ```rust,ignore
     /// # use graph_rs_sdk::GRAPH_URL;
-    /// use graph_rs_sdk::client::Graph;
+    /// use graph_rs_sdk::prelude::Graph;
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
     ///
@@ -116,7 +116,7 @@ impl Graph {
     /// # Example
     /// ```rust
     /// # use graph_rs_sdk::GRAPH_URL;
-    /// use graph_rs_sdk::client::Graph;
+    /// use graph_rs_sdk::prelude::Graph;
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
     /// client.use_v1();
@@ -134,7 +134,7 @@ impl Graph {
     /// # Example
     /// ```rust,ignore
     /// # use graph_rs_sdk::GRAPH_URL_BETA;
-    /// use graph_rs_sdk::client::Graph;
+    /// use graph_rs_sdk::prelude::Graph;
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
     ///
@@ -158,7 +158,7 @@ impl Graph {
     /// Example
     /// ```rust
     /// # use graph_rs_sdk::GRAPH_URL_BETA;
-    /// use graph_rs_sdk::client::Graph;
+    /// use graph_rs_sdk::prelude::Graph;
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
     /// client.use_beta();
@@ -180,7 +180,7 @@ impl Graph {
     ///
     /// Example
     /// ```rust,ignore
-    /// use graph_rs_sdk::client::Graph;
+    /// use graph_rs_sdk::prelude::Graph;
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
     ///
@@ -202,7 +202,7 @@ impl Graph {
     ///
     /// Example
     /// ```rust
-    /// use graph_rs_sdk::client::Graph;
+    /// use graph_rs_sdk::prelude::Graph;
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
     /// client.use_endpoint("https://graph.microsoft.com");

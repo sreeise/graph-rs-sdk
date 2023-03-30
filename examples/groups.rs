@@ -1,4 +1,4 @@
-use graph_error::GraphResult;
+use graph_rs_sdk::error::GraphResult;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";

@@ -447,10 +447,8 @@ impl Paging {
         let url = response.url().clone();
         let headers = response.headers().clone();
         let version = response.version();
-        dbg!(&version);
 
         let json: serde_json::Value = response.json().await?;
-        dbg!(&json);
         let next_link = json.odata_next_link();
         let body: T = serde_json::from_value(json)?;
 

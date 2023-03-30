@@ -73,7 +73,6 @@ async fn buffered_requests() {
         while let Some(vec) = stream.next().await {
             for response in vec {
                 assert!(response.status().is_success());
-                let body = response.into_body();
             }
         }
     }

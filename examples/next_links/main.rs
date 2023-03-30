@@ -1,8 +1,8 @@
+mod channel;
 mod stream;
-
-use stream::*;
 
 #[tokio::main]
 async fn main() {
-    stream_next_links().await;
+    stream::stream_next_links().await.unwrap();
+    channel::channel_next_links().await.unwrap();
 }

@@ -90,9 +90,6 @@
 //! - If you run into issues related to graph-rs specifically please
 //! file an issue on [GitHub](https://github.com/sreeise/graph-rs)
 
-extern crate graph_core;
-extern crate graph_error;
-extern crate graph_oauth;
 extern crate handlebars;
 extern crate reqwest;
 pub extern crate serde;
@@ -104,7 +101,7 @@ extern crate strum;
 // client mod declarations for macro use.
 /// Main Graph client.
 #[macro_use]
-pub mod client;
+pub(crate) mod client;
 pub mod admin;
 pub mod agreement_acceptances;
 pub mod agreements;
@@ -172,13 +169,15 @@ pub mod oauth {
     pub use graph_oauth::oauth::*;
 }
 
-/*
-/// Reexport of graph-http crate.
-pub mod graph_http {
-    pub use graph_http::*;
+pub mod http {
+    pub use graph_http::odata_query::ODataQuery;
+    pub use graph_http::traits::{
+        AsyncIterator, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
+        ODataMetadataLink, ODataNextLink, ResponseExt, UploadSessionLink,
+    };
+    pub use graph_http::{ChannelResponse, FileConfig, UploadSession};
 }
 
- */
 /// Reexport of graph-error crate.
 pub mod error {
     pub use graph_error::*;
@@ -192,27 +191,6 @@ pub mod header {
 /// Types used across multiple crates.
 pub mod core {
     pub use graph_core::resource::*;
-}
-
-pub mod components {
-    pub mod error {
-        pub use graph_error::*;
-    }
-
-    pub mod http {
-        pub use graph_http::odata_query::ODataQuery;
-        pub use graph_http::traits::{
-            HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
-            ODataMetadataLink, ODataNextLink, UploadSessionLink,
-        };
-        pub use graph_http::FileConfig;
-        pub use graph_http::UploadSession;
-    }
-
-    pub mod oauth {
-        pub use graph_oauth::jwt;
-        pub use graph_oauth::oauth::*;
-    }
 }
 
 pub(crate) mod api_default_imports {

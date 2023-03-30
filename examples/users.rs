@@ -15,31 +15,37 @@ static USER_ID: &str = "USER_ID";
 
 #[tokio::main]
 async fn main() {
-    list_users().await;
-    get_user().await;
+    list_users().await.unwrap();
+    get_user().await.unwrap();
     create_user().await;
     update_user().await;
     delete_user().await;
 }
 
-async fn list_users() {
+async fn list_users() -> GraphResult<()> {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let response = client.users().list_user().send().await.unwrap();
+    let response = client.users().list_user().send().await?;
 
-    println!("{:#?}", &response);
-    let body: serde_json::Value = response.json().await.unwrap();
+    println!("{response:#?}");
+
+    let body: serde_json::Value = response.json().await?;
     println!("{body:#?}");
+
+    Ok(())
 }
 
-async fn get_user() {
+async fn get_user() -> GraphResult<()> {
     let client = Graph::new("ACCESS_TOKEN");
 
-    let response = client.user(USER_ID).get_user().send().await.unwrap();
+    let response = client.user(USER_ID).get_user().send().await?;
 
     println!("{:#?}", &response);
-    let body: serde_json::Value = response.json().await.unwrap();
+
+    let body: serde_json::Value = response.json().await?;
     println!("{body:#?}");
+
+    Ok(())
 }
 
 async fn create_user() {

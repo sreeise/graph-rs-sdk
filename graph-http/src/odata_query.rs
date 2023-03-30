@@ -64,6 +64,13 @@ where
         self.append_query_pair("$skipToken", value.as_ref())
     }
 
+    /// Retrieves the next page of results from result sets that span multiple pages.
+    /// (Some APIs use $skip instead.)
+    /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#skiptoken-parameter)
+    fn delta_token<S: AsRef<str>>(self, value: S) -> Self {
+        self.append_query_pair("$deltaToken", value.as_ref())
+    }
+
     /// Sets the page size of results.
     /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#top-parameter)
     fn top<S: AsRef<str>>(self, value: S) -> Self {

@@ -1,6 +1,6 @@
 use graph_error::GraphResult;
 use graph_http::traits::ResponseExt;
-use graph_rs_sdk::client::Graph;
+use graph_rs_sdk::prelude::Graph;
 use std::thread;
 use std::time::Duration;
 

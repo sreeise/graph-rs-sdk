@@ -1,4 +1,4 @@
-use graph_error::GraphResult;
+use graph_rs_sdk::error::GraphResult;
 use graph_rs_sdk::prelude::Graph;
 
 static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
@@ -10,7 +10,7 @@ async fn main() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .group_lifecycle_policies() // Won't be used.
+        .group_lifecycle_policies()
         .list_group_lifecycle_policy()
         .send()
         .await;
@@ -26,7 +26,7 @@ async fn main() -> GraphResult<()> {
     println!("{response:#?}");
 
     let response = client
-        .group_lifecycle_policies() // Won't be used.
+        .group_lifecycle_policies()
         .create_group_lifecycle_policy(&serde_json::json!({
             "groupLifetimeInDays": 100,
             "managedGroupTypes": "Selected",

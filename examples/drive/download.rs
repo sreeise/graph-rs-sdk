@@ -1,4 +1,4 @@
-use graph_http::FileConfig;
+use graph_rs_sdk::http::FileConfig;
 use graph_rs_sdk::prelude::*;
 use std::ffi::{OsStr, OsString};
 use std::path::PathBuf;

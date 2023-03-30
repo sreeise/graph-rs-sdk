@@ -1,7 +1,7 @@
 use from_as::*;
-use graph_rs_sdk::client::Graph;
 use graph_rs_sdk::core::ResourceIdentity;
 use graph_rs_sdk::oauth::{AccessToken, OAuth};
+use graph_rs_sdk::prelude::Graph;
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 use std::env;

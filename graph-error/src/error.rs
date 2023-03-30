@@ -279,7 +279,7 @@ impl WithGraphError for reqwest::blocking::Response {
             let headers = Some(GraphHeaders::from(&self));
             let result: GraphResult<serde_json::Value> = self.json().map_err(GraphFailure::from);
 
-            return if let Ok(raw) = result {
+            if let Ok(raw) = result {
                 let response_raw = raw.clone();
                 let error_message = serde_json::from_value(raw).unwrap_or_default();
                 Err(GraphFailure::GraphError(GraphError {
@@ -294,7 +294,7 @@ impl WithGraphError for reqwest::blocking::Response {
                     code,
                     Default::default(),
                 )))
-            };
+            }
         } else {
             Ok(self)
         }
