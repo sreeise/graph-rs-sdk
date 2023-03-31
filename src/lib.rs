@@ -170,10 +170,10 @@ pub mod oauth {
 }
 
 pub mod http {
-    pub use graph_http::odata_query::ODataQuery;
     pub use graph_http::traits::{
-        AsyncIterator, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
-        ODataMetadataLink, ODataNextLink, ResponseExt, UploadSessionLink,
+        AsyncIterator, BodyRead, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink,
+        ODataDownloadLink, ODataMetadataLink, ODataNextLink, ODataQuery, ResponseExt,
+        UploadSessionLink,
     };
     pub use graph_http::{ChannelResponse, FileConfig, UploadSession};
 }

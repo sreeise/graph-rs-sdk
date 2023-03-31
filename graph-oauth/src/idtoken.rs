@@ -1,9 +1,7 @@
-use crate::oautherror::OAuthError;
 use from_as::*;
-use graph_error::GraphFailure;
 use std::borrow::Cow;
 use std::convert::TryFrom;
-use std::io::{Read, Write};
+use std::io::{ErrorKind, Read, Write};
 use std::str::FromStr;
 use url::form_urlencoded;
 
@@ -59,7 +57,7 @@ impl IdToken {
 }
 
 impl TryFrom<String> for IdToken {
-    type Error = OAuthError;
+    type Error = std::io::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let id_token: IdToken = IdToken::from_str(value.as_str())?;
@@ -68,7 +66,7 @@ impl TryFrom<String> for IdToken {
 }
 
 impl TryFrom<&str> for IdToken {
-    type Error = GraphFailure;
+    type Error = std::io::Error;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let id_token: IdToken = IdToken::from_str(value)?;
@@ -77,12 +75,15 @@ impl TryFrom<&str> for IdToken {
 }
 
 impl FromStr for IdToken {
-    type Err = GraphFailure;
+    type Err = std::io::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let vec: Vec<(Cow<str>, Cow<str>)> = form_urlencoded::parse(s.as_bytes()).collect();
         if vec.is_empty() {
-            return OAuthError::invalid_data("Invalid String. Must be key value pairs.");
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidData,
+                "Got empty Vec<Cow<str>, Cow<str>> after percent decoding input",
+            ));
         }
         let mut id_token = IdToken::default();
         for (key, value) in vec.iter() {
@@ -92,7 +93,10 @@ impl FromStr for IdToken {
                 b"state" => id_token.state(value.as_ref()),
                 b"session_state" => id_token.session_state(value.as_ref()),
                 _ => {
-                    return Err(GraphFailure::invalid("Invalid key value pair in string."));
+                    return Err(std::io::Error::new(
+                        ErrorKind::InvalidData,
+                        "Invalid key in &str",
+                    ));
                 }
             }
         }

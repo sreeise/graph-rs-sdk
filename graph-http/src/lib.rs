@@ -13,7 +13,6 @@ pub mod byte_range;
 
 pub mod client;
 pub mod iotools;
-pub mod odata_query;
 pub mod traits;
 pub mod url;
 
@@ -24,9 +23,8 @@ pub use upload_session::*;
 
 pub mod api_impl {
     pub use crate::client::{ApiClientImpl, Client};
-    pub use crate::odata_query::*;
     pub use crate::response_handler::{RequestComponents, RequestHandler, ResourceConfig};
-    pub use crate::traits::{AsBytesMut, BodyExt};
+    pub use crate::traits::{BodyExt, BodyRead, ODataQuery};
     pub use crate::url::GraphUrl;
     pub use crate::ResourceIdentifier;
     pub use graph_error::{GraphFailure, GraphResult};

@@ -1,16 +1,17 @@
-use crate::traits::AsBytesMut;
 use crate::{iotools, FileConfig, RangeIter, UploadSession};
 use async_trait::async_trait;
 
+use crate::traits::UploadSessionLink;
+use bytes::{Buf, BytesMut};
 use graph_error::download::AsyncDownloadError;
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
 use reqwest::{Body, Response};
 use std::ffi::OsString;
-
+use std::fs::File;
 use std::io::Read;
-
 use std::path::PathBuf;
+use tokio::io::AsyncReadExt;
 
 const MAX_FILE_NAME_LEN: usize = 255;
 
@@ -49,7 +50,7 @@ fn parse_content_disposition(headers: &HeaderMap) -> Option<OsString> {
 pub trait ResponseExt {
     async fn job_status(&self) -> Option<GraphResult<reqwest::Response>>;
 
-    async fn into_upload_session<T: Read + Send>(self, reader: T) -> GraphResult<UploadSession>;
+    async fn into_upload_session(self, reader: impl Read + Send) -> GraphResult<UploadSession>;
 
     async fn download(self, download_config: &FileConfig) -> Result<PathBuf, AsyncDownloadError>;
 }
@@ -62,24 +63,32 @@ impl ResponseExt for reqwest::Response {
             .get(reqwest::header::LOCATION)?
             .to_str()
             .ok()?;
-        Some(
-            reqwest::Client::new()
-                .get(url)
-                .send()
-                .await
-                .map_err(GraphFailure::from),
-        )
+        let result = reqwest::Client::new()
+            .get(url)
+            .send()
+            .await
+            .map_err(GraphFailure::from);
+
+        match result {
+            Ok(response) => Some(response.with_graph_error().await),
+            Err(err) => Some(Err(err)),
+        }
     }
 
-    /// Provide any [`T: std::io::Reader`] to create an upload session.
-    async fn into_upload_session<T: Read + Send>(self, reader: T) -> GraphResult<UploadSession> {
+    /// Provide any [`std::io::Reader`] to create an upload session.
+    /// The body of the reqwest::Response must be valid JSON with an
+    /// uploadUrl field.
+    async fn into_upload_session(self, reader: impl Read + Send) -> GraphResult<UploadSession> {
         let body: serde_json::Value = self.json().await?;
-        let url = body["uploadUrl"]
-            .as_str()
-            .ok_or_else(|| GraphFailure::not_found("no \"uploadUrl\""))?;
+        let url = body
+            .upload_session_link()
+            .ok_or_else(|| GraphFailure::not_found("No uploadUrl found in response body"))?;
 
         let range_iter = RangeIter::from_reader(reader)?;
-        Ok(UploadSession::new(reqwest::Url::parse(url)?, range_iter))
+        Ok(UploadSession::new(
+            reqwest::Url::parse(url.as_str())?,
+            range_iter,
+        ))
     }
 
     async fn download(self, file_config: &FileConfig) -> Result<PathBuf, AsyncDownloadError> {
@@ -122,6 +131,65 @@ impl ResponseExt for reqwest::Response {
     }
 }
 
+pub struct BodyRead {
+    buf: String,
+}
+
+impl BodyRead {
+    pub fn new(buf: String) -> BodyRead {
+        BodyRead { buf }
+    }
+
+    pub fn from_reader<T: std::io::Read>(mut reader: T) -> GraphResult<BodyRead> {
+        let mut buf = String::new();
+        reader.read_to_string(&mut buf)?;
+        Ok(BodyRead::new(buf))
+    }
+
+    pub async fn from_async_read<T: tokio::io::AsyncRead + std::marker::Unpin>(
+        mut reader: T,
+    ) -> GraphResult<BodyRead> {
+        let mut buf = String::new();
+        reader.read_to_string(&mut buf).await?;
+        Ok(BodyRead::new(buf))
+    }
+
+    pub fn from_file_config(file_config: &FileConfig) -> GraphResult<BodyRead> {
+        let mut file = File::open(file_config.path.as_path())?;
+        let mut buf = String::new();
+        file.read_to_string(&mut buf)?;
+        Ok(BodyRead::new(buf))
+    }
+}
+
+impl TryFrom<BytesMut> for BodyRead {
+    type Error = GraphFailure;
+
+    fn try_from(bytes_mut: BytesMut) -> Result<Self, Self::Error> {
+        BodyRead::from_reader(bytes_mut.reader())
+    }
+}
+
+impl TryFrom<bytes::Bytes> for BodyRead {
+    type Error = GraphFailure;
+
+    fn try_from(bytes: bytes::Bytes) -> Result<Self, Self::Error> {
+        BodyRead::from_reader(bytes.reader())
+    }
+}
+
+impl From<BodyRead> for reqwest::Body {
+    fn from(upload: BodyRead) -> Self {
+        reqwest::Body::from(upload.buf)
+    }
+}
+
+impl From<&BodyRead> for reqwest::Body {
+    fn from(upload: &BodyRead) -> Self {
+        reqwest::Body::from(upload.buf.clone())
+    }
+}
+
 pub trait BodyExt<RHS = Self> {
     fn as_body(&self) -> GraphResult<reqwest::Body>;
 }
@@ -135,7 +203,13 @@ impl<T: serde::Serialize> BodyExt for T {
 
 impl BodyExt for FileConfig {
     fn as_body(&self) -> GraphResult<Body> {
-        let bytes_mut = self.as_bytes_mut()?;
-        Ok(reqwest::Body::from(bytes_mut.to_vec()))
+        let upload = BodyRead::from_file_config(self)?;
+        Ok(upload.into())
+    }
+}
+
+impl BodyExt for BodyRead {
+    fn as_body(&self) -> GraphResult<Body> {
+        Ok(self.into())
     }
 }

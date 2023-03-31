@@ -2,7 +2,7 @@ pub trait ODataQuery<RHS = Self>
 where
     Self: Sized,
 {
-    fn append_query_pair<KV: AsRef<str> + serde::Serialize>(self, key: KV, value: KV) -> Self;
+    fn append_query_pair<KV: AsRef<str>>(self, key: KV, value: KV) -> Self;
 
     /// Retrieves the total count of matching resources.
     /// [See the docs](https://docs.microsoft.com/en-us/graph/query-parameters#count-parameter)

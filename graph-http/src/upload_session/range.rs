@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 use std::io::Read;
 
 #[derive(Clone, Debug, Default)]
-pub struct Range {
+pub(crate) struct Range {
     pub(crate) start_pos: u64,
     pub(crate) end_pos: u64,
     pub(crate) bytes: Vec<u8>,
@@ -30,12 +30,12 @@ impl Range {
     }
 
     pub fn content_range(&self, size: u64) -> String {
-        format!("bytes {}-{}/{}", self.start_pos, self.end_pos, size)
+        format!("bytes {}-{}/{}", self.start(), self.end(), size)
     }
 }
 
 #[derive(Debug, Default)]
-pub struct RangeIter {
+pub(crate) struct RangeIter {
     size: u64,
     dequeue: VecDeque<Range>,
 }
@@ -72,10 +72,6 @@ impl RangeIter {
         );
 
         Some((header_map, reqwest::Body::from(range.body())))
-    }
-
-    pub fn size(&self) -> u64 {
-        self.size
     }
 }
 

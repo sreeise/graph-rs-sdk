@@ -1,5 +1,5 @@
 use futures_util::stream::StreamExt;
-use graph_rs_sdk::error::GraphFailure;
+
 use graph_rs_sdk::http::ChannelResponse;
 use graph_rs_sdk::prelude::*;
 

@@ -3,6 +3,7 @@ use crate::RangeIter;
 use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
+use std::io::Read;
 
 pub struct UploadSession {
     url: reqwest::Url,
@@ -11,7 +12,7 @@ pub struct UploadSession {
 }
 
 impl UploadSession {
-    pub fn new(url: reqwest::Url, range_iter: RangeIter) -> UploadSession {
+    pub(crate) fn new(url: reqwest::Url, range_iter: RangeIter) -> UploadSession {
         UploadSession {
             url,
             range_iter,
@@ -39,6 +40,16 @@ impl UploadSession {
             .map_err(GraphFailure::from)
     }
 
+    pub async fn status(&mut self) -> GraphResult<reqwest::Response> {
+        self.client
+            .get(self.url.clone())
+            .send()
+            .await?
+            .with_graph_error()
+            .await
+            .map_err(GraphFailure::from)
+    }
+
     pub async fn cancel(&mut self) -> GraphResult<reqwest::Response> {
         self.client
             .delete(self.url.clone())
@@ -47,6 +58,17 @@ impl UploadSession {
             .with_graph_error()
             .await
             .map_err(GraphFailure::from)
+    }
+
+    pub fn from_reader<U: AsRef<str>, R: Read>(
+        upload_url: U,
+        reader: R,
+    ) -> GraphResult<UploadSession> {
+        Ok(UploadSession {
+            url: reqwest::Url::parse(upload_url.as_ref())?,
+            range_iter: RangeIter::from_reader(reader)?,
+            client: Default::default(),
+        })
     }
 }
 

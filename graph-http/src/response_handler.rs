@@ -1,7 +1,5 @@
 use crate::client::Client;
-use crate::odata_query::ODataQuery;
-use crate::traits::HttpResponseBuilderExt;
-use crate::traits::{AsBytesMut, ODataNextLink, ResponseExt};
+use crate::traits::{HttpResponseBuilderExt, ODataNextLink, ODataQuery, ResponseExt};
 use crate::url::GraphUrl;
 use crate::FileConfig;
 use async_stream::{stream, try_stream};
@@ -379,26 +377,6 @@ impl RequestHandler {
             .download(file_config)
             .await
             .map_err(GraphFailure::from)
-    }
-
-    pub async fn upload<T: AsBytesMut>(self, input: &mut T) -> GraphResult<reqwest::Response> {
-        if let Some(err) = self.error {
-            return Err(err);
-        }
-
-        let bytes_mut = input.as_bytes_mut()?;
-
-        let request_builder = self
-            .inner
-            .request(
-                self.request_components.method.clone(),
-                self.request_components.url.to_reqwest_url(),
-            )
-            .bearer_auth(self.access_token.as_str())
-            .headers(self.request_components.headers.clone())
-            .body(bytes_mut.to_vec());
-
-        request_builder.send().await?.with_graph_error().await
     }
 }
 

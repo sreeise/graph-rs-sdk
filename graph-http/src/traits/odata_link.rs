@@ -45,11 +45,11 @@ impl ODataDeltaLink for serde_json::Value {
 }
 
 pub trait UploadSessionLink {
-    fn upload_session_url(&self) -> Option<String>;
+    fn upload_session_link(&self) -> Option<String>;
 }
 
 impl UploadSessionLink for serde_json::Value {
-    fn upload_session_url(&self) -> Option<String> {
+    fn upload_session_link(&self) -> Option<String> {
         self["uploadUrl"].as_str().map(|s| s.to_string())
     }
 }

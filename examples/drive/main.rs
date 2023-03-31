@@ -1,4 +1,4 @@
-#![allow(dead_code, unused, unused_imports)]
+#![allow(dead_code, unused)]
 
 mod check_in_out;
 mod copy;

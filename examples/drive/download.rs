@@ -4,13 +4,18 @@ use std::ffi::{OsStr, OsString};
 use std::path::PathBuf;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
 static ITEM_ID: &str = "ITEM_ID";
+
+// File path in OneDrive starting from the root.
+// The path should always start with :/ and end with : such as :/Documents/item.txt:
+static ONEDRIVE_FILE_PATH: &str = ":/ONEDRIVE_FILE_PATH:";
 
 pub async fn download_files() {
     download().await;
     download_and_format("pdf").await;
     download_and_rename("FILE_NAME").await;
-    download_by_path(":/Documents/item.txt:").await;
+    download_by_path(ONEDRIVE_FILE_PATH).await;
 }
 
 pub async fn download() {
@@ -26,6 +31,38 @@ pub async fn download() {
         .unwrap();
 
     println!("{path_buf:#?}");
+}
+
+pub async fn download_file_as_bytes() {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .me()
+        .drive()
+        .item(ITEM_ID)
+        .get_items_content()
+        .send()
+        .await
+        .unwrap();
+
+    let bytes = response.bytes().await.unwrap();
+    println!("{bytes:#?}");
+}
+
+pub async fn download_file_as_string() {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .me()
+        .drive()
+        .item(ITEM_ID)
+        .get_items_content()
+        .send()
+        .await
+        .unwrap();
+
+    let bytes = response.text().await.unwrap();
+    println!("{bytes:#?}");
 }
 
 // You can convert a file to a different format using the format() method.

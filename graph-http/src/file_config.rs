@@ -1,13 +1,22 @@
+use bytes::BytesMut;
+use graph_error::GraphFailure;
 use std::ffi::{OsStr, OsString};
+use std::io::Read;
 use std::path::{Path, PathBuf};
 
 /// Config for downloading files using Microsoft Graph File and OneDrive APIs.
+/// FileConfig can also be used for uploads but all fields except for the provided
+/// path are ignored.
 #[derive(Clone, Debug, Default)]
 pub struct FileConfig {
     pub path: PathBuf,
+    /// Used only when downloading files
     pub create_directory_all: bool,
+    /// Used only when downloading files
     pub overwrite_existing_file: bool,
+    /// Used only when downloading files
     pub file_name: Option<OsString>,
+    /// Used only when downloading files
     pub extension: Option<OsString>,
 }
 
@@ -49,66 +58,6 @@ impl FileConfig {
             file_name: None,
             extension: None,
         }
-    }
-
-    /// Get a default FileConfig builder.
-    ///
-    /// Create the file configuration for downloading files.
-    ///
-    /// # Example
-    /// ```rust
-    /// use std::ffi::{OsStr, OsString};
-    /// use std::path::Path;
-    /// use graph_http::FileConfig;
-    /// let config = FileConfig::builder()
-    ///     .path("./examples")
-    ///     .create_directories(true)
-    ///     .overwrite_existing_file(true)
-    ///     .file_name(OsStr::new("example.pdf"));
-    ///
-    /// # assert_eq!(Path::new("./examples"), config.path.as_path());
-    /// # assert!(config.create_directory_all);
-    /// # assert!(config.overwrite_existing_file);
-    /// ```
-    ///
-    /// # Example
-    /// ```rust
-    /// use std::ffi::{OsStr, OsString};
-    /// use std::path::Path;
-    /// use graph_http::FileConfig;
-    /// let config = FileConfig::builder()
-    ///     .path("./examples")
-    ///     .overwrite_existing_file(true)
-    ///     .extension(OsStr::new("pdf"));
-    ///
-    /// # assert_eq!(Path::new("./examples"), config.path.as_path());
-    /// # assert!(config.overwrite_existing_file);
-    /// # assert_eq!(Some(&OsString::from("pdf")),  config.extension.as_ref());
-    /// ```
-    pub fn builder() -> FileConfig {
-        FileConfig {
-            path: Default::default(),
-            create_directory_all: false,
-            overwrite_existing_file: false,
-            file_name: None,
-            extension: None,
-        }
-    }
-
-    /// Set the directory path for storing a downloaded file.
-    ///
-    /// # Example
-    /// ```rust
-    /// use std::path::Path;
-    /// use graph_http::FileConfig;
-    /// let config = FileConfig::builder()
-    ///     .path("./examples");
-    ///
-    /// # assert_eq!(Path::new("./examples"), config.path.as_path());
-    /// ```
-    pub fn path<P: AsRef<Path>>(mut self, path: P) -> FileConfig {
-        self.path = path.as_ref().to_path_buf();
-        self
     }
 
     /// Create all directories in the path given if they do not exist.
@@ -256,5 +205,28 @@ impl FileConfig {
     /// ```
     pub fn set_extension(&mut self, ext: &OsStr) {
         self.extension = Some(ext.to_os_string());
+    }
+}
+
+impl From<PathBuf> for FileConfig {
+    fn from(path_buf: PathBuf) -> Self {
+        FileConfig::new(path_buf.as_path())
+    }
+}
+
+impl From<&Path> for FileConfig {
+    fn from(path: &Path) -> Self {
+        FileConfig::new(path)
+    }
+}
+
+impl TryFrom<FileConfig> for BytesMut {
+    type Error = GraphFailure;
+
+    fn try_from(file_config: FileConfig) -> Result<Self, Self::Error> {
+        let mut file = std::fs::File::open(file_config.path.as_path())?;
+        let mut buf: Vec<u8> = Vec::new();
+        file.read_to_end(&mut buf)?;
+        Ok(BytesMut::from_iter(buf))
     }
 }
