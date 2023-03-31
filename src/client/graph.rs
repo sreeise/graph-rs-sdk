@@ -4,9 +4,9 @@ use crate::api_default_imports::*;
 
 use graph_core::resource::ResourceIdentity;
 use graph_error::GraphFailure;
-use graph_http::client::{Client, GraphClientBuilder};
+use graph_http::api_impl::RequestHandler;
+use graph_http::api_impl::{Client, GraphClientBuilder};
 use graph_http::url::GraphUrl;
-use graph_http::RequestHandler;
 use graph_oauth::oauth::{AccessToken, OAuth};
 
 use crate::admin::AdminApiClient;

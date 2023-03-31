@@ -1,8 +1,9 @@
-use graph_error::GraphResult;
-use graph_http::traits::{AsyncIterator, ResponseExt};
-use graph_http::FileConfig;
-use graph_rs_sdk::prelude::Graph;
-use reqwest::header::{HeaderValue, CONTENT_LENGTH};
+use graph_rs_sdk::{
+    error::GraphResult,
+    header::{HeaderValue, CONTENT_LENGTH},
+    http::{AsyncIterator, FileConfig, ResponseExt},
+    prelude::Graph,
+};
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;

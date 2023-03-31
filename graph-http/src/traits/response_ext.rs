@@ -1,4 +1,4 @@
-use crate::{iotools, FileConfig, RangeIter, UploadSession};
+use crate::internal::{copy_async, create_dir_async, FileConfig, RangeIter, UploadSession};
 use async_trait::async_trait;
 
 use crate::traits::UploadSessionLink;
@@ -99,7 +99,7 @@ impl ResponseExt for reqwest::Response {
         let extension = file_config.extension.clone();
 
         if create_dir_all {
-            iotools::create_dir_async(path.as_path()).await?;
+            create_dir_async(path.as_path()).await?;
         } else if !path.exists() {
             return Err(AsyncDownloadError::TargetDoesNotExist(
                 path.to_string_lossy().to_string(),
@@ -127,7 +127,7 @@ impl ResponseExt for reqwest::Response {
             ));
         }
 
-        Ok(iotools::copy_async(path, self).await?)
+        Ok(copy_async(path, self).await?)
     }
 }
 

@@ -1,6 +1,5 @@
-use graph_http::FileConfig;
-use graph_rs_sdk::error::*;
 use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::{error::*, http::FileConfig};
 use reqwest::StatusCode;
 use std::error::Error;
 use test_tools::oauthrequest::OAuthTestClient;

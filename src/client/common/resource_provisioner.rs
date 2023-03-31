@@ -1,8 +1,6 @@
-use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
-
 use graph_core::resource::ResourceIdentity;
-use graph_http::url::GraphUrl;
-use graph_http::ResourceConfig;
+use graph_http::api_impl::{GraphUrl, ResourceConfig};
+use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
 
 pub(crate) struct ResourceProvisioner;
 

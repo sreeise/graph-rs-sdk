@@ -8,8 +8,6 @@ use std::env::VarError;
 use std::ffi::OsStr;
 use std::time::Duration;
 
-pub type GraphRequest = reqwest::Request;
-
 struct ClientConfiguration {
     access_token: Option<String>,
     headers: HeaderMap,

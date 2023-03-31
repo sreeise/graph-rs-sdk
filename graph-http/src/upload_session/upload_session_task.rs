@@ -1,5 +1,5 @@
 use crate::traits::AsyncIterator;
-use crate::RangeIter;
+use crate::upload_session::RangeIter;
 use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;

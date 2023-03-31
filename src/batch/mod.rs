@@ -1,5 +1,4 @@
 use crate::api_default_imports::*;
-use graph_http::RequestComponents;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 
 resource_api_client!(BatchApiClient);

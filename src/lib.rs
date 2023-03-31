@@ -170,12 +170,12 @@ pub mod oauth {
 }
 
 pub mod http {
+    pub use graph_http::api_impl::{ChannelResponse, FileConfig, UploadSession};
     pub use graph_http::traits::{
         AsyncIterator, BodyRead, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink,
         ODataDownloadLink, ODataMetadataLink, ODataNextLink, ODataQuery, ResponseExt,
         UploadSessionLink,
     };
-    pub use graph_http::{ChannelResponse, FileConfig, UploadSession};
 }
 
 /// Reexport of graph-error crate.
