@@ -463,20 +463,12 @@ impl TryFrom<&OAuth> for Graph {
     }
 }
 
-#[cfg(feature = "default")]
 impl From<GraphClientBuilder> for Graph {
     fn from(graph_client_builder: GraphClientBuilder) -> Self {
         Graph {
+            #[cfg(not(feature = "blocking"))]
             client: graph_client_builder.build(),
-            endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
-        }
-    }
-}
-
-#[cfg(feature = "blocking")]
-impl From<GraphClientBuilder> for Graph {
-    fn from(graph_client_builder: GraphClientBuilder) -> Self {
-        Graph {
+            #[cfg(feature = "blocking")]
             client: graph_client_builder.build_blocking(),
             endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
         }
