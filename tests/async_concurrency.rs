@@ -56,7 +56,7 @@ async fn buffered_requests() {
 
         let mut stream = stream::iter(users)
             .map(|i| async {
-                let license_details = client
+                client
                     .users()
                     .id(i)
                     .license_details()
@@ -64,9 +64,7 @@ async fn buffered_requests() {
                     .paging()
                     .json::<LicenseDetail>()
                     .await
-                    .unwrap();
-
-                license_details
+                    .unwrap()
             })
             .buffered(5);
 
