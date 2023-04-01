@@ -1,5 +1,6 @@
 use crate::api_default_imports::*;
-
+#[cfg(not(feature = "blocking"))]
+use crate::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 
 resource_api_client!(BatchApiClient);
 
