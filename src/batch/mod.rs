@@ -1,11 +1,9 @@
 use crate::api_default_imports::*;
-#[cfg(not(feature = "blocking"))]
 use crate::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 
 resource_api_client!(BatchApiClient);
 
 impl BatchApiClient {
-    #[cfg(not(feature = "blocking"))]
     pub fn batch<B: serde::Serialize>(&self, batch: &B) -> RequestHandler {
         let body_result = serde_json::to_string(batch).map_err(GraphFailure::from);
         let url_result = self.build_url("$batch", &serde_json::json!({}));
@@ -28,7 +26,7 @@ impl BatchApiClient {
                         self.client.clone(),
                         rc,
                         None,
-                        Some(reqwest::Body::from(body)),
+                        Some(BodyRead::new(body)),
                     )
                     .headers(header_map),
                     Err(err) => RequestHandler::new(self.client.clone(), rc, Some(err), None)

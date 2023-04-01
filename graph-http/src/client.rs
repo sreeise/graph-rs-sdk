@@ -7,9 +7,10 @@ use reqwest::redirect::Policy;
 use reqwest::tls::Version;
 use std::env::VarError;
 use std::ffi::OsStr;
-use std::fmt::Debug;
+use std::fmt::{Debug, Formatter};
 use std::time::Duration;
 
+#[derive(Clone)]
 struct ClientConfiguration {
     access_token: Option<String>,
     headers: HeaderMap,
@@ -37,6 +38,7 @@ impl ClientConfiguration {
     }
 }
 
+#[derive(Clone)]
 pub struct GraphClientBuilder {
     config: ClientConfiguration,
 }
@@ -109,6 +111,7 @@ impl GraphClientBuilder {
     }
 
     pub fn build(self) -> Client {
+        let config = self.clone();
         let headers = self.config.headers.clone();
         let mut builder = reqwest::ClientBuilder::new()
             .default_headers(self.config.headers)
@@ -130,11 +133,11 @@ impl GraphClientBuilder {
             access_token: self.config.access_token.unwrap_or_default(),
             inner: builder.build().unwrap(),
             headers,
+            builder: config,
         }
     }
 
-    //#[cfg(feature = "blocking")]
-    pub fn build_blocking(self) -> BlockingClient {
+    pub(crate) fn build_blocking(self) -> BlockingClient {
         let headers = self.config.headers.clone();
         let mut builder = reqwest::blocking::ClientBuilder::new()
             .default_headers(self.config.headers)
@@ -166,11 +169,25 @@ impl Default for GraphClientBuilder {
     }
 }
 
+impl Debug for GraphClientBuilder {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GraphClientBuilder")
+            .field("access_token", &"[REDACTED]")
+            .field("headers", &self.config.headers)
+            .field("referer", &self.config.referer)
+            .field("timeout", &self.config.timeout)
+            .field("connection_verbose", &self.config.connection_verbose)
+            .field("https_only", &self.config.https_only)
+            .finish()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Client {
     pub(crate) access_token: String,
     pub(crate) inner: reqwest::Client,
     pub(crate) headers: HeaderMap,
+    pub(crate) builder: GraphClientBuilder,
 }
 
 impl Client {

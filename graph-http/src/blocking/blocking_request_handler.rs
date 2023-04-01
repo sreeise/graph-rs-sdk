@@ -6,13 +6,13 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
 
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct BlockingRequestHandler {
     pub(crate) inner: reqwest::blocking::Client,
     pub(crate) access_token: String,
     pub(crate) request_components: RequestComponents,
     pub(crate) error: Option<GraphFailure>,
-    pub(crate) body: Option<reqwest::blocking::Body>,
+    pub(crate) body: Option<BodyRead>,
 }
 
 impl BlockingRequestHandler {
@@ -20,7 +20,7 @@ impl BlockingRequestHandler {
         inner: BlockingClient,
         mut request_components: RequestComponents,
         err: Option<GraphFailure>,
-        body: Option<reqwest::blocking::Body>,
+        body: Option<BodyRead>,
     ) -> BlockingRequestHandler {
         request_components.headers.extend(inner.headers.into_iter());
 
@@ -123,7 +123,7 @@ impl BlockingRequestHandler {
                 .entry(CONTENT_TYPE)
                 .or_insert(HeaderValue::from_static("application/json"));
             return request_builder
-                .body(body)
+                .body::<reqwest::blocking::Body>(body.into())
                 .headers(self.request_components.headers.clone());
         }
         request_builder

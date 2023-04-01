@@ -1,16 +1,16 @@
-//! ### Microsoft Graph API Client in Rust
+//! # Microsoft Graph API Client in Rust
 //! graph-rs-sdk is an API client for Microsoft Graph V1.0 and Graph Beta.
 //!
 //! Installation and basic usage can be found below and there are extensive examples in the example's directory
-//! on GitHub](https://github.com/sreeise/graph-rs).
+//! on [GitHub](https://github.com/sreeise/graph-rs).
 //!
-//! ### What APIs are available
+//! ## What APIs are available
 //!
 //! The APIs available are generated from Microsoft's msgraph-metadata repository which stores OpenApi configs for the
 //! Graph API. There may be some requests and/or API not yet included in this project but in general most of them are
 //! implemented.
 //!
-//! ### Feature requests or Bug reports.
+//! ## Feature requests or Bug reports.
 //!
 //! For bug reports please file an issue on [GitHub](https://github.com/sreeise/graph-rs)
 //! and a response or fix will be given as soon as possible.
@@ -20,69 +20,131 @@
 //! there with any questions or feature requests as well. For bugs, please file an issue first. Other
 //! than that feel free to ask questions, provide tips to others, and talk about the project in general.
 //!
-//! ### Use
+//! ## Use
 //! The client is async by default and it is recommended to use
-//! tokio as the runtime.
-//!
-//! ```rust
-//! use graph_rs_sdk::prelude::*;
-//!
-//! let client =  Graph::new("ACCESS_TOKEN");
-//! ```
-//!
-//! #### The send method and Graph types
-//! The send() method is the main method for sending a request and returns
-//! a Result<reqwest::Response, GraphFailure>
-//!
-//! # Examples:
-//! ```rust,ignore
-//! use graph_rs_sdk::prelude::*;
-//!
-//! let client =  Graph::new("ACCESS_TOKEN");
-//!
-//! let response = client.me()
-//!     .drive()
-//!     .get_drive()
-//!     .send()
-//!     .await
-//!     .unwrap();
-//!
-//! // Print the value returned in the body of the response
-//! println!("{:#?}", response.body());
-//! ```
-//!
-//! # Using the Async Client
+//! tokio as the runtime. Tokio is what is used internally and what the project
+//! is tested with.
 //!
 //! ```rust,ignore
 //! use graph_rs_sdk::prelude::*;
 //!
-//! let client =  Graph::new("ACCESS_TOKEN");
+//! #[tokio::main]
+//! async fn main() -> GraphResult<()> {
+//!     let client =  Graph::new("ACCESS_TOKEN");
 //!
-//! let response = client.me()
-//!     .drive()
-//!     .get_drive()
-//!     .send()
-//!     .await
-//!     .unwrap();
+//!     let response = client.users()
+//!         .list_user()
+//!         .send()
+//!         .await?;
 //!
-//! println!("{:#?}", response);
+//!     println!("{response:#?}");
+//!
+//!     let body: serde_json::Value = response.json().await?;
+//!     println!("{body:#?}");
+//!
+//!     Ok(())
+//! }
+//! ```
+//! ### Using the blocking client
+//!
+//! The blocking client can be used by calling `into_blocking()` on a request.
+//!
+//! ```rust,ignore
+//! use graph_rs_sdk::prelude::*;
+//!
+//! fn main() -> GraphResult<()> {
+//!     let client =  Graph::new("ACCESS_TOKEN");
+//!
+//!     let response = client.users()
+//!         .list_user()
+//!         .into_blocking()
+//!         .send()?;
+//!
+//!     println!("{response:#?}");
+//!
+//!     let body: serde_json::Value = response.json()?;
+//!     println!("{body:#?}");
+//!
+//!     Ok(())
+//! }
 //! ```
 //!
 //! ### Use the Graph version one or beta Api
 //! v1() refers to the endpoint for version 1 of the Microsoft graph API. You can also
-//! use the beta() method which uses the Microsoft graph beta Api endpoint or use
-//! custom_endpoint() for those graph APIs in countries or governments with their own endpoint.
+//! use the beta() method which uses the Microsoft graph beta API endpoint or use
+//! custom_endpoint() for those graph APIs that have custom endpoints such as in
+//! countries or governments with their own endpoint.
 //!
+//! The Graph client must be mutable in order to change from v1 to beta or a custom endpoint.
 //!
+//! #### Beta
 //! ```rust,ignore
 //! use graph_rs_sdk::prelude::*;
 //!
-//! let client =  Graph::new("ACCESS_TOKEN").beta();
+//! #[tokio::main]
+//! async fn main() -> GraphResult<()> {
+//!     let mut client =  Graph::new("ACCESS_TOKEN");
 //!
-//! let _response = client.me()
-//!     .get_user()
-//!     .send()
-//!     .await?;
+//!     let response = client.beta()
+//!         .users()
+//!         .list_user()
+//!         .send()
+//!         .await?;
+//!
+//!     println!("{response:#?}");
+//!
+//!     let body: serde_json::Value = response.json().await?;
+//!     println!("{body:#?}");
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! #### Custom Endpoint
+//! ```rust,ignore
+//! use graph_rs_sdk::prelude::*;
+//!
+//! #[tokio::main]
+//! async fn main() -> GraphResult<()> {
+//!     let mut client =  Graph::new("ACCESS_TOKEN");
+//!
+//!     let response = client.custom_endpoint("https://api.microsoft.com/api")
+//!         .users()
+//!         .list_user()
+//!         .send()
+//!         .await?;
+//!
+//!     println!("{response:#?}");
+//!
+//!     let body: serde_json::Value = response.json().await?;
+//!     println!("{body:#?}");
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! #### Custom endpoint using `use_endpoint()`
+//! ```rust,ignore
+//! use graph_rs_sdk::prelude::*;
+//!
+//! #[tokio::main]
+//! async fn main() -> GraphResult<()> {
+//!     let mut client =  Graph::new("ACCESS_TOKEN");
+//!     client.use_endpoint("https://graph.microsoft.com");
+//!
+//!     let response = client
+//!         .users()
+//!         .list_user()
+//!         .send()
+//!         .await?;
+//!
+//!     println!("{response:#?}");
+//!
+//!     let body: serde_json::Value = response.json().await?;
+//!     println!("{body:#?}");
+//!
+//!     Ok(())
+//! }
 //! ```
 //!
 //! - For more information and examples please see the repository on
@@ -202,7 +264,4 @@ pub(crate) mod api_default_imports {
     pub use crate::client::Graph;
     pub(crate) use crate::client::{map_errors, map_parameters, ResourceProvisioner};
     pub use crate::core::ResourceIdentity;
-
-    #[cfg(feature = "blocking")]
-    pub(crate) use crate::client::map_errors_blocking;
 }

@@ -12,6 +12,7 @@ use crate::authentication_method_configurations::{
 };
 use crate::authentication_methods_policy::AuthenticationMethodsPolicyApiClient;
 
+use crate::batch::BatchApiClient;
 use crate::branding::BrandingApiClient;
 use crate::certificate_based_auth_configuration::{
     CertificateBasedAuthConfigurationApiClient, CertificateBasedAuthConfigurationIdApiClient,
@@ -62,32 +63,20 @@ use crate::teams_templates::{TeamsTemplatesApiClient, TeamsTemplatesIdApiClient}
 use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
-
 use graph_error::GraphFailure;
-#[cfg(feature = "blocking")]
-use graph_http::api_impl::BlockingClient;
 use graph_http::api_impl::GraphClientBuilder;
 use graph_oauth::oauth::{AccessToken, OAuth};
 use std::convert::TryFrom;
 
-#[cfg(not(feature = "blocking"))]
-use crate::batch::BatchApiClient;
-
 pub struct Graph {
-    #[cfg(not(feature = "blocking"))]
     client: Client,
-    #[cfg(feature = "blocking")]
-    client: BlockingClient,
     endpoint: GraphUrl,
 }
 
 impl Graph {
     pub fn new(access_token: &str) -> Graph {
         Graph {
-            #[cfg(not(feature = "blocking"))]
             client: Client::new(access_token),
-            #[cfg(feature = "blocking")]
-            client: BlockingClient::new(access_token),
             endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
         }
     }
@@ -420,7 +409,6 @@ impl Graph {
 
     api_client_impl!(users, UsersApiClient, user, UsersIdApiClient);
 
-    #[cfg(not(feature = "blocking"))]
     pub fn batch<B: serde::Serialize>(&self, batch: &B) -> RequestHandler {
         BatchApiClient::new(
             self.client.clone(),
@@ -466,10 +454,7 @@ impl TryFrom<&OAuth> for Graph {
 impl From<GraphClientBuilder> for Graph {
     fn from(graph_client_builder: GraphClientBuilder) -> Self {
         Graph {
-            #[cfg(not(feature = "blocking"))]
             client: graph_client_builder.build(),
-            #[cfg(feature = "blocking")]
-            client: graph_client_builder.build_blocking(),
             endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
         }
     }

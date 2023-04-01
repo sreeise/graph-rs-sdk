@@ -5,7 +5,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 fn main() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let response = client.users().list_user().send()?;
+    let response = client.users().list_user().into_blocking().send()?;
 
     println!("{response:#?}");
 

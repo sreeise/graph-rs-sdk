@@ -1,5 +1,9 @@
+use crate::blocking::BlockingRequestHandler;
 use crate::client::Client;
-use crate::internal::{FileConfig, HttpResponseBuilderExt, ODataNextLink, ODataQuery, ResponseExt};
+use crate::internal::{
+    BodyRead, FileConfig, GraphClientBuilder, HttpResponseBuilderExt, ODataNextLink, ODataQuery,
+    ResponseExt,
+};
 use crate::request_components::RequestComponents;
 use crate::url::GraphUrl;
 use async_stream::{stream, try_stream};
@@ -13,13 +17,14 @@ use std::fmt::Debug;
 use std::path::PathBuf;
 use std::time::Duration;
 
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct RequestHandler {
     pub(crate) inner: reqwest::Client,
     pub(crate) access_token: String,
     pub(crate) request_components: RequestComponents,
     pub(crate) error: Option<GraphFailure>,
-    pub(crate) body: Option<reqwest::Body>,
+    pub(crate) body: Option<BodyRead>,
+    pub(crate) client_builder: GraphClientBuilder,
 }
 
 impl RequestHandler {
@@ -27,7 +32,7 @@ impl RequestHandler {
         inner: Client,
         mut request_components: RequestComponents,
         err: Option<GraphFailure>,
-        body: Option<reqwest::Body>,
+        body: Option<BodyRead>,
     ) -> RequestHandler {
         request_components.headers.extend(inner.headers.into_iter());
 
@@ -46,7 +51,19 @@ impl RequestHandler {
             request_components,
             error,
             body,
+            client_builder: inner.builder,
         }
+    }
+
+    pub fn into_blocking(self) -> BlockingRequestHandler {
+        BlockingRequestHandler::new(
+            self.client_builder
+                .access_token(self.access_token)
+                .build_blocking(),
+            self.request_components,
+            self.error,
+            self.body,
+        )
     }
 
     /// Returns true if any errors occurred prior to sending the request.
@@ -130,7 +147,7 @@ impl RequestHandler {
                 .entry(CONTENT_TYPE)
                 .or_insert(HeaderValue::from_static("application/json"));
             return request_builder
-                .body(body)
+                .body::<reqwest::Body>(body.into())
                 .headers(self.request_components.headers.clone());
         }
         request_builder
@@ -187,21 +204,6 @@ impl AsMut<GraphUrl> for RequestHandler {
         self.request_components.as_mut()
     }
 }
-
-/*
-impl From<(RequestComponents, &Client)> for RequestHandler {
-    fn from(value: (RequestComponents, &Client)) -> Self {
-        RequestHandler {
-            inner: value.1.inner.into_client(),
-            access_token: value.1.access_token.clone(),
-            request_components: value.0,
-            error: None,
-            body: None
-        }
-    }
-}
-
- */
 
 #[derive(Debug)]
 pub enum ChannelResponse<T: Debug> {

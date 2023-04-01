@@ -1,17 +1,6 @@
-use graph_rs_sdk::prelude::*;
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::OAuthTestClient;
-
-#[test]
-fn enable_blocking_client() {
-    let client = Graph::new("ACCESS_TOKEN");
-
-    assert_eq!(
-        client.users().list_user().url().path(),
-        "/v1.0/users".to_string()
-    );
-}
 
 #[test]
 fn drive() {
@@ -22,6 +11,7 @@ fn drive() {
             .update_items(&serde_json::json!({
                 "name": "update_test.docx"
             }))
+            .into_blocking()
             .send();
 
         if let Ok(response) = req {
@@ -38,6 +28,7 @@ fn drive() {
                 .update_items(&serde_json::json!({
                     "name": "update_test_document.docx"
                 }))
+                .into_blocking()
                 .send();
 
             if let Ok(response) = req {

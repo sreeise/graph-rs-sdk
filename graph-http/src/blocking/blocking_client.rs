@@ -5,8 +5,8 @@ use std::ffi::OsStr;
 
 #[derive(Clone, Debug)]
 pub struct BlockingClient {
-    pub(crate) access_token: String,
     pub(crate) inner: reqwest::blocking::Client,
+    pub(crate) access_token: String,
     pub(crate) headers: HeaderMap,
 }
 

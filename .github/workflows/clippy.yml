@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run Clippy
-        run: cargo clippy --all-targets --workspace
+        run: cargo clippy --all-targets --all-features --workspace

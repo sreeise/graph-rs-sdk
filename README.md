@@ -49,7 +49,7 @@ For extensive examples see the [examples directory on GitHub](https://github.com
 
 ### Async and Blocking Client
 
-The crate offers both an async and blocking client. The async client is enabled by default.
+The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
@@ -82,11 +82,10 @@ async fn main() -> GraphResult<()> {
 
 #### Blocking Client
 
-To use the blocking client enable the feature flag `blocking`. This will also disable the async client. You do not
-need `tokio` to use the blocking client.
+To use the blocking client use the `into_blocking()` method. You should not
+use `tokio` when using the blocking client.
 
-    graph-rs-sdk = { version = "0.3.1", features = ["blocking"] }
-
+    graph-rs-sdk = "0.3.1"
 
 #### Example
 use graph_rs_sdk::prelude::*;
@@ -98,6 +97,7 @@ fn main() -> GraphResult<()> {
     let response = client
         .users()
         .list_user()
+        .into_blocking()    
         .send()?;
 
     println!("{:#?}", response);
@@ -109,21 +109,19 @@ fn main() -> GraphResult<()> {
 }
 ```
 
-The OAuth crate (graph-oauth) also has the ability to make requests using the async client or the blocking client but this is not 
-changed by the `blocking` feature flagged. The async and blocking client in the graph-oauth crate are always enabled regardless. 
-You do not need to list the graph-oauth crate as a dependency to use it. The graph-rs-sdk rate provides this crate automatically.
-
 ### Cargo Feature Flags
 
 - `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
 - `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
-- `blocking`: Use the blocking client and disable the async client. The OAuth crate will still have async and blocking available regardless.
+- `brotli`: Enables reqwest feature brotli. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
+- `defalte`: Enables reqwest feature deflate. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
+- `trust-dns`: Enables reqwest feature trust-dns. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
 
 Default features: `default=["native-tls"]`
 
 #### The send method
-The send() method is the main method for sending a request and returns a `reqwest::Response`. See the
-`reqwest` crate for information on the Response type.
+The send() method is the main method for sending a request and returns a `Result<rewest::Response, GraphFailure>`. See the
+[reqwest](https://crates.io/crates/reqwest) crate for information on the Response type.
 
 ```rust
 use graph_rs_sdk::prelude::*;
@@ -181,11 +179,12 @@ pub async fn get_drive_item() -> GraphResult<()> {
 }
 ```
 
-GraphAPI will limit the number of returned items per page even if you specify a very large `.top()` value and will provide a `next_link` link for you to retrieve the next batch.
-You can use the `.paging()` method to access several different ways to get/call next link requests.
-
 
 ## Paging
+
+The Graph API will limit the number of returned items per page even if you specify a very large `.top()` value and will
+provide a `next_link` link for you to retrieve the next batch. You can use the `.paging()` method to access several
+different ways to get/call next link requests.
 
 If you just want a quick and easy way to get all next link responses or the JSON bodies you can use the `paging().json()` method which will exhaust all
 next link calls and return all the responses in a `VecDeque<Response<T>>`. Keep in mind that the larger the volume of next link calls that need to be

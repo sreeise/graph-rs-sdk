@@ -32,12 +32,11 @@ pub(crate) mod internal {
 pub mod api_impl {
     pub use crate::blocking::{BlockingClient, BlockingRequestHandler};
     pub use crate::client::*;
-    pub use crate::core::BodyRead;
     pub use crate::core::*;
     pub use crate::request_components::RequestComponents;
     pub use crate::request_handler::{ChannelResponse, RequestHandler};
     pub use crate::resource_identifier::{ResourceConfig, ResourceIdentifier};
-    pub use crate::traits::{BlockingBodyExt, BodyExt, ODataQuery};
+    pub use crate::traits::{BodyExt, ODataQuery};
     pub use crate::upload_session::UploadSession;
     pub use crate::url::GraphUrl;
     pub use graph_error::{GraphFailure, GraphResult};

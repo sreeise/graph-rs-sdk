@@ -68,12 +68,10 @@ async fn get_file_content(
 
 #[tokio::test]
 async fn upload_bytes_mut() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
     let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let local_file = "./test_files/test_upload_file_bytes.txt";
         let file_name = ":/test_upload_file_bytes.txt:";
-        let _onedrive_file_path = ":/Documents/test_upload_file_bytes.txt:";
 
         let parent_reference_id = get_special_folder_id(id.as_str(), "Documents", &client)
             .await

@@ -17,13 +17,13 @@ Inflector = "0.11.4"
 lazy_static = "1.4.0"
 rayon = "1.5.0"
 regex = "1"
-reqwest = { version = "0.11", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
+reqwest = { version = "0.11.16", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
 serde = { version = "1", features = ["derive", "rc"] }
 serde_json = "1"
 serde_yaml = "0.9.17"
 strum = { version = "0.21", features = ["derive"] }
 either = { version = "1.6.1", features = ["serde"] }
-handlebars = "2.0.2"
+handlebars = "2.0.4"
 
 graph-http = { path = "../graph-http" }
 graph-core = { path = "../graph-core" }

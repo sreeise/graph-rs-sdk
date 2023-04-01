@@ -5,7 +5,7 @@ use http::header::ACCEPT;
 use http::{HeaderMap, HeaderValue, Method};
 
 /// Provides the necessary components for building a request.
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct RequestComponents {
     pub resource_identity: ResourceIdentity,
     pub url: GraphUrl,

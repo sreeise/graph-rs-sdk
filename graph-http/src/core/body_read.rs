@@ -5,6 +5,7 @@ use reqwest::Body;
 use std::fs::File;
 use std::io::{ErrorKind, Read};
 
+#[derive(Clone)]
 pub struct BodyRead {
     buf: String,
 }
@@ -12,6 +13,11 @@ pub struct BodyRead {
 impl BodyRead {
     pub fn new(buf: String) -> BodyRead {
         BodyRead { buf }
+    }
+
+    pub fn from_serialize<T: serde::Serialize>(body: &T) -> GraphResult<BodyRead> {
+        let body = serde_json::to_string(body)?;
+        Ok(BodyRead::new(body))
     }
 
     pub fn from_reader<T: std::io::Read>(mut reader: T) -> GraphResult<BodyRead> {
@@ -103,7 +109,7 @@ impl From<&BodyRead> for reqwest::blocking::Body {
 }
 
 impl BodyExt for BodyRead {
-    fn as_body(&self) -> GraphResult<Body> {
-        Ok(self.into())
+    fn as_body(&self) -> GraphResult<BodyRead> {
+        Ok(self.clone())
     }
 }

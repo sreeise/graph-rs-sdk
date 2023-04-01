@@ -1,7 +1,7 @@
 mod resource_provisioner;
 
 use graph_error::GraphResult;
-use graph_http::api_impl::RequestComponents;
+use graph_http::api_impl::{BodyRead, RequestComponents};
 pub(crate) use resource_provisioner::*;
 
 pub(crate) fn map_parameters(params: &[&str]) -> serde_json::Value {
@@ -21,15 +21,7 @@ pub(crate) fn map_parameters(params: &[&str]) -> serde_json::Value {
 
 pub(crate) fn map_errors(
     rc_result: GraphResult<RequestComponents>,
-    body_result: GraphResult<reqwest::Body>,
-) -> GraphResult<(RequestComponents, reqwest::Body)> {
-    Ok((rc_result?, body_result?))
-}
-
-#[cfg(feature = "blocking")]
-pub(crate) fn map_errors_blocking(
-    rc_result: GraphResult<RequestComponents>,
-    body_result: GraphResult<reqwest::blocking::Body>,
-) -> GraphResult<(RequestComponents, reqwest::blocking::Body)> {
+    body_result: GraphResult<BodyRead>,
+) -> GraphResult<(RequestComponents, BodyRead)> {
     Ok((rc_result?, body_result?))
 }
