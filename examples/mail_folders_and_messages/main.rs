@@ -3,6 +3,7 @@
 mod attachments;
 mod child_folders;
 mod mail_folders;
+mod mailbox_settings;
 mod messages;
 
 #[tokio::main]
