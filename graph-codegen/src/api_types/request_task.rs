@@ -13,13 +13,25 @@ use std::io::{Read, Write};
 /// Both the upload session and GET request will have a separate and
 /// specific macro that is used to generate the method for the api clients.
 #[derive(
-    Debug, Clone, Serialize, Deserialize, FromFile, AsFile, Ord, PartialOrd, Eq, PartialEq, Hash,
+    Debug,
+    Default,
+    Clone,
+    Serialize,
+    Deserialize,
+    FromFile,
+    AsFile,
+    Ord,
+    PartialOrd,
+    Eq,
+    PartialEq,
+    Hash,
 )]
 pub enum RequestTask {
     /// 204 no-content response.
     NoContent,
 
     /// JSON in the response body.
+    #[default]
     Json,
 
     /// The request is an upload of an item such as uploading
@@ -74,11 +86,5 @@ impl RequestTask {
             RequestTask::AsyncDownload => vec![],
             RequestTask::Delta => vec![],
         }
-    }
-}
-
-impl Default for RequestTask {
-    fn default() -> Self {
-        RequestTask::Json
     }
 }

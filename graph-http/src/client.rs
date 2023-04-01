@@ -1,3 +1,4 @@
+use crate::blocking::BlockingClient;
 use crate::traits::ODataQuery;
 use crate::url::GraphUrl;
 use graph_error::GraphResult;
@@ -6,6 +7,7 @@ use reqwest::redirect::Policy;
 use reqwest::tls::Version;
 use std::env::VarError;
 use std::ffi::OsStr;
+use std::fmt::Debug;
 use std::time::Duration;
 
 struct ClientConfiguration {
@@ -125,6 +127,32 @@ impl GraphClientBuilder {
         }
 
         Client {
+            access_token: self.config.access_token.unwrap_or_default(),
+            inner: builder.build().unwrap(),
+            headers,
+        }
+    }
+
+    //#[cfg(feature = "blocking")]
+    pub fn build_blocking(self) -> BlockingClient {
+        let headers = self.config.headers.clone();
+        let mut builder = reqwest::blocking::ClientBuilder::new()
+            .default_headers(self.config.headers)
+            .referer(self.config.referer)
+            .connection_verbose(self.config.connection_verbose)
+            .https_only(self.config.https_only)
+            .min_tls_version(Version::TLS_1_2)
+            .redirect(Policy::limited(2));
+
+        if let Some(timeout) = self.config.timeout {
+            builder = builder.timeout(timeout);
+        }
+
+        if let Some(connect_timeout) = self.config.connect_timeout {
+            builder = builder.connect_timeout(connect_timeout);
+        }
+
+        BlockingClient {
             access_token: self.config.access_token.unwrap_or_default(),
             inner: builder.build().unwrap(),
             headers,

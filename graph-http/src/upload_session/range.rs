@@ -4,6 +4,7 @@ use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
 use std::collections::VecDeque;
 use std::io::Read;
+use tokio::io::AsyncReadExt;
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Range {
@@ -51,6 +52,12 @@ impl RangeIter {
     pub fn from_reader<T: Read>(mut reader: T) -> GraphResult<RangeIter> {
         let mut buf: Vec<u8> = Vec::new();
         let _ = reader.read_to_end(&mut buf)?;
+        RangeIter::try_from(BytesMut::from_iter(buf.iter()))
+    }
+
+    pub async fn from_async_read<T: AsyncReadExt + Unpin>(mut reader: T) -> GraphResult<RangeIter> {
+        let mut buf: Vec<u8> = Vec::new();
+        let _ = reader.read_to_end(&mut buf).await?;
         RangeIter::try_from(BytesMut::from_iter(buf.iter()))
     }
 

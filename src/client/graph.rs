@@ -1,19 +1,9 @@
-use std::convert::TryFrom;
-
-use crate::api_default_imports::*;
-
-use graph_core::resource::ResourceIdentity;
-use graph_error::GraphFailure;
-use graph_http::api_impl::RequestHandler;
-use graph_http::api_impl::{Client, GraphClientBuilder};
-use graph_http::url::GraphUrl;
-use graph_oauth::oauth::{AccessToken, OAuth};
-
 use crate::admin::AdminApiClient;
 use crate::agreement_acceptances::{
     AgreementAcceptancesApiClient, AgreementAcceptancesIdApiClient,
 };
 use crate::agreements::{AgreementsApiClient, AgreementsIdApiClient};
+use crate::api_default_imports::*;
 use crate::app_catalogs::AppCatalogsApiClient;
 use crate::applications::{ApplicationsApiClient, ApplicationsIdApiClient};
 use crate::audit_logs::AuditLogsApiClient;
@@ -21,7 +11,7 @@ use crate::authentication_method_configurations::{
     AuthenticationMethodConfigurationsApiClient, AuthenticationMethodConfigurationsIdApiClient,
 };
 use crate::authentication_methods_policy::AuthenticationMethodsPolicyApiClient;
-use crate::batch::BatchApiClient;
+
 use crate::branding::BrandingApiClient;
 use crate::certificate_based_auth_configuration::{
     CertificateBasedAuthConfigurationApiClient, CertificateBasedAuthConfigurationIdApiClient,
@@ -73,15 +63,31 @@ use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 
+use graph_error::GraphFailure;
+#[cfg(feature = "blocking")]
+use graph_http::api_impl::BlockingClient;
+use graph_http::api_impl::GraphClientBuilder;
+use graph_oauth::oauth::{AccessToken, OAuth};
+use std::convert::TryFrom;
+
+#[cfg(not(feature = "blocking"))]
+use crate::batch::BatchApiClient;
+
 pub struct Graph {
+    #[cfg(not(feature = "blocking"))]
     client: Client,
+    #[cfg(feature = "blocking")]
+    client: BlockingClient,
     endpoint: GraphUrl,
 }
 
 impl Graph {
     pub fn new(access_token: &str) -> Graph {
         Graph {
+            #[cfg(not(feature = "blocking"))]
             client: Client::new(access_token),
+            #[cfg(feature = "blocking")]
+            client: BlockingClient::new(access_token),
             endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
         }
     }
@@ -414,6 +420,7 @@ impl Graph {
 
     api_client_impl!(users, UsersApiClient, user, UsersIdApiClient);
 
+    #[cfg(not(feature = "blocking"))]
     pub fn batch<B: serde::Serialize>(&self, batch: &B) -> RequestHandler {
         BatchApiClient::new(
             self.client.clone(),
@@ -456,10 +463,21 @@ impl TryFrom<&OAuth> for Graph {
     }
 }
 
+#[cfg(feature = "default")]
 impl From<GraphClientBuilder> for Graph {
     fn from(graph_client_builder: GraphClientBuilder) -> Self {
         Graph {
             client: graph_client_builder.build(),
+            endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
+        }
+    }
+}
+
+#[cfg(feature = "blocking")]
+impl From<GraphClientBuilder> for Graph {
+    fn from(graph_client_builder: GraphClientBuilder) -> Self {
+        Graph {
+            client: graph_client_builder.build_blocking(),
             endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
         }
     }

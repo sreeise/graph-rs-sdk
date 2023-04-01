@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::traits::{AsyncByteRangeRead, AsyncTryFrom, ByteRangeMultiple, ByteRangeRead};
 use async_trait::async_trait;
 use graph_error::{GraphFailure, GraphResult};

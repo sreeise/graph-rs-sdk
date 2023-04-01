@@ -11,14 +11,18 @@ macro_rules! resource_identifier_impl {
 macro_rules! resource_api_client {
     ($name:ident) => {
         pub struct $name {
+            #[cfg(not(feature = "blocking"))]
             pub(crate) client: graph_http::api_impl::Client,
+            #[cfg(feature = "blocking")]
+            pub(crate) client: graph_http::api_impl::BlockingClient,
             pub(crate) resource_config: graph_http::api_impl::ResourceConfig,
             registry: handlebars::Handlebars,
         }
 
         impl $name {
             pub(crate) fn new(
-                client: graph_http::api_impl::Client,
+                #[cfg(not(feature = "blocking"))] client: graph_http::api_impl::Client,
+                #[cfg(feature = "blocking")] client: graph_http::api_impl::BlockingClient,
                 resource_config: graph_http::api_impl::ResourceConfig,
                 registry: handlebars::Handlebars,
             ) -> $name {

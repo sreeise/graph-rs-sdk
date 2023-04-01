@@ -306,7 +306,7 @@ pub trait MacroImplWriter {
     }
 
     fn create_impl_dir_override(&self, mod_write_configuration: ModWriteConfiguration) -> File {
-        let folder = mod_write_configuration.folder_path.to_string();
+        let folder = mod_write_configuration.folder_path;
         let snake_casing = mod_write_configuration.folder_name.to_snake_case();
         let mod_name_snake = mod_write_configuration.mod_name.to_snake_case();
         let directory = format!("./src/{folder}");

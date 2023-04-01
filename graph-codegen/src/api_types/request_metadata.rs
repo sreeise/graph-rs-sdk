@@ -656,7 +656,7 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
         }
          */
 
-        let path_filter = resource_parsing_info.path.clone();
+        let path_filter = resource_parsing_info.path;
 
         let mut metadata: VecDeque<PathMetadata> = requests
             .iter()
@@ -690,13 +690,13 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
             metadata_queue.format_path_parameters();
 
             metadata_queue.transform_secondary_id_metadata(
-                resource_parsing_info.path.as_str(),
+                path_filter.as_str(),
                 name.as_str(),
                 resource_parsing_info.resource_identity,
             );
         } else {
             metadata_queue.format_path_parameters();
-            metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());
+            metadata_queue.transform_id_metadata(path_filter.as_str());
         }
         metadata_queue
     }
@@ -744,7 +744,7 @@ impl From<WriteConfiguration> for PathMetadataQueue {
         }
          */
 
-        let path_filter = resource_parsing_info.path.clone();
+        let path_filter = resource_parsing_info.path;
 
         let mut metadata: VecDeque<PathMetadata> = requests
             .iter()
@@ -778,13 +778,13 @@ impl From<WriteConfiguration> for PathMetadataQueue {
             metadata_queue.format_path_parameters();
 
             metadata_queue.transform_secondary_id_metadata(
-                resource_parsing_info.path.as_str(),
+                path_filter.as_str(),
                 name.as_str(),
                 resource_parsing_info.resource_identity,
             );
         } else {
             metadata_queue.format_path_parameters();
-            metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());
+            metadata_queue.transform_id_metadata(path_filter.as_str());
         }
         metadata_queue
     }

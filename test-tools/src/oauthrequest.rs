@@ -17,11 +17,12 @@ lazy_static! {
     pub static ref DRIVE_ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile, Default)]
 pub enum TestEnv {
     AppVeyor,
     GitHub,
     TravisCI,
+    #[default]
     Local,
 }
 
@@ -33,12 +34,6 @@ impl TestEnv {
             TestEnv::TravisCI => Environment::is_travis(),
             TestEnv::Local => Environment::is_local(),
         }
-    }
-}
-
-impl Default for TestEnv {
-    fn default() -> Self {
-        TestEnv::Local
     }
 }
 
@@ -190,13 +185,13 @@ impl OAuthTestClient {
             }
         };
 
-        return match req.access_token().send().await {
+        match req.access_token().send().await {
             Ok(token) => Some((user_id, token)),
             Err(err) => {
                 dbg!(&err);
                 None
             }
-        };
+        }
     }
 
     pub fn request_access_token(&self) -> Option<(String, AccessToken)> {
@@ -273,14 +268,6 @@ impl OAuthTestClient {
 
     pub fn graph(&self) -> Option<(String, Graph)> {
         if let Some((id, token)) = self.request_access_token() {
-            Some((id, Graph::new(token.bearer_token())))
-        } else {
-            None
-        }
-    }
-
-    pub async fn graph_v2(&self) -> Option<(String, Graph)> {
-        if let Some((id, token)) = self.request_access_token_async().await {
             Some((id, Graph::new(token.bearer_token())))
         } else {
             None

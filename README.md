@@ -6,6 +6,7 @@
 ### Now available on stable Rust at [crates.io](https://crates.io/crates/graph-rs-sdk)
 
     graph-rs-sdk = "0.3.1"
+    tokio = { version = "1.25.0", features = ["full"] }
 
 0.1.0 and above use stable Rust. Anything before 0.1.0 uses nightly Rust.
 
@@ -25,6 +26,9 @@ an issue first. Other than that feel free to ask questions, provide tips to othe
 ## Table Of Contents
 
 * [Usage](#usage)
+  * [Async and Blocking Client](#async-and-blocking-client)
+    * [Async Client](#async-client-default)
+    * [Blocking Client](#blocking-client)
   * [Cargo Feature Flags](#cargo-feature-flags)
   * [Paging (Delta, Next Links)](#paging)
     * [Streaming](#streaming)
@@ -33,44 +37,112 @@ an issue first. Other than that feel free to ask questions, provide tips to othe
   * [Id vs Non-Id methods](#id-vs-non-id-methods-such-as-useruser-id-vs-users)
   * [Information about the project itself (contributor section coming soon)](#for-those-interested-in-the-code-itself)
 
-### What Api's are available
+### What APIs are available
 
-The Api's available are generated from OpenApi configs that are stored in Microsoft's msgraph-metadata repository
-for the Graph Api. There may be some requests and/or Api's not yet included in this project that are in the OpenApi
+The APIs available are generated from OpenApi configs that are stored in Microsoft's msgraph-metadata repository
+for the Graph Api. There may be some requests and/or APIs not yet included in this project that are in the OpenApi
 config but in general most of them are implemented.
 
 ## Usage
 
 For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs/tree/master/examples)
 
-### Cargo Feature Flags
+### Async and Blocking Client
 
-- `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
-- `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
+The crate offers both an async and blocking client. The async client is enabled by default.
 
-Default features: `default=["native-tls"]`
-    
-#### The send method
-The send() method is the main method for sending a request and returns a reqwest::Response. See the
-reqwest crate for information on the Response type.
+#### Async Client (default)
+
+    graph-rs-sdk = "0.3.1"
+    tokio = { version = "1.25.0", features = ["full"] }
+
+#### Example
 
 ```rust
 use graph_rs_sdk::prelude::*;
 
-let client =  Graph::new("ACCESS_TOKEN");
+#[tokio::main]
+async fn main() -> GraphResult<()> {
+  let client = Graph::new("ACCESS_TOKEN");
 
-let response = client.v1()
-    .me()
-    .drive()
-    .get_drive()
-    .send()
-    .await
-    .unwrap();
+  let response = client
+      .users()
+      .list_user()
+      .send()
+      .await?;
 
-println!("{:#?}", &response);
+  println!("{:#?}", response);
 
-let body: serde_json::Value = response.json().await.unwrap();
-println!("{:#?}", body);
+  let body: serde_json::Value = response.json().await?;
+  println!("{:#?}", body);
+  
+  Ok(())
+}
+```
+
+#### Blocking Client
+
+To use the blocking client enable the feature flag `blocking`. This will also disable the async client. You do not
+need `tokio` to use the blocking client.
+
+    graph-rs-sdk = { version = "0.3.1", features = ["blocking"] }
+
+
+#### Example
+use graph_rs_sdk::prelude::*;
+
+```rust
+fn main() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .users()
+        .list_user()
+        .send()?;
+
+    println!("{:#?}", response);
+
+    let body: serde_json::Value = response.json()?;
+    println!("{:#?}", body);
+
+    Ok(())
+}
+```
+
+The OAuth crate (graph-oauth) also has the ability to make requests using the async client or the blocking client but this is not 
+changed by the `blocking` feature flagged. The async and blocking client in the graph-oauth crate are always enabled regardless. 
+You do not need to list the graph-oauth crate as a dependency to use it. The graph-rs-sdk rate provides this crate automatically.
+
+### Cargo Feature Flags
+
+- `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
+- `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
+- `blocking`: Use the blocking client and disable the async client. The OAuth crate will still have async and blocking available regardless.
+
+Default features: `default=["native-tls"]`
+
+#### The send method
+The send() method is the main method for sending a request and returns a `reqwest::Response`. See the
+`reqwest` crate for information on the Response type.
+
+```rust
+use graph_rs_sdk::prelude::*;
+
+pub async fn get_drive_item() -> GraphResult<()> {
+  let client = Graph::new("ACCESS_TOKEN");
+
+  let response = client
+      .me()
+      .drive()
+      .get_drive()
+      .send()
+      .await?;
+
+  println!("{:#?}", response);
+
+  let body: serde_json::Value = response.json().await?;
+  println!("{:#?}", body);
+}
 ```
 
 ##### Custom Types
@@ -87,20 +159,26 @@ pub struct DriveItem {
     // ... Any other fields
 }
 
-let client = Graph::new("ACCESS_TOKEN");
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
-let response = client
-    .me()
-    .drive()
-    .item("item_id")
-    .get_items()
-    .send()
-    .await
-    .unwrap();
+static ITEM_ID: &str = "ITEM_ID";
 
-let drive_item: DriveItem =  response.json().await.unwrap();
+pub async fn get_drive_item() -> GraphResult<()> {
+  let client = Graph::new(ACCESS_TOKEN);
 
-println!("{:#?}", drive_item);
+  let response = client
+      .me()
+      .drive()
+      .item(ITEM_ID)
+      .get_items()
+      .send()
+      .await?;
+
+  println!("{:#?}", response);
+  
+  let drive_item: DriveItem = response.json().await?;
+  println!("{:#?}", drive_item);
+}
 ```
 
 GraphAPI will limit the number of returned items per page even if you specify a very large `.top()` value and will provide a `next_link` link for you to retrieve the next batch.
@@ -113,7 +191,7 @@ If you just want a quick and easy way to get all next link responses or the JSON
 next link calls and return all the responses in a `VecDeque<Response<T>>`. Keep in mind that the larger the volume of next link calls that need to be
 made the longer the return delay will be when calling this method.
 
-All paging methods have their response body read in order to get the `@odata.nextLink` for calling next link requests. Because of this
+All paging methods have their response body read in order to get the `@odata.nextLink` URL for calling next link requests. Because of this
 the original `reqwest::Response` is lost. However, the paging responses are re-wrapped in a Response object (`http::Response`) that is
 similar to `reqwest::Response`. The main difference is that the paging calls must specify the type of response body in order to be
 called and the response that is returned can provide a reference to the body `response.body()` or you can take ownership of the body
@@ -123,6 +201,8 @@ before getting the response.
 ```rust
 use graph_rs_sdk::prelude::*;
 
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct User {
     pub(crate) id: Option<String>,
@@ -131,7 +211,7 @@ pub struct User {
 }
 
 async fn paging() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = Graph::new(ACCESS_TOKEN);
 
   let deque = client
       .users()
@@ -151,6 +231,8 @@ The [paging](#paging) example shows a simple way to list users and call all next
 stream the next link responses or use a channel receiver to get the responses.
 
 #### Streaming
+
+Streaming is only available using the async client.
 
 ```rust
 use futures_util::stream::StreamExt;

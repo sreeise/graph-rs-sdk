@@ -1,16 +1,12 @@
 use crate::client::Client;
-use crate::file_config::FileConfig;
-use crate::internal::{HttpResponseBuilderExt, ODataNextLink, ODataQuery, ResponseExt};
+use crate::internal::{FileConfig, HttpResponseBuilderExt, ODataNextLink, ODataQuery, ResponseExt};
+use crate::request_components::RequestComponents;
 use crate::url::GraphUrl;
 use async_stream::{stream, try_stream};
-
 use futures_core::Stream;
 use futures_util::StreamExt;
-
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
-
-use crate::request_components::RequestComponents;
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
 use std::fmt::Debug;
@@ -23,6 +19,7 @@ pub struct RequestHandler {
     pub(crate) access_token: String,
     pub(crate) request_components: RequestComponents,
     pub(crate) error: Option<GraphFailure>,
+    pub(crate) body: Option<reqwest::Body>,
 }
 
 impl RequestHandler {
@@ -30,6 +27,7 @@ impl RequestHandler {
         inner: Client,
         mut request_components: RequestComponents,
         err: Option<GraphFailure>,
+        body: Option<reqwest::Body>,
     ) -> RequestHandler {
         request_components.headers.extend(inner.headers.into_iter());
 
@@ -47,6 +45,7 @@ impl RequestHandler {
             access_token: inner.access_token,
             request_components,
             error,
+            body,
         }
     }
 
@@ -55,8 +54,8 @@ impl RequestHandler {
     /// # Example
     /// ```rust,ignore
     /// let client = Graph::new("ACCESS_TOKEN");
-    /// let response_handler = client.groups().list_group();
-    /// println!("{:#?}", response_handler.is_err());
+    /// let request_handler = client.groups().list_group();
+    /// println!("{:#?}", request_handler.is_err());
     /// ```
     pub fn is_err(&self) -> bool {
         self.error.is_some()
@@ -67,8 +66,8 @@ impl RequestHandler {
     /// # Example
     /// ```rust,ignore
     /// let client = Graph::new("ACCESS_TOKEN");
-    /// let response_handler = client.groups().list_group();
-    /// println!("{:#?}", response_handler.err());
+    /// let request_handler = client.groups().list_group();
+    /// println!("{:#?}", request_handler.err());
     /// ```
     pub fn err(&self) -> Option<&GraphFailure> {
         self.error.as_ref()
@@ -125,7 +124,7 @@ impl RequestHandler {
             .bearer_auth(self.access_token.as_str())
             .headers(self.request_components.headers.clone());
 
-        if let Some(body) = self.request_components.body.take() {
+        if let Some(body) = self.body.take() {
             self.request_components
                 .headers
                 .entry(CONTENT_TYPE)
@@ -138,7 +137,7 @@ impl RequestHandler {
     }
 
     /// Builds the request and returns a [`reqwest::RequestBuilder`].
-    pub async fn build(mut self) -> GraphResult<reqwest::RequestBuilder> {
+    pub fn build(mut self) -> GraphResult<reqwest::RequestBuilder> {
         if let Some(err) = self.error {
             return Err(err);
         }
@@ -146,7 +145,7 @@ impl RequestHandler {
     }
 
     pub async fn send(self) -> GraphResult<reqwest::Response> {
-        let request_builder = self.build().await?;
+        let request_builder = self.build()?;
         request_builder
             .send()
             .await?
@@ -189,16 +188,20 @@ impl AsMut<GraphUrl> for RequestHandler {
     }
 }
 
+/*
 impl From<(RequestComponents, &Client)> for RequestHandler {
     fn from(value: (RequestComponents, &Client)) -> Self {
         RequestHandler {
-            inner: value.1.inner.clone(),
+            inner: value.1.inner.into_client(),
             access_token: value.1.access_token.clone(),
             request_components: value.0,
             error: None,
+            body: None
         }
     }
 }
+
+ */
 
 #[derive(Debug)]
 pub enum ChannelResponse<T: Debug> {

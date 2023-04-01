@@ -1,5 +1,4 @@
-use graph_http::traits::ODataMetadataLink;
-
+use graph_rs_sdk::http::ODataMetadataLink;
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
 

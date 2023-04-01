@@ -7,6 +7,37 @@ use std::path::{Path, PathBuf};
 /// Config for downloading files using Microsoft Graph File and OneDrive APIs.
 /// FileConfig can also be used for uploads but all fields except for the provided
 /// path are ignored.
+///
+/// # Example
+/// ```rust
+/// use std::ffi::{OsStr, OsString};
+/// use std::path::Path;
+/// use graph_http::api_impl::FileConfig;
+///
+/// let config = FileConfig::new("./examples")
+///     .create_directories(true)
+///     .overwrite_existing_file(true)
+///     .file_name(OsStr::new("example.json"));
+///
+/// # assert_eq!(Path::new("./examples"), config.path.as_path());
+/// # assert!(config.create_directory_all);
+/// # assert_eq!(Some(&OsString::from("example.json")),  config.file_name.as_ref());
+/// ```
+///
+/// # Example
+/// ```rust
+/// use std::ffi::{OsStr, OsString};
+/// use std::path::Path;
+/// use graph_http::api_impl::FileConfig;
+///
+/// let config = FileConfig::new("./examples")
+///     .overwrite_existing_file(true)
+///     .extension(OsStr::new("pdf"));
+///
+/// # assert_eq!(Path::new("./examples"), config.path.as_path());
+/// # assert!(config.overwrite_existing_file);
+/// # assert_eq!(Some(&OsString::from("pdf")),  config.extension.as_ref());
+/// ```
 #[derive(Clone, Debug, Default)]
 pub struct FileConfig {
     pub path: PathBuf,
@@ -27,7 +58,8 @@ impl FileConfig {
     /// ```rust
     /// use std::ffi::{OsStr, OsString};
     /// use std::path::Path;
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
+    ///
     /// let config = FileConfig::new("./examples")
     ///     .create_directories(true)
     ///     .file_name(OsStr::new("example.json"));
@@ -41,7 +73,8 @@ impl FileConfig {
     /// ```rust
     /// use std::ffi::{OsStr, OsString};
     /// use std::path::Path;
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
+    ///
     /// let config = FileConfig::new("./examples")
     ///     .overwrite_existing_file(true)
     ///     .extension(OsStr::new("pdf"));
@@ -64,7 +97,8 @@ impl FileConfig {
     ///
     /// # Example
     /// ```rust
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
+    ///
     /// let config = FileConfig::new("./examples")
     ///     .create_directories(true);
     ///
@@ -79,7 +113,8 @@ impl FileConfig {
     ///
     /// # Example
     /// ```rust
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
+    ///
     /// let config = FileConfig::new("./examples")
     ///     .overwrite_existing_file(true);
     ///
@@ -97,7 +132,7 @@ impl FileConfig {
     /// # Example
     /// ```rust
     /// use std::ffi::{OsStr, OsString};
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
     ///
     /// let config = FileConfig::new("./examples")
     ///     .file_name(OsStr::new("example.pdf"));
@@ -116,7 +151,7 @@ impl FileConfig {
     /// # Example
     /// ```rust
     /// use std::ffi::{OsStr, OsString};
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
     ///
     /// let config = FileConfig::new("./examples")
     ///     .extension(OsStr::new("pdf"));
@@ -133,7 +168,8 @@ impl FileConfig {
     /// # Example
     /// ```rust
     /// use std::path::Path;
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
+    ///
     /// let mut config = FileConfig::default();
     /// config.set_path("./examples");
     ///
@@ -147,7 +183,8 @@ impl FileConfig {
     ///
     /// # Example
     /// ```
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
+    ///
     /// let mut config = FileConfig::new("./examples");
     /// config.set_create_directories(true);
     ///
@@ -161,7 +198,8 @@ impl FileConfig {
     ///
     /// # Example
     /// ```rust
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
+    ///
     /// let mut config = FileConfig::new("./examples");
     /// config.set_overwrite_existing_file(true);
     ///
@@ -178,7 +216,7 @@ impl FileConfig {
     /// # Example
     /// ```rust
     /// use std::ffi::{OsStr, OsString};
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
     ///
     /// let mut config = FileConfig::new("./examples");
     /// config.set_file_name(OsStr::new("example.pdf"));
@@ -196,7 +234,7 @@ impl FileConfig {
     /// # Example
     /// ```rust
     /// use std::ffi::{OsStr, OsString};
-    /// use graph_http::FileConfig;
+    /// use graph_http::api_impl::FileConfig;
     ///
     /// let mut config = FileConfig::new("./examples")
     ///     .extension(OsStr::new("pdf"));

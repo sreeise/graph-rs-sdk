@@ -1,5 +1,5 @@
 use crate::api_default_imports::*;
-use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
+use crate::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 
 resource_api_client!(BatchApiClient);
 
@@ -12,23 +12,35 @@ impl BatchApiClient {
             self.resource_config.resource_identity,
             Method::POST,
             url_result,
-            body_result,
         ));
 
-        if let Ok(rc) = rc_result {
-            let mut header_map = HeaderMap::new();
-            header_map
-                .entry(CONTENT_TYPE)
-                .or_insert(HeaderValue::from_static("application/json"));
-            return RequestHandler::new(self.client.clone(), rc, None).headers(header_map);
-        }
+        match rc_result {
+            Ok(rc) => {
+                let mut header_map = HeaderMap::new();
+                header_map
+                    .entry(CONTENT_TYPE)
+                    .or_insert(HeaderValue::from_static("application/json"));
 
-        let rc = RequestComponents::new(
-            self.resource_config.resource_identity,
-            self.resource_config.url.clone(),
-            Method::POST,
-            None,
-        );
-        RequestHandler::new(self.client.clone(), rc, rc_result.err())
+                match body_result {
+                    Ok(body) => RequestHandler::new(
+                        self.client.clone(),
+                        rc,
+                        None,
+                        Some(reqwest::Body::from(body)),
+                    )
+                    .headers(header_map),
+                    Err(err) => RequestHandler::new(self.client.clone(), rc, Some(err), None)
+                        .headers(header_map),
+                }
+            }
+            Err(err) => {
+                let rc = RequestComponents::new(
+                    self.resource_config.resource_identity,
+                    self.resource_config.url.clone(),
+                    Method::POST,
+                );
+                RequestHandler::new(self.client.clone(), rc, Some(err), None)
+            }
+        }
     }
 }

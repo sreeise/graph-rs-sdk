@@ -170,11 +170,10 @@ pub mod oauth {
 }
 
 pub mod http {
-    pub use graph_http::api_impl::{ChannelResponse, FileConfig, UploadSession};
+    pub use graph_http::api_impl::{BodyRead, ChannelResponse, FileConfig, UploadSession};
     pub use graph_http::traits::{
-        AsyncIterator, BodyRead, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink,
-        ODataDownloadLink, ODataMetadataLink, ODataNextLink, ODataQuery, ResponseExt,
-        UploadSessionLink,
+        AsyncIterator, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
+        ODataMetadataLink, ODataNextLink, ODataQuery, ResponseExt, UploadSessionLink,
     };
 }
 
@@ -201,6 +200,9 @@ pub(crate) mod api_default_imports {
     pub(crate) use graph_http::api_impl::*;
 
     pub use crate::client::Graph;
-    pub(crate) use crate::client::{map_parameters, ResourceProvisioner};
+    pub(crate) use crate::client::{map_errors, map_parameters, ResourceProvisioner};
     pub use crate::core::ResourceIdentity;
+
+    #[cfg(feature = "blocking")]
+    pub(crate) use crate::client::map_errors_blocking;
 }

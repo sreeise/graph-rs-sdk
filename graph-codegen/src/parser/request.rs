@@ -16,6 +16,7 @@ use std::{
 
 #[derive(
     Debug,
+    Default,
     Copy,
     Clone,
     Serialize,
@@ -29,6 +30,7 @@ use std::{
     Hash,
 )]
 pub enum HttpMethod {
+    #[default]
     GET,
     PUT,
     POST,
@@ -47,12 +49,6 @@ impl HttpMethod {
             HttpMethod::PATCH => "Method::PATCH".into(),
             HttpMethod::TRACE => "Method::TRACE".into(),
         }
-    }
-}
-
-impl Default for HttpMethod {
-    fn default() -> Self {
-        HttpMethod::GET
     }
 }
 
@@ -91,6 +87,7 @@ impl ToString for HttpMethod {
 #[deprecated]
 #[derive(
     Debug,
+    Default,
     Copy,
     Clone,
     Serialize,
@@ -104,6 +101,7 @@ impl ToString for HttpMethod {
     Hash,
 )]
 pub enum ResponseType {
+    #[default]
     SerdeJson,
     Collection,
     NoContent,
@@ -164,13 +162,8 @@ impl ToString for ResponseType {
     }
 }
 
-impl Default for ResponseType {
-    fn default() -> Self {
-        ResponseType::SerdeJson
-    }
-}
-
 #[derive(
+    Default,
     Eq,
     PartialEq,
     Hash,
@@ -185,17 +178,12 @@ impl Default for ResponseType {
     AsFile,
 )]
 pub enum RequestType {
+    #[default]
     Normal,
     Upload,
     UploadSession,
     Download,
     AsyncDownload,
-}
-
-impl Default for RequestType {
-    fn default() -> Self {
-        RequestType::Normal
-    }
 }
 
 #[deprecated]

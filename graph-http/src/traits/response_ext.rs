@@ -1,14 +1,13 @@
 use crate::internal::{copy_async, create_dir_async, FileConfig, RangeIter, UploadSession};
 use async_trait::async_trait;
 
+use crate::core::BodyRead;
 use crate::traits::UploadSessionLink;
-use bytes::{Buf, BytesMut};
 use graph_error::download::AsyncDownloadError;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
 use reqwest::{Body, Response};
 use std::ffi::OsString;
-use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
 use tokio::io::AsyncReadExt;
@@ -52,6 +51,11 @@ pub trait ResponseExt {
 
     async fn into_upload_session(self, reader: impl Read + Send) -> GraphResult<UploadSession>;
 
+    async fn into_upload_session_async_read(
+        self,
+        reader: impl AsyncReadExt + Send + Unpin,
+    ) -> GraphResult<UploadSession>;
+
     async fn download(self, download_config: &FileConfig) -> Result<PathBuf, AsyncDownloadError>;
 }
 
@@ -85,6 +89,22 @@ impl ResponseExt for reqwest::Response {
             .ok_or_else(|| GraphFailure::not_found("No uploadUrl found in response body"))?;
 
         let range_iter = RangeIter::from_reader(reader)?;
+        Ok(UploadSession::new(
+            reqwest::Url::parse(url.as_str())?,
+            range_iter,
+        ))
+    }
+
+    async fn into_upload_session_async_read(
+        self,
+        reader: impl AsyncReadExt + Send + Unpin,
+    ) -> GraphResult<UploadSession> {
+        let body: serde_json::Value = self.json().await?;
+        let url = body
+            .upload_session_link()
+            .ok_or_else(|| GraphFailure::not_found("No uploadUrl found in response body"))?;
+
+        let range_iter = RangeIter::from_async_read(reader).await?;
         Ok(UploadSession::new(
             reqwest::Url::parse(url.as_str())?,
             range_iter,
@@ -131,72 +151,13 @@ impl ResponseExt for reqwest::Response {
     }
 }
 
-pub struct BodyRead {
-    buf: String,
-}
-
-impl BodyRead {
-    pub fn new(buf: String) -> BodyRead {
-        BodyRead { buf }
-    }
-
-    pub fn from_reader<T: std::io::Read>(mut reader: T) -> GraphResult<BodyRead> {
-        let mut buf = String::new();
-        reader.read_to_string(&mut buf)?;
-        Ok(BodyRead::new(buf))
-    }
-
-    pub async fn from_async_read<T: tokio::io::AsyncRead + std::marker::Unpin>(
-        mut reader: T,
-    ) -> GraphResult<BodyRead> {
-        let mut buf = String::new();
-        reader.read_to_string(&mut buf).await?;
-        Ok(BodyRead::new(buf))
-    }
-
-    pub fn from_file_config(file_config: &FileConfig) -> GraphResult<BodyRead> {
-        let mut file = File::open(file_config.path.as_path())?;
-        let mut buf = String::new();
-        file.read_to_string(&mut buf)?;
-        Ok(BodyRead::new(buf))
-    }
-}
-
-impl TryFrom<BytesMut> for BodyRead {
-    type Error = GraphFailure;
-
-    fn try_from(bytes_mut: BytesMut) -> Result<Self, Self::Error> {
-        BodyRead::from_reader(bytes_mut.reader())
-    }
-}
-
-impl TryFrom<bytes::Bytes> for BodyRead {
-    type Error = GraphFailure;
-
-    fn try_from(bytes: bytes::Bytes) -> Result<Self, Self::Error> {
-        BodyRead::from_reader(bytes.reader())
-    }
-}
-
-impl From<BodyRead> for reqwest::Body {
-    fn from(upload: BodyRead) -> Self {
-        reqwest::Body::from(upload.buf)
-    }
-}
-
-impl From<&BodyRead> for reqwest::Body {
-    fn from(upload: &BodyRead) -> Self {
-        reqwest::Body::from(upload.buf.clone())
-    }
-}
-
 pub trait BodyExt<RHS = Self> {
     fn as_body(&self) -> GraphResult<reqwest::Body>;
 }
 
 impl<T: serde::Serialize> BodyExt for T {
     fn as_body(&self) -> GraphResult<Body> {
-        let body = serde_json::to_string(&self).map_err(GraphFailure::from)?;
+        let body = serde_json::to_string(&self)?;
         Ok(reqwest::Body::from(body))
     }
 }
@@ -208,8 +169,20 @@ impl BodyExt for FileConfig {
     }
 }
 
-impl BodyExt for BodyRead {
-    fn as_body(&self) -> GraphResult<Body> {
-        Ok(self.into())
+pub trait BlockingBodyExt<RHS = Self> {
+    fn as_body(&self) -> GraphResult<reqwest::blocking::Body>;
+}
+
+impl<T: serde::Serialize> BlockingBodyExt for T {
+    fn as_body(&self) -> GraphResult<reqwest::blocking::Body> {
+        let body = serde_json::to_string(&self)?;
+        Ok(reqwest::blocking::Body::from(body))
+    }
+}
+
+impl BlockingBodyExt for FileConfig {
+    fn as_body(&self) -> GraphResult<reqwest::blocking::Body> {
+        let upload = BodyRead::from_file_config(self)?;
+        Ok(upload.into())
     }
 }

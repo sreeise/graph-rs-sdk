@@ -21,6 +21,7 @@ use std::convert::AsRef;
     Deserialize,
 )]
 #[strum(serialize_all = "camelCase")]
+#[derive(Default)]
 pub enum ResourceIdentity {
     AccessPackageAssignmentApprovals,
     AccessPackages,
@@ -151,6 +152,7 @@ pub enum ResourceIdentity {
     ManagedEBooksDeviceStates,
     ManagedEBooksUserStateSummary,
     MdmWindowsInformationProtectionPolicies,
+    #[default]
     Me,
     MemberOf,
     MembersWithLicenseErrors,
@@ -360,12 +362,6 @@ impl ToString for ResourceIdentity {
     }
 }
 
-impl Default for ResourceIdentity {
-    fn default() -> Self {
-        ResourceIdentity::Me
-    }
-}
-
 impl ResourceIdentity {
     pub fn enum_string(&self) -> String {
         format!("ResourceIdentity::{self:#?}")
@@ -410,6 +406,7 @@ impl ResourceIdentity {
     Deserialize,
 )]
 #[strum(serialize_all = "camelCase")]
+#[derive(Default)]
 pub enum TopLevelResource {
     Admin,
     AgreementAcceptances,
@@ -453,6 +450,7 @@ pub enum TopLevelResource {
     InformationProtection,
     Invitations,
     Localizations,
+    #[default]
     Me,
     Oauth2PermissionGrants,
     Organization,
@@ -484,11 +482,5 @@ pub enum TopLevelResource {
 impl ToString for TopLevelResource {
     fn to_string(&self) -> String {
         self.as_ref().to_camel_case()
-    }
-}
-
-impl Default for TopLevelResource {
-    fn default() -> Self {
-        TopLevelResource::Me
     }
 }

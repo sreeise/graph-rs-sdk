@@ -286,7 +286,6 @@ impl OpenApi {
             .iter()
             .map(|(path, _path_item)| {
                 path.split('/')
-                    .into_iter()
                     .filter(|s| !s.trim().is_empty())
                     .map(|s| s.to_pascal_case())
                     .take(1)

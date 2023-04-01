@@ -7,7 +7,6 @@ static USER_ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5
 fn list_users() {
     let client = Graph::new("");
 
-    client.users().list_user();
     assert_eq!(
         client.users().list_user().url().path(),
         "/v1.0/users".to_string()
