@@ -11,13 +11,16 @@ async fn async_download_office_365_user_counts_reports_test() {
     if let Some((_id, client)) =
         OAuthTestClient::graph_by_rid_async(ResourceIdentity::Reports).await
     {
-        let path_buf = client
+        let response = client
             .reports()
             .get_office_365_active_user_counts_by_period("D90")
             .download(&FileConfig::new("./test_files").file_name(OsStr::new("async_user_count_report.csv")))
             .await
             .expect("Request Error. API: Reports | Method: download_async get_office_365_active_user_counts.");
 
+        assert!(response.status().is_success());
+
+        let path_buf = response.into_body();
         assert!(path_buf.exists());
 
         let file_location = "./test_files/async_user_count_report.csv";

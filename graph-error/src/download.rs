@@ -27,6 +27,9 @@ pub enum BlockingDownloadError {
         If you want to over write this file then use overwrite_existing_file(true)"
     )]
     FileExists(String),
+
+    #[error("http::Error:\n{0:#?}")]
+    HttpError(#[from] http::Error),
 }
 
 impl From<std::io::Error> for BlockingDownloadError {
@@ -61,6 +64,9 @@ pub enum AsyncDownloadError {
         If you want to over write this file then use overwrite_existing_file(true)"
     )]
     FileExists(String),
+
+    #[error("http::Error:\n{0:#?}")]
+    HttpError(#[from] http::Error),
 }
 
 impl From<std::io::Error> for AsyncDownloadError {

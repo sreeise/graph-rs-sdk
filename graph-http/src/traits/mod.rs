@@ -4,6 +4,7 @@ mod byte_range;
 mod http_ext;
 mod odata_link;
 mod odata_query;
+mod response_blocking_ext;
 mod response_ext;
 
 pub use async_iterator::*;

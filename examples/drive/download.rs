@@ -21,7 +21,7 @@ pub async fn download_files() {
 pub async fn download() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let path_buf = client
+    let response = client
         .me()
         .drive()
         .item(ITEM_ID)
@@ -30,7 +30,10 @@ pub async fn download() {
         .await
         .unwrap();
 
-    println!("{path_buf:#?}");
+    println!("{response:#?}");
+
+    let path_buf = response.into_body();
+    println!("{:#?}", path_buf.metadata());
 }
 
 pub async fn download_file_as_bytes() {
@@ -75,7 +78,7 @@ pub async fn download_file_as_string() {
 pub async fn download_and_format(format: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let path_buf = client
+    let response = client
         .me()
         .drive()
         .item(ITEM_ID)
@@ -89,13 +92,16 @@ pub async fn download_and_format(format: &str) {
         .await
         .unwrap();
 
+    println!("{response:#?}");
+
+    let path_buf = response.into_body();
     println!("{:#?}", path_buf.metadata());
 }
 
 pub async fn download_and_rename(name: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let path_buf = client
+    let response = client
         .me()
         .drive()
         .item(ITEM_ID)
@@ -108,6 +114,9 @@ pub async fn download_and_rename(name: &str) {
         .await
         .unwrap();
 
+    println!("{response:#?}");
+
+    let path_buf = response.into_body();
     println!("{:#?}", path_buf.metadata());
 }
 
@@ -116,7 +125,7 @@ pub async fn download_and_rename(name: &str) {
 pub async fn download_by_path(path: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let path_buf = client
+    let response = client
         .me()
         .drive()
         .item_by_path(path)
@@ -129,6 +138,9 @@ pub async fn download_by_path(path: &str) {
         .await
         .unwrap();
 
+    println!("{response:#?}");
+
+    let path_buf = response.into_body();
     println!("{:#?}", path_buf.metadata());
 }
 
@@ -139,7 +151,7 @@ pub async fn download_by_path(path: &str) {
 pub async fn download_with_config() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let path_buf = client
+    let response = client
         .me()
         .drive()
         .item(ITEM_ID)
@@ -150,5 +162,8 @@ pub async fn download_with_config() {
         .await
         .unwrap();
 
+    println!("{response:#?}");
+
+    let path_buf = response.into_body();
     println!("{:#?}", path_buf.metadata());
 }

@@ -1,5 +1,7 @@
 use crate::core::BodyRead;
-use crate::internal::{copy_async, create_dir_async, FileConfig, RangeIter, UploadSession};
+use crate::internal::{
+    copy_async, create_dir_async, FileConfig, HttpResponseBuilderExt, RangeIter, UploadSession,
+};
 use crate::traits::UploadSessionLink;
 use async_trait::async_trait;
 use graph_error::download::AsyncDownloadError;
@@ -10,10 +12,10 @@ use std::ffi::OsString;
 use std::path::PathBuf;
 use tokio::io::AsyncReadExt;
 
-const MAX_FILE_NAME_LEN: usize = 255;
+pub(crate) const MAX_FILE_NAME_LEN: usize = 255;
 
 #[allow(clippy::single_char_pattern)]
-fn parse_content_disposition(headers: &HeaderMap) -> Option<OsString> {
+pub(crate) fn parse_content_disposition(headers: &HeaderMap) -> Option<OsString> {
     if let Some(value) = headers.get("content-disposition") {
         if let Ok(header) = std::str::from_utf8(value.as_ref()) {
             let mut v: Vec<&str> = header.split(';').collect();
@@ -210,7 +212,7 @@ pub trait ResponseExt {
     /// this method will return an [AsyncDownloadError::FileExists] with an error message
     /// indicating that the file already exists and cannot be overwritten. <br><br>
     ///
-    /// If the file is downloaded and saved successfully, this method returns a [`PathBuf`] object
+    /// If the file is downloaded and saved successfully, this method returns a [`http::Response<PathBuf>`] object
     /// containing the path to the downloaded file.
     ///
     ///
@@ -272,7 +274,10 @@ pub trait ResponseExt {
     ///     Ok(())
     /// }
     /// ```
-    async fn download(self, download_config: &FileConfig) -> Result<PathBuf, AsyncDownloadError>;
+    async fn download(
+        self,
+        file_config: &FileConfig,
+    ) -> Result<http::Response<PathBuf>, AsyncDownloadError>;
 }
 
 #[async_trait]
@@ -480,14 +485,14 @@ impl ResponseExt for reqwest::Response {
     /// this method will return an [AsyncDownloadError::FileExists] with an error message
     /// indicating that the file already exists and cannot be overwritten. <br><br>
     ///
-    /// If the file is downloaded and saved successfully, this method returns a [`PathBuf`] object
+    /// If the file is downloaded and saved successfully, this method returns a [`http::Response<PathBuf>`] object
     /// containing the path to the downloaded file.
     ///
     ///
     /// # Example
     ///
     /// ```rust,ignore
-    /// use graph_rs_sdk::http::{BodyRead, FileConfig};
+    /// use graph_rs_sdk::http::BodyRead, FileConfig;
     /// use graph_rs_sdk::prelude::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -506,6 +511,9 @@ impl ResponseExt for reqwest::Response {
     ///                 .create_directories(true))
     ///         .await?;
     ///
+    ///     println!("{response:#?}");
+    ///
+    ///     let path_buf = response.body();
     ///     println!("{:#?}", path_buf.metadata());
     ///
     ///     Ok(())
@@ -515,7 +523,7 @@ impl ResponseExt for reqwest::Response {
     /// # Example format and rename
     ///
     /// ```rust,ignore
-    /// use graph_rs_sdk::http::{BodyRead, FileConfig};
+    /// use graph_rs_sdk::http::FileConfig;
     /// use graph_rs_sdk::prelude::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -537,12 +545,18 @@ impl ResponseExt for reqwest::Response {
     ///         )
     ///         .await?;
     ///
+    ///     println!("{response:#?}");
+    ///
+    ///     let path_buf = response.body();
     ///     println!("{:#?}", path_buf.metadata());
     ///
     ///     Ok(())
     /// }
     /// ```
-    async fn download(self, file_config: &FileConfig) -> Result<PathBuf, AsyncDownloadError> {
+    async fn download(
+        self,
+        file_config: &FileConfig,
+    ) -> Result<http::Response<PathBuf>, AsyncDownloadError> {
         let path = file_config.path.clone();
         let file_name = file_config.file_name.clone();
         let create_dir_all = file_config.create_directory_all;
@@ -578,7 +592,16 @@ impl ResponseExt for reqwest::Response {
             ));
         }
 
-        Ok(copy_async(path, self).await?)
+        let status = self.status();
+        let url = self.url().clone();
+        let _headers = self.headers().clone();
+        let version = self.version();
+
+        Ok(http::Response::builder()
+            .url(url)
+            .status(http::StatusCode::from(&status))
+            .version(version)
+            .body(copy_async(path, self).await?)?)
     }
 }
 

@@ -154,7 +154,8 @@ async fn download_page() {
 
             if let Err(e) = result {
                 panic!("Request error. Method onenote page download page | get content -> download page. Error: {e:#?}");
-            } else if let Ok(path_buf) = result {
+            } else if let Ok(response) = result {
+                let path_buf = response.into_body();
                 assert!(path_buf.exists());
             }
 

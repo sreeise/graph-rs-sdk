@@ -197,7 +197,10 @@ impl RequestHandler {
             .map_err(GraphFailure::from)
     }
 
-    pub async fn download(mut self, file_config: &FileConfig) -> GraphResult<PathBuf> {
+    pub async fn download(
+        mut self,
+        file_config: &FileConfig,
+    ) -> GraphResult<http::Response<PathBuf>> {
         if let Some(err) = self.error {
             return Err(err);
         }
