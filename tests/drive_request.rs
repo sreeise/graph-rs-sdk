@@ -1,14 +1,13 @@
-use bytes::BytesMut;
 use futures::stream::StreamExt;
 use graph_rs_sdk::{
     error::GraphResult,
     header::{HeaderValue, CONTENT_LENGTH},
-    http::{AsyncIterator, FileConfig, ResponseExt},
+    http::{FileConfig, ResponseExt},
     prelude::Graph,
 };
-use std::collections::HashMap;
+
 use std::fs::OpenOptions;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::DRIVE_ASYNC_THROTTLE_MUTEX;
@@ -259,7 +258,7 @@ async fn file_upload_session_stream() {
 
         assert!(response.status().is_success());
 
-        let mut file = OpenOptions::new()
+        let file = OpenOptions::new()
             .read(true)
             .open("./test_files/upload_session_file.txt")
             .unwrap();
@@ -318,7 +317,7 @@ async fn file_upload_session_channel() {
 
         assert!(response.status().is_success());
 
-        let mut file = OpenOptions::new()
+        let file = OpenOptions::new()
             .read(true)
             .open("./test_files/upload_session_file.txt")
             .unwrap();

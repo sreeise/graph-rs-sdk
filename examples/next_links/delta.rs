@@ -1,5 +1,4 @@
-use futures_util::stream::StreamExt;
-
+use futures::StreamExt;
 use graph_rs_sdk::http::ChannelResponse;
 use graph_rs_sdk::prelude::*;
 

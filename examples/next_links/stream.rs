@@ -1,4 +1,4 @@
-use futures_util::stream::StreamExt;
+use futures::StreamExt;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";

@@ -98,7 +98,7 @@ impl UploadSession {
         })
     }
 
-    fn try_stream<'a>(&'a mut self) -> impl Stream<Item = GraphResult<reqwest::Response>> + 'a {
+    fn try_stream(&mut self) -> impl Stream<Item = GraphResult<reqwest::Response>> + '_ {
         try_stream! {
             while let Some(result) = self.range_iter.pop_front_result() {
                 let (header_map, body) = result?;
@@ -132,13 +132,12 @@ impl UploadSession {
     ///
     ///     assert!(response.status().is_success());
     ///
-    ///     let mut file = OpenOptions::new()
-    ///         .read(true)
-    ///         .open("./test_files/upload_session_file.txt")?;
+    ///  let mut file = OpenOptions::new()
+    ///     .read(true)
+    ///     .open("./test_files/upload_session_file.txt")?;
     ///
-    ///     let mut upload_session = response.into_upload_session(file)
-    ///             .await?;
-    ///     let mut stream = upload_session.stream()?;
+    ///  let mut upload_session = response.into_upload_session(file).await?;
+    ///  let mut stream = upload_session.stream()?;
     ///
     ///  while let Some(result) = stream.next().await {
     ///     match result {
@@ -152,9 +151,9 @@ impl UploadSession {
     ///     }
     ///  }
     /// ```
-    pub fn stream<'a>(
-        &'a mut self,
-    ) -> GraphResult<impl Stream<Item = GraphResult<reqwest::Response>> + 'a> {
+    pub fn stream(
+        &mut self,
+    ) -> GraphResult<impl Stream<Item = GraphResult<reqwest::Response>> + '_> {
         Ok(Box::pin(self.try_stream()))
     }
 

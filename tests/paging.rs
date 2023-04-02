@@ -1,4 +1,4 @@
-use futures_util::stream::StreamExt;
+use futures::StreamExt;
 use std::collections::VecDeque;
 use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};

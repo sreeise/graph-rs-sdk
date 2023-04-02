@@ -27,9 +27,7 @@ pub async fn channel(file: tokio::fs::File) -> GraphResult<()> {
         .send()
         .await?;
 
-    let mut upload_session_task = response
-        .into_upload_session(reqwest::Body::from(file))
-        .await?;
+    let mut upload_session_task = response.into_upload_session_async_read(file).await?;
     let mut receiver = upload_session_task.channel()?;
 
     while let Some(result) = receiver.recv().await {

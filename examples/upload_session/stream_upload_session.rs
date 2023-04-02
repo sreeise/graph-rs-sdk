@@ -1,7 +1,8 @@
-use bytes::{Buf, Bytes, BytesMut};
-use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
+use bytes::{Buf, BytesMut};
+use graph_rs_sdk::http::ResponseExt;
 use graph_rs_sdk::prelude::*;
-use std::fs::OpenOptions;
+
+use futures::StreamExt;
 
 // Stream bytes to a file in OneDrive
 // See https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online

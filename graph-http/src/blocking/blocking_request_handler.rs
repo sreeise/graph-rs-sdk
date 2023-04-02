@@ -231,6 +231,7 @@ impl BlockingPaging {
     /// let response = client
     ///     .users()
     ///     .delta()
+    ///     .into_blocking()
     ///     .paging()
     ///     .json::<serde_json::Value>()
     ///     .unwrap();

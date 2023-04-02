@@ -1,7 +1,6 @@
-use bytes::{Buf, Bytes};
+use bytes::Buf;
 use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
 use graph_rs_sdk::prelude::*;
-use std::fs::OpenOptions;
 
 // This example shows creating an upload session for a new file
 // and iterating through the individual upload session values

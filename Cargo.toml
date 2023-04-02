@@ -59,7 +59,7 @@ trust-dns = ["reqwest/trust-dns"]
 [dev-dependencies]
 bytes = { version = "1.4.0" }
 from_as = "0.1"
-futures-util = "0.3"
+futures = "0.3"
 lazy_static = "1.4"
 regex = "1"
 thiserror = "1"
