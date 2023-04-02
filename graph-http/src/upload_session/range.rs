@@ -1,9 +1,9 @@
 use crate::traits::ByteRangeMultiple;
-use bytes::{Buf, BytesMut};
+use bytes::{Buf, BufMut, BytesMut};
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE};
 use std::collections::VecDeque;
-use std::io::Read;
+use std::io::{BufReader, Read};
 use tokio::io::AsyncReadExt;
 
 #[derive(Clone, Debug, Default)]
@@ -38,7 +38,7 @@ impl Range {
 #[derive(Debug, Default)]
 pub(crate) struct RangeIter {
     size: u64,
-    dequeue: VecDeque<Range>,
+    pub(crate) dequeue: VecDeque<Range>,
 }
 
 impl RangeIter {
@@ -49,19 +49,23 @@ impl RangeIter {
         }
     }
 
+    pub fn len(&self) -> usize {
+        self.dequeue.len()
+    }
+
     pub fn from_reader<T: Read>(mut reader: T) -> GraphResult<RangeIter> {
-        let mut buf: Vec<u8> = Vec::new();
-        let _ = reader.read_to_end(&mut buf)?;
-        RangeIter::try_from(BytesMut::from_iter(buf.iter()))
+        let mut buf = BytesMut::new().writer();
+        std::io::copy(&mut reader, &mut buf)?;
+        RangeIter::try_from(buf.into_inner())
     }
 
     pub async fn from_async_read<T: AsyncReadExt + Unpin>(mut reader: T) -> GraphResult<RangeIter> {
         let mut buf: Vec<u8> = Vec::new();
-        let _ = reader.read_to_end(&mut buf).await?;
-        RangeIter::try_from(BytesMut::from_iter(buf.iter()))
+        reader.read_to_end(&mut buf).await?;
+        RangeIter::try_from(BytesMut::from_iter(buf))
     }
 
-    pub fn pop_front(&mut self) -> Option<(HeaderMap, reqwest::Body)> {
+    pub(crate) fn pop_front(&mut self) -> Option<(HeaderMap, reqwest::Body)> {
         let range = self.dequeue.pop_front()?;
 
         let content_range = range.content_range(self.size);
@@ -79,6 +83,43 @@ impl RangeIter {
         );
 
         Some((header_map, reqwest::Body::from(range.body())))
+    }
+
+    pub(crate) fn pop_front_result(&mut self) -> Option<GraphResult<(HeaderMap, reqwest::Body)>> {
+        let range = self.dequeue.pop_front()?;
+
+        let content_range = range.content_range(self.size);
+        let content_length = range.content_length().to_string();
+
+        let mut header_map = HeaderMap::new();
+        header_map.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
+        let content_length_result = HeaderValue::from_str(content_length.as_str());
+        let content_range_result = HeaderValue::from_str(content_range.as_str());
+
+        match content_length_result {
+            Ok(content_length_header_value) => {
+                header_map.insert(CONTENT_LENGTH, content_length_header_value);
+            }
+            Err(err) => return Some(Err(err).map_err(GraphFailure::from)),
+        }
+
+        match content_range_result {
+            Ok(content_range_header_value) => {
+                header_map.insert(CONTENT_RANGE, content_range_header_value);
+            }
+            Err(err) => return Some(Err(err).map_err(GraphFailure::from)),
+        }
+
+        Some(Ok((header_map, reqwest::Body::from(range.body()))))
+    }
+
+    pub(crate) fn map_all(&mut self) -> Option<Vec<(HeaderMap, reqwest::Body)>> {
+        let mut comp = Vec::new();
+        while let Some(value) = self.pop_front() {
+            comp.push(value);
+        }
+        Some(comp)
     }
 }
 
@@ -98,7 +139,7 @@ impl TryFrom<BytesMut> for RangeIter {
         let size = bytes_mut.len() as u64;
 
         let mut range_iter = RangeIter::new(size);
-        let mut reader = bytes_mut.reader();
+        let mut reader = BufReader::new(bytes_mut.reader());
 
         let mut end = 0;
         let mut counter = 0;

@@ -1,3 +1,5 @@
+use bytes::BytesMut;
+use futures::stream::StreamExt;
 use graph_rs_sdk::{
     error::GraphResult,
     header::{HeaderValue, CONTENT_LENGTH},
@@ -6,53 +8,11 @@ use graph_rs_sdk::{
 };
 use std::collections::HashMap;
 use std::fs::OpenOptions;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::thread;
 use std::time::Duration;
 use test_tools::oauthrequest::DRIVE_ASYNC_THROTTLE_MUTEX;
 use test_tools::oauthrequest::{Environment, OAuthTestClient};
-
-async fn test_folder_create_delete(folder_name: &str) {
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let folder: HashMap<String, serde_json::Value> = HashMap::new();
-        let result = client
-            .drive(id.as_str())
-            .create_root_folder(&serde_json::json!({
-                "name": folder_name,
-                "folder": folder,
-                "@microsoft.graph.conflictBehavior": "fail"
-            }))
-            .send()
-            .await;
-
-        if let Ok(response) = result {
-            assert!(response.status().is_success());
-
-            let body: serde_json::Value = response.json().await.unwrap();
-            let item_id = body["id"].as_str().unwrap();
-            thread::sleep(Duration::from_secs(2));
-
-            let response = client
-                .drive(&id)
-                .item(item_id)
-                .delete_items()
-                .send()
-                .await
-                .unwrap();
-            assert!(response.status().is_success());
-        } else if let Err(e) = result {
-            panic!(
-                "Request error. Method: create root folder\nFolder Name: {folder_name:#?}\nError: {e:#?}"
-            );
-        }
-    }
-}
-
-#[tokio::test]
-async fn create_delete_folder() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
-    test_folder_create_delete("ci_docs").await;
-}
 
 #[tokio::test]
 async fn list_versions_get_item() {
@@ -282,7 +242,7 @@ async fn drive_upload_item() {
 }
 
 #[tokio::test]
-async fn file_upload_session() {
+async fn file_upload_session_stream() {
     let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let upload = serde_json::json!({
@@ -299,15 +259,101 @@ async fn file_upload_session() {
 
         assert!(response.status().is_success());
 
-        let file = OpenOptions::new()
+        let mut file = OpenOptions::new()
             .read(true)
             .open("./test_files/upload_session_file.txt")
             .unwrap();
 
         let mut upload_session_task = response.into_upload_session(file).await.unwrap();
+        let mut stream = upload_session_task.stream().unwrap();
 
-        while let Some(Ok(response)) = upload_session_task.next().await {
-            assert!(response.status().is_success());
+        let mut counter = 0;
+        while let Some(result) = stream.next().await {
+            match result {
+                Ok(response) => {
+                    assert!(response.status().is_success());
+                    counter += 1;
+                    let body: serde_json::Value = response.json().await.unwrap();
+                    let expiration_date_time = body["expirationDateTime"].as_str();
+                    if expiration_date_time.is_none() {
+                        assert!(body["@content.downloadUrl"].as_str().is_some());
+
+                        let item_id = body["id"].as_str().unwrap();
+                        let _ = client
+                            .drive(id.as_str())
+                            .item(item_id)
+                            .delete_items()
+                            .send()
+                            .await
+                            .unwrap();
+                    } else {
+                        assert!(expiration_date_time.is_some());
+                    }
+                }
+                Err(err) => panic!("Error on upload session {:#?}", err),
+            }
         }
+
+        // We should get at the very least 8 or more responses.
+        // The file is 5.14 MB (5,392,116 bytes).
+        assert!(counter >= 8)
+    }
+}
+
+#[tokio::test]
+async fn file_upload_session_channel() {
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
+    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        let upload = serde_json::json!({
+            "@microsoft.graph.conflictBehavior": Some("fail".to_string())
+        });
+
+        let response = client
+            .drive(id.as_str())
+            .item_by_path(":/upload_session_file.txt:")
+            .create_upload_session(&upload)
+            .send()
+            .await
+            .unwrap();
+
+        assert!(response.status().is_success());
+
+        let mut file = OpenOptions::new()
+            .read(true)
+            .open("./test_files/upload_session_file.txt")
+            .unwrap();
+
+        let mut upload_session_task = response.into_upload_session(file).await.unwrap();
+        let mut receiver = upload_session_task.channel().unwrap();
+        let mut counter = 0;
+        while let Some(result) = receiver.recv().await {
+            match result {
+                Ok(response) => {
+                    assert!(response.status().is_success());
+                    counter += 1;
+                    let body: serde_json::Value = response.json().await.unwrap();
+                    let expiration_date_time = body["expirationDateTime"].as_str();
+                    if expiration_date_time.is_none() {
+                        assert!(body["@content.downloadUrl"].as_str().is_some());
+
+                        let item_id = body["id"].as_str().unwrap();
+                        let _ = client
+                            .drive(id.as_str())
+                            .item(item_id)
+                            .delete_items()
+                            .send()
+                            .await
+                            .unwrap();
+                    } else {
+                        assert!(expiration_date_time.is_some());
+                    }
+                }
+                Err(err) => panic!("{:#?}", err),
+            }
+        }
+
+        // We should get at the very least 8 or more responses.
+        // The file is 5.14 MB (5,392,116 bytes).
+        assert!(counter >= 8)
     }
 }

@@ -418,7 +418,8 @@ impl Paging {
     pub async fn channel<T: DeserializeOwned + Debug + Send + 'static>(
         self,
     ) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>> {
-        self.channel_timeout(Duration::from_secs(30)).await
+        self.channel_buffer_timeout(100, Duration::from_secs(30))
+            .await
     }
 
     /// Get next link responses using a channel Receiver [`tokio::sync::mpsc::Receiver<ChannelResponse<T>>`] with a custom timeout [`Duration`].
@@ -460,6 +461,32 @@ impl Paging {
     ) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>> {
         let mut stream = self.stream()?;
         let (sender, receiver) = tokio::sync::mpsc::channel(100);
+
+        tokio::spawn(async move {
+            while let Some(result) = stream.next().await {
+                sender
+                    .send_timeout(ChannelResponse::Next(result), timeout)
+                    .await
+                    .unwrap();
+            }
+            sender
+                .send_timeout(ChannelResponse::Done, timeout)
+                .await
+                .unwrap();
+        })
+        .await
+        .unwrap();
+
+        Ok(receiver)
+    }
+
+    pub async fn channel_buffer_timeout<T: DeserializeOwned + Debug + Send + 'static>(
+        self,
+        buffer: usize,
+        timeout: Duration,
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>> {
+        let mut stream = self.stream()?;
+        let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
 
         tokio::spawn(async move {
             while let Some(result) = stream.next().await {

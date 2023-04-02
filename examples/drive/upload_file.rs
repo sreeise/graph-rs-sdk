@@ -74,7 +74,7 @@ async fn upload_using_read() -> GraphResult<()> {
         .me()
         .drive()
         .item(DRIVE_PARENT_ID)
-        .update_items_content(BodyRead::from_reader(file)?)
+        .update_items_content(BodyRead::from_read(file)?)
         .send()
         .await
         .unwrap();

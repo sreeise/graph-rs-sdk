@@ -26,7 +26,7 @@ impl BodyRead {
         Ok(BodyRead::new(body))
     }
 
-    pub fn from_reader<T: Read>(mut reader: T) -> GraphResult<BodyRead> {
+    pub fn from_read<T: Read>(mut reader: T) -> GraphResult<BodyRead> {
         let mut buf = String::new();
         reader.read_to_string(&mut buf)?;
         Ok(BodyRead::new(buf))
@@ -71,7 +71,7 @@ impl<R: Read> TryFrom<BufReader<R>> for BodyRead {
     type Error = GraphFailure;
 
     fn try_from(reader: BufReader<R>) -> Result<Self, Self::Error> {
-        BodyRead::from_reader(reader)
+        BodyRead::from_read(reader)
     }
 }
 
@@ -79,7 +79,7 @@ impl TryFrom<std::fs::File> for BodyRead {
     type Error = GraphFailure;
 
     fn try_from(value: std::fs::File) -> Result<Self, Self::Error> {
-        BodyRead::from_reader(value)
+        BodyRead::from_read(value)
     }
 }
 
@@ -96,7 +96,7 @@ impl TryFrom<BytesMut> for BodyRead {
     type Error = GraphFailure;
 
     fn try_from(bytes_mut: BytesMut) -> Result<Self, Self::Error> {
-        BodyRead::from_reader(bytes_mut.reader())
+        BodyRead::from_read(bytes_mut.reader())
     }
 }
 
@@ -104,7 +104,7 @@ impl TryFrom<bytes::Bytes> for BodyRead {
     type Error = GraphFailure;
 
     fn try_from(bytes: bytes::Bytes) -> Result<Self, Self::Error> {
-        BodyRead::from_reader(bytes.reader())
+        BodyRead::from_read(bytes.reader())
     }
 }
 

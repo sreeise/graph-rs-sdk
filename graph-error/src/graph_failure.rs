@@ -74,6 +74,9 @@ pub enum GraphFailure {
     #[error("Async Download Error:\n{0:#?}")]
     AsyncDownloadError(#[from] AsyncDownloadError),
 
+    #[error("Invalid Header Value\n{0:#?}")]
+    InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
+
     #[error(
         "Error building or processing request prior to being sent:\n{0:#?}r",
         error
