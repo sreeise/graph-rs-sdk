@@ -134,7 +134,6 @@ async fn upload_bytes_mut() {
 
 #[tokio::test]
 async fn upload_reqwest_body() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
     let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let local_file = "./test_files/test_upload_file_bytes.txt";
