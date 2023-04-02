@@ -369,7 +369,7 @@ impl TryFrom<reqwest::Url> for OpenApi {
     fn try_from(value: Url) -> Result<Self, Self::Error> {
         let response = reqwest::blocking::get(value)?;
         let open_api_yaml = response.text()?;
-        let open_api: OpenApi = serde_yaml::from_str(open_api_yaml.as_str())?;
+        let open_api: OpenApi = serde_yaml::from_str(open_api_yaml.as_str()).unwrap();
         Ok(open_api)
     }
 }
@@ -382,6 +382,7 @@ impl TryFrom<GraphUrl> for OpenApi {
     }
 }
 
+/*
 impl TryFrom<serde_yaml::Value> for OpenApi {
     type Error = GraphFailure;
 
@@ -390,6 +391,7 @@ impl TryFrom<serde_yaml::Value> for OpenApi {
     }
 }
 
+ */
 impl TryFrom<OpenApiRaw> for OpenApi {
     type Error = GraphFailure;
 
@@ -468,7 +470,7 @@ impl TryFrom<reqwest::Url> for OpenApiRaw {
     fn try_from(value: Url) -> Result<Self, Self::Error> {
         let response = reqwest::blocking::get(value)?;
         let open_api_raw_text = response.text()?;
-        let open_api: serde_json::Value = serde_yaml::from_str(open_api_raw_text.as_str())?;
+        let open_api: serde_json::Value = serde_yaml::from_str(open_api_raw_text.as_str()).unwrap();
         Ok(OpenApiRaw { open_api })
     }
 }

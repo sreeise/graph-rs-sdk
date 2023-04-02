@@ -13,12 +13,11 @@ base64 = "0.21.0"
 futures = "0.3"
 handlebars = "2.0.2"
 http-serde = "1"
-hyper = "0.14"
+http = "0.2.9"
 reqwest = { version = "0.11.16", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
 ring = "0.16.15"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-serde_yaml = "0.8"
 thiserror = "1"
 tokio = { version = "1.25.0", features = ["full"] }
 url = "2"

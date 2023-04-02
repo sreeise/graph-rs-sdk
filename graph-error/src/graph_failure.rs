@@ -3,22 +3,16 @@ use crate::error::GraphError;
 use crate::internal::GraphRsError;
 use reqwest::header::HeaderMap;
 use std::cell::BorrowMutError;
+use std::io;
 use std::io::ErrorKind;
 use std::str::Utf8Error;
 use std::sync::mpsc;
-use std::{io, num, string};
 
 #[derive(Debug, thiserror::Error)]
 #[allow(clippy::large_enum_variant)]
 pub enum GraphFailure {
     #[error("IO error:\n{0:#?}")]
     Io(#[from] io::Error),
-
-    #[error("Parse error:\n{0:#?}")]
-    Parse(#[from] num::ParseIntError),
-
-    #[error("Parse string error:\n{0:#?}")]
-    ParseString(#[from] string::ParseError),
 
     #[error("Base 64 decode error:\n{0:#?}")]
     Utf8Error(#[from] Utf8Error),
@@ -29,11 +23,11 @@ pub enum GraphFailure {
     #[error("Request error:\n{0:#?}")]
     ReqwestHeaderToStr(#[from] reqwest::header::ToStrError),
 
+    #[error("Invalid Header Value\n{0:#?}")]
+    InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
+
     #[error("Serde error:\n{0:#?}")]
     SerdeError(#[from] serde_json::error::Error),
-
-    #[error("Serde yaml error:\n{0:#?}")]
-    SerdeYamlError(#[from] serde_yaml::Error),
 
     #[error("Base64 decode error:\n{0:#?}")]
     DecodeError(#[from] base64::DecodeError),
@@ -50,14 +44,8 @@ pub enum GraphFailure {
     #[error("Url parse error:\n{0:#?}")]
     UrlParseError(#[from] url::ParseError),
 
-    #[error("Hyper http error:\n{0:#?}")]
-    HyperError(#[from] hyper::Error),
-
-    #[error("Hyper http error:\n{0:#?}")]
-    HyperHttpError(#[from] hyper::http::Error),
-
-    #[error("Hyper http error:\n{0:#?}")]
-    HyperInvalidUri(#[from] hyper::http::uri::InvalidUri),
+    #[error("http::Error:\n{0:#?}")]
+    HttpError(#[from] http::Error),
 
     #[error("Internal error:\n{0:#?}")]
     GraphRsError(#[from] GraphRsError),
@@ -73,9 +61,6 @@ pub enum GraphFailure {
 
     #[error("Async Download Error:\n{0:#?}")]
     AsyncDownloadError(#[from] AsyncDownloadError),
-
-    #[error("Invalid Header Value\n{0:#?}")]
-    InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
 
     #[error(
         "Error building or processing request prior to being sent:\n{0:#?}r",
@@ -105,14 +90,6 @@ impl GraphFailure {
     pub fn invalid(msg: &str) -> Self {
         GraphFailure::internal(GraphRsError::InvalidOrMissing { msg: msg.into() })
     }
-
-    // pub fn from_response(r: &reqwest::blocking::Response) -> Option<GraphFailure> {
-    //     GraphFailure::try_from(r).ok()
-    // }
-
-    // pub fn from_async_response(r: &reqwest::Response) -> Option<GraphFailure> {
-    //     GraphFailure::try_from(r).ok()
-    // }
 }
 
 impl Default for GraphFailure {
@@ -126,15 +103,3 @@ impl From<ring::error::Unspecified> for GraphFailure {
         GraphFailure::CryptoError
     }
 }
-
-// impl From<&reqwest::blocking::Response> for GraphFailure {
-//     fn from(value: &reqwest::blocking::Response) -> Self {
-//         GraphFailure::GraphError(GraphError::from(value))
-//     }
-// }
-
-// impl From<&reqwest::Response> for GraphFailure {
-//     fn from(value: &reqwest::Response) -> Self {
-//         GraphFailure::GraphError(GraphError::from(value))
-//     }
-// }
