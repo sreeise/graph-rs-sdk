@@ -15,10 +15,8 @@ fn drive() {
             .send();
 
         if let Ok(response) = req {
-            dbg!(&response);
             assert!(response.status().is_success());
             let body: serde_json::Value = response.json().unwrap();
-            dbg!(&body);
             assert_eq!(body["name"].as_str(), Some("update_test.docx"));
             thread::sleep(Duration::from_secs(2));
 

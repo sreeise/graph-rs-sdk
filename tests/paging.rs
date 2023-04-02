@@ -45,7 +45,6 @@ async fn paging_stream() {
             while let Some(result) = stream.next().await {
                 match result {
                     Ok(response) => {
-                        dbg!(&response);
                         assert!(response.status().is_success());
                         let body = response.into_body();
                         deque.push_back(body);
