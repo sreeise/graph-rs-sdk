@@ -270,4 +270,56 @@ impl BlockingPaging {
 
         Ok(vec)
     }
+
+    fn send_channel_request<T: DeserializeOwned>(
+        client: &reqwest::blocking::Client,
+        next: &str,
+        access_token: &str,
+    ) -> GraphResult<(Option<String>, http::Response<T>)> {
+        let response = client
+            .get(next)
+            .bearer_auth(access_token)
+            .send()
+            .map_err(GraphFailure::from)?
+            .with_graph_error()?;
+
+        BlockingPaging::http_response(response)
+    }
+
+    pub fn channel<T: DeserializeOwned + Send + 'static>(
+        mut self,
+    ) -> GraphResult<std::sync::mpsc::Receiver<Option<GraphResult<http::Response<T>>>>> {
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let request = self.0.default_request_builder();
+        let response = request.send()?.with_graph_error()?;
+
+        let (next, http_response) = BlockingPaging::http_response(response)?;
+        let mut next_link = next;
+        sender.send(Some(Ok(http_response))).unwrap();
+
+        let client = self.0.inner.clone();
+        let access_token = self.0.access_token.clone();
+
+        std::thread::spawn(move || {
+            while let Some(next) = next_link.as_ref() {
+                let result = BlockingPaging::send_channel_request(
+                    &client,
+                    next.as_str(),
+                    access_token.as_str(),
+                );
+                if let Ok((next_option, http_response)) = result {
+                    next_link = next_option;
+                    sender.send(Some(Ok(http_response))).unwrap();
+                } else if let Err(err) = result {
+                    sender.send(Some(Err(err))).unwrap();
+                    break;
+                }
+            }
+            sender.send(None).unwrap();
+        })
+        .join()
+        .unwrap();
+
+        Ok(receiver)
+    }
 }
