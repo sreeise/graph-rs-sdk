@@ -27,6 +27,8 @@ static CONFLICT_BEHAVIOR: &str = "rename";
 // The into_upload_session method takes any std::io::Reader so you can use things like
 // Bytes and BytesMut from the bytes crate which has methods to get a reader, files, Vec<u8>, etc.
 
+// Use the []() for tokio::io::AsyncReadExt
+
 #[tokio::main]
 async fn main() -> GraphResult<()> {
     upload_file().await?;
@@ -53,6 +55,34 @@ async fn upload_file() -> GraphResult<()> {
     let file = OpenOptions::new().read(true).open(PATH_TO_FILE).unwrap();
 
     let mut iter = response.into_upload_session(file).await?;
+
+    while let Some(result) = iter.next().await {
+        let response = result?;
+        println!("{response:#?}");
+    }
+
+    Ok(())
+}
+
+async fn upload_file_async_read() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let upload = serde_json::json!({
+        "@microsoft.graph.conflictBehavior": Some(CONFLICT_BEHAVIOR.to_string())
+    });
+
+    let response = client
+        .me()
+        .drive()
+        .item_by_path(PATH_IN_ONE_DRIVE)
+        .create_upload_session(&upload)
+        .send()
+        .await
+        .unwrap();
+
+    let file = tokio::fs::File::open(PATH_IN_ONE_DRIVE).await?;
+
+    let mut iter = response.into_upload_session_async_read(file).await?;
 
     while let Some(result) = iter.next().await {
         let response = result?;
