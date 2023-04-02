@@ -197,6 +197,10 @@ called and the response that is returned can provide a reference to the body `re
 which will drop the response using `response.into_body()` whereas with `reqwest::Response` you don't have to specify the type of body
 before getting the response.
 
+There are different levels of support for paging Microsoft Graph APIs. See the documentation, 
+[Paging Microsoft Graph data in your app](https://learn.microsoft.com/en-us/graph/paging), for more info on
+supported APIs and availability.
+
 ```rust
 use graph_rs_sdk::prelude::*;
 
@@ -264,7 +268,6 @@ pub async fn stream_next_links() -> GraphResult<()> {
 ### Channels
 
 ```rust
-use graph_rs_sdk::http::ChannelResponse;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -278,20 +281,18 @@ async fn channel_next_links() -> GraphResult<()> {
       .channel::<serde_json::Value>()
       .await?;
 
-  while let Some(channel_response) = receiver.recv().await {
-    match channel_response {
-      ChannelResponse::Next(result) => match result {
-        Ok(response) => {
-          println!("response:\n{:#?}\n", response);
-        }
-        Err(err) => {
-          println!("{:#?}", err);
-          break;
-        }
-      },
-      ChannelResponse::Done => break,
+  while let Some(result) = receiver.recv().await {
+    match result {
+      Ok(response) => {
+        println!("{:#?}", response);
+
+        let body: serde_json::Value = response.json().await?;
+        println!("{:#?}", body);
+      }
+      Err(err) => panic!("{:#?}", err),
     }
   }
+  
   Ok(())
 }
 

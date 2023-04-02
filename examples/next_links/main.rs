@@ -6,6 +6,10 @@ mod channel;
 mod delta;
 mod stream;
 
+/// There are different levels of support for paging Microsoft Graph APIs. See the documentation,
+/// [Paging Microsoft Graph data in your app](https://learn.microsoft.com/en-us/graph/paging),
+/// for more info on supported APIs and availability.
+
 #[tokio::main]
 async fn main() -> GraphResult<()> {
     stream::stream_next_links().await?;

@@ -5,8 +5,8 @@ use crate::internal::{
     ResponseExt,
 };
 use crate::request_components::RequestComponents;
-use async_stream::{stream, try_stream};
-use futures::{Stream, StreamExt};
+use async_stream::try_stream;
+use futures::Stream;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use serde::de::DeserializeOwned;
@@ -234,12 +234,6 @@ impl AsMut<Url> for RequestHandler {
     }
 }
 
-#[derive(Debug)]
-pub enum ChannelResponse<T: Debug> {
-    Next(GraphResult<http::Response<T>>),
-    Done,
-}
-
 pub struct Paging(RequestHandler);
 
 impl Paging {
@@ -324,7 +318,7 @@ impl Paging {
     }
 
     fn try_stream<'a, T: DeserializeOwned + 'a>(
-        &'a mut self,
+        mut self,
     ) -> impl Stream<Item = GraphResult<http::Response<T>>> + 'a {
         try_stream! {
             let request = self.0.default_request_builder();
@@ -347,17 +341,6 @@ impl Paging {
         }
     }
 
-    fn into_stream<'a, T: DeserializeOwned + 'a>(
-        mut self,
-    ) -> GraphResult<impl Stream<Item = GraphResult<http::Response<T>>> + 'a> {
-        Ok(stream! {
-            let stream = self.try_stream();
-            for await value in stream {
-                yield value
-            }
-        })
-    }
-
     /// Stream the current request along with any next link requests from the response body.
     /// Each stream.next() returns a [`GraphResult<http::Response<T>>`].
     ///
@@ -375,136 +358,154 @@ impl Paging {
     ///  }
     /// ```
     pub fn stream<'a, T: DeserializeOwned + 'a>(
-        self,
+        mut self,
     ) -> GraphResult<impl Stream<Item = GraphResult<http::Response<T>>> + 'a> {
-        if let Some(err) = self.0.error {
+        if let Some(err) = self.0.error.take() {
             return Err(err);
         }
 
-        Ok(Box::pin(self.into_stream()?))
+        Ok(Box::pin(self.try_stream()))
     }
 
-    /// Get next link responses using a channel Receiver [`tokio::sync::mpsc::Receiver<ChannelResponse<T>>`].
-    /// The channel Senders have a default timeout of 30 seconds when attempting a send.
+    /// Get next link responses using a channel Receiver [`tokio::sync::mpsc::Receiver<Option<GraphResult<http::Response<T>>>>`].
+    ///
+    /// By default channels use [`tokio::sync::mpsc::Sender::send_timeout`] with a buffer of 100
+    /// and a timeout of 60. Use [`Paging::channel_timeout`] to set a custom timeout and use
+    /// [`Paging::channel_buffer_timeout`] to set both the buffer and timeout.
     ///
     /// # Example
     ///
     /// ```rust,ignore
-    /// use graph_http::ChannelResponse;
     /// let client = Graph::new("ACCESS_TOKEN");
     ///
-    /// let mut receiver = client
+    ///  let mut receiver = client
     ///     .users()
-    ///     .delta()
+    ///     .list_user()
+    ///     .top("5")
     ///     .paging()
     ///     .channel::<serde_json::Value>()
-    ///     .await
-    ///     .unwrap();
+    ///     .await?;
     ///
-    ///  while let Some(channel_response) = receiver.recv().await {
-    ///     match channel_response {
-    ///         ChannelResponse::Next(result) => {
-    ///             match result {
-    ///                 Ok(response) => {
-    ///                     println!("{:#?}", response);
-    ///                 }
-    ///                 Err(err) => {
-    ///                     println!("{:#?}", err);
-    ///                     break;
-    ///                 }
-    ///             }
-    ///         }
-    ///         ChannelResponse::Done => break,
-    ///     }
+    ///  while let Some(result) = receiver.recv().await {
+    ///     let response = result?;
+    ///     println!("{:#?}", response);
     ///  }
     /// ```
     pub async fn channel<T: DeserializeOwned + Debug + Send + 'static>(
         self,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>> {
-        self.channel_buffer_timeout(100, Duration::from_secs(30))
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<T>>>> {
+        self.channel_buffer_timeout(100, Duration::from_secs(60))
             .await
     }
 
-    /// Get next link responses using a channel Receiver [`tokio::sync::mpsc::Receiver<ChannelResponse<T>>`] with a custom timeout [`Duration`].
+    /// Get next link responses using a channel Receiver,
+    /// [`tokio::sync::mpsc::Receiver<Option<GraphResult<http::Response<T>>>>`].
+    /// using a custom timeout [`Duration`]
+    ///
+    /// By default channels use [`tokio::sync::mpsc::Sender::send_timeout`] with a buffer of 100
+    /// and a timeout of 60. Use [`Paging::channel_timeout`] to set a custom timeout and use
+    /// [`Paging::channel_buffer_timeout`] to set both the buffer and timeout.
     ///
     /// # Example
     ///
     /// ```rust,ignore
-    /// use graph_http::ChannelResponse;
     /// let client = Graph::new("ACCESS_TOKEN");
     ///
-    /// let mut receiver = client
+    ///  let mut receiver = client
     ///     .users()
-    ///     .delta()
+    ///     .list_user()
+    ///     .top("5")
     ///     .paging()
     ///     .channel::<serde_json::Value>()
-    ///     .await
-    ///     .unwrap();
+    ///     .await?;
     ///
-    ///  while let Some(channel_response) = receiver.recv().await {
-    ///     match channel_response {
-    ///         ChannelResponse::Next(result) => {
-    ///             match result {
-    ///                 Ok(response) => {
-    ///                     println!("{:#?}", response);
-    ///                 }
-    ///                 Err(err) => {
-    ///                     println!("{:#?}", err);
-    ///                     break;
-    ///                 }
-    ///             }
-    ///         }
-    ///         ChannelResponse::Done => break,
-    ///     }
+    ///  while let Some(result) = receiver.recv().await {
+    ///     let response = result?;
+    ///     println!("{:#?}", response);
     ///  }
     /// ```
     pub async fn channel_timeout<T: DeserializeOwned + Debug + Send + 'static>(
         self,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>> {
-        let mut stream = self.stream()?;
-        let (sender, receiver) = tokio::sync::mpsc::channel(100);
-
-        tokio::spawn(async move {
-            while let Some(result) = stream.next().await {
-                sender
-                    .send_timeout(ChannelResponse::Next(result), timeout)
-                    .await
-                    .unwrap();
-            }
-            sender
-                .send_timeout(ChannelResponse::Done, timeout)
-                .await
-                .unwrap();
-        })
-        .await
-        .unwrap();
-
-        Ok(receiver)
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<T>>>> {
+        self.channel_buffer_timeout(100, timeout).await
     }
 
+    async fn send_channel_request<T: DeserializeOwned>(
+        client: &reqwest::Client,
+        url: &str,
+        access_token: &str,
+    ) -> GraphResult<(Option<String>, http::Response<T>)> {
+        let response = client.get(url).bearer_auth(access_token).send().await?;
+
+        Paging::http_response(response).await
+    }
+
+    /// Get next link responses using a channel Receiver,
+    /// [`tokio::sync::mpsc::Receiver<Option<GraphResult<http::Response<T>>>>`].
+    /// with a custom timeout [`Duration`] and buffer.
+    ///
+    /// By default channels use [`tokio::sync::mpsc::Sender::send_timeout`] with a buffer of 100
+    /// and a timeout of 60. Use [`Paging::channel_timeout`] to set a custom timeout and use
+    /// [`Paging::channel_buffer_timeout`] to set both the buffer and timeout.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let client = Graph::new("ACCESS_TOKEN");
+    ///
+    ///  let mut receiver = client
+    ///     .users()
+    ///     .list_user()
+    ///     .top("5")
+    ///     .paging()
+    ///     .channel::<serde_json::Value>()
+    ///     .await?;
+    ///
+    ///  while let Some(result) = receiver.recv().await {
+    ///     let response = result?;
+    ///     println!("{:#?}", response);
+    ///  }
+    /// ```
+    #[allow(unused_assignments)] // Issue with Clippy not seeing next_link get assigned.
     pub async fn channel_buffer_timeout<T: DeserializeOwned + Debug + Send + 'static>(
-        self,
+        mut self,
         buffer: usize,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<ChannelResponse<T>>> {
-        let mut stream = self.stream()?;
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<T>>>> {
         let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
 
+        let request = self.0.default_request_builder();
+        let response = request.send().await?;
+        let (next, http_response) = Paging::http_response(response).await?;
+        let mut next_link = next;
+        sender
+            .send_timeout(Ok(http_response), timeout)
+            .await
+            .unwrap();
+
+        let client = self.0.inner.clone();
+        let access_token = self.0.access_token.clone();
+
         tokio::spawn(async move {
-            while let Some(result) = stream.next().await {
-                sender
-                    .send_timeout(ChannelResponse::Next(result), timeout)
-                    .await
-                    .unwrap();
+            while let Some(next) = next_link {
+                let result =
+                    Paging::send_channel_request(&client, next.as_str(), access_token.as_str())
+                        .await;
+
+                match result {
+                    Ok((next, response)) => {
+                        next_link = next;
+                        sender.send_timeout(Ok(response), timeout).await.unwrap();
+                    }
+                    Err(err) => {
+                        sender.send_timeout(Err(err), timeout).await.unwrap();
+                        next_link = None;
+                        break;
+                    }
+                }
             }
-            sender
-                .send_timeout(ChannelResponse::Done, timeout)
-                .await
-                .unwrap();
-        })
-        .await
-        .unwrap();
+        });
 
         Ok(receiver)
     }

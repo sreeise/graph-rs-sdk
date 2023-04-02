@@ -1,5 +1,4 @@
 use futures::StreamExt;
-use graph_rs_sdk::http::ChannelResponse;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -9,24 +8,18 @@ pub async fn channel_delta() -> GraphResult<()> {
     let mut receiver = client
         .users()
         .delta()
+        .top("5")
         .paging()
         .channel::<serde_json::Value>()
         .await
         .unwrap();
 
-    while let Some(channel_response) = receiver.recv().await {
-        match channel_response {
-            ChannelResponse::Next(result) => match result {
-                Ok(response) => {
-                    println!("response:\n{response:#?}\n\n");
-                }
-                Err(err) => {
-                    println!("GraphFailure: {err:#?}");
-                    break;
-                }
-            },
-            ChannelResponse::Done => break,
-        }
+    while let Some(result) = receiver.recv().await {
+        let response = result?;
+        println!("{response:#?}");
+
+        let body = response.into_body();
+        println!("{body:#?}");
     }
     Ok(())
 }
@@ -44,19 +37,12 @@ pub async fn channel_delta_token() -> GraphResult<()> {
         .await
         .unwrap();
 
-    while let Some(channel_response) = receiver.recv().await {
-        match channel_response {
-            ChannelResponse::Next(result) => match result {
-                Ok(response) => {
-                    println!("response:\n{response:#?}\n\n");
-                }
-                Err(err) => {
-                    println!("GraphFailure: {err:#?}");
-                    break;
-                }
-            },
-            ChannelResponse::Done => break,
-        }
+    while let Some(result) = receiver.recv().await {
+        let response = result?;
+        println!("{response:#?}");
+
+        let body = response.into_body();
+        println!("{body:#?}");
     }
     Ok(())
 }
