@@ -77,6 +77,7 @@ pub enum ResourceIdentity {
     Contracts,
     Conversations,
     CreatedObjects,
+    Custom,
     DataPolicyOperations,
     DefaultCalendar,
     DefaultManagedAppProtections,
@@ -356,6 +357,7 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::TermStoreSetsParentGroup => "parentGroup".into(),
             ResourceIdentity::TermStoreSetsRelations => "relations".into(),
             ResourceIdentity::TermStoreSetsTerms => "terms".into(),
+            ResourceIdentity::Custom => "".into(),
 
             _ => self.as_ref().to_camel_case(),
         }

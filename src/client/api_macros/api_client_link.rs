@@ -72,14 +72,12 @@ macro_rules! api_client_link {
             let mut resource_config = self.resource_config.clone();
 
             if let Some(resource_identity_id) = resource_config.resource_identity_id.as_ref() {
-                resource_config.url.extend_path(&[
+                resource_config.extend_path(&[
                     resource_config.resource_identity.to_string(),
                     resource_identity_id.to_string(),
                 ]);
             } else {
-                resource_config
-                    .url
-                    .extend_path(&[resource_config.resource_identity.to_string()]);
+                resource_config.extend_path(&[resource_config.resource_identity.to_string()]);
             }
 
             resource_config.resource_identity_id = None;
@@ -93,14 +91,12 @@ macro_rules! api_client_link {
             let mut resource_config = self.resource_config.clone();
 
             if let Some(resource_identity_id) = resource_config.resource_identity_id.as_ref() {
-                resource_config.url.extend_path(&[
+                resource_config.extend_path(&[
                     resource_config.resource_identity.to_string(),
                     resource_identity_id.to_string(),
                 ]);
             } else {
-                resource_config
-                    .url
-                    .extend_path(&[resource_config.resource_identity.to_string()]);
+                resource_config.extend_path(&[resource_config.resource_identity.to_string()]);
             }
 
             resource_config.resource_identity_id = None;
@@ -115,12 +111,9 @@ macro_rules! api_client_link {
 
             if let Some(resource_identity_id) = resource_config.resource_identity_id.as_ref() {
                 resource_config
-                    .url
                     .extend_path(&[$resource_path.to_string(), resource_identity_id.to_string()]);
             } else {
-                resource_config
-                    .url
-                    .extend_path(&[$resource_path.to_string()]);
+                resource_config.extend_path(&[$resource_path.to_string()]);
             }
 
             resource_config.resource_identity_id = None;
@@ -142,14 +135,12 @@ macro_rules! api_client_link_id {
             let mut resource_config = self.resource_config.clone();
 
             if let Some(resource_identity_id) = resource_config.resource_identity_id.as_ref() {
-                resource_config.url.extend_path(&[
+                resource_config.extend_path(&[
                     resource_config.resource_identity.to_string(),
                     resource_identity_id.to_string(),
                 ]);
             } else {
-                resource_config
-                    .url
-                    .extend_path(&[resource_config.resource_identity.to_string()]);
+                resource_config.extend_path(&[resource_config.resource_identity.to_string()]);
             }
 
             let id_str = id.as_ref();
@@ -168,14 +159,12 @@ macro_rules! api_client_link_id {
             let mut resource_config = self.resource_config.clone();
 
             if let Some(resource_identity_id) = resource_config.resource_identity_id.as_ref() {
-                resource_config.url.extend_path(&[
+                resource_config.extend_path(&[
                     resource_config.resource_identity.to_string(),
                     resource_identity_id.to_string(),
                 ]);
             } else {
-                resource_config
-                    .url
-                    .extend_path(&[resource_config.resource_identity.to_string()]);
+                resource_config.extend_path(&[resource_config.resource_identity.to_string()]);
             }
 
             let id_str = id.as_ref();
@@ -195,12 +184,9 @@ macro_rules! api_client_link_id {
 
             if let Some(resource_identity_id) = resource_config.resource_identity_id.as_ref() {
                 resource_config
-                    .url
                     .extend_path(&[$resource_path.to_string(), resource_identity_id.to_string()]);
             } else {
-                resource_config
-                    .url
-                    .extend_path(&[$resource_path.to_string()]);
+                resource_config.extend_path(&[$resource_path.to_string()]);
             }
 
             let id_str = id.as_ref();
@@ -247,14 +233,12 @@ macro_rules! resource_id_tunnel {
             let mut resource_config = self.resource_config.clone();
 
             if let Some(resource_identity_id) = resource_config.resource_identity_id.as_ref() {
-                resource_config.url.extend_path(&[
+                resource_config.extend_path(&[
                     resource_config.resource_identity.to_string(),
                     resource_identity_id.to_string(),
                 ]);
             } else {
-                resource_config
-                    .url
-                    .extend_path(&[resource_config.resource_identity.to_string()]);
+                resource_config.extend_path(&[resource_config.resource_identity.to_string()]);
             }
 
             let id_str = id.as_ref();

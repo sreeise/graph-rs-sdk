@@ -31,7 +31,7 @@ macro_rules! resource_api_client {
         }
 
         impl ApiClientImpl for $name {
-            fn url(&self) -> GraphUrl {
+            fn url(&self) -> Url {
                 self.resource_config.url.clone()
             }
 
@@ -48,7 +48,10 @@ macro_rules! resource_api_client {
 
         impl ODataQuery for $name {
             fn append_query_pair<KV: AsRef<str>>(mut self, key: KV, value: KV) -> Self {
-                self.resource_config.url.append_query_pair(key, value);
+                self.resource_config
+                    .url
+                    .query_pairs_mut()
+                    .append_pair(key.as_ref(), value.as_ref());
                 self
             }
         }

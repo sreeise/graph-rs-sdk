@@ -1,12 +1,13 @@
 use graph_core::resource::ResourceIdentity;
 use graph_http::api_impl::{GraphUrl, ResourceConfig};
 use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
+use url::Url;
 
 pub(crate) struct ResourceProvisioner;
 
 impl ResourceProvisioner {
     pub(crate) fn resource_config_with_url(
-        url: GraphUrl,
+        url: Url,
         resource_identity: ResourceIdentity,
     ) -> ResourceConfig {
         ResourceConfig::new(resource_identity, url, None)
@@ -14,7 +15,7 @@ impl ResourceProvisioner {
 
     pub(crate) fn resource_config_with_id_and_url<ID: Into<String>>(
         id: ID,
-        url: GraphUrl,
+        url: Url,
         resource_identity: ResourceIdentity,
     ) -> ResourceConfig {
         ResourceConfig::new(resource_identity, url, Some(id.into()))
@@ -42,7 +43,7 @@ impl ResourceProvisioner {
 
     pub(crate) fn config_and_registry_with_id_and_url<ID: ToString>(
         id: ID,
-        url: GraphUrl,
+        url: Url,
         resource_identity: ResourceIdentity,
     ) -> (ResourceConfig, Handlebars) {
         (
@@ -59,11 +60,12 @@ impl ResourceProvisioner {
 #[allow(unused_imports)]
 mod tests {
     use super::{GraphUrl, ResourceIdentity, ResourceProvisioner};
+    use url::Url;
 
     #[test]
     fn resource_provisioner_graph_url() {
         let rp = ResourceProvisioner::resource_config_with_url(
-            GraphUrl::parse(crate::GRAPH_URL_BETA).unwrap(),
+            Url::parse(crate::GRAPH_URL_BETA).unwrap(),
             ResourceIdentity::Me,
         );
         assert_eq!(rp.url.as_str(), crate::GRAPH_URL_BETA);
@@ -72,7 +74,7 @@ mod tests {
     #[test]
     fn resource_provisioner_custom_endpoint() {
         let rp = ResourceProvisioner::resource_config_with_url(
-            GraphUrl::parse("https://localhost.com").unwrap(),
+            Url::parse("https://localhost.com").unwrap(),
             ResourceIdentity::Me,
         );
         assert_eq!(rp.url.as_str(), "https://localhost.com/");

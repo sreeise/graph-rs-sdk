@@ -33,7 +33,7 @@ async fn upload_new_file(
     client
         .drive(user_id)
         .item(parent_reference_id)
-        .upload_items_content(file_name, &reader)
+        .upload_items_content(file_name, reader)
         .send()
         .await
 }

@@ -1,18 +1,24 @@
 use crate::api_impl::{BodyExt, FileConfig};
+use crate::internal::AsyncTryFrom;
+use async_trait::async_trait;
 use bytes::{Buf, BytesMut};
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::Body;
-use std::fs::File;
-use std::io::{ErrorKind, Read};
+use std::io::{BufReader, Read};
 
-#[derive(Clone)]
 pub struct BodyRead {
     buf: String,
+    blocking_body: Option<reqwest::blocking::Body>,
+    async_body: Option<reqwest::Body>,
 }
 
 impl BodyRead {
     pub fn new(buf: String) -> BodyRead {
-        BodyRead { buf }
+        BodyRead {
+            buf,
+            blocking_body: None,
+            async_body: None,
+        }
     }
 
     pub fn from_serialize<T: serde::Serialize>(body: &T) -> GraphResult<BodyRead> {
@@ -20,50 +26,68 @@ impl BodyRead {
         Ok(BodyRead::new(body))
     }
 
-    pub fn from_reader<T: std::io::Read>(mut reader: T) -> GraphResult<BodyRead> {
+    pub fn from_reader<T: Read>(mut reader: T) -> GraphResult<BodyRead> {
         let mut buf = String::new();
         reader.read_to_string(&mut buf)?;
         Ok(BodyRead::new(buf))
     }
 
-    pub async fn from_async_read<T: tokio::io::AsyncReadExt + std::marker::Unpin>(
+    pub async fn from_async_read<T: tokio::io::AsyncReadExt + Unpin>(
         mut reader: T,
     ) -> GraphResult<BodyRead> {
         let mut buf = String::new();
         reader.read_to_string(&mut buf).await?;
         Ok(BodyRead::new(buf))
     }
+}
 
-    pub fn from_file_config(file_config: &FileConfig) -> GraphResult<BodyRead> {
-        let mut file = File::open(file_config.path.as_path())?;
-        let mut buf = String::new();
-        file.read_to_string(&mut buf)?;
-        Ok(BodyRead::new(buf))
+impl From<BodyRead> for reqwest::Body {
+    fn from(upload: BodyRead) -> Self {
+        if let Some(body) = upload.async_body {
+            return body;
+        }
+
+        reqwest::Body::from(upload.buf)
     }
+}
 
-    pub fn from_body(body: Body) -> GraphResult<BodyRead> {
-        let bytes_u8 = body.as_bytes().ok_or(std::io::Error::new(
-            ErrorKind::InvalidData,
-            "Unable to convert reqwest::Body to &[u8]",
-        ))?;
-        let body = serde_json::from_reader(bytes_u8)?;
-        Ok(BodyRead::new(body))
+impl From<BodyRead> for reqwest::blocking::Body {
+    fn from(upload: BodyRead) -> Self {
+        if let Some(body) = upload.blocking_body {
+            return body;
+        }
+
+        reqwest::blocking::Body::from(upload.buf)
     }
+}
 
-    pub fn from_blocking_body(body: reqwest::blocking::Body) -> GraphResult<BodyRead> {
-        let bytes_u8 = body.as_bytes().ok_or(std::io::Error::new(
-            ErrorKind::InvalidData,
-            "Unable to convert reqwest::Body to &[u8]",
-        ))?;
-        let body = serde_json::from_reader(bytes_u8)?;
-        Ok(BodyRead::new(body))
+impl From<String> for BodyRead {
+    fn from(value: String) -> Self {
+        BodyRead::new(value)
     }
+}
 
-    pub fn from_file(file: std::fs::File) -> GraphResult<BodyRead> {
-        BodyRead::from_reader(file)
+impl<R: Read> TryFrom<BufReader<R>> for BodyRead {
+    type Error = GraphFailure;
+
+    fn try_from(reader: BufReader<R>) -> Result<Self, Self::Error> {
+        BodyRead::from_reader(reader)
     }
+}
 
-    pub async fn from_tokio_file(file: tokio::fs::File) -> GraphResult<BodyRead> {
+impl TryFrom<std::fs::File> for BodyRead {
+    type Error = GraphFailure;
+
+    fn try_from(value: std::fs::File) -> Result<Self, Self::Error> {
+        BodyRead::from_reader(value)
+    }
+}
+
+#[async_trait]
+impl AsyncTryFrom<tokio::fs::File> for BodyRead {
+    type Error = GraphFailure;
+
+    async fn async_try_from(file: tokio::fs::File) -> Result<Self, Self::Error> {
         BodyRead::from_async_read(file).await
     }
 }
@@ -84,32 +108,47 @@ impl TryFrom<bytes::Bytes> for BodyRead {
     }
 }
 
-impl From<BodyRead> for reqwest::Body {
-    fn from(upload: BodyRead) -> Self {
-        reqwest::Body::from(upload.buf)
+impl From<reqwest::Body> for BodyRead {
+    fn from(body: Body) -> Self {
+        BodyRead {
+            buf: Default::default(),
+            blocking_body: None,
+            async_body: Some(body),
+        }
     }
 }
 
-impl From<&BodyRead> for reqwest::Body {
-    fn from(upload: &BodyRead) -> Self {
-        reqwest::Body::from(upload.buf.clone())
+impl From<reqwest::blocking::Body> for BodyRead {
+    fn from(body: reqwest::blocking::Body) -> Self {
+        BodyRead {
+            buf: Default::default(),
+            blocking_body: Some(body),
+            async_body: None,
+        }
     }
 }
 
-impl From<BodyRead> for reqwest::blocking::Body {
-    fn from(upload: BodyRead) -> Self {
-        reqwest::blocking::Body::from(upload.buf)
+impl TryFrom<FileConfig> for BodyRead {
+    type Error = GraphFailure;
+
+    fn try_from(file_config: FileConfig) -> Result<Self, Self::Error> {
+        BodyRead::try_from(&file_config)
     }
 }
 
-impl From<&BodyRead> for reqwest::blocking::Body {
-    fn from(upload: &BodyRead) -> Self {
-        reqwest::blocking::Body::from(upload.buf.clone())
+impl TryFrom<&FileConfig> for BodyRead {
+    type Error = GraphFailure;
+
+    fn try_from(file_config: &FileConfig) -> Result<Self, Self::Error> {
+        let mut file = std::fs::File::open(file_config.path.as_path())?;
+        let mut buf = String::new();
+        file.read_to_string(&mut buf)?;
+        Ok(BodyRead::new(buf))
     }
 }
 
 impl BodyExt for BodyRead {
-    fn as_body(&self) -> GraphResult<BodyRead> {
-        Ok(self.clone())
+    fn into_body(self) -> GraphResult<BodyRead> {
+        Ok(self)
     }
 }

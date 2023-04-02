@@ -1,22 +1,22 @@
-use crate::api_impl::GraphUrl;
 use graph_core::resource::ResourceIdentity;
+use url::Url;
 
 pub trait ResourceIdentifier {
     fn resource_identifier() -> ResourceIdentity;
 }
 
 /// Provides components for storing resource id's and helps build the current request URL.
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ResourceConfig {
     pub resource_identity: ResourceIdentity,
-    pub url: GraphUrl,
+    pub url: Url,
     pub resource_identity_id: Option<String>,
 }
 
 impl ResourceConfig {
     pub fn new(
         resource_identity: ResourceIdentity,
-        url: GraphUrl,
+        url: Url,
         resource_identity_id: Option<String>,
     ) -> ResourceConfig {
         ResourceConfig {
@@ -31,16 +31,22 @@ impl ResourceConfig {
     pub fn resource_identity(&self) -> ResourceIdentity {
         self.resource_identity
     }
+
+    pub fn extend_path<I: AsRef<str>>(&mut self, path: &[I]) {
+        if let Ok(mut p) = self.url.path_segments_mut() {
+            p.extend(path);
+        }
+    }
 }
 
-impl AsRef<GraphUrl> for ResourceConfig {
-    fn as_ref(&self) -> &GraphUrl {
+impl AsRef<Url> for ResourceConfig {
+    fn as_ref(&self) -> &Url {
         &self.url
     }
 }
 
-impl AsMut<GraphUrl> for ResourceConfig {
-    fn as_mut(&mut self) -> &mut GraphUrl {
+impl AsMut<Url> for ResourceConfig {
+    fn as_mut(&mut self) -> &mut Url {
         &mut self.url
     }
 }

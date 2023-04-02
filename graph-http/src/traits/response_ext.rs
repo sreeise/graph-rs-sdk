@@ -1,14 +1,12 @@
-use crate::internal::{copy_async, create_dir_async, FileConfig, RangeIter, UploadSession};
-use async_trait::async_trait;
-
 use crate::core::BodyRead;
+use crate::internal::{copy_async, create_dir_async, FileConfig, RangeIter, UploadSession};
 use crate::traits::UploadSessionLink;
+use async_trait::async_trait;
 use graph_error::download::AsyncDownloadError;
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::HeaderMap;
 use reqwest::Response;
 use std::ffi::OsString;
-use std::io::Read;
 use std::path::PathBuf;
 use tokio::io::AsyncReadExt;
 
@@ -49,7 +47,10 @@ fn parse_content_disposition(headers: &HeaderMap) -> Option<OsString> {
 pub trait ResponseExt {
     async fn job_status(&self) -> Option<GraphResult<reqwest::Response>>;
 
-    async fn into_upload_session(self, reader: impl Read + Send) -> GraphResult<UploadSession>;
+    async fn into_upload_session(
+        self,
+        reader: impl std::io::Read + Send,
+    ) -> GraphResult<UploadSession>;
 
     async fn into_upload_session_async_read(
         self,
@@ -82,7 +83,10 @@ impl ResponseExt for reqwest::Response {
     /// Provide any [`std::io::Reader`] to create an upload session.
     /// The body of the reqwest::Response must be valid JSON with an
     /// uploadUrl field.
-    async fn into_upload_session(self, reader: impl Read + Send) -> GraphResult<UploadSession> {
+    async fn into_upload_session(
+        self,
+        reader: impl std::io::Read + Send,
+    ) -> GraphResult<UploadSession> {
         let body: serde_json::Value = self.json().await?;
         let url = body
             .upload_session_link()
@@ -152,18 +156,20 @@ impl ResponseExt for reqwest::Response {
 }
 
 pub trait BodyExt<RHS = Self> {
-    fn as_body(&self) -> GraphResult<BodyRead>;
+    fn into_body(self) -> GraphResult<BodyRead>;
 }
 
-impl<T: serde::Serialize> BodyExt for T {
-    fn as_body(&self) -> GraphResult<BodyRead> {
+impl<U> BodyExt for &U
+where
+    U: serde::Serialize,
+{
+    fn into_body(self) -> GraphResult<BodyRead> {
         BodyRead::from_serialize(self)
     }
 }
 
-impl BodyExt for FileConfig {
-    fn as_body(&self) -> GraphResult<BodyRead> {
-        let upload = BodyRead::from_file_config(self)?;
-        Ok(upload)
+impl BodyExt for &FileConfig {
+    fn into_body(self) -> GraphResult<BodyRead> {
+        BodyRead::try_from(self)
     }
 }

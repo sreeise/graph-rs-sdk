@@ -5,6 +5,7 @@ use http::header::CONTENT_TYPE;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
+use url::Url;
 
 #[derive(Default)]
 pub struct BlockingRequestHandler {
@@ -27,7 +28,7 @@ impl BlockingRequestHandler {
         let mut error = None;
         if let Some(err) = err {
             error = Some(GraphFailure::PreFlightError {
-                url: Some(request_components.to_reqwest_url()),
+                url: Some(request_components.url.clone()),
                 headers: request_components.headers.clone(),
                 error: Box::new(err),
             });
@@ -66,21 +67,44 @@ impl BlockingRequestHandler {
         self.error.as_ref()
     }
 
-    pub fn url(&self) -> reqwest::Url {
-        self.request_components.url.to_reqwest_url()
+    #[inline]
+    pub fn url(&self) -> Url {
+        self.request_components.url.clone()
     }
 
-    fn query(mut self, key: &str, value: &str) -> Self {
-        self.request_components.url.append_query_pair(key, value);
+    #[inline]
+    pub fn query<T: serde::Serialize + ?Sized>(mut self, query: &T) -> Self {
+        if let Err(err) = self.request_components.query(query) {
+            if self.error.is_none() {
+                self.error = Some(err);
+            }
+        }
+
+        if let Some("") = self.request_components.url.query() {
+            self.request_components.url.set_query(None);
+        }
         self
     }
 
-    pub fn extend_path(mut self, value: &[&str]) -> Self {
-        self.request_components.url.extend_path(value);
+    #[inline]
+    pub fn append_query_pair<KV: AsRef<str>>(mut self, key: KV, value: KV) -> Self {
+        self.request_components
+            .url
+            .query_pairs_mut()
+            .append_pair(key.as_ref(), value.as_ref());
+        self
+    }
+
+    #[inline]
+    pub fn extend_path<I: AsRef<str>>(mut self, path: &[I]) -> Self {
+        if let Ok(mut p) = self.request_components.url.path_segments_mut() {
+            p.extend(path);
+        }
         self
     }
 
     /// Insert a header for the request.
+    #[inline]
     pub fn header<K: Into<HeaderName>, V: Into<HeaderValue>>(
         mut self,
         header_name: K,
@@ -93,12 +117,14 @@ impl BlockingRequestHandler {
     }
 
     /// Set the headers for the request using reqwest::HeaderMap
+    #[inline]
     pub fn headers(mut self, header_map: HeaderMap) -> Self {
         self.request_components.headers.extend(header_map);
         self
     }
 
     /// Get a mutable reference to the headers.
+    #[inline]
     pub fn headers_mut(&mut self) -> &mut HeaderMap {
         self.request_components.as_mut()
     }
@@ -107,12 +133,13 @@ impl BlockingRequestHandler {
         BlockingPaging(self)
     }
 
+    #[inline]
     fn default_request_builder(&mut self) -> reqwest::blocking::RequestBuilder {
         let request_builder = self
             .inner
             .request(
                 self.request_components.method.clone(),
-                self.request_components.url.to_reqwest_url(),
+                self.request_components.url.clone(),
             )
             .bearer_auth(self.access_token.as_str())
             .headers(self.request_components.headers.clone());
@@ -130,6 +157,7 @@ impl BlockingRequestHandler {
     }
 
     /// Builds the request and returns a [`reqwest::blocking::RequestBuilder`].
+    #[inline]
     pub fn build(mut self) -> GraphResult<reqwest::blocking::RequestBuilder> {
         if let Some(err) = self.error {
             return Err(err);
@@ -137,6 +165,7 @@ impl BlockingRequestHandler {
         Ok(self.default_request_builder())
     }
 
+    #[inline]
     pub fn send(self) -> GraphResult<reqwest::blocking::Response> {
         let request_builder = self.build()?;
         request_builder.send()?.with_graph_error()
@@ -145,18 +174,18 @@ impl BlockingRequestHandler {
 
 impl ODataQuery for BlockingRequestHandler {
     fn append_query_pair<KV: AsRef<str>>(self, key: KV, value: KV) -> Self {
-        self.query(key.as_ref(), value.as_ref())
+        self.append_query_pair(key.as_ref(), value.as_ref())
     }
 }
 
-impl AsRef<GraphUrl> for BlockingRequestHandler {
-    fn as_ref(&self) -> &GraphUrl {
+impl AsRef<Url> for BlockingRequestHandler {
+    fn as_ref(&self) -> &Url {
         self.request_components.as_ref()
     }
 }
 
-impl AsMut<GraphUrl> for BlockingRequestHandler {
-    fn as_mut(&mut self) -> &mut GraphUrl {
+impl AsMut<Url> for BlockingRequestHandler {
+    fn as_mut(&mut self) -> &mut Url {
         self.request_components.as_mut()
     }
 }

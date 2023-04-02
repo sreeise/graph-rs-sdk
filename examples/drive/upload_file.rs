@@ -42,6 +42,29 @@ async fn upload_file() -> GraphResult<()> {
     Ok(())
 }
 
+// Uploading a file using the drive id and parent id.
+async fn upload_file_reqwest_body() -> GraphResult<()> {
+    let graph = Graph::new(ACCESS_TOKEN);
+
+    let file = tokio::fs::File::open(LOCAL_FILE_PATH).await?;
+    let body = reqwest::Body::from(file);
+
+    let response = graph
+        .me()
+        .drive()
+        .item(DRIVE_PARENT_ID)
+        .update_items_content(body)
+        .send()
+        .await?;
+
+    println!("{response:#?}");
+
+    let drive_item: serde_json::Value = response.json().await?;
+    println!("{drive_item:#?}");
+
+    Ok(())
+}
+
 async fn upload_using_read() -> GraphResult<()> {
     let graph = Graph::new(ACCESS_TOKEN);
 
@@ -51,7 +74,7 @@ async fn upload_using_read() -> GraphResult<()> {
         .me()
         .drive()
         .item(DRIVE_PARENT_ID)
-        .update_items_content(&BodyRead::from_reader(file)?)
+        .update_items_content(BodyRead::from_reader(file)?)
         .send()
         .await
         .unwrap();
@@ -74,7 +97,7 @@ async fn upload_using_async_read() -> GraphResult<()> {
         .me()
         .drive()
         .item(DRIVE_PARENT_ID)
-        .update_items_content(&reader)
+        .update_items_content(reader)
         .send()
         .await?;
 
@@ -94,7 +117,7 @@ async fn upload_file_bytes_mut(bytes_mut: BytesMut) -> GraphResult<()> {
         .me()
         .drive()
         .item(DRIVE_PARENT_ID)
-        .update_items_content(&reader)
+        .update_items_content(reader)
         .send()
         .await?;
 

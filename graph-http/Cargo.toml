@@ -11,9 +11,7 @@ description = "Http client and utilities for the graph-rs project"
 async-stream = "0.3"
 async-trait = "0.1.35"
 bytes = { version = "1.4.0", features = ["serde"] }
-futures = "0.3"
-futures-core = "0.3"
-futures-util = "0.3"
+futures = "0.3.28"
 handlebars = "2.0.4"
 http = "0.2.9"
 parking_lot = "0.12.0"
@@ -23,8 +21,10 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.8"
 thiserror = "1"
-tokio = { version = "1.25.0", features = ["full"] }
+tokio = { version = "1.27.0", features = ["full"] }
 url = { version = "2", features = ["serde"] }
+http-body = "0.4.5"
+serde_urlencoded = "0.7.1"
 
 graph-error = { path = "../graph-error"  }
 graph-core = { path = "../graph-core" }

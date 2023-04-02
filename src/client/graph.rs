@@ -66,18 +66,25 @@ use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
 use graph_http::api_impl::GraphClientBuilder;
 use graph_oauth::oauth::{AccessToken, OAuth};
+use lazy_static::lazy_static;
 use std::convert::TryFrom;
+
+lazy_static! {
+    static ref PARSED_GRAPH_URL: Url = Url::parse(GRAPH_URL).expect("Unable to set v1 endpoint");
+    static ref PARSED_GRAPH_URL_BETA: Url =
+        Url::parse(GRAPH_URL_BETA).expect("Unable to set beta endpoint");
+}
 
 pub struct Graph {
     client: Client,
-    endpoint: GraphUrl,
+    endpoint: Url,
 }
 
 impl Graph {
     pub fn new(access_token: &str) -> Graph {
         Graph {
             client: Client::new(access_token),
-            endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
+            endpoint: PARSED_GRAPH_URL.clone(),
         }
     }
 
@@ -98,9 +105,7 @@ impl Graph {
     ///     .await?;
     /// ```
     pub fn v1(&mut self) -> &mut Graph {
-        self.endpoint
-            .replace(GRAPH_URL)
-            .expect("Unable to set v1 endpoint");
+        self.endpoint = PARSED_GRAPH_URL.clone();
         self
     }
 
@@ -119,9 +124,7 @@ impl Graph {
     /// assert_eq!(client.url().to_string(), GRAPH_URL.to_string())
     /// ```
     pub fn use_v1(&mut self) {
-        self.endpoint
-            .replace(GRAPH_URL)
-            .expect("Unable to set v1 endpoint");
+        self.endpoint = PARSED_GRAPH_URL.clone();
     }
 
     /// Use the beta endpoint for the Microsoft Graph API
@@ -140,9 +143,7 @@ impl Graph {
     ///     .await?;
     /// ```
     pub fn beta(&mut self) -> &mut Graph {
-        self.endpoint
-            .replace(GRAPH_URL_BETA)
-            .expect("Unable to set beta endpoint");
+        self.endpoint = PARSED_GRAPH_URL_BETA.clone();
         self
     }
 
@@ -161,13 +162,11 @@ impl Graph {
     /// assert_eq!(client.url().to_string(), GRAPH_URL_BETA.to_string())
     /// ```
     pub fn use_beta(&mut self) {
-        self.endpoint
-            .replace(GRAPH_URL_BETA)
-            .expect("Unable to set beta endpoint");
+        self.endpoint = PARSED_GRAPH_URL_BETA.clone();
     }
 
-    pub fn url(&self) -> reqwest::Url {
-        self.endpoint.to_reqwest_url()
+    pub fn url(&self) -> &Url {
+        &self.endpoint
     }
 
     /// Set a custom endpoint for the Microsoft Graph API
@@ -186,9 +185,7 @@ impl Graph {
     ///     .await?;
     /// ```
     pub fn custom_endpoint(&mut self, custom_endpoint: &str) -> &mut Graph {
-        self.endpoint
-            .replace(custom_endpoint)
-            .expect("Unable to set custom endpoint");
+        self.endpoint = Url::parse(custom_endpoint).expect("Unable to set custom endpoint");
         self
     }
 
@@ -205,9 +202,7 @@ impl Graph {
     /// assert_eq!(client.url().to_string(), "https://graph.microsoft.com/".to_string())
     /// ```
     pub fn use_endpoint(&mut self, custom_endpoint: &str) {
-        self.endpoint
-            .replace(custom_endpoint)
-            .expect("Unable to set custom endpoint");
+        self.endpoint = Url::parse(custom_endpoint).expect("Unable to set custom endpoint");
     }
 
     api_client_impl!(admin, AdminApiClient);
@@ -409,6 +404,34 @@ impl Graph {
 
     api_client_impl!(users, UsersApiClient, user, UsersIdApiClient);
 
+    pub fn custom(&self, method: Method, body: Option<BodyRead>) -> RequestHandler {
+        let body_result = body.map(|body| body.into_body());
+        if let Some(b) = body_result {
+            if let Err(err) = b {
+                return RequestHandler::new(
+                    self.client.clone(),
+                    RequestComponents::new(ResourceIdentity::Custom, self.endpoint.clone(), method),
+                    Some(err),
+                    None,
+                );
+            } else if let Ok(body_read) = b {
+                return RequestHandler::new(
+                    self.client.clone(),
+                    RequestComponents::new(ResourceIdentity::Custom, self.endpoint.clone(), method),
+                    None,
+                    Some(body_read),
+                );
+            }
+        }
+
+        RequestHandler::new(
+            self.client.clone(),
+            RequestComponents::new(ResourceIdentity::Custom, self.endpoint.clone(), method),
+            None,
+            None,
+        )
+    }
+
     pub fn batch<B: serde::Serialize>(&self, batch: &B) -> RequestHandler {
         BatchApiClient::new(
             self.client.clone(),
@@ -455,7 +478,7 @@ impl From<GraphClientBuilder> for Graph {
     fn from(graph_client_builder: GraphClientBuilder) -> Self {
         Graph {
             client: graph_client_builder.build(),
-            endpoint: GraphUrl::parse(GRAPH_URL).unwrap(),
+            endpoint: PARSED_GRAPH_URL.clone(),
         }
     }
 }

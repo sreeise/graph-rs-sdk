@@ -237,6 +237,7 @@ pub mod http {
         AsyncIterator, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
         ODataMetadataLink, ODataNextLink, ODataQuery, ResponseExt, UploadSessionLink,
     };
+    pub use reqwest::{Body, Method};
 }
 
 /// Reexport of graph-error crate.
@@ -264,4 +265,5 @@ pub(crate) mod api_default_imports {
     pub use crate::client::Graph;
     pub(crate) use crate::client::{map_errors, map_parameters, ResourceProvisioner};
     pub use crate::core::ResourceIdentity;
+    pub use url::Url;
 }

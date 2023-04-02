@@ -1,6 +1,6 @@
 use crate::blocking::BlockingClient;
 use crate::traits::ODataQuery;
-use crate::url::GraphUrl;
+
 use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
@@ -9,6 +9,7 @@ use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
 use std::time::Duration;
+use url::Url;
 
 #[derive(Clone)]
 struct ClientConfiguration {
@@ -219,7 +220,7 @@ impl Default for Client {
 }
 
 pub trait ApiClientImpl: ODataQuery + Sized {
-    fn url(&self) -> GraphUrl;
+    fn url(&self) -> Url;
 
     fn render_path<S: AsRef<str>>(
         &self,
@@ -231,12 +232,14 @@ pub trait ApiClientImpl: ODataQuery + Sized {
         &self,
         path: S,
         path_params_map: &serde_json::Value,
-    ) -> GraphResult<GraphUrl> {
+    ) -> GraphResult<Url> {
         let path = self.render_path(path.as_ref(), path_params_map)?;
         let mut vec: Vec<&str> = path.split('/').collect();
         vec.retain(|s| !s.is_empty());
         let mut url = self.url();
-        url.extend_path(&vec);
+        if let Ok(mut p) = url.path_segments_mut() {
+            p.extend(&vec);
+        }
         Ok(url)
     }
 }

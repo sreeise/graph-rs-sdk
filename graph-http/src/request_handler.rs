@@ -5,10 +5,8 @@ use crate::internal::{
     ResponseExt,
 };
 use crate::request_components::RequestComponents;
-use crate::url::GraphUrl;
 use async_stream::{stream, try_stream};
-use futures_core::Stream;
-use futures_util::StreamExt;
+use futures::{Stream, StreamExt};
 use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use serde::de::DeserializeOwned;
@@ -16,6 +14,7 @@ use std::collections::VecDeque;
 use std::fmt::Debug;
 use std::path::PathBuf;
 use std::time::Duration;
+use url::Url;
 
 #[derive(Default)]
 pub struct RequestHandler {
@@ -39,7 +38,7 @@ impl RequestHandler {
         let mut error = None;
         if let Some(err) = err {
             error = Some(GraphFailure::PreFlightError {
-                url: Some(request_components.to_reqwest_url()),
+                url: Some(request_components.url.clone()),
                 headers: request_components.headers.clone(),
                 error: Box::new(err),
             });
@@ -90,21 +89,44 @@ impl RequestHandler {
         self.error.as_ref()
     }
 
-    pub fn url(&self) -> reqwest::Url {
-        self.request_components.url.to_reqwest_url()
+    #[inline]
+    pub fn url(&self) -> Url {
+        self.request_components.url.clone()
     }
 
-    fn query(mut self, key: &str, value: &str) -> Self {
-        self.request_components.url.append_query_pair(key, value);
+    #[inline]
+    pub fn query<T: serde::Serialize + ?Sized>(mut self, query: &T) -> Self {
+        if let Err(err) = self.request_components.query(query) {
+            if self.error.is_none() {
+                self.error = Some(err);
+            }
+        }
+
+        if let Some("") = self.request_components.url.query() {
+            self.request_components.url.set_query(None);
+        }
         self
     }
 
-    pub fn extend_path(mut self, value: &[&str]) -> Self {
-        self.request_components.url.extend_path(value);
+    #[inline]
+    pub fn append_query_pair<KV: AsRef<str>>(mut self, key: KV, value: KV) -> Self {
+        self.request_components
+            .url
+            .query_pairs_mut()
+            .append_pair(key.as_ref(), value.as_ref());
+        self
+    }
+
+    #[inline]
+    pub fn extend_path<I: AsRef<str>>(mut self, path: &[I]) -> Self {
+        if let Ok(mut p) = self.request_components.url.path_segments_mut() {
+            p.extend(path);
+        }
         self
     }
 
     /// Insert a header for the request.
+    #[inline]
     pub fn header<K: Into<HeaderName>, V: Into<HeaderValue>>(
         mut self,
         header_name: K,
@@ -117,12 +139,14 @@ impl RequestHandler {
     }
 
     /// Set the headers for the request using reqwest::HeaderMap
+    #[inline]
     pub fn headers(mut self, header_map: HeaderMap) -> Self {
         self.request_components.headers.extend(header_map);
         self
     }
 
     /// Get a mutable reference to the headers.
+    #[inline]
     pub fn headers_mut(&mut self) -> &mut HeaderMap {
         self.request_components.as_mut()
     }
@@ -136,7 +160,7 @@ impl RequestHandler {
             .inner
             .request(
                 self.request_components.method.clone(),
-                self.request_components.url.to_reqwest_url(),
+                self.request_components.url.clone(),
             )
             .bearer_auth(self.access_token.as_str())
             .headers(self.request_components.headers.clone());
@@ -154,6 +178,7 @@ impl RequestHandler {
     }
 
     /// Builds the request and returns a [`reqwest::RequestBuilder`].
+    #[inline]
     pub fn build(mut self) -> GraphResult<reqwest::RequestBuilder> {
         if let Some(err) = self.error {
             return Err(err);
@@ -161,6 +186,7 @@ impl RequestHandler {
         Ok(self.default_request_builder())
     }
 
+    #[inline]
     pub async fn send(self) -> GraphResult<reqwest::Response> {
         let request_builder = self.build()?;
         request_builder
@@ -189,18 +215,18 @@ impl RequestHandler {
 
 impl ODataQuery for RequestHandler {
     fn append_query_pair<KV: AsRef<str>>(self, key: KV, value: KV) -> Self {
-        self.query(key.as_ref(), value.as_ref())
+        self.append_query_pair(key.as_ref(), value.as_ref())
     }
 }
 
-impl AsRef<GraphUrl> for RequestHandler {
-    fn as_ref(&self) -> &GraphUrl {
+impl AsRef<Url> for RequestHandler {
+    fn as_ref(&self) -> &Url {
         self.request_components.as_ref()
     }
 }
 
-impl AsMut<GraphUrl> for RequestHandler {
-    fn as_mut(&mut self) -> &mut GraphUrl {
+impl AsMut<Url> for RequestHandler {
+    fn as_mut(&mut self) -> &mut Url {
         self.request_components.as_mut()
     }
 }
