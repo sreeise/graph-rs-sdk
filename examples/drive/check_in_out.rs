@@ -19,7 +19,7 @@ async fn check_out_item() {
         .drive()
         .item(ITEM_ID)
         .checkout()
-        .header(CONTENT_LENGTH, HeaderValue::from(0)) // Required for checkout. When there is no body the checkin content length will just be 0
+        .header(CONTENT_LENGTH, HeaderValue::from(0)) // Required for checkout. When there is no body the checkout content length will just be 0
         .send()
         .await
         .unwrap();
