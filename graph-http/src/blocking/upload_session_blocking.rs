@@ -8,22 +8,36 @@ pub struct UploadSessionBlocking {
     url: reqwest::Url,
     range_iter: RangeIter,
     client: reqwest::blocking::Client,
+    status_request_builder: reqwest::blocking::RequestBuilder,
+    cancel_request_builder: reqwest::blocking::RequestBuilder,
 }
 
 impl UploadSessionBlocking {
     pub fn empty(url: reqwest::Url) -> UploadSessionBlocking {
+        let client = reqwest::blocking::Client::new();
+        let status_request_builder = client.get(url.clone());
+        let cancel_request_builder = client.delete(url.clone());
+
         UploadSessionBlocking {
             url,
             range_iter: Default::default(),
-            client: Default::default(),
+            client,
+            status_request_builder,
+            cancel_request_builder,
         }
     }
 
     pub(crate) fn new(url: reqwest::Url, range_iter: RangeIter) -> UploadSessionBlocking {
+        let client = reqwest::blocking::Client::new();
+        let status_request_builder = client.get(url.clone());
+        let cancel_request_builder = client.delete(url.clone());
+
         UploadSessionBlocking {
             url,
             range_iter,
-            client: Default::default(),
+            client,
+            status_request_builder,
+            cancel_request_builder,
         }
     }
 
@@ -60,35 +74,47 @@ impl UploadSessionBlocking {
             .with_graph_error()
     }
 
-    pub fn status(&self) -> GraphResult<reqwest::blocking::Response> {
-        self.client
-            .get(self.url.clone())
-            .send()
-            .map_err(GraphFailure::from)?
-            .with_graph_error()
+    pub fn status(&self) -> GraphResult<reqwest::blocking::RequestBuilder> {
+        Ok(self
+            .status_request_builder
+            .try_clone()
+            .unwrap_or(reqwest::blocking::Client::new().get(self.url.clone())))
     }
 
-    pub fn cancel(&self) -> GraphResult<reqwest::blocking::Response> {
-        self.client
-            .delete(self.url.clone())
-            .send()
-            .map_err(GraphFailure::from)?
-            .with_graph_error()
+    pub fn cancel(&self) -> GraphResult<reqwest::blocking::RequestBuilder> {
+        Ok(self
+            .cancel_request_builder
+            .try_clone()
+            .unwrap_or(reqwest::blocking::Client::new().delete(self.url.clone())))
     }
 
     pub fn from_reader<U: AsRef<str>, R: Read>(
         upload_url: U,
         reader: R,
     ) -> GraphResult<UploadSessionBlocking> {
+        let url = reqwest::Url::parse(upload_url.as_ref())?;
+        let client = reqwest::blocking::Client::new();
+        let status_request_builder = client.get(url.clone());
+        let cancel_request_builder = client.delete(url.clone());
+
         Ok(UploadSessionBlocking {
-            url: reqwest::Url::parse(upload_url.as_ref())?,
+            url,
             range_iter: RangeIter::from_reader(reader)?,
-            client: Default::default(),
+            client,
+            status_request_builder,
+            cancel_request_builder,
         })
     }
 
     pub fn channel(
         &mut self,
+    ) -> GraphResult<std::sync::mpsc::Receiver<GraphResult<reqwest::blocking::Response>>> {
+        self.channel_buffer(self.range_iter.len() + 1)
+    }
+
+    pub fn channel_buffer(
+        &mut self,
+        bound: usize,
     ) -> GraphResult<std::sync::mpsc::Receiver<GraphResult<reqwest::blocking::Response>>> {
         let components = self
             .range_iter
@@ -97,7 +123,7 @@ impl UploadSessionBlocking {
                 "Invalid Headers (internal error, please report)",
             ))?;
         let request_builders = self.map_request_builder(components);
-        let (sender, receiver) = std::sync::mpsc::channel();
+        let (sender, receiver) = std::sync::mpsc::sync_channel(bound);
 
         thread::spawn(move || {
             for request_builder in request_builders {

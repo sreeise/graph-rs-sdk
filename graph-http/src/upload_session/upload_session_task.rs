@@ -13,22 +13,36 @@ pub struct UploadSession {
     url: reqwest::Url,
     range_iter: RangeIter,
     client: reqwest::Client,
+    status_request_builder: RequestBuilder,
+    cancel_request_builder: RequestBuilder,
 }
 
 impl UploadSession {
     pub fn empty(url: reqwest::Url) -> UploadSession {
+        let client = reqwest::Client::new();
+        let status_request_builder = client.get(url.clone());
+        let cancel_request_builder = client.delete(url.clone());
+
         UploadSession {
             url,
             range_iter: Default::default(),
-            client: Default::default(),
+            client,
+            status_request_builder,
+            cancel_request_builder,
         }
     }
 
     pub(crate) fn new(url: reqwest::Url, range_iter: RangeIter) -> UploadSession {
+        let client = reqwest::Client::new();
+        let status_request_builder = client.get(url.clone());
+        let cancel_request_builder = client.delete(url.clone());
+
         UploadSession {
             url,
             range_iter,
-            client: Default::default(),
+            client,
+            status_request_builder,
+            cancel_request_builder,
         }
     }
 
@@ -67,48 +81,59 @@ impl UploadSession {
             .map_err(GraphFailure::from)
     }
 
-    pub async fn status(&self) -> GraphResult<reqwest::Response> {
-        self.client
-            .get(self.url.clone())
-            .send()
-            .await?
-            .with_graph_error()
-            .await
-            .map_err(GraphFailure::from)
+    pub fn status(&self) -> GraphResult<RequestBuilder> {
+        Ok(self
+            .status_request_builder
+            .try_clone()
+            .unwrap_or(reqwest::Client::new().get(self.url.clone())))
     }
 
-    pub async fn cancel(&self) -> GraphResult<reqwest::Response> {
-        self.client
-            .delete(self.url.clone())
-            .send()
-            .await?
-            .with_graph_error()
-            .await
-            .map_err(GraphFailure::from)
+    pub fn cancel(&self) -> GraphResult<RequestBuilder> {
+        Ok(self
+            .cancel_request_builder
+            .try_clone()
+            .unwrap_or(reqwest::Client::new().delete(self.url.clone())))
     }
 
     pub fn from_reader<U: AsRef<str>, R: Read>(
         upload_url: U,
         reader: R,
     ) -> GraphResult<UploadSession> {
+        let url = reqwest::Url::parse(upload_url.as_ref())?;
+        let client = reqwest::Client::new();
+        let status_request_builder = client.get(url.clone());
+        let cancel_request_builder = client.delete(url.clone());
+
         Ok(UploadSession {
-            url: reqwest::Url::parse(upload_url.as_ref())?,
+            url,
             range_iter: RangeIter::from_reader(reader)?,
-            client: Default::default(),
+            client,
+            status_request_builder,
+            cancel_request_builder,
         })
     }
 
     fn try_stream(&mut self) -> impl Stream<Item = GraphResult<reqwest::Response>> + '_ {
         try_stream! {
-            while let Some(result) = self.range_iter.pop_front_result() {
-                let (header_map, body) = result?;
-                yield self.send(header_map, body).await?;
+            let components = self.range_iter.map_all().ok_or(GraphFailure::invalid(
+                "Invalid Headers (internal error, please report)",
+            ))?;
+            let request_builders = self.map_request_builder(components);
+
+            for request_builder in request_builders {
+                yield request_builder.send()
+                    .await?
+                    .with_graph_error()
+                    .await
+                    .map_err(GraphFailure::from)?
             }
         }
     }
 
     /// Stream upload session responses.
     /// Each stream.next() returns a [`GraphResult<reqwest::Response>`].
+    ///
+    /// No pinning is required. The stream is pinned before being returned to the caller.
     ///
     /// # Example
     /// ```rust,ignore

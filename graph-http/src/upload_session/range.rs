@@ -105,35 +105,6 @@ impl RangeIter {
         Some((header_map, reqwest::blocking::Body::from(range.body())))
     }
 
-    pub(crate) fn pop_front_result(&mut self) -> Option<GraphResult<(HeaderMap, reqwest::Body)>> {
-        let range = self.dequeue.pop_front()?;
-
-        let content_range = range.content_range(self.size);
-        let content_length = range.content_length().to_string();
-
-        let mut header_map = HeaderMap::new();
-        header_map.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-        let content_length_result = HeaderValue::from_str(content_length.as_str());
-        let content_range_result = HeaderValue::from_str(content_range.as_str());
-
-        match content_length_result {
-            Ok(content_length_header_value) => {
-                header_map.insert(CONTENT_LENGTH, content_length_header_value);
-            }
-            Err(err) => return Some(Err(err).map_err(GraphFailure::from)),
-        }
-
-        match content_range_result {
-            Ok(content_range_header_value) => {
-                header_map.insert(CONTENT_RANGE, content_range_header_value);
-            }
-            Err(err) => return Some(Err(err).map_err(GraphFailure::from)),
-        }
-
-        Some(Ok((header_map, reqwest::Body::from(range.body()))))
-    }
-
     pub(crate) fn map_all(&mut self) -> Option<Vec<(HeaderMap, reqwest::Body)>> {
         let mut comp = Vec::new();
         while let Some(value) = self.pop_front() {

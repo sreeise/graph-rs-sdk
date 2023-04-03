@@ -35,6 +35,10 @@ pub async fn cancel_upload_session(bytes: &[u8]) -> GraphResult<()> {
 
     let mut iter = response.into_upload_session(bytes.reader()).await?;
 
+    // Get the request builder for canceling a request. Calling cancel() does not automatically
+    // send the request.
+    let cancel_request = iter.cancel()?;
+
     while let Some(result) = iter.next().await {
         match result {
             Ok(response) => {
@@ -42,8 +46,11 @@ pub async fn cancel_upload_session(bytes: &[u8]) -> GraphResult<()> {
             }
             Err(err) => {
                 println!("{err:#?}");
-                let response = iter.cancel().await?;
+
+                let response = cancel_request.send().await?;
                 println!("{response:#?}");
+
+                break;
             }
         }
     }
