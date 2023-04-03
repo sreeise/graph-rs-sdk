@@ -3,7 +3,12 @@
 ![Build](https://github.com/sreeise/graph-rs/actions/workflows/build.yml/badge.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
-### Now available on stable Rust at [crates.io](https://crates.io/crates/graph-rs-sdk)
+### Microsoft Graph API Client in Rust
+
+Installation and basic usage can be found below and there are extensive examples in the example's directory
+included in the project on [GitHub](https://github.com/sreeise/graph-rs).
+
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
     graph-rs-sdk = "1.0.0"
     tokio = { version = "1.25.0", features = ["full"] }
@@ -19,13 +24,6 @@ And import `futures::StreamExt` when using [Streaming](#streaming) features.
 use futures::StreamExt;
 use graph_rs_sdk::prelude::*;
 ```
-
-0.1.0 and above use stable Rust. Anything before 0.1.0 uses nightly Rust.
-
-### Microsoft Graph API Client in Rust
-
-Installation and basic usage can be found below and there are extensive examples in the example's directory
-included in the project on [GitHub](https://github.com/sreeise/graph-rs).
 
 ### Feature requests or Bug reports.
 
@@ -209,7 +207,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "0.3.1"
+    graph-rs-sdk = "1.0.0"
 
 #### Example
 use graph_rs_sdk::prelude::*;

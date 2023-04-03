@@ -8,6 +8,9 @@ repository = "https://github.com/sreeise/graph-rs"
 description = "Microsoft Graph Api Client - Codegen"
 publish = false
 
+keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
+categories = ["authentication", "web-programming::http-client"]
+
 [dependencies]
 anyhow = "1.0.69"
 bytes = "1"

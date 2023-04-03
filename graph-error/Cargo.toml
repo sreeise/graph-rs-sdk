@@ -1,11 +1,14 @@
 [package]
 name = "graph-error"
-version = "0.1.3"
+version = "0.2.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs"
 description = "Graph Api error types and handling for the graph-rs project"
+
+keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
+categories = ["authentication", "web-programming::http-client"]
 
 [dependencies]
 async-trait = "0.1"
