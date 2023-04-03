@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 

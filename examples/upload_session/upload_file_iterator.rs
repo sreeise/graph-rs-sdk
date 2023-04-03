@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 // This example shows creating an upload session for a new file
 // and iterating through the individual upload session values.

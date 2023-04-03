@@ -2,7 +2,7 @@ use crate::id_token::IdToken;
 use crate::jwt::{Claim, JsonWebToken, JwtParser};
 use chrono::{DateTime, Duration, LocalResult, TimeZone, Utc};
 use chrono_humanize::HumanTime;
-use graph_error::{GraphFailure, WithGraphError, WithGraphErrorAsync};
+use graph_error::GraphFailure;
 use serde_aux::prelude::*;
 use std::fmt;
 
@@ -415,13 +415,7 @@ impl AccessToken {
     pub(crate) async fn try_from_async(
         builder: reqwest::RequestBuilder,
     ) -> Result<AccessToken, GraphFailure> {
-        let mut access_token = builder
-            .send()
-            .await?
-            .with_graph_error()
-            .await?
-            .json::<AccessToken>()
-            .await?;
+        let mut access_token = builder.send().await?.json::<AccessToken>().await?;
 
         access_token.parse_jwt();
         Ok(access_token)
@@ -483,7 +477,7 @@ impl TryFrom<reqwest::blocking::Response> for AccessToken {
     where
         Self: for<'de> serde::Deserialize<'de>,
     {
-        let mut access_token = value.with_graph_error()?.json::<AccessToken>()?;
+        let mut access_token = value.json::<AccessToken>()?;
         access_token.parse_jwt();
         Ok(access_token)
     }

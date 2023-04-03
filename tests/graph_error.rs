@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use graph_rs_sdk::{error::*, http::FileConfig};
 use reqwest::StatusCode;
 use std::error::Error;

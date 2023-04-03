@@ -1,6 +1,6 @@
 use futures::stream::{self, StreamExt};
 use graph_http::traits::ODataNextLink;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use serde::Deserialize;
 use serde::Serialize;
 use test_tools::oauth_request::{OAuthTestClient, ASYNC_THROTTLE_MUTEX};

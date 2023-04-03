@@ -1,5 +1,5 @@
 use graph_rs_sdk::groups::{GroupsApiClient, GroupsIdApiClient};
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";

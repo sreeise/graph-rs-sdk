@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 #[test]
 fn list_calendars() {

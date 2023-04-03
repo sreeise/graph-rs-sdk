@@ -1,9 +1,7 @@
-extern crate reqwest;
 #[macro_use]
-pub extern crate serde;
-pub extern crate serde_json;
-pub extern crate serde_yaml;
+extern crate serde;
 
+mod blocking;
 mod client;
 mod core;
 mod request_components;
@@ -11,16 +9,19 @@ mod request_handler;
 mod resource_identifier;
 mod upload_session;
 
-pub mod blocking;
-pub mod iotools;
-pub mod traits;
+mod io_tools;
 pub mod url;
 
+/// Traits for http utilities.
+pub mod traits;
+
 pub(crate) mod internal {
+    pub type ReqwestResult = Result<reqwest::Response, reqwest::Error>;
+    pub type ReqwestBlockingResult = Result<reqwest::blocking::Response, reqwest::Error>;
     pub use crate::blocking::*;
     pub use crate::client::*;
     pub use crate::core::*;
-    pub use crate::iotools::*;
+    pub use crate::io_tools::*;
     pub use crate::request_components::*;
     pub use crate::request_handler::*;
     pub use crate::resource_identifier::*;
@@ -30,7 +31,7 @@ pub(crate) mod internal {
 }
 
 pub mod api_impl {
-    pub use crate::blocking::{BlockingClient, BlockingRequestHandler};
+    pub use crate::blocking::{BlockingClient, BlockingRequestHandler, UploadSessionBlocking};
     pub use crate::client::*;
     pub use crate::core::*;
     pub use crate::request_components::RequestComponents;

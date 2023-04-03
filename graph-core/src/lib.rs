@@ -2,7 +2,7 @@
 //! See the project on [GitHub](https://github.com/sreeise/graph-rs).
 
 #[macro_use]
-pub extern crate strum;
+extern crate strum;
 #[macro_use]
 extern crate serde;
 

@@ -56,11 +56,10 @@
 //! let access_token = request.access_token().send().unwrap();
 //! println!("{:#?}", access_token);
 //! ```
-
-#[macro_use]
-extern crate serde;
 #[macro_use]
 extern crate strum;
+#[macro_use]
+extern crate serde;
 
 mod access_token;
 mod auth;

@@ -26,7 +26,7 @@
 //! is tested with.
 //!
 //! ```rust,ignore
-//! use graph_rs_sdk::prelude::*;
+//! use graph_rs_sdk::*;
 //!
 //! #[tokio::main]
 //! async fn main() -> GraphResult<()> {
@@ -50,7 +50,7 @@
 //! The blocking client can be used by calling `into_blocking()` on a request.
 //!
 //! ```rust,ignore
-//! use graph_rs_sdk::prelude::*;
+//! use graph_rs_sdk::*;
 //!
 //! fn main() -> GraphResult<()> {
 //!     let client =  Graph::new("ACCESS_TOKEN");
@@ -79,7 +79,7 @@
 //!
 //! #### Beta
 //! ```rust,ignore
-//! use graph_rs_sdk::prelude::*;
+//! use graph_rs_sdk::*;
 //!
 //! #[tokio::main]
 //! async fn main() -> GraphResult<()> {
@@ -102,7 +102,7 @@
 //!
 //! #### Custom Endpoint
 //! ```rust,ignore
-//! use graph_rs_sdk::prelude::*;
+//! use graph_rs_sdk::*;
 //!
 //! #[tokio::main]
 //! async fn main() -> GraphResult<()> {
@@ -125,7 +125,7 @@
 //!
 //! #### Custom endpoint using `use_endpoint()`
 //! ```rust,ignore
-//! use graph_rs_sdk::prelude::*;
+//! use graph_rs_sdk::*;
 //!
 //! #[tokio::main]
 //! async fn main() -> GraphResult<()> {
@@ -151,13 +151,6 @@
 //! [GitHub](https://github.com/sreeise/graph-rs)
 //! - If you run into issues related to graph-rs specifically please
 //! file an issue on [GitHub](https://github.com/sreeise/graph-rs)
-
-extern crate handlebars;
-extern crate reqwest;
-pub extern crate serde;
-pub extern crate serde_json;
-pub extern crate serde_yaml;
-extern crate strum;
 
 // mod client needs to stay on top of all other
 // client mod declarations for macro use.
@@ -218,12 +211,9 @@ pub mod users;
 pub static GRAPH_URL: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 
-/// Common structs and traits.
-pub mod prelude {
-    pub use crate::client::*;
-    pub use graph_error::{GraphError, GraphFailure, GraphResult};
-    pub use graph_http::api_impl::ODataQuery;
-}
+pub use crate::client::Graph;
+pub use graph_error::{GraphError, GraphFailure, GraphResult};
+pub use graph_http::api_impl::ODataQuery;
 
 /// Reexport of graph-oauth crate.
 pub mod oauth {
@@ -239,6 +229,11 @@ pub mod http {
         UploadSessionLink,
     };
     pub use reqwest::{Body, Method};
+
+    pub mod blocking {
+        pub use graph_http::api_impl::UploadSessionBlocking;
+        pub use reqwest::blocking::Body;
+    }
 }
 
 /// Reexport of graph-error crate.
@@ -251,20 +246,15 @@ pub mod header {
     pub use reqwest::header::*;
 }
 
-/// Types used across multiple crates.
-pub mod core {
-    pub use graph_core::resource::*;
-}
-
 pub(crate) mod api_default_imports {
     pub(crate) use handlebars::*;
     pub use reqwest::Method;
+    pub use url::Url;
 
+    pub use graph_core::resource::ResourceIdentity;
     pub use graph_error::*;
     pub(crate) use graph_http::api_impl::*;
 
     pub use crate::client::Graph;
     pub(crate) use crate::client::{map_errors, map_parameters, ResourceProvisioner};
-    pub use crate::core::ResourceIdentity;
-    pub use url::Url;
 }

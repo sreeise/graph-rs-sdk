@@ -1,18 +1,15 @@
 use crate::blocking::BlockingRequestHandler;
-use crate::client::Client;
 use crate::internal::{
-    BodyRead, FileConfig, GraphClientBuilder, HttpResponseBuilderExt, ODataNextLink, ODataQuery,
-    ResponseExt,
+    BodyRead, Client, GraphClientBuilder, HttpResponseBuilderExt, ODataNextLink, ODataQuery,
+    RequestComponents,
 };
-use crate::request_components::RequestComponents;
 use async_stream::try_stream;
 use futures::Stream;
-use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
+use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
 use std::fmt::Debug;
-use std::path::PathBuf;
 use std::time::Duration;
 use url::Url;
 
@@ -33,7 +30,9 @@ impl RequestHandler {
         err: Option<GraphFailure>,
         body: Option<BodyRead>,
     ) -> RequestHandler {
-        request_components.headers.extend(inner.headers.into_iter());
+        let mut original_headers = inner.headers;
+        original_headers.extend(request_components.headers.clone());
+        request_components.headers = original_headers;
 
         let mut error = None;
         if let Some(err) = err {
@@ -189,30 +188,7 @@ impl RequestHandler {
     #[inline]
     pub async fn send(self) -> GraphResult<reqwest::Response> {
         let request_builder = self.build()?;
-        request_builder
-            .send()
-            .await?
-            .with_graph_error()
-            .await
-            .map_err(GraphFailure::from)
-    }
-
-    pub async fn download(
-        mut self,
-        file_config: &FileConfig,
-    ) -> GraphResult<http::Response<PathBuf>> {
-        if let Some(err) = self.error {
-            return Err(err);
-        }
-
-        let request_builder = self.default_request_builder();
-        let response = request_builder.send().await.map_err(GraphFailure::from)?;
-        response
-            .with_graph_error()
-            .await?
-            .download(file_config)
-            .await
-            .map_err(GraphFailure::from)
+        request_builder.send().await.map_err(GraphFailure::from)
     }
 }
 
@@ -289,7 +265,7 @@ impl Paging {
         }
 
         let request = self.0.default_request_builder();
-        let response = request.send().await?.with_graph_error().await?;
+        let response = request.send().await?;
 
         let (next, http_response) = Paging::http_response(response).await?;
         let mut next_link = next;
@@ -303,9 +279,6 @@ impl Paging {
                 .get(next)
                 .bearer_auth(access_token.as_str())
                 .send()
-                .await
-                .map_err(GraphFailure::from)?
-                .with_graph_error()
                 .await?;
 
             let (next, http_response) = Paging::http_response(response).await?;

@@ -1,9 +1,10 @@
+use crate::internal::ReqwestResult;
 use crate::traits::AsyncIterator;
 use crate::upload_session::RangeIter;
 use async_stream::try_stream;
 use async_trait::async_trait;
 use futures::Stream;
-use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
+use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::HeaderMap;
 use reqwest::RequestBuilder;
 use std::io::Read;
@@ -13,36 +14,22 @@ pub struct UploadSession {
     url: reqwest::Url,
     range_iter: RangeIter,
     client: reqwest::Client,
-    status_request_builder: RequestBuilder,
-    cancel_request_builder: RequestBuilder,
 }
 
 impl UploadSession {
     pub fn empty(url: reqwest::Url) -> UploadSession {
-        let client = reqwest::Client::new();
-        let status_request_builder = client.get(url.clone());
-        let cancel_request_builder = client.delete(url.clone());
-
         UploadSession {
             url,
             range_iter: Default::default(),
-            client,
-            status_request_builder,
-            cancel_request_builder,
+            client: Default::default(),
         }
     }
 
     pub(crate) fn new(url: reqwest::Url, range_iter: RangeIter) -> UploadSession {
-        let client = reqwest::Client::new();
-        let status_request_builder = client.get(url.clone());
-        let cancel_request_builder = client.delete(url.clone());
-
         UploadSession {
             url,
             range_iter,
-            client,
-            status_request_builder,
-            cancel_request_builder,
+            client: Default::default(),
         }
     }
 
@@ -75,41 +62,26 @@ impl UploadSession {
             .headers(header_map)
             .body(body)
             .send()
-            .await?
-            .with_graph_error()
             .await
             .map_err(GraphFailure::from)
     }
 
-    pub fn status(&self) -> GraphResult<RequestBuilder> {
-        Ok(self
-            .status_request_builder
-            .try_clone()
-            .unwrap_or(reqwest::Client::new().get(self.url.clone())))
+    pub fn status(&self) -> RequestBuilder {
+        self.client.get(self.url.clone())
     }
 
-    pub fn cancel(&self) -> GraphResult<RequestBuilder> {
-        Ok(self
-            .cancel_request_builder
-            .try_clone()
-            .unwrap_or(reqwest::Client::new().delete(self.url.clone())))
+    pub fn cancel(&self) -> RequestBuilder {
+        self.client.delete(self.url.clone())
     }
 
     pub fn from_reader<U: AsRef<str>, R: Read>(
         upload_url: U,
         reader: R,
     ) -> GraphResult<UploadSession> {
-        let url = reqwest::Url::parse(upload_url.as_ref())?;
-        let client = reqwest::Client::new();
-        let status_request_builder = client.get(url.clone());
-        let cancel_request_builder = client.delete(url.clone());
-
         Ok(UploadSession {
-            url,
+            url: reqwest::Url::parse(upload_url.as_ref())?,
             range_iter: RangeIter::from_reader(reader)?,
-            client,
-            status_request_builder,
-            cancel_request_builder,
+            client: Default::default(),
         })
     }
 
@@ -122,8 +94,6 @@ impl UploadSession {
 
             for request_builder in request_builders {
                 yield request_builder.send()
-                    .await?
-                    .with_graph_error()
                     .await
                     .map_err(GraphFailure::from)?
             }
@@ -131,27 +101,32 @@ impl UploadSession {
     }
 
     /// Stream upload session responses.
-    /// Each stream.next() returns a [`GraphResult<reqwest::Response>`].
+    /// Each stream.next().await returns a [`Option<GraphResult<reqwest::Response>>`].
     ///
     /// No pinning is required. The stream is pinned before being returned to the caller.
     ///
     /// # Example
-    /// ```rust,ignore
-    /// use graph_rs_sdk::prelude::*;
+    /// ```rust
+    /// use graph_rs_sdk::*;
     /// use futures::stream::StreamExt;
+    /// use std::fs::OpenOptions;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
     /// // Path to upload file to in OneDrive.
     /// static ONEDRIVE_PATH: &str = ":/file.txt:";
     ///
+    /// static LOCAL_FILE_PATH: &str = "./file.txt";
+    ///
     /// let client = Graph::new("ACCESS_TOKEN");
     ///
     ///  let response = client
     ///     .me()
     ///     .drive()
-    ///     .item_by_path(":/upload_session_file.txt:")
-    ///     .create_upload_session(&upload)
+    ///     .item_by_path(ONEDRIVE_PATH)
+    ///     .create_upload_session(&serde_json::json!({
+    ///         "@microsoft.graph.conflictBehavior": Some("fail".to_string())
+    ///     }))
     ///     .send()
     ///     .await?;
     ///
@@ -159,7 +134,7 @@ impl UploadSession {
     ///
     ///  let mut file = OpenOptions::new()
     ///     .read(true)
-    ///     .open("./test_files/upload_session_file.txt")?;
+    ///     .open(LOCAL_FILE_PATH)?;
     ///
     ///  let mut upload_session = response.into_upload_session(file).await?;
     ///  let mut stream = upload_session.stream()?;
@@ -172,7 +147,7 @@ impl UploadSession {
     ///             let body: serde_json::Value = response.json().await?;
     ///             println!("{body:#?}");
     ///         }
-    ///         Err(err) => panic!("Error on upload session {:#?}", err)
+    ///         Err(err) => panic!("Error on upload session {err:#?}")
     ///     }
     ///  }
     /// ```
@@ -182,16 +157,14 @@ impl UploadSession {
         Ok(Box::pin(self.try_stream()))
     }
 
-    pub fn channel(
-        &mut self,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<reqwest::Response>>> {
+    pub fn channel(&mut self) -> GraphResult<tokio::sync::mpsc::Receiver<ReqwestResult>> {
         self.channel_buffer_timeout(self.range_iter.len() + 1, Duration::from_secs(30))
     }
 
     pub fn channel_timeout(
         &mut self,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<reqwest::Response>>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<ReqwestResult>> {
         self.channel_buffer_timeout(self.range_iter.len() + 1, timeout)
     }
 
@@ -199,7 +172,7 @@ impl UploadSession {
         &mut self,
         buffer: usize,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<reqwest::Response>>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<ReqwestResult>> {
         let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
 
         let components = self.range_iter.map_all().ok_or(GraphFailure::invalid(
@@ -209,13 +182,8 @@ impl UploadSession {
 
         tokio::spawn(async move {
             for request_builder in request_builders {
-                if let Ok(response) = request_builder.send().await {
-                    let result = response
-                        .with_graph_error()
-                        .await
-                        .map_err(GraphFailure::from);
-                    sender.send_timeout(result, timeout).await.unwrap();
-                }
+                let result = request_builder.send().await;
+                sender.send_timeout(result, timeout).await.unwrap();
             }
         });
 

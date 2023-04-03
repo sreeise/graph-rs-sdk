@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 pub async fn get_drive_item(item_id: &str) {
     let client = Graph::new("ACCESS_TOKEN");

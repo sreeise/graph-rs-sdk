@@ -22,7 +22,7 @@ And import `futures::StreamExt` when using [Streaming](#streaming) features.
 
 ```rust
 use futures::StreamExt;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 ```
 
 ### Feature requests or Bug reports.
@@ -73,7 +73,7 @@ directory on [GitHub](https://github.com/sreeise/graph-rs).
 
 /// # Example
 /// ```
-/// use graph_rs_sdk::prelude::*:
+/// use graph_rs_sdk::*:
 ///
 /// #[tokio::main]
 /// async fn main() {
@@ -144,7 +144,7 @@ async fn handle_redirect(
 
 /// # Example
 /// ```
-/// use graph_rs_sdk::prelude::*:
+/// use graph_rs_sdk::*:
 ///
 /// #[tokio::main]
 /// async fn main() {
@@ -181,7 +181,7 @@ The crate can do both an async and blocking requests.
 #### Example
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 #[tokio::main]
 async fn main() -> GraphResult<()> {
@@ -210,7 +210,7 @@ use `tokio` when using the blocking client.
     graph-rs-sdk = "1.0.0"
 
 #### Example
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 ```rust
 fn main() -> GraphResult<()> {
@@ -246,7 +246,7 @@ The send() method is the main method for sending a request and returns a `Result
 [reqwest](https://crates.io/crates/reqwest) crate for information on the Response type.
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 pub async fn get_drive_item() -> GraphResult<()> {
   let client = Graph::new("ACCESS_TOKEN");
@@ -270,7 +270,7 @@ You can implement your own types by utilizing methods from reqwest::Response. Th
 See the reqwest crate for more info.
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DriveItem {
@@ -324,7 +324,7 @@ There are different levels of support for paging Microsoft Graph APIs. See the d
 supported APIs and availability.
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
@@ -361,7 +361,7 @@ Streaming is only available using the async client.
 
 ```rust
 use futures::StreamExt;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
@@ -390,7 +390,7 @@ pub async fn stream_next_links() -> GraphResult<()> {
 ### Channels
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
@@ -430,7 +430,7 @@ Make requests to drive using a drive id or through specific drives for me, sites
 users, and groups.
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 async fn drives() -> GraphResult<()> {
   let client = Graph::new("ACCESS_TOKEN");
@@ -533,7 +533,7 @@ async fn drive_users() -> GraphResult<()> {
 Create a folder.
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use std::collections::HashMap;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -595,7 +595,7 @@ async fn get_item_by_path() -> GraphResult<()> {
 ### Mail
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
         
 let client = Graph::new("ACCESS_TOKEN");
         
@@ -637,7 +637,7 @@ println!("{:#?}", response.body()); // => Message
 
 #### Create message
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 async fn create_message() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
@@ -671,7 +671,7 @@ async fn create_message() -> GraphResult<()> {
 #### Send mail
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 async fn send_mail() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
@@ -715,7 +715,7 @@ async fn send_mail() -> GraphResult<()> {
 #### Mail folders
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 async fn create_mail_folder_message() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
@@ -833,7 +833,7 @@ async fn create_message() -> GraphResult<()> {
 ### OData Queries
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 async fn create_message() -> GraphResult<()> {
   let client = Graph::new("ACCESS_TOKEN");
@@ -863,7 +863,7 @@ Batch requests use a mpsc::channel and return the receiver
 for responses.
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static USER_ID: &str = "USER_ID";
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
@@ -924,7 +924,7 @@ and you can find `get_users()` by calling `user<ID: AsRef<str>>(id: ID)` method.
 ### Using the `users()` method:
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 // For more info on users see: https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
 // For more examples see the examples directory on GitHub.
@@ -953,7 +953,7 @@ async fn list_users() -> GraphResult<()> {
 ### Using the user id `user<ID: AsRef<str>>(id: ID)` method:
 
 ```rust
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 // For more info on users see: https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
 // For more examples see the examples directory on GitHub

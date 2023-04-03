@@ -1,6 +1,6 @@
 /// # Example
 /// ```
-/// use graph_rs_sdk::prelude::*:
+/// use graph_rs_sdk::*:
 ///
 /// #[tokio::main]
 /// async fn main() {
@@ -115,7 +115,7 @@ async fn handle_redirect(
 
 /// # Example
 /// ```
-/// use graph_rs_sdk::prelude::*:
+/// use graph_rs_sdk::*:
 ///
 /// #[tokio::main]
 /// async fn main() {

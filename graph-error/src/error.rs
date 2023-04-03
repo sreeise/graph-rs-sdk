@@ -1,5 +1,4 @@
-use crate::{GraphFailure, GraphHeaders, GraphResult};
-use async_trait::async_trait;
+use crate::{GraphHeaders, GraphResult};
 use reqwest::StatusCode;
 use serde::Serialize;
 use std::error::Error;
@@ -265,74 +264,5 @@ impl ErrorType {
 impl ToString for ErrorType {
     fn to_string(&self) -> String {
         self.as_str().to_string()
-    }
-}
-
-pub trait WithGraphError: Sized {
-    fn with_graph_error(self) -> GraphResult<Self>;
-}
-
-impl WithGraphError for reqwest::blocking::Response {
-    fn with_graph_error(self) -> GraphResult<Self> {
-        let code = self.status();
-        if code.is_client_error() || code.is_server_error() {
-            let headers = Some(GraphHeaders::from(&self));
-            let result: GraphResult<serde_json::Value> = self.json().map_err(GraphFailure::from);
-
-            if let Ok(raw) = result {
-                let response_raw = raw.clone();
-                let error_message = serde_json::from_value(raw).unwrap_or_default();
-                Err(GraphFailure::GraphError(GraphError {
-                    headers,
-                    code,
-                    error_message,
-                    response_raw,
-                }))
-            } else {
-                Err(GraphFailure::GraphError(GraphError::new(
-                    headers,
-                    code,
-                    Default::default(),
-                )))
-            }
-        } else {
-            Ok(self)
-        }
-    }
-}
-
-#[async_trait]
-pub trait WithGraphErrorAsync: Sized {
-    async fn with_graph_error(self) -> GraphResult<Self>;
-}
-
-#[async_trait]
-impl WithGraphErrorAsync for reqwest::Response {
-    async fn with_graph_error(self) -> GraphResult<Self> {
-        let code = self.status();
-        if code.is_client_error() || code.is_server_error() {
-            let headers = Some(GraphHeaders::from(&self));
-            let result: GraphResult<serde_json::Value> =
-                self.json().await.map_err(GraphFailure::from);
-
-            return if let Ok(raw) = result {
-                let response_raw = raw.clone();
-                let error_message = serde_json::from_value(raw).unwrap_or_default();
-                Err(GraphFailure::GraphError(GraphError {
-                    headers,
-                    code,
-                    error_message,
-                    response_raw,
-                }))
-            } else {
-                Err(GraphFailure::GraphError(GraphError::new(
-                    headers,
-                    code,
-                    Default::default(),
-                )))
-            };
-        } else {
-            Ok(self)
-        }
     }
 }

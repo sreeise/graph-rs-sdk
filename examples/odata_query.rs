@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use graph_rs_sdk::prelude::{Graph, GraphResult, ODataQuery};
+use graph_rs_sdk::{Graph, GraphResult, ODataQuery};
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 

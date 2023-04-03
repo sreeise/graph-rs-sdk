@@ -2,7 +2,7 @@
 extern crate lazy_static;
 
 use graph_rs_sdk::identity_governance::IdentityGovernanceApiClient;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use test_tools::common::TestTools;
 
 lazy_static! {

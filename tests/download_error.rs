@@ -1,6 +1,6 @@
 use graph_rs_sdk::error::{download::AsyncDownloadError, GraphFailure};
 use graph_rs_sdk::http::FileConfig;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use std::ffi::OsStr;
 use test_tools::oauth_request::OAuthTestClient;
 use test_tools::oauth_request::DRIVE_ASYNC_THROTTLE_MUTEX;

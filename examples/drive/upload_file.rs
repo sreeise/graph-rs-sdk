@@ -1,6 +1,6 @@
 use bytes::BytesMut;
 use graph_rs_sdk::http::{BodyRead, FileConfig};
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use std::fs::OpenOptions;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";

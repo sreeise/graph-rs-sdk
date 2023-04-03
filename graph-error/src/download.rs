@@ -1,4 +1,4 @@
-use crate::ioerror::{AsyncIoError, ThreadedIoError};
+use crate::io_error::{AsyncIoError, ThreadedIoError};
 use crate::GraphError;
 
 #[derive(Debug, thiserror::Error)]

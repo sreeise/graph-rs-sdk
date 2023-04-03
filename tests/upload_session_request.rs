@@ -2,7 +2,7 @@ use futures::StreamExt;
 use graph_error::GraphResult;
 use graph_http::api_impl::UploadSession;
 use graph_http::traits::ResponseExt;
-use graph_rs_sdk::prelude::Graph;
+use graph_rs_sdk::Graph;
 use std::thread;
 use std::time::Duration;
 use test_tools::oauth_request::{OAuthTestClient, DRIVE_ASYNC_THROTTLE_MUTEX};
@@ -21,7 +21,7 @@ async fn delete_item(
 }
 
 async fn stream_upload_session(mut upload_session: UploadSession) -> GraphResult<Option<String>> {
-    let cancel_request = upload_session.cancel()?;
+    let cancel_request = upload_session.cancel();
     let mut stream = upload_session.stream()?;
     let mut item_id: Option<String> = None;
     let mut counter = 0;
@@ -65,7 +65,7 @@ async fn stream_upload_session(mut upload_session: UploadSession) -> GraphResult
 }
 
 async fn channel_upload_session(mut upload_session: UploadSession) -> GraphResult<Option<String>> {
-    let cancel_request = upload_session.cancel()?;
+    let cancel_request = upload_session.cancel();
     let mut receiver = upload_session.channel()?;
     let mut item_id: Option<String> = None;
     let mut counter = 0;

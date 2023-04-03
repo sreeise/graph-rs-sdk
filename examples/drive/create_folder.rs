@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use std::collections::HashMap;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";

@@ -1,5 +1,6 @@
+use graph_http::traits::ResponseExt;
 use graph_rs_sdk::http::FileConfig;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use std::ffi::{OsStr, OsString};
 use std::path::PathBuf;
 
@@ -26,13 +27,18 @@ pub async fn download() {
         .drive()
         .item(ITEM_ID)
         .get_items_content()
-        .download(&FileConfig::new("./examples/example_files").create_directories(true))
+        .send()
         .await
         .unwrap();
 
     println!("{response:#?}");
 
-    let path_buf = response.into_body();
+    let response2 = response
+        .download(&FileConfig::new("./examples/example_files").create_directories(true))
+        .await
+        .unwrap();
+
+    let path_buf = response2.into_body();
     println!("{:#?}", path_buf.metadata());
 }
 
@@ -84,6 +90,13 @@ pub async fn download_and_format(format: &str) {
         .item(ITEM_ID)
         .get_items_content()
         .format(format)
+        .send()
+        .await
+        .unwrap();
+
+    println!("{response:#?}");
+
+    let response2 = response
         .download(
             &FileConfig::new("./examples/example_files")
                 .create_directories(true)
@@ -92,9 +105,7 @@ pub async fn download_and_format(format: &str) {
         .await
         .unwrap();
 
-    println!("{response:#?}");
-
-    let path_buf = response.into_body();
+    let path_buf = response2.into_body();
     println!("{:#?}", path_buf.metadata());
 }
 
@@ -106,6 +117,13 @@ pub async fn download_and_rename(name: &str) {
         .drive()
         .item(ITEM_ID)
         .get_items_content()
+        .send()
+        .await
+        .unwrap();
+
+    println!("{response:#?}");
+
+    let response2 = response
         .download(
             &FileConfig::new("./examples/example_files")
                 .create_directories(true)
@@ -114,9 +132,7 @@ pub async fn download_and_rename(name: &str) {
         .await
         .unwrap();
 
-    println!("{response:#?}");
-
-    let path_buf = response.into_body();
+    let path_buf = response2.into_body();
     println!("{:#?}", path_buf.metadata());
 }
 
@@ -130,6 +146,13 @@ pub async fn download_by_path(path: &str) {
         .drive()
         .item_by_path(path)
         .get_items_content()
+        .send()
+        .await
+        .unwrap();
+
+    println!("{response:#?}");
+
+    let response2 = response
         .download(
             &FileConfig::new("./examples/example_files")
                 .create_directories(true)
@@ -138,16 +161,13 @@ pub async fn download_by_path(path: &str) {
         .await
         .unwrap();
 
-    println!("{response:#?}");
-
-    let path_buf = response.into_body();
+    let path_buf = response2.into_body();
     println!("{:#?}", path_buf.metadata());
 }
 
-// The default settings for downloading is to NOT create any non-existing directory.
-// You can change this by setting FileConfig with create directories to true.
-// Any missing directory when this is not true will cause the request to fail.
-#[allow(dead_code)]
+/// The default settings for downloading is to NOT create any non-existing directory.
+/// You can change this by setting FileConfig with create directories to true.
+/// Any missing directory when this is not true will cause the request to fail.
 pub async fn download_with_config() {
     let client = Graph::new(ACCESS_TOKEN);
 
@@ -156,14 +176,17 @@ pub async fn download_with_config() {
         .drive()
         .item(ITEM_ID)
         .get_items_content()
-        .download(
-            &FileConfig::new("./examples/example_files").create_directories(true), // Create directories in the path if they do not exist.
-        )
+        .send()
         .await
         .unwrap();
 
     println!("{response:#?}");
 
-    let path_buf = response.into_body();
+    let response2 = response
+        .download(&FileConfig::new("./examples/example_files").create_directories(true))
+        .await
+        .unwrap();
+
+    let path_buf = response2.into_body();
     println!("{:#?}", path_buf.metadata());
 }

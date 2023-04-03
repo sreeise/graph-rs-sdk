@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::Graph;
+use graph_rs_sdk::Graph;
 
 static RID: &str = "T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x";
 static ID: &str = "b!CbtYWrofwUGBJWnaJkNwoNrBLp_kC3RKklSXPwrdeP3yH8_qmH9xT5Y6RODPNfYI";

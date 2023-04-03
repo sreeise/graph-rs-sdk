@@ -1,6 +1,5 @@
 use inflector::Inflector;
 use std::convert::AsRef;
-
 /// Comprises both top level and second level resources.
 /// These are not generated from OpenApi, except for top level resources,
 /// and mostly consist of Apis that the project currently has generated.

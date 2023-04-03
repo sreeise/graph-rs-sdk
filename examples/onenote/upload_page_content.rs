@@ -1,6 +1,6 @@
 use graph_rs_sdk::header::{HeaderValue, CONTENT_TYPE};
 use graph_rs_sdk::http::FileConfig;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use std::fs::OpenOptions;
 use std::io::Read;
 

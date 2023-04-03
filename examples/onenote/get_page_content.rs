@@ -1,5 +1,5 @@
 use graph_rs_sdk::http::FileConfig;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use std::ffi::OsStr;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";

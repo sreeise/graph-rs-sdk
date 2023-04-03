@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use graph_rs_sdk::http::{BodyRead, Method};
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 

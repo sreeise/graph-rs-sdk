@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 use test_tools::oauth_request::OAuthTestClient;
 

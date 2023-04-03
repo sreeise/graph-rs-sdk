@@ -15,8 +15,6 @@ use std::path::{Path, PathBuf};
 /// use graph_http::api_impl::FileConfig;
 ///
 /// let config = FileConfig::new("./examples")
-///     .create_directories(true)
-///     .overwrite_existing_file(true)
 ///     .file_name(OsStr::new("example.json"));
 ///
 /// # assert_eq!(Path::new("./examples"), config.path.as_path());
@@ -31,7 +29,7 @@ use std::path::{Path, PathBuf};
 /// use graph_http::api_impl::FileConfig;
 ///
 /// let config = FileConfig::new("./examples")
-///     .overwrite_existing_file(true)
+///     .overwrite_existing_file(false)
 ///     .extension(OsStr::new("pdf"));
 ///
 /// # assert_eq!(Path::new("./examples"), config.path.as_path());
@@ -41,7 +39,7 @@ use std::path::{Path, PathBuf};
 #[derive(Clone, Debug, Default)]
 pub struct FileConfig {
     pub path: PathBuf,
-    /// Used only when downloading files
+    /// Used only when downloading files. Default is true.
     pub create_directory_all: bool,
     /// Used only when downloading files
     pub overwrite_existing_file: bool,
@@ -86,7 +84,7 @@ impl FileConfig {
     pub fn new<P: AsRef<Path>>(path: P) -> FileConfig {
         FileConfig {
             path: path.as_ref().to_path_buf(),
-            create_directory_all: false,
+            create_directory_all: true,
             overwrite_existing_file: false,
             file_name: None,
             extension: None,
@@ -110,6 +108,7 @@ impl FileConfig {
     }
 
     /// Overwrite an existing file of the same file name and path.
+    /// This is true by default.
     ///
     /// # Example
     /// ```rust

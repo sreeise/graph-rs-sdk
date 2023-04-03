@@ -1,5 +1,5 @@
 use graph_rs_sdk::header::{HeaderValue, CONTENT_LENGTH};
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 // This example shows checking a drive item in and out.
 

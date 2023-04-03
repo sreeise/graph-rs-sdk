@@ -5,7 +5,7 @@ use crate::internal::{
 use crate::traits::UploadSessionLink;
 use async_trait::async_trait;
 use graph_error::download::AsyncDownloadError;
-use graph_error::{GraphFailure, GraphResult, WithGraphErrorAsync};
+use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::HeaderMap;
 use reqwest::Response;
 use std::ffi::OsString;
@@ -70,7 +70,7 @@ pub trait ResponseExt {
     /// # Example
     /// ```rust,ignore
     /// use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -139,7 +139,7 @@ pub trait ResponseExt {
     /// # Example
     /// ```rust,ignore
     /// use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -220,7 +220,7 @@ pub trait ResponseExt {
     ///
     /// ```rust,ignore
     /// use graph_rs_sdk::http::{BodyRead, FileConfig};
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -248,7 +248,7 @@ pub trait ResponseExt {
     ///
     /// ```rust,ignore
     /// use graph_rs_sdk::http::{BodyRead, FileConfig};
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -294,10 +294,7 @@ impl ResponseExt for reqwest::Response {
             .await
             .map_err(GraphFailure::from);
 
-        match result {
-            Ok(response) => Some(response.with_graph_error().await),
-            Err(err) => Some(Err(err)),
-        }
+        Some(result)
     }
 
     /// # Begin an upload session using any [`std::io::Reader`].<br>
@@ -321,7 +318,7 @@ impl ResponseExt for reqwest::Response {
     /// # Example
     /// ```rust,ignore
     /// use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -401,7 +398,7 @@ impl ResponseExt for reqwest::Response {
     /// # Example
     /// ```rust,ignore
     /// use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -493,7 +490,7 @@ impl ResponseExt for reqwest::Response {
     ///
     /// ```rust,ignore
     /// use graph_rs_sdk::http::BodyRead, FileConfig;
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -524,7 +521,7 @@ impl ResponseExt for reqwest::Response {
     ///
     /// ```rust,ignore
     /// use graph_rs_sdk::http::FileConfig;
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///

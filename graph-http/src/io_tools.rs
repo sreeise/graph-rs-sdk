@@ -1,5 +1,5 @@
 use futures::StreamExt;
-use graph_error::ioerror::{AsyncIoError, ThreadedIoError};
+use graph_error::io_error::{AsyncIoError, ThreadedIoError};
 use std::{
     fs,
     path::{Path, PathBuf},

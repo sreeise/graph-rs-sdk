@@ -1,8 +1,7 @@
-use futures::stream::StreamExt;
 use graph_rs_sdk::{
     error::GraphResult,
     header::{HeaderValue, CONTENT_LENGTH},
-    http::{FileConfig, ResponseExt},
+    http::FileConfig,
     prelude::Graph,
 };
 

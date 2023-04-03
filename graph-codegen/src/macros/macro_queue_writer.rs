@@ -10,7 +10,7 @@ use anyhow::anyhow;
 use bytes::{BufMut, BytesMut};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use graph_http::iotools::create_dir;
+use graph_http::io_tools::create_dir;
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt::Debug;
 use std::fmt::Write as _;

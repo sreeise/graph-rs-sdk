@@ -1,6 +1,7 @@
 use bytes::Buf;
+use graph_error::WithGraphErrorAsync;
 use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 // This example shows creating an upload session for a new file
 // and iterating through the individual upload session values
@@ -37,7 +38,7 @@ pub async fn cancel_upload_session(bytes: &[u8]) -> GraphResult<()> {
 
     // Get the request builder for canceling a request. Calling cancel() does not automatically
     // send the request.
-    let cancel_request = iter.cancel()?;
+    let cancel_request = iter.cancel();
 
     while let Some(result) = iter.next().await {
         match result {
@@ -48,6 +49,13 @@ pub async fn cancel_upload_session(bytes: &[u8]) -> GraphResult<()> {
                 println!("{err:#?}");
 
                 let response = cancel_request.send().await?;
+
+                // Microsoft Graph may return error info in the request body
+                // of a Response.
+                if let Ok(body) = response.json().await {
+                    println!("{body:#?}");
+                }
+
                 println!("{response:#?}");
 
                 break;

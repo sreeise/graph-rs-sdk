@@ -4,7 +4,7 @@ use crate::internal::{
     UploadSessionLink, MAX_FILE_NAME_LEN,
 };
 use graph_error::download::BlockingDownloadError;
-use graph_error::{GraphFailure, GraphResult, WithGraphError};
+use graph_error::{GraphFailure, GraphResult};
 use std::io::Read;
 use std::path::PathBuf;
 
@@ -48,7 +48,7 @@ pub trait ResponseBlockingExt {
     ///
     /// ```rust,ignore
     /// use graph_rs_sdk::http::{BodyRead, FileConfig};
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -79,7 +79,7 @@ pub trait ResponseBlockingExt {
     ///
     /// ```rust,ignore
     /// use graph_rs_sdk::http::{BodyRead, FileConfig};
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -126,10 +126,7 @@ impl ResponseBlockingExt for reqwest::blocking::Response {
             .send()
             .map_err(GraphFailure::from);
 
-        match result {
-            Ok(response) => Some(response.with_graph_error()),
-            Err(err) => Some(Err(err)),
-        }
+        Some(result)
     }
 
     fn into_upload_session(self, reader: impl Read + Send) -> GraphResult<UploadSessionBlocking> {
@@ -178,7 +175,7 @@ impl ResponseBlockingExt for reqwest::blocking::Response {
     /// ```rust,ignore
     /// use graph_rs_sdk::http::FileConfig;
     /// use std::ffi::OsStr;
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -209,7 +206,7 @@ impl ResponseBlockingExt for reqwest::blocking::Response {
     /// ```rust,ignore
     /// use graph_rs_sdk::http::FileConfig;
     /// use std::ffi::OsStr;
-    /// use graph_rs_sdk::prelude::*;
+    /// use graph_rs_sdk::*;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
     ///
@@ -322,7 +319,7 @@ impl ResponseBlockingExt for reqwest::blocking::Response {
    ///
    /// ```rust,ignore
    /// use graph_rs_sdk::http::{BodyRead, FileConfig};
-   /// use graph_rs_sdk::prelude::*;
+   /// use graph_rs_sdk::*;
    ///
    /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
    ///
@@ -350,7 +347,7 @@ impl ResponseBlockingExt for reqwest::blocking::Response {
    ///
    /// ```rust,ignore
    /// use graph_rs_sdk::http::{BodyRead, FileConfig};
-   /// use graph_rs_sdk::prelude::*;
+   /// use graph_rs_sdk::*;
    ///
    /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
    ///

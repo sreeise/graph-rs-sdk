@@ -1,6 +1,6 @@
 use crate::blocking::blocking_client::BlockingClient;
 use crate::internal::*;
-use graph_error::{GraphFailure, GraphResult, WithGraphError};
+use graph_error::{GraphFailure, GraphResult};
 use http::header::CONTENT_TYPE;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use serde::de::DeserializeOwned;
@@ -23,7 +23,9 @@ impl BlockingRequestHandler {
         err: Option<GraphFailure>,
         body: Option<BodyRead>,
     ) -> BlockingRequestHandler {
-        request_components.headers.extend(inner.headers.into_iter());
+        let mut original_headers = inner.headers;
+        original_headers.extend(request_components.headers.clone());
+        request_components.headers = original_headers;
 
         let mut error = None;
         if let Some(err) = err {
@@ -168,7 +170,7 @@ impl BlockingRequestHandler {
     #[inline]
     pub fn send(self) -> GraphResult<reqwest::blocking::Response> {
         let request_builder = self.build()?;
-        request_builder.send()?.with_graph_error()
+        request_builder.send().map_err(GraphFailure::from)
     }
 }
 
@@ -245,7 +247,7 @@ impl BlockingPaging {
         }
 
         let request = self.0.default_request_builder();
-        let response = request.send()?.with_graph_error()?;
+        let response = request.send()?;
 
         let (next, http_response) = BlockingPaging::http_response(response)?;
         let mut next_link = next;
@@ -259,8 +261,7 @@ impl BlockingPaging {
                 .get(next)
                 .bearer_auth(access_token.as_str())
                 .send()
-                .map_err(GraphFailure::from)?
-                .with_graph_error()?;
+                .map_err(GraphFailure::from)?;
 
             let (next, http_response) = BlockingPaging::http_response(response)?;
 
@@ -280,8 +281,7 @@ impl BlockingPaging {
             .get(next)
             .bearer_auth(access_token)
             .send()
-            .map_err(GraphFailure::from)?
-            .with_graph_error()?;
+            .map_err(GraphFailure::from)?;
 
         BlockingPaging::http_response(response)
     }
@@ -291,7 +291,7 @@ impl BlockingPaging {
     ) -> GraphResult<std::sync::mpsc::Receiver<Option<GraphResult<http::Response<T>>>>> {
         let (sender, receiver) = std::sync::mpsc::channel();
         let request = self.0.default_request_builder();
-        let response = request.send()?.with_graph_error()?;
+        let response = request.send()?;
 
         let (next, http_response) = BlockingPaging::http_response(response)?;
         let mut next_link = next;

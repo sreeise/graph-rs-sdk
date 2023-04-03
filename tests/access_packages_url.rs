@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::Graph;
+use graph_rs_sdk::Graph;
 
 #[test]
 fn list_access_packages() {

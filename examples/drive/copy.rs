@@ -1,5 +1,5 @@
 use graph_rs_sdk::http::ResponseExt;
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 use std::thread;
 use std::time::Duration;
 
