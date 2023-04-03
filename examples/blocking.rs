@@ -89,9 +89,10 @@ fn upload_session_channel() -> GraphResult<()> {
     Ok(())
 }
 
-/// Use [`while let Some(result) = upload_session.next()`] or [`for result in upload_session {}`]
-/// when using Iterator impl.
-/// DO NOT use [`for result in upload_session.next()`] when using Iterator impl.
+// When using Iterator impl DO NOT do this: `for result in upload_session.next()`. This will
+// result in an error.
+
+// Best way to use Iterator impl:
 fn upload_session_iter() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
