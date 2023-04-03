@@ -187,10 +187,7 @@ impl OAuthTestClient {
 
         match req.access_token().send().await {
             Ok(token) => Some((user_id, token)),
-            Err(err) => {
-                dbg!(&err);
-                None
-            }
+            Err(err) => None,
         }
     }
 
@@ -253,13 +250,9 @@ impl OAuthTestClient {
         resource_identity: ResourceIdentity,
     ) -> Option<(String, Graph)> {
         let mut app_registration = OAuthTestClient::get_app_registration()?;
-        dbg!(&app_registration);
         let client = app_registration.get_by(resource_identity)?;
-        dbg!(&client);
         let (test_client, credentials) = client.default_client()?;
-        dbg!(&credentials);
         if let Some((id, token)) = test_client.get_access_token_async(credentials).await {
-            dbg!(&token);
             Some((id, Graph::new(token.bearer_token())))
         } else {
             None
