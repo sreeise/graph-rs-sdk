@@ -187,7 +187,7 @@ impl OAuthTestClient {
 
         match req.access_token().send().await {
             Ok(token) => Some((user_id, token)),
-            Err(err) => None,
+            Err(_) => None,
         }
     }
 

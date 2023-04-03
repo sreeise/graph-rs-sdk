@@ -5,8 +5,20 @@
 
 ### Now available on stable Rust at [crates.io](https://crates.io/crates/graph-rs-sdk)
 
-    graph-rs-sdk = "0.3.1"
+    graph-rs-sdk = "1.0.0"
     tokio = { version = "1.25.0", features = ["full"] }
+
+
+To use stream features add futures crate:
+
+    futures = "0.3"
+
+And import `futures::StreamExt` when using [Streaming](#streaming) features.
+
+```rust
+use futures::StreamExt;
+use graph_rs_sdk::prelude::*;
+```
 
 0.1.0 and above use stable Rust. Anything before 0.1.0 uses nightly Rust.
 
@@ -21,7 +33,8 @@ For bug reports please file an issue on GitHub and a response or fix will be giv
 
 The [Discussions](https://github.com/sreeise/graph-rs/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs/discussions)
 is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
-an issue first. Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
+an issue first. Features can be requested through issues or discussions. Either way works.
+Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
 
 ## Table Of Contents
 
@@ -349,7 +362,7 @@ stream the next link responses or use a channel receiver to get the responses.
 Streaming is only available using the async client.
 
 ```rust
-use futures_util::stream::StreamExt;
+use futures::StreamExt;
 use graph_rs_sdk::prelude::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
