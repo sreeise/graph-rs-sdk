@@ -1,5 +1,5 @@
 use graph_core::resource::ResourceIdentity;
-use graph_http::api_impl::{GraphUrl, ResourceConfig};
+use graph_http::api_impl::ResourceConfig;
 use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
 use url::Url;
 
@@ -59,7 +59,7 @@ impl ResourceProvisioner {
 
 #[allow(unused_imports)]
 mod tests {
-    use super::{GraphUrl, ResourceIdentity, ResourceProvisioner};
+    use super::{ResourceIdentity, ResourceProvisioner};
     use url::Url;
 
     #[test]

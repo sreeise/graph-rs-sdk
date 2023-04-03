@@ -85,6 +85,26 @@ impl RangeIter {
         Some((header_map, reqwest::Body::from(range.body())))
     }
 
+    pub(crate) fn pop_front_blocking(&mut self) -> Option<(HeaderMap, reqwest::blocking::Body)> {
+        let range = self.dequeue.pop_front()?;
+
+        let content_range = range.content_range(self.size);
+        let content_length = range.content_length().to_string();
+        let mut header_map = HeaderMap::new();
+
+        header_map.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        header_map.insert(
+            CONTENT_LENGTH,
+            HeaderValue::from_str(content_length.as_str()).ok()?,
+        );
+        header_map.insert(
+            CONTENT_RANGE,
+            HeaderValue::from_str(content_range.as_str()).ok()?,
+        );
+
+        Some((header_map, reqwest::blocking::Body::from(range.body())))
+    }
+
     pub(crate) fn pop_front_result(&mut self) -> Option<GraphResult<(HeaderMap, reqwest::Body)>> {
         let range = self.dequeue.pop_front()?;
 
@@ -117,6 +137,14 @@ impl RangeIter {
     pub(crate) fn map_all(&mut self) -> Option<Vec<(HeaderMap, reqwest::Body)>> {
         let mut comp = Vec::new();
         while let Some(value) = self.pop_front() {
+            comp.push(value);
+        }
+        Some(comp)
+    }
+
+    pub(crate) fn map_all_blocking(&mut self) -> Option<Vec<(HeaderMap, reqwest::blocking::Body)>> {
+        let mut comp = Vec::new();
+        while let Some(value) = self.pop_front_blocking() {
             comp.push(value);
         }
         Some(comp)

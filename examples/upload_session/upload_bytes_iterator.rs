@@ -22,7 +22,9 @@ static CONFLICT_BEHAVIOR: &str = "rename";
 
 // Use the []() for tokio::io::AsyncReadExt
 
-// Requires bytes crate
+/// Requires bytes crate
+/// Use [`while let Some(result) = upload_session.next()`] when using Iterator impl.
+/// DO NOT use [`for result in upload_session.next()`] when using Iterator impl.
 pub async fn upload_bytes(bytes: Bytes) -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 

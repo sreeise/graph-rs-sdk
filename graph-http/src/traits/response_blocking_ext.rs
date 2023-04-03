@@ -1,13 +1,20 @@
+use crate::blocking::UploadSessionBlocking;
 use crate::internal::{
-    copy, create_dir, parse_content_disposition, FileConfig, HttpResponseBuilderExt,
-    MAX_FILE_NAME_LEN,
+    copy, create_dir, parse_content_disposition, FileConfig, HttpResponseBuilderExt, RangeIter,
+    UploadSessionLink, MAX_FILE_NAME_LEN,
 };
 use graph_error::download::BlockingDownloadError;
 use graph_error::{GraphFailure, GraphResult, WithGraphError};
+use std::io::Read;
 use std::path::PathBuf;
 
 pub trait ResponseBlockingExt {
     fn job_status(&self) -> Option<GraphResult<reqwest::blocking::Response>>;
+
+    fn into_upload_session(
+        self,
+        reader: impl std::io::Read + Send,
+    ) -> GraphResult<UploadSessionBlocking>;
 
     /// # Downloads the content of the HTTP response and saves it to a file.<br>
     ///
@@ -123,6 +130,19 @@ impl ResponseBlockingExt for reqwest::blocking::Response {
             Ok(response) => Some(response.with_graph_error()),
             Err(err) => Some(Err(err)),
         }
+    }
+
+    fn into_upload_session(self, reader: impl Read + Send) -> GraphResult<UploadSessionBlocking> {
+        let body: serde_json::Value = self.json()?;
+        let url = body
+            .upload_session_link()
+            .ok_or_else(|| GraphFailure::not_found("No uploadUrl found in response body"))?;
+
+        let range_iter = RangeIter::from_reader(reader)?;
+        Ok(UploadSessionBlocking::new(
+            reqwest::Url::parse(url.as_str())?,
+            range_iter,
+        ))
     }
 
     /// # Downloads the content of the HTTP response and saves it to a file.<br>

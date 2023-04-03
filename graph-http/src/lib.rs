@@ -4,7 +4,6 @@ pub extern crate serde;
 pub extern crate serde_json;
 pub extern crate serde_yaml;
 
-mod byte_range;
 mod client;
 mod core;
 mod request_components;
@@ -18,6 +17,7 @@ pub mod traits;
 pub mod url;
 
 pub(crate) mod internal {
+    pub use crate::blocking::*;
     pub use crate::client::*;
     pub use crate::core::*;
     pub use crate::iotools::*;
@@ -38,7 +38,6 @@ pub mod api_impl {
     pub use crate::resource_identifier::{ResourceConfig, ResourceIdentifier};
     pub use crate::traits::{BodyExt, ODataQuery};
     pub use crate::upload_session::UploadSession;
-    pub use crate::url::GraphUrl;
     pub use graph_error::{GraphFailure, GraphResult};
 
     pub extern crate handlebars;

@@ -316,9 +316,7 @@ impl BlockingPaging {
                 }
             }
             sender.send(None).unwrap();
-        })
-        .join()
-        .unwrap();
+        });
 
         Ok(receiver)
     }

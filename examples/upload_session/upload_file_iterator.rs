@@ -27,6 +27,8 @@ static CONFLICT_BEHAVIOR: &str = "rename";
 
 // Use into_upload_session_async_read() for readers implementing tokio::io::AsyncReadExt
 
+/// Use [`while let Some(result) = upload_session.next()`] when using Iterator impl.
+/// DO NOT use [`for result in upload_session.next()`] when using Iterator impl.
 pub async fn upload_file(file: std::fs::File) -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 

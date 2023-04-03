@@ -13,4 +13,5 @@ pub use byte_range::*;
 pub use http_ext::*;
 pub use odata_link::*;
 pub use odata_query::*;
+pub use response_blocking_ext::*;
 pub use response_ext::*;
