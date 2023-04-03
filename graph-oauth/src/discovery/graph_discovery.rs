@@ -1,14 +1,11 @@
-use crate::oauth::wellknown::WellKnown;
+use crate::oauth::well_known::WellKnown;
 use crate::oauth::{OAuth, OAuthError};
-use from_as::*;
-use std::convert::TryFrom;
-use std::io::{Read, Write};
 
 static LOGIN_LIVE_HOST: &str = "https://login.live.com";
 static MICROSOFT_ONLINE_HOST: &str = "https://login.microsoftonline.com";
 static OPEN_ID_PATH: &str = ".well-known/openid-configuration";
 
-#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct MicrosoftSigningKeysV1 {
     pub issuer: String,
     pub authorization_endpoint: String,
@@ -27,7 +24,7 @@ pub struct MicrosoftSigningKeysV1 {
     pub http_logout_supported: bool,
 }
 
-#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct MicrosoftSigningKeysV2 {
     pub authorization_endpoint: String,
     pub token_endpoint: String,
@@ -67,7 +64,7 @@ impl GraphDiscovery {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
+    /// # use graph_oauth::oauth::graph_discovery::GraphDiscovery;
     /// let url = GraphDiscovery::V1.url();
     /// println!("{}", url);
     /// ```
@@ -86,7 +83,7 @@ impl GraphDiscovery {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
+    /// # use graph_oauth::oauth::graph_discovery::GraphDiscovery;
     /// let keys: serde_json::Value = GraphDiscovery::V1.signing_keys().unwrap();
     /// println!("{:#?}", keys);
     /// ```
@@ -121,7 +118,7 @@ impl GraphDiscovery {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
+    /// # use graph_oauth::oauth::graph_discovery::GraphDiscovery;
     /// let oauth = GraphDiscovery::V1.oauth().unwrap();
     /// println!("{:#?}", oauth);
     /// ```

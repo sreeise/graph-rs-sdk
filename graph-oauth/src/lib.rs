@@ -62,25 +62,25 @@ extern crate serde;
 #[macro_use]
 extern crate strum;
 
-mod accesstoken;
+mod access_token;
 mod auth;
 mod discovery;
 mod grants;
-mod idtoken;
+mod id_token;
 pub mod jwt;
-mod oautherror;
+mod oauth_error;
 
 pub mod oauth {
-    pub use crate::accesstoken::AccessToken;
+    pub use crate::access_token::AccessToken;
     pub use crate::auth::GrantSelector;
     pub use crate::auth::OAuth;
     pub use crate::auth::OAuthCredential;
-    pub use crate::discovery::graphdiscovery;
-    pub use crate::discovery::jwtkeys;
-    pub use crate::discovery::wellknown;
+    pub use crate::discovery::graph_discovery;
+    pub use crate::discovery::jwt_keys;
+    pub use crate::discovery::well_known;
     pub use crate::grants::GrantRequest;
     pub use crate::grants::GrantType;
-    pub use crate::idtoken::IdToken;
-    pub use crate::oautherror::OAuthError;
+    pub use crate::id_token::IdToken;
+    pub use crate::oauth_error::OAuthError;
     pub use crate::strum::IntoEnumIterator;
 }

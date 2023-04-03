@@ -1,4 +1,4 @@
-use test_tools::oauthrequest::OAuthTestClient;
+use test_tools::oauth_request::OAuthTestClient;
 
 // Most OAuth flows for Microsoft Graph require a browser
 // so only those that don't are tested here.

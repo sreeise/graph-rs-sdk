@@ -1,5 +1,5 @@
 use crate::auth::OAuthReq;
-use crate::oautherror::OAuthError;
+use crate::oauth_error::OAuthError;
 use base64::Engine;
 use graph_error::GraphFailure;
 use serde_json::Map;

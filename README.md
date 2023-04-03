@@ -26,6 +26,7 @@ an issue first. Other than that feel free to ask questions, provide tips to othe
 ## Table Of Contents
 
 * [Usage](#usage)
+  * [OAuth](#oauth)
   * [Async and Blocking Client](#async-and-blocking-client)
     * [Async Client](#async-client-default)
     * [Blocking Client](#blocking-client)
@@ -46,6 +47,116 @@ config but in general most of them are implemented.
 ## Usage
 
 For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs/tree/master/examples)
+
+
+### OAuth
+
+The crate provides an OAuth client that can be used to get access and refresh tokens using various
+OAuth flows such as auth code grant, client credentials, and open id connect. 
+
+The following is an auth code grant example. For more extensive examples and explanations see the 
+[OAuth Examples](https://github.com/sreeise/graph-rs/tree/master/examples/oauth) in the examples/oauth
+directory on [GitHub](https://github.com/sreeise/graph-rs).
+
+```rust
+
+/// # Example
+/// ```
+/// use graph_rs_sdk::prelude::*:
+///
+/// #[tokio::main]
+/// async fn main() {
+///   start_server_main().await;
+/// }
+/// ```
+use graph_rs_sdk::oauth::OAuth;
+use warp::Filter;
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct AccessCode {
+    code: String,
+}
+
+fn oauth_client() -> OAuth {
+    let mut oauth = OAuth::new();
+    oauth
+        .client_id("<YOUR_CLIENT_ID>")
+        .client_secret("<YOUR_CLIENT_SECRET>")
+        .add_scope("files.read")
+        .add_scope("files.readwrite")
+        .add_scope("files.read.all")
+        .add_scope("files.readwrite.all")
+        .add_scope("offline_access")
+        .redirect_uri("http://localhost:8000/redirect")
+        .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
+        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
+        .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
+        .response_type("code");
+    oauth
+}
+
+pub async fn set_and_req_access_code(access_code: AccessCode) {
+    let mut oauth = oauth_client();
+    // The response type is automatically set to token and the grant type is automatically
+    // set to authorization_code if either of these were not previously set.
+    oauth.access_code(access_code.code.as_str());
+    let mut request = oauth.build_async().authorization_code_grant();
+
+    let access_token = request.access_token().send().await.unwrap();
+    oauth.access_token(access_token);
+
+    // If all went well here we can print out the OAuth config with the Access Token.
+    println!("{:#?}", &oauth);
+}
+
+async fn handle_redirect(
+    code_option: Option<AccessCode>,
+) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
+    match code_option {
+        Some(access_code) => {
+            // Print out the code for debugging purposes.
+            println!("{:#?}", access_code);
+
+            // Set the access code and request an access token.
+            // Callers should handle the Result from requesting an access token
+            // in case of an error here.
+            set_and_req_access_code(access_code).await;
+
+            // Generic login page response.
+            Ok(Box::new(
+                "Successfully Logged In! You can close your browser.",
+            ))
+        }
+        None => Err(warp::reject()),
+    }
+}
+
+/// # Example
+/// ```
+/// use graph_rs_sdk::prelude::*:
+///
+/// #[tokio::main]
+/// async fn main() {
+///   start_server_main().await;
+/// }
+/// ```
+pub async fn start_server_main() {
+    let query = warp::query::<AccessCode>()
+        .map(Some)
+        .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
+
+    let routes = warp::get()
+        .and(warp::path("redirect"))
+        .and(query)
+        .and_then(handle_redirect);
+
+    let mut oauth = oauth_client();
+    let mut request = oauth.build_async().authorization_code_grant();
+    request.browser_authorization().open().unwrap();
+
+    warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
+}
+```
 
 ### Async and Blocking Client
 
@@ -92,7 +203,7 @@ use graph_rs_sdk::prelude::*;
 
 ```rust
 fn main() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = Graph::new("ACCESS_TOKEN");
 
     let response = client
         .users()

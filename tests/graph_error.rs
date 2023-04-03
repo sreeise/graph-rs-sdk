@@ -2,8 +2,8 @@ use graph_rs_sdk::prelude::*;
 use graph_rs_sdk::{error::*, http::FileConfig};
 use reqwest::StatusCode;
 use std::error::Error;
-use test_tools::oauthrequest::OAuthTestClient;
-use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
+use test_tools::oauth_request::OAuthTestClient;
+use test_tools::oauth_request::ASYNC_THROTTLE_MUTEX;
 
 fn test_graph_failure(err: GraphFailure, expect: GraphError) {
     match err {

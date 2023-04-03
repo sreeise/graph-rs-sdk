@@ -1,6 +1,6 @@
 use std::thread;
 use std::time::Duration;
-use test_tools::oauthrequest::OAuthTestClient;
+use test_tools::oauth_request::OAuthTestClient;
 
 #[test]
 fn drive() {

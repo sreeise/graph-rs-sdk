@@ -7,7 +7,6 @@
 ///   start_server_main().await;
 /// }
 /// ```
-use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
 use warp::Filter;
 
@@ -47,11 +46,6 @@ pub async fn set_and_req_access_code(access_code: AccessCode) {
 
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("{:#?}", &oauth);
-
-    // Save our configuration to a file so we can retrieve it from other requests.
-    oauth
-        .as_file("./examples/example_files/oauth.json")
-        .unwrap();
 }
 
 async fn handle_redirect(

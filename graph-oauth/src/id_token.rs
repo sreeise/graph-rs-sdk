@@ -1,11 +1,10 @@
-use from_as::*;
 use std::borrow::Cow;
 use std::convert::TryFrom;
-use std::io::{ErrorKind, Read, Write};
+use std::io::ErrorKind;
 use std::str::FromStr;
 use url::form_urlencoded;
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, AsFile, FromFile)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash)]
 pub struct IdToken {
     code: Option<String>,
     id_token: String,

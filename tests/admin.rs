@@ -1,7 +1,7 @@
 use graph_core::resource::ResourceIdentity;
 use graph_http::api_impl::ODataQuery;
 
-use test_tools::oauthrequest::*;
+use test_tools::oauth_request::*;
 
 #[tokio::test]
 async fn list_health_issues_test() {

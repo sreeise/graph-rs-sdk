@@ -4,7 +4,7 @@ use graph_rs_sdk::prelude::Graph;
 use std::thread;
 use std::time::Duration;
 
-use test_tools::oauthrequest::{Environment, OAuthTestClient, ASYNC_THROTTLE_MUTEX};
+use test_tools::oauth_request::{Environment, OAuthTestClient, ASYNC_THROTTLE_MUTEX};
 
 async fn delete_item(
     drive_id: &str,

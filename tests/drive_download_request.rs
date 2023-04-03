@@ -1,6 +1,6 @@
 use graph_rs_sdk::{http::FileConfig, prelude::*};
 use std::ffi::OsStr;
-use test_tools::oauthrequest::{Environment, OAuthTestClient, DRIVE_ASYNC_THROTTLE_MUTEX};
+use test_tools::oauth_request::{Environment, OAuthTestClient, DRIVE_ASYNC_THROTTLE_MUTEX};
 use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]

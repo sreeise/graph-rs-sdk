@@ -7,5 +7,5 @@ extern crate lazy_static;
 
 pub mod common;
 pub mod oauth;
-pub mod oauthrequest;
+pub mod oauth_request;
 pub mod support;

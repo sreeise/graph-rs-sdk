@@ -10,8 +10,8 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::thread;
 use std::time::Duration;
-use test_tools::oauthrequest::DRIVE_ASYNC_THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use test_tools::oauth_request::DRIVE_ASYNC_THROTTLE_MUTEX;
+use test_tools::oauth_request::{Environment, OAuthTestClient};
 
 #[tokio::test]
 async fn list_versions_get_item() {

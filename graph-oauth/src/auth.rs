@@ -1,10 +1,9 @@
-use crate::accesstoken::AccessToken;
+use crate::access_token::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
-use crate::idtoken::IdToken;
-use crate::oautherror::OAuthError;
+use crate::id_token::IdToken;
+use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
 use base64::Engine;
-use from_as::*;
 use graph_error::GraphFailure;
 use ring::rand::SecureRandom;
 use std::collections::btree_map::BTreeMap;
@@ -12,7 +11,7 @@ use std::collections::{BTreeSet, HashMap};
 use std::convert::TryFrom;
 use std::default::Default;
 use std::fmt;
-use std::io::{Read, Write};
+
 use std::marker::PhantomData;
 use url::form_urlencoded::Serializer;
 use url::Url;
@@ -21,19 +20,7 @@ pub type OAuthReq<T> = Result<T, GraphFailure>;
 
 /// Fields that represent common OAuth credentials.
 #[derive(
-    Debug,
-    Copy,
-    Clone,
-    Ord,
-    PartialOrd,
-    Eq,
-    PartialEq,
-    Hash,
-    Serialize,
-    Deserialize,
-    EnumIter,
-    AsFile,
-    FromFile,
+    Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize, EnumIter,
 )]
 pub enum OAuthCredential {
     ClientId,
@@ -154,7 +141,7 @@ impl ToString for OAuthCredential {
 /// use graph_oauth::oauth::OAuth;
 /// let oauth = OAuth::new();
 /// ```
-#[derive(Default, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct OAuth {
     access_token: Option<AccessToken>,
     scopes: BTreeSet<String>,
@@ -1637,7 +1624,7 @@ impl AsRef<OAuth> for ImplicitGrant {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AccessTokenGrant {
     oauth: OAuth,
     grant: GrantType,
@@ -1786,7 +1773,7 @@ impl AccessTokenGrant {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AsyncAccessTokenGrant {
     oauth: OAuth,
     grant: GrantType,

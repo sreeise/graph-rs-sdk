@@ -1,6 +1,6 @@
 use graph_rs_sdk::core::ResourceIdentity;
 
-use test_tools::oauthrequest::OAuthTestClient;
+use test_tools::oauth_request::OAuthTestClient;
 
 #[tokio::test]
 async fn list_applications() {

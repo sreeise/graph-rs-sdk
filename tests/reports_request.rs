@@ -1,7 +1,7 @@
 use graph_core::resource::ResourceIdentity;
 use graph_rs_sdk::http::FileConfig;
 use std::ffi::OsStr;
-use test_tools::oauthrequest::*;
+use test_tools::oauth_request::*;
 use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]

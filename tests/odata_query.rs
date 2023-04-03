@@ -1,5 +1,5 @@
 use graph_rs_sdk::prelude::*;
-use test_tools::oauthrequest::OAuthTestClient;
+use test_tools::oauth_request::OAuthTestClient;
 
 #[test]
 fn select_query() {

@@ -1,6 +1,6 @@
 use graph_http::api_impl::ODataQuery;
-use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use test_tools::oauth_request::ASYNC_THROTTLE_MUTEX;
+use test_tools::oauth_request::{Environment, OAuthTestClient};
 
 #[tokio::test]
 async fn get_drafts_mail_folder() {

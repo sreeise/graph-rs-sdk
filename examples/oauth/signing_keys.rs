@@ -1,4 +1,4 @@
-use graph_rs_sdk::oauth::graphdiscovery::{
+use graph_rs_sdk::oauth::graph_discovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
 use graph_rs_sdk::oauth::OAuth;

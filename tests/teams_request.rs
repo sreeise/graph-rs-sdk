@@ -1,5 +1,5 @@
 use graph_core::resource::ResourceIdentity;
-use test_tools::oauthrequest::OAuthTestClient;
+use test_tools::oauth_request::OAuthTestClient;
 
 #[tokio::test]
 async fn list_teams() {

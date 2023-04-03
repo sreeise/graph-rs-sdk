@@ -1,13 +1,10 @@
-use crate::idtoken::IdToken;
+use crate::id_token::IdToken;
 use crate::jwt::{Claim, JsonWebToken, JwtParser};
 use chrono::{DateTime, Duration, LocalResult, TimeZone, Utc};
 use chrono_humanize::HumanTime;
-use from_as::*;
 use graph_error::{GraphFailure, WithGraphError, WithGraphErrorAsync};
 use serde_aux::prelude::*;
-use std::convert::TryFrom;
 use std::fmt;
-use std::io::{Read, Write};
 
 /// OAuth 2.0 Access Token
 ///
@@ -48,7 +45,7 @@ use std::io::{Read, Write};
 /// // Duration left until expired.
 /// println!("{:#?}", access_token.elapsed());
 /// ```
-#[derive(Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AccessToken {
     access_token: String,
     token_type: String,

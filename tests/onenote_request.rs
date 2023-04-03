@@ -3,8 +3,8 @@ use graph_rs_sdk::http::FileConfig;
 use std::ffi::OsStr;
 use std::thread;
 use std::time::Duration;
-use test_tools::oauthrequest::ASYNC_THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use test_tools::oauth_request::ASYNC_THROTTLE_MUTEX;
+use test_tools::oauth_request::{Environment, OAuthTestClient};
 use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
