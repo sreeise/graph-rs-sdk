@@ -1,3 +1,4 @@
+use graph_http::traits::ResponseExt;
 use graph_rs_sdk::header::{HeaderValue, CONTENT_TYPE};
 use graph_rs_sdk::http::FileConfig;
 use std::ffi::OsStr;
@@ -97,18 +98,17 @@ async fn create_delete_page_from_file() {
             let body: serde_json::Value = response.json().await.unwrap();
             let page_id = body["id"].as_str().unwrap();
 
-            thread::sleep(Duration::from_secs(4));
+            thread::sleep(Duration::from_secs(3));
             let delete_res = client
                 .user(&id)
                 .onenote()
                 .page(page_id)
                 .delete_pages()
                 .send()
-                .await;
+                .await
+                .unwrap();
 
-            if let Err(e) = delete_res {
-                panic!("Request error. Method onenote pages delete page: Error: {e:#?}");
-            }
+            assert!(delete_res.status().is_success());
         } else if let Err(e) = res {
             panic!("Request error. Method onenote create page. Error: {e:#?}");
         }
@@ -138,28 +138,30 @@ async fn download_page() {
 
         if let Ok(response) = res {
             assert!(response.status().is_success());
-            thread::sleep(Duration::from_secs(4));
             let body: serde_json::Value = response.json().await.unwrap();
             let page_id = body["id"].as_str().unwrap();
 
-            let result = client
+            thread::sleep(Duration::from_secs(3));
+            let response = client
                 .user(&user_id)
                 .onenote()
                 .page(page_id)
                 .get_pages_content()
+                .send()
+                .await
+                .unwrap();
+
+            let response2 = response
                 .download(
                     &FileConfig::new("./test_files").file_name(OsStr::new("downloaded_page.html")),
                 )
-                .await;
+                .await
+                .unwrap();
 
-            if let Err(e) = result {
-                panic!("Request error. Method onenote page download page | get content -> download page. Error: {e:#?}");
-            } else if let Ok(response) = result {
-                let path_buf = response.into_body();
-                assert!(path_buf.exists());
-            }
+            assert!(response2.status().is_success());
+            let path_buf = response2.into_body();
+            assert!(path_buf.exists());
 
-            thread::sleep(Duration::from_secs(4));
             let response = client
                 .user(&user_id)
                 .onenote()

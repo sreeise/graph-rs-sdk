@@ -1,4 +1,4 @@
-use graph_rs_sdk::core::ResourceIdentity;
+use graph_core::resource::ResourceIdentity;
 
 use test_tools::oauth_request::OAuthTestClient;
 

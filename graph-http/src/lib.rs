@@ -9,11 +9,13 @@ mod request_handler;
 mod resource_identifier;
 mod upload_session;
 
-mod io_tools;
 pub mod url;
 
 /// Traits for http utilities.
 pub mod traits;
+
+/// Io utilities for creating directories and files.
+pub mod io_tools;
 
 pub(crate) mod internal {
     pub type ReqwestResult = Result<reqwest::Response, reqwest::Error>;

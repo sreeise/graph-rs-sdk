@@ -39,8 +39,33 @@ pub struct ErrorStatus {
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ErrorMessage {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<ErrorStatus>,
+    pub error: ErrorStatus,
+}
+
+impl ErrorMessage {
+    pub fn message(&self) -> Option<String> {
+        self.error.message.clone()
+    }
+
+    pub fn code_property(&self) -> Option<String> {
+        self.error.code.clone()
+    }
+
+    pub fn detailed_error_code(&self) -> Option<String> {
+        self.error.inner_error.as_ref()?.code.clone()
+    }
+
+    pub fn inner_error(&self) -> Option<&InnerError> {
+        self.error.inner_error.as_ref()
+    }
+
+    pub fn request_id(&self) -> Option<String> {
+        self.error.inner_error.as_ref()?.request_id.clone()
+    }
+
+    pub fn date(&self) -> Option<String> {
+        self.error.inner_error.as_ref()?.date.clone()
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -89,45 +114,27 @@ impl GraphError {
     }
 
     pub fn message(&self) -> Option<String> {
-        self.error_message.error.as_ref()?.message.clone()
+        self.error_message.message()
     }
 
     pub fn code_property(&self) -> Option<String> {
-        self.error_message.error.as_ref()?.code.clone()
+        self.error_message.code_property()
     }
 
     pub fn inner_error(&self) -> Option<&InnerError> {
-        self.error_message.error.as_ref()?.inner_error.as_ref()
+        self.error_message.inner_error()
     }
 
     pub fn request_id(&self) -> Option<String> {
-        self.error_message
-            .error
-            .as_ref()?
-            .inner_error
-            .as_ref()?
-            .request_id
-            .clone()
+        self.error_message.request_id()
     }
 
     pub fn date(&self) -> Option<String> {
-        self.error_message
-            .error
-            .as_ref()?
-            .inner_error
-            .as_ref()?
-            .date
-            .clone()
+        self.error_message.date()
     }
 
     pub fn detailed_error_code(&self) -> Option<String> {
-        self.error_message
-            .error
-            .as_ref()?
-            .inner_error
-            .as_ref()?
-            .code
-            .clone()
+        self.error_message.detailed_error_code()
     }
 }
 
@@ -137,10 +144,8 @@ impl Error for GraphError {
     }
 
     fn description(&self) -> &str {
-        if let Some(err) = self.error_message.error.as_ref() {
-            if let Some(message) = err.message.as_ref() {
-                return message.as_str();
-            }
+        if let Some(message) = self.error_message.error.message.as_ref() {
+            return message.as_str();
         }
         self.code.canonical_reason().unwrap_or_default()
     }

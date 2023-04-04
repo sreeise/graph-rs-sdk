@@ -1,5 +1,5 @@
 use from_as::*;
-use graph_rs_sdk::core::ResourceIdentity;
+use graph_core::resource::ResourceIdentity;
 use graph_rs_sdk::oauth::{AccessToken, OAuth};
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};

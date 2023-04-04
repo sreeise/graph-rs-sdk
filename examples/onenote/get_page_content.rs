@@ -1,3 +1,4 @@
+use graph_http::traits::ResponseExt;
 use graph_rs_sdk::http::FileConfig;
 use graph_rs_sdk::*;
 use std::ffi::OsStr;
@@ -36,14 +37,21 @@ pub async fn get_page_html_content() {
 pub async fn download_page_as_html() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let path_buf = client
+    let response = client
         .user(USER_ID)
         .onenote()
         .page(PAGE_ID)
         .get_pages_content()
+        .send()
+        .await
+        .unwrap();
+
+    let response2 = response
         .download(&FileConfig::new(DOWNLOAD_PATH).file_name(OsStr::new(FILE_NAME)))
         .await
         .unwrap();
+
+    let path_buf = response2.body();
 
     println!("{path_buf:#?}");
 }

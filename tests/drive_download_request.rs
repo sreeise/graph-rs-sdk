@@ -1,4 +1,6 @@
-use graph_rs_sdk::{http::FileConfig, prelude::*};
+use graph_http::traits::ResponseExt;
+use graph_rs_sdk::http::FileConfig;
+use graph_rs_sdk::*;
 use std::ffi::OsStr;
 use test_tools::oauth_request::{Environment, OAuthTestClient, DRIVE_ASYNC_THROTTLE_MUTEX};
 use test_tools::support::cleanup::AsyncCleanUp;
@@ -11,13 +13,18 @@ async fn drive_download() {
             .drive(id.as_str())
             .item_by_path(":/test_document.docx:")
             .get_items_content()
-            .download(&FileConfig::new("./test_files"))
+            .send()
             .await
             .unwrap();
 
         assert!(response.status().is_success());
 
-        let path_buf = response.into_body();
+        let response2 = response
+            .download(&FileConfig::new("./test_files"))
+            .await
+            .unwrap();
+
+        let path_buf = response2.into_body();
         assert!(path_buf.exists());
 
         let file_location = "./test_files/test_document.docx";
@@ -36,15 +43,20 @@ async fn drive_download_format() {
                 .item_by_path(":/test_document.docx:")
                 .get_items_content()
                 .format("pdf")
+                .send()
+                .await
+                .unwrap();
+
+            assert!(response.status().is_success());
+
+            let response2 = response
                 .download(
                     &FileConfig::new("./test_files").file_name(OsStr::new("test_document.pdf")),
                 )
                 .await
                 .unwrap();
 
-            assert!(response.status().is_success());
-
-            let path_buf = response.into_body();
+            let path_buf = response2.into_body();
             assert!(path_buf.exists());
             assert_eq!(path_buf.extension(), Some(OsStr::new("pdf")));
             assert_eq!(path_buf.file_name(), Some(OsStr::new("test_document.pdf")));

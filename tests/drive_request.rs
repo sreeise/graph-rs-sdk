@@ -2,9 +2,8 @@ use graph_rs_sdk::{
     error::GraphResult,
     header::{HeaderValue, CONTENT_LENGTH},
     http::FileConfig,
-    prelude::Graph,
+    Graph,
 };
-
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::thread;

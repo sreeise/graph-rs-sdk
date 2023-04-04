@@ -1,4 +1,5 @@
 use graph_core::resource::ResourceIdentity;
+use graph_http::traits::ResponseExt;
 use graph_rs_sdk::http::FileConfig;
 use std::ffi::OsStr;
 use test_tools::oauth_request::*;
@@ -14,13 +15,21 @@ async fn async_download_office_365_user_counts_reports_test() {
         let response = client
             .reports()
             .get_office_365_active_user_counts_by_period("D90")
-            .download(&FileConfig::new("./test_files").file_name(OsStr::new("async_user_count_report.csv")))
+            .send()
             .await
             .expect("Request Error. API: Reports | Method: download_async get_office_365_active_user_counts.");
 
         assert!(response.status().is_success());
 
-        let path_buf = response.into_body();
+        let response2 = response
+            .download(
+                &FileConfig::new("./test_files")
+                    .file_name(OsStr::new("async_user_count_report.csv")),
+            )
+            .await
+            .unwrap();
+
+        let path_buf = response2.into_body();
         assert!(path_buf.exists());
 
         let file_location = "./test_files/async_user_count_report.csv";

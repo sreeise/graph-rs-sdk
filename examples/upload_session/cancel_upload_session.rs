@@ -1,5 +1,4 @@
 use bytes::Buf;
-use graph_error::WithGraphErrorAsync;
 use graph_rs_sdk::http::{AsyncIterator, ResponseExt};
 use graph_rs_sdk::*;
 
@@ -50,13 +49,13 @@ pub async fn cancel_upload_session(bytes: &[u8]) -> GraphResult<()> {
 
                 let response = cancel_request.send().await?;
 
+                println!("{response:#?}");
+
                 // Microsoft Graph may return error info in the request body
                 // of a Response.
-                if let Ok(body) = response.json().await {
+                if let Ok(body) = response.json::<serde_json::Value>().await {
                     println!("{body:#?}");
                 }
-
-                println!("{response:#?}");
 
                 break;
             }

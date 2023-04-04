@@ -1,5 +1,5 @@
 use futures::StreamExt;
-use graph_error::GraphResult;
+use graph_error::{GraphFailure, GraphResult};
 use graph_http::api_impl::UploadSession;
 use graph_http::traits::ResponseExt;
 use graph_rs_sdk::Graph;
@@ -96,7 +96,7 @@ async fn channel_upload_session(mut upload_session: UploadSession) -> GraphResul
             }
             Err(err) => {
                 cancel_request.send().await?;
-                return Err(err);
+                return Err(err).map_err(GraphFailure::from);
             }
         }
     }

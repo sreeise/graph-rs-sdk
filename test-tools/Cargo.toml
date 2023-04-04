@@ -19,6 +19,7 @@ toml = "0.7.2"
 tokio = { version = "1.25.0", features = ["full"] }
 url = "2"
 
+graph-core = { path = "../graph-core" }
 graph-http = { path = "../graph-http" }
 graph-error = { path = "../graph-error" }
 graph-rs-sdk = { path = "../" }
