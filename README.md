@@ -10,13 +10,23 @@ included in the project on [GitHub](https://github.com/sreeise/graph-rs).
 
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
-    graph-rs-sdk = "1.0.0"
-    tokio = { version = "1.25.0", features = ["full"] }
+```toml
+graph-rs-sdk = "1.0.0"
+tokio = { version = "1.25.0", features = ["full"] }
+```
 
+For using types that implement serde `Serialize` as request bodies or passing serde's json macro:
+
+```toml
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+```
 
 To use stream features add futures crate:
 
-    futures = "0.3"
+```toml
+futures = "0.3"
+```
 
 And import `futures::StreamExt` when using [Streaming](#streaming) features.
 
@@ -47,7 +57,7 @@ Other than that feel free to ask questions, provide tips to others, and talk abo
     * [Channels](#channels)
   * [API Usage](#api-usage)
   * [Id vs Non-Id methods](#id-vs-non-id-methods-such-as-useruser-id-vs-users)
-  * [Information about the project itself (contributor section coming soon)](#for-those-interested-in-the-code-itself)
+  * [Information about the project itself (contributor section coming soon)](#for-those-interested-in-the-code-itself-contributor-section-coming-soon)
 
 ### What APIs are available
 
@@ -266,7 +276,9 @@ pub async fn get_drive_item() -> GraphResult<()> {
 ```
 
 ##### Custom Types
-You can implement your own types by utilizing methods from reqwest::Response. These types must implement `serde::Deserialize` or `DeserializedOwned`.
+You can pass types your own types to API requests that require a request body by implementing `serde::Serialize`.
+
+You can implement your own types by utilizing methods from reqwest::Response. These types must implement `serde::Deserialize`.
 See the reqwest crate for more info.
 
 ```rust
@@ -274,7 +286,9 @@ use graph_rs_sdk::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DriveItem {
+    #[serde(skip_serializing_if = "Option::is_none")]
     id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
     // ... Any other fields
 }
@@ -285,6 +299,24 @@ static ITEM_ID: &str = "ITEM_ID";
 
 pub async fn get_drive_item() -> GraphResult<()> {
   let client = Graph::new(ACCESS_TOKEN);
+  
+  let drive_item = DriveItem {
+        id: None,
+        name: Some("new name".into())
+  };
+
+  let response = client
+      .me()
+      .drive()
+      .item(ITEM_ID)
+      .update_items(&drive_item)
+      .send()
+      .await?;
+
+  println!("{:#?}", response);
+
+  let drive_item: DriveItem = response.json().await?;
+  println!("{:#?}", drive_item);
 
   let response = client
       .me()
@@ -980,7 +1012,7 @@ async fn get_user() -> GraphResult<()> {
 }
 ```
 
-## For those interested in the code itself
+## For those interested in the code itself (Contributor section coming soon)
 
 ### Build
 
@@ -1013,9 +1045,3 @@ Api.
 
 Tests are run on Ubuntu Linux and Windows 10 instances.
 
-### graph-rs versions before 12/13/2020
-
-The graph-rs project is now published on crates.io and that is the recommended version to use.
-Because of the many changes that came with publishing, if you still need to migrate or would like 
-to use the previous version then you can use the v2master branch which is still the same as the 
-master branch before it was published as a crate.
