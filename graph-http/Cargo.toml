@@ -25,7 +25,6 @@ serde_yaml = "0.8"
 thiserror = "1"
 tokio = { version = "1.27.0", features = ["full"] }
 url = { version = "2", features = ["serde"] }
-http-body = "0.4.5"
 serde_urlencoded = "0.7.1"
 
 graph-error = { path = "../graph-error"  }

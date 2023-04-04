@@ -6,6 +6,8 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 fn main() {}
 
+// https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http
+
 async fn custom_path() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
 
@@ -41,7 +43,7 @@ async fn expand() -> GraphResult<()> {
     let _ = client
         .users()
         .list_user()
-        .expand(&["expand"])
+        .expand(&["children"])
         .send()
         .await?;
 
@@ -54,7 +56,7 @@ async fn filter() -> GraphResult<()> {
     let _ = client
         .users()
         .list_user()
-        .filter(&["expand"])
+        .filter(&["userType eq 'Member'"])
         .send()
         .await?;
 
@@ -67,9 +69,33 @@ async fn order_by() -> GraphResult<()> {
     let _ = client
         .users()
         .list_user()
-        .order_by(&["expand"])
+        .order_by(&["displayName"])
         .send()
         .await?;
+
+    Ok(())
+}
+
+async fn format() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let _ = client.users().list_user().format("json").send().await?;
+
+    Ok(())
+}
+
+async fn count() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let _ = client.users().list_user().count("true").send().await?;
+
+    Ok(())
+}
+
+async fn search() -> GraphResult<()> {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let _ = client.users().list_user().search("pizza").send().await?;
 
     Ok(())
 }
