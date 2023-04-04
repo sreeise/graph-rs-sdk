@@ -4,7 +4,7 @@ use crate::traits::ODataQuery;
 use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
-use reqwest::tls::Version;
+// use reqwest::tls::Version;
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
@@ -119,7 +119,7 @@ impl GraphClientBuilder {
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
-            .min_tls_version(Version::TLS_1_2)
+            // .min_tls_version(Version::TLS_1_2)
             .redirect(Policy::limited(2));
 
         if let Some(timeout) = self.config.timeout {
@@ -145,7 +145,7 @@ impl GraphClientBuilder {
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
-            .min_tls_version(Version::TLS_1_2)
+            // .min_tls_version(Version::TLS_1_2)
             .redirect(Policy::limited(2));
 
         if let Some(timeout) = self.config.timeout {
