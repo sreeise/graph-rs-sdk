@@ -1,6 +1,6 @@
 use crate::blocking::BlockingRequestHandler;
 use crate::internal::{
-    BodyRead, Client, GraphClientBuilder, HttpResponseBuilderExt, ODataNextLink, ODataQuery,
+    BodyRead, Client, GraphClientConfiguration, HttpResponseBuilderExt, ODataNextLink, ODataQuery,
     RequestComponents,
 };
 use async_stream::try_stream;
@@ -20,7 +20,7 @@ pub struct RequestHandler {
     pub(crate) request_components: RequestComponents,
     pub(crate) error: Option<GraphFailure>,
     pub(crate) body: Option<BodyRead>,
-    pub(crate) client_builder: GraphClientBuilder,
+    pub(crate) client_builder: GraphClientConfiguration,
 }
 
 impl RequestHandler {

@@ -213,7 +213,7 @@ pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 
 pub use crate::client::Graph;
 pub use graph_error::{GraphError, GraphFailure, GraphResult};
-pub use graph_http::api_impl::ODataQuery;
+pub use graph_http::api_impl::{GraphClientConfiguration, ODataQuery};
 
 /// Reexport of graph-oauth crate.
 pub mod oauth {
@@ -228,6 +228,7 @@ pub mod http {
         ODataMetadataLink, ODataNextLink, ODataQuery, ResponseBlockingExt, ResponseExt,
         UploadSessionLink,
     };
+    pub use reqwest::tls::Version;
     pub use reqwest::{Body, Method};
 
     pub mod blocking {

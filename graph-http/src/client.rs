@@ -4,7 +4,7 @@ use crate::traits::ODataQuery;
 use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
-// use reqwest::tls::Version;
+use reqwest::tls::Version;
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
@@ -20,6 +20,7 @@ struct ClientConfiguration {
     connect_timeout: Option<Duration>,
     connection_verbose: bool,
     https_only: bool,
+    min_tls_version: Version,
 }
 
 impl ClientConfiguration {
@@ -35,28 +36,45 @@ impl ClientConfiguration {
             connect_timeout: None,
             connection_verbose: false,
             https_only: true,
+            /// TLS 1.2 required to support all features in Microsoft Graph
+            /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
+            min_tls_version: Version::TLS_1_2,
         }
     }
 }
 
-#[derive(Clone)]
-pub struct GraphClientBuilder {
+impl Debug for ClientConfiguration {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ClientConfiguration")
+            .field("access_token", &"[REDACTED]")
+            .field("headers", &self.headers)
+            .field("referer", &self.referer)
+            .field("timeout", &self.timeout)
+            .field("connect_timeout", &self.connect_timeout)
+            .field("https_only", &self.https_only)
+            .field("min_tls_version", &self.min_tls_version)
+            .finish()
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GraphClientConfiguration {
     config: ClientConfiguration,
 }
 
-impl GraphClientBuilder {
-    pub fn new() -> GraphClientBuilder {
-        GraphClientBuilder {
+impl GraphClientConfiguration {
+    pub fn new() -> GraphClientConfiguration {
+        GraphClientConfiguration {
             config: ClientConfiguration::new(),
         }
     }
 
-    pub fn access_token<AT: ToString>(mut self, access_token: AT) -> GraphClientBuilder {
+    pub fn access_token<AT: ToString>(mut self, access_token: AT) -> GraphClientConfiguration {
         self.config.access_token = Some(access_token.to_string());
         self
     }
 
-    pub fn default_headers(mut self, headers: HeaderMap) -> GraphClientBuilder {
+    pub fn default_headers(mut self, headers: HeaderMap) -> GraphClientConfiguration {
         for (key, value) in headers.iter() {
             self.config.headers.insert(key, value.clone());
         }
@@ -66,7 +84,7 @@ impl GraphClientBuilder {
     /// Enable or disable automatic setting of the `Referer` header.
     ///
     /// Default is `true`.
-    pub fn referer(mut self, enable: bool) -> GraphClientBuilder {
+    pub fn referer(mut self, enable: bool) -> GraphClientConfiguration {
         self.config.referer = enable;
         self
     }
@@ -77,7 +95,7 @@ impl GraphClientBuilder {
     /// response body has finished.
     ///
     /// Default is no timeout.
-    pub fn timeout(mut self, timeout: Duration) -> GraphClientBuilder {
+    pub fn timeout(mut self, timeout: Duration) -> GraphClientConfiguration {
         self.config.timeout = Some(timeout);
         self
     }
@@ -90,7 +108,7 @@ impl GraphClientBuilder {
     ///
     /// This **requires** the futures be executed in a tokio runtime with
     /// a tokio timer enabled.
-    pub fn connect_timeout(mut self, timeout: Duration) -> GraphClientBuilder {
+    pub fn connect_timeout(mut self, timeout: Duration) -> GraphClientConfiguration {
         self.config.connect_timeout = Some(timeout);
         self
     }
@@ -101,13 +119,18 @@ impl GraphClientBuilder {
     /// for read and write operations on connections.
     ///
     /// [log]: https://crates.io/crates/log
-    pub fn connection_verbose(mut self, verbose: bool) -> GraphClientBuilder {
+    pub fn connection_verbose(mut self, verbose: bool) -> GraphClientConfiguration {
         self.config.connection_verbose = verbose;
         self
     }
 
-    pub fn user_agent(mut self, value: HeaderValue) -> GraphClientBuilder {
+    pub fn user_agent(mut self, value: HeaderValue) -> GraphClientConfiguration {
         self.config.headers.insert(USER_AGENT, value);
+        self
+    }
+
+    pub fn min_tls_version(mut self, version: Version) -> GraphClientConfiguration {
+        self.config.min_tls_version = version;
         self
     }
 
@@ -119,7 +142,7 @@ impl GraphClientBuilder {
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
-            // .min_tls_version(Version::TLS_1_2)
+            .min_tls_version(self.config.min_tls_version)
             .redirect(Policy::limited(2));
 
         if let Some(timeout) = self.config.timeout {
@@ -145,7 +168,7 @@ impl GraphClientBuilder {
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
-            // .min_tls_version(Version::TLS_1_2)
+            .min_tls_version(self.config.min_tls_version)
             .redirect(Policy::limited(2));
 
         if let Some(timeout) = self.config.timeout {
@@ -164,22 +187,9 @@ impl GraphClientBuilder {
     }
 }
 
-impl Default for GraphClientBuilder {
+impl Default for GraphClientConfiguration {
     fn default() -> Self {
-        GraphClientBuilder::new()
-    }
-}
-
-impl Debug for GraphClientBuilder {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("GraphClientBuilder")
-            .field("access_token", &"[REDACTED]")
-            .field("headers", &self.config.headers)
-            .field("referer", &self.config.referer)
-            .field("timeout", &self.config.timeout)
-            .field("connection_verbose", &self.config.connection_verbose)
-            .field("https_only", &self.config.https_only)
-            .finish()
+        GraphClientConfiguration::new()
     }
 }
 
@@ -188,24 +198,26 @@ pub struct Client {
     pub(crate) access_token: String,
     pub(crate) inner: reqwest::Client,
     pub(crate) headers: HeaderMap,
-    pub(crate) builder: GraphClientBuilder,
+    pub(crate) builder: GraphClientConfiguration,
 }
 
 impl Client {
     pub fn new<AT: ToString>(access_token: AT) -> Client {
-        GraphClientBuilder::new().access_token(access_token).build()
+        GraphClientConfiguration::new()
+            .access_token(access_token)
+            .build()
     }
 
     /// Create a new client and use the given environment variable
     /// for the access token.
     pub fn new_env<K: AsRef<OsStr>>(env_var: K) -> Result<Client, VarError> {
-        Ok(GraphClientBuilder::new()
+        Ok(GraphClientConfiguration::new()
             .access_token(std::env::var(env_var)?)
             .build())
     }
 
-    pub fn builder() -> GraphClientBuilder {
-        GraphClientBuilder::new()
+    pub fn builder() -> GraphClientConfiguration {
+        GraphClientConfiguration::new()
     }
 
     pub fn headers(&self) -> &HeaderMap {
@@ -215,7 +227,7 @@ impl Client {
 
 impl Default for Client {
     fn default() -> Self {
-        GraphClientBuilder::new().build()
+        GraphClientConfiguration::new().build()
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::internal::GraphClientBuilder;
+use crate::internal::GraphClientConfiguration;
 use reqwest::header::HeaderMap;
 use std::env::VarError;
 use std::ffi::OsStr;
@@ -12,7 +12,7 @@ pub struct BlockingClient {
 
 impl BlockingClient {
     pub fn new<AT: ToString>(access_token: AT) -> BlockingClient {
-        GraphClientBuilder::new()
+        GraphClientConfiguration::new()
             .access_token(access_token)
             .build_blocking()
     }
@@ -20,13 +20,13 @@ impl BlockingClient {
     /// Create a new client and use the given environment variable
     /// for the access token.
     pub fn new_env<K: AsRef<OsStr>>(env_var: K) -> Result<BlockingClient, VarError> {
-        Ok(GraphClientBuilder::new()
+        Ok(GraphClientConfiguration::new()
             .access_token(std::env::var(env_var)?)
             .build_blocking())
     }
 
-    pub fn builder() -> GraphClientBuilder {
-        GraphClientBuilder::new()
+    pub fn builder() -> GraphClientConfiguration {
+        GraphClientConfiguration::new()
     }
 
     pub fn headers(&self) -> &HeaderMap {
@@ -36,6 +36,6 @@ impl BlockingClient {
 
 impl Default for BlockingClient {
     fn default() -> Self {
-        GraphClientBuilder::new().build_blocking()
+        GraphClientConfiguration::new().build_blocking()
     }
 }

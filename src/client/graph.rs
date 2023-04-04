@@ -64,7 +64,7 @@ use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
-use graph_http::api_impl::GraphClientBuilder;
+use graph_http::api_impl::GraphClientConfiguration;
 use graph_oauth::oauth::{AccessToken, OAuth};
 use lazy_static::lazy_static;
 use std::convert::TryFrom;
@@ -474,8 +474,8 @@ impl TryFrom<&OAuth> for Graph {
     }
 }
 
-impl From<GraphClientBuilder> for Graph {
-    fn from(graph_client_builder: GraphClientBuilder) -> Self {
+impl From<GraphClientConfiguration> for Graph {
+    fn from(graph_client_builder: GraphClientConfiguration) -> Self {
         Graph {
             client: graph_client_builder.build(),
             endpoint: PARSED_GRAPH_URL.clone(),

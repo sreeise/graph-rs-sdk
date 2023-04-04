@@ -30,3 +30,8 @@ serde_urlencoded = "0.7.1"
 
 graph-error = { path = "../graph-error"  }
 graph-core = { path = "../graph-core" }
+
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
