@@ -1,9 +1,0 @@
-{
-  "modifier_name": "schedule",
-  "path": "/schedule",
-  "resource_identity": "Schedule",
-  "trim_path_start": "/teams/{team-id}",
-  "parameter_filter": [
-    "team-id"
-  ]
-}

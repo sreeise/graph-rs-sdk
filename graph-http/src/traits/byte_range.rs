@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use bytes::BytesMut;
 use std::collections::VecDeque;
 
 // The size of each byte range must be a multiple of 320 KiB (327,680 bytes).
@@ -8,23 +9,29 @@ static RANGE_MULTIPLES: [usize; 32] = [
 ];
 
 pub trait ByteRangeMultiple {
-    fn file_size(&self) -> u64;
+    fn size(&self) -> u64;
 
-    fn byte_range_multiples(&self) -> u64 {
-        let file_size = self.file_size();
+    fn byte_range_multiple(&self) -> u64 {
+        let size = self.size();
         for (i, next) in RANGE_MULTIPLES.iter().rev().enumerate() {
             let n = *next as u64;
-            let div = file_size / n;
-            let half = file_size / 2;
+            let div = size / n;
+            let half = size / 2;
 
             if div > 2 && div < half {
-                let num: u64 = file_size / n;
+                let num: u64 = size / n;
                 if num > 15 || i > 25 {
                     return n;
                 }
             }
         }
         1
+    }
+}
+
+impl ByteRangeMultiple for BytesMut {
+    fn size(&self) -> u64 {
+        self.len() as u64
     }
 }
 

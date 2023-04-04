@@ -1,9 +1,0 @@
-{
-  "modifier_name": "members",
-  "path": "/members",
-  "resource_identity": "Members",
-  "trim_path_start": "/teams/{team-id}",
-  "parameter_filter": [
-    "team-id"
-  ]
-}

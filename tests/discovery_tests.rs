@@ -1,6 +1,6 @@
-use graph_oauth::oauth::jwtkeys::JWTKeys;
+use graph_oauth::oauth::jwt_keys::JWTKeys;
 use graph_oauth::oauth::{OAuth, OAuthCredential};
-use graph_rs_sdk::oauth::graphdiscovery::{
+use graph_rs_sdk::oauth::graph_discovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
 
@@ -98,10 +98,7 @@ fn tenant_signing_keys() {
             .unwrap();
         assert_eq!(
             keys.authorization_endpoint,
-            format!(
-                "https://login.microsoftonline.com/{}/oauth2/v2.0/authorize",
-                tenant
-            )
+            format!("https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize")
         );
     }
 }

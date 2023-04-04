@@ -1,65 +1,52 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(InvitationsRequest,);
+use crate::api_default_imports::*;
 
-impl<'a, Client> InvitationsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entity from invitations by key",
-        name: get_invitation,
-        response: serde_json::Value,
-        path: "/invitations/{{id}}",
-        params: 1,
-        has_body: false
-    });
+resource_api_client!(
+    InvitationsApiClient,
+    InvitationsIdApiClient,
+    ResourceIdentity::Invitations
+);
 
-    patch!({
-        doc: "# Update entity in invitations",
-        name: update_invitation,
-        response: NoContent,
-        path: "/invitations/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete entity from invitations",
-        name: delete_invitation,
-        response: NoContent,
-        path: "/invitations/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get entities from invitations",
-        name: list_invitation,
-        response: serde_json::Value,
-        path: "/invitations",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Add new entity to invitations",
+impl InvitationsApiClient {
+    post!(
+        doc: "Create invitation",
         name: create_invitation,
-        response: serde_json::Value,
         path: "/invitations",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
+    get!(
+        doc: "Get entities from invitations",
+        name: list_invitation,
+        path: "/invitations"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_invitations_count,
+        path: "/invitations/$count"
+    );
+}
 
-    get!({
-        doc: "# Get invitedUser from invitations",
+impl InvitationsIdApiClient {
+    delete!(
+        doc: "Delete entity from invitations",
+        name: delete_invitation,
+        path: "/invitations/{{RID}}"
+    );
+    get!(
+        doc: "Get entity from invitations by key",
+        name: get_invitation,
+        path: "/invitations/{{RID}}"
+    );
+    patch!(
+        doc: "Update entity in invitations",
+        name: update_invitation,
+        path: "/invitations/{{RID}}",
+        body: true
+    );
+    get!(
+        doc: "Get invitedUser from invitations",
         name: get_invited_user,
-        response: serde_json::Value,
-        path: "/invitations/{{id}}/invitedUser",
-        params: 1,
-        has_body: false
-    });
+        path: "/invitations/{{RID}}/invitedUser"
+    );
 }

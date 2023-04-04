@@ -1,56 +1,47 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(SchemaExtensionsRequest,);
+use crate::api_default_imports::*;
 
-impl<'a, Client> SchemaExtensionsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entities from schemaExtensions",
-        name: list_schema_extension,
-        response: serde_json::Value,
-        path: "/schemaExtensions",
-        params: 0,
-        has_body: false
-    });
+resource_api_client!(
+    SchemaExtensionsApiClient,
+    SchemaExtensionsIdApiClient,
+    ResourceIdentity::SchemaExtensions
+);
 
-    post!({
-        doc: "# Add new entity to schemaExtensions",
+impl SchemaExtensionsApiClient {
+    post!(
+        doc: "Create schemaExtension",
         name: create_schema_extension,
-        response: serde_json::Value,
         path: "/schemaExtensions",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
+    get!(
+        doc: "List schemaExtensions",
+        name: list_schema_extension,
+        path: "/schemaExtensions"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_schema_extensions_count,
+        path: "/schemaExtensions/$count"
+    );
+}
 
-    get!({
-        doc: "# Get entity from schemaExtensions by key",
-        name: get_schema_extension,
-        response: serde_json::Value,
-        path: "/schemaExtensions/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update entity in schemaExtensions",
-        name: update_schema_extension,
-        response: NoContent,
-        path: "/schemaExtensions/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete entity from schemaExtensions",
+impl SchemaExtensionsIdApiClient {
+    delete!(
+        doc: "Delete schemaExtension",
         name: delete_schema_extension,
-        response: NoContent,
-        path: "/schemaExtensions/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        path: "/schemaExtensions/{{RID}}"
+    );
+    get!(
+        doc: "Get schemaExtension",
+        name: get_schema_extension,
+        path: "/schemaExtensions/{{RID}}"
+    );
+    patch!(
+        doc: "Update schemaExtension",
+        name: update_schema_extension,
+        path: "/schemaExtensions/{{RID}}",
+        body: true
+    );
 }

@@ -70,10 +70,9 @@ impl<'de, T: DeserializeOwned> Deserialize<'de> for EitherT<T, Reference> {
     {
         let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
         let map = value.as_object().ok_or_else(|| {
-            D::Error::custom(&format!(
+            D::Error::custom(format!(
                 "Expected struct matching either `T` or `Reference`. Found the following \
-                 serde_json::Value:\n{:#?}\n",
-                value
+                 serde_json::Value:\n{value:#?}\n"
             ))
         })?;
 

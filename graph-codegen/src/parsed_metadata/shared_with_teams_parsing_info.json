@@ -1,9 +1,0 @@
-{
-  "modifier_name": "sharedWithTeams",
-  "path": "/sharedWithTeams",
-  "resource_identity": "SharedWithTeams",
-  "trim_path_start": "/teams/{team-id}/primaryChannel",
-  "parameter_filter": [
-    "team-id"
-  ]
-}

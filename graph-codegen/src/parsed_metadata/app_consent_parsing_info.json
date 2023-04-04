@@ -1,7 +1,0 @@
-{
-  "modifier_name": "appConsent",
-  "path": "/appConsent",
-  "resource_identity": "AppConsent",
-  "trim_path_start": "/identityGovernance",
-  "parameter_filter": []
-}

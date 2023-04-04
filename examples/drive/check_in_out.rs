@@ -1,4 +1,5 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::header::{HeaderValue, CONTENT_LENGTH};
+use graph_rs_sdk::*;
 
 // This example shows checking a drive item in and out.
 
@@ -10,15 +11,17 @@ static ITEM_ID: &str = "ITEM_ID";
 
 // For more information on checking out a drive item see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkout?view=odsp-graph-online
-fn check_out_item() {
+async fn check_out_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
     let response = client
-        .v1()
         .me()
         .drive()
-        .check_out_item(ITEM_ID)
+        .item(ITEM_ID)
+        .checkout()
+        .header(CONTENT_LENGTH, HeaderValue::from(0)) // Required for checkout. When there is no body the checkout content length will just be 0
         .send()
+        .await
         .unwrap();
 
     // Should be 204 for a successful check out.
@@ -27,7 +30,7 @@ fn check_out_item() {
 
 // For more information on checking in a drive item see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkin?view=odsp-graph-online
-fn check_in_item() {
+async fn check_in_item() {
     let client = Graph::new(ACCESS_TOKEN);
 
     // checkInAs: Optional. The desired status of the document after the check-in
@@ -38,17 +41,15 @@ fn check_in_item() {
     let comment = "COMMENT";
 
     let response = client
-        .v1()
         .me()
         .drive()
-        .check_in_item(
-            ITEM_ID,
-            &serde_json::json!({
-                "comment": comment,
-                "checkInAs": check_in_as
-            }),
-        )
+        .item(ITEM_ID)
+        .checkin(&serde_json::json!({
+            "comment": comment,
+            "checkInAs": check_in_as
+        }))
         .send()
+        .await
         .unwrap();
 
     // Should be 204 for a successful check in.

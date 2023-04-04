@@ -1,52 +1,67 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::authentication_method_configurations::{
-    AuthenticationMethodConfigurationsIdRequest, AuthenticationMethodConfigurationsRequest,
-};
-use graph_http::types::NoContent;
+use crate::authentication_method_configurations::*;
 
-register_client!(AuthenticationMethodsPolicyRequest,);
+resource_api_client!(
+    AuthenticationMethodsPolicyApiClient,
+    ResourceIdentity::AuthenticationMethodsPolicy
+);
 
-impl<'a, Client> AuthenticationMethodsPolicyRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    pub fn authentication_method_configurations(
-        &self,
-    ) -> AuthenticationMethodConfigurationsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client
-            .set_ident(ResourceIdentity::AuthenticationMethodConfigurations);
-        AuthenticationMethodConfigurationsRequest::new(self.client)
-    }
+impl AuthenticationMethodsPolicyApiClient {
+    api_client_link!(
+        authentication_method_configurations,
+        AuthenticationMethodConfigurationsApiClient
+    );
+    api_client_link_id!(
+        authentication_method_configuration,
+        AuthenticationMethodConfigurationsIdApiClient
+    );
 
-    pub fn authentication_method_configuration<ID: AsRef<str>>(
-        &self,
-        id: ID,
-    ) -> AuthenticationMethodConfigurationsIdRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref()]);
-        self.client
-            .set_ident(ResourceIdentity::AuthenticationMethodConfigurations);
-        AuthenticationMethodConfigurationsIdRequest::new(id.as_ref(), self.client)
-    }
-
-    get!({
+    get!(
         doc: "Get authenticationMethodsPolicy",
         name: get_authentication_methods_policy,
-        response: serde_json::Value,
-        path: "/authenticationMethodsPolicy",
-        has_body: false
-    });
-    patch!({
+        path: "/authenticationMethodsPolicy"
+    );
+    patch!(
         doc: "Update authenticationMethodsPolicy",
         name: update_authentication_methods_policy,
-        response: NoContent,
         path: "/authenticationMethodsPolicy",
-        has_body: true
-    });
+        body: true
+    );
+    post!(
+        doc: "Create new navigation property to authenticationMethodConfigurations for authenticationMethodsPolicy",
+        name: create_authentication_method_configurations,
+        path: "/authenticationMethodsPolicy/authenticationMethodConfigurations",
+        body: true
+    );
+    get!(
+        doc: "Get authenticationMethodConfigurations from authenticationMethodsPolicy",
+        name: list_authentication_method_configurations,
+        path: "/authenticationMethodsPolicy/authenticationMethodConfigurations"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_authentication_method_configurations_count,
+        path: "/authenticationMethodsPolicy/authenticationMethodConfigurations/$count"
+    );
+    delete!(
+        doc: "Delete navigation property authenticationMethodConfigurations for authenticationMethodsPolicy",
+        name: delete_authentication_method_configurations,
+        path: "/authenticationMethodsPolicy/authenticationMethodConfigurations/{{id}}",
+        params: authentication_method_configuration_id
+    );
+    get!(
+        doc: "Get authenticationMethodConfigurations from authenticationMethodsPolicy",
+        name: get_authentication_method_configurations,
+        path: "/authenticationMethodsPolicy/authenticationMethodConfigurations/{{id}}",
+        params: authentication_method_configuration_id
+    );
+    patch!(
+        doc: "Update the navigation property authenticationMethodConfigurations in authenticationMethodsPolicy",
+        name: update_authentication_method_configurations,
+        path: "/authenticationMethodsPolicy/authenticationMethodConfigurations/{{id}}",
+        body: true,
+        params: authentication_method_configuration_id
+    );
 }

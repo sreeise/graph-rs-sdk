@@ -292,7 +292,7 @@ pub fn get_custom_requests(
                     doc: None,
                 },
             ],
-            ResourceIdentity::Items => vec![Request {
+            ResourceIdentity::SitesItems => vec![Request {
                 path: "/items/{{RID}}".into(),
                 method: HttpMethod::DELETE,
                 method_name: "delete_items".into(),
@@ -306,7 +306,7 @@ pub fn get_custom_requests(
                 operation_mapping: "items".into(),
                 doc: Some("# Delete navigation property items".into()),
             }],
-            ResourceIdentity::Pages => vec![
+            ResourceIdentity::OnenotePages => vec![
                 Request {
                     path: "/pages/{{RID}}".into(),
                     method: HttpMethod::DELETE,
@@ -436,7 +436,7 @@ pub fn get_custom_requests(
                 operation_mapping: "groups.conversations".into(),
                 doc: None,
             }],
-            ResourceIdentity::Messages => vec![
+            ResourceIdentity::ChatsMessages => vec![
                 Request {
                     path: "/messages/{{RID}}/move".into(),
                     method: HttpMethod::POST,
@@ -494,7 +494,7 @@ pub fn get_custom_requests(
                 operation_mapping: "childFolders".into(),
                 doc: None,
             }],
-            ResourceIdentity::Attachments => vec![Request {
+            ResourceIdentity::UsersAttachments => vec![Request {
                 path: "/attachments/{{RID}}/$value".into(),
                 method: HttpMethod::GET,
                 method_name: "get_content".into(),

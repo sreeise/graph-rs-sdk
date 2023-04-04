@@ -1,7 +1,0 @@
-{
-  "modifier_name": "accessReviews",
-  "path": "/accessReviews",
-  "resource_identity": "AccessReviews",
-  "trim_path_start": "/identityGovernance",
-  "parameter_filter": []
-}

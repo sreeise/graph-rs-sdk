@@ -1,5 +1,6 @@
 use crate::auth::OAuthReq;
-use crate::oautherror::OAuthError;
+use crate::oauth_error::OAuthError;
+use base64::Engine;
 use graph_error::GraphFailure;
 use serde_json::Map;
 use serde_json::Value;
@@ -170,7 +171,7 @@ impl JwtParser {
             .ok_or_else(|| OAuthError::invalid("Invalid Key"))?;
 
         // Step 3.
-        let header = base64::decode_config(&input[..index], base64::URL_SAFE_NO_PAD)?;
+        let header = base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(&input[..index])?;
         for byte in header.iter() {
             let b = *byte;
             if b == b'\n' || b == b' ' {
@@ -208,7 +209,7 @@ impl JwtParser {
         let payload = key_vec.get(1);
 
         if let Some(p) = payload {
-            let t = base64::decode(&**p)?;
+            let t = base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(&**p)?;
             let v_utf8 = std::str::from_utf8(&t)?;
             let v_owned = v_utf8.to_owned();
 
@@ -221,7 +222,7 @@ impl JwtParser {
                     value: value.to_owned(),
                 })
                 .collect();
-        };
+        }
 
         if let Some(c) = claims.iter().find(|v| v.key == "cty") {
             let cty = c

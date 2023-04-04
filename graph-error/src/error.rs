@@ -1,6 +1,4 @@
 use crate::{GraphHeaders, GraphResult};
-use async_trait::async_trait;
-use hyper::body::Bytes;
 use reqwest::StatusCode;
 use serde::Serialize;
 use std::error::Error;
@@ -41,8 +39,33 @@ pub struct ErrorStatus {
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ErrorMessage {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<ErrorStatus>,
+    pub error: ErrorStatus,
+}
+
+impl ErrorMessage {
+    pub fn message(&self) -> Option<String> {
+        self.error.message.clone()
+    }
+
+    pub fn code_property(&self) -> Option<String> {
+        self.error.code.clone()
+    }
+
+    pub fn detailed_error_code(&self) -> Option<String> {
+        self.error.inner_error.as_ref()?.code.clone()
+    }
+
+    pub fn inner_error(&self) -> Option<&InnerError> {
+        self.error.inner_error.as_ref()
+    }
+
+    pub fn request_id(&self) -> Option<String> {
+        self.error.inner_error.as_ref()?.request_id.clone()
+    }
+
+    pub fn date(&self) -> Option<String> {
+        self.error.inner_error.as_ref()?.date.clone()
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -91,45 +114,27 @@ impl GraphError {
     }
 
     pub fn message(&self) -> Option<String> {
-        self.error_message.error.as_ref()?.message.clone()
+        self.error_message.message()
     }
 
     pub fn code_property(&self) -> Option<String> {
-        self.error_message.error.as_ref()?.code.clone()
+        self.error_message.code_property()
     }
 
     pub fn inner_error(&self) -> Option<&InnerError> {
-        self.error_message.error.as_ref()?.inner_error.as_ref()
+        self.error_message.inner_error()
     }
 
     pub fn request_id(&self) -> Option<String> {
-        self.error_message
-            .error
-            .as_ref()?
-            .inner_error
-            .as_ref()?
-            .request_id
-            .clone()
+        self.error_message.request_id()
     }
 
     pub fn date(&self) -> Option<String> {
-        self.error_message
-            .error
-            .as_ref()?
-            .inner_error
-            .as_ref()?
-            .date
-            .clone()
+        self.error_message.date()
     }
 
     pub fn detailed_error_code(&self) -> Option<String> {
-        self.error_message
-            .error
-            .as_ref()?
-            .inner_error
-            .as_ref()?
-            .code
-            .clone()
+        self.error_message.detailed_error_code()
     }
 }
 
@@ -139,10 +144,8 @@ impl Error for GraphError {
     }
 
     fn description(&self) -> &str {
-        if let Some(err) = self.error_message.error.as_ref() {
-            if let Some(message) = err.message.as_ref() {
-                return message.as_str();
-            }
+        if let Some(message) = self.error_message.error.message.as_ref() {
+            return message.as_str();
         }
         self.code.canonical_reason().unwrap_or_default()
     }
@@ -198,30 +201,36 @@ impl ErrorType {}
 impl ErrorType {
     pub fn as_str(&self) -> &str {
         match *self {
-            ErrorType::BadRequest => "Cannot process the request because it is malformed or incorrect.",
-            ErrorType::Unauthorized => "Required authentication information is either missing or not valid for the resource.",
-            ErrorType::Forbidden => "Access is denied to the requested resource. The user might not have enough permission.",
-            ErrorType::NotFound => "The requested resource doesnt exist.",
-            ErrorType::MethodNotAllowed => "The HTTP method in the request is not allowed on the resource.",
-            ErrorType::NotAcceptable => "This service doesnt support the format requested in the Accept header.",
-            ErrorType::Conflict => "The current state conflicts with what the request expects. For example, the specified parent folder might not exist",
-            ErrorType::Gone => "The requested resource is no longer available at the server.",
-            ErrorType::LengthRequired => "A Content-Length header is required on the request.",
-            ErrorType::PreconditionFailed=> "A precondition provided in the request (such as an if-match header) does not match the resource's current state.",
-            ErrorType::RequestEntityTooLarge => "The request size exceeds the maximum limit.",
-            ErrorType::UnsupportedMediaType => "The content type of the request is a format that is not supported by the service.",
-            ErrorType::RequestRangeNotSatisfiable => "The specified byte range is invalid or unavailable.",
-            ErrorType::UnprocessableEntity => "Cannot process the request because it is semantically incorrect.",
-            ErrorType::Locked => "The resource that is being accessed is locked.",
-            ErrorType::TooManyRequests => "Client application has been throttled and should not attempt to repeat the request until an amount of time has elapsed.",
-            ErrorType::InternalServerError => "There was an internal server error while processing the request.",
-            ErrorType::NotImplemented => "The requested feature isn’t implemented.",
-            ErrorType::ServiceUnavailable => "The service is temporarily unavailable. You may repeat the request after a delay. There may be a Retry-After header.",
-            ErrorType::GatewayTimeout => "The server, while acting as a proxy, did not receive a timely response from the upstream server it needed to access in attempting to complete the request. May occur together with 503.",
-            ErrorType::InsufficientStorage => "The maximum storage quota has been reached.",
-            ErrorType::BandwidthLimitExceeded => "Your app has been throttled for exceeding the maximum bandwidth cap. Your app can retry the request again after more time has elapsed.",
-            ErrorType::UnknownError => "Unknown error or failure",
-        }
+			ErrorType::BadRequest => "Cannot process the request because it is malformed or incorrect.",
+			ErrorType::Unauthorized => "Required authentication information is either missing or not valid for the resource.",
+			ErrorType::Forbidden => "Access is denied to the requested resource. The user might not have enough permission.",
+			ErrorType::NotFound => "The requested resource doesnt exist.",
+			ErrorType::MethodNotAllowed => "The HTTP method in the request is not allowed on the resource.",
+			ErrorType::NotAcceptable => "This service doesnt support the format requested in the Accept header.",
+			ErrorType::Conflict =>
+				"The current state conflicts with what the request expects. For example, the specified parent folder might not exist",
+			ErrorType::Gone => "The requested resource is no longer available at the server.",
+			ErrorType::LengthRequired => "A Content-Length header is required on the request.",
+			ErrorType::PreconditionFailed =>
+				"A precondition provided in the request (such as an if-match header) does not match the resource's current state.",
+			ErrorType::RequestEntityTooLarge => "The request size exceeds the maximum limit.",
+			ErrorType::UnsupportedMediaType => "The content type of the request is a format that is not supported by the service.",
+			ErrorType::RequestRangeNotSatisfiable => "The specified byte range is invalid or unavailable.",
+			ErrorType::UnprocessableEntity => "Cannot process the request because it is semantically incorrect.",
+			ErrorType::Locked => "The resource that is being accessed is locked.",
+			ErrorType::TooManyRequests =>
+				"Client application has been throttled and should not attempt to repeat the request until an amount of time has elapsed.",
+			ErrorType::InternalServerError => "There was an internal server error while processing the request.",
+			ErrorType::NotImplemented => "The requested feature isn’t implemented.",
+			ErrorType::ServiceUnavailable =>
+				"The service is temporarily unavailable. You may repeat the request after a delay. There may be a Retry-After header.",
+			ErrorType::GatewayTimeout =>
+				"The server, while acting as a proxy, did not receive a timely response from the upstream server it needed to access in attempting to complete the request. May occur together with 503.",
+			ErrorType::InsufficientStorage => "The maximum storage quota has been reached.",
+			ErrorType::BandwidthLimitExceeded =>
+				"Your app has been throttled for exceeding the maximum bandwidth cap. Your app can retry the request again after more time has elapsed.",
+			ErrorType::UnknownError => "Unknown error or failure",
+		}
     }
 
     pub fn from_u16(num: u16) -> Option<ErrorType> {
@@ -260,99 +269,5 @@ impl ErrorType {
 impl ToString for ErrorType {
     fn to_string(&self) -> String {
         self.as_str().to_string()
-    }
-}
-
-pub trait WithGraphError: Sized {
-    fn with_graph_error(self) -> Result<Self, GraphError>;
-}
-
-impl WithGraphError for reqwest::blocking::Response {
-    fn with_graph_error(self) -> Result<Self, GraphError> {
-        let code = self.status();
-        if code.is_client_error() || code.is_server_error() {
-            let headers = Some(GraphHeaders::from(&self));
-            let (response_raw, error_message) = self
-                .bytes()
-                .map(|bytes: Bytes| {
-                    serde_json::from_slice::<serde_json::Value>(&bytes)
-                        .map_err(|err| {
-                            format!(
-                                "unable to parse response as JSON: {}; {}",
-                                err,
-                                String::from_utf8_lossy(&bytes)
-                            )
-                        })
-                        .map(|json| {
-                            (
-                                json,
-                                serde_json::from_slice::<ErrorMessage>(&bytes).unwrap_or_default(),
-                            )
-                        })
-                })
-                .unwrap_or_else(|err| {
-                    Ok((
-                        serde_json::Value::String(format!("unable to read response: {}", err)),
-                        ErrorMessage::default(),
-                    ))
-                })
-                .unwrap_or_else(|err| (serde_json::Value::String(err), ErrorMessage::default()));
-            Err(GraphError {
-                headers,
-                code,
-                error_message,
-                response_raw,
-            })
-        } else {
-            Ok(self)
-        }
-    }
-}
-#[async_trait]
-pub trait WithGraphErrorAsync: Sized {
-    async fn with_graph_error(self) -> Result<Self, GraphError>;
-}
-
-#[async_trait]
-impl WithGraphErrorAsync for reqwest::Response {
-    async fn with_graph_error(self) -> Result<Self, GraphError> {
-        let code = self.status();
-        if code.is_client_error() || code.is_server_error() {
-            let headers = Some(GraphHeaders::from(&self));
-            let (response_raw, error_message) = self
-                .bytes()
-                .await
-                .map(|bytes: Bytes| {
-                    serde_json::from_slice::<serde_json::Value>(&bytes)
-                        .map_err(|err| {
-                            format!(
-                                "unable to parse response as JSON: {}; {}",
-                                err,
-                                String::from_utf8_lossy(&bytes)
-                            )
-                        })
-                        .map(|json| {
-                            (
-                                json,
-                                serde_json::from_slice::<ErrorMessage>(&bytes).unwrap_or_default(),
-                            )
-                        })
-                })
-                .unwrap_or_else(|err| {
-                    Ok((
-                        serde_json::Value::String(format!("unable to read response: {}", err)),
-                        ErrorMessage::default(),
-                    ))
-                })
-                .unwrap_or_else(|err| (serde_json::Value::String(err), ErrorMessage::default()));
-            Err(GraphError {
-                headers,
-                code,
-                error_message,
-                response_raw,
-            })
-        } else {
-            Ok(self)
-        }
     }
 }

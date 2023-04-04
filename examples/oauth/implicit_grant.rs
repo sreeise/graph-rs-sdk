@@ -42,5 +42,5 @@ fn request_token_main() {
     // the fragment of the Uri.
     let mut oauth = oauth_implicit_flow();
     let mut request = oauth.build().implicit_grant();
-    let _ = request.browser_authorization().open().unwrap();
+    request.browser_authorization().open().unwrap();
 }

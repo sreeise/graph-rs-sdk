@@ -1,56 +1,99 @@
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(ContractsRequest,);
+use crate::api_default_imports::*;
 
-impl<'a, Client> ContractsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entity from contracts by key",
-        name: get_contract,
-        response: serde_json::Value,
-        path: "/contracts/{{id}}",
-        params: 1,
-        has_body: false
-    });
+resource_api_client!(
+    ContractsApiClient,
+    ContractsIdApiClient,
+    ResourceIdentity::Contracts
+);
 
-    patch!({
-        doc: "# Update entity in contracts",
-        name: update_contract,
-        response: NoContent,
-        path: "/contracts/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete entity from contracts",
-        name: delete_contract,
-        response: NoContent,
-        path: "/contracts/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get entities from contracts",
-        name: list_contract,
-        response: serde_json::Value,
-        path: "/contracts",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Add new entity to contracts",
+impl ContractsApiClient {
+    post!(
+        doc: "Add new entity to contracts",
         name: create_contract,
-        response: serde_json::Value,
         path: "/contracts",
-        params: 0,
-        has_body: true
-    });
+        body: true
+    );
+    get!(
+        doc: "List contracts",
+        name: list_contract,
+        path: "/contracts"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_contracts_count,
+        path: "/contracts/$count"
+    );
+    get!(
+        doc: "Invoke function delta",
+        name: delta,
+        path: "/contracts/delta()"
+    );
+    post!(
+        doc: "Invoke action getAvailableExtensionProperties",
+        name: get_available_extension_properties,
+        path: "/contracts/getAvailableExtensionProperties",
+        body: true
+    );
+    post!(
+        doc: "Invoke action getByIds",
+        name: get_by_ids,
+        path: "/contracts/getByIds",
+        body: true
+    );
+    post!(
+        doc: "Invoke action validateProperties",
+        name: validate_properties,
+        path: "/contracts/validateProperties",
+        body: true
+    );
+}
+
+impl ContractsIdApiClient {
+    delete!(
+        doc: "Delete entity from contracts",
+        name: delete_contract,
+        path: "/contracts/{{RID}}"
+    );
+    get!(
+        doc: "Get Contract",
+        name: get_contract,
+        path: "/contracts/{{RID}}"
+    );
+    patch!(
+        doc: "Update entity in contracts",
+        name: update_contract,
+        path: "/contracts/{{RID}}",
+        body: true
+    );
+    post!(
+        doc: "Invoke action checkMemberGroups",
+        name: check_member_groups,
+        path: "/contracts/{{RID}}/checkMemberGroups",
+        body: true
+    );
+    post!(
+        doc: "Invoke action checkMemberObjects",
+        name: check_member_objects,
+        path: "/contracts/{{RID}}/checkMemberObjects",
+        body: true
+    );
+    post!(
+        doc: "Invoke action getMemberGroups",
+        name: get_member_groups,
+        path: "/contracts/{{RID}}/getMemberGroups",
+        body: true
+    );
+    post!(
+        doc: "Invoke action getMemberObjects",
+        name: get_member_objects,
+        path: "/contracts/{{RID}}/getMemberObjects",
+        body: true
+    );
+    post!(
+        doc: "Invoke action restore",
+        name: restore,
+        path: "/contracts/{{RID}}/restore"
+    );
 }

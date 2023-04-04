@@ -1,13 +1,12 @@
 /// # Example
 /// ```
-/// use graph_rs_sdk::prelude::*:
+/// use graph_rs_sdk::*:
 ///
 /// #[tokio::main]
 /// async fn main() {
 ///   start_server_main().await;
 /// }
 /// ```
-use from_as::*;
 use graph_rs_sdk::oauth::OAuth;
 use warp::Filter;
 
@@ -47,11 +46,6 @@ pub async fn set_and_req_access_code(access_code: AccessCode) {
 
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("{:#?}", &oauth);
-
-    // Save our configuration to a file so we can retrieve it from other requests.
-    oauth
-        .as_file("./examples/example_files/oauth.json")
-        .unwrap();
 }
 
 async fn handle_redirect(
@@ -60,7 +54,7 @@ async fn handle_redirect(
     match code_option {
         Some(access_code) => {
             // Print out the code for debugging purposes.
-            println!("{:#?}", access_code);
+            println!("{access_code:#?}");
 
             // Set the access code and request an access token.
             // Callers should handle the Result from requesting an access token
@@ -78,7 +72,7 @@ async fn handle_redirect(
 
 /// # Example
 /// ```
-/// use graph_rs_sdk::prelude::*:
+/// use graph_rs_sdk::*:
 ///
 /// #[tokio::main]
 /// async fn main() {

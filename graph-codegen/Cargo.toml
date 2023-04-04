@@ -8,21 +8,27 @@ repository = "https://github.com/sreeise/graph-rs"
 description = "Microsoft Graph Api Client - Codegen"
 publish = false
 
+keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
+categories = ["authentication", "web-programming::http-client"]
+
 [dependencies]
+anyhow = "1.0.69"
 bytes = "1"
+derive_builder = "0.12.0"
 from_as = "0.1"
 Inflector = "0.11.4"
 lazy_static = "1.4.0"
 rayon = "1.5.0"
 regex = "1"
-reqwest = { version = "0.11", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
+reqwest = { version = "0.11.16", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
 serde = { version = "1", features = ["derive", "rc"] }
 serde_json = "1"
-serde_yaml = "0.8"
+serde_yaml = "0.9.17"
 strum = { version = "0.21", features = ["derive"] }
 either = { version = "1.6.1", features = ["serde"] }
-handlebars = "2.0.2"
+handlebars = "2.0.4"
 
 graph-http = { path = "../graph-http" }
 graph-core = { path = "../graph-core" }
 graph-error = { path = "../graph-error" }
+

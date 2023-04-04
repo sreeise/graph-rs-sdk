@@ -71,13 +71,12 @@ impl MacroFormatter {
 
         format!(
             "({{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, \
-             params: {}, has_body: {} }}) => {{
+             params: {params}, has_body: {has_body} }}) => {{
             register_method!(
-                {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, params: {}, \
-             has_body: {} }}
+                {{ doc: $doc, name: $name, response: $T, path: $template, method: {method_str}, params: {params}, \
+             has_body: {has_body} }}
             );
-        }};",
-            params, has_body, method_str, params, has_body
+        }};"
         )
     }
 
@@ -101,7 +100,7 @@ impl MacroFormatter {
             if i == 0 {
                 s.push_str(", $p: S");
             } else {
-                let _ = write!(s, ", $p{}: S", i);
+                let _ = write!(s, ", $p{i}: S");
             }
         }
 
@@ -118,7 +117,7 @@ impl MacroFormatter {
             if i == 0 {
                 s.push_str(" \"id\": $p.as_ref()");
             } else {
-                let _ = write!(s, ", \"id{}\": $p{}.as_ref()", i, i);
+                let _ = write!(s, ", \"id{i}\": $p{i}.as_ref()");
             }
         }
 
@@ -126,9 +125,8 @@ impl MacroFormatter {
             "render_path!(
                 self.client,
                 $template,
-                &serde_json::json!({{{ } }})\
-            );",
-            s
+                &serde_json::json!({{{s} }})\
+            );"
         )
     }
 
@@ -138,22 +136,21 @@ impl MacroFormatter {
             if i == 0 {
                 s.push_str(" $p:ident ");
             } else {
-                let _ = write!(s, "$p{}:ident ", i);
+                let _ = write!(s, "$p{i}:ident ");
             }
         }
 
         if doc {
             if param_size > 0 {
-                format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [{}], has_body: {} }} )", s, has_body)
+                format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, params: [{s}], has_body: {has_body} }} )")
             } else {
-                format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: {} }} )", has_body)
+                format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, has_body: {has_body} }} )")
             }
         } else if param_size > 0 {
-            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, params: [{}], has_body: {} }} )", s, has_body)
+            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, params: [{s}], has_body: {has_body} }} )")
         } else {
             format!(
-                "( {{ name: $name:ident, response: $T:ty, path: $template:expr, has_body: {} }} )",
-                has_body
+                "( {{ name: $name:ident, response: $T:ty, path: $template:expr, has_body: {has_body} }} )"
             )
         }
     }
@@ -169,22 +166,29 @@ impl MacroFormatter {
             if i == 0 {
                 inner_params.push_str(" $p ");
             } else {
-                let _ = write!(inner_params, "$p{} ", i);
+                let _ = write!(inner_params, "$p{i} ");
             }
         }
 
         if param_size > 0 {
             format!(
-                "{}!(
+				"{}!(
                         {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, params: [{}], has_body: {} }}
-                    );", macro_name, method.enum_name(), inner_params, has_body
-            )
+                    );",
+				macro_name,
+				method.enum_name(),
+				inner_params,
+				has_body
+			)
         } else {
             format!(
-                "{}!(
+				"{}!(
                     {{ doc: $doc, name: $name, response: $T, path: $template, method: {}, has_body: {} }}
-                );", macro_name, method.enum_name(), has_body
-            )
+                );",
+				macro_name,
+				method.enum_name(),
+				has_body
+			)
         }
     }
 
@@ -199,10 +203,9 @@ impl MacroFormatter {
         let register_method_call =
             MacroFormatter::register_method_call(macro_name, param_size, method, has_body);
         format!(
-            "{} => {{
-                {}
-            }};",
-            params, register_method_call
+            "{params} => {{
+                {register_method_call}
+            }};"
         )
     }
 
@@ -212,20 +215,22 @@ impl MacroFormatter {
             if i == 0 {
                 s.push_str(" $p:ident ");
             } else {
-                let _ = write!(s, "$p{}:ident ", i);
+                let _ = write!(s, "$p{i}:ident ");
             }
         }
 
         if doc {
             if param_size > 0 {
-                format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: [{}], has_body: {} }} )", s, has_body)
+                format!(
+					"( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: [{s}], has_body: {has_body} }} )"
+				)
             } else {
-                format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: {} }} )", has_body)
+                format!("( {{ doc: $doc:expr, name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: {has_body} }} )")
             }
         } else if param_size > 0 {
-            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: [{}], has_body: {} }} )", s, has_body)
+            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, params: [{s}], has_body: {has_body} }} )")
         } else {
-            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: {} }} )", has_body)
+            format!("( {{ name: $name:ident, response: $T:ty, path: $template:expr, method: $m:expr, has_body: {has_body} }} )")
         }
     }
 
@@ -277,19 +282,18 @@ impl MacroFormatter {
         };
 
         format!(
-            "{} => {{
-    {}
-    pub fn $name{}{}-> IntoResponse<'a, $T, Client>
+            "{macro_params} => {{
+    {doc_comment}
+    pub fn $name{bounds_with_body}{params}-> IntoResponse<'a, $T, Client>
     {{
         self.client.request()
             .set_method($m);
-        {}
+        {serialize_body}
 
-        {}
+        {render_path}
         IntoResponse::new(&self.client.request)
     }}
-}};",
-            macro_params, doc_comment, bounds_with_body, params, serialize_body, render_path
+}};"
         )
     }
 

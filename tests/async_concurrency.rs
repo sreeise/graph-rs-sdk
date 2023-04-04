@@ -1,14 +1,28 @@
 use futures::stream::{self, StreamExt};
-use graph_rs_sdk::http::GraphResponse;
+use graph_http::traits::ODataNextLink;
+use graph_rs_sdk::*;
 use serde::Deserialize;
 use serde::Serialize;
-use test_tools::oauthrequest::OAuthTestClient;
+use test_tools::oauth_request::{OAuthTestClient, ASYNC_THROTTLE_MUTEX};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserResponse {
+    #[serde(rename = "@odata.nextLink")]
+    next_link: Option<String>,
+    value: Vec<User>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
     pub(crate) id: Option<String>,
     #[serde(rename = "userPrincipalName")]
     user_principal_name: Option<String>,
+}
+
+impl ODataNextLink for UserResponse {
+    fn odata_next_link(&self) -> Option<String> {
+        self.next_link.clone()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -20,43 +34,44 @@ pub struct LicenseDetail {
 
 #[tokio::test]
 async fn buffered_requests() {
+    let _ = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let users_resp: GraphResponse<Vec<User>> = client
-            .v1()
+        let mut stream = client
             .users()
             .list_user()
             .select(&["id", "userPrincipalName"])
             .top("5")
             .paging()
-            .json()
-            .await
+            .stream::<UserResponse>()
             .unwrap();
 
-        let users: Vec<String> = users_resp
-            .into_body()
-            .iter()
-            .filter_map(|user| user.id.clone())
-            .collect();
+        let mut users: Vec<String> = Vec::new();
+        while let Some(Ok(user_response)) = stream.next().await {
+            let body = user_response.into_body();
+
+            users.extend(body.value.iter().flat_map(|user| user.id.clone()));
+        }
+
         assert!(!users.is_empty());
 
         let mut stream = stream::iter(users)
             .map(|i| async {
-                let license_details: GraphResponse<Vec<LicenseDetail>> = client
-                    .v1()
+                client
                     .users()
                     .id(i)
+                    .license_details()
                     .list_license_details()
                     .paging()
-                    .json()
+                    .json::<LicenseDetail>()
                     .await
-                    .unwrap();
-
-                license_details
+                    .unwrap()
             })
             .buffered(5);
 
-        while let Some(license_detail) = stream.next().await {
-            assert_eq!(license_detail.status(), 200);
+        while let Some(vec) = stream.next().await {
+            for response in vec {
+                assert!(response.status().is_success());
+            }
         }
     }
 }

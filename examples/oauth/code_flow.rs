@@ -1,6 +1,6 @@
 /// # Example
 /// ```
-/// use graph_rs_sdk::prelude::*:
+/// use graph_rs_sdk::*:
 ///
 /// #[tokio::main]
 /// async fn main() {
@@ -36,7 +36,6 @@
 /// Disclaimer/Important Info:
 ///
 /// This example is meant for testing and is not meant to be production ready or complete.
-use from_as::*;
 use futures::TryFutureExt;
 use graph_rs_sdk::oauth::OAuth;
 use warp::Filter;
@@ -95,7 +94,7 @@ async fn handle_redirect(
     match code_option {
         Some(access_code) => {
             // Print out the code for debugging purposes.
-            println!("{:#?}", access_code);
+            println!("{access_code:#?}");
 
             // Assert that the state is the same as the one given in the original request.
             assert_eq!("13534298", access_code.state.as_str());
@@ -116,7 +115,7 @@ async fn handle_redirect(
 
 /// # Example
 /// ```
-/// use graph_rs_sdk::prelude::*:
+/// use graph_rs_sdk::*:
 ///
 /// #[tokio::main]
 /// async fn main() {

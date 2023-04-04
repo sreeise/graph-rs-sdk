@@ -1,33 +1,47 @@
-extern crate reqwest;
 #[macro_use]
-pub extern crate serde;
-pub extern crate serde_json;
-pub extern crate serde_yaml;
+extern crate serde;
 
-mod async_client;
-mod blocking_client;
-mod dispatch;
-mod download;
-mod http_client;
-mod intoresponse;
-mod registry;
-mod request;
-mod response;
-mod uploadsession;
+mod blocking;
+mod client;
+mod core;
+mod request_components;
+mod request_handler;
+mod resource_identifier;
+mod upload_session;
 
-pub mod byterange;
-pub mod iotools;
-pub mod traits;
-pub mod types;
 pub mod url;
 
-pub use async_client::*;
-pub use blocking_client::*;
-pub use dispatch::*;
-pub use download::*;
-pub use http_client::*;
-pub use intoresponse::*;
-pub use registry::*;
-pub use request::*;
-pub use response::*;
-pub use uploadsession::*;
+/// Traits for http utilities.
+pub mod traits;
+
+/// Io utilities for creating directories and files.
+pub mod io_tools;
+
+pub(crate) mod internal {
+    pub type ReqwestResult = Result<reqwest::Response, reqwest::Error>;
+    pub type ReqwestBlockingResult = Result<reqwest::blocking::Response, reqwest::Error>;
+    pub use crate::blocking::*;
+    pub use crate::client::*;
+    pub use crate::core::*;
+    pub use crate::io_tools::*;
+    pub use crate::request_components::*;
+    pub use crate::request_handler::*;
+    pub use crate::resource_identifier::*;
+    pub use crate::traits::*;
+    pub use crate::upload_session::*;
+    pub use crate::url::*;
+}
+
+pub mod api_impl {
+    pub use crate::blocking::{BlockingClient, BlockingRequestHandler, UploadSessionBlocking};
+    pub use crate::client::*;
+    pub use crate::core::*;
+    pub use crate::request_components::RequestComponents;
+    pub use crate::request_handler::RequestHandler;
+    pub use crate::resource_identifier::{ResourceConfig, ResourceIdentifier};
+    pub use crate::traits::{BodyExt, ODataQuery};
+    pub use crate::upload_session::UploadSession;
+    pub use graph_error::{GraphFailure, GraphResult};
+
+    pub extern crate handlebars;
+}

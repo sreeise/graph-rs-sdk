@@ -1,7 +1,0 @@
-{
-  "modifier_name": "assignmentPolicies",
-  "path": "/assignmentPolicies",
-  "resource_identity": "AssignmentPolicies",
-  "trim_path_start": "/identityGovernance/entitlementManagement",
-  "parameter_filter": []
-}

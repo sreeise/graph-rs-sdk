@@ -24,13 +24,13 @@ impl OAuthTestTool {
         if grant_request.eq(&GrantRequest::AccessToken) {
             let mut atu = oauth.get(OAuthCredential::AccessTokenURL).unwrap();
             if !atu.ends_with('?') {
-                atu.push('?')
+                atu.push('?');
             }
             url.push_str(atu.as_str());
         } else if grant_request.eq(&GrantRequest::RefreshToken) {
             let mut rtu = oauth.get(OAuthCredential::RefreshTokenURL).unwrap();
             if !rtu.ends_with('?') {
-                rtu.push('?')
+                rtu.push('?');
             }
             url.push_str(rtu.as_str());
         }
@@ -69,7 +69,6 @@ impl OAuthTestTool {
         let parse = url::form_urlencoded::parse(query.as_bytes());
 
         for query in parse {
-            println!("{:#?}", &query);
             assert!(cow_cred.contains(&query));
             assert!(!cow_cred_false.contains(&query));
         }
@@ -116,14 +115,14 @@ impl OAuthTestTool {
 
     pub fn contains_scopes(oauth: &mut OAuth, s: &[String]) {
         for string in s {
-            assert!(oauth.contains_scope(string.as_str()))
+            assert!(oauth.contains_scope(string.as_str()));
         }
     }
 
     pub fn remove_scopes(oauth: &mut OAuth, s: &[String]) {
         for string in s {
             oauth.remove_scope(string.as_str());
-            assert!(!oauth.contains_scope(string))
+            assert!(!oauth.contains_scope(string));
         }
     }
 

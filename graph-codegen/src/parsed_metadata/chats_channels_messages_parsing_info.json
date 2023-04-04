@@ -1,9 +1,0 @@
-{
-  "modifier_name": "chats_channels_messages",
-  "path": "/messages",
-  "resource_identity": "ChatsAndChannelsMessages",
-  "trim_path_start": "/me/chats/{chat-id}",
-  "parameter_filter": [
-    "chat-id"
-  ]
-}

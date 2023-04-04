@@ -1,4 +1,4 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
@@ -7,29 +7,37 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 // Deleting an item can be done in 2 different ways shown in the methods below.
 
 // Delete a drive item by id.
-pub fn delete_by_id(item_id: &str) {
+pub async fn delete_by_id(item_id: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
     let response = client
-        .v1()
         .me()
         .drive()
-        .delete_items(item_id)
+        .item(item_id)
+        .delete_items()
         .send()
+        .await
         .unwrap();
 
-    println!("{:#?}", response);
-    println!("\nItem was deleted. Status: {}", response.status());
+    println!("{response:#?}");
+    println!("\nItem deleted Status: {}", response.status());
 }
 
 // Deleting an item by path.
-pub fn delete_by_path(path: &str) {
+pub async fn delete_by_path(path: &str) {
     let client = Graph::new(ACCESS_TOKEN);
 
     // Send the request.
-    let response = client.v1().me().drive().delete_items(path).send().unwrap();
+    let response = client
+        .me()
+        .drive()
+        .item_by_path(path)
+        .delete_items()
+        .send()
+        .await
+        .unwrap();
 
-    println!("{:#?}", response);
-    println!("\nItem was deleted. Status: {}", response.status());
+    println!("{response:#?}");
+    println!("\nItem deleted Status: {}", response.status());
 }

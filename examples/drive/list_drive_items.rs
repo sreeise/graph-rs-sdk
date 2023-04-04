@@ -1,43 +1,54 @@
-use graph_rs_sdk::prelude::*;
+use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
-pub fn list_drive_items() {
-    drive_root();
-    drive_root_children();
-    special_docs();
+pub async fn list_drive_items() {
+    drive_root().await;
+    drive_root_children().await;
+    special_docs().await;
 }
 
-pub fn drive_root() {
+pub async fn drive_root() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let drive_item: GraphResponse<serde_json::Value> =
-        client.v1().me().drive().get_root().send().unwrap();
-    println!("{:#?}", drive_item);
+    let response = client.me().drive().get_root().send().await.unwrap();
+
+    println!("{response:#?}");
+
+    let drive_item: serde_json::Value = response.json().await.unwrap();
+    println!("{drive_item:#?}");
 }
 
-pub fn drive_root_children() {
+pub async fn drive_root_children() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let drive_item = client
-        .v1()
+    let response = client
         .me()
         .drive()
         .list_root_children()
         .send()
+        .await
         .unwrap();
-    println!("{:#?}", drive_item);
+
+    println!("{response:#?}");
+
+    let drive_item: serde_json::Value = response.json().await.unwrap();
+    println!("{drive_item:#?}");
 }
 
-pub fn special_docs() {
+pub async fn special_docs() {
     let client = Graph::new(ACCESS_TOKEN);
 
-    let drive_item = client
-        .v1()
+    let response = client
         .me()
         .drive()
         .get_special("documents")
         .send()
+        .await
         .unwrap();
-    println!("{:#?}", drive_item);
+
+    println!("{response:#?}");
+
+    let drive_item: serde_json::Value = response.json().await.unwrap();
+    println!("{drive_item:#?}");
 }

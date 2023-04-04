@@ -1,7 +1,0 @@
-{
-  "modifier_name": "deletedItems",
-  "path": "/deletedItems",
-  "resource_identity": "DirectoryDeletedItems",
-  "trim_path_start": "/directory",
-  "parameter_filter": []
-}

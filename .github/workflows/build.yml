@@ -36,7 +36,7 @@ jobs:
         TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
         APP_REGISTRATIONS: ${{ secrets.APP_REGISTRATIONS }}
       run: cargo test --verbose
-    
+
     - name: Install required cargo
       run: cargo install clippy-sarif sarif-fmt
 

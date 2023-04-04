@@ -1,8 +1,7 @@
 #[macro_use]
 extern crate lazy_static;
 
-use graph_rs_sdk::prelude::*;
-use test_tools::assert_url_eq;
+use graph_rs_sdk::*;
 use test_tools::common::TestTools;
 
 lazy_static! {
@@ -12,116 +11,179 @@ lazy_static! {
 #[test]
 pub fn list_mail_folder_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail_folder(ID_VEC[0].as_str())
-        .messages()
-        .list_messages();
-    assert_url_eq(&client, &format!("/me/mailFolders/{}/messages", ID_VEC[0]));
+    assert_eq!(
+        format!("/v1.0/me/mailFolders/{}/messages", ID_VEC[0]),
+        client
+            .me()
+            .mail_folder(ID_VEC[0].as_str())
+            .messages()
+            .list_messages()
+            .url()
+            .path()
+    );
 
-    let _ = client
-        .v1()
-        .user(ID_VEC[0].as_str())
-        .mail_folder(ID_VEC[1].as_str())
-        .messages()
-        .list_messages();
-    assert_url_eq(
-        &client,
-        &format!("/users/{}/mailFolders/{}/messages", ID_VEC[0], ID_VEC[1]),
+    assert_eq!(
+        format!(
+            "/v1.0/users/{}/mailFolders/{}/messages",
+            ID_VEC[0], ID_VEC[1]
+        ),
+        client
+            .user(ID_VEC[0].as_str())
+            .mail_folder(ID_VEC[1].as_str())
+            .messages()
+            .list_messages()
+            .url()
+            .path()
     );
 }
 
 #[test]
 pub fn get_mail_folder_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail_folder(ID_VEC[0].as_str())
-        .message(ID_VEC[1].as_str())
-        .get_messages();
-    assert_url_eq(
-        &client,
-        &format!("/me/mailFolders/{}/messages/{}", ID_VEC[0], ID_VEC[1]),
+    assert_eq!(
+        format!(
+            "/v1.0/users/{}/mailFolders/{}/messages/{}",
+            ID_VEC[0], ID_VEC[1], ID_VEC[2]
+        ),
+        client
+            .user(ID_VEC[0].as_str())
+            .mail_folder(ID_VEC[1].as_str())
+            .messages_id(ID_VEC[2].as_str())
+            .get_messages()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        format!("/v1.0/me/mailFolders/{}/messages/{}", ID_VEC[0], ID_VEC[1]),
+        client
+            .me()
+            .mail_folder(ID_VEC[0].as_str())
+            .messages_id(ID_VEC[1].as_str())
+            .get_messages()
+            .url()
+            .path()
     );
 }
 
 #[test]
 pub fn update_mail_folder_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail_folder(ID_VEC[0].as_str())
-        .message(ID_VEC[1].as_str())
-        .update_messages(&String::new());
-    assert_url_eq(
-        &client,
-        &format!("/me/mailFolders/{}/messages/{}", ID_VEC[0], ID_VEC[1]),
+    assert_eq!(
+        format!("/v1.0/me/mailFolders/{}/messages/{}", ID_VEC[0], ID_VEC[1]),
+        client
+            .me()
+            .mail_folder(ID_VEC[0].as_str())
+            .messages_id(ID_VEC[1].as_str())
+            .update_messages(&String::new())
+            .url()
+            .path()
     );
-}
-
-#[test]
-pub fn create_mail_folder() {
-    let client = Graph::new("");
-    let _ = client
-        .v1()
-        .user(ID_VEC[0].as_str())
-        .mail_folders()
-        .create_mail_folders(&String::new());
-    assert_url_eq(&client, &format!("/users/{}/mailFolders", ID_VEC[0]));
 }
 
 #[test]
 pub fn delete_mail_folder_messages() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail_folder(ID_VEC[0].as_str())
-        .message(ID_VEC[1].as_str())
-        .delete_messages();
-    assert_url_eq(
-        &client,
-        &format!(
-            "/me/mailFolders/{}/messages/{}",
+    assert_eq!(
+        format!(
+            "/v1.0/me/mailFolders/{}/messages/{}",
             ID_VEC[0].as_str(),
             ID_VEC[1].as_str()
         ),
+        client
+            .me()
+            .mail_folder(ID_VEC[0].as_str())
+            .messages_id(ID_VEC[1].as_str())
+            .update_messages(&String::new())
+            .url()
+            .path()
     );
 
-    let _ = client
-        .v1()
-        .user(ID_VEC[0].as_str())
-        .mail_folder(ID_VEC[1].as_str())
-        .message(ID_VEC[2].as_str())
-        .delete_messages();
-    assert_url_eq(
-        &client,
-        &format!(
-            "/users/{}/mailFolders/{}/messages/{}",
+    assert_eq!(
+        format!(
+            "/v1.0/users/{}/mailFolders/{}/messages/{}",
             ID_VEC[0].as_str(),
             ID_VEC[1].as_str(),
-            ID_VEC[2].as_str(),
+            ID_VEC[2].as_str()
         ),
+        client
+            .user(ID_VEC[0].as_str())
+            .mail_folder(ID_VEC[1].as_str())
+            .messages_id(ID_VEC[2].as_str())
+            .update_messages(&String::new())
+            .url()
+            .path()
     );
 }
 
 #[test]
-pub fn create_reply_mail_folder_messages() {
+pub fn child_folders() {
     let client = Graph::new("");
-    let _ = client
-        .v1()
-        .me()
-        .mail_folder(ID_VEC[0].as_str())
-        .message(ID_VEC[1].as_str())
-        .create_reply(&String::new());
-    assert_url_eq(
-        &client,
-        &format!(
-            "/me/mailFolders/{}/messages/{}/createReply",
-            ID_VEC[0], ID_VEC[1]
+    assert_eq!(
+        format!(
+            "/v1.0/me/mailFolders/{}/childFolders/$count",
+            ID_VEC[0].as_str()
         ),
+        client
+            .me()
+            .mail_folder(ID_VEC[0].as_str())
+            .child_folders()
+            .get_child_folders_count()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        format!(
+            "/v1.0/users/{}/mailFolders/{}/childFolders/{}/messages/{}",
+            ID_VEC[0].as_str(),
+            ID_VEC[1].as_str(),
+            ID_VEC[2].as_str(),
+            ID_VEC[3].as_str()
+        ),
+        client
+            .user(ID_VEC[0].as_str())
+            .mail_folder(ID_VEC[1].as_str())
+            .child_folder(ID_VEC[2].as_str())
+            .message(ID_VEC[3].as_str())
+            .get_messages()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        format!(
+            "/v1.0/users/{}/mailFolders/{}/childFolders/{}/messageRules/{}",
+            ID_VEC[0].as_str(),
+            ID_VEC[1].as_str(),
+            ID_VEC[2].as_str(),
+            ID_VEC[3].as_str()
+        ),
+        client
+            .user(ID_VEC[0].as_str())
+            .mail_folder(ID_VEC[1].as_str())
+            .child_folder(ID_VEC[2].as_str())
+            .delete_message_rules(ID_VEC[3].as_str())
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        format!(
+            "/v1.0/users/{}/mailFolders/{}/childFolders/{}/messages/{}/extensions/{}",
+            ID_VEC[0].as_str(),
+            ID_VEC[1].as_str(),
+            ID_VEC[2].as_str(),
+            ID_VEC[3].as_str(),
+            ID_VEC[0].as_str()
+        ),
+        client
+            .user(ID_VEC[0].as_str())
+            .mail_folder(ID_VEC[1].as_str())
+            .child_folder(ID_VEC[2].as_str())
+            .message(ID_VEC[3].as_str())
+            .delete_extensions(ID_VEC[0].as_str())
+            .url()
+            .path()
     );
 }

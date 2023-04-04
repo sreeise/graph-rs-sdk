@@ -1,211 +1,124 @@
 // GENERATED CODE
 
-use crate::client::Graph;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use reqwest::Method;
+use crate::api_default_imports::*;
 
-register_client!(AuditLogsRequest,);
+resource_api_client!(AuditLogsApiClient, ResourceIdentity::AuditLogs);
 
-impl<'a, Client> AuditLogsRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get auditLogs",
+impl AuditLogsApiClient {
+    get!(
+        doc: "Get auditLogs",
         name: get_audit_log_root,
-        response: serde_json::Value,
-        path: "/auditLogs",
-        params: 0,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update auditLogs",
+        path: "/auditLogs"
+    );
+    patch!(
+        doc: "Update auditLogs",
         name: update_audit_log_root,
-        response: NoContent,
         path: "/auditLogs",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get directoryAudits from auditLogs",
-        name: list_directory_audits,
-        response: serde_json::Value,
-        path: "/auditLogs/directoryAudits",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to directoryAudits for auditLogs",
+        body: true
+    );
+    post!(
+        doc: "Create new navigation property to directoryAudits for auditLogs",
         name: create_directory_audits,
-        response: serde_json::Value,
         path: "/auditLogs/directoryAudits",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get directoryAudits from auditLogs",
-        name: get_directory_audits,
-        response: serde_json::Value,
-        path: "/auditLogs/directoryAudits/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property directoryAudits in auditLogs",
-        name: update_directory_audits,
-        response: NoContent,
-        path: "/auditLogs/directoryAudits/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete navigation property directoryAudits for auditLogs",
+        body: true
+    );
+    get!(
+        doc: "List directoryAudits",
+        name: list_directory_audits,
+        path: "/auditLogs/directoryAudits"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: directory_audits_fedb,
+        path: "/auditLogs/directoryAudits/$count"
+    );
+    delete!(
+        doc: "Delete navigation property directoryAudits for auditLogs",
         name: delete_directory_audits,
-        response: NoContent,
         path: "/auditLogs/directoryAudits/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get provisioning from auditLogs",
-        name: list_provisioning,
-        response: serde_json::Value,
-        path: "/auditLogs/provisioning",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to provisioning for auditLogs",
+        params: directory_audit_id
+    );
+    get!(
+        doc: "Get directoryAudits from auditLogs",
+        name: get_directory_audits,
+        path: "/auditLogs/directoryAudits/{{id}}",
+        params: directory_audit_id
+    );
+    patch!(
+        doc: "Update the navigation property directoryAudits in auditLogs",
+        name: update_directory_audits,
+        path: "/auditLogs/directoryAudits/{{id}}",
+        body: true,
+        params: directory_audit_id
+    );
+    post!(
+        doc: "Create new navigation property to provisioning for auditLogs",
         name: create_provisioning,
-        response: serde_json::Value,
         path: "/auditLogs/provisioning",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get provisioning from auditLogs",
-        name: get_provisioning,
-        response: serde_json::Value,
-        path: "/auditLogs/provisioning/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property provisioning in auditLogs",
-        name: update_provisioning,
-        response: NoContent,
-        path: "/auditLogs/provisioning/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete navigation property provisioning for auditLogs",
+        body: true
+    );
+    get!(
+        doc: "List provisioningObjectSummary",
+        name: list_provisioning,
+        path: "/auditLogs/provisioning"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_provisioning_count,
+        path: "/auditLogs/provisioning/$count"
+    );
+    delete!(
+        doc: "Delete navigation property provisioning for auditLogs",
         name: delete_provisioning,
-        response: NoContent,
         path: "/auditLogs/provisioning/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get restrictedSignIns from auditLogs",
-        name: list_restricted_sign_ins,
-        response: serde_json::Value,
-        path: "/auditLogs/restrictedSignIns",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to restrictedSignIns for auditLogs",
-        name: create_restricted_sign_ins,
-        response: serde_json::Value,
-        path: "/auditLogs/restrictedSignIns",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get restrictedSignIns from auditLogs",
-        name: get_restricted_sign_ins,
-        response: serde_json::Value,
-        path: "/auditLogs/restrictedSignIns/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property restrictedSignIns in auditLogs",
-        name: update_restricted_sign_ins,
-        response: NoContent,
-        path: "/auditLogs/restrictedSignIns/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete navigation property restrictedSignIns for auditLogs",
-        name: delete_restricted_sign_ins,
-        response: NoContent,
-        path: "/auditLogs/restrictedSignIns/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get signIns from auditLogs",
-        name: list_sign_ins,
-        response: serde_json::Value,
-        path: "/auditLogs/signIns",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to signIns for auditLogs",
+        params: provisioning_object_summary_id
+    );
+    get!(
+        doc: "Get provisioning from auditLogs",
+        name: get_provisioning,
+        path: "/auditLogs/provisioning/{{id}}",
+        params: provisioning_object_summary_id
+    );
+    patch!(
+        doc: "Update the navigation property provisioning in auditLogs",
+        name: update_provisioning,
+        path: "/auditLogs/provisioning/{{id}}",
+        body: true,
+        params: provisioning_object_summary_id
+    );
+    post!(
+        doc: "Create new navigation property to signIns for auditLogs",
         name: create_sign_ins,
-        response: serde_json::Value,
         path: "/auditLogs/signIns",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get signIns from auditLogs",
-        name: get_sign_ins,
-        response: serde_json::Value,
-        path: "/auditLogs/signIns/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property signIns in auditLogs",
-        name: update_sign_ins,
-        response: NoContent,
-        path: "/auditLogs/signIns/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete navigation property signIns for auditLogs",
+        body: true
+    );
+    get!(
+        doc: "List signIns",
+        name: list_sign_ins,
+        path: "/auditLogs/signIns"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_sign_ins_count,
+        path: "/auditLogs/signIns/$count"
+    );
+    delete!(
+        doc: "Delete navigation property signIns for auditLogs",
         name: delete_sign_ins,
-        response: NoContent,
         path: "/auditLogs/signIns/{{id}}",
-        params: 1,
-        has_body: false
-    });
+        params: sign_in_id
+    );
+    get!(
+        doc: "Get signIns from auditLogs",
+        name: get_sign_ins,
+        path: "/auditLogs/signIns/{{id}}",
+        params: sign_in_id
+    );
+    patch!(
+        doc: "Update the navigation property signIns in auditLogs",
+        name: update_sign_ins,
+        path: "/auditLogs/signIns/{{id}}",
+        body: true,
+        params: sign_in_id
+    );
 }

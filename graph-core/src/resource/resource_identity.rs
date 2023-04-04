@@ -1,9 +1,9 @@
 use inflector::Inflector;
 use std::convert::AsRef;
-
 /// Comprises both top level and second level resources.
 /// These are not generated from OpenApi, except for top level resources,
 /// and mostly consist of Apis that the project currently has generated.
+#[remain::sorted]
 #[derive(
     AsRefStr,
     Copy,
@@ -20,81 +20,112 @@ use std::convert::AsRef;
     Deserialize,
 )]
 #[strum(serialize_all = "camelCase")]
+#[derive(Default)]
 pub enum ResourceIdentity {
-    AccessPackages,
     AccessPackageAssignmentApprovals,
+    AccessPackages,
     AccessReviews,
-    AccessReviewDefinitions,
+    AccessReviewsDefinitions,
+    AccessReviewsDefinitionsInstances,
+    AccessReviewsDefinitionsInstancesStages,
     Activities,
     Admin,
     AdministrativeUnits,
-    AdministrativeUnitsMembers,
     AgreementAcceptances,
     Agreements,
+    AllChannels,
+    AndroidManagedAppProtections,
+    AppCatalogs,
     AppConsent,
+    Application,
+    Applications,
+    ApplicationTemplates,
+    AppRoleAssignments,
     AssignmentPolicies,
     AssignmentRequests,
     Assignments,
-    AllChannels,
-    AppCatalogs,
-    Application,
-    ApplicationTemplates,
-    Applications,
-    Attachments,
     AuditLogs,
+    Authentication,
     AuthenticationMethodConfigurations,
     AuthenticationMethodsPolicy,
-    Buckets,
+    Batch, // Specifically for $batch requests.
     Branding,
-    Calendar,
-    CalendarGroup,
+    Buckets,
     CalendarGroups,
-    CalendarView,
-    CalendarViews,
     Calendars,
-    CallRecord,
+    CalendarView,
     CallRecords,
+    CallRecordsSessions,
     Calls,
     CertificateBasedAuthConfiguration,
     Channels,
     Chats,
     ChatsAndChannelsMessages,
+    ChatsMessages,
+    ChatsMessagesReplies,
     ChildFolders,
     Communications,
     Compliance,
     ConnectedOrganizations,
+    ConnectedOrganizationsExternalSponsors,
+    ConnectedOrganizationsInternalSponsors,
     Connections,
     ContactFolders,
     Contacts,
     ContentTypes,
     Contracts,
     Conversations,
+    CreatedObjects,
+    Custom,
     DataPolicyOperations,
-    DefinitionInstances,
-    DefinitionInstanceStages,
+    DefaultCalendar,
+    DefaultManagedAppProtections,
+    DeletedItems,
+    DeletedTeams,
     DeviceAppManagement,
+    DeviceCompliancePolicies,
+    DeviceCompliancePolicySettingStateSummaries,
+    DeviceConfigurations,
+    DeviceEnrollmentConfigurations,
     DeviceManagement,
+    DeviceManagementManagedDevices,
+    DeviceManagementReports,
     Devices,
     Directory,
-    DirectoryDeletedItems,
+    DirectoryMembers,
     DirectoryObjects,
-    DirectoryRoleTemplates,
     DirectoryRoles,
+    DirectoryRoleTemplates,
+    DirectReports,
     DomainDnsRecords,
     Domains,
     Drive,
     Drives,
+    DrivesItems,
+    DrivesList,
+    DrivesListContentTypes,
     Education,
+    EducationAssignments,
+    EducationAssignmentsSubmissions,
+    EducationClasses,
+    EducationMe,
+    EducationSchools,
+    EducationUsers,
     EntitlementManagement,
-    Event,
+    EntitlementManagementAssignments,
+    EntitlementManagementCatalogs,
     Events,
-    External,
+    EventsInstances,
     ExtendedProperties,
+    Extensions,
+    External,
+    FollowedSites,
     GroupLifecyclePolicies,
-    GroupSettingTemplates,
     GroupSettings,
+    GroupSettingTemplates,
     Groups,
-    HealthOverviews,
+    GroupsOwners,
+    GroupsTeam,
     HistoryItems,
     Identity,
     IdentityGovernance,
@@ -104,86 +135,257 @@ pub enum ResourceIdentity {
     InferenceClassification,
     InformationProtection,
     Insights,
-    Instances,
     Invitations,
-    Items,
+    IosManagedAppProtections,
+    JoinedTeams,
+    LicenseDetails,
     List,
-    Lists,
     Localizations,
+    MailboxSettings,
     MailFolders,
-    ManagedDevices,
+    ManagedAppPolicies,
+    ManagedAppRegistrations,
+    ManagedAppRegistrationsAppliedPolicies,
+    ManagedAppRegistrationsIntendedPolicies,
+    ManagedAppStatuses,
+    ManagedEBooks,
+    ManagedEBooksDeviceStates,
+    ManagedEBooksUserStateSummary,
+    MdmWindowsInformationProtectionPolicies,
+    #[default]
     Me,
-    Members,
-    Messages,
-    Notebooks,
+    MemberOf,
+    MembersWithLicenseErrors,
+    MobileAppCategories,
+    MobileAppConfigurations,
+    MobileApps,
     Oauth2PermissionGrants,
     Onenote,
+    OnenoteNotebooks,
+    OnenotePages,
+    OnenoteSectionGroups,
+    OnenoteSections,
     OnlineMeetings,
-    OrgContact,
     Organization,
+    OrgContacts,
     Outlook,
-    Pages,
+    OwnedDevices,
+    OwnedObjects,
     ParentNotebook,
     ParentSection,
     ParentSectionGroup,
+    People,
     PermissionGrants,
+    Photos,
     Places,
     Planner,
+    PlannerTasks,
     Plans,
     Policies,
-    Posts,
+    Presence,
     PrimaryChannel,
     Print,
     Privacy,
+    RegisteredDevices,
     Reports,
+    RoleDefinitions,
     RoleManagement,
     Schedule,
-    ScopedRoleMemberships,
     SchemaExtensions,
+    ScopedRoleMemberOf,
+    ScopedRoleMemberships,
     Search,
-    SectionGroups,
-    Sections,
     Security,
-    ServiceAnnouncement,
     ServicePrincipals,
-    Sessions,
+    ServicePrincipalsOwners,
     Settings,
     SharedWithTeams,
     Shares,
     Sites,
+    SitesContentTypes,
+    SitesItems,
+    SitesItemsVersions,
+    SitesLists,
     Solutions,
     SubscribedSkus,
     Subscriptions,
     Tabs,
+    TargetedManagedAppConfigurations,
     Tasks,
     Teams,
+    TeamsMembers,
+    TeamsPrimaryChannelTabs,
+    TeamsTags,
     TeamsTemplates,
     Teamwork,
-    TermsOfUse,
+    TermStore,
+    TermStoreGroups,
+    TermStoreSets,
+    TermStoreSetsChildren,
+    TermStoreSetsParentGroup,
+    TermStoreSetsRelations,
+    TermStoreSetsTerms,
+    TermStores,
+    TermsAndConditions,
     Threads,
+    ThreadsPosts,
+    Todo,
+    TodoLists,
+    TodoListsTasks,
+    TransitiveMemberOf,
+    TransitiveMembers,
+    TroubleshootingEvents,
     Users,
+    UsersAttachments,
+    UsersManagedDevices,
+    UsersMessages,
+    VppTokens,
+    WindowsAutopilotDeviceIdentities,
+    WindowsInformationProtectionPolicies,
     Workbooks,
 }
 
 impl ToString for ResourceIdentity {
     fn to_string(&self) -> String {
-        self.as_ref().to_camel_case()
-    }
-}
+        match self {
+            ResourceIdentity::AccessPackages => "accessPackages".to_string(),
+            ResourceIdentity::AccessReviewsDefinitions => "definitions".to_string(),
+            ResourceIdentity::AccessReviewsDefinitionsInstances => "instances".to_string(),
+            ResourceIdentity::AccessReviewsDefinitionsInstancesStages => "stages".to_string(),
+            ResourceIdentity::DeviceManagementManagedDevices
+            | ResourceIdentity::UsersManagedDevices => "managedDevices".to_string(),
+            ResourceIdentity::DeviceManagementReports => "reports".into(),
+            ResourceIdentity::EntitlementManagementAssignments => "assignments".to_string(),
+            ResourceIdentity::EntitlementManagementCatalogs => "catalogs".to_string(),
+            ResourceIdentity::PrimaryChannel => "primaryChannel".to_string(),
+            ResourceIdentity::TeamsTags => "tags".to_string(),
+            ResourceIdentity::DirectoryMembers | ResourceIdentity::TeamsMembers => {
+                "members".to_string()
+            }
+            ResourceIdentity::SharedWithTeams => "sharedWithTeams".to_string(),
+            ResourceIdentity::DrivesList => "list".to_string(),
+            ResourceIdentity::DrivesItems | ResourceIdentity::SitesItems => "items".to_string(),
+            ResourceIdentity::SitesItemsVersions => "versions".to_string(),
+            ResourceIdentity::SitesLists => "lists".to_string(),
+            ResourceIdentity::DrivesListContentTypes | ResourceIdentity::SitesContentTypes => {
+                "contentTypes".to_string()
+            }
+            ResourceIdentity::Conversations => "conversations".into(),
+            ResourceIdentity::GroupsOwners | ResourceIdentity::ServicePrincipalsOwners => {
+                "owners".into()
+            }
+            ResourceIdentity::GroupsTeam => "team".into(),
+            ResourceIdentity::ThreadsPosts => "posts".into(),
+            ResourceIdentity::Threads => "threads".into(),
+            ResourceIdentity::Activities => "activities".to_string(),
+            ResourceIdentity::AgreementAcceptances => "agreementAcceptances".to_string(),
+            ResourceIdentity::AppRoleAssignments => "appRoleAssignments".to_string(),
+            ResourceIdentity::Authentication => "authentication".to_string(),
+            ResourceIdentity::DefaultCalendar => "calendar".to_string(),
+            ResourceIdentity::CalendarGroups => "calendarGroups".to_string(),
+            ResourceIdentity::CalendarView => "calendarView".to_string(),
+            ResourceIdentity::Calendars => "calendars".to_string(),
+            ResourceIdentity::Chats => "chats".to_string(),
+            ResourceIdentity::ChatsMessages => "messages".to_string(),
+            ResourceIdentity::ChatsMessagesReplies => "replies".to_string(),
+            ResourceIdentity::ContactFolders => "contactFolders".to_string(),
+            ResourceIdentity::Contacts => "contacts".to_string(),
+            ResourceIdentity::CreatedObjects => "createdObjects".to_string(),
+            ResourceIdentity::DirectReports => "directReports".to_string(),
+            ResourceIdentity::Drives => "drives".to_string(),
+            ResourceIdentity::Events => "events".to_string(),
+            ResourceIdentity::Extensions => "extensions".to_string(),
+            ResourceIdentity::FollowedSites => "followedSites".to_string(),
+            ResourceIdentity::InferenceClassification => "inferenceClassification".to_string(),
+            ResourceIdentity::Insights => "insights".to_string(),
+            ResourceIdentity::JoinedTeams => "joinedTeams".to_string(),
+            ResourceIdentity::LicenseDetails => "licenseDetails".to_string(),
+            ResourceIdentity::MailFolders => "mailFolders".to_string(),
+            ResourceIdentity::ManagedAppRegistrations => "managedAppRegistrations".to_string(),
+            ResourceIdentity::ManagedAppRegistrationsAppliedPolicies => {
+                "appliedPolicies".to_string()
+            }
+            ResourceIdentity::ManagedAppRegistrationsIntendedPolicies => {
+                "intendedPolicies".to_string()
+            }
+            ResourceIdentity::ManagedEBooksDeviceStates => "deviceStates".to_string(),
+            ResourceIdentity::ManagedEBooksUserStateSummary => "userStateSummary".to_string(),
+            ResourceIdentity::MemberOf => "memberOf".to_string(),
+            ResourceIdentity::Oauth2PermissionGrants => "oauth2PermissionGrants".to_string(),
+            ResourceIdentity::Onenote => "onenote".to_string(),
+            ResourceIdentity::OnlineMeetings => "onlineMeetings".to_string(),
+            ResourceIdentity::Outlook => "outlook".to_string(),
+            ResourceIdentity::OwnedDevices => "ownedDevices".to_string(),
+            ResourceIdentity::OwnedObjects => "ownedObjects".to_string(),
+            ResourceIdentity::People => "people".to_string(),
+            ResourceIdentity::Photos => "photos".to_string(),
+            ResourceIdentity::Planner => "planner".to_string(),
+            ResourceIdentity::Presence => "presence".to_string(),
+            ResourceIdentity::RegisteredDevices => "registeredDevices".to_string(),
+            ResourceIdentity::ScopedRoleMemberOf => "scopedRoleMemberOf".to_string(),
+            ResourceIdentity::Teamwork => "teamwork".to_string(),
+            ResourceIdentity::Todo => "todo".to_string(),
+            ResourceIdentity::TransitiveMemberOf => "transitiveMemberOf".to_string(),
 
-impl Default for ResourceIdentity {
-    fn default() -> Self {
-        ResourceIdentity::Me
+            ResourceIdentity::ConnectedOrganizationsExternalSponsors => {
+                "externalSponsors".to_string()
+            }
+            ResourceIdentity::ConnectedOrganizationsInternalSponsors => {
+                "internalSponsors".to_string()
+            }
+            ResourceIdentity::CallRecordsSessions => "sessions".to_string(),
+            ResourceIdentity::EducationAssignmentsSubmissions => "submissions".to_string(),
+            ResourceIdentity::EducationAssignments => "assignments".to_string(),
+            ResourceIdentity::EducationClasses => "classes".to_string(),
+            ResourceIdentity::EducationMe => "me".to_string(),
+            ResourceIdentity::EducationUsers => "users".to_string(),
+            ResourceIdentity::EducationSchools => "schools".to_string(),
+            ResourceIdentity::TodoLists => "lists".to_string(),
+            ResourceIdentity::TodoListsTasks => "tasks".to_string(),
+            ResourceIdentity::UsersMessages => "messages".into(),
+            ResourceIdentity::UsersAttachments => "attachments".into(),
+            ResourceIdentity::EventsInstances => "instances".into(),
+            ResourceIdentity::PlannerTasks => "tasks".into(),
+            ResourceIdentity::OnenoteSections => "sections".into(),
+            ResourceIdentity::OnenoteSectionGroups => "sectionGroups".into(),
+            ResourceIdentity::OnenoteNotebooks => "notebooks".into(),
+            ResourceIdentity::OnenotePages => "pages".into(),
+            ResourceIdentity::TermStoreSets => "sets".into(),
+            ResourceIdentity::TermStoreGroups => "groups".into(),
+            ResourceIdentity::TermStoreSetsChildren => "children".into(),
+            ResourceIdentity::TermStoreSetsParentGroup => "parentGroup".into(),
+            ResourceIdentity::TermStoreSetsRelations => "relations".into(),
+            ResourceIdentity::TermStoreSetsTerms => "terms".into(),
+            ResourceIdentity::Custom => "".into(),
+
+            _ => self.as_ref().to_camel_case(),
+        }
     }
 }
 
 impl ResourceIdentity {
     pub fn enum_string(&self) -> String {
-        format!("ResourceIdentity::{:#?}", self)
+        format!("ResourceIdentity::{self:#?}")
     }
 
     pub fn to_path_start(&self) -> String {
-        format!("/{}", self.to_string().to_camel_case())
+        format!("/{}", self.to_string())
+    }
+
+    pub fn replace(&self, from: &str, to: &str) -> String {
+        self.as_ref().replace(from, to)
+    }
+
+    pub fn exact_camel_case(&self) -> String {
+        self.as_ref().to_camel_case()
+    }
+
+    pub fn exact_pascal_case(&self) -> String {
+        self.as_ref().to_pascal_case()
+    }
+
+    pub fn exact_snake_case(&self) -> String {
+        self.as_ref().to_snake_case()
     }
 }
 
@@ -205,6 +407,7 @@ impl ResourceIdentity {
     Deserialize,
 )]
 #[strum(serialize_all = "camelCase")]
+#[derive(Default)]
 pub enum TopLevelResource {
     Admin,
     AgreementAcceptances,
@@ -248,6 +451,7 @@ pub enum TopLevelResource {
     InformationProtection,
     Invitations,
     Localizations,
+    #[default]
     Me,
     Oauth2PermissionGrants,
     Organization,
@@ -279,11 +483,5 @@ pub enum TopLevelResource {
 impl ToString for TopLevelResource {
     fn to_string(&self) -> String {
         self.as_ref().to_camel_case()
-    }
-}
-
-impl Default for TopLevelResource {
-    fn default() -> Self {
-        TopLevelResource::Me
     }
 }

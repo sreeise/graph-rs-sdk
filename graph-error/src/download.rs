@@ -1,4 +1,4 @@
-use crate::ioerror::{AsyncIoError, ThreadedIoError};
+use crate::io_error::{AsyncIoError, ThreadedIoError};
 use crate::GraphError;
 
 #[derive(Debug, thiserror::Error)]
@@ -27,6 +27,9 @@ pub enum BlockingDownloadError {
         If you want to over write this file then use overwrite_existing_file(true)"
     )]
     FileExists(String),
+
+    #[error("http::Error:\n{0:#?}")]
+    HttpError(#[from] http::Error),
 }
 
 impl From<std::io::Error> for BlockingDownloadError {
@@ -48,7 +51,7 @@ pub enum AsyncDownloadError {
     Request(#[from] reqwest::Error),
 
     #[error("graph error: {0}")]
-    Graph(#[from] GraphError),
+    GraphError(#[from] GraphError),
 
     #[error("file name is too long (max 255 chars)")]
     FileNameTooLong,
@@ -61,6 +64,9 @@ pub enum AsyncDownloadError {
         If you want to over write this file then use overwrite_existing_file(true)"
     )]
     FileExists(String),
+
+    #[error("http::Error:\n{0:#?}")]
+    HttpError(#[from] http::Error),
 }
 
 impl From<std::io::Error> for AsyncDownloadError {

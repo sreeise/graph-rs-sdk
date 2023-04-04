@@ -1,7 +1,0 @@
-{
-  "modifier_name": "accessPackageAssignmentApprovals",
-  "path": "/accessPackageAssignmentApprovals",
-  "resource_identity": "AccessPackageAssignmentApprovals",
-  "trim_path_start": "/identityGovernance/entitlementManagement",
-  "parameter_filter": []
-}

@@ -14,6 +14,8 @@ Cargo.lock
 src/bin
 examples/example_files/**
 examples/test.rs
+gen
+.run
 
 # Env file for testing
 .env
@@ -21,3 +23,5 @@ env.toml
 env.json
 env.yaml
 app_registrations.json
+
+graph-codegen/src/parsed_metadata/**

@@ -1,6 +1,5 @@
 //! Various errors used to implement the Graph API and OAuth clients for the graph-rs project
 //! See the project on [GitHub](https://github.com/sreeise/graph-rs).
-
 #[macro_use]
 extern crate serde;
 
@@ -9,7 +8,7 @@ mod error;
 mod graph_failure;
 mod headers;
 mod internal;
-pub mod ioerror;
+pub mod io_error;
 
 pub use error::*;
 pub use graph_failure::*;

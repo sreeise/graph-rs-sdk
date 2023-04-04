@@ -78,25 +78,25 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
         }
         ResourceIdentity::AuthenticationMethodConfigurations => {
             modify_target.map.insert(
-                MatchTarget::OperationId("Get.Count.authenticationMethodConfigurations-6d53".to_string()),
-                vec![
-                    MatchTarget::OperationMap("authenticationMethodConfigurations".to_string()),
-                    MatchTarget::OperationId("authenticationMethodConfigurations.authenticationMethodConfiguration.GetAuthenticationMethodsConfigurationsCount".to_string()),
-                ],
-            );
+				MatchTarget::OperationId("Get.Count.authenticationMethodConfigurations-6d53".to_string()),
+				vec![
+					MatchTarget::OperationMap("authenticationMethodConfigurations".to_string()),
+					MatchTarget::OperationId(
+						"authenticationMethodConfigurations.authenticationMethodConfiguration.GetAuthenticationMethodsConfigurationsCount".to_string()
+					)
+				]
+			);
         }
         ResourceIdentity::AuthenticationMethodsPolicy => {
             modify_target.map.insert(
-                MatchTarget::OperationId(
-                    "Get.Count.authenticationMethodConfigurations-e7d5".to_string(),
-                ),
-                vec![
-                    MatchTarget::OperationMap("authenticationMethodsPolicy".to_string()),
-                    MatchTarget::OperationId(
-                        "authenticationMethodsPolicy.authenticationMethodsPolicy.GetAuthenticationMethodsPolicyCount".to_string(),
-                    ),
-                ],
-            );
+				MatchTarget::OperationId("Get.Count.authenticationMethodConfigurations-e7d5".to_string()),
+				vec![
+					MatchTarget::OperationMap("authenticationMethodsPolicy".to_string()),
+					MatchTarget::OperationId(
+						"authenticationMethodsPolicy.authenticationMethodsPolicy.GetAuthenticationMethodsPolicyCount".to_string()
+					)
+				]
+			);
         }
         ResourceIdentity::Branding => {
             modify_target.map.insert(
@@ -111,7 +111,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Attachments => {
+        ResourceIdentity::UsersAttachments => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.calendar.events.ListAttachments".to_string()),
                 vec![
@@ -231,7 +231,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Calendar => {
+        ResourceIdentity::DefaultCalendar => {
             modify_target.map.insert(
                 MatchTarget::OperationId("users.ListCalendars".to_string()),
                 vec![
@@ -465,6 +465,14 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 vec![
                     MatchTarget::OperationMap("callRecords".to_string()),
                     MatchTarget::OperationId("callRecords.CreateCallRecords".to_string()),
+                ],
+            );
+        }
+        ResourceIdentity::Communications => {
+            modify_target.map.insert(
+                MatchTarget::OperationMap("communications.cloudCommunications".to_string()),
+                vec![
+                    MatchTarget::OperationMap("communications".to_string()), //MatchTarget::OperationId("callRecords.CreateCallRecords".to_string()),
                 ],
             );
         }
@@ -772,7 +780,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 )],
             );
         }
-        ResourceIdentity::Instances => {
+        ResourceIdentity::EventsInstances => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.calendarView.ListInstances".to_string()),
                 vec![
@@ -838,7 +846,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Items => {
+        ResourceIdentity::SitesItems => {
             modify_target.map.insert(
                 MatchTarget::OperationId("sites.lists.ListItems".to_string()),
                 vec![
@@ -868,7 +876,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Lists => {
+        ResourceIdentity::SitesLists => {
             modify_target.map.insert(
                 MatchTarget::OperationId("sites.GetLists".to_string()),
                 vec![
@@ -884,7 +892,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::ManagedDevices => {
+        ResourceIdentity::UsersManagedDevices => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.GetManagedDevices".to_string()),
                 vec![
@@ -914,7 +922,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Messages => {
+        ResourceIdentity::ChatsMessages => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.ListMessages".to_string()),
                 vec![
@@ -995,7 +1003,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 vec![MatchTarget::OperationMap("me".to_string())],
             );
         }
-        ResourceIdentity::Notebooks => {
+        ResourceIdentity::OnenoteNotebooks => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.ListNotebooks".to_string()),
                 vec![
@@ -1034,7 +1042,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::SectionGroups => {
+        ResourceIdentity::OnenoteSectionGroups => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.CreateSectionGroups".to_string()),
                 vec![
@@ -1064,7 +1072,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Pages => {
+        ResourceIdentity::OnenotePages => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.GetPages".to_string()),
                 vec![
@@ -1094,7 +1102,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Sections => {
+        ResourceIdentity::OnenoteSections => {
             modify_target.map.insert(
                 MatchTarget::OperationId("me.onenote.ListSections".to_string()),
                 vec![
@@ -1220,7 +1228,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
         ResourceIdentity::Policies => {
             modify_target.operation_map("policies.policyRoot", "policies");
         }
-        ResourceIdentity::Posts => {
+        ResourceIdentity::ThreadsPosts => {
             modify_target.map.insert(
                 MatchTarget::OperationId("groups.threads.UpdatePosts".to_string()),
                 vec![
@@ -1281,6 +1289,14 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                     MatchTarget::OperationId("reports.UpdateReportRoot".to_string()),
                 ],
             );
+            modify_target.map.insert(
+                MatchTarget::OperationMap("reports.security".to_string()),
+                vec![MatchTarget::OperationMap("reports".to_string())],
+            );
+            modify_target.map.insert(
+                MatchTarget::OperationMap("Get".to_string()),
+                vec![MatchTarget::OperationMap("reports".to_string())],
+            );
         }
         ResourceIdentity::Settings => {
             modify_target.map.insert(
@@ -1299,7 +1315,7 @@ pub fn get_target_map_modifier(resource_identity: ResourceIdentity) -> ModifierM
                 ],
             );
         }
-        ResourceIdentity::Sessions => {
+        ResourceIdentity::CallRecordsSessions => {
             modify_target.map.insert(
                 MatchTarget::OperationId("communications.callRecords.GetSessions".to_string()),
                 vec![

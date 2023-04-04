@@ -37,11 +37,31 @@ lazy_static! {
         r#"(?P<PATH_ID>\{)(\w+-\w+)(})|(?P<PATH_ID_NAMED>\{\{)(\w+)(}})|(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#
     ).unwrap();
 
-    pub static ref OPERATION_ID_DUPLICATE_COUNT_METHODS: Regex = Regex::new(r#"(?P<GET_COUNT>Get.Count.)(?P<RESOURCE_NAME>\w+)(?P<ARBITRARY_CHARS>-\w+[0-9])"#).unwrap();
+    pub static ref OPERATION_ID_DUPLICATE_COUNT_METHODS: Regex = Regex::new(
+        r#"(?P<GET_COUNT>Get.Count.)(?P<RESOURCE_NAME>\w+)(?P<ARBITRARY_CHARS>-\w+[0-9])"#
+    ).unwrap();
 
-    pub static ref RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING: Regex = Regex::new(r#"(?P<RESOURCE_NAME>\w+)(-\w+[0-9])"#).unwrap();
+    pub static ref RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING: Regex = Regex::new(r#"(?P<RESOURCE_NAME>\w+)(-\w*[0-9]*)"#).unwrap();
+
+    pub static ref API_METHOD_MACRO: Regex = Regex::new(r#"(doc: "\#)"#).unwrap();
 }
 
+// (doc: \"#\w*\",) (\w+\(\{)
+/*
+       doc: "# Update the navigation property calendar in users",
+       name: update_calendar,
+       response: NoContent,
+       path: "/calendar",
+       params: 0,
+       has_body: true
+*/
+
+// Match on first part of macro: (\w+!\(\{)
+// ^(?:\w+!\(\{)((\s*)(.*))+(}\);)$
+// (\w+!\(\{)(?:\s+\S+)+(:?}\);)*
+// (\w+!\(\{)(\w+:+)(\}\);)
+// (\w+!(\{)(\w+:[0-9])(});)
+// ^(?:\w+!\(\{)*
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]
 pub enum PathMatcher {
     PathId,
@@ -130,24 +150,44 @@ impl RequestParser for &str {
             {
                 if let Some(capture_match) = capture.name("RESOURCE_NAME") {
                     let resource_name = capture_match.as_str();
+                    if !resource_name.is_empty() && starts_with_directory_object_item {
+                        return format!(
+                            "get_directory_object_item_as_{}_type",
+                            resource_name.to_snake_case()
+                        );
+                    }
+
+                    if !resource_name.is_empty() && starts_with_directory_object_items {
+                        return format!(
+                            "get_directory_object_items_as_{}_type",
+                            resource_name.to_snake_case()
+                        );
+                    }
+                }
+            }
+        }
+
+        let get_count_microsoft_graph = "Get.Count.microsoft.graph".to_lowercase();
+        if self
+            .to_lowercase()
+            .starts_with(get_count_microsoft_graph.as_str())
+        {
+            let operation_id_clone = self.replace("Get.Count.microsoft.graph.", "");
+            for capture in
+                RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING.captures_iter(operation_id_clone.as_str())
+            {
+                if let Some(capture_match) = capture.name("RESOURCE_NAME") {
+                    let resource_name = capture_match.as_str();
                     if !resource_name.is_empty() {
-                        if starts_with_directory_object_item {
-                            return format!(
-                                "get_directory_object_item_as_{}_type",
-                                resource_name.to_snake_case()
-                            );
-                        } else {
-                            return format!(
-                                "get_directory_object_items_as_{}_type",
-                                resource_name.to_snake_case()
-                            );
-                        }
+                        return format!("get_{}_count", resource_name.to_snake_case());
                     }
                 }
             }
         }
 
         if self.starts_with("Get.Count") {
+            // Get.Count.microsoft.graph.orgContact-7eba
+
             let operation_id_clone = {
                 if self.starts_with("Get.Count.microsoft.graph.") {
                     self.replace("microsoft.graph.", "")
@@ -170,7 +210,7 @@ impl RequestParser for &str {
 
         if let Some(index) = self.rfind('.') {
             let last: &str = self[index + 1..].as_ref();
-            if NUM_REG.is_match(last) {
+            if NUM_REG.is_match(last) && !last.contains("OAuth2") {
                 if let Some(idx) = self[..index].rfind('.') {
                     method_name.push_str(self[idx + 1..index].as_ref());
                 }
@@ -179,6 +219,10 @@ impl RequestParser for &str {
             }
         } else {
             method_name.push_str(self);
+        }
+
+        if method_name.contains("OAuth2") {
+            return method_name.to_snake_case().replace("o_auth_2", "oauth2");
         }
 
         if method_name.is_empty() {
@@ -240,7 +284,7 @@ impl RequestParser for &str {
             if count == 1 {
                 path.replacen(s, "{{id}}", 1)
             } else {
-                path.replacen(s, &format!("{{{{id{}}}}}", count), 1)
+                path.replacen(s, &format!("{{{{id{count}}}}}"), 1)
             }
         };
 
@@ -280,7 +324,7 @@ impl RequestParser for &str {
                                             } else {
                                                 path = path.replacen(
                                                     &s[i + 1..],
-                                                    &format!("'{{{{id{}}}}}'", count),
+                                                    &format!("'{{{{id{count}}}}}'"),
                                                     1,
                                                 );
                                                 path_parameters
@@ -292,7 +336,9 @@ impl RequestParser for &str {
                                     }
                                 }
                                 // If this matches return the original string.
-                                _ => return (self.to_string(), HashSet::new()),
+                                _ => {
+                                    return (self.to_string(), HashSet::new());
+                                }
                             }
                         }
                     }
@@ -321,7 +367,7 @@ impl RequestParser for &str {
             if count == 1 {
                 path.replacen(s, "{{id}}", 1)
             } else {
-                path.replacen(s, &format!("{{{{id{}}}}}", count), 1)
+                path.replacen(s, &format!("{{{{id{count}}}}}"), 1)
             }
         };
 
@@ -345,7 +391,7 @@ impl RequestParser for &str {
                                     } else {
                                         path = path.replacen(
                                             s.as_str(),
-                                            &format!("{{{{id{}}}}}", count),
+                                            &format!("{{{{id{count}}}}}"),
                                             1,
                                         );
                                         found_match = true;
@@ -376,7 +422,7 @@ impl RequestParser for &str {
                                             } else {
                                                 path = path.replacen(
                                                     &s[i + 1..],
-                                                    &format!("'{{{{id{}}}}}'", count),
+                                                    &format!("'{{{{id{count}}}}}'"),
                                                     1,
                                                 );
                                                 found_match = true;
@@ -423,7 +469,7 @@ impl RequestParser for &str {
 
             while let Some(current) = iter.next() {
                 if let Some(next) = iter.peek() {
-                    links.insert(format!("{}.{}", current, next));
+                    links.insert(format!("{current}.{next}"));
                 }
             }
         } else {

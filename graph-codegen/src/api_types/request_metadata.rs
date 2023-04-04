@@ -1,11 +1,11 @@
 use crate::api_types::metadata_modifier::ModifierMap;
-use crate::api_types::ResourceParsingInfo;
+use crate::api_types::WriteConfiguration;
 use crate::api_types::{Metadata, MetadataModifier, MethodMacro, RequestClientList, RequestTask};
 use crate::filter::Filter;
 use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
 use crate::openapi::{OpenApi, PathItem};
-use crate::parser::{HttpMethod, ParserSettings};
+use crate::parser::HttpMethod;
 use crate::traits::{FilterMetadata, HashMapExt, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
@@ -61,25 +61,20 @@ impl RequestMetadata {
 
     pub fn transform_id_request(&mut self) {
         if let Some(rid) = self.resource_identity.as_ref() {
-            self.operation_mapping = format!("{}Id", rid.to_string().to_pascal_case());
+            self.operation_mapping = format!("{}Id", rid.exact_pascal_case());
             self.parent = self.operation_mapping.to_string();
         } else {
-            self.operation_mapping = format!("{}Id", self.operation_mapping.to_pascal_case());
+            self.operation_mapping = format!("{}Id", self.operation_mapping);
             self.parent = self.operation_mapping.to_string();
         }
     }
 
-    pub fn transform_secondary_id_request(
-        &mut self,
-        operation_mapping: &str,
-        original_parent: &str,
-    ) {
-        self.operation_mapping = format!("{}Id", operation_mapping);
-
+    pub fn transform_secondary_id_request(&mut self, original_parent: &str) {
         if let Some(resource_identity) = self.resource_identity {
-            let resource_id_string = resource_identity.to_string();
-            self.parent = format!("{}Id", resource_id_string.to_pascal_case());
-            self.original_parent = resource_id_string.to_pascal_case();
+            let resource_id_string = resource_identity.exact_pascal_case();
+            self.operation_mapping = format!("{resource_id_string}Id");
+            self.parent = format!("{resource_id_string}Id");
+            self.original_parent = resource_id_string;
         } else {
             self.parent = format!("{}Id", original_parent.to_pascal_case());
             self.original_parent = original_parent.to_pascal_case();
@@ -94,6 +89,7 @@ impl RequestMetadata {
         self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
     }
 
+    /*
     // Replace parts of a doc comment to prevent confusion on apis that are used by
     // multiple resources.
     pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
@@ -105,6 +101,7 @@ impl RequestMetadata {
             }
         }
     }
+     */
 
     pub fn resource_identity(&self) -> Option<ResourceIdentity> {
         self.resource_identity
@@ -116,7 +113,7 @@ impl RequestMetadata {
 
     pub fn force_resource_identity_mapping(&mut self) {
         if let Some(rid) = self.resource_identity.as_ref() {
-            let name = rid.to_string().to_pascal_case();
+            let name = rid.exact_pascal_case();
             self.operation_mapping = name.to_string();
             self.parent = name.to_string();
             self.original_parent = name.to_string();
@@ -231,6 +228,18 @@ impl PathMetadata {
         self.path = self.path.trim_start_matches(path_start).to_string();
     }
 
+    pub fn replace_operation_map(&mut self, operation_map: String) {
+        self.metadata = self
+            .metadata
+            .iter()
+            .map(|m| {
+                let mut rm = m.clone();
+                rm.replace_operation_mapping(operation_map.as_str());
+                rm
+            })
+            .collect();
+    }
+
     #[allow(unused_assignments)]
     pub fn operation_id_start(&mut self, pat: &str) {
         let mut to = String::new();
@@ -255,12 +264,6 @@ impl PathMetadata {
         self.metadata = metadata;
     }
 
-    pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
-        for m in self.metadata.iter_mut() {
-            m.filter_doc_comments(resource_identity);
-        }
-    }
-
     pub fn format_named_path_parameters(&mut self) {
         let mut path = self.path.clone();
 
@@ -275,6 +278,7 @@ impl PathMetadata {
 
     pub fn format_path_parameters(&mut self) {
         self.path = self.path.transform_path();
+        //self.format_named_path_parameters();
         self.parameters = self.snake_case_parameters();
     }
 
@@ -304,13 +308,13 @@ impl PathMetadata {
     pub fn transform_secondary_id_metadata(
         &mut self,
         operation_mapping: &str,
-        original_parent: &str,
         resource_identity: ResourceIdentity,
     ) {
         self.update_rid_path();
 
         for m in self.metadata.iter_mut() {
-            m.transform_secondary_id_request(operation_mapping, original_parent);
+            // dbg!(&m);
+            m.transform_secondary_id_request(operation_mapping);
             m.set_resource_identity(resource_identity);
         }
     }
@@ -380,7 +384,7 @@ impl PathMetadata {
     pub fn struct_links(&mut self) -> HashMap<String, Vec<String>> {
         let links = self.links();
 
-        println!("links btreeset: {:#?}", links);
+        println!("links btreeset: {links:#?}");
 
         let mut map: HashMap<String, Vec<String>> = HashMap::new();
         let mut vec: Vec<&str> = links.iter().map(|s| s.as_str()).collect();
@@ -495,16 +499,10 @@ impl PathMetadataQueue {
         self.0 = metadata;
     }
 
-    pub fn filter_doc_comments(&mut self, resource_identity: ResourceIdentity) {
-        for m in self.0.iter_mut() {
-            m.filter_doc_comments(resource_identity);
-        }
-    }
-
     pub fn transform_id_metadata(&mut self, path_start: &str) {
         for path_metadata in self.0.iter_mut() {
-            println!("{:#?}", path_metadata);
-            if path_metadata.path_starts_with(&format!("{}/{{{{id}}}}", path_start)) {
+            //dbg!(path_metadata);
+            if path_metadata.path_starts_with(&format!("{path_start}/{{{{id}}}}")) {
                 path_metadata.transform_id_metadata();
             }
         }
@@ -516,19 +514,15 @@ impl PathMetadataQueue {
         operation_mapping: &str,
         resource_identity: ResourceIdentity,
     ) {
-        let ri_string = resource_identity.to_string();
+        let ri_exact_pascal_case = resource_identity.exact_pascal_case();
         for path_metadata in self.0.iter_mut() {
-            let id_path = format!("{}/{{{{id}}}}", path_start);
+            let id_path = format!("{path_start}/{{{{id}}}}");
             if path_metadata.path_starts_with(&id_path) {
-                path_metadata.transform_secondary_id_metadata(
-                    operation_mapping,
-                    ri_string.as_str(),
-                    resource_identity,
-                );
+                path_metadata.transform_secondary_id_metadata(operation_mapping, resource_identity);
             } else if path_metadata.path_starts_with(path_start) {
                 path_metadata.transform_secondary_metadata(
                     operation_mapping,
-                    ri_string.as_str(),
+                    ri_exact_pascal_case.as_str(),
                     resource_identity,
                 );
             }
@@ -605,7 +599,7 @@ impl MacroImplWriter for PathMetadataQueue {
     }
 
     fn default_imports(&self) -> Vec<String> {
-        vec!["crate::client::Graph".to_string()]
+        vec![]
     }
 }
 
@@ -618,22 +612,11 @@ impl FilterMetadata for PathMetadataQueue {
     }
 }
 
-// Use only for top-level resources. Otherwise use `From<ResourceParsingInfo>`.
-impl From<ResourceIdentity> for PathMetadataQueue {
-    fn from(resource_identity: ResourceIdentity) -> Self {
-        PathMetadataQueue::from(ResourceParsingInfo {
-            modifier_name: None,
-            path: resource_identity.to_path_start(),
-            resource_identity,
-            trim_path_start: None,
-            parameter_filter: vec![],
-        })
-    }
-}
+impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
+    fn from(value: (WriteConfiguration, &OpenApi)) -> Self {
+        let resource_parsing_info = value.0;
+        let open_api = value.1;
 
-impl From<ResourceParsingInfo> for PathMetadataQueue {
-    fn from(resource_parsing_info: ResourceParsingInfo) -> Self {
-        let open_api = OpenApi::default();
         let requests = {
             if let Some(trim_pat) = resource_parsing_info.trim_path_start.as_ref() {
                 open_api
@@ -651,6 +634,8 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             }
         };
 
+        // Uncomment to write OpenApi metadata files.
+        /*
         if resource_parsing_info.trim_path_start.is_some() {
             let path_item_map =
                 PathItemMap(open_api.filter_resource_parsing_info_path(&resource_parsing_info));
@@ -669,20 +654,35 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             );
             path_item_map.as_file_pretty(&path_item_file).unwrap();
         }
+         */
 
-        let path_filter = resource_parsing_info.path.clone();
+        let path_filter = resource_parsing_info.path;
 
-        let metadata: VecDeque<PathMetadata> = requests
+        let mut metadata: VecDeque<PathMetadata> = requests
             .iter()
             .filter(|r| r.path_starts_with(&path_filter))
+            .filter(|r| {
+                !resource_parsing_info
+                    .filter_path
+                    .iter()
+                    .any(|s| r.path.contains(s))
+            })
             .cloned()
             .collect();
 
+        if let Some(operation_map) = resource_parsing_info.replace_operation_map.as_ref() {
+            metadata
+                .iter_mut()
+                .for_each(|m| m.replace_operation_map(operation_map.to_string()));
+        }
+
         let mut metadata_queue = PathMetadataQueue(metadata);
 
+        /*
         let modifier_map =
             ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
         metadata_queue.update_targets(&modifier_map);
+         */
 
         metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
 
@@ -690,19 +690,101 @@ impl From<ResourceParsingInfo> for PathMetadataQueue {
             metadata_queue.format_path_parameters();
 
             metadata_queue.transform_secondary_id_metadata(
-                resource_parsing_info.path.as_str(),
+                path_filter.as_str(),
                 name.as_str(),
                 resource_parsing_info.resource_identity,
             );
         } else {
-            metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
             metadata_queue.format_path_parameters();
-            metadata_queue.transform_id_metadata(resource_parsing_info.path.as_str());
+            metadata_queue.transform_id_metadata(path_filter.as_str());
+        }
+        metadata_queue
+    }
+}
+
+impl From<WriteConfiguration> for PathMetadataQueue {
+    fn from(resource_parsing_info: WriteConfiguration) -> Self {
+        let open_api = OpenApi::default();
+        let requests = {
+            if let Some(trim_pat) = resource_parsing_info.trim_path_start.as_ref() {
+                open_api
+                    .requests_secondary(trim_pat.as_str(), &resource_parsing_info.parameter_filter)
+            } else {
+                open_api.requests()
+            }
+        };
+
+        let name = {
+            if let Some(name) = resource_parsing_info.modifier_name.as_ref() {
+                name.to_string()
+            } else {
+                resource_parsing_info.resource_identity.to_string()
+            }
+        };
+
+        // Uncomment to write OpenApi metadata files.
+        /*
+        if resource_parsing_info.trim_path_start.is_some() {
+            let path_item_map =
+                PathItemMap(open_api.filter_resource_parsing_info_path(&resource_parsing_info));
+
+            let path_item_file = format!(
+                "./graph-codegen/src/parsed_metadata/{}_openapi.json",
+                name.to_snake_case()
+            );
+            path_item_map.as_file_pretty(&path_item_file).unwrap();
+        } else {
+            let path_item_map = PathItemMap(open_api.filter_path(&resource_parsing_info.path));
+
+            let path_item_file = format!(
+                "./graph-codegen/src/parsed_metadata/{}_openapi.json",
+                name.to_snake_case()
+            );
+            path_item_map.as_file_pretty(&path_item_file).unwrap();
+        }
+         */
+
+        let path_filter = resource_parsing_info.path;
+
+        let mut metadata: VecDeque<PathMetadata> = requests
+            .iter()
+            .filter(|r| r.path_starts_with(&path_filter))
+            .filter(|r| {
+                !resource_parsing_info
+                    .filter_path
+                    .iter()
+                    .any(|s| r.path.contains(s))
+            })
+            .cloned()
+            .collect();
+
+        if let Some(operation_map) = resource_parsing_info.replace_operation_map.as_ref() {
+            metadata
+                .iter_mut()
+                .for_each(|m| m.replace_operation_map(operation_map.to_string()));
         }
 
-        let filters = ParserSettings::path_filters(resource_parsing_info.resource_identity);
-        for filter in filters {
-            metadata_queue.filter_metadata_path(filter);
+        let mut metadata_queue = PathMetadataQueue(metadata);
+
+        /*
+        let modifier_map =
+            ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
+        metadata_queue.update_targets(&modifier_map);
+         */
+
+        metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
+
+        if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
+            metadata_queue.format_path_parameters();
+
+            metadata_queue.transform_secondary_id_metadata(
+                path_filter.as_str(),
+                name.as_str(),
+                resource_parsing_info.resource_identity,
+            );
+        } else {
+            metadata_queue.format_path_parameters();
+            metadata_queue.transform_id_metadata(path_filter.as_str());
         }
         metadata_queue
     }

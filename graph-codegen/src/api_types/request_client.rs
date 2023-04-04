@@ -67,7 +67,7 @@ impl From<VecDeque<RequestMetadata>> for RequestClientList {
                 name: name.to_string(),
                 requests: request_metadata.clone(),
                 links,
-            })
+            });
         }
 
         RequestClientList {

@@ -1,11 +1,11 @@
 mod filter_metadata;
-mod filter_path;
-mod hashmapext;
+mod hash_map_ext;
+mod hash_set_ext;
 mod request;
-mod vecext;
+mod vec_ext;
 
 pub use filter_metadata::*;
-pub use filter_path::*;
-pub use hashmapext::*;
+pub use hash_map_ext::*;
+pub use hash_set_ext::*;
 pub use request::*;
-pub use vecext::*;
+pub use vec_ext::*;

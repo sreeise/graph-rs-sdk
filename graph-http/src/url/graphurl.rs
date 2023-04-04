@@ -249,3 +249,9 @@ impl Deref for GraphUrl {
         self.url.as_str()
     }
 }
+
+impl Default for GraphUrl {
+    fn default() -> Self {
+        GraphUrl::parse("https://graph.microsoft.com/v1.0").unwrap()
+    }
+}

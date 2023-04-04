@@ -1,31 +1,36 @@
 [package]
 name = "graph-http"
-version = "0.2.4"
+version = "1.0.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs"
 description = "Http client and utilities for the graph-rs project"
 
+keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
+categories = ["authentication", "web-programming::http-client"]
+
 [dependencies]
-async-std = "1.6.0"
 async-stream = "0.3"
 async-trait = "0.1.35"
-bytes = "1"
-futures = "0.3"
-futures-core = "0.3"
-futures-util = "0.3"
-handlebars = "2.0.2"
-parking_lot = "0.12.0"
+bytes = { version = "1.4.0", features = ["serde"] }
+futures = "0.3.28"
+handlebars = "2.0.4"
+http = "0.2.9"
 percent-encoding = "2"
-reqwest = { version = "0.11", default-features=false, features = ["json", "gzip", "blocking", "stream", "multipart"] }
-
+reqwest = { version = "0.11.16", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.8"
 thiserror = "1"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.27.0", features = ["full"] }
 url = { version = "2", features = ["serde"] }
+serde_urlencoded = "0.7.1"
 
 graph-error = { path = "../graph-error"  }
 graph-core = { path = "../graph-core" }
+
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]

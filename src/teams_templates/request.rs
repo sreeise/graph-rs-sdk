@@ -1,61 +1,47 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use graph_http::types::NoContent;
 
-register_client!(TeamsTemplatesRequest,);
-register_client!(TeamsTemplatesIdRequest, ());
+resource_api_client!(
+    TeamsTemplatesApiClient,
+    TeamsTemplatesIdApiClient,
+    ResourceIdentity::TeamsTemplates
+);
 
-impl<'a, Client> TeamsTemplatesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "Get entities from teamsTemplates",
-        name: list_teams_template,
-        response: serde_json::Value,
-        path: "/teamsTemplates",
-        has_body: false
-    });
-    post!({
+impl TeamsTemplatesApiClient {
+    post!(
         doc: "Add new entity to teamsTemplates",
         name: create_teams_template,
-        response: serde_json::Value,
         path: "/teamsTemplates",
-        has_body: true
-    });
-    get!({
+        body: true
+    );
+    get!(
+        doc: "Get entities from teamsTemplates",
+        name: list_teams_template,
+        path: "/teamsTemplates"
+    );
+    get!(
         doc: "Get the number of the resource",
-        name: count,
-        response: serde_json::Value,
-        path: "/teamsTemplates/$count",
-        has_body: false
-    });
+        name: get_teams_templates_count,
+        path: "/teamsTemplates/$count"
+    );
 }
 
-impl<'a, Client> TeamsTemplatesIdRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "Get entity from teamsTemplates by key",
-        name: get_teams_template,
-        response: serde_json::Value,
-        path: "/teamsTemplates/{{RID}}",
-        has_body: false
-    });
-    patch!({
-        doc: "Update entity in teamsTemplates",
-        name: update_teams_template,
-        response: NoContent,
-        path: "/teamsTemplates/{{RID}}",
-        has_body: true
-    });
-    delete!({
+impl TeamsTemplatesIdApiClient {
+    delete!(
         doc: "Delete entity from teamsTemplates",
         name: delete_teams_template,
-        response: NoContent,
+        path: "/teamsTemplates/{{RID}}"
+    );
+    get!(
+        doc: "Get entity from teamsTemplates by key",
+        name: get_teams_template,
+        path: "/teamsTemplates/{{RID}}"
+    );
+    patch!(
+        doc: "Update entity in teamsTemplates",
+        name: update_teams_template,
         path: "/teamsTemplates/{{RID}}",
-        has_body: false
-    });
+        body: true
+    );
 }

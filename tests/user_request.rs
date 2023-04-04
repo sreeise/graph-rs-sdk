@@ -1,38 +1,41 @@
-use graph_http::traits::ODataMetadataLink;
-use test_tools::oauthrequest::THROTTLE_MUTEX;
-use test_tools::oauthrequest::{Environment, OAuthTestClient};
+use graph_rs_sdk::http::ODataMetadataLink;
+use test_tools::oauth_request::ASYNC_THROTTLE_MUTEX;
+use test_tools::oauth_request::{Environment, OAuthTestClient};
 
-#[test]
-fn user_request_test() {
-    if Environment::is_appveyor() {
-        return;
-    }
+#[tokio::test]
+async fn list_users() {
+    if Environment::is_local() {
+        let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+        if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+            let result = client.users().list_user().send().await;
 
-    let _lock = THROTTLE_MUTEX.lock().unwrap();
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
-        let users = client.v1().users().list_user().send();
-
-        if let Ok(response) = users {
-            assert!(
-                response.status() == 200 || response.status() == 201 || response.status() == 204
-            );
-            let value = response.body().metadata_link().unwrap();
-            assert_eq!(
-                "https://graph.microsoft.com/v1.0/$metadata#users",
-                value.as_str()
-            );
-        } else if let Err(e) = users {
-            panic!("Request error. Method: users list. Error: {:#?}", e);
+            if let Ok(response) = result {
+                assert!(response.status().is_success());
+                let value = response.json::<serde_json::Value>().await.unwrap();
+                let metadata_link = value.odata_metadata_link().unwrap();
+                assert_eq!(
+                    "https://graph.microsoft.com/v1.0/$metadata#users",
+                    metadata_link.as_str()
+                );
+            } else if let Err(e) = result {
+                panic!("Request error. Method: users list. Error: {e:#?}");
+            }
         }
+    }
+}
 
-        let user_res = client.v1().users().id(id).get_user().send();
+#[tokio::test]
+async fn get_user() {
+    if Environment::is_local() {
+        let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+            let result = client.users().id(id).get_user().send().await;
 
-        if let Ok(response) = user_res {
-            assert!(
-                response.status() == 200 || response.status() == 201 || response.status() == 204
-            );
-        } else if let Err(e) = user_res {
-            panic!("Request error. Method: users list. Error: {:#?}", e);
+            if let Ok(response) = result {
+                assert!(response.status().is_success());
+            } else if let Err(e) = result {
+                panic!("Request error. Method: users list. Error: {e:#?}");
+            }
         }
     }
 }

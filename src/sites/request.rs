@@ -1,307 +1,268 @@
-use crate::client::Graph;
-use crate::content_types::{ContentTypeRequest, ContentTypesRequest};
-use crate::core::ResourceIdentity;
-use crate::drive::DrivesRequest;
-use crate::lists::{ListRequest, ListsRequest};
-use crate::onenote::OnenoteRequest;
-use graph_http::types::NoContent;
-use graph_http::IntoResponse;
-use handlebars::*;
-use reqwest::Method;
+// GENERATED CODE
 
-register_client!(SiteRequest,);
-register_client!(SitesRequest, ());
+use crate::api_default_imports::*;
+use crate::default_drive::*;
+use crate::sites::*;
+use crate::users::*;
 
-impl<'a, Client> SiteRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entities from sites",
+resource_api_client!(SitesApiClient, SitesIdApiClient, ResourceIdentity::Sites);
+
+impl SitesApiClient {
+    get!(
+        doc: "Search for sites",
         name: list_site,
-        response: serde_json::Value,
-        path: "/sites",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Add new entity to sites",
-        name: create_site,
-        response: serde_json::Value,
-        path: "/sites",
-        params: 0,
-        has_body: true
-    });
-
-    post!({
-        doc: "# Invoke action add",
+        path: "/sites"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_sites_count,
+        path: "/sites/$count"
+    );
+    post!(
+        doc: "Invoke action add",
         name: add,
-        response: serde_json::Value,
         path: "/sites/add",
-        params: 0,
-        has_body: true
-    });
-
-    post!({
-        doc: "# Invoke action remove",
+        body: true
+    );
+    post!(
+        doc: "Invoke action remove",
         name: remove,
-        response: serde_json::Value,
         path: "/sites/remove",
-        params: 0,
-        has_body: true
-    });
-
-    pub fn id<ID: AsRef<str>>(&self, id: ID) -> SitesRequest<'a, Client> {
-        self.client.set_ident(ResourceIdentity::Sites);
-        SitesRequest::new(id.as_ref(), self.client)
-    }
+        body: true
+    );
 }
 
-impl<'a, Client> SitesRequest<'a, Client>
-where
-    Client: graph_http::RequestClient,
-{
-    get!({
-        doc: "# Get entity from sites by key",
+impl SitesIdApiClient {
+    api_client_link!(onenote, OnenoteApiClient);
+    api_client_link!(lists, SitesListsApiClient);
+    api_client_link!(items, SitesItemsApiClient);
+    api_client_link_id!(list, SitesListsIdApiClient);
+    api_client_link_id!(content_type, SitesContentTypesIdApiClient);
+    api_client_link!(drive, DefaultDriveApiClient);
+    api_client_link_id!(term_stores_id, TermStoresIdApiClient);
+    api_client_link!(content_types, SitesContentTypesApiClient);
+    api_client_link!(term_stores, TermStoresApiClient);
+    api_client_link!(term_store, TermStoreApiClient);
+
+    get!(
+        doc: "Get a site resource",
         name: get_site,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}",
-        params: 0,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update entity in sites",
+        path: "/sites/{{RID}}"
+    );
+    patch!(
+        doc: "Update entity in sites",
         name: update_site,
-        response: NoContent,
         path: "/sites/{{RID}}",
-        params: 0,
-        has_body: true
-    });
-
-    delete!({
-        doc: "# Delete entity from sites",
-        name: delete_site,
-        response: NoContent,
-        path: "/sites/{{RID}}",
-        params: 0,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get analytics from sites",
+        body: true
+    );
+    get!(
+        doc: "Get analytics from sites",
         name: get_analytics,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/analytics",
-        params: 0,
-        has_body: false
-    });
-
-    get!({
-        doc: "# Get columns from sites",
-        name: list_columns,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/columns",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to columns for sites",
+        path: "/sites/{{RID}}/analytics"
+    );
+    post!(
+        doc: "Create a columnDefinition in a site",
         name: create_columns,
-        response: serde_json::Value,
         path: "/sites/{{RID}}/columns",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get columns from sites",
+        body: true
+    );
+    get!(
+        doc: "List columns in a site",
+        name: list_columns,
+        path: "/sites/{{RID}}/columns"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_columns_count,
+        path: "/sites/{{RID}}/columns/$count"
+    );
+    delete!(
+        doc: "Delete navigation property columns for sites",
+        name: delete_columns,
+        path: "/sites/{{RID}}/columns/{{id}}",
+        params: column_definition_id
+    );
+    get!(
+        doc: "Get columns from sites",
         name: get_columns,
-        response: serde_json::Value,
         path: "/sites/{{RID}}/columns/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property columns in sites",
+        params: column_definition_id
+    );
+    patch!(
+        doc: "Update the navigation property columns in sites",
         name: update_columns,
-        response: NoContent,
         path: "/sites/{{RID}}/columns/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get drive from sites",
+        body: true,
+        params: column_definition_id
+    );
+    get!(
+        doc: "Get sourceColumn from sites",
+        name: get_source_column,
+        path: "/sites/{{RID}}/columns/{{id}}/sourceColumn",
+        params: column_definition_id
+    );
+    get!(
+        doc: "Get Drive",
         name: get_drive,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/drive",
-        params: 0,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property drive in sites",
-        name: update_drive,
-        response: NoContent,
-        path: "/sites/{{RID}}/drive",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get drives from sites",
+        path: "/sites/{{RID}}/drive"
+    );
+    get!(
+        doc: "List available drives",
         name: list_drives,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/drives",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to drives for sites",
-        name: create_drives,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/drives",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get drives from sites",
+        path: "/sites/{{RID}}/drives"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_drives_count,
+        path: "/sites/{{RID}}/drives/$count"
+    );
+    get!(
+        doc: "Get drives from sites",
         name: get_drives,
-        response: serde_json::Value,
         path: "/sites/{{RID}}/drives/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property drives in sites",
-        name: update_drives,
-        response: NoContent,
-        path: "/sites/{{RID}}/drives/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get items from sites",
+        params: drive_id
+    );
+    get!(
+        doc: "Get externalColumns from sites",
+        name: list_external_columns,
+        path: "/sites/{{RID}}/externalColumns"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_external_columns_count,
+        path: "/sites/{{RID}}/externalColumns/$count"
+    );
+    get!(
+        doc: "Get externalColumns from sites",
+        name: get_external_columns,
+        path: "/sites/{{RID}}/externalColumns/{{id}}",
+        params: column_definition_id
+    );
+    get!(
+        doc: "Invoke function getActivitiesByInterval",
+        name: site,
+        path: "/sites/{{RID}}/getActivitiesByInterval(startDateTime='{{id}}',endDateTime='{{id2}}',interval='{{id3}}')",
+        params: start_date_time, end_date_time, interval
+    );
+    get!(
+        doc: "Invoke function getApplicableContentTypesForList",
+        name: get_applicable_content_types_for_list,
+        path: "/sites/{{RID}}/getApplicableContentTypesForList(listId='{{id}}')",
+        params: list_id
+    );
+    get!(
+        doc: "Invoke function getByPath",
+        name: get_by_path,
+        path: "/sites/{{RID}}/getByPath(path='{{id}}')",
+        params: path
+    );
+    get!(
+        doc: "Get items from sites",
         name: list_items,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/items",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to items for sites",
-        name: create_items,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/items",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get items from sites",
+        path: "/sites/{{RID}}/items"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_items_count,
+        path: "/sites/{{RID}}/items/$count"
+    );
+    get!(
+        doc: "Get items from sites",
         name: get_items,
-        response: serde_json::Value,
         path: "/sites/{{RID}}/items/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property items in sites",
-        name: update_items,
-        response: NoContent,
-        path: "/sites/{{RID}}/items/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get sites from sites",
+        params: base_item_id
+    );
+    post!(
+        doc: "Create new navigation property to operations for sites",
+        name: create_operations,
+        path: "/sites/{{RID}}/operations",
+        body: true
+    );
+    get!(
+        doc: "List operations on a site",
+        name: list_operations,
+        path: "/sites/{{RID}}/operations"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_operations_count,
+        path: "/sites/{{RID}}/operations/$count"
+    );
+    delete!(
+        doc: "Delete navigation property operations for sites",
+        name: delete_operations,
+        path: "/sites/{{RID}}/operations/{{id}}",
+        params: rich_long_running_operation_id
+    );
+    get!(
+        doc: "Get operations from sites",
+        name: get_operations,
+        path: "/sites/{{RID}}/operations/{{id}}",
+        params: rich_long_running_operation_id
+    );
+    patch!(
+        doc: "Update the navigation property operations in sites",
+        name: update_operations,
+        path: "/sites/{{RID}}/operations/{{id}}",
+        body: true,
+        params: rich_long_running_operation_id
+    );
+    post!(
+        doc: "Create permission",
+        name: create_permissions,
+        path: "/sites/{{RID}}/permissions",
+        body: true
+    );
+    get!(
+        doc: "List permissions",
+        name: list_permissions,
+        path: "/sites/{{RID}}/permissions"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_permissions_count,
+        path: "/sites/{{RID}}/permissions/$count"
+    );
+    delete!(
+        doc: "Delete navigation property permissions for sites",
+        name: delete_permissions,
+        path: "/sites/{{RID}}/permissions/{{id}}",
+        params: permission_id
+    );
+    get!(
+        doc: "Get permissions from sites",
+        name: get_permissions,
+        path: "/sites/{{RID}}/permissions/{{id}}",
+        params: permission_id
+    );
+    patch!(
+        doc: "Update the navigation property permissions in sites",
+        name: update_permissions,
+        path: "/sites/{{RID}}/permissions/{{id}}",
+        body: true,
+        params: permission_id
+    );
+    post!(
+        doc: "Invoke action grant",
+        name: grant,
+        path: "/sites/{{RID}}/permissions/{{id}}/grant",
+        body: true,
+        params: permission_id
+    );
+    get!(
+        doc: "Enumerate subsites",
         name: list_sites,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/sites",
-        params: 0,
-        has_body: false
-    });
-
-    post!({
-        doc: "# Create new navigation property to sites for sites",
-        name: create_sites,
-        response: serde_json::Value,
-        path: "/sites/{{RID}}/sites",
-        params: 0,
-        has_body: true
-    });
-
-    get!({
-        doc: "# Get sites from sites",
+        path: "/sites/{{RID}}/sites"
+    );
+    get!(
+        doc: "Get the number of the resource",
+        name: get_sites_count,
+        path: "/sites/{{RID}}/sites/$count"
+    );
+    get!(
+        doc: "Get sites from sites",
         name: get_sites,
-        response: serde_json::Value,
         path: "/sites/{{RID}}/sites/{{id}}",
-        params: 1,
-        has_body: false
-    });
-
-    patch!({
-        doc: "# Update the navigation property sites in sites",
-        name: update_sites,
-        response: NoContent,
-        path: "/sites/{{RID}}/sites/{{id}}",
-        params: 1,
-        has_body: true
-    });
-
-    pub fn content_types(&self) -> ContentTypeRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ContentTypeRequest::new(self.client)
-    }
-
-    pub fn content_type<ID: AsRef<str>>(&self, id: ID) -> ContentTypesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::ContentTypes);
-        ContentTypesRequest::new(id.as_ref(), self.client)
-    }
-
-    pub fn drive(&self) -> DrivesRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        DrivesRequest::new("", self.client)
-    }
-
-    pub fn lists(&self) -> ListRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        ListRequest::new(self.client)
-    }
-
-    pub fn list<ID: AsRef<str>>(&self, id: ID) -> ListsRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Lists);
-        ListsRequest::new(id.as_ref(), self.client)
-    }
-
-    pub fn onenote(&self) -> OnenoteRequest<'a, Client> {
-        self.client
-            .request
-            .extend_path(&[self.client.ident().as_ref(), self.id.as_str()]);
-        self.client.set_ident(ResourceIdentity::Onenote);
-        OnenoteRequest::new(self.client)
-    }
+        params: site_id_1
+    );
 }
