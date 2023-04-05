@@ -367,6 +367,11 @@ pub struct User {
     user_principal_name: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Users {
+  pub value: Vec<User>,
+}
+
 async fn paging() -> GraphResult<()> {
   let client = Graph::new(ACCESS_TOKEN);
 
@@ -375,7 +380,7 @@ async fn paging() -> GraphResult<()> {
       .list_user()
       .select(&["id", "userPrincipalName"])
       .paging()
-      .json::<User>()
+      .json::<Users>()
       .await?;
   
   println!("{:#?}", deque);
