@@ -191,7 +191,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "0.3.1"
+    graph-rs-sdk = "1.0.0"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -278,6 +278,8 @@ pub async fn get_drive_item() -> GraphResult<()> {
 
   let body: serde_json::Value = response.json().await?;
   println!("{:#?}", body);
+  
+  Ok(())
 }
 ```
 
