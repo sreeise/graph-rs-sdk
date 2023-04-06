@@ -169,6 +169,18 @@ impl OpenApi {
             .collect()
     }
 
+    pub fn debug_path_contains(&self, path: &str) {
+        println!("Attempting to find paths containing: {path}\n");
+        let paths = self.filter_path_contains(path);
+        for (path, _) in paths.iter() {
+            println!("{path:#?}");
+        }
+
+        if paths.is_empty() {
+            println!("Found no path matching: {path:#?}");
+        }
+    }
+
     pub fn filter_path_not_contains(&self, pat: &str) -> BTreeMap<String, PathItem> {
         self.paths
             .clone()
@@ -179,7 +191,7 @@ impl OpenApi {
 
     pub fn filter_path_contains_all(
         &self,
-        pat_vec: Vec<&str>,
+        pat_vec: &[&str],
     ) -> VecDeque<BTreeMap<String, PathItem>> {
         let mut deque = VecDeque::new();
         for pat in pat_vec.iter() {
@@ -187,6 +199,12 @@ impl OpenApi {
         }
 
         deque
+    }
+
+    pub fn debug_path_contains_all(&self, pat_vec: &[&str]) {
+        for pat in pat_vec {
+            self.debug_path_contains(pat);
+        }
     }
 
     pub fn filter_resource_parsing_info_path(

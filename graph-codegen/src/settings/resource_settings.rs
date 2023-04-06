@@ -1395,9 +1395,7 @@ fn get_users_api_client_links(resource_identity: ResourceIdentity) -> Vec<ApiCli
                 "Oauth2PermissionGrantsIdApiClient",
             ),
             ApiClientLink::Struct("mailbox_settings", "MailboxSettingsApiClient"),
-            ApiClientLink::Struct("default_drive", "DefaultDriveApiClient"),
-            ApiClientLink::Struct("drives", "DrivesApiClient"),
-            ApiClientLink::StructId("drive", "DrivesIdApiClient"),
+            ApiClientLink::Struct("drive", "DefaultDriveApiClient"),
         ],
     )]
 }
