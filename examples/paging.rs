@@ -1,6 +1,7 @@
+#[macro_use]
+extern crate serde;
+
 use graph_rs_sdk::*;
-use serde::Deserialize;
-use serde::Serialize;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
