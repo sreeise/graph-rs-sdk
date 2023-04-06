@@ -1,5 +1,4 @@
 use crate::io_error::{AsyncIoError, ThreadedIoError};
-use crate::GraphError;
 
 #[derive(Debug, thiserror::Error)]
 #[allow(clippy::large_enum_variant)]
@@ -12,9 +11,6 @@ pub enum BlockingDownloadError {
 
     #[error("request error: {0}")]
     Request(#[from] reqwest::Error),
-
-    #[error("graph error: {0}")]
-    Graph(#[from] GraphError),
 
     #[error("file name is too long (max 255 chars)")]
     FileNameTooLong,
@@ -49,9 +45,6 @@ pub enum AsyncDownloadError {
 
     #[error("request error: {0}")]
     Request(#[from] reqwest::Error),
-
-    #[error("graph error: {0}")]
-    GraphError(#[from] GraphError),
 
     #[error("file name is too long (max 255 chars)")]
     FileNameTooLong,

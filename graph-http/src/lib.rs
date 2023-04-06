@@ -42,6 +42,4 @@ pub mod api_impl {
     pub use crate::traits::{BodyExt, ODataQuery};
     pub use crate::upload_session::UploadSession;
     pub use graph_error::{GraphFailure, GraphResult};
-
-    pub extern crate handlebars;
 }
