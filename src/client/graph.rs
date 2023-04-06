@@ -75,6 +75,7 @@ lazy_static! {
         Url::parse(GRAPH_URL_BETA).expect("Unable to set beta endpoint");
 }
 
+#[derive(Debug, Clone)]
 pub struct Graph {
     client: Client,
     endpoint: Url,
