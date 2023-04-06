@@ -33,7 +33,10 @@ async fn paging() -> GraphResult<()> {
         .json::<Users>()
         .await?;
 
-    let users: Vec<User> = deque.into_iter().flat_map(|resp| resp.into_body().value).collect();
+    let users: Vec<User> = deque
+        .into_iter()
+        .flat_map(|resp| resp.into_body().value)
+        .collect();
 
     println!("{:#?}", users);
     Ok(())
