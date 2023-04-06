@@ -1,6 +1,6 @@
 [package]
 name = "graph-rs-sdk"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["sreeise"]
 edition = "2021"
 readme = "README.md"
@@ -36,9 +36,9 @@ serde_json = "1"
 url = "2"
 lazy_static = "1.4.0"
 
-graph-oauth = { path = "./graph-oauth", version = "0.3.0" }
-graph-http = { path = "./graph-http", version = "1.0.0", default-features=false }
-graph-error = { path = "./graph-error", version = "0.2.0" }
+graph-oauth = { path = "./graph-oauth", version = "0.3.1" }
+graph-http = { path = "./graph-http", version = "1.0.2", default-features=false }
+graph-error = { path = "./graph-error", version = "0.2.1" }
 graph-core = { path = "./graph-core", version = "0.4.0" }
 
 [features]
