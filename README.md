@@ -11,7 +11,7 @@ included in the project on [GitHub](https://github.com/sreeise/graph-rs).
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
 ```toml
-graph-rs-sdk = "1.0.0"
+graph-rs-sdk = "1.0.1"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -191,7 +191,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "1.0.0"
+    graph-rs-sdk = "1.0.1"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -223,7 +223,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "1.0.0"
+    graph-rs-sdk = "1.0.1"
 
 #### Example
 use graph_rs_sdk::*;
@@ -369,6 +369,9 @@ There are different levels of support for paging Microsoft Graph APIs. See the d
 supported APIs and availability.
 
 ```rust
+#[macro_use]
+extern crate serde;
+
 use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
