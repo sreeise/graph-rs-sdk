@@ -90,8 +90,14 @@ directory on [GitHub](https://github.com/sreeise/graph-rs).
 ///   start_server_main().await;
 /// }
 /// ```
+#[macro_use]
+extern crate serde;
+
 use graph_rs_sdk::oauth::OAuth;
 use warp::Filter;
+
+static CLIENT_ID: &str = "<YOUR_CLIENT_ID>";
+static CLIENT_SECRET: &str = "<YOUR_CLIENT_SECRET>";
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct AccessCode {
@@ -101,8 +107,8 @@ pub struct AccessCode {
 fn oauth_client() -> OAuth {
     let mut oauth = OAuth::new();
     oauth
-        .client_id("<YOUR_CLIENT_ID>")
-        .client_secret("<YOUR_CLIENT_SECRET>")
+        .client_id(CLIENT_ID)
+        .client_secret(CLIENT_SECRET)
         .add_scope("files.read")
         .add_scope("files.readwrite")
         .add_scope("files.read.all")
@@ -185,7 +191,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "0.3.1"
+    graph-rs-sdk = "1.0.0"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -272,6 +278,8 @@ pub async fn get_drive_item() -> GraphResult<()> {
 
   let body: serde_json::Value = response.json().await?;
   println!("{:#?}", body);
+  
+  Ok(())
 }
 ```
 
@@ -282,6 +290,9 @@ You can implement your own types by utilizing methods from reqwest::Response. Th
 See the reqwest crate for more info.
 
 ```rust
+#[macro_use]
+extern crate serde;
+
 use graph_rs_sdk::*;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -330,6 +341,8 @@ pub async fn get_drive_item() -> GraphResult<()> {
   
   let drive_item: DriveItem = response.json().await?;
   println!("{:#?}", drive_item);
+  
+  Ok(())
 }
 ```
 
@@ -445,7 +458,7 @@ async fn channel_next_links() -> GraphResult<()> {
       Ok(response) => {
         println!("{:#?}", response);
 
-        let body: serde_json::Value = response.json().await?;
+        let body = response.into_body();
         println!("{:#?}", body);
       }
       Err(err) => panic!("{:#?}", err),
@@ -633,74 +646,61 @@ async fn get_item_by_path() -> GraphResult<()> {
 
 ```rust
 use graph_rs_sdk::*;
-        
-let client = Graph::new("ACCESS_TOKEN");
-        
-// List messages for a user.
-let response = client.v1()
-    .user("USER-ID")
-    .messages()
-    .list_messages()
-    .send()?;
 
-// List messages using me.
-let response = client.v1()
-    .me()
-    .messages()
-    .list_messages()
-    .send()?;
-             
-// Create a message
-let response = client.v1()
-    .user("USER_ID")
-    .messages()
-    .create_messages(&serde_json::json!({
-        "subject":"Did you see last night's game?",
-        "importance":"Low",
-        "body":{
-            "contentType":"HTML",
-                "content":"They were <b>awesome</b>!"
-            },
-        "toRecipients":[{
-            "emailAddress":{
-                "address":"AdeleV@contoso.onmicrosoft.com"
-            }
-        }]
-    }))
-    .send()?;
-        
-println!("{:#?}", response.body()); // => Message
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+
+async fn get_mail_folder() -> GraphResult<()> {
+  let client = Graph::new(ACCESS_TOKEN);
+
+  let response = client.me()
+      .mail_folder(MAIL_FOLDER_ID)
+      .get_mail_folders()
+      .send()
+      .await?;
+
+  println!("{:#?}", response);
+
+  let body: serde_json::Value = response.json().await.unwrap();
+  println!("{:#?}", body);
+
+  Ok(())
+}
 ```
 
 #### Create message
 ```rust
 use graph_rs_sdk::*;
 
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+static MAIL_FOLDER_ID: &str = "MAIL_FOLDER_ID";
+
 async fn create_message() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+  let client = Graph::new(ACCESS_TOKEN);
+  
+  let response = client
+      .me()
+      .messages()
+      .create_messages(&serde_json::json!({
+          "subject":"Did you see last night's game?",
+          "importance":"Low",
+          "body":{
+              "contentType":"HTML",
+              "content":"They were <b>awesome</b>!"
+          },
+          "toRecipients":[
+              {
+                  "emailAddress":{
+                      "address":"miriamg@sreeise.onmicrosoft.com"
+                  }
+              }
+          ]
+      }))
+      .send()
+      .await?;
 
-    let response = client
-        .me()
-        .messages()
-        .create_messages(&serde_json::json!({
-            "subject":"Did you see last night's game?",
-            "importance":"Low",
-            "body":{
-                "contentType":"HTML",
-                "content":"They were <b>awesome</b>!"
-            },
-            "toRecipients":[
-                {
-                    "emailAddress":{
-                        "address":"miriamg@sreeise.onmicrosoft.com"
-                    }
-                }
-            ]
-        }))
-        .send()
-        .await?;
-
-    println!("{:#?}", response);
+  println!("{:#?}", response);
+  
+  Ok(())
 }
 
 ```
@@ -709,6 +709,8 @@ async fn create_message() -> GraphResult<()> {
 
 ```rust
 use graph_rs_sdk::*;
+
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 async fn send_mail() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
@@ -754,6 +756,9 @@ async fn send_mail() -> GraphResult<()> {
 ```rust
 use graph_rs_sdk::*;
 
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+static MAIL_FOLDER_ID: &str = "MAIL_FOLDER_ID";
+
 async fn create_mail_folder_message() -> GraphResult<()> {
     let client = Graph::new(ACCESS_TOKEN);
   
@@ -786,16 +791,22 @@ async fn create_mail_folder_message() -> GraphResult<()> {
 
 #### Get Inbox Messages
 ```rust
+use graph_rs_sdk::*;
+
+static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
+static USER_ID: &str = "USER_ID";
+
 async fn get_user_inbox_messages() -> GraphResult<()> {
   let client = Graph::new(ACCESS_TOKEN);
+  
   let response = client
-          .user(USER_ID)
-          .mail_folder("Inbox")
-          .messages()
-          .list_messages()
-          .top("2")
-          .send()
-          .await?;
+      .user(USER_ID)
+      .mail_folder("Inbox")
+      .messages()
+      .list_messages()
+      .top("2")
+      .send()
+      .await?;
 
   println!("{:#?}", response);
 
@@ -811,6 +822,11 @@ can be used for things like creating messages for mail or creating
 a folder for OneDrive.
 
 ```rust
+#[macro_use]
+extern crate serde;
+
+use graph_rs_sdk::*;
+
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct Message {
     subject: String,
@@ -996,7 +1012,6 @@ use graph_rs_sdk::*;
 // For more examples see the examples directory on GitHub
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
-
 static USER_ID: &str = "USER_ID";
 
 async fn get_user() -> GraphResult<()> {

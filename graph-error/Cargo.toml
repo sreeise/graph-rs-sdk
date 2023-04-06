@@ -11,7 +11,6 @@ keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
 categories = ["authentication", "web-programming::http-client"]
 
 [dependencies]
-async-trait = "0.1"
 base64 = "0.21.0"
 futures = "0.3"
 handlebars = "2.0.2"
