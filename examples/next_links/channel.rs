@@ -14,7 +14,7 @@ pub async fn channel_next_links() -> GraphResult<()> {
     while let Some(result) = receiver.recv().await {
         match result {
             Ok(response) => {
-                println!("response:\n{response:#?}\n\n");
+                println!("{response:#?}");
             }
             Err(err) => {
                 println!("GraphFailure: {err:#?}");
