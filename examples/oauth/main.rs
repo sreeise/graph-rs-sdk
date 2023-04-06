@@ -15,8 +15,6 @@
 
 #[macro_use]
 extern crate serde;
-extern crate reqwest;
-extern crate serde_json;
 
 mod auth_code_grant;
 mod auth_code_grant_pkce;

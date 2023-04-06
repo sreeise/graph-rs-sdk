@@ -46,7 +46,6 @@ impl ClientConfiguration {
 impl Debug for ClientConfiguration {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ClientConfiguration")
-            .field("access_token", &"[REDACTED]")
             .field("headers", &self.headers)
             .field("referer", &self.referer)
             .field("timeout", &self.timeout)
@@ -193,7 +192,7 @@ impl Default for GraphClientConfiguration {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Client {
     pub(crate) access_token: String,
     pub(crate) inner: reqwest::Client,
@@ -228,6 +227,16 @@ impl Client {
 impl Default for Client {
     fn default() -> Self {
         GraphClientConfiguration::new().build()
+    }
+}
+
+impl Debug for Client {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Client")
+            .field("inner", &self.inner)
+            .field("headers", &self.headers)
+            .field("builder", &self.builder)
+            .finish()
     }
 }
 

@@ -1,5 +1,4 @@
 use crate::download::AsyncDownloadError;
-use crate::error::GraphError;
 use crate::internal::GraphRsError;
 use reqwest::header::HeaderMap;
 use std::cell::BorrowMutError;
@@ -29,9 +28,6 @@ pub enum GraphFailure {
     #[error("Base64 decode error:\n{0:#?}")]
     DecodeError(#[from] base64::DecodeError),
 
-    #[error("Graph error:\n{0:#?}")]
-    GraphError(#[from] GraphError),
-
     #[error("Recv error:\n{0:#?}")]
     RecvError(#[from] mpsc::RecvError),
 
@@ -60,13 +56,20 @@ pub enum GraphFailure {
     AsyncDownloadError(#[from] AsyncDownloadError),
 
     #[error(
-        "Error building or processing request prior to being sent:\n{0:#?}r",
+        "Error building or processing request prior to being sent:\n{0:#?}",
         error
     )]
     PreFlightError {
         url: Option<reqwest::Url>,
         headers: HeaderMap,
         error: Box<GraphFailure>,
+    },
+
+    #[error("{0:#?}", message)]
+    Default {
+        url: Option<reqwest::Url>,
+        headers: Option<HeaderMap>,
+        message: String,
     },
 }
 
@@ -91,7 +94,11 @@ impl GraphFailure {
 
 impl Default for GraphFailure {
     fn default() -> Self {
-        GraphFailure::GraphError(GraphError::default())
+        GraphFailure::Default {
+            url: None,
+            headers: None,
+            message: "Unknown Error".into(),
+        }
     }
 }
 

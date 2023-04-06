@@ -2,11 +2,12 @@ use crate::internal::GraphClientConfiguration;
 use reqwest::header::HeaderMap;
 use std::env::VarError;
 use std::ffi::OsStr;
+use std::fmt::{Debug, Formatter};
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct BlockingClient {
-    pub(crate) inner: reqwest::blocking::Client,
     pub(crate) access_token: String,
+    pub(crate) inner: reqwest::blocking::Client,
     pub(crate) headers: HeaderMap,
 }
 
@@ -37,5 +38,14 @@ impl BlockingClient {
 impl Default for BlockingClient {
     fn default() -> Self {
         GraphClientConfiguration::new().build_blocking()
+    }
+}
+
+impl Debug for BlockingClient {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BlockingClient")
+            .field("inner", &self.inner)
+            .field("headers", &self.headers)
+            .finish()
     }
 }

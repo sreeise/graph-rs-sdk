@@ -1,8 +1,5 @@
-use crate::{GraphHeaders, GraphResult};
-use reqwest::StatusCode;
 use serde::Serialize;
-use std::error::Error;
-use std::fmt;
+
 use std::string::ToString;
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -65,106 +62,6 @@ impl ErrorMessage {
 
     pub fn date(&self) -> Option<String> {
         self.error.inner_error.as_ref()?.date.clone()
-    }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct GraphError {
-    pub headers: Option<GraphHeaders>,
-
-    #[serde(with = "http_serde::status_code")]
-    pub code: StatusCode,
-
-    pub error_message: ErrorMessage,
-    /// Contains deserialized JSON response independent of ErrorMessage
-    pub response_raw: serde_json::Value,
-}
-
-impl GraphError {
-    pub fn new(
-        headers: Option<GraphHeaders>,
-        code: StatusCode,
-        error_message: ErrorMessage,
-    ) -> GraphError {
-        GraphError {
-            headers,
-            code,
-            error_message,
-            response_raw: serde_json::Value::Null,
-        }
-    }
-
-    pub fn set_headers(&mut self, headers: GraphHeaders) {
-        self.headers = Some(headers);
-    }
-
-    pub fn set_error(&mut self, code: StatusCode) -> Result<(), GraphError> {
-        self.code = code;
-        Ok(())
-    }
-
-    pub fn set_error_message(&mut self, error_message: ErrorMessage) {
-        self.error_message = error_message;
-    }
-
-    pub fn try_set_error_message(&mut self, result: GraphResult<ErrorMessage>) {
-        if let Ok(error_message) = result {
-            self.set_error_message(error_message);
-        }
-    }
-
-    pub fn message(&self) -> Option<String> {
-        self.error_message.message()
-    }
-
-    pub fn code_property(&self) -> Option<String> {
-        self.error_message.code_property()
-    }
-
-    pub fn inner_error(&self) -> Option<&InnerError> {
-        self.error_message.inner_error()
-    }
-
-    pub fn request_id(&self) -> Option<String> {
-        self.error_message.request_id()
-    }
-
-    pub fn date(&self) -> Option<String> {
-        self.error_message.date()
-    }
-
-    pub fn detailed_error_code(&self) -> Option<String> {
-        self.error_message.detailed_error_code()
-    }
-}
-
-impl Error for GraphError {
-    fn source<'a>(&'a self) -> Option<&(dyn Error + 'static)> {
-        None
-    }
-
-    fn description(&self) -> &str {
-        if let Some(message) = self.error_message.error.message.as_ref() {
-            return message.as_str();
-        }
-        self.code.canonical_reason().unwrap_or_default()
-    }
-}
-
-impl std::fmt::Display for GraphError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "\nError Code: {:#?}\nError Message: {:#?}",
-            &self.code,
-            self.code.canonical_reason().unwrap_or_default()
-        )
-    }
-}
-
-impl Default for GraphError {
-    fn default() -> Self {
-        GraphError::new(None, StatusCode::BAD_REQUEST, Default::default())
     }
 }
 
