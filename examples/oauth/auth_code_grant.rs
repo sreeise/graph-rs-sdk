@@ -1,5 +1,4 @@
-use graph_error::GraphResult;
-use graph_oauth::oauth::AccessToken;
+use graph_rs_sdk::oauth::{AccessToken, OAuth};
 /// # Example
 /// ```
 /// use graph_rs_sdk::*:
@@ -9,7 +8,7 @@ use graph_oauth::oauth::AccessToken;
 ///   start_server_main().await;
 /// }
 /// ```
-use graph_rs_sdk::oauth::OAuth;
+use graph_rs_sdk::*;
 use warp::Filter;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
