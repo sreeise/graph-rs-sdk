@@ -1,7 +1,6 @@
-use crate::auth::OAuthReq;
 use crate::oauth_error::OAuthError;
 use base64::Engine;
-use graph_error::GraphFailure;
+use graph_error::{GraphFailure, GraphResult};
 use serde_json::Map;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -159,7 +158,7 @@ impl JsonWebToken {
 pub struct JwtParser;
 
 impl JwtParser {
-    pub fn parse(input: &str) -> OAuthReq<JsonWebToken> {
+    pub fn parse(input: &str) -> GraphResult<JsonWebToken> {
         // Step 1.
         if !input.contains('.') {
             return OAuthError::invalid_data("Invalid Key");
@@ -242,7 +241,7 @@ impl JwtParser {
     }
 
     #[allow(dead_code)]
-    fn contains_duplicates(&mut self, claims: Vec<Claim>) -> OAuthReq<()> {
+    fn contains_duplicates(&mut self, claims: Vec<Claim>) -> GraphResult<()> {
         // https://tools.ietf.org/html/rfc7515#section-5.2
         // Step 4  this restriction includes that the same
         // Header Parameter name also MUST NOT occur in distinct JSON object

@@ -1,3 +1,4 @@
+use graph_oauth::oauth::AccessToken;
 /// # Example
 /// ```
 /// use graph_rs_sdk::*:
@@ -79,9 +80,21 @@ pub async fn set_and_req_access_code(access_code: AccessCode) {
     oauth.access_code(access_code.code.as_str());
 
     // Request the access token.
-    let mut request = oauth.build_async().code_flow();
-    let access_token = request.access_token().send().await.unwrap();
-    oauth.access_token(access_token);
+    let mut client = oauth.build_async().code_flow();
+
+    let response = client.access_token().send().await.unwrap();
+    println!("{response:#?}");
+
+    if response.status().is_success() {
+        let access_token: AccessToken = response.json().await.unwrap();
+
+        println!("{access_token:#?}");
+        oauth.access_token(access_token);
+    } else {
+        // See if Microsoft Graph returned an error in the Response body
+        let result: reqwest::Result<serde_json::Value> = response.json().await;
+        println!("{result:#?}");
+    }
 
     // If all went well here we can print out the OAuth config with the Access Token.
     println!("{:#?}", &oauth);

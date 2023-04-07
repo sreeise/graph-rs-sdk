@@ -1,3 +1,4 @@
+use graph_oauth::oauth::AccessToken;
 use graph_rs_sdk::oauth::OAuth;
 use lazy_static::lazy_static;
 /// # Example
@@ -82,9 +83,22 @@ async fn handle_redirect(
             oauth.access_code(access_code.code.as_str());
             let mut request = oauth.build_async().authorization_code_grant();
 
-            let access_token = request.access_token().send().await.unwrap();
+            // Returns reqwest::Response
+            let response = request.access_token().send().await.unwrap();
+            println!("{response:#?}");
+
+            if !response.status().is_success() {
+                // See if Microsoft Graph returned an error in the Response body
+                let result: reqwest::Result<serde_json::Value> = response.json().await;
+                println!("{result:#?}");
+                return Ok(Box::new("Error Logging In! You can close your browser."));
+            }
+
+            let access_token: AccessToken = response.json().await.unwrap();
             oauth.access_token(access_token);
-            println!("{oauth:#?}");
+
+            // If all went well here we can print out the OAuth config with the Access Token.
+            println!("{:#?}", &oauth);
 
             // Generic login page response.
             Ok(Box::new(

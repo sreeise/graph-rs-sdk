@@ -1,3 +1,5 @@
+use graph_error::GraphResult;
+use graph_oauth::oauth::AccessToken;
 /// # Example
 /// ```
 /// use graph_rs_sdk::*:
@@ -33,7 +35,7 @@ fn oauth_client() -> OAuth {
     oauth
 }
 
-pub async fn set_and_req_access_code(access_code: AccessCode) {
+pub async fn set_and_req_access_code(access_code: AccessCode) -> GraphResult<()> {
     let mut oauth = oauth_client();
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
@@ -41,11 +43,32 @@ pub async fn set_and_req_access_code(access_code: AccessCode) {
     oauth.access_code(access_code.code.as_str());
     let mut request = oauth.build_async().authorization_code_grant();
 
-    let access_token = request.access_token().send().await.unwrap();
-    oauth.access_token(access_token);
+    // Returns reqwest::Response
+    let response = request.access_token().send().await?;
+    println!("{response:#?}");
 
-    // If all went well here we can print out the OAuth config with the Access Token.
-    println!("{:#?}", &oauth);
+    if response.status().is_success() {
+        let mut access_token: AccessToken = response.json().await?;
+
+        // Option<&JsonWebToken>
+        let jwt = access_token.jwt();
+        println!("{jwt:#?}");
+
+        oauth.access_token(access_token);
+
+        // If all went well here we can print out the OAuth config with the Access Token.
+        println!("{:#?}", &oauth);
+    } else {
+        // See if Microsoft Graph returned an error in the Response body
+        let result: reqwest::Result<serde_json::Value> = response.json().await;
+
+        match result {
+            Ok(body) => println!("{body:#?}"),
+            Err(err) => println!("Error on deserialization:\n{err:#?}"),
+        }
+    }
+
+    Ok(())
 }
 
 async fn handle_redirect(

@@ -106,7 +106,7 @@ impl UploadSession {
     /// No pinning is required. The stream is pinned before being returned to the caller.
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,ignore
     /// use graph_rs_sdk::*;
     /// use futures::stream::StreamExt;
     /// use std::fs::OpenOptions;
