@@ -197,18 +197,20 @@ pub struct BlockingPaging(BlockingRequestHandler);
 impl BlockingPaging {
     fn http_response<T: DeserializeOwned>(
         response: reqwest::blocking::Response,
-    ) -> GraphResult<(Option<String>, http::Response<T>)> {
+    ) -> GraphResult<(Option<String>, http::Response<GraphResult<T>>)> {
         let status = response.status();
         let url = response.url().clone();
         let headers = response.headers().clone();
         let version = response.version();
 
-        let json: serde_json::Value = response.json()?;
-        let next_link = json.odata_next_link();
-        let body: T = serde_json::from_value(json)?;
+        let body: serde_json::Value = response.json()?;
+        let next_link = body.odata_next_link();
+        let json = body.clone();
+        let body: GraphResult<T> = serde_json::from_value(body).map_err(GraphFailure::from);
 
         let mut builder = http::Response::builder()
             .url(url)
+            .json(json)
             .status(http::StatusCode::from(&status))
             .version(version);
 
@@ -241,7 +243,9 @@ impl BlockingPaging {
     /// println!("{response:#?}");
     /// println!("{:#?}", response.body());
     /// ```
-    pub fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<http::Response<T>>> {
+    pub fn json<T: DeserializeOwned>(
+        mut self,
+    ) -> GraphResult<VecDeque<http::Response<GraphResult<T>>>> {
         if let Some(err) = self.0.error {
             return Err(err);
         }
@@ -276,7 +280,7 @@ impl BlockingPaging {
         client: &reqwest::blocking::Client,
         next: &str,
         access_token: &str,
-    ) -> GraphResult<(Option<String>, http::Response<T>)> {
+    ) -> GraphResult<(Option<String>, http::Response<GraphResult<T>>)> {
         let response = client
             .get(next)
             .bearer_auth(access_token)
@@ -288,7 +292,8 @@ impl BlockingPaging {
 
     pub fn channel<T: DeserializeOwned + Send + 'static>(
         mut self,
-    ) -> GraphResult<std::sync::mpsc::Receiver<Option<GraphResult<http::Response<T>>>>> {
+    ) -> GraphResult<std::sync::mpsc::Receiver<Option<GraphResult<http::Response<GraphResult<T>>>>>>
+    {
         let (sender, receiver) = std::sync::mpsc::channel();
         let request = self.0.default_request_builder();
         let response = request.send()?;

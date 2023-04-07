@@ -3,6 +3,12 @@ use url::Url;
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct HttpExtUrl(pub Url);
 
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct HttpExtSerdeJsonValue(pub serde_json::Value);
+
+#[derive(Debug)]
+pub(crate) struct HttpExtSerializedError(pub serde_json::Value);
+
 /// Extension trait for http::response::Builder objects
 ///
 /// Allows the user to add a `Url` to the http::Response
@@ -10,16 +16,28 @@ pub trait HttpResponseBuilderExt {
     /// A builder method for the `http::response::Builder` type that allows the user to add a `Url`
     /// to the `http::Response`
     fn url(self, url: Url) -> Self;
+    fn json(self, value: serde_json::Value) -> Self;
+    fn error(self, error: serde_json::Value) -> Self;
 }
 
 impl HttpResponseBuilderExt for http::response::Builder {
     fn url(self, url: Url) -> Self {
         self.extension(HttpExtUrl(url))
     }
+
+    fn json(self, value: serde_json::Value) -> Self {
+        self.extension(HttpExtSerdeJsonValue(value))
+    }
+
+    fn error(self, error: serde_json::Value) -> Self {
+        self.extension(HttpExtSerializedError(error))
+    }
 }
 
 pub trait HttpResponseExt {
     fn url(&self) -> Option<Url>;
+    fn json(&self) -> Option<serde_json::Value>;
+    fn error(&self) -> Option<serde_json::Value>;
 }
 
 impl<T> HttpResponseExt for http::Response<T> {
@@ -27,5 +45,17 @@ impl<T> HttpResponseExt for http::Response<T> {
         self.extensions()
             .get::<HttpExtUrl>()
             .map(|url| url.clone().0)
+    }
+
+    fn json(&self) -> Option<serde_json::Value> {
+        self.extensions()
+            .get::<HttpExtSerdeJsonValue>()
+            .map(|value| value.clone().0)
+    }
+
+    fn error(&self) -> Option<serde_json::Value> {
+        self.extensions()
+            .get::<HttpExtSerializedError>()
+            .map(|error| error.0.clone())
     }
 }
