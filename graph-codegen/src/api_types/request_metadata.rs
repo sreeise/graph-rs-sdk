@@ -6,7 +6,7 @@ use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
 use crate::openapi::{OpenApi, PathItem};
 use crate::parser::HttpMethod;
-use crate::traits::{FilterMetadata, HashMapExt, RequestParser, INTERNAL_PATH_ID};
+use crate::traits::{FilterMetadata, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
@@ -396,7 +396,10 @@ impl PathMetadata {
                 vec.retain(|l| !l.is_empty());
                 let first = vec.pop_front().unwrap();
                 let last = vec.pop_front().unwrap();
-                map.entry_modify_insert(first.to_string(), last.to_string());
+                // map.entry_modify_insert(first.to_string(), last.to_string());
+
+                map.entry(first.to_string())
+                    .or_insert_with(|| vec![last.to_string()]);
             } else {
                 map.insert(link.to_string(), vec![]);
             }
@@ -678,12 +681,6 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
 
         let mut metadata_queue = PathMetadataQueue(metadata);
 
-        /*
-        let modifier_map =
-            ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
-        metadata_queue.update_targets(&modifier_map);
-         */
-
         metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
 
         if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
@@ -722,30 +719,7 @@ impl From<WriteConfiguration> for PathMetadataQueue {
             }
         };
 
-        // Uncomment to write OpenApi metadata files.
-        /*
-        if resource_parsing_info.trim_path_start.is_some() {
-            let path_item_map =
-                PathItemMap(open_api.filter_resource_parsing_info_path(&resource_parsing_info));
-
-            let path_item_file = format!(
-                "./graph-codegen/src/parsed_metadata/{}_openapi.json",
-                name.to_snake_case()
-            );
-            path_item_map.as_file_pretty(&path_item_file).unwrap();
-        } else {
-            let path_item_map = PathItemMap(open_api.filter_path(&resource_parsing_info.path));
-
-            let path_item_file = format!(
-                "./graph-codegen/src/parsed_metadata/{}_openapi.json",
-                name.to_snake_case()
-            );
-            path_item_map.as_file_pretty(&path_item_file).unwrap();
-        }
-         */
-
         let path_filter = resource_parsing_info.path;
-
         let mut metadata: VecDeque<PathMetadata> = requests
             .iter()
             .filter(|r| r.path_starts_with(&path_filter))
@@ -765,12 +739,6 @@ impl From<WriteConfiguration> for PathMetadataQueue {
         }
 
         let mut metadata_queue = PathMetadataQueue(metadata);
-
-        /*
-        let modifier_map =
-            ParserSettings::target_modifiers(resource_parsing_info.resource_identity);
-        metadata_queue.update_targets(&modifier_map);
-         */
 
         metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
 

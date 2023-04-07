@@ -165,7 +165,8 @@ impl OAuthTestClient {
             }
         };
 
-        if let Ok(token) = req.access_token().send() {
+        if let Ok(response) = req.access_token().send() {
+            let token: AccessToken = response.json().unwrap();
             Some((user_id, token))
         } else {
             None
@@ -186,7 +187,10 @@ impl OAuthTestClient {
         };
 
         match req.access_token().send().await {
-            Ok(token) => Some((user_id, token)),
+            Ok(response) => {
+                let token: AccessToken = response.json().await.unwrap();
+                Some((user_id, token))
+            }
             Err(_) => None,
         }
     }

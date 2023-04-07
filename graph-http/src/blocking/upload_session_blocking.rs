@@ -1,4 +1,3 @@
-use crate::internal::ReqwestBlockingResult;
 use crate::upload_session::RangeIter;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::HeaderMap;
@@ -47,7 +46,11 @@ impl UploadSessionBlocking {
             .collect()
     }
 
-    fn send(&self, header_map: HeaderMap, body: reqwest::blocking::Body) -> ReqwestBlockingResult {
+    fn send(
+        &self,
+        header_map: HeaderMap,
+        body: reqwest::blocking::Body,
+    ) -> reqwest::Result<reqwest::blocking::Response> {
         self.client
             .put(self.url.clone())
             .headers(header_map)
@@ -74,14 +77,16 @@ impl UploadSessionBlocking {
         })
     }
 
-    pub fn channel(&mut self) -> GraphResult<std::sync::mpsc::Receiver<ReqwestBlockingResult>> {
+    pub fn channel(
+        &mut self,
+    ) -> GraphResult<std::sync::mpsc::Receiver<reqwest::Result<reqwest::blocking::Response>>> {
         self.channel_buffer(self.range_iter.len() + 1)
     }
 
     pub fn channel_buffer(
         &mut self,
         bound: usize,
-    ) -> GraphResult<std::sync::mpsc::Receiver<ReqwestBlockingResult>> {
+    ) -> GraphResult<std::sync::mpsc::Receiver<reqwest::Result<reqwest::blocking::Response>>> {
         let components = self
             .range_iter
             .map_all_blocking()
@@ -103,7 +108,7 @@ impl UploadSessionBlocking {
 }
 
 impl Iterator for UploadSessionBlocking {
-    type Item = ReqwestBlockingResult;
+    type Item = reqwest::Result<reqwest::blocking::Response>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let (header_map, body) = self.range_iter.pop_front_blocking()?;

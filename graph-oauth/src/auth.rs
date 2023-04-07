@@ -4,19 +4,15 @@ use crate::id_token::IdToken;
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
 use base64::Engine;
-use graph_error::GraphFailure;
+use graph_error::{GraphFailure, GraphResult};
 use ring::rand::SecureRandom;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
-use std::convert::TryFrom;
 use std::default::Default;
 use std::fmt;
-
 use std::marker::PhantomData;
 use url::form_urlencoded::Serializer;
 use url::Url;
-
-pub type OAuthReq<T> = Result<T, GraphFailure>;
 
 /// Fields that represent common OAuth credentials.
 #[derive(
@@ -860,7 +856,7 @@ impl OAuth {
     /// let refresh_token = oauth.get_refresh_token().unwrap();
     /// println!("{:#?}", refresh_token);
     /// ```
-    pub fn get_refresh_token(&self) -> OAuthReq<String> {
+    pub fn get_refresh_token(&self) -> GraphResult<String> {
         match self.get_access_token() {
             Some(token) => match token.refresh_token() {
                 Some(t) => Ok(t),
@@ -893,7 +889,7 @@ impl OAuth {
     ///
     /// oauth.v1_logout().unwrap();
     /// ```
-    pub fn v1_logout(&mut self) -> OAuthReq<()> {
+    pub fn v1_logout(&mut self) -> GraphResult<()> {
         let mut url = self.get_or_else(OAuthCredential::LogoutURL)?;
         if !url.ends_with('?') {
             url.push('?');
@@ -923,7 +919,7 @@ impl OAuth {
     ///
     /// oauth.v2_logout().unwrap();
     /// ```
-    pub fn v2_logout(&self) -> OAuthReq<()> {
+    pub fn v2_logout(&self) -> GraphResult<()> {
         let mut url = self.get_or_else(OAuthCredential::LogoutURL)?;
         if !url.ends_with('?') {
             url.push('?');
@@ -941,7 +937,7 @@ impl OAuth {
 }
 
 impl OAuth {
-    fn get_or_else(&self, c: OAuthCredential) -> OAuthReq<String> {
+    fn get_or_else(&self, c: OAuthCredential) -> GraphResult<String> {
         self.get(c).ok_or_else(|| OAuthError::credential_error(c))
     }
 
@@ -962,7 +958,7 @@ impl OAuth {
             });
     }
 
-    pub fn params(&mut self, pairs: Vec<OAuthCredential>) -> OAuthReq<HashMap<String, String>> {
+    pub fn params(&mut self, pairs: Vec<OAuthCredential>) -> GraphResult<HashMap<String, String>> {
         let mut map: HashMap<String, String> = HashMap::new();
         for oac in pairs.iter() {
             if oac.eq(&OAuthCredential::RefreshToken) {
@@ -976,7 +972,11 @@ impl OAuth {
         Ok(map)
     }
 
-    pub fn encode_uri(&mut self, grant: GrantType, request_type: GrantRequest) -> OAuthReq<String> {
+    pub fn encode_uri(
+        &mut self,
+        grant: GrantType,
+        request_type: GrantRequest,
+    ) -> GraphResult<String> {
         let mut encoder = Serializer::new(String::new());
         match grant {
 			GrantType::TokenFlow =>
@@ -1477,7 +1477,7 @@ pub struct AuthorizationRequest {
 }
 
 impl AuthorizationRequest {
-    pub fn open(self) -> OAuthReq<()> {
+    pub fn open(self) -> GraphResult<()> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
@@ -1496,32 +1496,17 @@ pub struct AccessTokenRequest {
 impl AccessTokenRequest {
     /// Send the request for an access token. The response body
     /// be will converted to an access token and returned.
-    pub fn send(self) -> OAuthReq<AccessToken> {
+    pub fn send(self) -> GraphResult<reqwest::blocking::Response> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
 
         let client = reqwest::blocking::Client::new();
-        let builder = client.post(self.uri.as_str()).form(&self.params);
-        AccessToken::try_from(builder)
-    }
-
-    /// Send the request for an access token. This method
-    /// can be used to convert response bodies to custom
-    /// objects using the serde crate. The object must implement
-    /// serde deserialize.
-    pub fn json<T>(self) -> OAuthReq<T>
-    where
-        for<'de> T: serde::Deserialize<'de>,
-    {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let client = reqwest::blocking::Client::new();
-        let builder = client.post(self.uri.as_str()).form(&self.params);
-        let response = builder.send()?;
-        Ok(response.json()?)
+        client
+            .post(self.uri.as_str())
+            .form(&self.params)
+            .send()
+            .map_err(GraphFailure::from)
     }
 }
 
@@ -1535,32 +1520,18 @@ pub struct AsyncAccessTokenRequest {
 impl AsyncAccessTokenRequest {
     /// Send the request for an access token. The response body
     /// be will converted to an access token and returned.
-    pub async fn send(self) -> OAuthReq<AccessToken> {
+    pub async fn send(self) -> GraphResult<reqwest::Response> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
         }
 
         let client = reqwest::Client::new();
-        let builder = client.post(self.uri.as_str()).form(&self.params);
-        AccessToken::try_from_async(builder).await
-    }
-
-    /// Send the request for an access token. This method
-    /// can be used to convert response bodies to custom
-    /// objects using the serde crate. The object must implement
-    /// serde deserialize.
-    pub async fn json<T>(self) -> OAuthReq<T>
-    where
-        for<'de> T: serde::Deserialize<'de>,
-    {
-        if self.error.is_some() {
-            return Err(self.error.unwrap_or_default());
-        }
-
-        let client = reqwest::Client::new();
-        let builder = client.post(self.uri.as_str()).form(&self.params);
-        let response = builder.send().await?;
-        Ok(response.json().await?)
+        client
+            .post(self.uri.as_str())
+            .form(&self.params)
+            .send()
+            .await
+            .map_err(GraphFailure::from)
     }
 }
 
@@ -1571,7 +1542,7 @@ pub struct ImplicitGrant {
 }
 
 impl ImplicitGrant {
-    pub fn url(&mut self) -> OAuthReq<Url> {
+    pub fn url(&mut self) -> GraphResult<Url> {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::Authorization);
         Ok(Url::parse(
@@ -1931,6 +1902,12 @@ impl From<AccessTokenGrant> for OAuth {
 impl AsRef<OAuth> for AccessTokenGrant {
     fn as_ref(&self) -> &OAuth {
         &self.oauth
+    }
+}
+
+impl AsMut<OAuth> for AccessTokenGrant {
+    fn as_mut(&mut self) -> &mut OAuth {
+        &mut self.oauth
     }
 }
 

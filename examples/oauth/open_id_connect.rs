@@ -54,15 +54,24 @@ async fn handle_redirect(id_token: IdToken) -> Result<Box<dyn warp::Reply>, warp
     let mut request = oauth.build_async().open_id_connect();
 
     // Request an access token.
-    let access_token: AccessToken = request.access_token().send().await.unwrap();
+    let response = request.access_token().send().await.unwrap();
+    println!("{response:#?}");
 
-    // You can optionally pass the access token to the oauth client in order
-    // to use a refresh token to get more access tokens. The refresh token
-    // is stored in AccessToken.
-    oauth.access_token(access_token);
+    if response.status().is_success() {
+        let access_token: AccessToken = response.json().await.unwrap();
 
-    // If all went well here we can print out the OAuth config with the Access Token.
-    println!("OAuth:\n{:#?}\n", &oauth);
+        // You can optionally pass the access token to the oauth client in order
+        // to use a refresh token to get more access tokens. The refresh token
+        // is stored in AccessToken.
+        oauth.access_token(access_token);
+
+        // If all went well here we can print out the OAuth config with the Access Token.
+        println!("OAuth:\n{:#?}\n", &oauth);
+    } else {
+        // See if Microsoft Graph returned an error in the Response body
+        let result: reqwest::Result<serde_json::Value> = response.json().await;
+        println!("{result:#?}");
+    }
 
     // Generic login page response.
     Ok(Box::new(

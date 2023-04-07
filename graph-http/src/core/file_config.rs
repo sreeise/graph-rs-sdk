@@ -29,7 +29,7 @@ use std::path::{Path, PathBuf};
 /// use graph_http::api_impl::FileConfig;
 ///
 /// let config = FileConfig::new("./examples")
-///     .overwrite_existing_file(false)
+///     .overwrite_existing_file(true)
 ///     .extension(OsStr::new("pdf"));
 ///
 /// # assert_eq!(Path::new("./examples"), config.path.as_path());

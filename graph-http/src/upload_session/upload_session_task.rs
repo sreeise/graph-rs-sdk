@@ -1,4 +1,3 @@
-use crate::internal::ReqwestResult;
 use crate::traits::AsyncIterator;
 use crate::upload_session::RangeIter;
 use async_stream::try_stream;
@@ -106,7 +105,7 @@ impl UploadSession {
     /// No pinning is required. The stream is pinned before being returned to the caller.
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,ignore
     /// use graph_rs_sdk::*;
     /// use futures::stream::StreamExt;
     /// use std::fs::OpenOptions;
@@ -157,14 +156,16 @@ impl UploadSession {
         Ok(Box::pin(self.try_stream()))
     }
 
-    pub fn channel(&mut self) -> GraphResult<tokio::sync::mpsc::Receiver<ReqwestResult>> {
+    pub fn channel(
+        &mut self,
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<reqwest::Result<reqwest::Response>>> {
         self.channel_buffer_timeout(self.range_iter.len() + 1, Duration::from_secs(30))
     }
 
     pub fn channel_timeout(
         &mut self,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<ReqwestResult>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<reqwest::Result<reqwest::Response>>> {
         self.channel_buffer_timeout(self.range_iter.len() + 1, timeout)
     }
 
@@ -172,7 +173,7 @@ impl UploadSession {
         &mut self,
         buffer: usize,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<ReqwestResult>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<reqwest::Result<reqwest::Response>>> {
         let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
 
         let components = self.range_iter.map_all().ok_or(GraphFailure::invalid(

@@ -37,7 +37,7 @@ use std::fmt;
 /// # Example
 /// ```
 /// # use graph_oauth::oauth::AccessToken;
-/// # let access_token = AccessToken::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
+/// # let mut access_token = AccessToken::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
 ///
 /// // Claims
 /// println!("{:#?}", access_token.claims());
@@ -379,7 +379,7 @@ impl AccessToken {
         None
     }
 
-    fn parse_jwt(&mut self) {
+    fn parse_jwt(&mut self) -> Option<&JsonWebToken> {
         let mut set_timestamp = false;
         if let Ok(jwt) = JwtParser::parse(self.bearer_token()) {
             if let Some(claims) = jwt.claims() {
@@ -402,23 +402,24 @@ impl AccessToken {
         if !set_timestamp {
             self.gen_timestamp();
         }
-    }
 
-    pub fn claims(&self) -> Option<Vec<Claim>> {
-        self.jwt.as_ref()?.claims()
-    }
-
-    pub fn jwt(&self) -> Option<&JsonWebToken> {
         self.jwt.as_ref()
     }
 
-    pub(crate) async fn try_from_async(
-        builder: reqwest::RequestBuilder,
-    ) -> Result<AccessToken, GraphFailure> {
-        let mut access_token = builder.send().await?.json::<AccessToken>().await?;
+    pub fn claims(&mut self) -> Option<Vec<Claim>> {
+        if self.jwt.is_none() {
+            self.parse_jwt();
+        }
 
-        access_token.parse_jwt();
-        Ok(access_token)
+        self.jwt.as_ref()?.claims()
+    }
+
+    pub fn jwt(&mut self) -> Option<&JsonWebToken> {
+        if self.jwt.is_none() {
+            return self.parse_jwt();
+        }
+
+        self.jwt.as_ref()
     }
 }
 
@@ -473,10 +474,7 @@ impl TryFrom<Result<reqwest::blocking::Response, reqwest::Error>> for AccessToke
 impl TryFrom<reqwest::blocking::Response> for AccessToken {
     type Error = GraphFailure;
 
-    fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error>
-    where
-        Self: for<'de> serde::Deserialize<'de>,
-    {
+    fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error> {
         let mut access_token = value.json::<AccessToken>()?;
         access_token.parse_jwt();
         Ok(access_token)

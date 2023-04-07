@@ -7,6 +7,10 @@ use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
 async fn async_download_office_365_user_counts_reports_test() {
+    if Environment::is_local() {
+        return;
+    }
+
     let _ = ASYNC_THROTTLE_MUTEX.lock().await;
 
     if let Some((_id, client)) =

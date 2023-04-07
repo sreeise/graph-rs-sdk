@@ -18,8 +18,6 @@ pub mod traits;
 pub mod io_tools;
 
 pub(crate) mod internal {
-    pub type ReqwestResult = Result<reqwest::Response, reqwest::Error>;
-    pub type ReqwestBlockingResult = Result<reqwest::blocking::Response, reqwest::Error>;
     pub use crate::blocking::*;
     pub use crate::client::*;
     pub use crate::core::*;
