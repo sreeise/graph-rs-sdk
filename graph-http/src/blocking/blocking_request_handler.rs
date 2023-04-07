@@ -192,6 +192,8 @@ impl AsMut<Url> for BlockingRequestHandler {
     }
 }
 
+pub type BlockingPagingResult<T> = GraphResult<http::Response<GraphResult<T>>>;
+
 pub struct BlockingPaging(BlockingRequestHandler);
 
 impl BlockingPaging {
@@ -292,8 +294,7 @@ impl BlockingPaging {
 
     pub fn channel<T: DeserializeOwned + Send + 'static>(
         mut self,
-    ) -> GraphResult<std::sync::mpsc::Receiver<Option<GraphResult<http::Response<GraphResult<T>>>>>>
-    {
+    ) -> GraphResult<std::sync::mpsc::Receiver<Option<BlockingPagingResult<T>>>> {
         let (sender, receiver) = std::sync::mpsc::channel();
         let request = self.0.default_request_builder();
         let response = request.send()?;

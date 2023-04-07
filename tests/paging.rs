@@ -25,7 +25,8 @@ async fn paging_all() {
         }
 
         let response = vec.pop_back().unwrap();
-        assert!(response.body()["@odata.deltaLink"].as_str().is_some())
+        let body = response.into_body().unwrap();
+        assert!(body["@odata.deltaLink"].as_str().is_some())
     }
 }
 
@@ -46,7 +47,7 @@ async fn paging_stream() {
                 match result {
                     Ok(response) => {
                         assert!(response.status().is_success());
-                        let body = response.into_body();
+                        let body = response.into_body().unwrap();
                         deque.push_back(body);
                     }
                     Err(err) => panic!("Error on stream users delta\n{err:#?}"),

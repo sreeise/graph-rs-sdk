@@ -210,6 +210,8 @@ impl AsMut<Url> for RequestHandler {
     }
 }
 
+pub type PagingResult<T> = GraphResult<http::Response<GraphResult<T>>>;
+
 pub struct Paging(RequestHandler);
 
 impl Paging {
@@ -296,7 +298,7 @@ impl Paging {
 
     fn try_stream<'a, T: DeserializeOwned + 'a>(
         mut self,
-    ) -> impl Stream<Item = GraphResult<http::Response<GraphResult<T>>>> + 'a {
+    ) -> impl Stream<Item = PagingResult<T>> + 'a {
         try_stream! {
             let request = self.0.default_request_builder();
             let response = request.send().await?;
@@ -336,7 +338,7 @@ impl Paging {
     /// ```
     pub fn stream<'a, T: DeserializeOwned + 'a>(
         mut self,
-    ) -> GraphResult<impl Stream<Item = GraphResult<http::Response<GraphResult<T>>>> + 'a> {
+    ) -> GraphResult<impl Stream<Item = PagingResult<T>> + 'a> {
         if let Some(err) = self.0.error.take() {
             return Err(err);
         }
@@ -370,7 +372,7 @@ impl Paging {
     /// ```
     pub async fn channel<T: DeserializeOwned + Debug + Send + 'static>(
         self,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<GraphResult<T>>>>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<PagingResult<T>>> {
         self.channel_buffer_timeout(100, Duration::from_secs(60))
             .await
     }
@@ -404,7 +406,7 @@ impl Paging {
     pub async fn channel_timeout<T: DeserializeOwned + Debug + Send + 'static>(
         self,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<GraphResult<T>>>>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<PagingResult<T>>> {
         self.channel_buffer_timeout(100, timeout).await
     }
 
@@ -449,7 +451,7 @@ impl Paging {
         mut self,
         buffer: usize,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<GraphResult<T>>>>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<PagingResult<T>>> {
         let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
 
         let request = self.0.default_request_builder();
