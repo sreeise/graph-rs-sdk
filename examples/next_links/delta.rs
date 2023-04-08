@@ -53,18 +53,14 @@ pub async fn stream_delta() -> GraphResult<()> {
         .users()
         .delta()
         .paging()
-        .stream::<serde_json::Value>()
-        .unwrap();
+        .stream::<serde_json::Value>()?;
 
     while let Some(result) = stream.next().await {
-        match result {
-            Ok(response) => {
-                println!("{response:#?}");
-                let body = response.into_body()?;
-                println!("{body:#?}");
-            }
-            Err(err) => panic!("Error on stream users delta\n{err:#?}"),
-        }
+        let response = result?;
+        println!("{response:#?}");
+
+        let body = response.into_body()?;
+        println!("{body:#?}");
     }
 
     Ok(())
