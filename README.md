@@ -1,5 +1,6 @@
 # graph-rs-sdk
 
+[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg)](https://crates.io/crates/graph-rs-sdk)
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
