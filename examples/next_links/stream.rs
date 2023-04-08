@@ -18,7 +18,7 @@ pub async fn stream_next_links() -> GraphResult<()> {
         let response = result?;
         println!("{response:#?}");
 
-        let body = response.into_body();
+        let body = response.into_body()?;
         println!("{body:#?}");
     }
 

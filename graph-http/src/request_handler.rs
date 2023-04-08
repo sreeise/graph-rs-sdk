@@ -5,7 +5,7 @@ use crate::internal::{
 };
 use async_stream::try_stream;
 use futures::Stream;
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::{ErrorMessage, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
@@ -210,23 +210,29 @@ impl AsMut<Url> for RequestHandler {
     }
 }
 
+pub type PagingResponse<T> = http::Response<Result<T, ErrorMessage>>;
+pub type PagingResult<T> = GraphResult<PagingResponse<T>>;
+
 pub struct Paging(RequestHandler);
 
 impl Paging {
     async fn http_response<T: DeserializeOwned>(
         response: reqwest::Response,
-    ) -> GraphResult<(Option<String>, http::Response<T>)> {
+    ) -> GraphResult<(Option<String>, PagingResponse<T>)> {
         let status = response.status();
         let url = response.url().clone();
         let headers = response.headers().clone();
         let version = response.version();
 
-        let json: serde_json::Value = response.json().await?;
-        let next_link = json.odata_next_link();
-        let body: T = serde_json::from_value(json)?;
+        let body: serde_json::Value = response.json().await?;
+        let next_link = body.odata_next_link();
+        let json = body.clone();
+        let body_result: Result<T, ErrorMessage> = serde_json::from_value(body)
+            .map_err(|_| serde_json::from_value(json.clone()).unwrap_or(ErrorMessage::default()));
 
         let mut builder = http::Response::builder()
             .url(url)
+            .json(&json)
             .status(http::StatusCode::from(&status))
             .version(version);
 
@@ -234,7 +240,7 @@ impl Paging {
             builder_header.extend(headers.clone());
         }
 
-        Ok((next_link, builder.body(body)?))
+        Ok((next_link, builder.body(body_result)?))
     }
 
     /// Returns all next links as [`VecDeque<http::Response<T>>`]. This method may
@@ -259,7 +265,7 @@ impl Paging {
     ///     println!("{result:#?}");
     ///  }
     /// ```
-    pub async fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<http::Response<T>>> {
+    pub async fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<PagingResponse<T>>> {
         if let Some(err) = self.0.error {
             return Err(err);
         }
@@ -292,7 +298,7 @@ impl Paging {
 
     fn try_stream<'a, T: DeserializeOwned + 'a>(
         mut self,
-    ) -> impl Stream<Item = GraphResult<http::Response<T>>> + 'a {
+    ) -> impl Stream<Item = PagingResult<T>> + 'a {
         try_stream! {
             let request = self.0.default_request_builder();
             let response = request.send().await?;
@@ -332,7 +338,7 @@ impl Paging {
     /// ```
     pub fn stream<'a, T: DeserializeOwned + 'a>(
         mut self,
-    ) -> GraphResult<impl Stream<Item = GraphResult<http::Response<T>>> + 'a> {
+    ) -> GraphResult<impl Stream<Item = PagingResult<T>> + 'a> {
         if let Some(err) = self.0.error.take() {
             return Err(err);
         }
@@ -366,7 +372,7 @@ impl Paging {
     /// ```
     pub async fn channel<T: DeserializeOwned + Debug + Send + 'static>(
         self,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<T>>>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<PagingResult<T>>> {
         self.channel_buffer_timeout(100, Duration::from_secs(60))
             .await
     }
@@ -400,7 +406,7 @@ impl Paging {
     pub async fn channel_timeout<T: DeserializeOwned + Debug + Send + 'static>(
         self,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<T>>>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<PagingResult<T>>> {
         self.channel_buffer_timeout(100, timeout).await
     }
 
@@ -408,7 +414,7 @@ impl Paging {
         client: &reqwest::Client,
         url: &str,
         access_token: &str,
-    ) -> GraphResult<(Option<String>, http::Response<T>)> {
+    ) -> GraphResult<(Option<String>, PagingResponse<T>)> {
         let response = client.get(url).bearer_auth(access_token).send().await?;
 
         Paging::http_response(response).await
@@ -445,7 +451,7 @@ impl Paging {
         mut self,
         buffer: usize,
         timeout: Duration,
-    ) -> GraphResult<tokio::sync::mpsc::Receiver<GraphResult<http::Response<T>>>> {
+    ) -> GraphResult<tokio::sync::mpsc::Receiver<PagingResult<T>>> {
         let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
 
         let request = self.0.default_request_builder();

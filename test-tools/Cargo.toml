@@ -4,7 +4,7 @@ version = "0.0.1"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/sreeise/graph-rs"
+repository = "https://github.com/sreeise/graph-rs-sdk"
 description = "Microsoft Graph Api Client"
 publish = false
 

@@ -1,12 +1,12 @@
 [package]
 name = "graph-rs-sdk"
-version = "1.0.2"
+version = "1.1.0"
 authors = ["sreeise"]
 edition = "2021"
 readme = "README.md"
 license = "MIT"
-repository = "https://github.com/sreeise/graph-rs"
-description = "Microsoft Graph Api Client"
+repository = "https://github.com/sreeise/graph-rs-sdk"
+description = "Rust SDK Client for Microsoft Graph and the Microsoft Graph Api"
 
 exclude = [
     "test_files/*",
@@ -15,7 +15,7 @@ exclude = [
     "test-tools/*",
     "graph-codegen/*"
 ]
-keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
+keywords = ["onedrive", "microsoft", "sdk", "api", "oauth"]
 categories = ["authentication", "web-programming::http-client"]
 
 [workspace]
@@ -36,9 +36,9 @@ serde_json = "1"
 url = "2"
 lazy_static = "1.4.0"
 
-graph-oauth = { path = "./graph-oauth", version = "0.4.0" }
-graph-http = { path = "./graph-http", version = "1.0.2", default-features=false }
-graph-error = { path = "./graph-error", version = "0.2.1" }
+graph-oauth = { path = "./graph-oauth", version = "1.0.0" }
+graph-http = { path = "./graph-http", version = "1.1.0", default-features=false }
+graph-error = { path = "./graph-error", version = "0.2.2" }
 graph-core = { path = "./graph-core", version = "0.4.0" }
 
 [features]

@@ -1,27 +1,47 @@
-# graph-oauth
+# OAuth client implementing the OAuth 2.0 and OpenID Connect protocols for Microsoft identity platform
 
-OAuth client for Microsoft Graph and the graph-rs project.
+Purpose built as OAuth client for Microsoft Graph and the [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk) project.
+This project can however be used outside [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk) as an OAuth client
+for Microsoft Identity Platform or by using [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk).
 
-See the project on [GitHub](https://github.com/sreeise/graph-rs).
+For async:
 
-### Authorization Flows and Microsoft Graph
+```toml
+graph-oauth = "1.0.0"
+tokio = { version = "1.25.0", features = ["full"] }
+```
 
-    1. Token Flow - v1.0
-    2. Code Flow - v1.0
-    3. Authorization Code Grant - v1.0 and beta
-    4. Open ID - v1.0 and beta
-    5. Implicit - v1.0 and beta
-    6. Client Credentials - v1.0 and beta
-    7. Resource Owner Password Credentials - v1.0 and beta
+For blocking:
 
-For more examples see the example's directory in the graph-rs project
-on [GitHub](https://github.com/sreeise/graph-rs).
+```toml
+graph-oauth = "1.0.0"
+```
 
-For more information on Microsoft graph and OAuth 2.0 authorization flows see:
-https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-app-types
+See the project on [GitHub](https://github.com/sreeise/graph-rs-sdk).
+
+### Supported Authorization Flows
+
+#### Microsoft OneDrive and SharePoint
+
+- [Token Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#token-flow)
+- [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
+
+#### Microsoft Identity Platform
+
+- [Authorization Code Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+- [Authorization Code Grant PKCE](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+- [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
+- [Implicit Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)
+- [Device Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
+- [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+- [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
+
+For more extensive examples and explanations see the
+[OAuth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth) in the examples/oauth
+directory on [GitHub](https://github.com/sreeise/graph-rs-sdk).
 
 ```rust
-use graph_oauth::oauth::OAuth;
+use graph_oauth::oauth::{AccessToken, OAuth};
 
 fn main() {
     let mut oauth = OAuth::new();
@@ -51,8 +71,28 @@ fn main() {
     oauth.access_code("<ACCESS CODE>");
 
     // Perform an authorization code grant request for an access token:
-    let mut request = oauth.build().authorization_code_grant();
-    let access_token = request.access_token().send().unwrap();
-    println!("{:#?}", access_token);
+    let response = request.access_token().send().await?;
+    println!("{response:#?}");
+
+    if response.status().is_success() {
+        let mut access_token: AccessToken = response.json().await?;
+
+        // Option<&JsonWebToken>
+        let jwt = access_token.jwt();
+        println!("{jwt:#?}");
+
+        oauth.access_token(access_token);
+
+        // If all went well here we can print out the OAuth config with the Access Token.
+        println!("{:#?}", &oauth);
+    } else {
+        // See if Microsoft Graph returned an error in the Response body
+        let result: reqwest::Result<serde_json::Value> = response.json().await;
+
+        match result {
+            Ok(body) => println!("{body:#?}"),
+            Err(err) => println!("Error on deserialization:\n{err:#?}"),
+        }
+    }
 }
 ```

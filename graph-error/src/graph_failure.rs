@@ -1,5 +1,6 @@
 use crate::download::AsyncDownloadError;
 use crate::internal::GraphRsError;
+use crate::ErrorMessage;
 use reqwest::header::HeaderMap;
 use std::cell::BorrowMutError;
 use std::io;
@@ -71,6 +72,9 @@ pub enum GraphFailure {
         headers: Option<HeaderMap>,
         message: String,
     },
+
+    #[error("{0:#?}")]
+    ErrorMessage(#[from] ErrorMessage),
 }
 
 impl GraphFailure {

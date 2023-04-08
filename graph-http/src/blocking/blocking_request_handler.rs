@@ -1,6 +1,6 @@
 use crate::blocking::blocking_client::BlockingClient;
 use crate::internal::*;
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::{ErrorMessage, GraphFailure, GraphResult};
 use http::header::CONTENT_TYPE;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use serde::de::DeserializeOwned;
@@ -197,18 +197,21 @@ pub struct BlockingPaging(BlockingRequestHandler);
 impl BlockingPaging {
     fn http_response<T: DeserializeOwned>(
         response: reqwest::blocking::Response,
-    ) -> GraphResult<(Option<String>, http::Response<T>)> {
+    ) -> GraphResult<(Option<String>, PagingResponse<T>)> {
         let status = response.status();
         let url = response.url().clone();
         let headers = response.headers().clone();
         let version = response.version();
 
-        let json: serde_json::Value = response.json()?;
-        let next_link = json.odata_next_link();
-        let body: T = serde_json::from_value(json)?;
+        let body: serde_json::Value = response.json()?;
+        let next_link = body.odata_next_link();
+        let json = body.clone();
+        let body_result: Result<T, ErrorMessage> = serde_json::from_value(body)
+            .map_err(|_| serde_json::from_value(json.clone()).unwrap_or(ErrorMessage::default()));
 
         let mut builder = http::Response::builder()
             .url(url)
+            .json(&json)
             .status(http::StatusCode::from(&status))
             .version(version);
 
@@ -216,7 +219,7 @@ impl BlockingPaging {
             builder_header.extend(headers.clone());
         }
 
-        Ok((next_link, builder.body(body)?))
+        Ok((next_link, builder.body(body_result)?))
     }
 
     /// Returns all next links as [`VecDeque<http::Response<T>>`]. This method may
@@ -241,7 +244,7 @@ impl BlockingPaging {
     /// println!("{response:#?}");
     /// println!("{:#?}", response.body());
     /// ```
-    pub fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<http::Response<T>>> {
+    pub fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<PagingResponse<T>>> {
         if let Some(err) = self.0.error {
             return Err(err);
         }
@@ -276,7 +279,7 @@ impl BlockingPaging {
         client: &reqwest::blocking::Client,
         next: &str,
         access_token: &str,
-    ) -> GraphResult<(Option<String>, http::Response<T>)> {
+    ) -> GraphResult<(Option<String>, PagingResponse<T>)> {
         let response = client
             .get(next)
             .bearer_auth(access_token)
@@ -288,7 +291,7 @@ impl BlockingPaging {
 
     pub fn channel<T: DeserializeOwned + Send + 'static>(
         mut self,
-    ) -> GraphResult<std::sync::mpsc::Receiver<Option<GraphResult<http::Response<T>>>>> {
+    ) -> GraphResult<std::sync::mpsc::Receiver<Option<PagingResult<T>>>> {
         let (sender, receiver) = std::sync::mpsc::channel();
         let request = self.0.default_request_builder();
         let response = request.send()?;

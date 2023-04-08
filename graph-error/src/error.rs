@@ -1,4 +1,5 @@
 use serde::Serialize;
+use std::fmt::{Display, Formatter};
 
 use std::string::ToString;
 
@@ -34,7 +35,7 @@ pub struct ErrorStatus {
     pub inner_error: Option<InnerError>,
 }
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(thiserror::Error, Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ErrorMessage {
     pub error: ErrorStatus,
 }
@@ -62,6 +63,12 @@ impl ErrorMessage {
 
     pub fn date(&self) -> Option<String> {
         self.error.inner_error.as_ref()?.date.clone()
+    }
+}
+
+impl Display for ErrorMessage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({:#?})", self.error)
     }
 }
 

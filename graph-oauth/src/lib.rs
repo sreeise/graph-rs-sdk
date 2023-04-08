@@ -1,14 +1,25 @@
-//! OAuth client for the graph-rs project.
+//! # OAuth client implementing the OAuth 2.0 and OpenID Connect protocols on Microsoft identity platform
 //!
-//! See the project on [GitHub](https://github.com/sreeise/graph-rs).
+//! Purpose built as OAuth client for Microsoft Graph and the [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk) project.
+//! This project can however be used outside [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk) as an OAuth client
+//! for Microsoft Identity Platform.
 //!
-//! # OAuth
-//! An authorization and access token client for Microsoft Graph and the OAuth 2.0 authorization
-//! framework. This project is specifically meant to be used for the Microsoft Graph Api.
+//! ### Supported Authorization Flows
 //!
-//! # Disclaimer
-//! Using this API for other resource owners besides Microsoft may work but
-//! functionality will more then likely be limited.
+//! #### Microsoft OneDrive and SharePoint
+//!
+//! - [Token Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#token-flow)
+//! - [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
+//!
+//! #### Microsoft Identity Platform
+//!
+//! - [Authorization Code Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+//! - [Authorization Code Grant PKCE](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+//! - [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
+//! - [Implicit Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)
+//! - [Device Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
+//! - [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+//! - [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
 //!
 //! # Example
 //! ```
@@ -49,12 +60,27 @@
 //!
 //! Perform an authorization code grant request for an access token:
 //! ```rust,ignore
-//! # use graph_oauth::oauth::OAuth;
+//! # use graph_oauth::oauth::{AccessToken, OAuth};
 //! # let mut oauth = OAuth::new();
 //! let mut request = oauth.build().authorization_code_grant();
 //!
-//! let access_token = request.access_token().send().unwrap();
+//! let response = request.access_token().send()?;
 //! println!("{:#?}", access_token);
+//!
+//! if response.status().is_success() {
+//!     let mut access_token: AccessToken = response.json()?;
+//!
+//!     let jwt = access_token.jwt();
+//!     println!("{jwt:#?}");
+//!
+//!     // Store in OAuth to make requests for refresh tokens.
+//!     oauth.access_token(access_token);
+//! } else {
+//!     // See if Microsoft Graph returned an error in the Response body
+//!     let result: reqwest::Result<serde_json::Value> = response.json()?;
+//!     println!("{:#?}", result);
+//! }
+//!
 //! ```
 #[macro_use]
 extern crate strum;

@@ -146,13 +146,12 @@ impl JsonWebToken {
     }
 }
 
-/// TODO(#4): JWT Validation - https://github.com/sreeise/rust-onedrive/issues/4
-///
+// TODO(#4): JWT Validation - https://github.com/sreeise/graph-rs-sdk/issues/4
 /// JSON web token (JWT) verification for RFC 7619
 ///
 /// The JWT implementation does not implement full JWT verification.
 /// The validation here is best effort to follow section 7.2 of RFC 7519 for
-/// JWT validation: https://tools.ietf.org/html/rfc7519#section-7.2
+/// JWT validation: <https://tools.ietf.org/html/rfc7519#section-7.2>
 ///
 /// Callers should not rely on this alone to verify JWTs
 pub struct JwtParser;

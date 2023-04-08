@@ -53,6 +53,7 @@ pub async fn set_and_req_access_code(access_code: AccessCode) -> GraphResult<()>
         let jwt = access_token.jwt();
         println!("{jwt:#?}");
 
+        // Store in OAuth to make requests for refresh tokens.
         oauth.access_token(access_token);
 
         // If all went well here we can print out the OAuth config with the Access Token.
