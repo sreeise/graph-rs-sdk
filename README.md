@@ -372,7 +372,7 @@ provide a `next_link` link for you to retrieve the next batch. You can use the `
 different ways to get/call next link requests.
 
 If you just want a quick and easy way to get all next link responses or the JSON bodies you can use the `paging().json()` method which will exhaust all
-next link calls and return all the responses in a `VecDeque<Response<T>>`. Keep in mind that the larger the volume of next link calls that need to be
+next link calls and return all the responses in a `VecDeque<Response<Result<T>>>`. Keep in mind that the larger the volume of next link calls that need to be
 made the longer the return delay will be when calling this method.
 
 All paging methods have their response body read in order to get the `@odata.nextLink` URL for calling next link requests. Because of this
@@ -380,7 +380,40 @@ the original `reqwest::Response` is lost. However, the paging responses are re-w
 similar to `reqwest::Response`. The main difference is that the paging calls must specify the type of response body in order to be
 called and the response that is returned can provide a reference to the body `response.body()` or you can take ownership of the body
 which will drop the response using `response.into_body()` whereas with `reqwest::Response` you don't have to specify the type of body
-before getting the response.
+before getting the response. 
+
+For paging, the response bodies are returned in a result, `Result<T, ErrorMessage>` when calling `body()` or `into_body()`
+where errors are typically due to deserialization when the Graph Api returns error messages in the `Response` body. 
+For instance, if you were to call the Graph Api using paging with a custom type and your access token has already 
+expired the response body will be an error because the response body could not be converted to your custom type.
+
+If you get an unsuccessful status code from the `Response` object you can typically assume
+that your response body is an error. With paging, the `Result<T, ErrorMessage>` will include any
+Microsoft Graph specific error from the Response body in `ErrorMessage`.
+
+You can however almost always get original response body using `serde_json::Value` from a paging call because 
+this sdk stores the response in a `serde_json::Value`, transferred in `Response` as `Vec<u8>`,
+for each `Response`. To get the original response body as `serde_json::Value` when using custom types, first
+add a use statement for `HttpResponseExt`, the sdk trait for `http::Response`: `use graph_rs_sdk::http::HttpResponseExt;`
+call the `json` method on the `http::Response<Result<T, ErrorMessage>>` which returns an `Option<serde_json::Value>`. 
+This `serde_json::Value`, in unsuccessful responses, will almost always be the Microsoft Graph Error.
+You can convert this `serde_json::Value` to the provided type, `ErrorMessage`,
+from `graph_rs_sdk::error::ErrorMessage`, or to whatever type you choose.
+
+```rust
+use graph_rs_sdk::http::HttpResponseExt;
+
+fn main() {
+  // Given response = http::Response<T>>
+  println!("{:#?}", response.url()); // Get the url of the request.
+  println!("{:#?}", response.json()); // Get the original JSON that came with the request.
+}
+```
+
+Performance wise, It is better to use `body()` and `into_body()` for your own types or even `serde_json::Value` because
+in successful responses the body has already been converted. The `HttpResponseExt::json` method
+must convert from `Vec<u8>`. In general, this method can be used for any use case. However, its provided if needed
+for debugging, for error messages that Microsoft Graph returns.
 
 There are different levels of support for paging Microsoft Graph APIs. See the documentation, 
 [Paging Microsoft Graph data in your app](https://learn.microsoft.com/en-us/graph/paging), for more info on

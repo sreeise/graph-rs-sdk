@@ -6,8 +6,8 @@ pub(crate) struct HttpExtUrl(pub Url);
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct HttpExtSerdeJsonValue(pub serde_json::Value);
 
-#[derive(Debug)]
-pub(crate) struct HttpExtSerializedError(pub serde_json::Value);
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct HttpExtVecU8(pub Vec<u8>);
 
 /// Extension trait for http::response::Builder objects
 ///
@@ -16,8 +16,7 @@ pub trait HttpResponseBuilderExt {
     /// A builder method for the `http::response::Builder` type that allows the user to add a `Url`
     /// to the `http::Response`
     fn url(self, url: Url) -> Self;
-    fn json(self, value: serde_json::Value) -> Self;
-    fn error(self, error: serde_json::Value) -> Self;
+    fn json(self, value: &serde_json::Value) -> Self;
 }
 
 impl HttpResponseBuilderExt for http::response::Builder {
@@ -25,19 +24,18 @@ impl HttpResponseBuilderExt for http::response::Builder {
         self.extension(HttpExtUrl(url))
     }
 
-    fn json(self, value: serde_json::Value) -> Self {
-        self.extension(HttpExtSerdeJsonValue(value))
-    }
+    fn json(self, value: &serde_json::Value) -> Self {
+        if let Ok(value) = serde_json::to_vec(value) {
+            return self.extension(HttpExtVecU8(value));
+        }
 
-    fn error(self, error: serde_json::Value) -> Self {
-        self.extension(HttpExtSerializedError(error))
+        self
     }
 }
 
 pub trait HttpResponseExt {
     fn url(&self) -> Option<Url>;
     fn json(&self) -> Option<serde_json::Value>;
-    fn error(&self) -> Option<serde_json::Value>;
 }
 
 impl<T> HttpResponseExt for http::Response<T> {
@@ -49,13 +47,7 @@ impl<T> HttpResponseExt for http::Response<T> {
 
     fn json(&self) -> Option<serde_json::Value> {
         self.extensions()
-            .get::<HttpExtSerdeJsonValue>()
-            .map(|value| value.clone().0)
-    }
-
-    fn error(&self) -> Option<serde_json::Value> {
-        self.extensions()
-            .get::<HttpExtSerializedError>()
-            .map(|error| error.0.clone())
+            .get::<HttpExtVecU8>()
+            .and_then(|value| serde_json::from_slice(value.0.as_slice()).ok())
     }
 }

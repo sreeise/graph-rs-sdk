@@ -5,7 +5,7 @@ use crate::internal::{
 };
 use async_stream::try_stream;
 use futures::Stream;
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::{ErrorMessage, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
@@ -210,14 +210,15 @@ impl AsMut<Url> for RequestHandler {
     }
 }
 
-pub type PagingResult<T> = GraphResult<http::Response<GraphResult<T>>>;
+pub type PagingResponse<T> = http::Response<Result<T, ErrorMessage>>;
+pub type PagingResult<T> = GraphResult<PagingResponse<T>>;
 
 pub struct Paging(RequestHandler);
 
 impl Paging {
     async fn http_response<T: DeserializeOwned>(
         response: reqwest::Response,
-    ) -> GraphResult<(Option<String>, http::Response<GraphResult<T>>)> {
+    ) -> GraphResult<(Option<String>, PagingResponse<T>)> {
         let status = response.status();
         let url = response.url().clone();
         let headers = response.headers().clone();
@@ -226,11 +227,12 @@ impl Paging {
         let body: serde_json::Value = response.json().await?;
         let next_link = body.odata_next_link();
         let json = body.clone();
-        let body_result: GraphResult<T> = serde_json::from_value(body).map_err(GraphFailure::from);
+        let body_result: Result<T, ErrorMessage> = serde_json::from_value(body)
+            .map_err(|_| serde_json::from_value(json.clone()).unwrap_or(ErrorMessage::default()));
 
         let mut builder = http::Response::builder()
             .url(url)
-            .json(json)
+            .json(&json)
             .status(http::StatusCode::from(&status))
             .version(version);
 
@@ -263,9 +265,7 @@ impl Paging {
     ///     println!("{result:#?}");
     ///  }
     /// ```
-    pub async fn json<T: DeserializeOwned>(
-        mut self,
-    ) -> GraphResult<VecDeque<http::Response<GraphResult<T>>>> {
+    pub async fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<PagingResponse<T>>> {
         if let Some(err) = self.0.error {
             return Err(err);
         }
@@ -414,7 +414,7 @@ impl Paging {
         client: &reqwest::Client,
         url: &str,
         access_token: &str,
-    ) -> GraphResult<(Option<String>, http::Response<GraphResult<T>>)> {
+    ) -> GraphResult<(Option<String>, PagingResponse<T>)> {
         let response = client.get(url).bearer_auth(access_token).send().await?;
 
         Paging::http_response(response).await
