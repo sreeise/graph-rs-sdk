@@ -1,5 +1,5 @@
 //! Various errors used to implement the Graph API and OAuth clients for the graph-rs project
-//! See the project on [GitHub](https://github.com/sreeise/graph-rs).
+//! See the project on [GitHub](https://github.com/sreeise/graph-rs-sdk).
 #[macro_use]
 extern crate serde;
 

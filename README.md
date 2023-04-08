@@ -1,12 +1,9 @@
 # graph-rs-sdk
 
-![Build](https://github.com/sreeise/graph-rs/actions/workflows/build.yml/badge.svg)
+![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
-### Microsoft Graph API Client in Rust
-
-Installation and basic usage can be found below and there are extensive examples in the example's directory
-included in the project on [GitHub](https://github.com/sreeise/graph-rs).
+### Rust SDK Client for Microsoft Graph and the Microsoft Graph Api
 
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
@@ -39,7 +36,7 @@ use graph_rs_sdk::*;
 
 For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
 
-The [Discussions](https://github.com/sreeise/graph-rs/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs/discussions)
+The [Discussions](https://github.com/sreeise/graph-rs-sdk/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs-sdk/discussions)
 is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
 an issue first. Features can be requested through issues or discussions. Either way works.
 Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
@@ -70,8 +67,7 @@ config but in general most of them are implemented.
 
 # Usage
 
-For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs/tree/master/examples)
-
+For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs-sdk/tree/master/examples)
 
 ## OAuth
 
@@ -99,8 +95,8 @@ OAuth flows such as auth code grant, client credentials, and open id connect.
 
 
 The following is an auth code grant example. For more extensive examples and explanations see the 
-[OAuth Examples](https://github.com/sreeise/graph-rs/tree/master/examples/oauth) in the examples/oauth
-directory on [GitHub](https://github.com/sreeise/graph-rs).
+[OAuth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth) in the examples/oauth
+directory on [GitHub](https://github.com/sreeise/graph-rs-sdk).
 
 ```rust
 

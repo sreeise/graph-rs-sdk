@@ -4,7 +4,7 @@ version = "0.4.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/sreeise/graph-rs"
+repository = "https://github.com/sreeise/graph-rs-sdk"
 description = "Common types for the graph-rs-sdk crate"
 
 keywords = ["onedrive", "microsoft", "microsoft-graph", "api"]

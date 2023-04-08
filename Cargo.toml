@@ -5,8 +5,8 @@ authors = ["sreeise"]
 edition = "2021"
 readme = "README.md"
 license = "MIT"
-repository = "https://github.com/sreeise/graph-rs"
-description = "Microsoft Graph Api Client"
+repository = "https://github.com/sreeise/graph-rs-sdk"
+description = "Rust SDK Client for Microsoft Graph and the Microsoft Graph Api"
 
 exclude = [
     "test_files/*",
@@ -15,7 +15,7 @@ exclude = [
     "test-tools/*",
     "graph-codegen/*"
 ]
-keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
+keywords = ["onedrive", "microsoft", "sdk", "api", "oauth"]
 categories = ["authentication", "web-programming::http-client"]
 
 [workspace]

@@ -2,7 +2,7 @@
 //! graph-rs-sdk is an API client for Microsoft Graph V1.0 and Graph Beta.
 //!
 //! Installation and basic usage can be found below and there are extensive examples in the example's directory
-//! on [GitHub](https://github.com/sreeise/graph-rs).
+//! on [GitHub](https://github.com/sreeise/graph-rs-sdk).
 //!
 //! ## What APIs are available
 //!
@@ -12,11 +12,11 @@
 //!
 //! ## Feature requests or Bug reports.
 //!
-//! For bug reports please file an issue on [GitHub](https://github.com/sreeise/graph-rs)
+//! For bug reports please file an issue on [GitHub](https://github.com/sreeise/graph-rs-sdk)
 //! and a response or fix will be given as soon as possible.
 //!
-//! The [Discussions](https://github.com/sreeise/graph-rs/discussions) tab on
-//! [GitHub](https://github.com/sreeise/graph-rs/discussions) is enabled so feel free to stop by
+//! The [Discussions](https://github.com/sreeise/graph-rs-sdk/discussions) tab on
+//! [GitHub](https://github.com/sreeise/graph-rs-sdk/discussions) is enabled so feel free to stop by
 //! there with any questions or feature requests as well. For bugs, please file an issue first. Other
 //! than that feel free to ask questions, provide tips to others, and talk about the project in general.
 //!
@@ -148,9 +148,9 @@
 //! ```
 //!
 //! - For more information and examples please see the repository on
-//! [GitHub](https://github.com/sreeise/graph-rs)
+//! [GitHub](https://github.com/sreeise/graph-rs-sdk)
 //! - If you run into issues related to graph-rs specifically please
-//! file an issue on [GitHub](https://github.com/sreeise/graph-rs)
+//! file an issue on [GitHub](https://github.com/sreeise/graph-rs-sdk)
 //!
 //! # OAuth
 //!

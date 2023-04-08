@@ -4,7 +4,7 @@ version = "0.2.2"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/sreeise/graph-rs"
+repository = "https://github.com/sreeise/graph-rs-sdk"
 description = "Graph Api error types and handling for the graph-rs-sdk crate"
 
 keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]

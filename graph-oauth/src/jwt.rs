@@ -146,7 +146,7 @@ impl JsonWebToken {
     }
 }
 
-// TODO(#4): JWT Validation - https://github.com/sreeise/graph-rs/issues/4
+// TODO(#4): JWT Validation - https://github.com/sreeise/graph-rs-sdk/issues/4
 /// JSON web token (JWT) verification for RFC 7619
 ///
 /// The JWT implementation does not implement full JWT verification.

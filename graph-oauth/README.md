@@ -17,7 +17,7 @@ For blocking:
 graph-oauth = "1.0.0"
 ```
 
-See the project on [GitHub](https://github.com/sreeise/graph-rs).
+See the project on [GitHub](https://github.com/sreeise/graph-rs-sdk).
 
 ### Supported Authorization Flows
 
@@ -37,8 +37,8 @@ See the project on [GitHub](https://github.com/sreeise/graph-rs).
 - [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
 
 For more extensive examples and explanations see the
-[OAuth Examples](https://github.com/sreeise/graph-rs/tree/master/examples/oauth) in the examples/oauth
-directory on [GitHub](https://github.com/sreeise/graph-rs).
+[OAuth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth) in the examples/oauth
+directory on [GitHub](https://github.com/sreeise/graph-rs-sdk).
 
 ```rust
 use graph_oauth::oauth::{AccessToken, OAuth};
