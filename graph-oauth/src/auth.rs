@@ -114,8 +114,7 @@ impl ToString for OAuthCredential {
 /// # OAuth
 ///
 /// OAuth client implementing the OAuth 2.0 and OpenID Connect protocols
-/// on Microsoft identity platform. This version is specifically meant for
-/// the Graph V1.0 and Beta API.
+/// on Microsoft identity platform.
 ///
 /// The client supports almost all OAuth 2.0 flows that Microsoft
 /// implements as well as the token and code flow specific to the
@@ -124,7 +123,7 @@ impl ToString for OAuthCredential {
 /// The OAuth client is strict on what can be used for a specific OAuth
 /// flow. This is to ensure that the credentials used in requests include
 /// only information that is required or optional for that specific grant
-/// and not any other. Even if you accidently pass a value, such as a nonce,
+/// and not any other. Even if you accidentally pass a value, such as a nonce,
 /// for a grant type that does not use it, any request that is made will not
 /// include the nonce regardless.
 ///
@@ -562,7 +561,7 @@ impl OAuth {
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     ///
     ///
-    /// For more info on PKCE and entropy see: https://tools.ietf.org/html/rfc7636#section-7.1
+    /// For more info on PKCE and entropy see: <https://tools.ietf.org/html/rfc7519#section-7.2>
     ///
     /// # Example
     /// ```
@@ -1494,8 +1493,63 @@ pub struct AccessTokenRequest {
 }
 
 impl AccessTokenRequest {
-    /// Send the request for an access token. The response body
-    /// be will converted to an access token and returned.
+    /// Send the request for an access token. If successful, the Response body
+    /// should be an access token which you can convert to [AccessToken]
+    /// and pass back to [OAuth] to use to get refresh tokens.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use graph_oauth::oauth::{OAuth, AccessToken};
+    /// let mut oauth: OAuth = OAuth::new();
+    ///
+    /// // As an example create a random access token.
+    /// let mut access_token = AccessToken::default();
+    /// access_token.access_token("12345");
+    /// // Store the token in OAuth if the access token has a refresh token.
+    /// // The refresh token can be later used to request more access tokens.
+    /// oauth.access_token(access_token);
+    /// // You can get the actual bearer token if needed:
+    /// println!("{:#?}", oauth.get_access_token().unwrap().bearer_token());
+    /// ```
+    ///
+    /// Request an access token.
+    /// # Example
+    /// ```rust,ignore
+    /// use graph_oauth::oauth::{AccessToken, OAuth};
+    /// let mut oauth: OAuth = OAuth::new();
+    ///
+    /// // This assumes the user has been authenticated and
+    /// // the access_code from the request has been given:
+    /// oauth.access_code("access_code");
+    ///
+    /// // To get an access token a access_token_url is needed and the grant_type
+    /// // should be set to token.
+    /// // There are other parameters that may need to be included depending on the
+    /// // authorization flow chosen.
+    /// // The url below is for the v1.0 drive API. You can also use the Graph URLs as well.
+    /// oauth.access_token_url("https://login.live.com/oauth20_token.srf")
+    ///     .response_type("token")
+    ///     .grant_type("authorization_code");
+    ///
+    /// // Make a request for an access token.
+    /// let mut request = oauth.build().authorization_code_grant();
+    /// let response = request.access_token().send()?;
+    /// println!("{response:#?}");
+    ///
+    /// if response.status().is_success() {
+    ///     let mut access_token: AccessToken = response.json()?;
+    ///
+    ///     let jwt = access_token.jwt();
+    ///     println!("{jwt:#?}");
+    ///
+    ///     // Store in OAuth for getting refresh tokens.
+    ///     oauth.access_token(access_token);
+    /// } else {
+    ///     // See if Microsoft Graph returned an error in the Response body
+    ///     let result: reqwest::Result<serde_json::Value> = response.json();
+    ///     println!("{:#?}", result);
+    /// }
+    /// ```
     pub fn send(self) -> GraphResult<reqwest::blocking::Response> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -1518,8 +1572,63 @@ pub struct AsyncAccessTokenRequest {
 }
 
 impl AsyncAccessTokenRequest {
-    /// Send the request for an access token. The response body
-    /// be will converted to an access token and returned.
+    /// Send the request for an access token. If successful, the Response body
+    /// should be an access token which you can convert to [AccessToken]
+    /// and pass back to [OAuth] to use to get refresh tokens.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// # use graph_oauth::oauth::{OAuth, AccessToken};
+    /// let mut oauth: OAuth = OAuth::new();
+    ///
+    /// // As an example create a random access token.
+    /// let mut access_token = AccessToken::default();
+    /// access_token.access_token("12345");
+    /// // Store the token in OAuth if the access token has a refresh token.
+    /// // The refresh token can be later used to request more access tokens.
+    /// oauth.access_token(access_token);
+    /// // You can get the actual bearer token if needed:
+    /// println!("{:#?}", oauth.get_access_token().unwrap().bearer_token());
+    /// ```
+    ///
+    /// Request an access token.
+    /// # Example
+    /// ```rust,ignore
+    /// use graph_oauth::oauth::{AccessToken, OAuth};
+    /// let mut oauth: OAuth = OAuth::new();
+    ///
+    /// // This assumes the user has been authenticated and
+    /// // the access_code from the request has been given:
+    /// oauth.access_code("access_code");
+    ///
+    /// // To get an access token a access_token_url is needed and the grant_type
+    /// // should be set to token.
+    /// // There are other parameters that may need to be included depending on the
+    /// // authorization flow chosen.
+    /// // The url below is for the v1.0 drive API. You can also use the Graph URLs as well.
+    /// oauth.access_token_url("https://login.live.com/oauth20_token.srf")
+    ///     .response_type("token")
+    ///     .grant_type("authorization_code");
+    ///
+    /// // Make a request for an access token.
+    /// let mut request = oauth.build().authorization_code_grant();
+    /// let response = request.access_token().send().await?;
+    /// println!("{response:#?}");
+    ///
+    /// if response.status().is_success() {
+    ///     let mut access_token: AccessToken = response.json().await?;
+    ///
+    ///     let jwt = access_token.jwt();
+    ///     println!("{jwt:#?}");
+    ///
+    ///     // Store in OAuth for getting refresh tokens.
+    ///     oauth.access_token(access_token);
+    /// } else {
+    ///     // See if Microsoft Graph returned an error in the Response body
+    ///     let result: reqwest::Result<serde_json::Value> = response.json().await;
+    ///     println!("{:#?}", result);
+    /// }
+    /// ```
     pub async fn send(self) -> GraphResult<reqwest::Response> {
         if self.error.is_some() {
             return Err(self.error.unwrap_or_default());
@@ -1652,13 +1761,13 @@ impl AccessTokenGrant {
     /// // The refresh token can be later used to request more access tokens.
     /// oauth.access_token(access_token);
     /// // You can get the actual bearer token if needed:
-    /// println!("{:#?}", oauth.get_access_token().unwrap().get_access_token());
+    /// println!("{:#?}", oauth.get_access_token().unwrap().bearer_token());
     /// ```
     ///
     /// Request an access token.
     /// # Example
     /// ```rust,ignore
-    /// use graph_oauth::oauth::{Grant, OAuth};
+    /// use graph_oauth::oauth::{AccessToken, OAuth};
     /// let mut oauth: OAuth = OAuth::new();
     ///
     /// // This assumes the user has been authenticated and
@@ -1676,8 +1785,22 @@ impl AccessTokenGrant {
     ///
     /// // Make a request for an access token.
     /// let mut request = oauth.build().authorization_code_grant();
-    /// let access_token = request.access_token().send().unwrap();
-    /// println!("{:#?}", access_token);
+    /// let response = request.access_token().send()?;
+    /// println!("{response:#?}");
+    ///
+    /// if response.status().is_success() {
+    ///     let mut access_token: AccessToken = response.json()?;
+    ///
+    ///     let jwt = access_token.jwt();
+    ///     println!("{jwt:#?}");
+    ///
+    ///     // Store in OAuth for getting refresh tokens.
+    ///     oauth.access_token(access_token);
+    /// } else {
+    ///     // See if Microsoft Graph returned an error in the Response body
+    ///     let result: reqwest::Result<serde_json::Value> = response.json();
+    ///     println!("{:#?}", result);
+    /// }
     /// ```
     pub fn access_token(&mut self) -> AccessTokenRequest {
         self.oauth
@@ -1789,6 +1912,7 @@ impl AsyncAccessTokenGrant {
     /// Make a request for an access token. The token is stored in OAuth and
     /// will be used to make for making requests for refresh tokens. The below
     /// example shows how access tokens are stored and retrieved for OAuth:
+    ///
     /// # Example
     /// ```rust,ignore
     /// # use graph_oauth::oauth::{OAuth, AccessToken};
@@ -1801,13 +1925,13 @@ impl AsyncAccessTokenGrant {
     /// // The refresh token can be later used to request more access tokens.
     /// oauth.access_token(access_token);
     /// // You can get the actual bearer token if needed:
-    /// println!("{:#?}", oauth.get_access_token().unwrap().get_access_token());
+    /// println!("{:#?}", oauth.get_access_token().unwrap().bearer_token());
     /// ```
     ///
     /// Request an access token.
     /// # Example
     /// ```rust,ignore
-    /// use graph_oauth::oauth::{Grant, OAuth};
+    /// use graph_oauth::oauth::{AccessToken, OAuth};
     /// let mut oauth: OAuth = OAuth::new();
     ///
     /// // This assumes the user has been authenticated and
@@ -1825,8 +1949,22 @@ impl AsyncAccessTokenGrant {
     ///
     /// // Make a request for an access token.
     /// let mut request = oauth.build().authorization_code_grant();
-    /// let access_token = request.access_token().send().unwrap();
-    /// println!("{:#?}", access_token);
+    /// let response = request.access_token().send().await?;
+    /// println!("{response:#?}");
+    ///
+    /// if response.status().is_success() {
+    ///     let mut access_token: AccessToken = response.json().await?;
+    ///
+    ///     let jwt = access_token.jwt();
+    ///     println!("{jwt:#?}");
+    ///
+    ///     // Store in OAuth for getting refresh tokens.
+    ///     oauth.access_token(access_token);
+    /// } else {
+    ///     // See if Microsoft Graph returned an error in the Response body
+    ///     let result: reqwest::Result<serde_json::Value> = response.json().await;
+    ///     println!("{:#?}", result);
+    /// }
     /// ```
     pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth

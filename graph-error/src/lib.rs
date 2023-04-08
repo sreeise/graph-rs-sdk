@@ -6,13 +6,11 @@ extern crate serde;
 pub mod download;
 mod error;
 mod graph_failure;
-mod headers;
 mod internal;
 pub mod io_error;
 
 pub use error::*;
 pub use graph_failure::*;
-pub use headers::*;
 pub use internal::*;
 
 pub type GraphResult<T> = Result<T, GraphFailure>;

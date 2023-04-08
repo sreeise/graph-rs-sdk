@@ -1,4 +1,4 @@
-# graph-rs
+# graph-rs-sdk
 
 ![Build](https://github.com/sreeise/graph-rs/actions/workflows/build.yml/badge.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
@@ -11,7 +11,7 @@ included in the project on [GitHub](https://github.com/sreeise/graph-rs).
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
 ```toml
-graph-rs-sdk = "1.0.1"
+graph-rs-sdk = "1.0.2"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -48,6 +48,9 @@ Other than that feel free to ask questions, provide tips to others, and talk abo
 
 * [Usage](#usage)
   * [OAuth](#oauth)
+    * [Supported Authorization Flows](#supported-authorization-flows)
+      * [Microsoft OneDrive and SharePoint](#microsoft-onedrive-and-sharepoint)
+      * [Microsoft Identity Platform](#microsoft-identity-platform)
   * [Async and Blocking Client](#async-and-blocking-client)
     * [Async Client](#async-client-default)
     * [Blocking Client](#blocking-client)
@@ -65,15 +68,35 @@ The APIs available are generated from OpenApi configs that are stored in Microso
 for the Graph Api. There may be some requests and/or APIs not yet included in this project that are in the OpenApi
 config but in general most of them are implemented.
 
-## Usage
+# Usage
 
 For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs/tree/master/examples)
 
 
-### OAuth
+## OAuth
+
+OAuth client implementing the OAuth 2.0 and OpenID Connect protocols for Microsoft identity platform
 
 The crate provides an OAuth client that can be used to get access and refresh tokens using various
 OAuth flows such as auth code grant, client credentials, and open id connect. 
+
+#### Supported Authorization Flows
+
+##### Microsoft OneDrive and SharePoint
+
+- [Token Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#token-flow)
+- [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
+
+##### Microsoft Identity Platform
+
+- [Authorization Code Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+- [Authorization Code Grant PKCE](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+- [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
+- [Implicit Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)
+- [Device Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
+- [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+- [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
+
 
 The following is an auth code grant example. For more extensive examples and explanations see the 
 [OAuth Examples](https://github.com/sreeise/graph-rs/tree/master/examples/oauth) in the examples/oauth
@@ -209,7 +232,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "1.0.1"
+    graph-rs-sdk = "1.0.2"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -241,7 +264,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "1.0.1"
+    graph-rs-sdk = "1.0.2"
 
 #### Example
 use graph_rs_sdk::*;
@@ -265,7 +288,7 @@ fn main() -> GraphResult<()> {
 }
 ```
 
-### Cargo Feature Flags
+## Cargo Feature Flags
 
 - `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
 - `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
@@ -465,7 +488,7 @@ async fn paging() -> GraphResult<()> {
 The [paging](#paging) example shows a simple way to list users and call all next links. You can also
 stream the next link responses or use a channel receiver to get the responses.
 
-#### Streaming
+### Streaming
 
 Streaming is only available using the async client.
 
