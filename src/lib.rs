@@ -233,7 +233,7 @@
 //!     oauth.access_token(access_token);
 //! } else {
 //!     // See if Microsoft Graph returned an error in the Response body
-//!     let result: reqwest::Result<serde_json::Value> = response.json()?;
+//!     let result: reqwest::Result<serde_json::Value> = response.json();
 //!     println!("{:#?}", result);
 //! }
 //!

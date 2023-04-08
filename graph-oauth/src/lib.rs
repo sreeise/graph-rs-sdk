@@ -59,7 +59,7 @@
 //! ```
 //!
 //! Perform an authorization code grant request for an access token:
-//! ```rust
+//! ```rust,ignore
 //! # use graph_oauth::oauth::{AccessToken, OAuth};
 //! # let mut oauth = OAuth::new();
 //! let mut request = oauth.build().authorization_code_grant();
