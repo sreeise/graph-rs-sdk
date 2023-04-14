@@ -1,6 +1,6 @@
 [package]
 name = "graph-oauth"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
@@ -25,3 +25,8 @@ url = "2"
 webbrowser = "0.8.7"
 
 graph-error = { path = "../graph-error" }
+
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
