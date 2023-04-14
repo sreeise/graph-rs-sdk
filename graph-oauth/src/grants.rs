@@ -1,4 +1,4 @@
-use crate::auth::OAuthCredential;
+use crate::auth::{OAuth, OAuthCredential};
 
 #[derive(
     Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize, EnumIter,
@@ -17,6 +17,7 @@ pub enum GrantType {
     CodeFlow,
     AuthorizationCode,
     Implicit,
+    DeviceCode,
     OpenId,
     ClientCredentials,
     ResourceOwnerPasswordCredentials,
@@ -165,6 +166,22 @@ impl GrantType {
                     OAuthCredential::Scopes,
                     OAuthCredential::RedirectURI,
                     OAuthCredential::ClientAssertion,
+                ],
+            },
+            GrantType::DeviceCode => match grant_request {
+                GrantRequest::Authorization => {
+                    vec![OAuthCredential::ClientId, OAuthCredential::Scopes]
+                }
+                GrantRequest::AccessToken => vec![
+                    OAuthCredential::GrantType,
+                    OAuthCredential::ClientId,
+                    OAuthCredential::DeviceCode,
+                ],
+                GrantRequest::RefreshToken => vec![
+                    OAuthCredential::ClientId,
+                    OAuthCredential::Scopes,
+                    OAuthCredential::GrantType,
+                    OAuthCredential::RefreshToken,
                 ],
             },
         }
