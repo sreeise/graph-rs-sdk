@@ -1881,8 +1881,6 @@ impl DeviceCodeGrant {
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));
 
-        dbg!("{:#?}\n{:#?}", &uri, &params);
-
         if let Err(e) = uri {
             return AccessTokenRequest {
                 uri: Default::default(),
@@ -2163,8 +2161,6 @@ impl AccessTokenGrant {
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));
 
-        dbg!("{:#?}\n{:#?}", &uri, &params);
-
         if let Err(e) = uri {
             return AccessTokenRequest {
                 uri: Default::default(),
@@ -2328,8 +2324,6 @@ impl AsyncAccessTokenGrant {
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));
-
-        println!("{uri:#?}\n{params:#?}");
 
         if let Err(e) = uri {
             return AsyncAccessTokenRequest {
