@@ -17,7 +17,15 @@ For blocking:
 graph-oauth = "1.0.2"
 ```
 
-See the project on [GitHub](https://github.com/sreeise/graph-rs-sdk).
+### Feature Flags
+
+- `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS).
+- `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
+
+Default features: `default=["native-tls"]`
+
+These features enable the native-tls and rustls-tls features in the reqwest crate. 
+For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
 
 ### Supported Authorization Flows
 
