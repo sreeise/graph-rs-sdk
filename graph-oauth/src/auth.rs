@@ -1099,7 +1099,7 @@ impl OAuth {
                         url.push_str(encoder.finish().as_str());
                         Ok(url)
                     }
-                    GrantRequest::AccessToken | GrantRequest::RefreshToken => {
+                    GrantRequest::AccessToken => {
                         let _ = self.entry(OAuthCredential::GrantType, "urn:ietf:params:oauth:grant-type:device_code");
                         self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::AccessToken), &mut encoder);
                         Ok(encoder.finish())

@@ -7,14 +7,14 @@ for Microsoft Identity Platform or by using [graph-rs-sdk](https://crates.io/cra
 For async:
 
 ```toml
-graph-oauth = "1.0.0"
+graph-oauth = "1.0.1"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
 For blocking:
 
 ```toml
-graph-oauth = "1.0.0"
+graph-oauth = "1.0.1"
 ```
 
 See the project on [GitHub](https://github.com/sreeise/graph-rs-sdk).

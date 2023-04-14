@@ -1,4 +1,4 @@
-use crate::auth::{OAuth, OAuthCredential};
+use crate::auth::OAuthCredential;
 
 #[derive(
     Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize, EnumIter,
