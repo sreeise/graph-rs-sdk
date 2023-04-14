@@ -3,7 +3,6 @@ use graph_rs_sdk::oauth::graph_discovery::{
 };
 use graph_rs_sdk::oauth::OAuth;
 
-#[allow(dead_code)]
 fn get_signing_keys() {
     // Lists info such as the authorization and token urls, jwks uri, and response types supported.
     let signing_keys: MicrosoftSigningKeysV1 = GraphDiscovery::V1.signing_keys().unwrap();
@@ -20,7 +19,6 @@ fn get_signing_keys() {
     let _oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
 }
 
-#[allow(dead_code)]
 fn tenant_discovery() {
     let _oauth: OAuth = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
         .oauth()
@@ -28,7 +26,6 @@ fn tenant_discovery() {
 }
 
 // Using async
-#[allow(dead_code)]
 async fn async_keys_discovery() {
     let signing_keys: MicrosoftSigningKeysV1 =
         GraphDiscovery::V1.async_signing_keys().await.unwrap();
@@ -39,7 +36,6 @@ async fn async_keys_discovery() {
     println!("{signing_keys2:#?}");
 }
 
-#[allow(dead_code)]
 async fn async_tenant_discovery() {
     let _oauth: OAuth = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
         .async_oauth()

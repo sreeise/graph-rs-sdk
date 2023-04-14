@@ -7,9 +7,6 @@ license = "MIT"
 repository = "https://github.com/sreeise/graph-rs-sdk"
 description = "Common types for the graph-rs-sdk crate"
 
-keywords = ["onedrive", "microsoft", "microsoft-graph", "api"]
-categories = ["web-programming::http-client"]
-
 [dependencies]
 Inflector = "0.11.4"
 serde = { version = "1", features = ["derive"] }

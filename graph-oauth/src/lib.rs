@@ -95,6 +95,8 @@ mod id_token;
 pub mod jwt;
 mod oauth_error;
 
+pub mod identity;
+
 pub mod oauth {
     pub use crate::access_token::AccessToken;
     pub use crate::auth::GrantSelector;

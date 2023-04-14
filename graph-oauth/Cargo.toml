@@ -12,6 +12,7 @@ keywords = ["microsoft", "oauth", "authentication", "authorization"]
 categories = ["authentication", "web-programming::http-client"]
 
 [dependencies]
+async-trait = "0.1.35"
 base64 = "0.21.0"
 chrono = { version = "0.4.23", features = ["serde"] }
 chrono-humanize = "0.2.2"
@@ -25,3 +26,8 @@ url = "2"
 webbrowser = "0.8.7"
 
 graph-error = { path = "../graph-error" }
+
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]

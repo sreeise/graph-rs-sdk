@@ -1,17 +1,16 @@
+//! # Overview
+//!
+//! Most of these examples use a local server in order to listen for the redirect
+//! after a user signs into microsoft. There are a few oauth flows that may use
+//! other means of getting an access token such as the client credentials flow.
+//!
+//! # Setup
+//!
+//! In everyone of these examples you will first need to setup an application in the
+//! azure portal.
+//!
+//! Microsoft Identity Platform: https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-vs-authorization
 #![allow(dead_code, unused, unused_imports)]
-
-/// # Overview
-///
-/// Most of these examples use a local server in order to listen for the redirect
-/// after a user signs into microsoft. There are a few oauth flows that may use
-/// other means of getting an access token such as the client credentials flow.
-///
-/// # Setup
-///
-/// In everyone of these examples you will first need to setup an application in the
-/// azure portal.
-///
-/// Microsoft Identity Platform: https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-vs-authorization
 
 #[macro_use]
 extern crate serde;

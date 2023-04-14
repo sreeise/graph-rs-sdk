@@ -7,9 +7,6 @@ license = "MIT"
 repository = "https://github.com/sreeise/graph-rs-sdk"
 description = "Http client and utilities for the graph-rs-sdk crate"
 
-keywords = ["onedrive", "microsoft", "microsoft-graph", "api", "oauth"]
-categories = ["authentication", "web-programming::http-client"]
-
 [dependencies]
 async-stream = "0.3"
 async-trait = "0.1.35"
