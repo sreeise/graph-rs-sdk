@@ -689,7 +689,7 @@ impl OAuth {
         self.insert(OAuthCredential::Password, value)
     }
 
-    /// Set the redirect uri that user will be redirected to after logging out.
+    /// Set the device code for the device authorization flow.
     ///
     /// # Example
     /// ```
