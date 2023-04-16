@@ -84,7 +84,7 @@ fn refresh_token() {
         .unwrap();
     assert_eq!(
 		body,
-		"refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&grant_type=refresh_token&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL".to_string()
+		"client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&grant_type=refresh_token&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&refresh_token=32LKLASDKJ".to_string()
 	);
 }
 

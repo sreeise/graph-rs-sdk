@@ -76,7 +76,7 @@ fn refresh_token_uri() {
         .encode_uri(GrantType::AuthorizationCode, GrantRequest::RefreshToken)
         .unwrap();
     let test_url =
-		"refresh_token=32LKLASDKJ&client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&grant_type=refresh_token&scope=Fall.Down+Read.Write";
+        "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token&scope=Fall.Down+Read.Write";
     assert_eq!(test_url, body);
 }
 

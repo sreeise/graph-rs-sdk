@@ -108,6 +108,7 @@ pub mod oauth {
     pub use crate::grants::GrantRequest;
     pub use crate::grants::GrantType;
     pub use crate::id_token::IdToken;
+    pub use crate::identity::*;
     pub use crate::oauth_error::OAuthError;
     pub use crate::strum::IntoEnumIterator;
 }

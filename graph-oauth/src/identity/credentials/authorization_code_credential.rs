@@ -27,25 +27,6 @@ pub struct AuthorizationCodeCredential {
     serializer: OAuth,
 }
 
-/*
-   pub(crate) client_id: String,
-   pub(crate) redirect_uri: String,
-   pub(crate) authority: Authority,
-   pub(crate) response_mode: ResponseMode,
-   pub(crate) response_type: String,
-   pub(crate) nonce: Option<String>,
-   pub(crate) state: Option<String>,
-   pub(crate) scopes: Vec<String>,
-   pub(crate) prompt: Option<Prompt>,
-   pub(crate) domain_hint: Option<String>,
-   pub(crate) login_hint: Option<String>,
-   pub(crate) code_challenge: Option<String>,
-   pub(crate) code_challenge_method: Option<String>,
-
-   authority
-
-*/
-
 impl AuthorizationCodeCredential {
     pub fn new<T: AsRef<str>>(
         client_id: T,
@@ -80,10 +61,17 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self
-            .serializer
-            .get_or_else(OAuthCredential::AccessTokenUrl)?;
-        Url::parse(uri.as_str()).map_err(GraphFailure::from)
+        if self.refresh_token.is_some() {
+            let uri = self
+                .serializer
+                .get_or_else(OAuthCredential::AccessTokenUrl)?;
+            Url::parse(uri.as_str()).map_err(GraphFailure::from)
+        } else {
+            let uri = self
+                .serializer
+                .get_or_else(OAuthCredential::RefreshTokenUrl)?;
+            Url::parse(uri.as_str()).map_err(GraphFailure::from)
+        }
     }
 
     fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
@@ -174,13 +162,13 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
 
 #[derive(Clone)]
 pub struct AuthorizationCodeCredentialBuilder {
-    authorization_code_credential: AuthorizationCodeCredential,
+    credential: AuthorizationCodeCredential,
 }
 
 impl AuthorizationCodeCredentialBuilder {
     fn new() -> AuthorizationCodeCredentialBuilder {
         Self {
-            authorization_code_credential: AuthorizationCodeCredential {
+            credential: AuthorizationCodeCredential {
                 authorization_code: None,
                 refresh_token: None,
                 client_id: String::new(),
@@ -194,82 +182,55 @@ impl AuthorizationCodeCredentialBuilder {
         }
     }
 
-    pub fn with_authorization_code<T: AsRef<str>>(
-        &mut self,
-        authorization_code: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
-        self.authorization_code_credential.authorization_code =
-            Some(authorization_code.as_ref().to_owned());
+    pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
+        self.credential.authorization_code = Some(authorization_code.as_ref().to_owned());
         self
     }
 
-    pub fn with_refresh_token<T: AsRef<str>>(
-        &mut self,
-        refresh_token: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
-        self.authorization_code_credential.authorization_code = None;
-        self.authorization_code_credential.refresh_token = Some(refresh_token.as_ref().to_owned());
+    pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) -> &mut Self {
+        self.credential.authorization_code = None;
+        self.credential.refresh_token = Some(refresh_token.as_ref().to_owned());
         self
     }
 
-    pub fn with_redirect_uri<T: AsRef<str>>(
-        &mut self,
-        redirect_uri: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
-        self.authorization_code_credential.redirect_uri = redirect_uri.as_ref().to_owned();
+    pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
+        self.credential.redirect_uri = redirect_uri.as_ref().to_owned();
         self
     }
 
-    pub fn with_client_id<T: AsRef<str>>(
-        &mut self,
-        client_id: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
-        self.authorization_code_credential.client_id = client_id.as_ref().to_owned();
+    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
+        self.credential.client_id = client_id.as_ref().to_owned();
         self
     }
 
-    pub fn with_client_secret<T: AsRef<str>>(
-        &mut self,
-        client_secret: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
-        self.authorization_code_credential.client_secret = client_secret.as_ref().to_owned();
+    pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
+        self.credential.client_secret = client_secret.as_ref().to_owned();
         self
     }
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.authorization_code_credential.authority =
-            Authority::TenantId(tenant.as_ref().to_owned());
+        self.credential.authority = Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
-    pub fn with_authority<T: Into<Authority>>(
-        &mut self,
-        authority: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
-        self.authorization_code_credential.authority = authority.into();
+    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
+        self.credential.authority = authority.into();
         self
     }
 
-    pub fn with_code_verifier<T: AsRef<str>>(
-        &mut self,
-        code_verifier: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
-        self.authorization_code_credential.code_verifier = Some(code_verifier.as_ref().to_owned());
+    pub fn with_code_verifier<T: AsRef<str>>(&mut self, code_verifier: T) -> &mut Self {
+        self.credential.code_verifier = Some(code_verifier.as_ref().to_owned());
         self
     }
 
-    pub fn with_scopes<T: ToString, I: IntoIterator<Item = T>>(
-        &mut self,
-        scopes: I,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
-        self.authorization_code_credential.scopes =
-            scopes.into_iter().map(|s| s.to_string()).collect();
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
+        self.credential.scopes = scopes.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
     pub fn build(&self) -> AuthorizationCodeCredential {
-        self.authorization_code_credential.clone()
+        self.credential.clone()
     }
 }
 
@@ -277,7 +238,7 @@ impl From<AuthorizationCodeAuthorizationUrl> for AuthorizationCodeCredentialBuil
     fn from(value: AuthorizationCodeAuthorizationUrl) -> Self {
         let mut builder = AuthorizationCodeCredentialBuilder::new();
         builder
-            .with_scopes(value.scopes)
+            .with_scope(value.scopes)
             .with_client_id(value.client_id)
             .with_redirect_uri(value.redirect_uri)
             .with_authority(value.authority);
@@ -320,7 +281,7 @@ mod test {
             .with_redirect_uri("https://localhost:8080")
             .with_client_id("client_id")
             .with_client_secret("client_secret")
-            .with_scopes(vec!["scope"])
+            .with_scope(vec!["scope"])
             .with_tenant("tenant_id");
         let mut credential = credential_builder.build();
         let _ = credential.form().unwrap();

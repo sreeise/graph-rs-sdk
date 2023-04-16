@@ -1,7 +1,9 @@
 use crate::auth::{OAuth, OAuthCredential};
 use crate::grants::GrantType;
 use crate::identity::form_credential::FormCredential;
-use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost};
+use crate::identity::{
+    Authority, AuthorizationCodeAuthorizationUrl, AuthorizationSerializer, AzureAuthorityHost,
+};
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
 use std::collections::HashMap;
 
@@ -255,7 +257,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         self
     }
 
-    pub fn with_scopes<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
         self.authorization_code_credential.scopes =
             scopes.into_iter().map(|s| s.to_string()).collect();
         self
@@ -263,5 +265,22 @@ impl AuthorizationCodeCertificateCredentialBuilder {
 
     pub fn build(&self) -> AuthorizationCodeCertificateCredential {
         self.authorization_code_credential.clone()
+    }
+}
+
+impl From<AuthorizationCodeAuthorizationUrl> for AuthorizationCodeCertificateCredentialBuilder {
+    fn from(value: AuthorizationCodeAuthorizationUrl) -> Self {
+        let mut builder = AuthorizationCodeCertificateCredentialBuilder::new();
+        builder
+            .with_scope(value.scopes)
+            .with_client_id(value.client_id)
+            .with_redirect_uri(value.redirect_uri)
+            .with_authority(value.authority);
+
+        if let Some(code_verifier) = value.code_verifier.as_ref() {
+            builder.with_code_verifier(code_verifier);
+        }
+
+        builder
     }
 }

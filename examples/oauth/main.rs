@@ -18,6 +18,7 @@ extern crate serde;
 mod auth_code_grant;
 mod auth_code_grant_pkce;
 mod client_credentials;
+mod client_credentials_admin_consent;
 mod code_flow;
 mod implicit_grant;
 mod is_access_token_expired;
@@ -35,7 +36,7 @@ async fn main() {
     auth_code_grant_pkce::start_server_main().await;
 
     // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow
-    client_credentials::start_server_main().await;
+    client_credentials_admin_consent::start_server_main().await;
 
     // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
     code_flow::start_server_main().await;

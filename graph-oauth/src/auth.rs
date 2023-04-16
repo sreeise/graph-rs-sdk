@@ -389,6 +389,19 @@ impl OAuth {
             .refresh_token_url(&token_url)
     }
 
+    pub fn authority_admin_consent(
+        &mut self,
+        host: &AzureAuthorityHost,
+        authority: &Authority,
+    ) -> &mut OAuth {
+        let token_url = format!("{}/{}/oauth2/v2.0/token", host.as_ref(), authority.as_ref());
+        let auth_url = format!("{}/{}/adminconsent", host.as_ref(), authority.as_ref());
+
+        self.authorization_url(&auth_url)
+            .access_token_url(&token_url)
+            .refresh_token_url(&token_url)
+    }
+
     /// Set the redirect url of a request
     ///
     /// # Example
@@ -1086,8 +1099,6 @@ impl OAuth {
 					}
 					GrantRequest::RefreshToken => {
 						let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
-						let refresh_token = self.get_refresh_token()?;
-						encoder.append_pair("refresh_token", &refresh_token);
 						self.form_encode_credentials(GrantType::CodeFlow.available_credentials(GrantRequest::RefreshToken), &mut encoder);
 						Ok(encoder.finish())
 					}
@@ -1110,7 +1121,6 @@ impl OAuth {
 							let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
 						} else {
 							let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
-							encoder.append_pair("refresh_token", &self.get_refresh_token()?);
 						}
 						self.form_encode_credentials(GrantType::AuthorizationCode.available_credentials(request_type), &mut encoder);
 						Ok(encoder.finish())
@@ -1157,8 +1167,6 @@ impl OAuth {
 					}
 					GrantRequest::RefreshToken => {
 						let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
-						let refresh_token = self.get_refresh_token()?;
-						encoder.append_pair("refresh_token", &refresh_token);
 						self.form_encode_credentials(GrantType::OpenId.available_credentials(GrantRequest::RefreshToken), &mut encoder);
 						Ok(encoder.finish())
 					}
@@ -1370,7 +1378,7 @@ impl GrantSelector<AccessTokenGrant> {
         }
     }
 
-    /// Create a new instance for the open id connect grant.
+    /// Create a new instance for the client credentials grant.
     ///
     /// # See
     /// [Microsoft Client Credentials](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)

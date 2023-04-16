@@ -38,6 +38,24 @@ impl TryFrom<AzureAuthorityHost> for Url {
     }
 }
 
+impl AzureAuthorityHost {
+    pub fn default_microsoft_graph_scope(&self) -> &'static str {
+        "https://graph.microsoft.com/.default"
+    }
+
+    pub fn default_managed_identity_scope(&self) -> &'static str {
+        match self {
+            AzureAuthorityHost::Custom(_) => "https://management.azure.com//.default",
+            AzureAuthorityHost::AzurePublic => "https://management.azure.com//.default",
+            AzureAuthorityHost::AzureChina => "https://management.chinacloudapi.cn/.default",
+            AzureAuthorityHost::AzureGermany => "https://management.microsoftazure.de/.default",
+            AzureAuthorityHost::AzureUsGovernment => {
+                "https://management.usgovcloudapi.net/.default"
+            }
+        }
+    }
+}
+
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum Authority {
     #[default]

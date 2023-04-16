@@ -1,21 +1,24 @@
 use crate::identity::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AuthorizationSerializer,
-    TokenCredentialOptions, TokenRequest,
+    ClientSecretCredential, TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
 use graph_error::GraphResult;
 use reqwest::Response;
 
-pub struct ConfidentialClient {
+pub struct ConfidentialClientApplication {
     http_client: reqwest::Client,
     credential: Box<dyn AuthorizationSerializer + Send>,
     token_credential_options: TokenCredentialOptions,
 }
 
-impl ConfidentialClient {
-    pub fn new<T>(credential: T, options: TokenCredentialOptions) -> GraphResult<ConfidentialClient>
+impl ConfidentialClientApplication {
+    pub fn new<T>(
+        credential: T,
+        options: TokenCredentialOptions,
+    ) -> GraphResult<ConfidentialClientApplication>
     where
-        T: Into<ConfidentialClient>,
+        T: Into<ConfidentialClientApplication>,
     {
         let mut confidential_client = credential.into();
         confidential_client.token_credential_options = options;
@@ -24,7 +27,7 @@ impl ConfidentialClient {
 }
 
 #[async_trait]
-impl TokenRequest for ConfidentialClient {
+impl TokenRequest for ConfidentialClientApplication {
     fn get_token_silent(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
         let uri = self
             .credential
@@ -43,9 +46,9 @@ impl TokenRequest for ConfidentialClient {
     }
 }
 
-impl From<AuthorizationCodeCredential> for ConfidentialClient {
+impl From<AuthorizationCodeCredential> for ConfidentialClientApplication {
     fn from(value: AuthorizationCodeCredential) -> Self {
-        ConfidentialClient {
+        ConfidentialClientApplication {
             http_client: reqwest::Client::new(),
             credential: Box::new(value),
             token_credential_options: Default::default(),
@@ -53,9 +56,19 @@ impl From<AuthorizationCodeCredential> for ConfidentialClient {
     }
 }
 
-impl From<AuthorizationCodeCertificateCredential> for ConfidentialClient {
+impl From<AuthorizationCodeCertificateCredential> for ConfidentialClientApplication {
     fn from(value: AuthorizationCodeCertificateCredential) -> Self {
-        ConfidentialClient {
+        ConfidentialClientApplication {
+            http_client: reqwest::Client::new(),
+            credential: Box::new(value),
+            token_credential_options: Default::default(),
+        }
+    }
+}
+
+impl From<ClientSecretCredential> for ConfidentialClientApplication {
+    fn from(value: ClientSecretCredential) -> Self {
+        ConfidentialClientApplication {
             http_client: reqwest::Client::new(),
             credential: Box::new(value),
             token_credential_options: Default::default(),
@@ -74,12 +87,13 @@ mod test {
             .with_authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
             .with_client_id("bb301aaa-1201-4259-a230923fds32")
             .with_client_secret("CLDIE3F")
-            .with_scopes(vec!["Read.Write", "Fall.Down"])
+            .with_scope(vec!["Read.Write", "Fall.Down"])
             .with_redirect_uri("http://localhost:8888/redirect")
             .build();
 
         let mut confidential_client =
-            ConfidentialClient::new(credential, TokenCredentialOptions::default()).unwrap();
+            ConfidentialClientApplication::new(credential, TokenCredentialOptions::default())
+                .unwrap();
         let credential_uri = confidential_client
             .credential
             .uri(&AzureAuthorityHost::AzurePublic)
@@ -97,12 +111,13 @@ mod test {
             .with_authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
             .with_client_id("bb301aaa-1201-4259-a230923fds32")
             .with_client_secret("CLDIE3F")
-            .with_scopes(vec!["Read.Write", "Fall.Down"])
+            .with_scope(vec!["Read.Write", "Fall.Down"])
             .with_redirect_uri("http://localhost:8888/redirect")
             .with_authority(Authority::Consumers)
             .build();
         let mut confidential_client =
-            ConfidentialClient::new(credential, TokenCredentialOptions::default()).unwrap();
+            ConfidentialClientApplication::new(credential, TokenCredentialOptions::default())
+                .unwrap();
         let credential_uri = confidential_client
             .credential
             .uri(&AzureAuthorityHost::AzurePublic)
