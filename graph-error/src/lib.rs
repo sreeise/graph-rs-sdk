@@ -3,14 +3,17 @@
 #[macro_use]
 extern crate serde;
 
+mod authorization_failure;
 pub mod download;
 mod error;
 mod graph_failure;
 mod internal;
 pub mod io_error;
 
+pub use authorization_failure::*;
 pub use error::*;
 pub use graph_failure::*;
 pub use internal::*;
 
 pub type GraphResult<T> = Result<T, GraphFailure>;
+pub type AuthorizationResult<T> = Result<T, AuthorizationFailure>;

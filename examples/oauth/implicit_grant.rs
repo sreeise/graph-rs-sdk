@@ -30,7 +30,7 @@ fn oauth_implicit_flow() -> OAuth {
         .response_type("token")
         .response_mode("query")
         .prompt("login")
-        .authorize_url("https://login.live.com/oauth20_authorize.srf?")
+        .authorization_url("https://login.live.com/oauth20_authorize.srf?")
         .access_token_url("https://login.live.com/oauth20_token.srf");
     oauth
 }

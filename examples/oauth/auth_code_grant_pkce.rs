@@ -51,7 +51,7 @@ impl OAuthClient {
             .add_scope("user.read")
             .add_scope("user.readwrite")
             .redirect_uri("http://localhost:8000/redirect")
-            .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
+            .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
             .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
             .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
             .response_type("code");
@@ -80,7 +80,7 @@ async fn handle_redirect(
             // in case of an error here.
             let mut oauth = OAUTH_CLIENT.oauth();
 
-            oauth.access_code(access_code.code.as_str());
+            oauth.authorization_code(access_code.code.as_str());
             let mut request = oauth.build_async().authorization_code_grant();
 
             // Returns reqwest::Response

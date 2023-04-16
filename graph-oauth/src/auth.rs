@@ -1,11 +1,12 @@
 use crate::access_token::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
 use crate::id_token::IdToken;
+use crate::identity::form_credential::FormCredential;
 use crate::identity::{Authority, AzureAuthorityHost};
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
 use base64::Engine;
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
 use ring::rand::SecureRandom;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
@@ -22,11 +23,11 @@ use url::Url;
 pub enum OAuthCredential {
     ClientId,
     ClientSecret,
-    AuthorizeURL,
-    AccessTokenURL,
-    RefreshTokenURL,
-    RedirectURI,
-    AccessCode,
+    AuthorizationUrl,
+    AccessTokenUrl,
+    RefreshTokenUrl,
+    RedirectUri,
+    AuthorizationCode,
     AccessToken,
     RefreshToken,
     ResponseMode,
@@ -58,11 +59,11 @@ impl OAuthCredential {
         match self {
             OAuthCredential::ClientId => "client_id",
             OAuthCredential::ClientSecret => "client_secret",
-            OAuthCredential::AuthorizeURL => "authorization_url",
-            OAuthCredential::AccessTokenURL => "access_token_url",
-            OAuthCredential::RefreshTokenURL => "refresh_token_url",
-            OAuthCredential::RedirectURI => "redirect_uri",
-            OAuthCredential::AccessCode => "code",
+            OAuthCredential::AuthorizationUrl => "authorization_url",
+            OAuthCredential::AccessTokenUrl => "access_token_url",
+            OAuthCredential::RefreshTokenUrl => "refresh_token_url",
+            OAuthCredential::RedirectUri => "redirect_uri",
+            OAuthCredential::AuthorizationCode => "code",
             OAuthCredential::AccessToken => "access_token",
             OAuthCredential::RefreshToken => "refresh_token",
             OAuthCredential::ResponseMode => "response_mode",
@@ -101,7 +102,7 @@ impl OAuthCredential {
                 | OAuthCredential::CodeVerifier
                 | OAuthCredential::CodeChallenge
                 | OAuthCredential::Password
-                | OAuthCredential::AccessCode
+                | OAuthCredential::AuthorizationCode
         )
     }
 }
@@ -171,17 +172,17 @@ impl OAuth {
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
     /// # let mut oauth = OAuth::new();
-    /// oauth.insert(OAuthCredential::AuthorizeURL, "https://example.com");
-    /// assert!(oauth.contains(OAuthCredential::AuthorizeURL));
-    /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizeURL));
+    /// oauth.insert(OAuthCredential::AuthorizationUrl, "https://example.com");
+    /// assert!(oauth.contains(OAuthCredential::AuthorizationUrl));
+    /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizationUrl));
     /// ```
     pub fn insert<V: ToString>(&mut self, oac: OAuthCredential, value: V) -> &mut OAuth {
         let v = value.to_string();
         match oac {
-            OAuthCredential::RefreshTokenURL
+            OAuthCredential::RefreshTokenUrl
             | OAuthCredential::PostLogoutRedirectURI
-            | OAuthCredential::AccessTokenURL
-            | OAuthCredential::AuthorizeURL
+            | OAuthCredential::AccessTokenUrl
+            | OAuthCredential::AuthorizationUrl
             | OAuthCredential::LogoutURL => {
                 Url::parse(v.as_ref()).unwrap();
             }
@@ -201,16 +202,16 @@ impl OAuth {
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
     /// # let mut oauth = OAuth::new();
-    /// let entry = oauth.entry(OAuthCredential::AuthorizeURL, "https://example.com");
+    /// let entry = oauth.entry(OAuthCredential::AuthorizationUrl, "https://example.com");
     /// assert_eq!(entry, "https://example.com")
     /// ```
     pub fn entry<V: ToString>(&mut self, oac: OAuthCredential, value: V) -> &mut String {
         let v = value.to_string();
         match oac {
-            OAuthCredential::RefreshTokenURL
+            OAuthCredential::RefreshTokenUrl
             | OAuthCredential::PostLogoutRedirectURI
-            | OAuthCredential::AccessTokenURL
-            | OAuthCredential::AuthorizeURL
+            | OAuthCredential::AccessTokenUrl
+            | OAuthCredential::AuthorizationUrl
             | OAuthCredential::LogoutURL => {
                 Url::parse(v.as_ref()).unwrap();
             }
@@ -229,7 +230,7 @@ impl OAuth {
     /// # use graph_oauth::oauth::OAuth;
     /// # use graph_oauth::oauth::OAuthCredential;
     /// # let mut oauth = OAuth::new();
-    /// let a = oauth.get(OAuthCredential::AuthorizeURL);
+    /// let a = oauth.get(OAuthCredential::AuthorizationUrl);
     /// ```
     pub fn get(&self, oac: OAuthCredential) -> Option<String> {
         self.credentials.get(oac.alias()).cloned()
@@ -318,10 +319,10 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # let mut oauth = OAuth::new();
-    /// oauth.authorize_url("https://example.com/authorize");
+    /// oauth.authorization_url("https://example.com/authorize");
     /// ```
-    pub fn authorize_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AuthorizeURL, value)
+    pub fn authorization_url(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::AuthorizationUrl, value)
     }
 
     /// Set the access token url of a request for OAuth
@@ -333,7 +334,7 @@ impl OAuth {
     /// oauth.access_token_url("https://example.com/token");
     /// ```
     pub fn access_token_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AccessTokenURL, value)
+        self.insert(OAuthCredential::AccessTokenUrl, value)
     }
 
     /// Set the refresh token url of a request for OAuth
@@ -345,7 +346,7 @@ impl OAuth {
     /// oauth.refresh_token_url("https://example.com/token");
     /// ```
     pub fn refresh_token_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::RefreshTokenURL, value)
+        self.insert(OAuthCredential::RefreshTokenUrl, value)
     }
 
     /// Set the authorization, access token, and refresh token URL
@@ -361,7 +362,7 @@ impl OAuth {
         let token_url = format!("https://login.microsoftonline.com/{value}/oauth2/v2.0/token",);
         let auth_url = format!("https://login.microsoftonline.com/{value}/oauth2/v2.0/authorize",);
 
-        self.authorize_url(&auth_url)
+        self.authorization_url(&auth_url)
             .access_token_url(&token_url)
             .refresh_token_url(&token_url)
     }
@@ -383,7 +384,7 @@ impl OAuth {
             authority.as_ref()
         );
 
-        self.authorize_url(&auth_url)
+        self.authorization_url(&auth_url)
             .access_token_url(&token_url)
             .refresh_token_url(&token_url)
     }
@@ -397,7 +398,7 @@ impl OAuth {
     /// oauth.redirect_uri("https://localhost:8888/redirect");
     /// ```
     pub fn redirect_uri(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::RedirectURI, value)
+        self.insert(OAuthCredential::RedirectUri, value)
     }
 
     /// Set the access code.
@@ -406,10 +407,10 @@ impl OAuth {
     /// ```
     /// # use graph_oauth::oauth::OAuth;
     /// # let mut oauth = OAuth::new();
-    /// oauth.access_code("LDSF[POK43");
+    /// oauth.authorization_code("LDSF[POK43");
     /// ```
-    pub fn access_code(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AccessCode, value)
+    pub fn authorization_code(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::AuthorizationCode, value)
     }
 
     /// Set the response mode.
@@ -471,9 +472,8 @@ impl OAuth {
     /// oauth.id_token(IdToken::new("1345", "code", "state", "session_state"));
     /// ```
     pub fn id_token(&mut self, value: IdToken) -> &mut OAuth {
-        self.insert(OAuthCredential::IdToken, value.get_id_token().as_str());
         if let Some(code) = value.get_code() {
-            self.access_code(code.as_str());
+            self.authorization_code(code.as_str());
         }
         if let Some(state) = value.get_state() {
             let _ = self.entry(OAuthCredential::State, state.as_str());
@@ -710,6 +710,10 @@ impl OAuth {
         self.insert(OAuthCredential::Password, value)
     }
 
+    pub fn refresh_token(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::RefreshToken, value)
+    }
+
     /// Add a scope' for the OAuth URL.
     ///
     /// # Example
@@ -843,6 +847,9 @@ impl OAuth {
     /// oauth.access_token(access_token);
     /// ```
     pub fn access_token(&mut self, ac: AccessToken) {
+        if let Some(refresh_token) = ac.refresh_token() {
+            self.refresh_token(refresh_token.as_str());
+        }
         self.access_token.replace(ac);
     }
 
@@ -879,12 +886,16 @@ impl OAuth {
     /// println!("{:#?}", refresh_token);
     /// ```
     pub fn get_refresh_token(&self) -> GraphResult<String> {
+        if let Some(refresh_token) = self.get(OAuthCredential::RefreshToken) {
+            return Ok(refresh_token);
+        }
+
         match self.get_access_token() {
             Some(token) => match token.refresh_token() {
                 Some(t) => Ok(t),
                 None => OAuthError::error_from::<String>(OAuthCredential::RefreshToken),
             },
-            None => OAuthError::error_from::<String>(OAuthCredential::AccessToken),
+            None => OAuthError::error_from::<String>(OAuthCredential::RefreshToken),
         }
     }
 
@@ -926,7 +937,7 @@ impl OAuth {
 
         if let Some(redirect) = self.get(OAuthCredential::PostLogoutRedirectURI) {
             vec.push(redirect);
-        } else if let Some(redirect) = self.get(OAuthCredential::RedirectURI) {
+        } else if let Some(redirect) = self.get(OAuthCredential::RedirectUri) {
             vec.push(redirect);
         }
         webbrowser::open(vec.join("").as_str()).map_err(GraphFailure::from)
@@ -950,7 +961,7 @@ impl OAuth {
             url.push_str("post_logout_redirect_uri=");
             url.push_str(redirect.as_str());
         } else {
-            let redirect_uri = self.get_or_else(OAuthCredential::RedirectURI)?;
+            let redirect_uri = self.get_or_else(OAuthCredential::RedirectUri)?;
             url.push_str("post_logout_redirect_uri=");
             url.push_str(redirect_uri.as_str());
         }
@@ -959,11 +970,11 @@ impl OAuth {
 }
 
 impl OAuth {
-    fn get_or_else(&self, c: OAuthCredential) -> GraphResult<String> {
+    pub fn get_or_else(&self, c: OAuthCredential) -> GraphResult<String> {
         self.get(c).ok_or_else(|| OAuthError::credential_error(c))
     }
 
-    fn form_encode_credentials(
+    pub fn form_encode_credentials(
         &mut self,
         pairs: Vec<OAuthCredential>,
         encoder: &mut Serializer<String>,
@@ -984,13 +995,45 @@ impl OAuth {
         let mut map: HashMap<String, String> = HashMap::new();
         for oac in pairs.iter() {
             if oac.eq(&OAuthCredential::RefreshToken) {
-                map.insert("refresh_token".into(), self.get_refresh_token()?);
+                if let Some(val) = self.get(*oac) {
+                    map.insert(oac.to_string(), val);
+                } else {
+                    map.insert("refresh_token".into(), self.get_refresh_token()?);
+                }
             } else if oac.alias().eq("scope") && !self.scopes.is_empty() {
                 map.insert("scope".into(), self.join_scopes(" "));
             } else if let Some(val) = self.get(*oac) {
                 map.insert(oac.to_string(), val);
             }
         }
+        Ok(map)
+    }
+
+    pub fn authorization_form(
+        &mut self,
+        form_credentials: Vec<FormCredential>,
+    ) -> AuthorizationResult<HashMap<String, String>> {
+        let mut map: HashMap<String, String> = HashMap::new();
+
+        for form_credential in form_credentials.iter() {
+            match form_credential {
+                FormCredential::Required(oac) => {
+                    let val = self.get(*oac).ok_or(AuthorizationFailure::RequiredValue {
+                        name: oac.alias().into(),
+                        message: None,
+                    })?;
+                    map.insert(oac.to_string(), val);
+                }
+                FormCredential::NotRequired(oac) => {
+                    if oac.eq(&OAuthCredential::Scopes) && !self.scopes.is_empty() {
+                        map.insert("scope".into(), self.join_scopes(" "));
+                    } else if let Some(val) = self.get(*oac) {
+                        map.insert(oac.to_string(), val);
+                    }
+                }
+            }
+        }
+
         Ok(map)
     }
 
@@ -1006,7 +1049,7 @@ impl OAuth {
 					GrantRequest::Authorization => {
 						let _ = self.entry(OAuthCredential::ResponseType, "token");
 						self.form_encode_credentials(GrantType::TokenFlow.available_credentials(GrantRequest::Authorization), &mut encoder);
-						let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1028,7 +1071,7 @@ impl OAuth {
 						let _ = self.entry(OAuthCredential::ResponseMode, "query");
 						self.form_encode_credentials(GrantType::CodeFlow.available_credentials(GrantRequest::Authorization), &mut encoder);
 
-						let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1055,7 +1098,7 @@ impl OAuth {
 						let _ = self.entry(OAuthCredential::ResponseType, "code");
 						let _ = self.entry(OAuthCredential::ResponseMode, "query");
 						self.form_encode_credentials(GrantType::AuthorizationCode.available_credentials(GrantRequest::Authorization), &mut encoder);
-						let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1080,7 +1123,7 @@ impl OAuth {
 							let _ = self.entry(OAuthCredential::ResponseType, "token");
 						}
 						self.form_encode_credentials(GrantType::Implicit.available_credentials(GrantRequest::Authorization), &mut encoder);
-						let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1100,7 +1143,7 @@ impl OAuth {
 					GrantRequest::Authorization => {
 						self.form_encode_credentials(GrantType::OpenId.available_credentials(GrantRequest::Authorization), &mut encoder);
 
-						let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1124,7 +1167,7 @@ impl OAuth {
 				match request_type {
 					GrantRequest::Authorization => {
 						self.form_encode_credentials(GrantType::ClientCredentials.available_credentials(GrantRequest::Authorization), &mut encoder);
-						let mut url = self.get_or_else(OAuthCredential::AuthorizeURL)?;
+						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1679,7 +1722,7 @@ impl ImplicitGrant {
             .pre_request_check(self.grant, GrantRequest::Authorization);
         Ok(Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizeURL)?
+                .get_or_else(OAuthCredential::AuthorizationUrl)?
                 .as_str(),
         )?)
     }
@@ -1743,7 +1786,7 @@ impl AccessTokenGrant {
         )?;
         let mut url = Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizeURL)?
+                .get_or_else(OAuthCredential::AuthorizationUrl)?
                 .as_str(),
         )?;
         url.query_pairs_mut().extend_pairs(&params);
@@ -1828,7 +1871,7 @@ impl AccessTokenGrant {
     pub fn access_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenURL);
+        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -1861,7 +1904,7 @@ impl AccessTokenGrant {
     pub fn refresh_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenURL);
+        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));
@@ -1906,7 +1949,7 @@ impl AsyncAccessTokenGrant {
         )?;
         let mut url = Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizeURL)?
+                .get_or_else(OAuthCredential::AuthorizationUrl)?
                 .as_str(),
         )?;
         url.query_pairs_mut().extend_pairs(&params);
@@ -1992,7 +2035,7 @@ impl AsyncAccessTokenGrant {
     pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenURL);
+        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -2025,7 +2068,7 @@ impl AsyncAccessTokenGrant {
     pub fn refresh_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenURL);
+        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));

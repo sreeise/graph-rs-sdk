@@ -6,7 +6,7 @@ fn sign_in_code_url() {
     // Test the sign in url with a manually set response type.
     let mut oauth = OAuth::new();
     oauth
-        .authorize_url("https://login.live.com/oauth20_authorize.srf?")
+        .authorization_url("https://login.live.com/oauth20_authorize.srf?")
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
         .response_type("code")
@@ -25,7 +25,7 @@ fn sign_in_code_url_with_state() {
     // Test the sign in url with a manually set response type.
     let mut oauth = OAuth::new();
     oauth
-        .authorize_url("https://example.com/oauth2/v2.0/authorize")
+        .authorization_url("https://example.com/oauth2/v2.0/authorize")
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
         .response_type("code")
@@ -46,8 +46,8 @@ fn access_token() {
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
         .client_secret("CLDIE3F")
-        .authorize_url("https://www.example.com/token")
-        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
+        .authorization_url("https://www.example.com/token")
+        .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
     let mut builder = AccessToken::default();
     builder
@@ -72,8 +72,8 @@ fn refresh_token() {
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
         .client_secret("CLDIE3F")
-        .authorize_url("https://www.example.com/token")
-        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
+        .authorization_url("https://www.example.com/token")
+        .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
     let mut access_token = AccessToken::new("access_token", 3600, "Read.Write", "asfasf");
     access_token.set_refresh_token("32LKLASDKJ");
@@ -95,9 +95,9 @@ fn get_refresh_token() {
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
         .client_secret("CLDIE3F")
-        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+        .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
         .refresh_token_url("https://www.example.com/token?")
-        .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
+        .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 
     let mut access_token = AccessToken::new("access_token", 3600, "Read.Write", "asfasf");
@@ -118,7 +118,7 @@ fn multi_scope() {
         .add_scope("Files.ReadWrite.All")
         .add_scope("wl.offline_access")
         .redirect_uri("http://localhost:8000/redirect")
-        .authorize_url("https://login.live.com/oauth20_authorize.srf?")
+        .authorization_url("https://login.live.com/oauth20_authorize.srf?")
         .access_token_url("https://login.live.com/oauth20_token.srf")
         .refresh_token_url("https://login.live.com/oauth20_token.srf")
         .response_type("code")

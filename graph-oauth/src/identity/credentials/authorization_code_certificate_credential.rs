@@ -1,16 +1,14 @@
 use crate::auth::{OAuth, OAuthCredential};
 use crate::grants::GrantType;
 use crate::identity::form_credential::FormCredential;
-use crate::identity::{
-    Authority, AuthorizationCodeAuthorizationUrl, AuthorizationSerializer, AzureAuthorityHost,
-};
+use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost};
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
 use std::collections::HashMap;
 
 use url::Url;
 
 #[derive(Clone)]
-pub struct AuthorizationCodeCredential {
+pub struct AuthorizationCodeCertificateCredential {
     /// The authorization code obtained from a call to authorize. The code should be obtained with all required scopes.
     pub(crate) authorization_code: Option<String>,
     /// The refresh token needed to make an access token request using a refresh token.
@@ -20,48 +18,35 @@ pub struct AuthorizationCodeCredential {
     pub(crate) client_id: String,
     pub(crate) client_secret: String,
     pub(crate) redirect_uri: String,
+    pub(crate) code_verifier: Option<String>,
+    pub(crate) client_assertion_type: String,
+    pub(crate) client_assertion: String,
     pub(crate) scopes: Vec<String>,
     /// The Azure Active Directory tenant (directory) Id of the service principal.
     pub(crate) authority: Authority,
-    pub(crate) code_verifier: Option<String>,
     serializer: OAuth,
 }
 
-/*
-   pub(crate) client_id: String,
-   pub(crate) redirect_uri: String,
-   pub(crate) authority: Authority,
-   pub(crate) response_mode: ResponseMode,
-   pub(crate) response_type: String,
-   pub(crate) nonce: Option<String>,
-   pub(crate) state: Option<String>,
-   pub(crate) scopes: Vec<String>,
-   pub(crate) prompt: Option<Prompt>,
-   pub(crate) domain_hint: Option<String>,
-   pub(crate) login_hint: Option<String>,
-   pub(crate) code_challenge: Option<String>,
-   pub(crate) code_challenge_method: Option<String>,
-
-   authority
-
-*/
-
-impl AuthorizationCodeCredential {
+impl AuthorizationCodeCertificateCredential {
     pub fn new<T: AsRef<str>>(
         client_id: T,
         client_secret: T,
         authorization_code: T,
         redirect_uri: T,
-    ) -> AuthorizationCodeCredential {
-        AuthorizationCodeCredential {
+        client_assertion: T,
+    ) -> AuthorizationCodeCertificateCredential {
+        AuthorizationCodeCertificateCredential {
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_id: client_id.as_ref().to_owned(),
             client_secret: client_secret.as_ref().to_owned(),
             redirect_uri: redirect_uri.as_ref().to_owned(),
+            code_verifier: None,
+            client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+                .to_owned(),
+            client_assertion: client_assertion.as_ref().to_owned(),
             scopes: vec![],
             authority: Default::default(),
-            code_verifier: None,
             serializer: OAuth::new(),
         }
     }
@@ -70,12 +55,12 @@ impl AuthorizationCodeCredential {
         GrantType::AuthorizationCode
     }
 
-    pub fn builder() -> AuthorizationCodeCredentialBuilder {
-        AuthorizationCodeCredentialBuilder::new()
+    pub fn builder() -> AuthorizationCodeCertificateCredentialBuilder {
+        AuthorizationCodeCertificateCredentialBuilder::new()
     }
 }
 
-impl AuthorizationSerializer for AuthorizationCodeCredential {
+impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> GraphResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
@@ -109,55 +94,71 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
             );
         }
 
+        if self.client_assertion.trim().is_empty() {
+            return AuthorizationFailure::required_value(
+                OAuthCredential::ClientAssertion.alias(),
+                None,
+            );
+        }
+
+        if self.client_assertion_type.trim().is_empty() {
+            self.client_assertion_type =
+                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer".to_owned();
+        }
+
         self.serializer
             .client_id(self.client_id.as_str())
             .client_secret(self.client_secret.as_str())
+            .redirect_uri(self.redirect_uri.as_str())
+            .client_assertion(self.client_assertion.as_str())
+            .client_assertion_type(self.client_assertion_type.as_str())
             .extend_scopes(self.scopes.clone());
+
+        if let Some(code_verifier) = self.code_verifier.as_ref() {
+            self.serializer.code_verifier(code_verifier.as_ref());
+        }
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
                 return AuthorizationFailure::required_value(
                     OAuthCredential::RefreshToken.alias(),
-                    Some("Either authorization code or refresh token is required"),
+                    None,
                 );
             }
 
             self.serializer
-                .grant_type("refresh_token")
-                .refresh_token(refresh_token.as_ref());
+                .refresh_token(refresh_token.as_ref())
+                .grant_type("refresh_token");
 
             return self.serializer.authorization_form(vec![
-                FormCredential::Required(OAuthCredential::ClientId),
-                FormCredential::Required(OAuthCredential::ClientSecret),
                 FormCredential::Required(OAuthCredential::RefreshToken),
+                FormCredential::Required(OAuthCredential::ClientId),
                 FormCredential::Required(OAuthCredential::GrantType),
                 FormCredential::NotRequired(OAuthCredential::Scopes),
+                FormCredential::Required(OAuthCredential::ClientAssertion),
+                FormCredential::Required(OAuthCredential::ClientAssertionType),
             ]);
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
                 return AuthorizationFailure::required_value(
-                    OAuthCredential::RefreshToken.alias(),
-                    Some("Either authorization code or refresh token is required"),
+                    OAuthCredential::AuthorizationCode.alias(),
+                    None,
                 );
             }
 
             self.serializer
-                .authorization_code(authorization_code.as_ref())
-                .grant_type("authorization_code")
-                .redirect_uri(self.redirect_uri.as_str());
-
-            if let Some(code_verifier) = self.code_verifier.as_ref() {
-                self.serializer.code_verifier(code_verifier.as_str());
-            }
+                .authorization_code(authorization_code.as_str())
+                .grant_type("authorization_code");
 
             return self.serializer.authorization_form(vec![
-                FormCredential::Required(OAuthCredential::ClientId),
-                FormCredential::Required(OAuthCredential::ClientSecret),
-                FormCredential::Required(OAuthCredential::RedirectUri),
                 FormCredential::Required(OAuthCredential::AuthorizationCode),
+                FormCredential::Required(OAuthCredential::ClientId),
+                FormCredential::Required(OAuthCredential::RedirectUri),
                 FormCredential::Required(OAuthCredential::GrantType),
                 FormCredential::NotRequired(OAuthCredential::Scopes),
                 FormCredential::NotRequired(OAuthCredential::CodeVerifier),
+                FormCredential::Required(OAuthCredential::ClientAssertion),
+                FormCredential::Required(OAuthCredential::ClientAssertionType),
             ]);
         }
 
@@ -173,65 +174,52 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
 }
 
 #[derive(Clone)]
-pub struct AuthorizationCodeCredentialBuilder {
-    authorization_code_credential: AuthorizationCodeCredential,
+pub struct AuthorizationCodeCertificateCredentialBuilder {
+    authorization_code_credential: AuthorizationCodeCertificateCredential,
 }
 
-impl AuthorizationCodeCredentialBuilder {
-    fn new() -> AuthorizationCodeCredentialBuilder {
+impl AuthorizationCodeCertificateCredentialBuilder {
+    fn new() -> AuthorizationCodeCertificateCredentialBuilder {
         Self {
-            authorization_code_credential: AuthorizationCodeCredential {
+            authorization_code_credential: AuthorizationCodeCertificateCredential {
                 authorization_code: None,
                 refresh_token: None,
                 client_id: String::new(),
                 client_secret: String::new(),
                 redirect_uri: String::new(),
+                code_verifier: None,
+                client_assertion_type: String::new(),
+                client_assertion: String::new(),
                 scopes: vec![],
                 authority: Default::default(),
-                code_verifier: None,
                 serializer: OAuth::new(),
             },
         }
     }
 
-    pub fn with_authorization_code<T: AsRef<str>>(
-        &mut self,
-        authorization_code: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
+    pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
         self.authorization_code_credential.authorization_code =
             Some(authorization_code.as_ref().to_owned());
         self
     }
 
-    pub fn with_refresh_token<T: AsRef<str>>(
-        &mut self,
-        refresh_token: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
+    pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) -> &mut Self {
         self.authorization_code_credential.authorization_code = None;
         self.authorization_code_credential.refresh_token = Some(refresh_token.as_ref().to_owned());
         self
     }
 
-    pub fn with_redirect_uri<T: AsRef<str>>(
-        &mut self,
-        redirect_uri: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
+    pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
         self.authorization_code_credential.redirect_uri = redirect_uri.as_ref().to_owned();
         self
     }
 
-    pub fn with_client_id<T: AsRef<str>>(
-        &mut self,
-        client_id: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
+    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
         self.authorization_code_credential.client_id = client_id.as_ref().to_owned();
         self
     }
 
-    pub fn with_client_secret<T: AsRef<str>>(
-        &mut self,
-        client_secret: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
+    pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
         self.authorization_code_credential.client_secret = client_secret.as_ref().to_owned();
         self
     }
@@ -243,97 +231,37 @@ impl AuthorizationCodeCredentialBuilder {
         self
     }
 
-    pub fn with_authority<T: Into<Authority>>(
-        &mut self,
-        authority: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
+    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
         self.authorization_code_credential.authority = authority.into();
         self
     }
 
-    pub fn with_code_verifier<T: AsRef<str>>(
-        &mut self,
-        code_verifier: T,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
+    pub fn with_code_verifier<T: AsRef<str>>(&mut self, code_verifier: T) -> &mut Self {
         self.authorization_code_credential.code_verifier = Some(code_verifier.as_ref().to_owned());
         self
     }
 
-    pub fn with_scopes<T: ToString, I: IntoIterator<Item = T>>(
+    pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
+        self.authorization_code_credential.client_assertion = client_assertion.as_ref().to_owned();
+        self
+    }
+
+    pub fn with_client_assertion_type<T: AsRef<str>>(
         &mut self,
-        scopes: I,
-    ) -> &mut AuthorizationCodeCredentialBuilder {
+        client_assertion_type: T,
+    ) -> &mut Self {
+        self.authorization_code_credential.client_assertion_type =
+            client_assertion_type.as_ref().to_owned();
+        self
+    }
+
+    pub fn with_scopes<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
         self.authorization_code_credential.scopes =
             scopes.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
-    pub fn build(&self) -> AuthorizationCodeCredential {
+    pub fn build(&self) -> AuthorizationCodeCertificateCredential {
         self.authorization_code_credential.clone()
-    }
-}
-
-impl From<AuthorizationCodeAuthorizationUrl> for AuthorizationCodeCredentialBuilder {
-    fn from(value: AuthorizationCodeAuthorizationUrl) -> Self {
-        let mut builder = AuthorizationCodeCredentialBuilder::new();
-        builder
-            .with_scopes(value.scopes)
-            .with_client_id(value.client_id)
-            .with_redirect_uri(value.redirect_uri)
-            .with_authority(value.authority);
-
-        if let Some(code_verifier) = value.code_verifier.as_ref() {
-            builder.with_code_verifier(code_verifier);
-        }
-
-        builder
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn with_tenant_id_common() {
-        let credential = AuthorizationCodeCredential::builder()
-            .with_authority(Authority::TenantId("common".into()))
-            .build();
-
-        assert_eq!(credential.authority, Authority::TenantId("common".into()))
-    }
-
-    #[test]
-    fn with_tenant_id_adfs() {
-        let credential = AuthorizationCodeCredential::builder()
-            .with_authority(Authority::AzureDirectoryFederatedServices)
-            .build();
-
-        assert_eq!(credential.authority.as_ref(), "adfs");
-    }
-
-    #[test]
-    #[should_panic]
-    fn authorization_code_missing_required_value() {
-        let mut credential_builder = AuthorizationCodeCredential::builder();
-        credential_builder
-            .with_redirect_uri("https://localhost:8080")
-            .with_client_id("client_id")
-            .with_client_secret("client_secret")
-            .with_scopes(vec!["scope"])
-            .with_tenant("tenant_id");
-        let mut credential = credential_builder.build();
-        let _ = credential.form().unwrap();
-    }
-
-    #[test]
-    #[should_panic]
-    fn required_value_missing_client_id() {
-        let mut credential_builder = AuthorizationCodeCredential::builder();
-        credential_builder
-            .with_authorization_code("code")
-            .with_refresh_token("token");
-        let mut credential = credential_builder.build();
-        let _ = credential.form().unwrap();
     }
 }

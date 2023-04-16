@@ -9,11 +9,11 @@ fn oauth_parameters_from_credential() {
     oauth
         .client_id("client_id")
         .client_secret("client_secret")
-        .authorize_url("https://example.com/authorize?")
+        .authorization_url("https://example.com/authorize?")
         .access_token_url("https://example.com/token?")
         .refresh_token_url("https://example.com/token?")
         .redirect_uri("https://example.com/redirect?")
-        .access_code("ADSLFJL4L3")
+        .authorization_code("ADSLFJL4L3")
         .response_mode("response_mode")
         .response_type("response_type")
         .state("state")
@@ -39,23 +39,23 @@ fn oauth_parameters_from_credential() {
                 OAuthCredential::ClientSecret => {
                     assert_eq!(oauth.get(credential), Some("client_secret".into()))
                 }
-                OAuthCredential::AuthorizeURL => assert_eq!(
+                OAuthCredential::AuthorizationUrl => assert_eq!(
                     oauth.get(credential),
                     Some("https://example.com/authorize?".into())
                 ),
-                OAuthCredential::AccessTokenURL => assert_eq!(
+                OAuthCredential::AccessTokenUrl => assert_eq!(
                     oauth.get(credential),
                     Some("https://example.com/token?".into())
                 ),
-                OAuthCredential::RefreshTokenURL => assert_eq!(
+                OAuthCredential::RefreshTokenUrl => assert_eq!(
                     oauth.get(credential),
                     Some("https://example.com/token?".into())
                 ),
-                OAuthCredential::RedirectURI => assert_eq!(
+                OAuthCredential::RedirectUri => assert_eq!(
                     oauth.get(credential),
                     Some("https://example.com/redirect?".into())
                 ),
-                OAuthCredential::AccessCode => {
+                OAuthCredential::AuthorizationCode => {
                     assert_eq!(oauth.get(credential), Some("ADSLFJL4L3".into()))
                 }
                 OAuthCredential::ResponseMode => {
@@ -108,18 +108,18 @@ fn remove_credential() {
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
         .client_secret("CLDIE3F")
-        .authorize_url("https://www.example.com/authorize?")
+        .authorization_url("https://www.example.com/authorize?")
         .refresh_token_url("https://www.example.com/token?")
-        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
+        .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
     assert!(oauth.get(OAuthCredential::ClientId).is_some());
     oauth.remove(OAuthCredential::ClientId);
     assert!(oauth.get(OAuthCredential::ClientId).is_none());
     oauth.client_id("client_id");
     assert!(oauth.get(OAuthCredential::ClientId).is_some());
 
-    assert!(oauth.get(OAuthCredential::RedirectURI).is_some());
-    oauth.remove(OAuthCredential::RedirectURI);
-    assert!(oauth.get(OAuthCredential::RedirectURI).is_none());
+    assert!(oauth.get(OAuthCredential::RedirectUri).is_some());
+    oauth.remove(OAuthCredential::RedirectUri);
+    assert!(oauth.get(OAuthCredential::RedirectUri).is_none());
 }
 
 #[test]
@@ -130,11 +130,11 @@ fn setters() {
     oauth
         .client_id("client_id")
         .client_secret("client_secret")
-        .authorize_url("https://example.com/authorize")
+        .authorization_url("https://example.com/authorize")
         .refresh_token_url("https://example.com/token")
         .access_token_url("https://example.com/token")
         .redirect_uri("https://example.com/redirect")
-        .access_code("access_code");
+        .authorization_code("access_code");
 
     let test_setter = |c: OAuthCredential, s: &str| {
         let result = oauth.get(c);
@@ -146,14 +146,14 @@ fn setters() {
     test_setter(OAuthCredential::ClientId, "client_id");
     test_setter(OAuthCredential::ClientSecret, "client_secret");
     test_setter(
-        OAuthCredential::AuthorizeURL,
+        OAuthCredential::AuthorizationUrl,
         "https://example.com/authorize",
     );
     test_setter(
-        OAuthCredential::RefreshTokenURL,
+        OAuthCredential::RefreshTokenUrl,
         "https://example.com/token",
     );
-    test_setter(OAuthCredential::AccessTokenURL, "https://example.com/token");
-    test_setter(OAuthCredential::RedirectURI, "https://example.com/redirect");
-    test_setter(OAuthCredential::AccessCode, "access_code");
+    test_setter(OAuthCredential::AccessTokenUrl, "https://example.com/token");
+    test_setter(OAuthCredential::RedirectUri, "https://example.com/redirect");
+    test_setter(OAuthCredential::AuthorizationCode, "access_code");
 }

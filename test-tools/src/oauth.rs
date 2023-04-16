@@ -8,9 +8,9 @@ pub struct OAuthTestTool;
 impl OAuthTestTool {
     fn match_grant_credential(grant_request: GrantRequest) -> OAuthCredential {
         match grant_request {
-            GrantRequest::Authorization => OAuthCredential::AuthorizeURL,
-            GrantRequest::AccessToken => OAuthCredential::AccessTokenURL,
-            GrantRequest::RefreshToken => OAuthCredential::RefreshTokenURL,
+            GrantRequest::Authorization => OAuthCredential::AuthorizationUrl,
+            GrantRequest::AccessToken => OAuthCredential::AccessTokenUrl,
+            GrantRequest::RefreshToken => OAuthCredential::RefreshTokenUrl,
         }
     }
 
@@ -22,13 +22,13 @@ impl OAuthTestTool {
     ) {
         let mut url = String::new();
         if grant_request.eq(&GrantRequest::AccessToken) {
-            let mut atu = oauth.get(OAuthCredential::AccessTokenURL).unwrap();
+            let mut atu = oauth.get(OAuthCredential::AccessTokenUrl).unwrap();
             if !atu.ends_with('?') {
                 atu.push('?');
             }
             url.push_str(atu.as_str());
         } else if grant_request.eq(&GrantRequest::RefreshToken) {
-            let mut rtu = oauth.get(OAuthCredential::RefreshTokenURL).unwrap();
+            let mut rtu = oauth.get(OAuthCredential::RefreshTokenUrl).unwrap();
             if !rtu.ends_with('?') {
                 rtu.push('?');
             }

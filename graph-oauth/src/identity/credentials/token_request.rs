@@ -1,7 +1,7 @@
 use async_trait::async_trait;
-use graph_error::GraphResult;
 
 #[async_trait]
 pub trait TokenRequest {
-    async fn get_token_silent(&self) -> GraphResult<reqwest::Response>;
+    fn get_token_silent(&mut self) -> anyhow::Result<reqwest::blocking::Response>;
+    async fn get_token_silent_async(&mut self) -> anyhow::Result<reqwest::Response>;
 }

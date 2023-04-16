@@ -9,15 +9,15 @@ fn graph_discovery_oauth_v1() {
     let oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
     let keys: MicrosoftSigningKeysV1 = GraphDiscovery::V1.signing_keys().unwrap();
     assert_eq!(
-        oauth.get(OAuthCredential::AuthorizeURL),
+        oauth.get(OAuthCredential::AuthorizationUrl),
         Some(keys.authorization_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::AccessTokenURL),
+        oauth.get(OAuthCredential::AccessTokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::RefreshTokenURL),
+        oauth.get(OAuthCredential::RefreshTokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
@@ -31,15 +31,15 @@ fn graph_discovery_oauth_v2() {
     let oauth: OAuth = GraphDiscovery::V2.oauth().unwrap();
     let keys: MicrosoftSigningKeysV2 = GraphDiscovery::V2.signing_keys().unwrap();
     assert_eq!(
-        oauth.get(OAuthCredential::AuthorizeURL),
+        oauth.get(OAuthCredential::AuthorizationUrl),
         Some(keys.authorization_endpoint)
     );
     assert_eq!(
-        oauth.get(OAuthCredential::AccessTokenURL),
+        oauth.get(OAuthCredential::AccessTokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::RefreshTokenURL),
+        oauth.get(OAuthCredential::RefreshTokenUrl),
         Some(keys.token_endpoint)
     );
     assert_eq!(
@@ -53,15 +53,15 @@ async fn async_graph_discovery_oauth_v2() {
     let oauth: OAuth = GraphDiscovery::V2.async_oauth().await.unwrap();
     let keys: MicrosoftSigningKeysV2 = GraphDiscovery::V2.async_signing_keys().await.unwrap();
     assert_eq!(
-        oauth.get(OAuthCredential::AuthorizeURL),
+        oauth.get(OAuthCredential::AuthorizationUrl),
         Some(keys.authorization_endpoint)
     );
     assert_eq!(
-        oauth.get(OAuthCredential::AccessTokenURL),
+        oauth.get(OAuthCredential::AccessTokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::RefreshTokenURL),
+        oauth.get(OAuthCredential::RefreshTokenUrl),
         Some(keys.token_endpoint)
     );
     assert_eq!(

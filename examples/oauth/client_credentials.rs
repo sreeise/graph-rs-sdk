@@ -42,7 +42,7 @@ fn get_oauth_client() -> OAuth {
         .client_secret(CLIENT_SECRET)
         .add_scope("https://graph.microsoft.com/.default")
         .redirect_uri("http://localhost:8000/redirect")
-        .authorize_url("https://login.microsoftonline.com/common/adminconsent")
+        .authorization_url("https://login.microsoftonline.com/common/adminconsent")
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token");
     oauth
 }

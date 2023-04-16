@@ -24,7 +24,7 @@ fn oauth_open_id() -> OAuth {
     oauth
         .client_id(CLIENT_ID)
         .client_secret(CLIENT_SECRET)
-        .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
+        .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
         .redirect_uri("http://localhost:8000/redirect")
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
         .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")

@@ -30,7 +30,7 @@ impl GrantType {
                 | GrantRequest::AccessToken
                 | GrantRequest::RefreshToken => vec![
                     OAuthCredential::ClientId,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::ResponseType,
                     OAuthCredential::Scopes,
                 ],
@@ -38,7 +38,7 @@ impl GrantType {
             GrantType::CodeFlow => match grant_request {
                 GrantRequest::Authorization => vec![
                     OAuthCredential::ClientId,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::State,
                     OAuthCredential::ResponseType,
                     OAuthCredential::Scopes,
@@ -46,24 +46,24 @@ impl GrantType {
                 GrantRequest::AccessToken => vec![
                     OAuthCredential::ClientId,
                     OAuthCredential::ClientSecret,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::ResponseType,
                     OAuthCredential::GrantType,
-                    OAuthCredential::AccessCode,
+                    OAuthCredential::AuthorizationCode,
                 ],
                 GrantRequest::RefreshToken => vec![
                     OAuthCredential::ClientId,
                     OAuthCredential::ClientSecret,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::GrantType,
-                    OAuthCredential::AccessCode,
+                    OAuthCredential::AuthorizationCode,
                     OAuthCredential::RefreshToken,
                 ],
             },
             GrantType::AuthorizationCode => match grant_request {
                 GrantRequest::Authorization => vec![
                     OAuthCredential::ClientId,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::State,
                     OAuthCredential::ResponseMode,
                     OAuthCredential::ResponseType,
@@ -77,8 +77,8 @@ impl GrantType {
                 GrantRequest::AccessToken => vec![
                     OAuthCredential::ClientId,
                     OAuthCredential::ClientSecret,
-                    OAuthCredential::RedirectURI,
-                    OAuthCredential::AccessCode,
+                    OAuthCredential::RedirectUri,
+                    OAuthCredential::AuthorizationCode,
                     OAuthCredential::Scopes,
                     OAuthCredential::GrantType,
                     OAuthCredential::CodeVerifier,
@@ -96,7 +96,7 @@ impl GrantType {
                 | GrantRequest::AccessToken
                 | GrantRequest::RefreshToken => vec![
                     OAuthCredential::ClientId,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::Scopes,
                     OAuthCredential::ResponseType,
                     OAuthCredential::ResponseMode,
@@ -111,7 +111,7 @@ impl GrantType {
                 GrantRequest::Authorization => vec![
                     OAuthCredential::ClientId,
                     OAuthCredential::ResponseType,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::ResponseMode,
                     OAuthCredential::Scopes,
                     OAuthCredential::State,
@@ -124,10 +124,10 @@ impl GrantType {
                 GrantRequest::AccessToken => vec![
                     OAuthCredential::ClientId,
                     OAuthCredential::ClientSecret,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::GrantType,
                     OAuthCredential::Scopes,
-                    OAuthCredential::AccessCode,
+                    OAuthCredential::AuthorizationCode,
                     OAuthCredential::CodeVerifier,
                 ],
                 GrantRequest::RefreshToken => vec![
@@ -141,7 +141,7 @@ impl GrantType {
             GrantType::ClientCredentials => match grant_request {
                 GrantRequest::Authorization => vec![
                     OAuthCredential::ClientId,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::State,
                 ],
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => vec![
@@ -163,7 +163,7 @@ impl GrantType {
                     OAuthCredential::Username,
                     OAuthCredential::Password,
                     OAuthCredential::Scopes,
-                    OAuthCredential::RedirectURI,
+                    OAuthCredential::RedirectUri,
                     OAuthCredential::ClientAssertion,
                 ],
             },

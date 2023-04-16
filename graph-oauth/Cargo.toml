@@ -12,6 +12,7 @@ keywords = ["microsoft", "oauth", "authentication", "authorization"]
 categories = ["authentication", "web-programming::http-client"]
 
 [dependencies]
+anyhow = "1.0.69"
 async-trait = "0.1.35"
 base64 = "0.21.0"
 chrono = { version = "0.4.23", features = ["serde"] }

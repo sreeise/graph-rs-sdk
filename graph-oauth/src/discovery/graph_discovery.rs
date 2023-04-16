@@ -128,7 +128,7 @@ impl GraphDiscovery {
             GraphDiscovery::V1 => {
                 let k: MicrosoftSigningKeysV1 = self.signing_keys()?;
                 oauth
-                    .authorize_url(k.authorization_endpoint.as_str())
+                    .authorization_url(k.authorization_endpoint.as_str())
                     .access_token_url(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
@@ -137,7 +137,7 @@ impl GraphDiscovery {
             GraphDiscovery::V2 | GraphDiscovery::Tenant(_) => {
                 let k: MicrosoftSigningKeysV2 = self.signing_keys()?;
                 oauth
-                    .authorize_url(k.authorization_endpoint.as_str())
+                    .authorization_url(k.authorization_endpoint.as_str())
                     .access_token_url(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
@@ -162,7 +162,7 @@ impl GraphDiscovery {
             GraphDiscovery::V1 => {
                 let k: MicrosoftSigningKeysV1 = self.async_signing_keys().await?;
                 oauth
-                    .authorize_url(k.authorization_endpoint.as_str())
+                    .authorization_url(k.authorization_endpoint.as_str())
                     .access_token_url(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
@@ -171,7 +171,7 @@ impl GraphDiscovery {
             GraphDiscovery::V2 | GraphDiscovery::Tenant(_) => {
                 let k: MicrosoftSigningKeysV2 = self.async_signing_keys().await?;
                 oauth
-                    .authorize_url(k.authorization_endpoint.as_str())
+                    .authorization_url(k.authorization_endpoint.as_str())
                     .access_token_url(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());

@@ -62,7 +62,7 @@ fn oauth_web_client() -> OAuth {
         .add_scope("Files.ReadWrite.All")
         .add_scope("wl.offline_access")
         .redirect_uri("http://localhost:8000/redirect")
-        .authorize_url("https://login.live.com/oauth20_authorize.srf?")
+        .authorization_url("https://login.live.com/oauth20_authorize.srf?")
         .access_token_url("https://login.live.com/oauth20_token.srf")
         .refresh_token_url("https://login.live.com/oauth20_token.srf")
         .response_mode("query")
@@ -77,7 +77,7 @@ pub async fn set_and_req_access_code(access_code: AccessCode) {
     let mut oauth = oauth_web_client();
     oauth.response_type("token");
     oauth.state(access_code.state.as_str());
-    oauth.access_code(access_code.code.as_str());
+    oauth.authorization_code(access_code.code.as_str());
 
     // Request the access token.
     let mut client = oauth.build_async().code_flow();

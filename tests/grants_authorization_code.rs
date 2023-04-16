@@ -7,7 +7,7 @@ use url::{Host, Url};
 pub fn authorization_url() {
     let mut oauth = OAuth::new();
     oauth
-        .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
+        .authorization_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
         .response_type("code")
         .redirect_uri("http://localhost:8080")
@@ -45,8 +45,8 @@ fn access_token_uri() {
         .grant_type("authorization_code")
         .add_scope("Read.Write")
         .add_scope("Fall.Down")
-        .access_code("11201a230923f-4259-a230011201a230923f")
-        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+        .authorization_code("11201a230923f-4259-a230011201a230923f")
+        .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
         .code_verifier("bb301aaab3011201a230923f-4259-a230923fds32");
     let test_url =
 		"client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fredirect&code=ALDSKFJLKERLKJALSDKJF2209LAKJGFL&scope=Fall.Down+Read.Write&grant_type=authorization_code&code_verifier=bb301aaab3011201a230923f-4259-a230923fds32";
@@ -66,7 +66,7 @@ fn refresh_token_uri() {
         .grant_type("refresh_token")
         .add_scope("Read.Write")
         .add_scope("Fall.Down")
-        .access_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
+        .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
     let mut access_token = AccessToken::new("access_token", 3600, "Read.Write Fall.Down", "asfasf");
     access_token.set_refresh_token("32LKLASDKJ");
@@ -84,7 +84,7 @@ fn refresh_token_uri() {
 pub fn access_token_body_contains() {
     let mut oauth = OAuth::new();
     oauth
-        .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
+        .authorization_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
         .redirect_uri("http://localhost:8080")
         .add_scope("Read.Write")

@@ -27,7 +27,7 @@ fn oauth_client() -> OAuth {
         .add_scope("files.readwrite.all")
         .add_scope("offline_access")
         .redirect_uri("http://localhost:8000/redirect")
-        .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
+        .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
         .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
         .response_type("code");
@@ -39,7 +39,7 @@ pub async fn set_and_req_access_code(access_code: AccessCode) -> GraphResult<()>
     // The response type is automatically set to token and the grant type is automatically
     // set to authorization_code if either of these were not previously set.
     // This is done here as an example.
-    oauth.access_code(access_code.code.as_str());
+    oauth.authorization_code(access_code.code.as_str());
     let mut request = oauth.build_async().authorization_code_grant();
 
     // Returns reqwest::Response

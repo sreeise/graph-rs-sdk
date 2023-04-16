@@ -34,7 +34,7 @@
 //!     .add_scope("files.readwrite.all")
 //!     .add_scope("offline_access")
 //!     .redirect_uri("http://localhost:8000/redirect")
-//!     .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
+//!     .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
 //!     .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
 //!     .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
 //!     .response_type("code")
@@ -55,7 +55,7 @@
 //! ```
 //! # use graph_oauth::oauth::OAuth;
 //! # let mut oauth = OAuth::new();
-//! oauth.access_code("<ACCESS CODE>");
+//! oauth.authorization_code("<ACCESS CODE>");
 //! ```
 //!
 //! Perform an authorization code grant request for an access token:

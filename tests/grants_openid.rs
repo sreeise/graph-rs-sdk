@@ -5,7 +5,7 @@ use url::{Host, Url};
 pub fn oauth() -> OAuth {
     let mut oauth = OAuth::new();
     oauth
-        .authorize_url("https://login.microsoftonline.com/common/oauth2/authorize")
+        .authorization_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
         .response_type("id_token")
         .redirect_uri("http://localhost:8080")
