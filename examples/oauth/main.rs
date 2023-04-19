@@ -26,6 +26,11 @@ mod logout;
 mod open_id_connect;
 mod signing_keys;
 
+use graph_rs_sdk::oauth::{
+    AccessToken, AuthorizationCodeCredential, ClientSecretCredential,
+    ConfidentialClientApplication, ProofKeyForCodeExchange, TokenRequest,
+};
+
 #[tokio::main]
 async fn main() {
     // Some examples of what you can use for authentication and getting access tokens. There are
@@ -43,4 +48,37 @@ async fn main() {
 
     // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
     open_id_connect::start_server_main().await;
+}
+
+// Examples
+
+// Authorization Code Grant
+fn auth_code_grant(authorization_code: &str) -> AuthorizationCodeCredential {
+    let pkce = ProofKeyForCodeExchange::generate().unwrap();
+
+    AuthorizationCodeCredential::builder()
+        .with_authorization_code(authorization_code)
+        .with_client_id("CLIENT_ID")
+        .with_client_secret("CLIENT_SECRET")
+        .with_redirect_uri("http://localhost:8000/redirect")
+        .with_proof_key_for_code_exchange(&pkce)
+        .build()
+}
+
+// Client Credentials Grant
+fn client_credentials() {
+    pub async fn get_token_silent() {
+        let client_secret_credential = ClientSecretCredential::new("CLIENT_ID", "CLIENT_SECRET");
+        let mut confidential_client_application =
+            ConfidentialClientApplication::from(client_secret_credential);
+
+        let response = confidential_client_application
+            .get_token_silent_async()
+            .await
+            .unwrap();
+        println!("{response:#?}");
+
+        let access_token: AccessToken = response.json().await.unwrap();
+        println!("{:#?}", access_token.bearer_token());
+    }
 }

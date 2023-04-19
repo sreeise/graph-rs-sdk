@@ -6,7 +6,6 @@ use crate::identity::{
 };
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
 use std::collections::HashMap;
-
 use url::Url;
 
 #[derive(Clone)]
@@ -75,7 +74,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
 
     fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.authorization_code.is_some() && self.refresh_token.is_some() {
-            return AuthorizationFailure::required_value(
+            return AuthorizationFailure::required_value_msg(
                 &format!(
                     "{} or {}",
                     OAuthCredential::AuthorizationCode.alias(),
@@ -86,18 +85,21 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
         }
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value(OAuthCredential::ClientId.alias(), None);
+            return AuthorizationFailure::required_value_msg(
+                OAuthCredential::ClientId.alias(),
+                None,
+            );
         }
 
         if self.client_secret.trim().is_empty() {
-            return AuthorizationFailure::required_value(
+            return AuthorizationFailure::required_value_msg(
                 OAuthCredential::ClientSecret.alias(),
                 None,
             );
         }
 
         if self.client_assertion.trim().is_empty() {
-            return AuthorizationFailure::required_value(
+            return AuthorizationFailure::required_value_msg(
                 OAuthCredential::ClientAssertion.alias(),
                 None,
             );
@@ -122,7 +124,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
-                return AuthorizationFailure::required_value(
+                return AuthorizationFailure::required_value_msg(
                     OAuthCredential::RefreshToken.alias(),
                     None,
                 );
@@ -136,13 +138,13 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
                 FormCredential::Required(OAuthCredential::RefreshToken),
                 FormCredential::Required(OAuthCredential::ClientId),
                 FormCredential::Required(OAuthCredential::GrantType),
-                FormCredential::NotRequired(OAuthCredential::Scopes),
+                FormCredential::NotRequired(OAuthCredential::Scope),
                 FormCredential::Required(OAuthCredential::ClientAssertion),
                 FormCredential::Required(OAuthCredential::ClientAssertionType),
             ]);
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
-                return AuthorizationFailure::required_value(
+                return AuthorizationFailure::required_value_msg(
                     OAuthCredential::AuthorizationCode.alias(),
                     None,
                 );
@@ -157,14 +159,14 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
                 FormCredential::Required(OAuthCredential::ClientId),
                 FormCredential::Required(OAuthCredential::RedirectUri),
                 FormCredential::Required(OAuthCredential::GrantType),
-                FormCredential::NotRequired(OAuthCredential::Scopes),
+                FormCredential::NotRequired(OAuthCredential::Scope),
                 FormCredential::NotRequired(OAuthCredential::CodeVerifier),
                 FormCredential::Required(OAuthCredential::ClientAssertion),
                 FormCredential::Required(OAuthCredential::ClientAssertionType),
             ]);
         }
 
-        AuthorizationFailure::required_value(
+        AuthorizationFailure::required_value_msg(
             &format!(
                 "{} or {}",
                 OAuthCredential::AuthorizationCode.alias(),
@@ -272,14 +274,10 @@ impl From<AuthorizationCodeAuthorizationUrl> for AuthorizationCodeCertificateCre
     fn from(value: AuthorizationCodeAuthorizationUrl) -> Self {
         let mut builder = AuthorizationCodeCertificateCredentialBuilder::new();
         builder
-            .with_scope(value.scopes)
+            .with_scope(value.scope)
             .with_client_id(value.client_id)
             .with_redirect_uri(value.redirect_uri)
             .with_authority(value.authority);
-
-        if let Some(code_verifier) = value.code_verifier.as_ref() {
-            builder.with_code_verifier(code_verifier);
-        }
 
         builder
     }

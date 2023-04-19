@@ -47,7 +47,7 @@ impl OAuthTestTool {
 
         for oac in OAuthCredential::iter() {
             if oauth.contains(oac) && includes.contains(&oac) && !not_includes.contains(&oac) {
-                if oac.eq(&OAuthCredential::Scopes) {
+                if oac.eq(&OAuthCredential::Scope) {
                     let s = oauth.join_scopes(" ");
                     cow_cred.push((Cow::from(oac.alias()), Cow::from(s.to_owned())));
                 } else if !oac.eq(&OAuthTestTool::match_grant_credential(grant_request)) {
@@ -55,7 +55,7 @@ impl OAuthTestTool {
                     cow_cred.push((Cow::from(oac.alias()), Cow::from(s.to_owned())));
                 }
             } else if oauth.contains(oac) && not_includes.contains(&oac) {
-                if oac.eq(&OAuthCredential::Scopes) {
+                if oac.eq(&OAuthCredential::Scope) {
                     let s = oauth.join_scopes(" ");
                     cow_cred.push((Cow::from(oac.alias()), Cow::from(s.to_owned())));
                 } else if !oac.eq(&OAuthTestTool::match_grant_credential(grant_request)) {

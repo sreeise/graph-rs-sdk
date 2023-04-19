@@ -40,7 +40,7 @@ pub enum OAuthCredential {
     IdToken,
     Resource,
     DomainHint,
-    Scopes,
+    Scope,
     LoginHint,
     ClientAssertion,
     ClientAssertionType,
@@ -76,7 +76,7 @@ impl OAuthCredential {
             OAuthCredential::IdToken => "id_token",
             OAuthCredential::Resource => "resource",
             OAuthCredential::DomainHint => "domain_hint",
-            OAuthCredential::Scopes => "scope",
+            OAuthCredential::Scope => "scope",
             OAuthCredential::LoginHint => "login_hint",
             OAuthCredential::ClientAssertion => "client_assertion",
             OAuthCredential::ClientAssertionType => "client_assertion_type",
@@ -110,6 +110,12 @@ impl OAuthCredential {
 impl ToString for OAuthCredential {
     fn to_string(&self) -> String {
         self.alias().to_string()
+    }
+}
+
+impl AsRef<str> for OAuthCredential {
+    fn as_ref(&self) -> &'static str {
+        self.alias()
     }
 }
 
@@ -246,7 +252,7 @@ impl OAuth {
     /// println!("{:#?}", oauth.contains(OAuthCredential::Nonce));
     /// ```
     pub fn contains(&self, t: OAuthCredential) -> bool {
-        if t == OAuthCredential::Scopes {
+        if t == OAuthCredential::Scope {
             return !self.scopes.is_empty();
         }
         self.credentials.contains_key(t.alias())
@@ -1004,6 +1010,57 @@ impl OAuth {
             });
     }
 
+    fn query_encode_filter(&self, form_credential: &FormCredential) -> bool {
+        let oac = {
+            match form_credential {
+                FormCredential::Required(oac) => *oac,
+                FormCredential::NotRequired(oac) => *oac,
+            }
+        };
+        self.contains_key(oac.alias()) || oac.alias().eq("scope")
+    }
+
+    pub fn url_query_encode(
+        &mut self,
+        pairs: Vec<FormCredential>,
+        encoder: &mut Serializer<String>,
+    ) -> AuthorizationResult<()> {
+        for form_credential in pairs.iter() {
+            if self.query_encode_filter(form_credential) {
+                match form_credential {
+                    FormCredential::Required(oac) => {
+                        if oac.alias().eq("scope") {
+                            if self.scopes.is_empty() {
+                                return AuthorizationFailure::required_value_msg::<()>(
+                                    oac.alias(),
+                                    None,
+                                );
+                            } else {
+                                encoder.append_pair("scope", self.join_scopes(" ").as_str());
+                            }
+                        } else if let Some(val) = self.get(*oac) {
+                            encoder.append_pair(oac.alias(), val.as_str());
+                        } else {
+                            return AuthorizationFailure::required_value_msg::<()>(
+                                oac.alias(),
+                                None,
+                            );
+                        }
+                    }
+                    FormCredential::NotRequired(oac) => {
+                        if oac.alias().eq("scope") && !self.scopes.is_empty() {
+                            encoder.append_pair("scope", self.join_scopes(" ").as_str());
+                        } else if let Some(val) = self.get(*oac) {
+                            encoder.append_pair(oac.alias(), val.as_str());
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     pub fn params(&mut self, pairs: Vec<OAuthCredential>) -> GraphResult<HashMap<String, String>> {
         let mut map: HashMap<String, String> = HashMap::new();
         for oac in pairs.iter() {
@@ -1035,13 +1092,19 @@ impl OAuth {
                         name: oac.alias().into(),
                         message: None,
                     })?;
-                    map.insert(oac.to_string(), val);
+                    if val.trim().is_empty() {
+                        return AuthorizationFailure::required_value(oac);
+                    } else {
+                        map.insert(oac.to_string(), val);
+                    }
                 }
                 FormCredential::NotRequired(oac) => {
-                    if oac.eq(&OAuthCredential::Scopes) && !self.scopes.is_empty() {
+                    if oac.eq(&OAuthCredential::Scope) && !self.scopes.is_empty() {
                         map.insert("scope".into(), self.join_scopes(" "));
                     } else if let Some(val) = self.get(*oac) {
-                        map.insert(oac.to_string(), val);
+                        if !val.trim().is_empty() {
+                            map.insert(oac.to_string(), val);
+                        }
                     }
                 }
             }

@@ -58,14 +58,11 @@ impl AuthorizationSerializer for ClientSecretCredential {
 
     fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value(OAuthCredential::ClientId.alias(), None);
+            return AuthorizationFailure::required_value(OAuthCredential::ClientId);
         }
 
         if self.client_secret.trim().is_empty() {
-            return AuthorizationFailure::required_value(
-                OAuthCredential::ClientSecret.alias(),
-                None,
-            );
+            return AuthorizationFailure::required_value(OAuthCredential::ClientSecret);
         }
 
         self.serializer
@@ -84,7 +81,7 @@ impl AuthorizationSerializer for ClientSecretCredential {
             FormCredential::Required(OAuthCredential::ClientId),
             FormCredential::Required(OAuthCredential::ClientSecret),
             FormCredential::Required(OAuthCredential::GrantType),
-            FormCredential::NotRequired(OAuthCredential::Scopes),
+            FormCredential::NotRequired(OAuthCredential::Scope),
         ])
     }
 }

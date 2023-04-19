@@ -1,10 +1,18 @@
-use graph_rs_sdk::error::AuthorizationResult;
+use graph_error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
     AccessToken, AuthorizationCodeAuthorizationUrl, AuthorizationCodeCredential,
     ConfidentialClientApplication, ProofKeyForCodeExchange, TokenRequest,
 };
 use lazy_static::lazy_static;
 use warp::{get, Filter};
+
+#[macro_use]
+extern crate serde;
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct AccessCode {
+    code: String,
+}
 
 static CLIENT_ID: &str = "<CLIENT_ID>";
 static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
@@ -13,11 +21,6 @@ static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
 // calling ProofKeyCodeExchange::new(code_verifier, code_challenge, code_challenge_method)
 lazy_static! {
     static ref PKCE: ProofKeyForCodeExchange = ProofKeyForCodeExchange::generate().unwrap();
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-pub struct AccessCode {
-    code: String,
 }
 
 // This example shows how to use a code_challenge and code_verifier
@@ -31,29 +34,28 @@ pub struct AccessCode {
 // This method uses AuthorizationCodeAuthorizationUrl to build the sign in
 // url and query needed to get an authorization code and opens the default system
 // web browser to this Url.
-fn authorization_sign_in() {
-    let auth_code_url_builder = AuthorizationCodeAuthorizationUrl::builder()
-        .with_client_id(CLIENT_ID)
-        .with_scope(vec!["user.read"])
+pub fn authorization_sign_in() {
+    let auth_url_builder = AuthorizationCodeAuthorizationUrl::builder()
+        .with_client_id("e0951f73-cafa-455f-9365-50dfd22f56b6")
         .with_redirect_uri("http://localhost:8000/redirect")
-        .with_proof_key_for_code_exchange(&PKCE)
+        .with_scope(vec!["offline_access", "files.read"])
         .build();
 
-    let url = auth_code_url_builder.url().unwrap();
+    let url = auth_url_builder.url().unwrap();
+    // web browser crate in dev dependencies will open to default browser in the system.
     webbrowser::open(url.as_str()).unwrap();
 }
 
-/// Build the Authorization Code Grant Credential.
-fn get_confidential_client_application(authorization_code: &str) -> ConfidentialClientApplication {
-    let credential = AuthorizationCodeCredential::builder()
+pub fn get_confidential_client(authorization_code: &str) -> ConfidentialClientApplication {
+    let auth_code_credential = AuthorizationCodeCredential::builder()
         .with_authorization_code(authorization_code)
-        .with_client_id(CLIENT_ID)
-        .with_client_secret(CLIENT_SECRET)
+        .with_client_id("e0951f73-cafa-455f-9365-50dfd22f56b6")
+        .with_client_secret("rUWHfYygz~IZH~7I~2.w1-Sedf~T16g8OR")
+        .with_scope(vec!["files.read", "offline_access"])
         .with_redirect_uri("http://localhost:8000/redirect")
-        .with_proof_key_for_code_exchange(&PKCE)
         .build();
 
-    ConfidentialClientApplication::from(credential)
+    ConfidentialClientApplication::from(auth_code_credential)
 }
 
 // When the authorization code comes in on the redirect from sign in, call the get_credential
@@ -68,8 +70,7 @@ async fn handle_redirect(
             // Print out the code for debugging purposes.
             println!("{:#?}", access_code.code);
 
-            let mut confidential_client =
-                get_confidential_client_application(access_code.code.as_str());
+            let mut confidential_client = get_confidential_client(access_code.code.as_str());
 
             // Returns reqwest::Response
             let response = confidential_client.get_token_silent_async().await.unwrap();
@@ -118,4 +119,9 @@ pub async fn start_server_main() {
     authorization_sign_in();
 
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
+}
+
+#[tokio::main]
+async fn main() {
+    start_server_main().await;
 }

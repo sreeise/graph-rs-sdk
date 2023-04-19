@@ -1,12 +1,9 @@
 use crate::auth::{OAuth, OAuthCredential};
 use crate::grants::GrantType;
 use crate::identity::{Authority, AzureAuthorityHost, Prompt, ResponseMode};
-use crate::oauth::OAuthError;
-use base64::Engine;
-use ring::rand::SecureRandom;
-
-use graph_error::{GraphFailure, GraphResult};
-
+use crate::oauth::form_credential::FormCredential;
+use crate::oauth::ProofKeyForCodeExchange;
+use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
 use url::Url;
 
@@ -29,18 +26,14 @@ pub struct AuthorizationCodeAuthorizationUrl {
     pub(crate) client_id: String,
     pub(crate) redirect_uri: String,
     pub(crate) authority: Authority,
-    pub(crate) response_mode: ResponseMode,
     pub(crate) response_type: String,
+    pub(crate) response_mode: Option<ResponseMode>,
     pub(crate) nonce: Option<String>,
     pub(crate) state: Option<String>,
-    pub(crate) scopes: Vec<String>,
+    pub(crate) scope: Vec<String>,
     pub(crate) prompt: Option<Prompt>,
     pub(crate) domain_hint: Option<String>,
     pub(crate) login_hint: Option<String>,
-    /// The code verifier is not included in the authorization URL.
-    /// You can set the code verifier here and then use the From trait
-    /// for [AuthorizationCodeCredential] which does use the code verifier.
-    pub(crate) code_verifier: Option<String>,
     pub(crate) code_challenge: Option<String>,
     pub(crate) code_challenge_method: Option<String>,
 }
@@ -51,15 +44,14 @@ impl AuthorizationCodeAuthorizationUrl {
             client_id: client_id.as_ref().to_owned(),
             redirect_uri: redirect_uri.as_ref().to_owned(),
             authority: Authority::default(),
-            response_mode: ResponseMode::Query,
             response_type: "code".to_owned(),
+            response_mode: None,
             nonce: None,
             state: None,
-            scopes: vec![],
+            scope: vec![],
             prompt: None,
             domain_hint: None,
             login_hint: None,
-            code_verifier: None,
             code_challenge: None,
             code_challenge_method: None,
         }
@@ -73,28 +65,45 @@ impl AuthorizationCodeAuthorizationUrl {
         AuthorizationCodeAuthorizationUrlBuilder::new()
     }
 
-    pub fn url(&self) -> GraphResult<Url> {
+    pub fn url(&self) -> AuthorizationResult<Url> {
         self.url_with_host(&AzureAuthorityHost::default())
     }
 
-    pub fn url_with_host(&self, azure_authority_host: &AzureAuthorityHost) -> GraphResult<Url> {
+    pub fn url_with_host(
+        &self,
+        azure_authority_host: &AzureAuthorityHost,
+    ) -> AuthorizationResult<Url> {
         let mut serializer = OAuth::new();
 
         if self.redirect_uri.trim().is_empty() {
-            return OAuthError::error_from(OAuthCredential::RedirectUri);
+            return AuthorizationFailure::required_value_msg("redirect_uri", None);
         }
 
         if self.client_id.trim().is_empty() {
-            return OAuthError::error_from(OAuthCredential::ClientId);
+            return AuthorizationFailure::required_value_msg("client_id", None);
+        }
+
+        if self.response_type.trim().is_empty() {
+            return AuthorizationFailure::required_value_msg(
+                "response_type",
+                Some("Must include code for the authorization code flow. Can also include id_token or token if using the hybrid flow.")
+            );
+        }
+
+        if self.scope.is_empty() {
+            return AuthorizationFailure::required_value_msg("scope", None);
         }
 
         serializer
             .client_id(self.client_id.as_str())
             .redirect_uri(self.redirect_uri.as_str())
-            .extend_scopes(self.scopes.clone())
+            .extend_scopes(self.scope.clone())
             .authority(azure_authority_host, &self.authority)
-            .response_mode(self.response_mode.as_ref())
             .response_type(self.response_type.as_str());
+
+        if let Some(response_mode) = self.response_mode.as_ref() {
+            serializer.response_mode(response_mode.as_ref());
+        }
 
         if let Some(state) = self.state.as_ref() {
             serializer.state(state.as_str());
@@ -121,30 +130,29 @@ impl AuthorizationCodeAuthorizationUrl {
         }
 
         let authorization_credentials = vec![
-            OAuthCredential::ClientId,
-            OAuthCredential::RedirectUri,
-            OAuthCredential::State,
-            OAuthCredential::ResponseMode,
-            OAuthCredential::ResponseType,
-            OAuthCredential::Scopes,
-            OAuthCredential::Prompt,
-            OAuthCredential::DomainHint,
-            OAuthCredential::LoginHint,
-            OAuthCredential::CodeChallenge,
-            OAuthCredential::CodeChallengeMethod,
+            FormCredential::Required(OAuthCredential::ClientId),
+            FormCredential::Required(OAuthCredential::ResponseType),
+            FormCredential::Required(OAuthCredential::RedirectUri),
+            FormCredential::Required(OAuthCredential::Scope),
+            FormCredential::NotRequired(OAuthCredential::ResponseMode),
+            FormCredential::NotRequired(OAuthCredential::State),
+            FormCredential::NotRequired(OAuthCredential::Prompt),
+            FormCredential::NotRequired(OAuthCredential::LoginHint),
+            FormCredential::NotRequired(OAuthCredential::DomainHint),
+            FormCredential::NotRequired(OAuthCredential::CodeChallenge),
+            FormCredential::NotRequired(OAuthCredential::CodeChallengeMethod),
         ];
 
         let mut encoder = Serializer::new(String::new());
-        serializer.form_encode_credentials(authorization_credentials, &mut encoder);
+        serializer.url_query_encode(authorization_credentials, &mut encoder)?;
 
-        let mut url = Url::parse(
-            serializer
-                .get_or_else(OAuthCredential::AuthorizationUrl)?
-                .as_str(),
-        )
-        .map_err(GraphFailure::from)?;
-        url.set_query(Some(encoder.finish().as_str()));
-        Ok(url)
+        if let Some(authorization_url) = serializer.get(OAuthCredential::AuthorizationUrl) {
+            let mut url = Url::parse(authorization_url.as_str())?;
+            url.set_query(Some(encoder.finish().as_str()));
+            Ok(url)
+        } else {
+            AuthorizationFailure::required_value_msg("authorization_url", None)
+        }
     }
 }
 
@@ -166,15 +174,14 @@ impl AuthorizationCodeAuthorizationUrlBuilder {
                 client_id: String::new(),
                 redirect_uri: String::new(),
                 authority: Authority::default(),
-                response_mode: ResponseMode::Query,
+                response_mode: None,
                 response_type: "code".to_owned(),
                 nonce: None,
                 state: None,
-                scopes: vec![],
+                scope: vec![],
                 prompt: None,
                 domain_hint: None,
                 login_hint: None,
-                code_verifier: None,
                 code_challenge: None,
                 code_challenge_method: None,
             },
@@ -222,7 +229,7 @@ impl AuthorizationCodeAuthorizationUrlBuilder {
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
     ///     Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
-        self.authorization_code_authorize_url.response_mode = response_mode;
+        self.authorization_code_authorize_url.response_mode = Some(response_mode);
         self
     }
 
@@ -240,8 +247,8 @@ impl AuthorizationCodeAuthorizationUrlBuilder {
         self
     }
 
-    pub fn with_scopes<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.authorization_code_authorize_url.scopes =
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
+        self.authorization_code_authorize_url.scope =
             scopes.into_iter().map(|s| s.to_string()).collect();
         self
     }
@@ -271,12 +278,6 @@ impl AuthorizationCodeAuthorizationUrlBuilder {
         self
     }
 
-    pub fn with_code_verifier<T: AsRef<str>>(&mut self, code_verifier: T) -> &mut Self {
-        self.authorization_code_authorize_url.code_verifier =
-            Some(code_verifier.as_ref().to_owned());
-        self
-    }
-
     /// Used to secure authorization code grants by using Proof Key for Code Exchange (PKCE).
     /// Required if code_challenge_method is included.
     pub fn with_code_challenge<T: AsRef<str>>(&mut self, code_challenge: T) -> &mut Self {
@@ -299,34 +300,13 @@ impl AuthorizationCodeAuthorizationUrlBuilder {
         self
     }
 
-    /// Generate a code challenge and code verifier for the
-    /// authorization code grant flow using proof key for
-    /// code exchange (PKCE) and SHA256.
-    ///
-    /// This method automatically sets the code_verifier,
-    /// code_challenge, and code_challenge_method fields.
-    ///
-    /// For authorization, the code_challenge_method parameter in the request body
-    /// is automatically set to 'S256'.
-    ///
-    /// Internally this method uses the Rust ring cyrpto library to
-    /// generate a secure random 32-octet sequence that is base64 URL
-    /// encoded (no padding). This sequence is hashed using SHA256 and
-    /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
-    pub fn generate_sha256_challenge_and_verifier(&mut self) -> Result<(), GraphFailure> {
-        let mut buf = [0; 32];
-        let rng = ring::rand::SystemRandom::new();
-        rng.fill(&mut buf)?;
-        let verifier = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(buf);
-        let mut context = ring::digest::Context::new(&ring::digest::SHA256);
-        context.update(verifier.as_bytes());
-        let code_challenge =
-            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(context.finish().as_ref());
-
-        self.with_code_verifier(verifier);
-        self.with_code_challenge(code_challenge);
-        self.with_code_challenge_method("S256");
-        Ok(())
+    pub fn with_proof_key_for_code_exchange(
+        &mut self,
+        proof_key_for_code_exchange: &ProofKeyForCodeExchange,
+    ) -> &mut Self {
+        self.with_code_challenge(proof_key_for_code_exchange.code_challenge.as_str());
+        self.with_code_challenge_method(proof_key_for_code_exchange.code_challenge_method.as_str());
+        self
     }
 
     pub fn build(&self) -> AuthorizationCodeAuthorizationUrl {
@@ -343,7 +323,7 @@ mod test {
         let authorizer = AuthorizationCodeAuthorizationUrl::builder()
             .with_redirect_uri("https::/localhost:8080")
             .with_client_id("client_id")
-            .with_scopes(["read", "write"])
+            .with_scope(["read", "write"])
             .build();
 
         let url_result = authorizer.url();

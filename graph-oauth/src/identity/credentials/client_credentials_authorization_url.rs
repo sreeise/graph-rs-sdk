@@ -37,11 +37,14 @@ impl ClientCredentialsAuthorizationUrl {
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuth::new();
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value(OAuthCredential::ClientId.alias(), None);
+            return AuthorizationFailure::required_value_msg(
+                OAuthCredential::ClientId.alias(),
+                None,
+            );
         }
 
         if self.redirect_uri.trim().is_empty() {
-            return AuthorizationFailure::required_value(
+            return AuthorizationFailure::required_value_msg(
                 OAuthCredential::RedirectUri.alias(),
                 None,
             );
@@ -70,13 +73,13 @@ impl ClientCredentialsAuthorizationUrl {
         let mut url = Url::parse(
             serializer
                 .get_or_else(OAuthCredential::AuthorizationUrl)
-                .or(AuthorizationFailure::required_value(
+                .or(AuthorizationFailure::required_value_msg(
                     OAuthCredential::AuthorizationUrl.alias(),
                     None,
                 ))?
                 .as_str(),
         )
-        .or(AuthorizationFailure::required_value(
+        .or(AuthorizationFailure::required_value_msg(
             OAuthCredential::AuthorizationUrl.alias(),
             None,
         ))?;
