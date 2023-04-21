@@ -17,6 +17,7 @@ pub enum GrantType {
     CodeFlow,
     AuthorizationCode,
     Implicit,
+    DeviceCode,
     OpenId,
     ClientCredentials,
     ResourceOwnerPasswordCredentials,
@@ -165,6 +166,22 @@ impl GrantType {
                     OAuthCredential::Scope,
                     OAuthCredential::RedirectUri,
                     OAuthCredential::ClientAssertion,
+                ],
+            },
+            GrantType::DeviceCode => match grant_request {
+                GrantRequest::Authorization => {
+                    vec![OAuthCredential::ClientId, OAuthCredential::Scope]
+                }
+                GrantRequest::AccessToken => vec![
+                    OAuthCredential::GrantType,
+                    OAuthCredential::ClientId,
+                    OAuthCredential::DeviceCode,
+                ],
+                GrantRequest::RefreshToken => vec![
+                    OAuthCredential::ClientId,
+                    OAuthCredential::Scope,
+                    OAuthCredential::GrantType,
+                    OAuthCredential::RefreshToken,
                 ],
             },
         }

@@ -52,6 +52,7 @@ pub enum OAuthCredential {
     AdminConsent,
     Username,
     Password,
+    DeviceCode,
 }
 
 impl OAuthCredential {
@@ -88,6 +89,7 @@ impl OAuthCredential {
             OAuthCredential::AdminConsent => "admin_consent",
             OAuthCredential::Username => "username",
             OAuthCredential::Password => "password",
+            OAuthCredential::DeviceCode => "device_code",
         }
     }
 
@@ -733,6 +735,19 @@ impl OAuth {
         self.insert(OAuthCredential::RefreshToken, value)
     }
 
+    /// Set the device code for the device authorization flow.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::{OAuth, OAuthCredential};
+    /// # let mut oauth = OAuth::new();
+    /// oauth.device_code("device_code");
+    /// assert!(oauth.contains(OAuthCredential::DeviceCode))
+    /// ```
+    pub fn device_code(&mut self, value: &str) -> &mut OAuth {
+        self.insert(OAuthCredential::DeviceCode, value)
+    }
+
     /// Add a scope' for the OAuth URL.
     ///
     /// # Example
@@ -1211,6 +1226,29 @@ impl OAuth {
 						)
 					}
 				}
+            GrantType::DeviceCode =>
+                match request_type {
+                    GrantRequest::Authorization => {
+                        self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::Authorization), &mut encoder);
+
+                        let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
+                        if !url.ends_with('?') {
+                            url.push('?');
+                        }
+                        url.push_str(encoder.finish().as_str());
+                        Ok(url)
+                    }
+                    GrantRequest::AccessToken => {
+                        let _ = self.entry(OAuthCredential::GrantType, "urn:ietf:params:oauth:grant-type:device_code");
+                        self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::AccessToken), &mut encoder);
+                        Ok(encoder.finish())
+                    }
+                    GrantRequest::RefreshToken => {
+                        let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                        self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::AccessToken), &mut encoder);
+                        Ok(encoder.finish())
+                    }
+                }
 			GrantType::OpenId =>
 				match request_type {
 					GrantRequest::Authorization => {
@@ -1295,6 +1333,16 @@ impl OAuth {
             GrantType::Implicit => {
                 if request_type.eq(&GrantRequest::Authorization) && !self.scopes.is_empty() {
                     let _ = self.entry(OAuthCredential::ResponseType, "token");
+                }
+            }
+            GrantType::DeviceCode => {
+                if request_type.eq(&GrantRequest::AccessToken) {
+                    let _ = self.entry(
+                        OAuthCredential::GrantType,
+                        "urn:ietf:params:oauth:grant-type:device_code",
+                    );
+                } else if request_type.eq(&GrantRequest::RefreshToken) {
+                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
                 }
             }
             GrantType::OpenId => {
@@ -1423,6 +1471,24 @@ impl GrantSelector<AccessTokenGrant> {
         }
     }
 
+    /// Create a new instance for device authorization code grant.
+    ///
+    /// # See
+    /// [Microsoft identity platform and the OAuth 2.0 device authorization grant flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let device_code_handler = oauth.build().device_code();
+    /// ```
+    pub fn device_code(self) -> DeviceCodeGrant {
+        DeviceCodeGrant {
+            oauth: self.oauth,
+            grant: GrantType::DeviceCode,
+        }
+    }
+
     /// Create a new instance for the open id connect grant.
     ///
     /// # See
@@ -1548,6 +1614,24 @@ impl GrantSelector<AsyncAccessTokenGrant> {
         AsyncAccessTokenGrant {
             oauth: self.oauth,
             grant: GrantType::AuthorizationCode,
+        }
+    }
+
+    /// Create a new instance for device authorization code grant.
+    ///
+    /// # See
+    /// [Microsoft identity platform and the OAuth 2.0 device authorization grant flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::oauth::OAuth;
+    /// # let mut oauth = OAuth::new();
+    /// let device_code_handler = oauth.build().device_code();
+    /// ```
+    pub fn device_code(self) -> AsyncDeviceCodeGrant {
+        AsyncDeviceCodeGrant {
+            oauth: self.oauth,
+            grant: GrantType::DeviceCode,
         }
     }
 
@@ -1838,6 +1922,240 @@ impl From<ImplicitGrant> for OAuth {
 impl AsRef<OAuth> for ImplicitGrant {
     fn as_ref(&self) -> &OAuth {
         &self.oauth
+    }
+}
+
+pub struct DeviceCodeGrant {
+    oauth: OAuth,
+    grant: GrantType,
+}
+
+impl DeviceCodeGrant {
+    pub fn authorization_url(&mut self) -> Result<Url, GraphFailure> {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::Authorization);
+        let params = self.oauth.params(
+            self.grant
+                .available_credentials(GrantRequest::Authorization),
+        )?;
+        let mut url = Url::parse(
+            self.oauth
+                .get_or_else(OAuthCredential::AuthorizationUrl)?
+                .as_str(),
+        )?;
+        url.query_pairs_mut().extend_pairs(&params);
+        Ok(url)
+    }
+
+    pub fn authorization(&mut self) -> AccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::Authorization);
+        let uri = self.oauth.get_or_else(OAuthCredential::AuthorizationUrl);
+        let params = self.oauth.params(
+            self.grant
+                .available_credentials(GrantRequest::Authorization),
+        );
+
+        if let Err(e) = uri {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        AccessTokenRequest {
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
+        }
+    }
+
+    pub fn access_token(&mut self) -> AccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::AccessToken);
+        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenUrl);
+        let params = self
+            .oauth
+            .params(self.grant.available_credentials(GrantRequest::AccessToken));
+
+        if let Err(e) = uri {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        AccessTokenRequest {
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
+        }
+    }
+
+    pub fn refresh_token(&mut self) -> AccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::RefreshToken);
+        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenUrl);
+        let params = self
+            .oauth
+            .params(self.grant.available_credentials(GrantRequest::RefreshToken));
+
+        if let Err(e) = uri {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        AccessTokenRequest {
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
+        }
+    }
+}
+
+pub struct AsyncDeviceCodeGrant {
+    oauth: OAuth,
+    grant: GrantType,
+}
+
+impl AsyncDeviceCodeGrant {
+    pub fn authorization_url(&mut self) -> Result<Url, GraphFailure> {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::Authorization);
+        let params = self.oauth.params(
+            self.grant
+                .available_credentials(GrantRequest::Authorization),
+        )?;
+        let mut url = Url::parse(
+            self.oauth
+                .get_or_else(OAuthCredential::AuthorizationUrl)?
+                .as_str(),
+        )?;
+        url.query_pairs_mut().extend_pairs(&params);
+        Ok(url)
+    }
+
+    pub fn authorization(&mut self) -> AsyncAccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::Authorization);
+        let uri = self.oauth.get_or_else(OAuthCredential::AuthorizationUrl);
+        let params = self.oauth.params(
+            self.grant
+                .available_credentials(GrantRequest::Authorization),
+        );
+
+        if let Err(e) = uri {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        AsyncAccessTokenRequest {
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
+        }
+    }
+
+    pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::AccessToken);
+        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenUrl);
+        let params = self
+            .oauth
+            .params(self.grant.available_credentials(GrantRequest::AccessToken));
+
+        if let Err(e) = uri {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        AsyncAccessTokenRequest {
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
+        }
+    }
+
+    pub fn refresh_token(&mut self) -> AsyncAccessTokenRequest {
+        self.oauth
+            .pre_request_check(self.grant, GrantRequest::RefreshToken);
+        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenUrl);
+        let params = self
+            .oauth
+            .params(self.grant.available_credentials(GrantRequest::RefreshToken));
+
+        if let Err(e) = uri {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        if let Err(e) = params {
+            return AsyncAccessTokenRequest {
+                uri: Default::default(),
+                params: Default::default(),
+                error: Some(e),
+            };
+        }
+
+        AsyncAccessTokenRequest {
+            uri: uri.unwrap(),
+            params: params.unwrap(),
+            error: None,
+        }
     }
 }
 

@@ -83,11 +83,11 @@ async fn handle_redirect(
 
             let response = confidential_client_application
                 .get_token_silent_async()
-                .await?;
+                .await.unwrap();
             println!("{response:#?}");
 
             if response.status().is_success() {
-                let mut access_token: AccessToken = response.json().await?;
+                let mut access_token: AccessToken = response.json().await.unwrap();
 
                 // Option<&JsonWebToken>
                 let jwt = access_token.jwt();
