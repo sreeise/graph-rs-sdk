@@ -2,7 +2,7 @@ use crate::auth::{OAuth, OAuthCredential};
 use crate::grants::GrantType;
 use crate::identity::form_credential::FormCredential;
 use crate::identity::{
-    Authority, AuthorizationCodeAuthorizationUrl, AuthorizationSerializer, AzureAuthorityHost,
+    AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
     ProofKeyForCodeExchange,
 };
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
@@ -250,8 +250,8 @@ impl AuthorizationCodeCredentialBuilder {
     }
 }
 
-impl From<AuthorizationCodeAuthorizationUrl> for AuthorizationCodeCredentialBuilder {
-    fn from(value: AuthorizationCodeAuthorizationUrl) -> Self {
+impl From<AuthCodeAuthorizationUrl> for AuthorizationCodeCredentialBuilder {
+    fn from(value: AuthCodeAuthorizationUrl) -> Self {
         let mut builder = AuthorizationCodeCredentialBuilder::new();
         builder
             .with_scope(value.scope)

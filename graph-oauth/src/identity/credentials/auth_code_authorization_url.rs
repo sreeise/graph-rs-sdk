@@ -21,7 +21,7 @@ use url::Url;
 ///
 /// Reference: https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code
 #[derive(Clone)]
-pub struct AuthorizationCodeAuthorizationUrl {
+pub struct AuthCodeAuthorizationUrl {
     /// The client (application) ID of the service principal
     pub(crate) client_id: String,
     pub(crate) redirect_uri: String,
@@ -38,9 +38,9 @@ pub struct AuthorizationCodeAuthorizationUrl {
     pub(crate) code_challenge_method: Option<String>,
 }
 
-impl AuthorizationCodeAuthorizationUrl {
-    pub fn new<T: AsRef<str>>(client_id: T, redirect_uri: T) -> AuthorizationCodeAuthorizationUrl {
-        AuthorizationCodeAuthorizationUrl {
+impl AuthCodeAuthorizationUrl {
+    pub fn new<T: AsRef<str>>(client_id: T, redirect_uri: T) -> AuthCodeAuthorizationUrl {
+        AuthCodeAuthorizationUrl {
             client_id: client_id.as_ref().to_owned(),
             redirect_uri: redirect_uri.as_ref().to_owned(),
             authority: Authority::default(),
@@ -158,7 +158,7 @@ impl AuthorizationCodeAuthorizationUrl {
 
 #[derive(Clone)]
 pub struct AuthorizationCodeAuthorizationUrlBuilder {
-    authorization_code_authorize_url: AuthorizationCodeAuthorizationUrl,
+    authorization_code_authorize_url: AuthCodeAuthorizationUrl,
 }
 
 impl Default for AuthorizationCodeAuthorizationUrlBuilder {
@@ -170,7 +170,7 @@ impl Default for AuthorizationCodeAuthorizationUrlBuilder {
 impl AuthorizationCodeAuthorizationUrlBuilder {
     pub fn new() -> AuthorizationCodeAuthorizationUrlBuilder {
         AuthorizationCodeAuthorizationUrlBuilder {
-            authorization_code_authorize_url: AuthorizationCodeAuthorizationUrl {
+            authorization_code_authorize_url: AuthCodeAuthorizationUrl {
                 client_id: String::new(),
                 redirect_uri: String::new(),
                 authority: Authority::default(),
@@ -309,7 +309,7 @@ impl AuthorizationCodeAuthorizationUrlBuilder {
         self
     }
 
-    pub fn build(&self) -> AuthorizationCodeAuthorizationUrl {
+    pub fn build(&self) -> AuthCodeAuthorizationUrl {
         self.authorization_code_authorize_url.clone()
     }
 }
@@ -320,7 +320,7 @@ mod test {
 
     #[test]
     fn serialize_uri() {
-        let authorizer = AuthorizationCodeAuthorizationUrl::builder()
+        let authorizer = AuthCodeAuthorizationUrl::builder()
             .with_redirect_uri("https::/localhost:8080")
             .with_client_id("client_id")
             .with_scope(["read", "write"])

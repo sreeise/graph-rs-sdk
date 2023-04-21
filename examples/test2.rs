@@ -1,10 +1,9 @@
-use graph_error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthorizationCodeAuthorizationUrl, AuthorizationCodeCredential,
+    AccessToken, AuthCodeAuthorizationUrl, AuthorizationCodeCredential,
     ConfidentialClientApplication, ProofKeyForCodeExchange, TokenRequest,
 };
 use lazy_static::lazy_static;
-use warp::{get, Filter};
+use warp::Filter;
 
 #[macro_use]
 extern crate serde;
@@ -35,7 +34,7 @@ lazy_static! {
 // url and query needed to get an authorization code and opens the default system
 // web browser to this Url.
 pub fn authorization_sign_in() {
-    let auth_url_builder = AuthorizationCodeAuthorizationUrl::builder()
+    let auth_url_builder = AuthCodeAuthorizationUrl::builder()
         .with_client_id("e0951f73-cafa-455f-9365-50dfd22f56b6")
         .with_redirect_uri("http://localhost:8000/redirect")
         .with_scope(vec!["offline_access", "files.read"])

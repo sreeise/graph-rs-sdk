@@ -1,6 +1,6 @@
 use graph_rs_sdk::error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthorizationCodeAuthorizationUrl, AuthorizationCodeCredential,
+    AccessToken, AuthCodeAuthorizationUrl, AuthorizationCodeCredential,
     ConfidentialClientApplication, ProofKeyForCodeExchange, TokenRequest,
 };
 use lazy_static::lazy_static;
@@ -32,7 +32,7 @@ pub struct AccessCode {
 // url and query needed to get an authorization code and opens the default system
 // web browser to this Url.
 fn authorization_sign_in() {
-    let auth_code_url_builder = AuthorizationCodeAuthorizationUrl::builder()
+    let auth_code_url_builder = AuthCodeAuthorizationUrl::builder()
         .with_client_id(CLIENT_ID)
         .with_scope(vec!["user.read"])
         .with_redirect_uri("http://localhost:8000/redirect")

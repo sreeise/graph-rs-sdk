@@ -1,4 +1,4 @@
-mod authorization_code_authorization_url;
+mod auth_code_authorization_url;
 mod authorization_code_certificate_credential;
 mod authorization_code_credential;
 mod client_certificate_credential;
@@ -11,7 +11,7 @@ mod response_mode;
 mod token_credential;
 mod token_request;
 
-pub use authorization_code_authorization_url::*;
+pub use auth_code_authorization_url::*;
 pub use authorization_code_certificate_credential::*;
 pub use authorization_code_credential::*;
 pub use client_certificate_credential::*;

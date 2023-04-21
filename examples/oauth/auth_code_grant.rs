@@ -1,5 +1,5 @@
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthorizationCodeAuthorizationUrl, AuthorizationCodeCredential,
+    AccessToken, AuthCodeAuthorizationUrl, AuthorizationCodeCredential,
     ConfidentialClientApplication, TokenRequest,
 };
 use graph_rs_sdk::*;
@@ -14,7 +14,7 @@ pub struct AccessCode {
 }
 
 pub fn authorization_sign_in() {
-    let auth_url_builder = AuthorizationCodeAuthorizationUrl::builder()
+    let auth_url_builder = AuthCodeAuthorizationUrl::builder()
         .with_client_id(CLIENT_ID)
         .with_redirect_uri("http://localhost:8000/redirect")
         .with_scope(vec!["offline_access", "files.read"])
@@ -56,7 +56,7 @@ pub async fn start_server_main() {
         .and(query)
         .and_then(handle_redirect);
 
-    let auth_url_builder = AuthorizationCodeAuthorizationUrl::builder()
+    let auth_url_builder = AuthCodeAuthorizationUrl::builder()
         .with_client_id(CLIENT_ID)
         .with_redirect_uri("http://localhost:8000/redirect")
         .with_scope(vec!["offline_access", "files.read"])
@@ -78,7 +78,35 @@ async fn handle_redirect(
             // Set the access code and request an access token.
             // Callers should handle the Result from requesting an access token
             // in case of an error here.
-            set_and_req_access_code(access_code).await.unwrap();
+            let mut confidential_client_application =
+                get_confidential_client(access_code.code.as_str());
+
+            let response = confidential_client_application
+                .get_token_silent_async()
+                .await?;
+            println!("{response:#?}");
+
+            if response.status().is_success() {
+                let mut access_token: AccessToken = response.json().await?;
+
+                // Option<&JsonWebToken>
+                let jwt = access_token.jwt();
+                println!("{jwt:#?}");
+
+                println!("{:#?}", access_token);
+
+                // This will print the actual access token to the console.
+                println!("Access Token: {:#?}", access_token.bearer_token());
+                println!("Refresh Token: {:#?}", access_token.refresh_token());
+            } else {
+                // See if Microsoft Graph returned an error in the Response body
+                let result: reqwest::Result<serde_json::Value> = response.json().await;
+
+                match result {
+                    Ok(body) => println!("{body:#?}"),
+                    Err(err) => println!("Error on deserialization:\n{err:#?}"),
+                }
+            }
 
             // Generic login page response.
             Ok(Box::new(
@@ -87,37 +115,4 @@ async fn handle_redirect(
         }
         None => Err(warp::reject()),
     }
-}
-
-async fn set_and_req_access_code(access_code: AccessCode) -> anyhow::Result<()> {
-    let mut confidential_client_application = get_confidential_client(access_code.code.as_str());
-
-    let response = confidential_client_application
-        .get_token_silent_async()
-        .await?;
-    println!("{response:#?}");
-
-    if response.status().is_success() {
-        let mut access_token: AccessToken = response.json().await?;
-
-        // Option<&JsonWebToken>
-        let jwt = access_token.jwt();
-        println!("{jwt:#?}");
-
-        println!("{:#?}", access_token);
-
-        // This will print the actual access token to the console.
-        println!("Access Token: {:#?}", access_token.bearer_token());
-        println!("Refresh Token: {:#?}", access_token.refresh_token());
-    } else {
-        // See if Microsoft Graph returned an error in the Response body
-        let result: reqwest::Result<serde_json::Value> = response.json().await;
-
-        match result {
-            Ok(body) => println!("{body:#?}"),
-            Err(err) => println!("Error on deserialization:\n{err:#?}"),
-        }
-    }
-
-    Ok(())
 }
