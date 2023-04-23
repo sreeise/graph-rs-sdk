@@ -4,11 +4,12 @@ use crate::identity::form_credential::FormCredential;
 use crate::identity::{
     AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
 };
-use crate::oauth::ClientAssertion;
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
-
 use std::collections::HashMap;
 use url::Url;
+
+#[cfg(feature = "openssl")]
+use crate::oauth::ClientAssertion;
 
 #[derive(Clone)]
 pub struct AuthorizationCodeCertificateCredential {
@@ -228,6 +229,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         self
     }
 
+    #[cfg(feature = "openssl")]
     pub fn with_certificate(
         &mut self,
         certificate_assertion: &ClientAssertion,

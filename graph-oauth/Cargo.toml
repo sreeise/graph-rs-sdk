@@ -18,7 +18,7 @@ base64 = "0.21.0"
 chrono = { version = "0.4.23", features = ["serde"] }
 chrono-humanize = "0.2.2"
 hex = "0.4.3"
-openssl = "0.10"
+openssl = { version = "0.10", optional=true }
 reqwest = { version = "0.11.16", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
 ring = "0.16.15"
 serde = { version = "1", features = ["derive"] }
@@ -35,3 +35,7 @@ graph-error = { path = "../graph-error" }
 default = ["native-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
+brotli = ["reqwest/brotli"]
+deflate = ["reqwest/deflate"]
+trust-dns = ["reqwest/trust-dns"]
+openssl = ["dep:openssl"]

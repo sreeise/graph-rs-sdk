@@ -16,7 +16,6 @@
 extern crate serde;
 
 mod auth_code_grant;
-mod auth_code_grant_certificate;
 mod auth_code_grant_pkce;
 mod client_credentials;
 mod client_credentials_admin_consent;
@@ -52,35 +51,41 @@ async fn main() {
     open_id_connect::start_server_main().await;
 }
 
-// Examples
+// Quick Examples
 
 // Authorization Code Grant
-fn auth_code_grant(authorization_code: &str) -> AuthorizationCodeCredential {
+async fn auth_code_grant(authorization_code: &str) {
     let pkce = ProofKeyForCodeExchange::generate().unwrap();
 
-    AuthorizationCodeCredential::builder()
+    let credential = AuthorizationCodeCredential::builder()
         .with_authorization_code(authorization_code)
         .with_client_id("CLIENT_ID")
         .with_client_secret("CLIENT_SECRET")
         .with_redirect_uri("http://localhost:8000/redirect")
         .with_proof_key_for_code_exchange(&pkce)
-        .build()
+        .build();
+
+    let mut confidential_client = ConfidentialClientApplication::from(credential);
+
+    let response = confidential_client.get_token_async().await.unwrap();
+    println!("{response:#?}");
+
+    let access_token: AccessToken = response.json().await.unwrap();
+    println!("{:#?}", access_token.bearer_token());
 }
 
 // Client Credentials Grant
-fn client_credentials() {
-    pub async fn get_token_silent() {
-        let client_secret_credential = ClientSecretCredential::new("CLIENT_ID", "CLIENT_SECRET");
-        let mut confidential_client_application =
-            ConfidentialClientApplication::from(client_secret_credential);
+async fn client_credentials() {
+    let client_secret_credential = ClientSecretCredential::new("CLIENT_ID", "CLIENT_SECRET");
+    let mut confidential_client_application =
+        ConfidentialClientApplication::from(client_secret_credential);
 
-        let response = confidential_client_application
-            .get_token_async()
-            .await
-            .unwrap();
-        println!("{response:#?}");
+    let response = confidential_client_application
+        .get_token_async()
+        .await
+        .unwrap();
+    println!("{response:#?}");
 
-        let access_token: AccessToken = response.json().await.unwrap();
-        println!("{:#?}", access_token.bearer_token());
-    }
+    let access_token: AccessToken = response.json().await.unwrap();
+    println!("{:#?}", access_token.bearer_token());
 }

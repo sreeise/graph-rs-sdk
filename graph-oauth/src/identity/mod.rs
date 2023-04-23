@@ -7,5 +7,8 @@ pub use authority::*;
 pub use credentials::*;
 pub use serialize::*;
 
-pub use openssl::pkey::{PKey, Private};
-pub use openssl::x509::X509;
+#[cfg(feature = "openssl")]
+pub use openssl::{
+    pkey::{PKey, Private},
+    x509::X509,
+};

@@ -45,9 +45,10 @@ graph-core = { path = "./graph-core", version = "0.4.0" }
 default = ["native-tls"]
 native-tls = ["reqwest/native-tls", "graph-http/native-tls", "graph-oauth/native-tls"]
 rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls-tls"]
-brotli = ["reqwest/brotli"]
-deflate = ["reqwest/deflate"]
-trust-dns = ["reqwest/trust-dns"]
+brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli"]
+deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate"]
+trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns"]
+openssl = ["graph-oauth/openssl"]
 
 [dev-dependencies]
 bytes = { version = "1.4.0" }
@@ -63,3 +64,9 @@ test-tools = { path = "./test-tools", version = "0.0.1" }
 
 [profile.release]
 debug = false
+
+[[example]]
+name = "oauth_certificate_main"
+path = "examples/oauth_certificate/main.rs"
+required-features = ["openssl"]
+

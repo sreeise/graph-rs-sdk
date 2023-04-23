@@ -1,9 +1,11 @@
 use crate::auth::OAuth;
-use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost, ClientAssertion};
+use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost};
 use graph_error::{AuthorizationResult, GraphResult};
-
 use std::collections::HashMap;
 use url::Url;
+
+#[cfg(feature = "openssl")]
+use crate::identity::ClientAssertion;
 
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -63,6 +65,7 @@ impl ClientCertificateCredentialBuilder {
         self
     }
 
+    #[cfg(feature = "openssl")]
     pub fn with_certificate(
         &mut self,
         certificate_assertion: &ClientAssertion,

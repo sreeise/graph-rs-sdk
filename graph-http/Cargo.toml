@@ -30,3 +30,6 @@ graph-core = { path = "../graph-core" }
 default = ["native-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
+brotli = ["reqwest/brotli"]
+deflate = ["reqwest/deflate"]
+trust-dns = ["reqwest/trust-dns"]

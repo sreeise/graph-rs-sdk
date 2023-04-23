@@ -1,10 +1,26 @@
+#![allow(dead_code)]
+
+#[macro_use]
+extern crate serde;
+
 use graph_rs_sdk::oauth::{
     AccessToken, AuthCodeAuthorizationUrl, AuthorizationCodeCertificateCredential, ClientAssertion,
-    ConfidentialClientApplication, PKey, Private, TokenRequest, X509,
+    ConfidentialClientApplication, PKey, TokenRequest, X509,
 };
 use std::fs::File;
 use std::io::Read;
 use warp::Filter;
+
+#[tokio::main]
+async fn main() {
+    start_server_main().await;
+}
+
+// X509 certificates can be used for the auth code grant with
+// a certificate (AuthorizationCodeCertificateCredential) and
+// the client credentials grant with a certificate (ClientCertificateCredential).
+
+// The example below shows using the authorization code grant with a certificate.
 
 // This flow uses an X509 certificate for authorization. The public key should
 // be uploaded to Azure Active Directory. In order to use the certificate
@@ -58,11 +74,11 @@ pub fn get_confidential_client(
 ) -> anyhow::Result<ConfidentialClientApplication> {
     let mut cert_file = File::open(PRIVATE_KEY_PATH).unwrap();
     let mut certificate: Vec<u8> = Vec::new();
-    cert_file.read_to_end(&mut cert);
+    cert_file.read_to_end(&mut certificate)?;
 
     let mut private_key_file = File::open(CERTIFICATE_PATH).unwrap();
     let mut private_key: Vec<u8> = Vec::new();
-    private_key_file.read_to_end(&mut cert);
+    private_key_file.read_to_end(&mut private_key)?;
 
     let cert = X509::from_pem(certificate.as_slice()).unwrap();
     let pkey = PKey::private_key_from_pem(private_key.as_slice()).unwrap();
@@ -136,7 +152,10 @@ pub async fn start_server_main() {
         .map(Some)
         .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
 
-    let routes = warp::get().and(query).and_then(handle_redirect);
+    let routes = warp::get()
+        .and(warp::path("redirect"))
+        .and(query)
+        .and_then(handle_redirect);
 
     authorization_sign_in(CLIENT_ID, TENANT);
 
