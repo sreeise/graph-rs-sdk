@@ -1,5 +1,9 @@
 use crate::auth::OAuth;
-use crate::identity::Authority;
+use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost, ClientAssertion};
+use graph_error::{AuthorizationResult, GraphResult};
+
+use std::collections::HashMap;
+use url::Url;
 
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -13,12 +17,24 @@ pub struct ClientCertificateCredential {
     /// Default is https://graph.microsoft.com/.default.
     pub(crate) scopes: Vec<String>,
     pub(crate) authority: Authority,
+    pub(crate) client_assertion_type: String,
+    pub(crate) client_assertion: String,
     serializer: OAuth,
 }
 
 impl ClientCertificateCredential {
     pub fn builder() -> ClientCertificateCredentialBuilder {
         ClientCertificateCredentialBuilder::new()
+    }
+}
+
+impl AuthorizationSerializer for ClientCertificateCredential {
+    fn uri(&mut self, _azure_authority_host: &AzureAuthorityHost) -> GraphResult<Url> {
+        unimplemented!()
+    }
+
+    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+        unimplemented!()
     }
 }
 
@@ -34,6 +50,9 @@ impl ClientCertificateCredentialBuilder {
                 certificate: String::new(),
                 scopes: vec![],
                 authority: Default::default(),
+                client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+                    .to_owned(),
+                client_assertion: String::new(),
                 serializer: OAuth::new(),
             },
         }
@@ -44,8 +63,25 @@ impl ClientCertificateCredentialBuilder {
         self
     }
 
-    pub fn with_certificate<T: AsRef<str>>(&mut self, certificate: T) -> &mut Self {
-        self.credential.certificate = certificate.as_ref().to_owned();
+    pub fn with_certificate(
+        &mut self,
+        certificate_assertion: &ClientAssertion,
+    ) -> anyhow::Result<&mut Self> {
+        self.with_client_assertion(certificate_assertion.sign()?);
+        self.with_client_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        Ok(self)
+    }
+
+    pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
+        self.credential.client_assertion = client_assertion.as_ref().to_owned();
+        self
+    }
+
+    pub fn with_client_assertion_type<T: AsRef<str>>(
+        &mut self,
+        client_assertion_type: T,
+    ) -> &mut Self {
+        self.credential.client_assertion_type = client_assertion_type.as_ref().to_owned();
         self
     }
 

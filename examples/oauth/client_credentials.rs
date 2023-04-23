@@ -27,7 +27,7 @@ pub async fn get_token_silent() {
         ConfidentialClientApplication::from(client_secret_credential);
 
     let response = confidential_client_application
-        .get_token_silent_async()
+        .get_token_async()
         .await
         .unwrap();
     println!("{response:#?}");

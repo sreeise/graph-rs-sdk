@@ -72,7 +72,7 @@ async fn handle_redirect(
                 get_confidential_client_application(access_code.code.as_str());
 
             // Returns reqwest::Response
-            let response = confidential_client.get_token_silent_async().await.unwrap();
+            let response = confidential_client.get_token_async().await.unwrap();
             println!("{response:#?}");
 
             if response.status().is_success() {

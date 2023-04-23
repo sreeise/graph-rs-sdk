@@ -4,7 +4,9 @@ use crate::identity::form_credential::FormCredential;
 use crate::identity::{
     AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
 };
+use crate::oauth::ClientAssertion;
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
+
 use std::collections::HashMap;
 use url::Url;
 
@@ -17,7 +19,6 @@ pub struct AuthorizationCodeCertificateCredential {
     pub(crate) refresh_token: Option<String>,
     /// The client (application) ID of the service principal
     pub(crate) client_id: String,
-    pub(crate) client_secret: String,
     pub(crate) redirect_uri: String,
     pub(crate) code_verifier: Option<String>,
     pub(crate) client_assertion_type: String,
@@ -31,7 +32,7 @@ pub struct AuthorizationCodeCertificateCredential {
 impl AuthorizationCodeCertificateCredential {
     pub fn new<T: AsRef<str>>(
         client_id: T,
-        client_secret: T,
+        _client_secret: T,
         authorization_code: T,
         redirect_uri: T,
         client_assertion: T,
@@ -40,7 +41,6 @@ impl AuthorizationCodeCertificateCredential {
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_id: client_id.as_ref().to_owned(),
-            client_secret: client_secret.as_ref().to_owned(),
             redirect_uri: redirect_uri.as_ref().to_owned(),
             code_verifier: None,
             client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
@@ -91,13 +91,6 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
             );
         }
 
-        if self.client_secret.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg(
-                OAuthCredential::ClientSecret.alias(),
-                None,
-            );
-        }
-
         if self.client_assertion.trim().is_empty() {
             return AuthorizationFailure::required_value_msg(
                 OAuthCredential::ClientAssertion.alias(),
@@ -112,7 +105,6 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
 
         self.serializer
             .client_id(self.client_id.as_str())
-            .client_secret(self.client_secret.as_str())
             .redirect_uri(self.redirect_uri.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
@@ -189,7 +181,6 @@ impl AuthorizationCodeCertificateCredentialBuilder {
                 authorization_code: None,
                 refresh_token: None,
                 client_id: String::new(),
-                client_secret: String::new(),
                 redirect_uri: String::new(),
                 code_verifier: None,
                 client_assertion_type: String::new(),
@@ -221,12 +212,6 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         self.credential.client_id = client_id.as_ref().to_owned();
         self
     }
-
-    pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
-        self.credential.client_secret = client_secret.as_ref().to_owned();
-        self
-    }
-
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
         self.credential.authority = Authority::TenantId(tenant.as_ref().to_owned());
@@ -241,6 +226,15 @@ impl AuthorizationCodeCertificateCredentialBuilder {
     pub fn with_code_verifier<T: AsRef<str>>(&mut self, code_verifier: T) -> &mut Self {
         self.credential.code_verifier = Some(code_verifier.as_ref().to_owned());
         self
+    }
+
+    pub fn with_certificate(
+        &mut self,
+        certificate_assertion: &ClientAssertion,
+    ) -> anyhow::Result<&mut Self> {
+        self.with_client_assertion(certificate_assertion.sign()?);
+        self.with_client_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        Ok(self)
     }
 
     pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {

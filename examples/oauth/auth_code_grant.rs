@@ -82,8 +82,9 @@ async fn handle_redirect(
                 get_confidential_client(access_code.code.as_str());
 
             let response = confidential_client_application
-                .get_token_silent_async()
-                .await.unwrap();
+                .get_token_async()
+                .await
+                .unwrap();
             println!("{response:#?}");
 
             if response.status().is_success() {

@@ -16,6 +16,7 @@
 extern crate serde;
 
 mod auth_code_grant;
+mod auth_code_grant_certificate;
 mod auth_code_grant_pkce;
 mod client_credentials;
 mod client_credentials_admin_consent;
@@ -74,7 +75,7 @@ fn client_credentials() {
             ConfidentialClientApplication::from(client_secret_credential);
 
         let response = confidential_client_application
-            .get_token_silent_async()
+            .get_token_async()
             .await
             .unwrap();
         println!("{response:#?}");

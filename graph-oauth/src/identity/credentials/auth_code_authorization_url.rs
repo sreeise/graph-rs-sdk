@@ -61,8 +61,8 @@ impl AuthCodeAuthorizationUrl {
         GrantType::AuthorizationCode
     }
 
-    pub fn builder() -> AuthorizationCodeAuthorizationUrlBuilder {
-        AuthorizationCodeAuthorizationUrlBuilder::new()
+    pub fn builder() -> AuthCodeAuthorizationUrlBuilder {
+        AuthCodeAuthorizationUrlBuilder::new()
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
@@ -157,19 +157,19 @@ impl AuthCodeAuthorizationUrl {
 }
 
 #[derive(Clone)]
-pub struct AuthorizationCodeAuthorizationUrlBuilder {
+pub struct AuthCodeAuthorizationUrlBuilder {
     authorization_code_authorize_url: AuthCodeAuthorizationUrl,
 }
 
-impl Default for AuthorizationCodeAuthorizationUrlBuilder {
+impl Default for AuthCodeAuthorizationUrlBuilder {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl AuthorizationCodeAuthorizationUrlBuilder {
-    pub fn new() -> AuthorizationCodeAuthorizationUrlBuilder {
-        AuthorizationCodeAuthorizationUrlBuilder {
+impl AuthCodeAuthorizationUrlBuilder {
+    pub fn new() -> AuthCodeAuthorizationUrlBuilder {
+        AuthCodeAuthorizationUrlBuilder {
             authorization_code_authorize_url: AuthCodeAuthorizationUrl {
                 client_id: String::new(),
                 redirect_uri: String::new(),
@@ -210,8 +210,8 @@ impl AuthorizationCodeAuthorizationUrlBuilder {
         self
     }
 
-    /// Must include code for the authorization code flow. Can also include id_token or token
-    /// if using the hybrid flow. Default is code.
+    /// Default is code. Must include code for the authorization code flow.
+    /// Can also include id_token or token if using the hybrid flow.
     pub fn with_response_type<T: AsRef<str>>(&mut self, response_type: T) -> &mut Self {
         self.authorization_code_authorize_url.response_type = response_type.as_ref().to_owned();
         self

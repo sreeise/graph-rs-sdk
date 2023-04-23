@@ -1,6 +1,6 @@
 use crate::identity::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AuthorizationSerializer,
-    ClientSecretCredential, TokenCredentialOptions, TokenRequest,
+    ClientCertificateCredential, ClientSecretCredential, TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
 use graph_error::GraphResult;
@@ -28,7 +28,7 @@ impl ConfidentialClientApplication {
 
 #[async_trait]
 impl TokenRequest for ConfidentialClientApplication {
-    fn get_token_silent(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
+    fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
         let uri = self
             .credential
             .uri(&self.token_credential_options.azure_authority_host)?;
@@ -37,7 +37,7 @@ impl TokenRequest for ConfidentialClientApplication {
         Ok(http_client.post(uri).form(&form).send()?)
     }
 
-    async fn get_token_silent_async(&mut self) -> anyhow::Result<Response> {
+    async fn get_token_async(&mut self) -> anyhow::Result<Response> {
         let uri = self
             .credential
             .uri(&self.token_credential_options.azure_authority_host)?;
@@ -68,6 +68,16 @@ impl From<AuthorizationCodeCertificateCredential> for ConfidentialClientApplicat
 
 impl From<ClientSecretCredential> for ConfidentialClientApplication {
     fn from(value: ClientSecretCredential) -> Self {
+        ConfidentialClientApplication {
+            http_client: reqwest::Client::new(),
+            credential: Box::new(value),
+            token_credential_options: Default::default(),
+        }
+    }
+}
+
+impl From<ClientCertificateCredential> for ConfidentialClientApplication {
+    fn from(value: ClientCertificateCredential) -> Self {
         ConfidentialClientApplication {
             http_client: reqwest::Client::new(),
             credential: Box::new(value),
