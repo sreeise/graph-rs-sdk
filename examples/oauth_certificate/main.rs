@@ -16,6 +16,8 @@ async fn main() {
     start_server_main().await;
 }
 
+// Requires feature openssl be enabled for graph-rs-sdk or graph-oauth
+
 // X509 certificates can be used for the auth code grant with
 // a certificate (AuthorizationCodeCertificateCredential) and
 // the client credentials grant with a certificate (ClientCertificateCredential).

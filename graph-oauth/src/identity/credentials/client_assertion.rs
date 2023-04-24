@@ -1,17 +1,12 @@
 use anyhow::Context;
 use base64::Engine;
-
 use openssl::error::ErrorStack;
 use openssl::hash::MessageDigest;
 use openssl::pkey::{PKey, Private};
-
 use openssl::rsa::Padding;
 use openssl::sign::Signer;
-
 use openssl::x509::X509;
-
 use std::collections::HashMap;
-
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
 

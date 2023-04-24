@@ -1,13 +1,13 @@
 use crate::auth::{OAuth, OAuthCredential};
-use crate::grants::GrantType;
 use crate::identity::form_credential::FormCredential;
 use crate::identity::{
     AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
-    ProofKeyForCodeExchange,
+    ProofKeyForCodeExchange, TokenCredentialOptions, TokenRequest,
 };
+use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
+use reqwest::Response;
 use std::collections::HashMap;
-
 use url::Url;
 
 #[derive(Clone)]
@@ -25,6 +25,7 @@ pub struct AuthorizationCodeCredential {
     /// The Azure Active Directory tenant (directory) Id of the service principal.
     pub(crate) authority: Authority,
     pub(crate) code_verifier: Option<String>,
+    pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuth,
 }
 
@@ -44,12 +45,14 @@ impl AuthorizationCodeCredential {
             scopes: vec![],
             authority: Default::default(),
             code_verifier: None,
+            token_credential_options: TokenCredentialOptions::default(),
             serializer: OAuth::new(),
         }
     }
 
-    pub fn grant_type(&self) -> GrantType {
-        GrantType::AuthorizationCode
+    pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) {
+        self.authorization_code = None;
+        self.refresh_token = Some(refresh_token.as_ref().to_owned());
     }
 
     pub fn builder() -> AuthorizationCodeCredentialBuilder {
@@ -168,6 +171,25 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
     }
 }
 
+#[async_trait]
+impl TokenRequest for AuthorizationCodeCredential {
+    fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
+        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
+        let uri = self.uri(&azure_authority_host)?;
+        let form = self.form()?;
+        let http_client = reqwest::blocking::Client::new();
+        Ok(http_client.post(uri).form(&form).send()?)
+    }
+
+    async fn get_token_async(&mut self) -> anyhow::Result<Response> {
+        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
+        let uri = self.uri(&azure_authority_host)?;
+        let form = self.form()?;
+        let http_client = reqwest::Client::new();
+        Ok(http_client.post(uri).form(&form).send().await?)
+    }
+}
+
 #[derive(Clone)]
 pub struct AuthorizationCodeCredentialBuilder {
     credential: AuthorizationCodeCredential,
@@ -185,6 +207,7 @@ impl AuthorizationCodeCredentialBuilder {
                 scopes: vec![],
                 authority: Default::default(),
                 code_verifier: None,
+                token_credential_options: TokenCredentialOptions::default(),
                 serializer: OAuth::new(),
             },
         }
@@ -245,6 +268,13 @@ impl AuthorizationCodeCredentialBuilder {
         self
     }
 
+    pub fn with_token_credential_options(
+        &mut self,
+        token_credential_options: TokenCredentialOptions,
+    ) {
+        self.credential.token_credential_options = token_credential_options;
+    }
+
     pub fn build(&self) -> AuthorizationCodeCredential {
         self.credential.clone()
     }
@@ -260,6 +290,12 @@ impl From<AuthCodeAuthorizationUrl> for AuthorizationCodeCredentialBuilder {
             .with_authority(value.authority);
 
         builder
+    }
+}
+
+impl From<AuthorizationCodeCredential> for AuthorizationCodeCredentialBuilder {
+    fn from(credential: AuthorizationCodeCredential) -> Self {
+        AuthorizationCodeCredentialBuilder { credential }
     }
 }
 

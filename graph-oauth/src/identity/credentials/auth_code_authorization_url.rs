@@ -2,7 +2,7 @@ use crate::auth::{OAuth, OAuthCredential};
 use crate::grants::GrantType;
 use crate::identity::{Authority, AzureAuthorityHost, Prompt, ResponseMode};
 use crate::oauth::form_credential::FormCredential;
-use crate::oauth::ProofKeyForCodeExchange;
+use crate::oauth::{ProofKeyForCodeExchange, ResponseType};
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
 use url::Url;
@@ -26,7 +26,7 @@ pub struct AuthCodeAuthorizationUrl {
     pub(crate) client_id: String,
     pub(crate) redirect_uri: String,
     pub(crate) authority: Authority,
-    pub(crate) response_type: String,
+    pub(crate) response_type: Vec<ResponseType>,
     pub(crate) response_mode: Option<ResponseMode>,
     pub(crate) nonce: Option<String>,
     pub(crate) state: Option<String>,
@@ -44,7 +44,7 @@ impl AuthCodeAuthorizationUrl {
             client_id: client_id.as_ref().to_owned(),
             redirect_uri: redirect_uri.as_ref().to_owned(),
             authority: Authority::default(),
-            response_type: "code".to_owned(),
+            response_type: vec![ResponseType::Code],
             response_mode: None,
             nonce: None,
             state: None,
@@ -83,13 +83,6 @@ impl AuthCodeAuthorizationUrl {
             return AuthorizationFailure::required_value_msg("client_id", None);
         }
 
-        if self.response_type.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg(
-                "response_type",
-                Some("Must include code for the authorization code flow. Can also include id_token or token if using the hybrid flow.")
-            );
-        }
-
         if self.scope.is_empty() {
             return AuthorizationFailure::required_value_msg("scope", None);
         }
@@ -98,8 +91,32 @@ impl AuthCodeAuthorizationUrl {
             .client_id(self.client_id.as_str())
             .redirect_uri(self.redirect_uri.as_str())
             .extend_scopes(self.scope.clone())
-            .authority(azure_authority_host, &self.authority)
-            .response_type(self.response_type.as_str());
+            .authority(azure_authority_host, &self.authority);
+
+        let response_types: Vec<String> =
+            self.response_type.iter().map(|s| s.to_string()).collect();
+
+        if response_types.is_empty() {
+            serializer.response_type("code");
+            if let Some(response_mode) = self.response_mode.as_ref() {
+                serializer.response_mode(response_mode.as_ref());
+            }
+        } else {
+            let response_type_string = response_types.join(" ");
+            let mut response_type = response_type_string.trim();
+            if response_type.is_empty() {
+                serializer.response_type("code");
+                response_type = "code";
+            } else {
+                serializer.response_type(response_type);
+            }
+
+            if response_type.contains("id_token") {
+                serializer.response_mode(ResponseMode::Fragment.as_ref());
+            } else if let Some(response_mode) = self.response_mode.as_ref() {
+                serializer.response_mode(response_mode.as_ref());
+            }
+        }
 
         if let Some(response_mode) = self.response_mode.as_ref() {
             serializer.response_mode(response_mode.as_ref());
@@ -175,7 +192,7 @@ impl AuthCodeAuthorizationUrlBuilder {
                 redirect_uri: String::new(),
                 authority: Authority::default(),
                 response_mode: None,
-                response_type: "code".to_owned(),
+                response_type: vec![ResponseType::Code],
                 nonce: None,
                 state: None,
                 scope: vec![],
@@ -212,8 +229,11 @@ impl AuthCodeAuthorizationUrlBuilder {
 
     /// Default is code. Must include code for the authorization code flow.
     /// Can also include id_token or token if using the hybrid flow.
-    pub fn with_response_type<T: AsRef<str>>(&mut self, response_type: T) -> &mut Self {
-        self.authorization_code_authorize_url.response_type = response_type.as_ref().to_owned();
+    pub fn with_response_type<I: IntoIterator<Item = ResponseType>>(
+        &mut self,
+        response_type: I,
+    ) -> &mut Self {
+        self.authorization_code_authorize_url.response_type = response_type.into_iter().collect();
         self
     }
 

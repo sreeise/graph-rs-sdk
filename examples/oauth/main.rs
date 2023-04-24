@@ -17,6 +17,7 @@ extern crate serde;
 
 mod auth_code_grant;
 mod auth_code_grant_pkce;
+mod auth_code_grant_refresh_token;
 mod client_credentials;
 mod client_credentials_admin_consent;
 mod code_flow;
@@ -77,13 +78,9 @@ async fn auth_code_grant(authorization_code: &str) {
 // Client Credentials Grant
 async fn client_credentials() {
     let client_secret_credential = ClientSecretCredential::new("CLIENT_ID", "CLIENT_SECRET");
-    let mut confidential_client_application =
-        ConfidentialClientApplication::from(client_secret_credential);
+    let mut confidential_client = ConfidentialClientApplication::from(client_secret_credential);
 
-    let response = confidential_client_application
-        .get_token_async()
-        .await
-        .unwrap();
+    let response = confidential_client.get_token_async().await.unwrap();
     println!("{response:#?}");
 
     let access_token: AccessToken = response.json().await.unwrap();

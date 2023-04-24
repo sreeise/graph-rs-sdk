@@ -1,10 +1,12 @@
 use crate::auth::{OAuth, OAuthCredential};
-use crate::grants::GrantType;
 use crate::identity::form_credential::FormCredential;
 use crate::identity::{
     AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
+    TokenCredentialOptions, TokenRequest,
 };
+use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
+use reqwest::Response;
 use std::collections::HashMap;
 use url::Url;
 
@@ -24,9 +26,10 @@ pub struct AuthorizationCodeCertificateCredential {
     pub(crate) code_verifier: Option<String>,
     pub(crate) client_assertion_type: String,
     pub(crate) client_assertion: String,
-    pub(crate) scopes: Vec<String>,
+    pub(crate) scope: Vec<String>,
     /// The Azure Active Directory tenant (directory) Id of the service principal.
     pub(crate) authority: Authority,
+    pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuth,
 }
 
@@ -47,18 +50,34 @@ impl AuthorizationCodeCertificateCredential {
             client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
                 .to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
-            scopes: vec![],
+            scope: vec![],
             authority: Default::default(),
+            token_credential_options: TokenCredentialOptions::default(),
             serializer: OAuth::new(),
         }
     }
 
-    pub fn grant_type(&self) -> GrantType {
-        GrantType::AuthorizationCode
-    }
-
     pub fn builder() -> AuthorizationCodeCertificateCredentialBuilder {
         AuthorizationCodeCertificateCredentialBuilder::new()
+    }
+}
+
+#[async_trait]
+impl TokenRequest for AuthorizationCodeCertificateCredential {
+    fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
+        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
+        let uri = self.uri(&azure_authority_host)?;
+        let form = self.form()?;
+        let http_client = reqwest::blocking::Client::new();
+        Ok(http_client.post(uri).form(&form).send()?)
+    }
+
+    async fn get_token_async(&mut self) -> anyhow::Result<Response> {
+        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
+        let uri = self.uri(&azure_authority_host)?;
+        let form = self.form()?;
+        let http_client = reqwest::Client::new();
+        Ok(http_client.post(uri).form(&form).send().await?)
     }
 }
 
@@ -109,7 +128,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
             .redirect_uri(self.redirect_uri.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
-            .extend_scopes(self.scopes.clone());
+            .extend_scopes(self.scope.clone());
 
         if let Some(code_verifier) = self.code_verifier.as_ref() {
             self.serializer.code_verifier(code_verifier.as_ref());
@@ -186,8 +205,9 @@ impl AuthorizationCodeCertificateCredentialBuilder {
                 code_verifier: None,
                 client_assertion_type: String::new(),
                 client_assertion: String::new(),
-                scopes: vec![],
+                scope: vec![],
                 authority: Default::default(),
+                token_credential_options: TokenCredentialOptions::default(),
                 serializer: OAuth::new(),
             },
         }
@@ -253,8 +273,15 @@ impl AuthorizationCodeCertificateCredentialBuilder {
     }
 
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.credential.scopes = scopes.into_iter().map(|s| s.to_string()).collect();
+        self.credential.scope = scopes.into_iter().map(|s| s.to_string()).collect();
         self
+    }
+
+    pub fn with_token_credential_options(
+        &mut self,
+        token_credential_options: TokenCredentialOptions,
+    ) {
+        self.credential.token_credential_options = token_credential_options;
     }
 
     pub fn build(&self) -> AuthorizationCodeCertificateCredential {
@@ -272,5 +299,13 @@ impl From<AuthCodeAuthorizationUrl> for AuthorizationCodeCertificateCredentialBu
             .with_authority(value.authority);
 
         builder
+    }
+}
+
+impl From<AuthorizationCodeCertificateCredential>
+    for AuthorizationCodeCertificateCredentialBuilder
+{
+    fn from(credential: AuthorizationCodeCertificateCredential) -> Self {
+        AuthorizationCodeCertificateCredentialBuilder { credential }
     }
 }
