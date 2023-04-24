@@ -1,11 +1,11 @@
 mod authority;
+mod authorization_serializer;
 mod credentials;
 pub(crate) mod form_credential;
-mod serialize;
 
 pub use authority::*;
+pub use authorization_serializer::*;
 pub use credentials::*;
-pub use serialize::*;
 
 #[cfg(feature = "openssl")]
 pub use openssl::{

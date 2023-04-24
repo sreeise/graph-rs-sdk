@@ -13,14 +13,28 @@ pub enum AuthorizationFailure {
 }
 
 impl AuthorizationFailure {
-    pub fn required_value<T: AsRef<str>, U>(name: T) -> AuthorizationResult<U> {
+    pub fn required_value<T: AsRef<str>>(name: T) -> AuthorizationFailure {
+        AuthorizationFailure::RequiredValue {
+            name: name.as_ref().to_owned(),
+            message: None,
+        }
+    }
+
+    pub fn required_value_result<T: AsRef<str>, U>(name: T) -> AuthorizationResult<U> {
         Err(AuthorizationFailure::RequiredValue {
             name: name.as_ref().to_owned(),
             message: None,
         })
     }
 
-    pub fn required_value_msg<T>(
+    pub fn required_value_msg<T: AsRef<str>>(name: T, message: Option<T>) -> AuthorizationFailure {
+        AuthorizationFailure::RequiredValue {
+            name: name.as_ref().to_owned(),
+            message: message.map(|s| s.as_ref().to_owned()),
+        }
+    }
+
+    pub fn required_value_msg_result<T>(
         name: &str,
         message: Option<&str>,
     ) -> Result<T, AuthorizationFailure> {

@@ -5,8 +5,7 @@ use crate::identity::{
     TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
-use reqwest::Response;
+use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
 
@@ -89,37 +88,25 @@ impl AuthorizationCodeCertificateCredential {
 
 #[async_trait]
 impl TokenRequest for AuthorizationCodeCertificateCredential {
-    fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
-        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
-        let uri = self.uri(&azure_authority_host)?;
-        let form = self.form()?;
-        let http_client = reqwest::blocking::Client::new();
-        Ok(http_client.post(uri).form(&form).send()?)
-    }
-
-    async fn get_token_async(&mut self) -> anyhow::Result<Response> {
-        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
-        let uri = self.uri(&azure_authority_host)?;
-        let form = self.form()?;
-        let http_client = reqwest::Client::new();
-        Ok(http_client.post(uri).form(&form).send().await?)
+    fn azure_authority_host(&self) -> &AzureAuthorityHost {
+        &self.token_credential_options.azure_authority_host
     }
 }
 
 impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> GraphResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self
-            .serializer
-            .get_or_else(OAuthCredential::AccessTokenUrl)?;
-        Url::parse(uri.as_str()).map_err(GraphFailure::from)
+        let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
+            AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
+        )?;
+        Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
     fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.authorization_code.is_some() && self.refresh_token.is_some() {
-            return AuthorizationFailure::required_value_msg(
+            return AuthorizationFailure::required_value_msg_result(
                 &format!(
                     "{} or {}",
                     OAuthCredential::AuthorizationCode.alias(),
@@ -130,14 +117,14 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
         }
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg(
+            return AuthorizationFailure::required_value_msg_result(
                 OAuthCredential::ClientId.alias(),
                 None,
             );
         }
 
         if self.client_assertion.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg(
+            return AuthorizationFailure::required_value_msg_result(
                 OAuthCredential::ClientAssertion.alias(),
                 None,
             );
@@ -161,7 +148,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
-                return AuthorizationFailure::required_value_msg(
+                return AuthorizationFailure::required_value_msg_result(
                     OAuthCredential::RefreshToken.alias(),
                     None,
                 );
@@ -181,7 +168,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
             ]);
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
-                return AuthorizationFailure::required_value_msg(
+                return AuthorizationFailure::required_value_msg_result(
                     OAuthCredential::AuthorizationCode.alias(),
                     Some("refresh_token is set but is empty"),
                 );
@@ -203,7 +190,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
             ]);
         }
 
-        AuthorizationFailure::required_value_msg(
+        AuthorizationFailure::required_value_msg_result(
             &format!(
                 "{} or {}",
                 OAuthCredential::AuthorizationCode.alias(),

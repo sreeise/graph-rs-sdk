@@ -1,14 +1,13 @@
 use crate::auth::{OAuth, OAuthCredential};
+use crate::identity::form_credential::FormCredential;
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
-use reqwest::Response;
+use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
 
-use crate::identity::form_credential::FormCredential;
 #[cfg(feature = "openssl")]
 use crate::identity::ClientAssertion;
 
@@ -38,46 +37,30 @@ impl ClientCertificateCredential {
 
 #[async_trait]
 impl TokenRequest for ClientCertificateCredential {
-    fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
-        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
-        let uri = self.uri(&azure_authority_host)?;
-        let form = self.form()?;
-        let http_client = reqwest::blocking::Client::new();
-        Ok(http_client.post(uri).form(&form).send()?)
-    }
-
-    async fn get_token_async(&mut self) -> anyhow::Result<Response> {
-        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
-        let uri = self.uri(&azure_authority_host)?;
-        let form = self.form()?;
-        let http_client = reqwest::Client::new();
-        Ok(http_client.post(uri).form(&form).send().await?)
+    fn azure_authority_host(&self) -> &AzureAuthorityHost {
+        &self.token_credential_options.azure_authority_host
     }
 }
 
 impl AuthorizationSerializer for ClientCertificateCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> GraphResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self
-            .serializer
-            .get_or_else(OAuthCredential::AccessTokenUrl)?;
-        Url::parse(uri.as_str()).map_err(GraphFailure::from)
+        let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
+            AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
+        )?;
+        Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
     fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg(
-                OAuthCredential::ClientId.alias(),
-                None,
-            );
+            return AuthorizationFailure::required_value_result(OAuthCredential::ClientId.alias());
         }
 
         if self.client_assertion.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg(
+            return AuthorizationFailure::required_value_result(
                 OAuthCredential::ClientAssertion.alias(),
-                None,
             );
         }
 
@@ -98,7 +81,7 @@ impl AuthorizationSerializer for ClientCertificateCredential {
 
         return if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
-                return AuthorizationFailure::required_value_msg(
+                return AuthorizationFailure::required_value_msg_result(
                     OAuthCredential::RefreshToken.alias(),
                     Some("refresh_token is set but is empty"),
                 );

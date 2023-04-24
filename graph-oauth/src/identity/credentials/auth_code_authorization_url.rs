@@ -76,15 +76,15 @@ impl AuthCodeAuthorizationUrl {
         let mut serializer = OAuth::new();
 
         if self.redirect_uri.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg("redirect_uri", None);
+            return AuthorizationFailure::required_value_msg_result("redirect_uri", None);
         }
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg("client_id", None);
+            return AuthorizationFailure::required_value_msg_result("client_id", None);
         }
 
         if self.scope.is_empty() {
-            return AuthorizationFailure::required_value_msg("scope", None);
+            return AuthorizationFailure::required_value_msg_result("scope", None);
         }
 
         serializer
@@ -168,7 +168,7 @@ impl AuthCodeAuthorizationUrl {
             url.set_query(Some(encoder.finish().as_str()));
             Ok(url)
         } else {
-            AuthorizationFailure::required_value_msg("authorization_url", None)
+            AuthorizationFailure::required_value_msg_result("authorization_url", None)
         }
     }
 }

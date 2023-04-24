@@ -1,10 +1,13 @@
 use crate::identity::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AuthorizationSerializer,
-    ClientCertificateCredential, ClientSecretCredential, TokenCredentialOptions, TokenRequest,
+    AzureAuthorityHost, ClientCertificateCredential, ClientSecretCredential,
+    TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
-use graph_error::GraphResult;
+use graph_error::{AuthorizationResult, GraphResult};
 use reqwest::Response;
+use std::collections::HashMap;
+use url::Url;
 
 pub struct ConfidentialClientApplication {
     http_client: reqwest::Client,
@@ -26,8 +29,22 @@ impl ConfidentialClientApplication {
     }
 }
 
+impl AuthorizationSerializer for ConfidentialClientApplication {
+    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+        self.credential.uri(azure_authority_host)
+    }
+
+    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+        self.credential.form()
+    }
+}
+
 #[async_trait]
 impl TokenRequest for ConfidentialClientApplication {
+    fn azure_authority_host(&self) -> &AzureAuthorityHost {
+        &self.token_credential_options.azure_authority_host
+    }
+
     fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
         let uri = self
             .credential

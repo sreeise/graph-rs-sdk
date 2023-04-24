@@ -1,7 +1,8 @@
 use crate::auth::{OAuth, OAuthCredential};
 use crate::identity::form_credential::FormCredential;
-use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost};
-use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
+use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost, TokenRequest};
+use crate::oauth::TokenCredentialOptions;
+use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
 
@@ -26,6 +27,7 @@ pub struct ClientSecretCredential {
     /// Default is https://graph.microsoft.com/.default.
     pub(crate) scopes: Vec<String>,
     pub(crate) authority: Authority,
+    pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuth,
 }
 
@@ -36,6 +38,7 @@ impl ClientSecretCredential {
             client_secret: client_secret.as_ref().to_owned(),
             scopes: vec!["https://graph.microsoft.com/.default".to_owned()],
             authority: Default::default(),
+            token_credential_options: Default::default(),
             serializer: OAuth::new(),
         }
     }
@@ -45,24 +48,30 @@ impl ClientSecretCredential {
     }
 }
 
+impl TokenRequest for ClientSecretCredential {
+    fn azure_authority_host(&self) -> &AzureAuthorityHost {
+        &self.token_credential_options.azure_authority_host
+    }
+}
+
 impl AuthorizationSerializer for ClientSecretCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> GraphResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self
-            .serializer
-            .get_or_else(OAuthCredential::AccessTokenUrl)?;
-        Url::parse(uri.as_str()).map_err(GraphFailure::from)
+        let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
+            AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
+        )?;
+        Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
     fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value(OAuthCredential::ClientId);
+            return AuthorizationFailure::required_value_result(OAuthCredential::ClientId);
         }
 
         if self.client_secret.trim().is_empty() {
-            return AuthorizationFailure::required_value(OAuthCredential::ClientSecret);
+            return AuthorizationFailure::required_value_result(OAuthCredential::ClientSecret);
         }
 
         self.serializer
@@ -98,6 +107,7 @@ impl ClientSecretCredentialBuilder {
                 client_secret: String::new(),
                 scopes: vec![],
                 authority: Default::default(),
+                token_credential_options: Default::default(),
                 serializer: OAuth::new(),
             },
         }
@@ -128,6 +138,13 @@ impl ClientSecretCredentialBuilder {
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
         self.credential.scopes = scopes.into_iter().map(|s| s.to_string()).collect();
         self
+    }
+
+    pub fn with_token_credential_options(
+        &mut self,
+        token_credential_options: TokenCredentialOptions,
+    ) {
+        self.credential.token_credential_options = token_credential_options;
     }
 }
 

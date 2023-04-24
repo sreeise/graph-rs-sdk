@@ -1046,7 +1046,7 @@ impl OAuth {
                     FormCredential::Required(oac) => {
                         if oac.alias().eq("scope") {
                             if self.scopes.is_empty() {
-                                return AuthorizationFailure::required_value_msg::<()>(
+                                return AuthorizationFailure::required_value_msg_result::<()>(
                                     oac.alias(),
                                     None,
                                 );
@@ -1056,7 +1056,7 @@ impl OAuth {
                         } else if let Some(val) = self.get(*oac) {
                             encoder.append_pair(oac.alias(), val.as_str());
                         } else {
-                            return AuthorizationFailure::required_value_msg::<()>(
+                            return AuthorizationFailure::required_value_msg_result::<()>(
                                 oac.alias(),
                                 None,
                             );
@@ -1108,7 +1108,7 @@ impl OAuth {
                         message: None,
                     })?;
                     if val.trim().is_empty() {
-                        return AuthorizationFailure::required_value(oac);
+                        return AuthorizationFailure::required_value_result(oac);
                     } else {
                         map.insert(oac.to_string(), val);
                     }
