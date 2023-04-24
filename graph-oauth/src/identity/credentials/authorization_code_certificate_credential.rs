@@ -13,6 +13,12 @@ use url::Url;
 #[cfg(feature = "openssl")]
 use crate::oauth::ClientAssertion;
 
+/// The OAuth 2.0 authorization code grant type, or auth code flow, enables a client application
+/// to obtain authorized access to protected resources like web APIs. The auth code flow requires
+/// a user-agent that supports redirection from the authorization server (the Microsoft
+/// identity platform) back to your application. For example, a web browser, desktop, or mobile
+/// application operated by a user to sign in to your app and access their data.
+/// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
 #[derive(Clone)]
 pub struct AuthorizationCodeCertificateCredential {
     /// The authorization code obtained from a call to authorize. The code should be obtained with all required scopes.
@@ -20,12 +26,31 @@ pub struct AuthorizationCodeCertificateCredential {
     /// The refresh token needed to make an access token request using a refresh token.
     /// Do not include an authorization code when using a refresh token.
     pub(crate) refresh_token: Option<String>,
-    /// The client (application) ID of the service principal
+    /// Required.
+    /// The Application (client) ID that the Azure portal - App registrations page assigned
+    /// to your app
     pub(crate) client_id: String,
+    /// Optional
+    /// The redirect_uri of your app, where authentication responses can be sent and received
+    /// by your app. It must exactly match one of the redirect_uris you registered in the portal,
+    /// except it must be URL-encoded.
     pub(crate) redirect_uri: String,
+    /// The same code_verifier that was used to obtain the authorization_code.
+    /// Required if PKCE was used in the authorization code grant request. For more information,
+    /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
     pub(crate) code_verifier: Option<String>,
+    /// The value must be set to urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
     pub(crate) client_assertion_type: String,
+    /// An assertion (a JSON web token) that you need to create and sign with the certificate
+    /// you registered as credentials for your application. Read about certificate credentials
+    /// to learn how to register your certificate and the format of the assertion.
     pub(crate) client_assertion: String,
+    /// Required
+    /// A space-separated list of scopes. For OpenID Connect (id_tokens), it must include the
+    /// scope openid, which translates to the "Sign you in" permission in the consent UI.
+    /// Optionally you may also want to include the email and profile scopes for gaining access
+    /// to additional user data. You may also include other scopes in this request for requesting
+    /// consent to various resources, if an access token is requested.
     pub(crate) scope: Vec<String>,
     /// The Azure Active Directory tenant (directory) Id of the service principal.
     pub(crate) authority: Authority,
@@ -158,7 +183,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
             if authorization_code.trim().is_empty() {
                 return AuthorizationFailure::required_value_msg(
                     OAuthCredential::AuthorizationCode.alias(),
-                    None,
+                    Some("refresh_token is set but is empty"),
                 );
             }
 

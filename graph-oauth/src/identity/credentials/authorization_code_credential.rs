@@ -10,20 +10,49 @@ use reqwest::Response;
 use std::collections::HashMap;
 use url::Url;
 
+/// The OAuth 2.0 authorization code grant type, or auth code flow, enables a client application
+/// to obtain authorized access to protected resources like web APIs. The auth code flow requires
+/// a user-agent that supports redirection from the authorization server (the Microsoft
+/// identity platform) back to your application. For example, a web browser, desktop, or mobile
+/// application operated by a user to sign in to your app and access their data.
+/// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
 #[derive(Clone)]
 pub struct AuthorizationCodeCredential {
-    /// The authorization code obtained from a call to authorize. The code should be obtained with all required scopes.
+    /// Required unless requesting a refresh token
+    /// The authorization code obtained from a call to authorize.
+    /// The code should be obtained with all required scopes.
     pub(crate) authorization_code: Option<String>,
+    /// Required when requesting a new access token using a refresh token
     /// The refresh token needed to make an access token request using a refresh token.
     /// Do not include an authorization code when using a refresh token.
     pub(crate) refresh_token: Option<String>,
-    /// The client (application) ID of the service principal
+    /// Required.
+    /// The Application (client) ID that the Azure portal - App registrations page assigned
+    /// to your app
     pub(crate) client_id: String,
+    /// Required
+    /// The application secret that you created in the app registration portal for your app.
+    /// Don't use the application secret in a native app or single page app because a
+    /// client_secret can't be reliably stored on devices or web pages. It's required for web
+    /// apps and web APIs, which can store the client_secret securely on the server side. Like
+    /// all parameters here, the client secret must be URL-encoded before being sent. This step
+    /// is done by the SDK. For more information on URI encoding, see the URI Generic Syntax
+    /// specification. The Basic auth pattern of instead providing credentials in the Authorization
+    /// header, per RFC 6749 is also supported.
     pub(crate) client_secret: String,
+    /// The same redirect_uri value that was used to acquire the authorization_code.
     pub(crate) redirect_uri: String,
+    /// A space-separated list of scopes. The scopes must all be from a single resource,
+    /// along with OIDC scopes (profile, openid, email). For more information, see Permissions
+    /// and consent in the Microsoft identity platform. This parameter is a Microsoft extension
+    /// to the authorization code flow, intended to allow apps to declare the resource they want
+    /// the token for during token redemption.
     pub(crate) scopes: Vec<String>,
     /// The Azure Active Directory tenant (directory) Id of the service principal.
     pub(crate) authority: Authority,
+    /// The same code_verifier that was used to obtain the authorization_code.
+    /// Required if PKCE was used in the authorization code grant request. For more information,
+    /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
     pub(crate) code_verifier: Option<String>,
     pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuth,

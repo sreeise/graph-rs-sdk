@@ -120,7 +120,7 @@ impl ImplicitCredentialAuthorizationUrl {
         let mut serializer = OAuth::new();
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg("client_id", None);
+            return AuthorizationFailure::required_value("client_id");
         }
 
         if self.nonce.trim().is_empty() {
@@ -155,7 +155,7 @@ impl ImplicitCredentialAuthorizationUrl {
             if response_type.contains("id_token") {
                 serializer.add_scope("openid");
             } else {
-                return AuthorizationFailure::required_value_msg("scope", None);
+                return AuthorizationFailure::required_value("scope");
             }
         }
 
