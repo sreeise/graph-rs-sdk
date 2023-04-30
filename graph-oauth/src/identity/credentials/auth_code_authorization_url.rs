@@ -57,10 +57,6 @@ impl AuthCodeAuthorizationUrl {
         }
     }
 
-    pub fn grant_type(&self) -> GrantType {
-        GrantType::AuthorizationCode
-    }
-
     pub fn builder() -> AuthCodeAuthorizationUrlBuilder {
         AuthCodeAuthorizationUrlBuilder::new()
     }
@@ -339,6 +335,10 @@ impl AuthCodeAuthorizationUrlBuilder {
 
     pub fn build(&self) -> AuthCodeAuthorizationUrl {
         self.authorization_code_authorize_url.clone()
+    }
+
+    pub fn url(&self) -> AuthorizationResult<Url> {
+        self.authorization_code_authorize_url.url()
     }
 }
 

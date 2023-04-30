@@ -83,13 +83,13 @@ impl ClientCredentialsAuthorizationUrl {
 }
 
 pub struct ClientCredentialsAuthorizationUrlBuilder {
-    credential: ClientCredentialsAuthorizationUrl,
+    client_credentials_authorization_url: ClientCredentialsAuthorizationUrl,
 }
 
 impl ClientCredentialsAuthorizationUrlBuilder {
     pub fn new() -> Self {
         Self {
-            credential: ClientCredentialsAuthorizationUrl {
+            client_credentials_authorization_url: ClientCredentialsAuthorizationUrl {
                 client_id: String::new(),
                 redirect_uri: String::new(),
                 state: None,
@@ -99,32 +99,37 @@ impl ClientCredentialsAuthorizationUrlBuilder {
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.credential.client_id = client_id.as_ref().to_owned();
+        self.client_credentials_authorization_url.client_id = client_id.as_ref().to_owned();
         self
     }
 
     pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
-        self.credential.redirect_uri = redirect_uri.as_ref().to_owned();
+        self.client_credentials_authorization_url.redirect_uri = redirect_uri.as_ref().to_owned();
         self
     }
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.credential.authority = Authority::TenantId(tenant.as_ref().to_owned());
+        self.client_credentials_authorization_url.authority =
+            Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
     pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.credential.authority = authority.into();
+        self.client_credentials_authorization_url.authority = authority.into();
         self
     }
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
-        self.credential.state = Some(state.as_ref().to_owned());
+        self.client_credentials_authorization_url.state = Some(state.as_ref().to_owned());
         self
     }
 
     pub fn build(&self) -> ClientCredentialsAuthorizationUrl {
-        self.credential.clone()
+        self.client_credentials_authorization_url.clone()
+    }
+
+    pub fn url(&self) -> AuthorizationResult<Url> {
+        self.client_credentials_authorization_url.url()
     }
 }

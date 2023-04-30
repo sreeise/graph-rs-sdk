@@ -12,6 +12,9 @@ use url::Url;
 use crate::identity::ClientAssertion;
 use crate::oauth::ClientCredentialsAuthorizationUrlBuilder;
 
+static CLIENT_ASSERTION_TYPE: &str = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+
+/// https://learn.microsoft.com/en-us/azure/active-directory/develop/active-directory-certificate-credentials
 #[derive(Clone)]
 #[allow(dead_code)]
 pub struct ClientCertificateCredential {
@@ -31,6 +34,24 @@ pub struct ClientCertificateCredential {
 }
 
 impl ClientCertificateCredential {
+    pub fn new<T: AsRef<str>>(client_id: T, client_assertion: T) -> ClientCertificateCredential {
+        ClientCertificateCredential {
+            client_id: client_id.as_ref().to_owned(),
+            scopes: vec![],
+            authority: Default::default(),
+            client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
+            client_assertion: client_assertion.as_ref().to_owned(),
+            refresh_token: None,
+            token_credential_options: Default::default(),
+            serializer: Default::default(),
+        }
+    }
+
+    pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) -> &mut Self {
+        self.refresh_token = Some(refresh_token.as_ref().to_owned());
+        self
+    }
+
     pub fn builder() -> ClientCertificateCredentialBuilder {
         ClientCertificateCredentialBuilder::new()
     }
@@ -52,10 +73,24 @@ impl AuthorizationSerializer for ClientCertificateCredential {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
-            AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
-        )?;
-        Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+        if self.refresh_token.is_none() {
+            let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
+                AuthorizationFailure::required_value_msg(
+                    "access_token_url",
+                    Some("Internal Error"),
+                ),
+            )?;
+            Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+        } else {
+            let uri = self
+                .serializer
+                .get(OAuthCredential::RefreshTokenUrl)
+                .ok_or(AuthorizationFailure::required_value_msg(
+                    "refresh_token_url",
+                    Some("Internal Error"),
+                ))?;
+            Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+        }
     }
 
     fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
@@ -70,8 +105,7 @@ impl AuthorizationSerializer for ClientCertificateCredential {
         }
 
         if self.client_assertion_type.trim().is_empty() {
-            self.client_assertion_type =
-                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer".to_owned();
+            self.client_assertion_type = CLIENT_ASSERTION_TYPE.to_owned();
         }
 
         self.serializer
@@ -128,8 +162,7 @@ impl ClientCertificateCredentialBuilder {
                 client_id: String::new(),
                 scopes: vec![],
                 authority: Default::default(),
-                client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-                    .to_owned(),
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: String::new(),
                 refresh_token: None,
                 token_credential_options: TokenCredentialOptions::default(),
@@ -149,20 +182,11 @@ impl ClientCertificateCredentialBuilder {
         certificate_assertion: &ClientAssertion,
     ) -> anyhow::Result<&mut Self> {
         self.with_client_assertion(certificate_assertion.sign()?);
-        self.with_client_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
         Ok(self)
     }
 
     pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
         self.credential.client_assertion = client_assertion.as_ref().to_owned();
-        self
-    }
-
-    pub fn with_client_assertion_type<T: AsRef<str>>(
-        &mut self,
-        client_assertion_type: T,
-    ) -> &mut Self {
-        self.credential.client_assertion_type = client_assertion_type.as_ref().to_owned();
         self
     }
 

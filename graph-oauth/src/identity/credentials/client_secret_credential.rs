@@ -21,8 +21,19 @@ use url::Url;
 /// See [Microsoft identity platform and the OAuth 2.0 client credentials flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
 #[derive(Clone)]
 pub struct ClientSecretCredential {
-    /// The client (application) ID of the service principal
+    /// Required.
+    /// The Application (client) ID that the Azure portal - App registrations page assigned
+    /// to your app
     pub(crate) client_id: String,
+    /// Required
+    /// The application secret that you created in the app registration portal for your app.
+    /// Don't use the application secret in a native app or single page app because a
+    /// client_secret can't be reliably stored on devices or web pages. It's required for web
+    /// apps and web APIs, which can store the client_secret securely on the server side. Like
+    /// all parameters here, the client secret must be URL-encoded before being sent. This step
+    /// is done by the SDK. For more information on URI encoding, see the URI Generic Syntax
+    /// specification. The Basic auth pattern of instead providing credentials in the Authorization
+    /// header, per RFC 6749 is also supported.
     pub(crate) client_secret: String,
     /// The value passed for the scope parameter in this request should be the resource
     /// identifier (application ID URI) of the resource you want, affixed with the .default
@@ -81,10 +92,7 @@ impl AuthorizationSerializer for ClientSecretCredential {
             return AuthorizationFailure::required_value_result(OAuthCredential::ClientSecret);
         }
 
-        self.serializer
-            .client_id(self.client_id.as_str())
-            .client_secret(self.client_secret.as_str())
-            .grant_type("client_credentials");
+        self.serializer.grant_type("client_credentials");
 
         if self.scopes.is_empty() {
             self.serializer
@@ -94,11 +102,14 @@ impl AuthorizationSerializer for ClientSecretCredential {
         }
 
         self.serializer.authorization_form(vec![
-            FormCredential::Required(OAuthCredential::ClientId),
-            FormCredential::Required(OAuthCredential::ClientSecret),
             FormCredential::Required(OAuthCredential::GrantType),
             FormCredential::NotRequired(OAuthCredential::Scope),
         ])
+    }
+
+    ///
+    fn basic_auth(&self) -> Option<(String, String)> {
+        Some((self.client_id.clone(), self.client_secret.clone()))
     }
 }
 
@@ -115,7 +126,7 @@ impl ClientSecretCredentialBuilder {
                 scopes: vec![],
                 authority: Default::default(),
                 token_credential_options: Default::default(),
-                serializer: OAuth::new(),
+                serializer: Default::default(),
             },
         }
     }

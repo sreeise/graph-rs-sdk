@@ -1,12 +1,16 @@
+use crate::jwt::{JsonWebToken, JwtParser};
+use serde::de::{Error, Visitor};
+use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::fmt::{Debug, Formatter};
 use std::io::ErrorKind;
 use std::str::FromStr;
 use url::form_urlencoded;
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Eq, PartialEq, Serialize)]
 pub struct IdToken {
     code: Option<String>,
     id_token: String,
@@ -34,6 +38,10 @@ impl IdToken {
         self.id_token = id_token.into();
     }
 
+    pub fn jwt(&self) -> Option<JsonWebToken> {
+        JwtParser::parse(self.id_token.as_str()).ok()
+    }
+
     pub fn code(&mut self, code: &str) {
         self.code = Some(code.into());
     }
@@ -46,7 +54,11 @@ impl IdToken {
         self.session_state = Some(session_state.into());
     }
 
-    pub fn log_pii(&mut self, log_pii: bool) {
+    /// Enable or disable logging of personally identifiable information such
+    /// as logging the id_token. This is disabled by default. When log_pii is enabled
+    /// passing an [IdToken] to logging or print functions will log id_token field.
+    /// By default this does not get logged.
+    pub fn enable_pii_logging(&mut self, log_pii: bool) {
         self.log_pii = log_pii;
     }
 
@@ -85,16 +97,79 @@ impl TryFrom<&str> for IdToken {
     }
 }
 
+impl Debug for IdToken {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if self.log_pii {
+            f.debug_struct("IdToken")
+                .field("code", &self.code)
+                .field("id_token", &self.id_token)
+                .field("session_state", &self.session_state)
+                .field("additional_fields", &self.additional_fields)
+                .finish()
+        } else {
+            f.debug_struct("IdToken")
+                .field("code", &self.code)
+                .field("id_token", &"[REDACTED]")
+                .field("session_state", &self.session_state)
+                .field("additional_fields", &self.additional_fields)
+                .finish()
+        }
+    }
+}
+
+struct IdTokenVisitor;
+
+impl<'de> Deserialize<'de> for IdToken {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        impl<'de> Visitor<'de> for IdTokenVisitor {
+            type Value = IdToken;
+
+            fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+                formatter.write_str("`code`, `id_token`, `state`, and `session_state`")
+            }
+
+            fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                let vec: Vec<(Cow<str>, Cow<str>)> = form_urlencoded::parse(v).collect();
+
+                if vec.is_empty() {
+                    return serde_json::from_slice(v)
+                        .map_err(|err| serde::de::Error::custom(err.to_string()));
+                }
+
+                let mut id_token = IdToken::default();
+                for (key, value) in vec.iter() {
+                    match key.as_bytes() {
+                        b"code" => id_token.code(value.as_ref()),
+                        b"id_token" => id_token.id_token(value.as_ref()),
+                        b"state" => id_token.state(value.as_ref()),
+                        b"session_state" => id_token.session_state(value.as_ref()),
+                        _ => {
+                            id_token
+                                .additional_fields
+                                .insert(key.to_string(), Value::String(value.to_string()));
+                        }
+                    }
+                }
+                Ok(id_token)
+            }
+        }
+        deserializer.deserialize_identifier(IdTokenVisitor)
+    }
+}
+
 impl FromStr for IdToken {
-    type Err = std::io::Error;
+    type Err = serde_json::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let vec: Vec<(Cow<str>, Cow<str>)> = form_urlencoded::parse(s.as_bytes()).collect();
         if vec.is_empty() {
-            return Err(std::io::Error::new(
-                ErrorKind::InvalidData,
-                "Got empty Vec<Cow<str>, Cow<str>> after percent decoding input",
-            ));
+            return serde_json::from_slice(s.as_bytes());
         }
         let mut id_token = IdToken::default();
         for (key, value) in vec.iter() {
@@ -104,10 +179,9 @@ impl FromStr for IdToken {
                 b"state" => id_token.state(value.as_ref()),
                 b"session_state" => id_token.session_state(value.as_ref()),
                 _ => {
-                    return Err(std::io::Error::new(
-                        ErrorKind::InvalidData,
-                        "Invalid key in &str",
-                    ));
+                    id_token
+                        .additional_fields
+                        .insert(key.to_string(), Value::String(value.to_string()));
                 }
             }
         }

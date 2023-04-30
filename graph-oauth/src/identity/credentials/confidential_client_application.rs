@@ -5,10 +5,14 @@ use crate::identity::{
 };
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, GraphResult};
-use reqwest::Response;
+use reqwest::tls::Version;
+use reqwest::{ClientBuilder, Response};
 use std::collections::HashMap;
 use url::Url;
 
+/// Clients capable of maintaining the confidentiality of their credentials
+/// (e.g., client implemented on a secure server with restricted access to the client credentials),
+/// or capable of secure client authentication using other means.
 pub struct ConfidentialClientApplication {
     http_client: reqwest::Client,
     token_credential_options: TokenCredentialOptions,
@@ -49,22 +53,51 @@ impl TokenRequest for ConfidentialClientApplication {
         let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
         let uri = self.credential.uri(&azure_authority_host)?;
         let form = self.credential.form()?;
-        let http_client = reqwest::blocking::Client::new();
-        Ok(http_client.post(uri).form(&form).send()?)
+        let http_client = reqwest::blocking::ClientBuilder::new()
+            .min_tls_version(Version::TLS_1_2)
+            .https_only(true)
+            .build()?;
+
+        let basic_auth = self.credential.basic_auth();
+        if let Some((client_identifier, secret)) = basic_auth {
+            Ok(http_client
+                .post(uri)
+                .basic_auth(client_identifier, Some(secret))
+                .form(&form)
+                .send()?)
+        } else {
+            Ok(http_client.post(uri).form(&form).send()?)
+        }
     }
 
     async fn get_token_async(&mut self) -> anyhow::Result<Response> {
         let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
         let uri = self.credential.uri(&azure_authority_host)?;
         let form = self.credential.form()?;
-        Ok(self.http_client.post(uri).form(&form).send().await?)
+        let basic_auth = self.credential.basic_auth();
+        if let Some((client_identifier, secret)) = basic_auth {
+            Ok(self
+                .http_client
+                .post(uri)
+                // https://datatracker.ietf.org/doc/html/rfc6749#section-2.3.1
+                .basic_auth(client_identifier, Some(secret))
+                .form(&form)
+                .send()
+                .await?)
+        } else {
+            Ok(self.http_client.post(uri).form(&form).send().await?)
+        }
     }
 }
 
 impl From<AuthorizationCodeCredential> for ConfidentialClientApplication {
     fn from(value: AuthorizationCodeCredential) -> Self {
         ConfidentialClientApplication {
-            http_client: reqwest::Client::new(),
+            http_client: ClientBuilder::new()
+                .min_tls_version(Version::TLS_1_2)
+                .https_only(true)
+                .build()
+                .unwrap(),
             token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
         }
@@ -74,7 +107,11 @@ impl From<AuthorizationCodeCredential> for ConfidentialClientApplication {
 impl From<AuthorizationCodeCertificateCredential> for ConfidentialClientApplication {
     fn from(value: AuthorizationCodeCertificateCredential) -> Self {
         ConfidentialClientApplication {
-            http_client: reqwest::Client::new(),
+            http_client: ClientBuilder::new()
+                .min_tls_version(Version::TLS_1_2)
+                .https_only(true)
+                .build()
+                .unwrap(),
             token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
         }
@@ -84,7 +121,11 @@ impl From<AuthorizationCodeCertificateCredential> for ConfidentialClientApplicat
 impl From<ClientSecretCredential> for ConfidentialClientApplication {
     fn from(value: ClientSecretCredential) -> Self {
         ConfidentialClientApplication {
-            http_client: reqwest::Client::new(),
+            http_client: ClientBuilder::new()
+                .min_tls_version(Version::TLS_1_2)
+                .https_only(true)
+                .build()
+                .unwrap(),
             token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
         }
@@ -94,7 +135,11 @@ impl From<ClientSecretCredential> for ConfidentialClientApplication {
 impl From<ClientCertificateCredential> for ConfidentialClientApplication {
     fn from(value: ClientCertificateCredential) -> Self {
         ConfidentialClientApplication {
-            http_client: reqwest::Client::new(),
+            http_client: ClientBuilder::new()
+                .min_tls_version(Version::TLS_1_2)
+                .https_only(true)
+                .build()
+                .unwrap(),
             token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
         }

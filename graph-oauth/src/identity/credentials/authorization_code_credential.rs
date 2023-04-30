@@ -212,6 +212,10 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
             Some("Either authorization code or refresh token is required"),
         )
     }
+
+    fn basic_auth(&self) -> Option<(String, String)> {
+        Some((self.client_id.clone(), self.client_secret.clone()))
+    }
 }
 
 #[derive(Clone)]

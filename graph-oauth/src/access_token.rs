@@ -28,6 +28,8 @@ use std::str::FromStr;
 /// For more info see:
 /// [Microsoft identity platform acccess tokens](https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens)
 ///
+/// * Access Tokens: https://datatracker.ietf.org/doc/html/rfc6749#section-1.4
+/// * Refresh Tokens: https://datatracker.ietf.org/doc/html/rfc6749#section-1.5
 ///
 /// For tokens where the JWT can be parsed the elapsed() method uses
 /// the `exp` field in the JWT's claims. If the claims do not contain an
@@ -201,7 +203,7 @@ impl AccessToken {
         self.id_token = Some(id_token.get_id_token());
     }
 
-    pub fn parse_id_token(&mut self) -> Option<Result<IdToken, std::io::Error>> {
+    pub fn parse_id_token(&mut self) -> Option<Result<IdToken, serde_json::Error>> {
         self.id_token.clone().map(|s| IdToken::from_str(s.as_str()))
     }
 

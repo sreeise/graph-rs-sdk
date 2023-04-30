@@ -32,14 +32,14 @@ pub struct AccessCode {
 // url and query needed to get an authorization code and opens the default system
 // web browser to this Url.
 fn authorization_sign_in() {
-    let auth_code_url_builder = AuthCodeAuthorizationUrl::builder()
+    let url = AuthorizationCodeCredential::authorization_url_builder()
         .with_client_id(CLIENT_ID)
         .with_scope(vec!["user.read"])
         .with_redirect_uri("http://localhost:8000/redirect")
         .with_proof_key_for_code_exchange(&PKCE)
-        .build();
+        .url()
+        .unwrap();
 
-    let url = auth_code_url_builder.url().unwrap();
     webbrowser::open(url.as_str()).unwrap();
 }
 

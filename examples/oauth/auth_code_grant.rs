@@ -14,13 +14,13 @@ pub struct AccessCode {
 }
 
 pub fn authorization_sign_in() {
-    let auth_url_builder = AuthCodeAuthorizationUrl::builder()
+    let url = AuthorizationCodeCredential::authorization_url_builder()
         .with_client_id(CLIENT_ID)
         .with_redirect_uri("http://localhost:8000/redirect")
         .with_scope(vec!["offline_access", "files.read"])
-        .build();
+        .url()
+        .unwrap();
 
-    let url = auth_url_builder.url().unwrap();
     // web browser crate in dev dependencies will open to default browser in the system.
     webbrowser::open(url.as_str()).unwrap();
 }

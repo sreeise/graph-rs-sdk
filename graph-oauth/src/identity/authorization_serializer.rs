@@ -6,4 +6,7 @@ use url::Url;
 pub trait AuthorizationSerializer {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url>;
     fn form(&mut self) -> AuthorizationResult<HashMap<String, String>>;
+    fn basic_auth(&self) -> Option<(String, String)> {
+        None
+    }
 }
