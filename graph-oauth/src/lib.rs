@@ -89,6 +89,7 @@ extern crate serde;
 
 mod access_token;
 mod auth;
+mod device_code;
 mod discovery;
 mod grants;
 mod id_token;
@@ -96,12 +97,14 @@ pub mod jwt;
 mod oauth_error;
 
 pub mod identity;
+pub mod web;
 
 pub mod oauth {
     pub use crate::access_token::AccessToken;
     pub use crate::auth::GrantSelector;
     pub use crate::auth::OAuth;
     pub use crate::auth::OAuthCredential;
+    pub use crate::device_code::*;
     pub use crate::discovery::graph_discovery;
     pub use crate::discovery::jwt_keys;
     pub use crate::discovery::well_known;

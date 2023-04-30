@@ -10,6 +10,7 @@ use url::Url;
 
 #[cfg(feature = "openssl")]
 use crate::identity::ClientAssertion;
+use crate::oauth::ClientCredentialsAuthorizationUrlBuilder;
 
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -33,12 +34,16 @@ impl ClientCertificateCredential {
     pub fn builder() -> ClientCertificateCredentialBuilder {
         ClientCertificateCredentialBuilder::new()
     }
+
+    pub fn authorization_url_builder() -> ClientCredentialsAuthorizationUrlBuilder {
+        ClientCredentialsAuthorizationUrlBuilder::new()
+    }
 }
 
 #[async_trait]
 impl TokenRequest for ClientCertificateCredential {
-    fn azure_authority_host(&self) -> &AzureAuthorityHost {
-        &self.token_credential_options.azure_authority_host
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
     }
 }
 

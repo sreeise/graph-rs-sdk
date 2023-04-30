@@ -20,7 +20,6 @@ mod auth_code_grant_pkce;
 mod auth_code_grant_refresh_token;
 mod client_credentials;
 mod client_credentials_admin_consent;
-mod code_flow;
 mod device_code;
 mod implicit_grant;
 mod is_access_token_expired;

@@ -1,6 +1,9 @@
 use crate::auth::{OAuth, OAuthCredential};
 use crate::identity::form_credential::FormCredential;
-use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost, TokenRequest};
+use crate::identity::{
+    Authority, AuthorizationSerializer, AzureAuthorityHost,
+    ClientCredentialsAuthorizationUrlBuilder, TokenRequest,
+};
 use crate::oauth::TokenCredentialOptions;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
@@ -36,7 +39,7 @@ impl ClientSecretCredential {
         ClientSecretCredential {
             client_id: client_id.as_ref().to_owned(),
             client_secret: client_secret.as_ref().to_owned(),
-            scopes: vec!["https://graph.microsoft.com/.default".to_owned()],
+            scopes: vec![],
             authority: Default::default(),
             token_credential_options: Default::default(),
             serializer: OAuth::new(),
@@ -46,11 +49,15 @@ impl ClientSecretCredential {
     pub fn builder() -> ClientSecretCredentialBuilder {
         ClientSecretCredentialBuilder::new()
     }
+
+    pub fn authorization_url_builder() -> ClientCredentialsAuthorizationUrlBuilder {
+        ClientCredentialsAuthorizationUrlBuilder::new()
+    }
 }
 
 impl TokenRequest for ClientSecretCredential {
-    fn azure_authority_host(&self) -> &AzureAuthorityHost {
-        &self.token_credential_options.azure_authority_host
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
     }
 }
 
@@ -135,8 +142,8 @@ impl ClientSecretCredentialBuilder {
     }
 
     /// Defaults to "https://graph.microsoft.com/.default"
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.credential.scopes = scopes.into_iter().map(|s| s.to_string()).collect();
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.credential.scopes = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
@@ -145,6 +152,10 @@ impl ClientSecretCredentialBuilder {
         token_credential_options: TokenCredentialOptions,
     ) {
         self.credential.token_credential_options = token_credential_options;
+    }
+
+    pub fn build(&self) -> ClientSecretCredential {
+        self.credential.clone()
     }
 }
 

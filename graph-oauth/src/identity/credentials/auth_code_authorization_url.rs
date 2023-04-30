@@ -20,7 +20,7 @@ use url::Url;
 /// by a user to sign in to your app and access their data.
 ///
 /// Reference: https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AuthCodeAuthorizationUrl {
     /// The client (application) ID of the service principal
     pub(crate) client_id: String,
@@ -168,7 +168,10 @@ impl AuthCodeAuthorizationUrl {
             url.set_query(Some(encoder.finish().as_str()));
             Ok(url)
         } else {
-            AuthorizationFailure::required_value_msg_result("authorization_url", None)
+            AuthorizationFailure::required_value_msg_result(
+                "authorization_url",
+                Some("Internal Error"),
+            )
         }
     }
 }
@@ -271,6 +274,11 @@ impl AuthCodeAuthorizationUrlBuilder {
         self.authorization_code_authorize_url.scope =
             scopes.into_iter().map(|s| s.to_string()).collect();
         self
+    }
+
+    /// Automatically adds profile, id_token, and offline_access to the scope parameter.
+    pub fn with_default_scope(&mut self) -> &mut Self {
+        self.with_scope(vec!["profile", "id_token", "offline_access"])
     }
 
     /// Indicates the type of user interaction that is required. Valid values are login, none,

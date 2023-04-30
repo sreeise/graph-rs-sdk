@@ -87,7 +87,7 @@ pub struct ClientCredentialsAuthorizationUrlBuilder {
 }
 
 impl ClientCredentialsAuthorizationUrlBuilder {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             credential: ClientCredentialsAuthorizationUrl {
                 client_id: String::new(),

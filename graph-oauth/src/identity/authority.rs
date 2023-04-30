@@ -16,6 +16,8 @@ pub enum AzureAuthorityHost {
     AzureGermany,
     /// US Government cloud. Maps to https://login.microsoftonline.us
     AzureUsGovernment,
+
+    OneDriveAndSharePoint,
 }
 
 impl AsRef<str> for AzureAuthorityHost {
@@ -26,6 +28,9 @@ impl AsRef<str> for AzureAuthorityHost {
             AzureAuthorityHost::AzureChina => "https://login.chinacloudapi.cn",
             AzureAuthorityHost::AzureGermany => "https://login.microsoftonline.de",
             AzureAuthorityHost::AzureUsGovernment => "https://login.microsoftonline.us",
+            AzureAuthorityHost::OneDriveAndSharePoint => {
+                "https://login.live.com/oauth20_desktop.srf"
+            }
         }
     }
 }
@@ -52,6 +57,7 @@ impl AzureAuthorityHost {
             AzureAuthorityHost::AzureUsGovernment => {
                 "https://management.usgovcloudapi.net/.default"
             }
+            AzureAuthorityHost::OneDriveAndSharePoint => "",
         }
     }
 }

@@ -1,15 +1,21 @@
+use serde_json::Value;
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::io::ErrorKind;
 use std::str::FromStr;
 use url::form_urlencoded;
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize, Hash)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct IdToken {
     code: Option<String>,
     id_token: String,
     state: Option<String>,
     session_state: Option<String>,
+    #[serde(flatten)]
+    additional_fields: HashMap<String, Value>,
+    #[serde(skip)]
+    log_pii: bool,
 }
 
 impl IdToken {
@@ -19,6 +25,8 @@ impl IdToken {
             id_token: id_token.into(),
             state: Some(state.into()),
             session_state: Some(session_state.into()),
+            additional_fields: Default::default(),
+            log_pii: false,
         }
     }
 
@@ -36,6 +44,10 @@ impl IdToken {
 
     pub fn session_state(&mut self, session_state: &str) {
         self.session_state = Some(session_state.into());
+    }
+
+    pub fn log_pii(&mut self, log_pii: bool) {
+        self.log_pii = log_pii;
     }
 
     pub fn get_id_token(&self) -> String {

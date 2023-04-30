@@ -1,8 +1,8 @@
 use crate::auth::{OAuth, OAuthCredential};
 use crate::identity::form_credential::FormCredential;
 use crate::identity::{
-    AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
-    TokenCredentialOptions, TokenRequest,
+    AuthCodeAuthorizationUrl, AuthCodeAuthorizationUrlBuilder, Authority, AuthorizationSerializer,
+    AzureAuthorityHost, TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
@@ -84,12 +84,16 @@ impl AuthorizationCodeCertificateCredential {
     pub fn builder() -> AuthorizationCodeCertificateCredentialBuilder {
         AuthorizationCodeCertificateCredentialBuilder::new()
     }
+
+    pub fn authorization_url_builder() -> AuthCodeAuthorizationUrlBuilder {
+        AuthCodeAuthorizationUrlBuilder::new()
+    }
 }
 
 #[async_trait]
 impl TokenRequest for AuthorizationCodeCertificateCredential {
-    fn azure_authority_host(&self) -> &AzureAuthorityHost {
-        &self.token_credential_options.azure_authority_host
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
     }
 }
 

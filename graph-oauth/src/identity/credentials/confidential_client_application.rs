@@ -11,8 +11,8 @@ use url::Url;
 
 pub struct ConfidentialClientApplication {
     http_client: reqwest::Client,
-    credential: Box<dyn AuthorizationSerializer + Send>,
     token_credential_options: TokenCredentialOptions,
+    credential: Box<dyn AuthorizationSerializer + Send>,
 }
 
 impl ConfidentialClientApplication {
@@ -41,23 +41,21 @@ impl AuthorizationSerializer for ConfidentialClientApplication {
 
 #[async_trait]
 impl TokenRequest for ConfidentialClientApplication {
-    fn azure_authority_host(&self) -> &AzureAuthorityHost {
-        &self.token_credential_options.azure_authority_host
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
     }
 
     fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
-        let uri = self
-            .credential
-            .uri(&self.token_credential_options.azure_authority_host)?;
+        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
+        let uri = self.credential.uri(&azure_authority_host)?;
         let form = self.credential.form()?;
         let http_client = reqwest::blocking::Client::new();
         Ok(http_client.post(uri).form(&form).send()?)
     }
 
     async fn get_token_async(&mut self) -> anyhow::Result<Response> {
-        let uri = self
-            .credential
-            .uri(&self.token_credential_options.azure_authority_host)?;
+        let azure_authority_host = self.token_credential_options.azure_authority_host.clone();
+        let uri = self.credential.uri(&azure_authority_host)?;
         let form = self.credential.form()?;
         Ok(self.http_client.post(uri).form(&form).send().await?)
     }
@@ -67,8 +65,8 @@ impl From<AuthorizationCodeCredential> for ConfidentialClientApplication {
     fn from(value: AuthorizationCodeCredential) -> Self {
         ConfidentialClientApplication {
             http_client: reqwest::Client::new(),
+            token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
-            token_credential_options: Default::default(),
         }
     }
 }
@@ -77,8 +75,8 @@ impl From<AuthorizationCodeCertificateCredential> for ConfidentialClientApplicat
     fn from(value: AuthorizationCodeCertificateCredential) -> Self {
         ConfidentialClientApplication {
             http_client: reqwest::Client::new(),
+            token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
-            token_credential_options: Default::default(),
         }
     }
 }
@@ -87,8 +85,8 @@ impl From<ClientSecretCredential> for ConfidentialClientApplication {
     fn from(value: ClientSecretCredential) -> Self {
         ConfidentialClientApplication {
             http_client: reqwest::Client::new(),
+            token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
-            token_credential_options: Default::default(),
         }
     }
 }
@@ -97,8 +95,8 @@ impl From<ClientCertificateCredential> for ConfidentialClientApplication {
     fn from(value: ClientCertificateCredential) -> Self {
         ConfidentialClientApplication {
             http_client: reqwest::Client::new(),
+            token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
-            token_credential_options: Default::default(),
         }
     }
 }

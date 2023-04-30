@@ -4,7 +4,10 @@ use chrono::{DateTime, Duration, LocalResult, TimeZone, Utc};
 use chrono_humanize::HumanTime;
 use graph_error::GraphFailure;
 use serde_aux::prelude::*;
+use serde_json::Value;
+use std::collections::HashMap;
 use std::fmt;
+use std::str::FromStr;
 
 /// OAuth 2.0 Access Token
 ///
@@ -59,6 +62,11 @@ pub struct AccessToken {
     timestamp: Option<DateTime<Utc>>,
     #[serde(skip)]
     jwt: Option<JsonWebToken>,
+    /// Any extra returned fields for AccessToken.
+    #[serde(flatten)]
+    additional_fields: HashMap<String, Value>,
+    #[serde(skip)]
+    log_pii: bool,
 }
 
 impl AccessToken {
@@ -74,6 +82,8 @@ impl AccessToken {
             state: None,
             timestamp: Some(Utc::now() + Duration::seconds(expires_in)),
             jwt: None,
+            additional_fields: Default::default(),
+            log_pii: false,
         };
         token.parse_jwt();
         token
@@ -191,6 +201,10 @@ impl AccessToken {
         self.id_token = Some(id_token.get_id_token());
     }
 
+    pub fn parse_id_token(&mut self) -> Option<Result<IdToken, std::io::Error>> {
+        self.id_token.clone().map(|s| IdToken::from_str(s.as_str()))
+    }
+
     /// Set the state.
     ///
     /// # Example
@@ -204,6 +218,15 @@ impl AccessToken {
     pub fn set_state(&mut self, s: &str) -> &mut AccessToken {
         self.state = Some(s.to_string());
         self
+    }
+
+    /// Enable or disable logging of personally identifiable information such
+    /// as logging the id_token. This is disabled by default. When log_pii is enabled
+    /// passing [AccessToken] to logging or print functions will log both the bearer
+    /// access token value, the refresh token value if any, and the id token value.
+    /// By default these do not get logged.
+    pub fn enable_pii_logging(&mut self, log_pii: bool) {
+        self.log_pii = log_pii;
     }
 
     /// Reset the access token timestmap.
@@ -436,6 +459,8 @@ impl Default for AccessToken {
             state: None,
             timestamp: Some(Utc::now() + Duration::seconds(0)),
             jwt: None,
+            additional_fields: Default::default(),
+            log_pii: false,
         }
     }
 }
@@ -483,16 +508,32 @@ impl TryFrom<reqwest::blocking::Response> for AccessToken {
 
 impl fmt::Debug for AccessToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("AccessToken")
-            .field("bearer_token", &"[REDACTED]")
-            .field("token_type", &self.token_type)
-            .field("expires_in", &self.expires_in)
-            .field("scope", &self.scope)
-            .field("user_id", &self.user_id)
-            .field("id_token", &"[REDACTED]")
-            .field("state", &self.state)
-            .field("timestamp", &self.timestamp)
-            .finish()
+        if self.log_pii {
+            f.debug_struct("AccessToken")
+                .field("bearer_token", &self.access_token)
+                .field("refresh_token", &self.refresh_token)
+                .field("token_type", &self.token_type)
+                .field("expires_in", &self.expires_in)
+                .field("scope", &self.scope)
+                .field("user_id", &self.user_id)
+                .field("id_token", &self.id_token)
+                .field("state", &self.state)
+                .field("timestamp", &self.timestamp)
+                .field("extra", &self.additional_fields)
+                .finish()
+        } else {
+            f.debug_struct("AccessToken")
+                .field("bearer_token", &"[REDACTED]")
+                .field("token_type", &self.token_type)
+                .field("expires_in", &self.expires_in)
+                .field("scope", &self.scope)
+                .field("user_id", &self.user_id)
+                .field("id_token", &"[REDACTED]")
+                .field("state", &self.state)
+                .field("timestamp", &self.timestamp)
+                .field("extra", &self.additional_fields)
+                .finish()
+        }
     }
 }
 

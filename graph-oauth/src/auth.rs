@@ -385,6 +385,10 @@ impl OAuth {
     /// oauth.tenant_id("tenant_id");
     /// ```
     pub fn authority(&mut self, host: &AzureAuthorityHost, authority: &Authority) -> &mut OAuth {
+        if host.eq(&AzureAuthorityHost::OneDriveAndSharePoint) {
+            return self.legacy_authority();
+        }
+
         let token_url = format!("{}/{}/oauth2/v2.0/token", host.as_ref(), authority.as_ref());
         let auth_url = format!(
             "{}/{}/oauth2/v2.0/authorize",
@@ -408,6 +412,12 @@ impl OAuth {
         self.authorization_url(&auth_url)
             .access_token_url(&token_url)
             .refresh_token_url(&token_url)
+    }
+
+    pub fn legacy_authority(&mut self) -> &mut OAuth {
+        self.authorization_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref());
+        self.access_token_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref());
+        self.refresh_token_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref())
     }
 
     /// Set the redirect url of a request
@@ -454,7 +464,7 @@ impl OAuth {
     /// # let mut oauth = OAuth::new();
     /// oauth.response_type("token");
     /// ```
-    pub fn response_type(&mut self, value: &str) -> &mut OAuth {
+    pub fn response_type<T: ToString>(&mut self, value: T) -> &mut OAuth {
         self.insert(OAuthCredential::ResponseType, value)
     }
 

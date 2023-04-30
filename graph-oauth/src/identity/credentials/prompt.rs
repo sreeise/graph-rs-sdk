@@ -22,6 +22,9 @@ pub enum Prompt {
     /// which would present to the user a list of accounts from which one can be selected for
     /// authentication.
     SelectAccount,
+    /// Use only for federated users. Provides same functionality as prompt=none
+    /// for managed users.
+    AttemptNone,
 }
 
 impl AsRef<str> for Prompt {
@@ -31,6 +34,7 @@ impl AsRef<str> for Prompt {
             Prompt::Login => "login",
             Prompt::Consent => "consent",
             Prompt::SelectAccount => "select_account",
+            Prompt::AttemptNone => "attempt_none",
         }
     }
 }

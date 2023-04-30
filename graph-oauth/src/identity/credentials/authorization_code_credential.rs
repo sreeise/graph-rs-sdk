@@ -4,6 +4,7 @@ use crate::identity::{
     AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
     ProofKeyForCodeExchange, TokenCredentialOptions, TokenRequest,
 };
+use crate::oauth::AuthCodeAuthorizationUrlBuilder;
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
@@ -46,7 +47,7 @@ pub struct AuthorizationCodeCredential {
     /// and consent in the Microsoft identity platform. This parameter is a Microsoft extension
     /// to the authorization code flow, intended to allow apps to declare the resource they want
     /// the token for during token redemption.
-    pub(crate) scopes: Vec<String>,
+    pub(crate) scope: Vec<String>,
     /// The Azure Active Directory tenant (directory) Id of the service principal.
     pub(crate) authority: Authority,
     /// The same code_verifier that was used to obtain the authorization_code.
@@ -70,7 +71,7 @@ impl AuthorizationCodeCredential {
             client_id: client_id.as_ref().to_owned(),
             client_secret: client_secret.as_ref().to_owned(),
             redirect_uri: redirect_uri.as_ref().to_owned(),
-            scopes: vec![],
+            scope: vec![],
             authority: Default::default(),
             code_verifier: None,
             token_credential_options: TokenCredentialOptions::default(),
@@ -85,6 +86,17 @@ impl AuthorizationCodeCredential {
 
     pub fn builder() -> AuthorizationCodeCredentialBuilder {
         AuthorizationCodeCredentialBuilder::new()
+    }
+
+    pub fn authorization_url_builder() -> AuthCodeAuthorizationUrlBuilder {
+        AuthCodeAuthorizationUrlBuilder::new()
+    }
+}
+
+#[async_trait]
+impl TokenRequest for AuthorizationCodeCredential {
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
     }
 }
 
@@ -138,7 +150,7 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
         self.serializer
             .client_id(self.client_id.as_str())
             .client_secret(self.client_secret.as_str())
-            .extend_scopes(self.scopes.clone());
+            .extend_scopes(self.scope.clone());
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
@@ -162,7 +174,7 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
                 return AuthorizationFailure::required_value_msg_result(
-                    OAuthCredential::RefreshToken.alias(),
+                    OAuthCredential::AuthorizationCode.alias(),
                     Some("Either authorization code or refresh token is required"),
                 );
             }
@@ -202,13 +214,6 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
     }
 }
 
-#[async_trait]
-impl TokenRequest for AuthorizationCodeCredential {
-    fn azure_authority_host(&self) -> &AzureAuthorityHost {
-        &self.token_credential_options.azure_authority_host
-    }
-}
-
 #[derive(Clone)]
 pub struct AuthorizationCodeCredentialBuilder {
     credential: AuthorizationCodeCredential,
@@ -223,7 +228,7 @@ impl AuthorizationCodeCredentialBuilder {
                 client_id: String::new(),
                 client_secret: String::new(),
                 redirect_uri: String::new(),
-                scopes: vec![],
+                scope: vec![],
                 authority: Default::default(),
                 code_verifier: None,
                 token_credential_options: TokenCredentialOptions::default(),
@@ -234,6 +239,7 @@ impl AuthorizationCodeCredentialBuilder {
 
     pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
         self.credential.authorization_code = Some(authorization_code.as_ref().to_owned());
+        self.credential.refresh_token = None;
         self
     }
 
@@ -283,7 +289,7 @@ impl AuthorizationCodeCredentialBuilder {
     }
 
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.credential.scopes = scopes.into_iter().map(|s| s.to_string()).collect();
+        self.credential.scope = scopes.into_iter().map(|s| s.to_string()).collect();
         self
     }
 

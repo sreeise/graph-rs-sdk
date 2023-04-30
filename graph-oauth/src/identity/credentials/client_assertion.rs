@@ -101,6 +101,11 @@ impl ClientAssertion {
         &self.uuid
     }
 
+    /// Set the UUID for the jti field of the claims/payload of the jwt.
+    pub fn set_uuid(&mut self, value: Uuid) {
+        self.uuid = value;
+    }
+
     fn get_header(&self) -> Result<HashMap<String, String>, ErrorStack> {
         let mut header = HashMap::new();
         header.insert("x5t".to_owned(), self.get_thumbprint_base64()?);
@@ -138,7 +143,7 @@ impl ClientAssertion {
         claims.insert("aud".to_owned(), aud);
         claims.insert("exp".to_owned(), exp.as_secs().to_string());
         claims.insert("nbf".to_owned(), nbf.as_secs().to_string());
-        claims.insert("jti".to_owned(), Uuid::new_v4().to_string());
+        claims.insert("jti".to_owned(), self.uuid.to_string());
         claims.insert("sub".to_owned(), self.client_id.to_owned());
         claims.insert("iss".to_owned(), self.client_id.to_owned());
 
