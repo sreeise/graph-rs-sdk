@@ -1,6 +1,6 @@
 use crate::api_default_imports::*;
 
-resource_api_client!(DrivesItemsPathIdApiClient, ResourceIdentity::DrivesItems);
+api_client!(DrivesItemsPathIdApiClient, ResourceIdentity::DrivesItems);
 
 impl DrivesItemsPathIdApiClient {
     delete!(

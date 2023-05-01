@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(IdentityApiClient, ResourceIdentity::Identity);
+api_client!(IdentityApiClient, ResourceIdentity::Identity);
 
 impl IdentityApiClient {
     get!(

@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::drives::*;
 
-resource_api_client!(DrivesApiClient, DrivesIdApiClient, ResourceIdentity::Drives);
+api_client!(DrivesApiClient, DrivesIdApiClient, ResourceIdentity::Drives);
 
 impl DrivesApiClient {
     post!(

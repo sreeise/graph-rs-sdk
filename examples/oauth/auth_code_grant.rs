@@ -56,12 +56,6 @@ pub async fn start_server_main() {
         .and(query)
         .and_then(handle_redirect);
 
-    let auth_url_builder = AuthCodeAuthorizationUrl::builder()
-        .with_client_id(CLIENT_ID)
-        .with_redirect_uri("http://localhost:8000/redirect")
-        .with_scope(vec!["offline_access", "files.read"])
-        .build();
-
     authorization_sign_in();
 
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;

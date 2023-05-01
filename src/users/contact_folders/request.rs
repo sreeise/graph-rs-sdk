@@ -4,7 +4,7 @@ use crate::api_default_imports::*;
 use crate::extended_properties::*;
 use crate::users::*;
 
-resource_api_client!(
+api_client!(
     ContactFoldersApiClient,
     ContactFoldersIdApiClient,
     ResourceIdentity::ContactFolders

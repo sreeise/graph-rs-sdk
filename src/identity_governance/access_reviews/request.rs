@@ -5,7 +5,7 @@ use crate::identity_governance::{
     AccessReviewsDefinitionsApiClient, AccessReviewsDefinitionsIdApiClient,
 };
 
-resource_api_client!(AccessReviewsApiClient, ResourceIdentity::AccessReviews);
+api_client!(AccessReviewsApiClient, ResourceIdentity::AccessReviews);
 
 impl AccessReviewsApiClient {
     api_client_link!(definitions, AccessReviewsDefinitionsApiClient);

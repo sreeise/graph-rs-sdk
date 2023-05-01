@@ -5,7 +5,7 @@ use crate::identity_governance::{
     AccessReviewsApiClient, AppConsentApiClient, EntitlementManagementApiClient,
 };
 
-resource_api_client!(
+api_client!(
     IdentityGovernanceApiClient,
     ResourceIdentity::IdentityGovernance
 );

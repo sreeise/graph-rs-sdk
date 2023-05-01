@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(PoliciesApiClient, ResourceIdentity::Policies);
+api_client!(PoliciesApiClient, ResourceIdentity::Policies);
 
 impl PoliciesApiClient {
     get!(

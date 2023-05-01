@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(BrandingApiClient, ResourceIdentity::Branding);
+api_client!(BrandingApiClient, ResourceIdentity::Branding);
 
 impl BrandingApiClient {
     get!(

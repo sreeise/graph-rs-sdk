@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::chats::*;
 
-resource_api_client!(
+api_client!(
     ChatsMessagesApiClient,
     ChatsMessagesIdApiClient,
     ResourceIdentity::ChatsMessages

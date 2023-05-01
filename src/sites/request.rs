@@ -5,7 +5,7 @@ use crate::default_drive::*;
 use crate::sites::*;
 use crate::users::*;
 
-resource_api_client!(SitesApiClient, SitesIdApiClient, ResourceIdentity::Sites);
+api_client!(SitesApiClient, SitesIdApiClient, ResourceIdentity::Sites);
 
 impl SitesApiClient {
     get!(

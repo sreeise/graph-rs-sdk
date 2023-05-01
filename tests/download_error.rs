@@ -27,7 +27,7 @@ async fn download_config_file_exists() {
                 .await;
 
             match result {
-				Ok(response2) => panic!("Download request should have thrown AsyncDownloadError::FileExists. Instead got successful Response: {response2:#?}"),
+				Ok(response2) => panic!("Download request should have thrown AsyncDownloadError::FileExists. Instead got successful Response: {:#?}", response2),
 
 				Err(AsyncDownloadError::FileExists(name)) => {
 					if cfg!(target_os = "windows") {

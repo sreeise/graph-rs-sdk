@@ -8,7 +8,7 @@ macro_rules! resource_identifier_impl {
     };
 }
 
-macro_rules! resource_api_client {
+macro_rules! api_client {
     ($name:ident) => {
         pub struct $name {
             pub(crate) client: graph_http::api_impl::Client,
@@ -66,13 +66,13 @@ macro_rules! resource_api_client {
     };
 
     ($name:ident, $resource_identity:expr) => {
-        resource_api_client!($name);
+        api_client!($name);
         resource_identifier_impl!($name, $resource_identity);
     };
 
     ($name:ident, $name2:ident, $resource_identity:expr) => {
-        resource_api_client!($name);
-        resource_api_client!($name2);
+        api_client!($name);
+        api_client!($name2);
         resource_identifier_impl!($name, $resource_identity);
         resource_identifier_impl!($name2, $resource_identity);
 

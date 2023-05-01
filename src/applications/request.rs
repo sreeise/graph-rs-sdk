@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::service_principals::*;
 
-resource_api_client!(
+api_client!(
     ApplicationsApiClient,
     ApplicationsIdApiClient,
     ResourceIdentity::Applications

@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::users::*;
 
-resource_api_client!(TodoApiClient, ResourceIdentity::Todo);
+api_client!(TodoApiClient, ResourceIdentity::Todo);
 
 impl TodoApiClient {
     api_client_link_id!(list, TodoListsIdApiClient);

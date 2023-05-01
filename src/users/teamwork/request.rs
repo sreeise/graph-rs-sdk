@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(TeamworkApiClient, ResourceIdentity::Teamwork);
+api_client!(TeamworkApiClient, ResourceIdentity::Teamwork);
 
 impl TeamworkApiClient {
     delete!(
