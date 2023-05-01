@@ -284,8 +284,8 @@ impl Hash for RequestMap {
 }
 
 impl IntoIterator for RequestMap {
-    type IntoIter = std::collections::vec_deque::IntoIter<Self::Item>;
     type Item = Request;
+    type IntoIter = std::collections::vec_deque::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.requests.into_iter()
@@ -591,8 +591,8 @@ impl RequestSet {
 }
 
 impl IntoIterator for RequestSet {
-    type IntoIter = std::collections::hash_set::IntoIter<Self::Item>;
     type Item = RequestMap;
+    type IntoIter = std::collections::hash_set::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.set.into_iter()

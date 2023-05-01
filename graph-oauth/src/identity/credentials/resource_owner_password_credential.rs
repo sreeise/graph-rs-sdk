@@ -84,13 +84,13 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
             .grant_type("password")
             .extend_scopes(self.scopes.iter());
 
-        return self.serializer.authorization_form(vec![
+        self.serializer.authorization_form(vec![
             FormCredential::Required(OAuthCredential::ClientId),
             FormCredential::Required(OAuthCredential::Username),
             FormCredential::Required(OAuthCredential::Password),
             FormCredential::Required(OAuthCredential::GrantType),
             FormCredential::NotRequired(OAuthCredential::Scope),
-        ]);
+        ])
     }
 }
 

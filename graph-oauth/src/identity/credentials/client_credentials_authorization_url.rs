@@ -133,3 +133,9 @@ impl ClientCredentialsAuthorizationUrlBuilder {
         self.client_credentials_authorization_url.url()
     }
 }
+
+impl Default for ClientCredentialsAuthorizationUrlBuilder {
+    fn default() -> Self {
+        ClientCredentialsAuthorizationUrlBuilder::new()
+    }
+}

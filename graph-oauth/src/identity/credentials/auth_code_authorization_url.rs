@@ -1,8 +1,9 @@
 use crate::auth::{OAuth, OAuthCredential};
-use crate::grants::GrantType;
+
 use crate::identity::{Authority, AzureAuthorityHost, Prompt, ResponseMode};
 use crate::oauth::form_credential::FormCredential;
 use crate::oauth::{ProofKeyForCodeExchange, ResponseType};
+use crate::web::{InteractiveWebView, InteractiveWebViewOptions};
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
 use url::Url;
@@ -339,6 +340,20 @@ impl AuthCodeAuthorizationUrlBuilder {
 
     pub fn url(&self) -> AuthorizationResult<Url> {
         self.authorization_code_authorize_url.url()
+    }
+
+    pub fn interactive_authentication(
+        &self,
+        interactive_web_view_options: Option<InteractiveWebViewOptions>,
+    ) -> anyhow::Result<()> {
+        let url = self.url()?;
+        let redirect_url = Url::parse(self.authorization_code_authorize_url.redirect_uri.as_str())?;
+        InteractiveWebView::interactive_authentication(
+            &url,
+            &redirect_url,
+            interactive_web_view_options.unwrap_or_default(),
+        )?;
+        Ok(())
     }
 }
 

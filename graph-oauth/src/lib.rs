@@ -6,86 +6,60 @@
 //!
 //! ### Supported Authorization Flows
 //!
-//! #### Microsoft OneDrive and SharePoint
-//!
-//! - [Token Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#token-flow)
-//! - [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
-//!
 //! #### Microsoft Identity Platform
 //!
 //! - [Authorization Code Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
 //! - [Authorization Code Grant PKCE](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+//! - [Authorization Code Certificate](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-access-token-with-a-certificate-credential)
 //! - [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
 //! - [Implicit Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)
 //! - [Device Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
-//! - [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+//! - [Client Credentials - Client Secret](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow#first-case-access-token-request-with-a-shared-secret)
+//! - [Client Credentials - Client Certificate](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate)
 //! - [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
+//!
+//! #### Microsoft OneDrive and SharePoint
+//!
+//! Can only be used with personal Microsoft accounts. Not recommended - use the Microsoft
+//! Identity Platform if at all possible.
+//!
+//! - [Token Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#token-flow)
+//! - [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
+//!
 //!
 //! # Example
 //! ```
-//! use graph_oauth::oauth::OAuth;
-//! let mut oauth = OAuth::new();
-//! oauth
-//!     .client_id("<YOUR_CLIENT_ID>")
-//!     .client_secret("<YOUR_CLIENT_SECRET>")
-//!     .add_scope("files.read")
-//!     .add_scope("files.readwrite")
-//!     .add_scope("files.read.all")
-//!     .add_scope("files.readwrite.all")
-//!     .add_scope("offline_access")
-//!     .redirect_uri("http://localhost:8000/redirect")
-//!     .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
-//!     .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-//!     .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-//!     .response_type("code")
-//!     .logout_url("https://login.microsoftonline.com/common/oauth2/v2.0/logout")
-//!     .post_logout_redirect_uri("http://localhost:8000/redirect");
-//! ```
-//! Get the access code for the authorization code grant by sending the user to
-//! log in using their browser.
-//! ```rust,ignore
-//! # use graph_oauth::oauth::OAuth;
-//! # let mut oauth = OAuth::new();
-//! let mut request = oauth.build().authorization_code_grant();
-//! let _ = request.browser_authorization().open();
-//! ```
+//! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication};
 //!
-//! The access code will be appended to the url on redirect. Pass
-//! this code to the OAuth instance:
-//! ```
-//! # use graph_oauth::oauth::OAuth;
-//! # let mut oauth = OAuth::new();
-//! oauth.authorization_code("<ACCESS CODE>");
-//! ```
-//!
-//! Perform an authorization code grant request for an access token:
-//! ```rust,ignore
-//! # use graph_oauth::oauth::{AccessToken, OAuth};
-//! # let mut oauth = OAuth::new();
-//! let mut request = oauth.build().authorization_code_grant();
-//!
-//! let response = request.access_token().send()?;
-//! println!("{:#?}", access_token);
-//!
-//! if response.status().is_success() {
-//!     let mut access_token: AccessToken = response.json()?;
-//!
-//!     let jwt = access_token.jwt();
-//!     println!("{jwt:#?}");
-//!
-//!     // Store in OAuth to make requests for refresh tokens.
-//!     oauth.access_token(access_token);
-//! } else {
-//!     // See if Microsoft Graph returned an error in the Response body
-//!     let result: reqwest::Result<serde_json::Value> = response.json()?;
-//!     println!("{:#?}", result);
+//! pub fn authorization_url(client_id: &str) {
+//!     let _url = AuthorizationCodeCredential::authorization_url_builder()
+//!         .with_client_id(client_id)
+//!         .with_redirect_uri("http://localhost:8000/redirect")
+//!         .with_scope(vec!["user.read"])
+//!         .url()
+//!         .unwrap();
 //! }
 //!
+//! pub fn get_confidential_client(authorization_code: &str, client_id: &str, client_secret: &str) -> ConfidentialClientApplication {
+//!     let credential = AuthorizationCodeCredential::builder()
+//!         .with_authorization_code(authorization_code)
+//!         .with_client_id(client_id)
+//!         .with_client_secret(client_secret)
+//!         .with_scope(vec!["user.read"])
+//!         .with_redirect_uri("http://localhost:8000/redirect")
+//!         .build();
+//!
+//!     ConfidentialClientApplication::from(credential)
+//! }
 //! ```
+
 #[macro_use]
 extern crate strum;
 #[macro_use]
 extern crate serde;
+#[macro_use]
+extern crate log;
+extern crate pretty_env_logger;
 
 mod access_token;
 mod auth;

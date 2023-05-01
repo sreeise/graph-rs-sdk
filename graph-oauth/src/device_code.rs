@@ -2,7 +2,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::time::Duration;
 
-#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DeviceCode {
     pub device_code: String,
     pub expires_in: u64,

@@ -1,6 +1,6 @@
-use url::{Host, Url};
-use wry::application::window::Theme;
-use wry::webview::WebviewExtWindows;
+use url::Url;
+
+use crate::web::InteractiveWebViewOptions;
 use wry::{
     application::{
         event::{Event, StartCause, WindowEvent},
@@ -10,22 +10,62 @@ use wry::{
     webview::WebViewBuilder,
 };
 
-pub struct InteractiveWebView;
+#[derive(Debug, Clone)]
+pub enum UserEvents {
+    CloseWindow,
+    ReachedRedirectUri(Url),
+    InvalidNavigationAttempt(Option<Url>),
+}
 
-impl InteractiveWebView {
-    fn is_validate_host(uri_to_validate: &Url, validate_against: &Vec<Url>) -> bool {
-        let hosts: Vec<Host<&str>> = validate_against.iter().flat_map(|uri| uri.host()).collect();
+struct WebViewValidHosts {
+    start_uri: Url,
+    redirect_uri: Url,
+}
 
-        if let Some(attempted_host) = uri_to_validate.host() {
-            hosts.contains(&attempted_host)
+impl WebViewValidHosts {
+    fn new(start_uri: Url, redirect_uri: Url) -> anyhow::Result<WebViewValidHosts> {
+        if start_uri.host().is_none() || redirect_uri.host().is_none() {
+            return Err(anyhow::Error::msg(
+                "authorization url and redirect uri must have valid uri host",
+            ));
+        }
+
+        Ok(WebViewValidHosts {
+            start_uri,
+            redirect_uri,
+        })
+    }
+
+    fn is_valid_uri(&self, url: &Url) -> bool {
+        if let Some(host) = url.host() {
+            self.start_uri.host().eq(&Some(host.clone()))
+                || self.redirect_uri.host().eq(&Some(host))
         } else {
             false
         }
     }
 
-    pub fn interactive_authentication(uri: &Url, redirect_uri: &Url) -> anyhow::Result<()> {
-        let event_loop: EventLoop<()> = EventLoop::new();
-        let valid_uri_vec = vec![uri.clone(), redirect_uri.clone()];
+    fn is_redirect_host(&self, url: &Url) -> bool {
+        if let Some(host) = url.host() {
+            self.redirect_uri.host().eq(&Some(host))
+        } else {
+            false
+        }
+    }
+}
+
+pub struct InteractiveWebView;
+
+impl InteractiveWebView {
+    pub fn interactive_authentication(
+        uri: &Url,
+        redirect_uri: &Url,
+        options: InteractiveWebViewOptions,
+    ) -> anyhow::Result<()> {
+        let event_loop: EventLoop<UserEvents> = EventLoop::<UserEvents>::with_user_event();
+        let proxy = event_loop.create_proxy();
+
+        let validator = WebViewValidHosts::new(uri.clone(), redirect_uri.clone())?;
 
         let window = WindowBuilder::new()
             .with_title("Sign In")
@@ -34,18 +74,30 @@ impl InteractiveWebView {
             .with_minimizable(true)
             .with_maximizable(true)
             .with_resizable(true)
-            .with_theme(Some(Theme::Dark))
+            .with_theme(options.theme.clone())
             .build(&event_loop)?;
 
         let webview = WebViewBuilder::new(window)?
             .with_url(uri.as_ref())?
-            .with_file_drop_handler(|_, _| {
-                return true;
-            })
+            // Disables file drop
+            .with_file_drop_handler(|_, _| true)
             .with_navigation_handler(move |uri| {
                 if let Ok(url) = Url::parse(uri.as_str()) {
-                    InteractiveWebView::is_validate_host(&url, &valid_uri_vec)
+                    let is_valid_host = validator.is_valid_uri(&url);
+                    let is_redirect = validator.is_redirect_host(&url);
+
+                    if is_redirect {
+                        let _ = proxy.send_event(UserEvents::ReachedRedirectUri(url));
+                        return true;
+                    }
+
+                    if !is_valid_host {
+                        let _ = proxy.send_event(UserEvents::CloseWindow);
+                    }
+
+                    is_valid_host
                 } else {
+                    let _ = proxy.send_event(UserEvents::CloseWindow);
                     false
                 }
             })
@@ -56,11 +108,27 @@ impl InteractiveWebView {
 
             match event {
                 Event::NewEvents(StartCause::Init) => println!("Wry has started!"),
-                Event::WindowEvent {
-                    window_id,
+                Event::UserEvent(UserEvents::CloseWindow) | Event::WindowEvent {
                     event: WindowEvent::CloseRequested,
                     ..
-                } => *control_flow = ControlFlow::Exit,
+                } => {
+                    let _ = webview.clear_all_browsing_data();
+                    *control_flow = ControlFlow::Exit
+                }
+                Event::UserEvent(UserEvents::ReachedRedirectUri(uri)) => {
+                    dbg!(&uri);
+                    let _ = webview.clear_all_browsing_data();
+                    *control_flow = ControlFlow::Exit
+                }
+                Event::UserEvent(UserEvents::InvalidNavigationAttempt(url_option)) => {
+                    error!("WebView or possible attacker attempted to navigate to invalid host - closing window for security reasons. Possible url attempted: {url_option:#?}");
+                    let _ = webview.clear_all_browsing_data();
+                    *control_flow = ControlFlow::Exit;
+
+                    if options.panic_on_invalid_uri_navigation_attempt {
+                        panic!("WebView or possible attacker attempted to navigate to invalid host. Possible url attempted: {url_option:#?}")
+                    }
+                }
                 _ => (),
             }
         });

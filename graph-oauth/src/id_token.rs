@@ -1,12 +1,12 @@
 use crate::jwt::{JsonWebToken, JwtParser};
-use serde::de::{Error, Visitor};
+use serde::de::Visitor;
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fmt::{Debug, Formatter};
-use std::io::ErrorKind;
+
 use std::str::FromStr;
 use url::form_urlencoded;
 
