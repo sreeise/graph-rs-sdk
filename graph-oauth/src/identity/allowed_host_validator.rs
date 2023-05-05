@@ -12,7 +12,9 @@ pub trait AllowedHostValidator<RHS = Self> {
 
 impl AllowedHostValidator for Url {
     fn validate(&self, valid_hosts: &[Url]) -> HostValidator {
+        let size_before = valid_hosts.len();
         let hosts: Vec<Host<&str>> = valid_hosts.iter().flat_map(|url| url.host()).collect();
+        assert_eq!(size_before, hosts.len());
 
         if let Some(host) = self.host() {
             if hosts.contains(&host) {

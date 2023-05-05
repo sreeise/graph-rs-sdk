@@ -1,9 +1,9 @@
 use crate::auth::{OAuth, OAuthCredential};
 
-use crate::identity::{Authority, AzureAuthorityHost, Prompt, ResponseMode};
+use crate::identity::{Authority, AuthorizationUrl, AzureAuthorityHost, Prompt, ResponseMode};
 use crate::oauth::form_credential::FormCredential;
 use crate::oauth::{ProofKeyForCodeExchange, ResponseType};
-use crate::web::{InteractiveWebView, InteractiveWebViewOptions};
+use crate::web::InteractiveAuthenticator;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
 use url::Url;
@@ -62,11 +62,27 @@ impl AuthCodeAuthorizationUrl {
         AuthCodeAuthorizationUrlBuilder::new()
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    fn url(&self) -> AuthorizationResult<Url> {
         self.url_with_host(&AzureAuthorityHost::default())
     }
 
-    pub fn url_with_host(
+    fn url_with_host(&self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+        self.authorization_url_with_host(azure_authority_host)
+    }
+}
+
+impl InteractiveAuthenticator for AuthCodeAuthorizationUrl {}
+
+impl AuthorizationUrl for AuthCodeAuthorizationUrl {
+    fn redirect_uri(&self) -> AuthorizationResult<Url> {
+        Url::parse(self.redirect_uri.as_str()).map_err(AuthorizationFailure::from)
+    }
+
+    fn authorization_url(&self) -> AuthorizationResult<Url> {
+        self.authorization_url_with_host(&AzureAuthorityHost::default())
+    }
+
+    fn authorization_url_with_host(
         &self,
         azure_authority_host: &AzureAuthorityHost,
     ) -> AuthorizationResult<Url> {
@@ -325,6 +341,9 @@ impl AuthCodeAuthorizationUrlBuilder {
         self
     }
 
+    /// Sets the code_challenge and code_challenge_method using the [ProofKeyForCodeExchange]
+    /// Callers should keep the [ProofKeyForCodeExchange] and provide it to the credential
+    /// builder in order to set the client verifier and request an access token.
     pub fn with_proof_key_for_code_exchange(
         &mut self,
         proof_key_for_code_exchange: &ProofKeyForCodeExchange,
@@ -341,20 +360,6 @@ impl AuthCodeAuthorizationUrlBuilder {
     pub fn url(&self) -> AuthorizationResult<Url> {
         self.authorization_code_authorize_url.url()
     }
-
-    pub fn interactive_authentication(
-        &self,
-        interactive_web_view_options: Option<InteractiveWebViewOptions>,
-    ) -> anyhow::Result<()> {
-        let url = self.url()?;
-        let redirect_url = Url::parse(self.authorization_code_authorize_url.redirect_uri.as_str())?;
-        InteractiveWebView::interactive_authentication(
-            &url,
-            &redirect_url,
-            interactive_web_view_options.unwrap_or_default(),
-        )?;
-        Ok(())
-    }
 }
 
 #[cfg(test)]
@@ -370,6 +375,18 @@ mod test {
             .build();
 
         let url_result = authorizer.url();
+        assert!(url_result.is_ok());
+    }
+
+    #[test]
+    fn url_with_host() {
+        let authorizer = AuthCodeAuthorizationUrl::builder()
+            .with_redirect_uri("https::/localhost:8080")
+            .with_client_id("client_id")
+            .with_scope(["read", "write"])
+            .build();
+
+        let url_result = authorizer.url_with_host(&AzureAuthorityHost::AzureGermany);
         assert!(url_result.is_ok());
     }
 }

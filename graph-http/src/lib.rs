@@ -37,7 +37,8 @@ pub mod api_impl {
     pub use crate::request_components::RequestComponents;
     pub use crate::request_handler::RequestHandler;
     pub use crate::resource_identifier::{ResourceConfig, ResourceIdentifier};
-    pub use crate::traits::{BodyExt, ODataQuery};
+    pub use crate::traits::BodyExt;
+    pub use crate::traits::ODataQuery;
     pub use crate::upload_session::UploadSession;
     pub use graph_error::{GraphFailure, GraphResult};
 }

@@ -3,10 +3,10 @@ use url::Url;
 /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
 /// Authentication libraries from Microsoft (this is not one) call this the
 /// AzureCloudInstance enum or the Instance url string.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum AzureAuthorityHost {
-    /// Custom Value communicating that the AzureCloudInstance.
-    Custom(String),
+    // Custom Value communicating that the AzureCloudInstance.
+    //Custom(String),
     /// Microsoft Azure public cloud. Maps to https://login.microsoftonline.com
     #[default]
     AzurePublic,
@@ -23,7 +23,7 @@ pub enum AzureAuthorityHost {
 impl AsRef<str> for AzureAuthorityHost {
     fn as_ref(&self) -> &str {
         match self {
-            AzureAuthorityHost::Custom(url) => url.as_str(),
+            //AzureAuthorityHost::Custom(url) => url.as_str(),
             AzureAuthorityHost::AzurePublic => "https://login.microsoftonline.com",
             AzureAuthorityHost::AzureChina => "https://login.chinacloudapi.cn",
             AzureAuthorityHost::AzureGermany => "https://login.microsoftonline.de",
@@ -50,7 +50,7 @@ impl AzureAuthorityHost {
 
     pub fn default_managed_identity_scope(&self) -> &'static str {
         match self {
-            AzureAuthorityHost::Custom(_) => "https://management.azure.com//.default",
+            //AzureAuthorityHost::Custom(_) => "https://management.azure.com//.default",
             AzureAuthorityHost::AzurePublic => "https://management.azure.com//.default",
             AzureAuthorityHost::AzureChina => "https://management.chinacloudapi.cn/.default",
             AzureAuthorityHost::AzureGermany => "https://management.microsoftazure.de/.default",

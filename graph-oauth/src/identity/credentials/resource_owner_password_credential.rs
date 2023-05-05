@@ -28,7 +28,7 @@ pub struct ResourceOwnerPasswordCredential {
     /// identifier (application ID URI) of the resource you want, affixed with the .default
     /// suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
     /// Default is https://graph.microsoft.com/.default.
-    pub(crate) scopes: Vec<String>,
+    pub(crate) scope: Vec<String>,
     pub(crate) authority: Authority,
     pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuth,
@@ -36,6 +36,22 @@ pub struct ResourceOwnerPasswordCredential {
 
 impl ResourceOwnerPasswordCredential {
     pub fn new<T: AsRef<str>>(
+        client_id: T,
+        username: T,
+        password: T,
+    ) -> ResourceOwnerPasswordCredential {
+        ResourceOwnerPasswordCredential {
+            client_id: client_id.as_ref().to_owned(),
+            username: username.as_ref().to_owned(),
+            password: password.as_ref().to_owned(),
+            scope: vec![],
+            authority: Default::default(),
+            token_credential_options: Default::default(),
+            serializer: Default::default(),
+        }
+    }
+
+    pub fn new_with_tenant<T: AsRef<str>>(
         tenant: T,
         client_id: T,
         username: T,
@@ -45,7 +61,7 @@ impl ResourceOwnerPasswordCredential {
             client_id: client_id.as_ref().to_owned(),
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
-            scopes: vec![],
+            scope: vec![],
             authority: Authority::TenantId(tenant.as_ref().to_owned()),
             token_credential_options: Default::default(),
             serializer: Default::default(),
@@ -64,7 +80,7 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
-    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
             return AuthorizationFailure::required_value_result(OAuthCredential::ClientId.alias());
         }
@@ -79,18 +95,18 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
 
         self.serializer
             .client_id(self.client_id.as_str())
-            .username(self.username.as_str())
-            .password(self.password.as_str())
             .grant_type("password")
-            .extend_scopes(self.scopes.iter());
+            .extend_scopes(self.scope.iter());
 
         self.serializer.authorization_form(vec![
             FormCredential::Required(OAuthCredential::ClientId),
-            FormCredential::Required(OAuthCredential::Username),
-            FormCredential::Required(OAuthCredential::Password),
             FormCredential::Required(OAuthCredential::GrantType),
             FormCredential::NotRequired(OAuthCredential::Scope),
         ])
+    }
+
+    fn basic_auth(&self) -> Option<(String, String)> {
+        Some((self.username.to_string(), self.password.to_string()))
     }
 }
 
@@ -106,7 +122,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
                 client_id: String::new(),
                 username: String::new(),
                 password: String::new(),
-                scopes: vec![],
+                scope: vec![],
                 authority: Authority::Organizations,
                 token_credential_options: Default::default(),
                 serializer: Default::default(),
@@ -160,8 +176,8 @@ impl ResourceOwnerPasswordCredentialBuilder {
     }
 
     /// Defaults to "https://graph.microsoft.com/.default"
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.credential.scopes = scopes.into_iter().map(|s| s.to_string()).collect();
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 

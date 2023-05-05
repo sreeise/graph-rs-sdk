@@ -1,5 +1,6 @@
 mod async_iterator;
 mod async_try_from;
+mod body_ext;
 mod byte_range;
 mod http_ext;
 mod odata_link;
@@ -9,6 +10,7 @@ mod response_ext;
 
 pub use async_iterator::*;
 pub use async_try_from::*;
+pub use body_ext::*;
 pub use byte_range::*;
 pub use http_ext::*;
 pub use odata_link::*;

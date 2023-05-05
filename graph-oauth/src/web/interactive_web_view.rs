@@ -74,7 +74,7 @@ impl InteractiveWebView {
             .with_minimizable(true)
             .with_maximizable(true)
             .with_resizable(true)
-            .with_theme(options.theme.clone())
+            .with_theme(options.theme)
             .build(&event_loop)?;
 
         let webview = WebViewBuilder::new(window)?

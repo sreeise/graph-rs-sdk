@@ -1,6 +1,8 @@
+#![allow(dead_code)]
+
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use graph_rs_sdk::oauth::{AccessToken, OAuth};
+use graph_rs_sdk::oauth::{AccessToken, ClientSecretCredential, OAuth};
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
@@ -146,12 +148,17 @@ impl OAuthTestCredentials {
             );
         oauth
     }
+
+    fn client_credentials(self) -> ClientSecretCredential {
+        ClientSecretCredential::new(self.client_id.as_str(), self.client_secret.as_str())
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, AsFile, FromFile)]
 pub enum OAuthTestClient {
     ClientCredentials,
-    ROPC,
+    ResourceOwnerPasswordCredentials,
+    AuthorizationCodeCredential,
 }
 
 impl OAuthTestClient {
@@ -161,7 +168,12 @@ impl OAuthTestClient {
         let mut req = {
             match self {
                 OAuthTestClient::ClientCredentials => oauth.build().client_credentials(),
-                OAuthTestClient::ROPC => oauth.build().resource_owner_password_credentials(),
+                OAuthTestClient::ResourceOwnerPasswordCredentials => {
+                    oauth.build().resource_owner_password_credentials()
+                }
+                OAuthTestClient::AuthorizationCodeCredential => {
+                    oauth.build().authorization_code_grant()
+                }
             }
         };
 
@@ -182,7 +194,12 @@ impl OAuthTestClient {
         let mut req = {
             match self {
                 OAuthTestClient::ClientCredentials => oauth.build_async().client_credentials(),
-                OAuthTestClient::ROPC => oauth.build_async().resource_owner_password_credentials(),
+                OAuthTestClient::ResourceOwnerPasswordCredentials => {
+                    oauth.build_async().resource_owner_password_credentials()
+                }
+                OAuthTestClient::AuthorizationCodeCredential => {
+                    oauth.build_async().authorization_code_grant()
+                }
             }
         };
 
@@ -239,8 +256,8 @@ impl OAuthTestClient {
     }
 
     pub fn graph_by_rid(resource_identity: ResourceIdentity) -> Option<(String, Graph)> {
-        let mut app_registration = OAuthTestClient::get_app_registration()?;
-        let client = app_registration.get_by(resource_identity)?;
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
 
         if let Some((id, token)) = test_client.get_access_token(credentials) {
@@ -253,8 +270,8 @@ impl OAuthTestClient {
     pub async fn graph_by_rid_async(
         resource_identity: ResourceIdentity,
     ) -> Option<(String, Graph)> {
-        let mut app_registration = OAuthTestClient::get_app_registration()?;
-        let client = app_registration.get_by(resource_identity)?;
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
         if let Some((id, token)) = test_client.get_access_token_async(credentials).await {
             Some((id, Graph::new(token.bearer_token())))
@@ -280,8 +297,8 @@ impl OAuthTestClient {
     }
 
     pub fn token(resource_identity: ResourceIdentity) -> Option<AccessToken> {
-        let mut app_registration = OAuthTestClient::get_app_registration()?;
-        let client = app_registration.get_by(resource_identity)?;
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, _credentials) = client.default_client()?;
 
         if let Some((_id, token)) = test_client.request_access_token() {
@@ -315,8 +332,13 @@ impl OAuthTestClientMap {
     pub fn get_any(&self) -> Option<(OAuthTestClient, OAuthTestCredentials)> {
         let client = self.get(&OAuthTestClient::ClientCredentials);
         if client.is_none() {
-            self.get(&OAuthTestClient::ROPC)
-                .map(|credentials| (OAuthTestClient::ROPC, credentials))
+            self.get(&OAuthTestClient::ResourceOwnerPasswordCredentials)
+                .map(|credentials| {
+                    (
+                        OAuthTestClient::ResourceOwnerPasswordCredentials,
+                        credentials,
+                    )
+                })
         } else {
             client.map(|credentials| (OAuthTestClient::ClientCredentials, credentials))
         }
@@ -373,8 +395,9 @@ impl AppRegistrationClient {
     }
 }
 
-pub trait GetBy<T, U> {
-    fn get_by(&mut self, value: T) -> U;
+pub trait GetAppRegistration {
+    fn get_by_resource_identity(&self, value: ResourceIdentity) -> Option<AppRegistrationClient>;
+    fn get_by_str(&self, value: &str) -> Option<AppRegistrationClient>;
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
@@ -389,17 +412,15 @@ impl AppRegistrationMap {
     }
 }
 
-impl GetBy<&str, Option<AppRegistrationClient>> for AppRegistrationMap {
-    fn get_by(&mut self, value: &str) -> Option<AppRegistrationClient> {
-        self.apps.get(value).cloned()
-    }
-}
-
-impl GetBy<ResourceIdentity, Option<AppRegistrationClient>> for AppRegistrationMap {
-    fn get_by(&mut self, value: ResourceIdentity) -> Option<AppRegistrationClient> {
+impl GetAppRegistration for AppRegistrationMap {
+    fn get_by_resource_identity(&self, value: ResourceIdentity) -> Option<AppRegistrationClient> {
         self.apps
             .iter()
             .find(|(_, reg)| reg.test_resources.contains(&value))
             .map(|(_, reg)| reg.clone())
+    }
+
+    fn get_by_str(&self, value: &str) -> Option<AppRegistrationClient> {
+        self.apps.get(value).cloned()
     }
 }

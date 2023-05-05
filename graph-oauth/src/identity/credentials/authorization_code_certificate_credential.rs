@@ -108,7 +108,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
-    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.authorization_code.is_some() && self.refresh_token.is_some() {
             return AuthorizationFailure::required_value_msg_result(
                 &format!(

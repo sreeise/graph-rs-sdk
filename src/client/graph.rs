@@ -89,7 +89,7 @@ lazy_static! {
 #[derive(Debug, Clone)]
 pub struct Graph {
     client: Client,
-    endpoint: Url,
+    endpoint: url::Url,
 }
 
 impl Graph {
@@ -231,7 +231,8 @@ impl Graph {
                     );
                 }
 
-                self.endpoint = url;
+                self.endpoint.set_host(url.host_str()).unwrap();
+                self.endpoint.set_path("v1.0");
             }
             HostValidator::Invalid => panic!("Invalid host"),
         }
@@ -285,7 +286,8 @@ impl Graph {
                     );
                 }
 
-                self.endpoint = url;
+                self.endpoint.set_host(url.host_str()).unwrap();
+                self.endpoint.set_path("v1.0");
             }
             HostValidator::Invalid => panic!("Invalid host"),
         }
@@ -634,7 +636,9 @@ mod test {
         let mut client = Graph::new("token");
         for url in VALID_HOSTS.iter() {
             client.custom_endpoint(url.as_str());
-            assert_eq!(client.url().host_str(), url.host_str());
+            let mut url1 = url.clone();
+            url1.set_path("v1.0");
+            assert_eq!(client.url().clone(), url1);
         }
     }
 

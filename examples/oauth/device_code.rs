@@ -86,8 +86,7 @@ async fn poll_for_access_token(
 
 // The authorization url for device code must be https://login.microsoftonline.com/{tenant}/oauth2/v2.0/devicecode
 // where tenant can be common,
-#[tokio::main]
-async fn main() -> GraphResult<()> {
+pub async fn device_code() -> GraphResult<()> {
     let mut oauth = get_oauth();
 
     let mut handler = oauth.build_async().device_code();

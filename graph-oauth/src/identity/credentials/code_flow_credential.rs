@@ -91,7 +91,7 @@ impl AuthorizationSerializer for CodeFlowCredential {
         }
     }
 
-    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.authorization_code.is_some() && self.refresh_token.is_some() {
             return AuthorizationFailure::required_value_msg_result(
                 &format!(
@@ -189,6 +189,7 @@ impl CodeFlowCredentialBuilder {
     }
 
     pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
+        self.credential.refresh_token = None;
         self.credential.authorization_code = Some(authorization_code.as_ref().to_owned());
         self
     }

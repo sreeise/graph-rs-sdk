@@ -125,7 +125,7 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
         }
     }
 
-    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.authorization_code.is_some() && self.refresh_token.is_some() {
             return AuthorizationFailure::required_value_msg_result(
                 &format!(
@@ -361,7 +361,7 @@ mod test {
             .with_scope(vec!["scope"])
             .with_tenant("tenant_id");
         let mut credential = credential_builder.build();
-        let _ = credential.form().unwrap();
+        let _ = credential.form_urlencode().unwrap();
     }
 
     #[test]
@@ -372,6 +372,6 @@ mod test {
             .with_authorization_code("code")
             .with_refresh_token("token");
         let mut credential = credential_builder.build();
-        let _ = credential.form().unwrap();
+        let _ = credential.form_urlencode().unwrap();
     }
 }

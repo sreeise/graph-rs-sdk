@@ -19,7 +19,7 @@ use url::Url;
 /// without immediate interaction with a user, and is often referred to as daemons or service accounts.
 ///
 /// See [Microsoft identity platform and the OAuth 2.0 client credentials flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ClientSecretCredential {
     /// Required.
     /// The Application (client) ID that the Azure portal - App registrations page assigned
@@ -57,6 +57,21 @@ impl ClientSecretCredential {
         }
     }
 
+    pub fn new_with_tenant<T: AsRef<str>>(
+        tenant_id: T,
+        client_id: T,
+        client_secret: T,
+    ) -> ClientSecretCredential {
+        ClientSecretCredential {
+            client_id: client_id.as_ref().to_owned(),
+            client_secret: client_secret.as_ref().to_owned(),
+            scopes: vec![],
+            authority: Authority::TenantId(tenant_id.as_ref().to_owned()),
+            token_credential_options: Default::default(),
+            serializer: OAuth::new(),
+        }
+    }
+
     pub fn builder() -> ClientSecretCredentialBuilder {
         ClientSecretCredentialBuilder::new()
     }
@@ -83,7 +98,7 @@ impl AuthorizationSerializer for ClientSecretCredential {
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
-    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
             return AuthorizationFailure::required_value_result(OAuthCredential::ClientId);
         }

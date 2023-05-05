@@ -27,8 +27,9 @@ mod open_id_connect;
 mod signing_keys;
 
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthorizationCodeCredential, ClientSecretCredential,
-    ConfidentialClientApplication, ProofKeyForCodeExchange, TokenRequest,
+    AccessToken, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
+    ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
+    DeviceAuthorizationCredential, ProofKeyForCodeExchange, PublicClientApplication, TokenRequest,
 };
 
 #[tokio::main]
@@ -44,7 +45,7 @@ async fn main() {
     client_credentials_admin_consent::start_server_main().await;
 
     // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
-    code_flow::start_server_main().await;
+    device_code::device_code();
 
     // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
     open_id_connect::start_server_main().await;

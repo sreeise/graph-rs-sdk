@@ -93,7 +93,7 @@ impl AuthorizationSerializer for ClientCertificateCredential {
         }
     }
 
-    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
             return AuthorizationFailure::required_value_result(OAuthCredential::ClientId.alias());
         }

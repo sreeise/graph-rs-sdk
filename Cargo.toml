@@ -41,6 +41,12 @@ graph-http = { path = "./graph-http", version = "1.1.0", default-features=false 
 graph-error = { path = "./graph-error", version = "0.2.2" }
 graph-core = { path = "./graph-core", version = "0.4.0" }
 
+# When updating or adding new features to this or dependent crates run
+# cargo tree -e features -i graph-rs-sdk
+# Use this command verify that the dependency is not
+# enabled by default due to another package having it as a dependency
+# without default-features=false.
+
 [features]
 default = ["native-tls"]
 native-tls = ["reqwest/native-tls", "graph-http/native-tls", "graph-oauth/native-tls"]
@@ -60,6 +66,7 @@ webbrowser = "0.8.7"
 anyhow = "1.0.69"
 log = "0.4"
 pretty_env_logger = "0.4"
+from_as = "0.2.0"
 
 graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
 test-tools = { path = "./test-tools", version = "0.0.1" }

@@ -20,9 +20,6 @@ pub enum GraphFailure {
     #[error("Request error:\n{0:#?}")]
     ReqwestError(#[from] reqwest::Error),
 
-    #[error("Request error:\n{0:#?}")]
-    ReqwestHeaderToStr(#[from] reqwest::header::ToStrError),
-
     #[error("Serde error:\n{0:#?}")]
     SerdeError(#[from] serde_json::error::Error),
 

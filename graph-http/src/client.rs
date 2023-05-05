@@ -137,12 +137,23 @@ impl GraphClientConfiguration {
         let config = self.clone();
         let headers = self.config.headers.clone();
         let mut builder = reqwest::ClientBuilder::new()
-            .default_headers(self.config.headers)
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
             .min_tls_version(self.config.min_tls_version)
             .redirect(Policy::limited(2));
+
+        if !self.config.headers.contains_key(USER_AGENT) {
+            let mut headers = self.config.headers.clone();
+            let version = std::env::var("GRAPH_RS_SDK").unwrap();
+            headers.insert(
+                USER_AGENT,
+                HeaderValue::from_str(&format!("graph-rs-sdk/{version}")).unwrap(),
+            );
+            builder = builder.default_headers(self.config.headers);
+        } else {
+            builder = builder.default_headers(self.config.headers);
+        }
 
         if let Some(timeout) = self.config.timeout {
             builder = builder.timeout(timeout);
@@ -163,12 +174,23 @@ impl GraphClientConfiguration {
     pub(crate) fn build_blocking(self) -> BlockingClient {
         let headers = self.config.headers.clone();
         let mut builder = reqwest::blocking::ClientBuilder::new()
-            .default_headers(self.config.headers)
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
             .min_tls_version(self.config.min_tls_version)
             .redirect(Policy::limited(2));
+
+        if !self.config.headers.contains_key(USER_AGENT) {
+            let mut headers = self.config.headers.clone();
+            let version = std::env::var("GRAPH_RS_SDK").unwrap();
+            headers.insert(
+                USER_AGENT,
+                HeaderValue::from_str(&format!("graph-rs-sdk/{version}")).unwrap(),
+            );
+            builder = builder.default_headers(self.config.headers);
+        } else {
+            builder = builder.default_headers(self.config.headers);
+        }
 
         if let Some(timeout) = self.config.timeout {
             builder = builder.timeout(timeout);

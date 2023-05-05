@@ -16,7 +16,7 @@ static DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_c
 /// and refresh tokens as needed.
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
 #[derive(Clone)]
-pub struct DeviceCodeCredential {
+pub struct DeviceAuthorizationCredential {
     /// Required when requesting a new access token using a refresh token
     /// The refresh token needed to make an access token request using a refresh token.
     /// Do not include an authorization code when using a refresh token.
@@ -42,13 +42,13 @@ pub struct DeviceCodeCredential {
     serializer: OAuth,
 }
 
-impl DeviceCodeCredential {
+impl DeviceAuthorizationCredential {
     pub fn new<T: AsRef<str>, U: ToString, I: IntoIterator<Item = U>>(
         client_id: T,
         device_code: T,
         scope: I,
-    ) -> DeviceCodeCredential {
-        DeviceCodeCredential {
+    ) -> DeviceAuthorizationCredential {
+        DeviceAuthorizationCredential {
             refresh_token: None,
             client_id: client_id.as_ref().to_owned(),
             device_code: Some(device_code.as_ref().to_owned()),
@@ -64,7 +64,7 @@ impl DeviceCodeCredential {
     }
 }
 
-impl AuthorizationSerializer for DeviceCodeCredential {
+impl AuthorizationSerializer for DeviceAuthorizationCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
@@ -89,7 +89,7 @@ impl AuthorizationSerializer for DeviceCodeCredential {
         }
     }
 
-    fn form(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.device_code.is_some() && self.refresh_token.is_some() {
             return AuthorizationFailure::required_value_msg_result(
                 &format!(
@@ -152,23 +152,23 @@ impl AuthorizationSerializer for DeviceCodeCredential {
         AuthorizationFailure::required_value_msg_result(
             &format!(
                 "{} or {}",
-                OAuthCredential::AuthorizationCode.alias(),
+                OAuthCredential::DeviceCode.alias(),
                 OAuthCredential::RefreshToken.alias()
             ),
-            Some("Either authorization code or refresh token is required"),
+            Some("Either device code or refresh token is required"),
         )
     }
 }
 
 #[derive(Clone)]
 pub struct DeviceCodeCredentialBuilder {
-    credential: DeviceCodeCredential,
+    credential: DeviceAuthorizationCredential,
 }
 
 impl DeviceCodeCredentialBuilder {
     fn new() -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder {
-            credential: DeviceCodeCredential {
+            credential: DeviceAuthorizationCredential {
                 refresh_token: None,
                 client_id: String::new(),
                 device_code: None,
@@ -220,7 +220,7 @@ impl DeviceCodeCredentialBuilder {
         self.credential.token_credential_options = token_credential_options;
     }
 
-    pub fn build(&self) -> DeviceCodeCredential {
+    pub fn build(&self) -> DeviceAuthorizationCredential {
         self.credential.clone()
     }
 }
@@ -228,7 +228,7 @@ impl DeviceCodeCredentialBuilder {
 impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
     fn from(value: &DeviceCode) -> Self {
         DeviceCodeCredentialBuilder {
-            credential: DeviceCodeCredential {
+            credential: DeviceAuthorizationCredential {
                 refresh_token: None,
                 client_id: String::new(),
                 device_code: Some(value.device_code.clone()),
@@ -238,5 +238,21 @@ impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
                 serializer: Default::default(),
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    #[should_panic]
+    fn no_device_code() {
+        let mut credential = DeviceAuthorizationCredential::builder()
+            .with_client_id("CLIENT_ID")
+            .with_scope(vec!["scope"])
+            .build();
+
+        let _ = credential.form_urlencode().unwrap();
     }
 }

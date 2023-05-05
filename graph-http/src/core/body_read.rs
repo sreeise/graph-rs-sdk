@@ -1,5 +1,6 @@
 use crate::api_impl::FileConfig;
-use crate::internal::{AsyncTryFrom, BodyExt};
+use crate::internal::AsyncTryFrom;
+use crate::traits::BodyExt;
 use async_trait::async_trait;
 use bytes::{Buf, BytesMut};
 use graph_error::{GraphFailure, GraphResult};
