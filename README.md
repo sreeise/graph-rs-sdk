@@ -33,6 +33,10 @@ use futures::StreamExt;
 use graph_rs_sdk::*;
 ```
 
+Contributing and Wiki:
+- (Contributions)[https://github.com/sreeise/graph-rs-sdk/wiki/Contributing]
+- (Wiki)[https://github.com/sreeise/graph-rs-sdk/wiki]
+
 ### Feature requests or Bug reports.
 
 For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
@@ -1130,37 +1134,3 @@ async fn get_user() -> GraphResult<()> {
     Ok(())
 }
 ```
-
-## For those interested in the code itself (Contributor section coming soon)
-
-### Build
-
-Normal Rust build using cargo.
-
-    $ cargo build
-
-### Docs
-Of the portions that are implemented there are also examples and docs. Run:
-
-    $ cargo doc --no-deps --open
-
-There are several parts to this project:
-
-* graph-oauth: OAuth client for getting access/refresh tokens from the Graph api.
-* graph-error: Errors that come back from the Graph Api.
-* graph-codegen: OpenApi parser and generator specifically for the Graph Api's.
-* graph-core: Common types shared across all or multiple parts of the project
-* test-tools: Helps facilitate project testing.  
-* graph-rs (src directory): The Graph client for interacting with the Graph Api
-  including the Api's generated from the OpenApi config. The oauth client is also 
-  reexported from here.
-  
-### Testing
-
-The project does validation testing for the Graph Api's using a developer sandbox to ensure the implementation
-provided here works correctly. However, the total amount of individual requests that can be called and that is provided in this 
-project is well into the hundreds, and some areas are lacking in coverage. The goal is to cover the main parts of each
-Api.
-
-Tests are run on Ubuntu Linux and Windows 10 instances.
-
