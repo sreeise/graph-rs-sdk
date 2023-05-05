@@ -34,8 +34,8 @@ use graph_rs_sdk::*;
 ```
 
 Contributing and Wiki:
-- (Contributions)[https://github.com/sreeise/graph-rs-sdk/wiki/Contributing]
-- (Wiki)[https://github.com/sreeise/graph-rs-sdk/wiki]
+- [Contributions](https://github.com/sreeise/graph-rs-sdk/wiki/Contributing)
+- [Wiki](https://github.com/sreeise/graph-rs-sdk/wiki)
 
 ### Feature requests or Bug reports.
 
