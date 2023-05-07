@@ -36,7 +36,7 @@ fn authorization_sign_in() {
         .with_client_id(CLIENT_ID)
         .with_scope(vec!["user.read"])
         .with_redirect_uri("http://localhost:8000/redirect")
-        .with_proof_key_for_code_exchange(&PKCE)
+        .with_pkce(&PKCE)
         .url()
         .unwrap();
 

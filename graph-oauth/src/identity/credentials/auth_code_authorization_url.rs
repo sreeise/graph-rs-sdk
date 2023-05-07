@@ -1,10 +1,12 @@
 use crate::auth::{OAuth, OAuthCredential};
-
 use crate::identity::{Authority, AuthorizationUrl, AzureAuthorityHost, Prompt, ResponseMode};
 use crate::oauth::form_credential::FormCredential;
 use crate::oauth::{ProofKeyForCodeExchange, ResponseType};
 use crate::web::InteractiveAuthenticator;
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
+use ring::rand::SecureRandom;
 use url::form_urlencoded::Serializer;
 use url::Url;
 
@@ -28,6 +30,18 @@ pub struct AuthCodeAuthorizationUrl {
     pub(crate) redirect_uri: String,
     pub(crate) authority: Authority,
     pub(crate) response_type: Vec<ResponseType>,
+    /// Optional
+    /// Specifies how the identity platform should return the requested token to your app.
+    ///
+    /// Supported values:
+    ///
+    /// - query: Default when requesting an access token. Provides the code as a query string
+    /// parameter on your redirect URI. The query parameter isn't supported when requesting an
+    /// ID token by using the implicit flow.
+    /// - fragment: Default when requesting an ID token by using the implicit flow.
+    /// Also supported if requesting only a code.
+    /// - form_post: Executes a POST containing the code to your redirect URI.
+    /// Supported when requesting a code.
     pub(crate) response_mode: Option<ResponseMode>,
     pub(crate) nonce: Option<String>,
     pub(crate) state: Option<String>,
@@ -62,11 +76,14 @@ impl AuthCodeAuthorizationUrl {
         AuthCodeAuthorizationUrlBuilder::new()
     }
 
-    fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> AuthorizationResult<Url> {
         self.url_with_host(&AzureAuthorityHost::default())
     }
 
-    fn url_with_host(&self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+    pub fn url_with_host(
+        &self,
+        azure_authority_host: &AzureAuthorityHost,
+    ) -> AuthorizationResult<Url> {
         self.authorization_url_with_host(azure_authority_host)
     }
 }
@@ -115,24 +132,31 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
                 serializer.response_mode(response_mode.as_ref());
             }
         } else {
-            let response_type_string = response_types.join(" ");
-            let mut response_type = response_type_string.trim();
+            let response_type = response_types.join(" ").trim().to_owned();
             if response_type.is_empty() {
                 serializer.response_type("code");
-                response_type = "code";
             } else {
                 serializer.response_type(response_type);
             }
 
-            if response_type.contains("id_token") {
-                serializer.response_mode(ResponseMode::Fragment.as_ref());
+            // Set response_mode
+            if self.response_type.contains(&ResponseType::IdToken) {
+                if let Some(response_mode) = self.response_mode.as_ref() {
+                    // id_token requires fragment or form_post. The Microsoft identity
+                    // platform recommends form_post. Unless you explicitly set
+                    // fragment then form_post is used here. Please file an issue
+                    // if you experience encounter related problems.
+                    if response_mode.eq(&ResponseMode::Query) {
+                        serializer.response_mode(ResponseMode::Fragment.as_ref());
+                    } else {
+                        serializer.response_mode(response_mode.as_ref());
+                    }
+                } else {
+                    serializer.response_mode(ResponseMode::Fragment.as_ref());
+                }
             } else if let Some(response_mode) = self.response_mode.as_ref() {
                 serializer.response_mode(response_mode.as_ref());
             }
-        }
-
-        if let Some(response_mode) = self.response_mode.as_ref() {
-            serializer.response_mode(response_mode.as_ref());
         }
 
         if let Some(state) = self.state.as_ref() {
@@ -149,6 +173,10 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
 
         if let Some(login_hint) = self.login_hint.as_ref() {
             serializer.login_hint(login_hint.as_str());
+        }
+
+        if let Some(nonce) = self.nonce.as_ref() {
+            serializer.nonce(nonce);
         }
 
         if let Some(code_challenge) = self.code_challenge.as_ref() {
@@ -169,6 +197,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
             FormCredential::NotRequired(OAuthCredential::Prompt),
             FormCredential::NotRequired(OAuthCredential::LoginHint),
             FormCredential::NotRequired(OAuthCredential::DomainHint),
+            FormCredential::NotRequired(OAuthCredential::Nonce),
             FormCredential::NotRequired(OAuthCredential::CodeChallenge),
             FormCredential::NotRequired(OAuthCredential::CodeChallengeMethod),
         ];
@@ -278,6 +307,32 @@ impl AuthCodeAuthorizationUrlBuilder {
         self
     }
 
+    /// A value included in the request, generated by the app, that is included in the
+    /// resulting id_token as a claim. The app can then verify this value to mitigate token
+    /// replay attacks. The value is typically a randomized, unique string that can be used
+    /// to identify the origin of the request.
+    ///
+    /// The nonce is generated in the same way as generating a PKCE.
+    ///
+    /// Internally this method uses the Rust ring cyrpto library to
+    /// generate a secure random 32-octet sequence that is base64 URL
+    /// encoded (no padding). This sequence is hashed using SHA256 and
+    /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
+    pub fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
+        let mut buf = [0; 32];
+        let rng = ring::rand::SystemRandom::new();
+        rng.fill(&mut buf)
+            .map_err(|_| anyhow::Error::msg("ring::error::Unspecified"))?;
+        let base_64_random_string = URL_SAFE_NO_PAD.encode(buf);
+
+        let mut context = ring::digest::Context::new(&ring::digest::SHA256);
+        context.update(base_64_random_string.as_bytes());
+
+        let nonce = URL_SAFE_NO_PAD.encode(context.finish().as_ref());
+        self.authorization_code_authorize_url.nonce = Some(nonce);
+        Ok(self)
+    }
+
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
         self.authorization_code_authorize_url.state = Some(state.as_ref().to_owned());
         self
@@ -289,9 +344,13 @@ impl AuthCodeAuthorizationUrlBuilder {
         self
     }
 
-    /// Automatically adds profile, id_token, and offline_access to the scope parameter.
-    pub fn with_default_scope(&mut self) -> &mut Self {
-        self.with_scope(vec!["profile", "id_token", "offline_access"])
+    /// Automatically adds profile, email, id_token, and offline_access to the scope parameter.
+    pub fn with_default_scope(&mut self) -> anyhow::Result<&mut Self> {
+        self.with_nonce_generated()?;
+        self.with_response_mode(ResponseMode::FormPost);
+        self.with_response_type(vec![ResponseType::Code, ResponseType::IdToken]);
+        self.with_scope(vec!["profile", "email", "id_token", "offline_access"]);
+        Ok(self)
     }
 
     /// Indicates the type of user interaction that is required. Valid values are login, none,
@@ -344,7 +403,7 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// Sets the code_challenge and code_challenge_method using the [ProofKeyForCodeExchange]
     /// Callers should keep the [ProofKeyForCodeExchange] and provide it to the credential
     /// builder in order to set the client verifier and request an access token.
-    pub fn with_proof_key_for_code_exchange(
+    pub fn with_pkce(
         &mut self,
         proof_key_for_code_exchange: &ProofKeyForCodeExchange,
     ) -> &mut Self {
@@ -388,5 +447,68 @@ mod test {
 
         let url_result = authorizer.url_with_host(&AzureAuthorityHost::AzureGermany);
         assert!(url_result.is_ok());
+    }
+
+    #[test]
+    fn response_mode_set() {
+        let url = AuthCodeAuthorizationUrl::builder()
+            .with_redirect_uri("https::/localhost:8080")
+            .with_client_id("client_id")
+            .with_scope(["read", "write"])
+            .with_response_type(ResponseType::IdToken)
+            .url()
+            .unwrap();
+
+        let query = url.query().unwrap();
+        assert!(query.contains("response_mode=fragment"));
+        assert!(query.contains("response_type=id_token"));
+    }
+
+    #[test]
+    fn response_mode_not_set() {
+        let url = AuthCodeAuthorizationUrl::builder()
+            .with_redirect_uri("https::/localhost:8080")
+            .with_client_id("client_id")
+            .with_scope(["read", "write"])
+            .url()
+            .unwrap();
+
+        let query = url.query().unwrap();
+        assert!(!query.contains("response_mode"));
+        assert!(query.contains("response_type=code"));
+    }
+
+    #[test]
+    fn multi_response_type_set() {
+        let url = AuthCodeAuthorizationUrl::builder()
+            .with_redirect_uri("https::/localhost:8080")
+            .with_client_id("client_id")
+            .with_scope(["read", "write"])
+            .with_response_mode(ResponseMode::FormPost)
+            .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
+            .url()
+            .unwrap();
+
+        let query = url.query().unwrap();
+        assert!(query.contains("response_mode=form_post"));
+        assert!(query.contains("response_type=code+id_token"));
+    }
+
+    #[test]
+    fn generate_nonce() {
+        let url = AuthCodeAuthorizationUrl::builder()
+            .with_redirect_uri("https::/localhost:8080")
+            .with_client_id("client_id")
+            .with_scope(["read", "write"])
+            .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
+            .with_nonce_generated()
+            .unwrap()
+            .url()
+            .unwrap();
+
+        let query = url.query().unwrap();
+        assert!(query.contains("response_mode=fragment"));
+        assert!(query.contains("response_type=code+id_token"));
+        assert!(query.contains("nonce"));
     }
 }

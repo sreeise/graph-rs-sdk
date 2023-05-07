@@ -44,6 +44,7 @@ use crate::identity_governance::IdentityGovernanceApiClient;
 use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdApiClient};
 use crate::invitations::InvitationsApiClient;
 use crate::me::MeApiClient;
+use crate::oauth::{AccessToken, AllowedHostValidator, HostValidator, OAuth};
 use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
 };
@@ -65,8 +66,6 @@ use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
 use graph_http::api_impl::GraphClientConfiguration;
-use graph_oauth::identity::{AllowedHostValidator, HostValidator};
-use graph_oauth::oauth::{AccessToken, OAuth};
 use lazy_static::lazy_static;
 use std::convert::TryFrom;
 
@@ -74,22 +73,13 @@ lazy_static! {
     static ref PARSED_GRAPH_URL: Url = Url::parse(GRAPH_URL).expect("Unable to set v1 endpoint");
     static ref PARSED_GRAPH_URL_BETA: Url =
         Url::parse(GRAPH_URL_BETA).expect("Unable to set beta endpoint");
-    static ref VALID_HOSTS: Vec<Url> = vec![
-        Url::parse("https://graph.microsoft.com").expect("Unable to parse url for valid host"),
-        Url::parse("https://graph.microsoft.us").expect("Unable to parse url for valid host"),
-        Url::parse("https://dod-graph.microsoft.us").expect("Unable to parse url for valid host"),
-        Url::parse("https://graph.microsoft.de").expect("Unable to parse url for valid host"),
-        Url::parse("https://microsoftgraph.chinacloudapi.cn")
-            .expect("Unable to parse url for valid host"),
-        Url::parse("https://canary.graph.microsoft.com")
-            .expect("Unable to parse url for valid host")
-    ];
 }
 
 #[derive(Debug, Clone)]
 pub struct Graph {
     client: Client,
-    endpoint: url::Url,
+    endpoint: Url,
+    allowed_host_validator: AllowedHostValidator,
 }
 
 impl Graph {
@@ -97,6 +87,7 @@ impl Graph {
         Graph {
             client: Client::new(access_token),
             endpoint: PARSED_GRAPH_URL.clone(),
+            allowed_host_validator: AllowedHostValidator::default(),
         }
     }
 
@@ -181,7 +172,9 @@ impl Graph {
         &self.endpoint
     }
 
-    /// Set a custom endpoint for the Microsoft Graph API
+    /// Set a custom endpoint for the Microsoft Graph API. Provide the scheme and host with an
+    /// optional path. The path is not set by the sdk when using a custom endpoint.
+    ///
     /// The scheme must be https:// and any other provided scheme will cause a panic.
     /// # See [microsoft-graph-and-graph-explorer-service-root-endpoints](https://learn.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints)
     ///
@@ -214,32 +207,20 @@ impl Graph {
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
     ///
-    /// client.custom_endpoint("https://graph.microsoft.com")
+    /// client.custom_endpoint("https://graph.microsoft.com/v1.0")
     ///     .me()
     ///     .get_user()
     ///     .send()
     ///     .await?;
     /// ```
     pub fn custom_endpoint(&mut self, custom_endpoint: &str) -> &mut Graph {
-        match custom_endpoint.validate(&VALID_HOSTS) {
-            HostValidator::Valid => {
-                let url = Url::parse(custom_endpoint).expect("Unable to set custom endpoint");
-
-                if !url.scheme().eq("https") || !url.path().eq("/") || url.query().is_some() {
-                    panic!(
-                        "Invalid path or query - Provide only the host of the Uri such as https://graph.microsoft.com"
-                    );
-                }
-
-                self.endpoint.set_host(url.host_str()).unwrap();
-                self.endpoint.set_path("v1.0");
-            }
-            HostValidator::Invalid => panic!("Invalid host"),
-        }
+        self.use_endpoint(custom_endpoint);
         self
     }
 
-    /// Set a custom endpoint for the Microsoft Graph API. Provide the scheme and host.
+    /// Set a custom endpoint for the Microsoft Graph API. Provide the scheme and host with an
+    /// optional path. The path is not set by the sdk when using a custom endpoint.
+    ///
     /// The scheme must be https:// and any other provided scheme will cause a panic.
     /// # See [microsoft-graph-and-graph-explorer-service-root-endpoints](https://learn.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints)
     ///
@@ -271,23 +252,23 @@ impl Graph {
     /// use graph_rs_sdk::Graph;
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
-    /// client.use_endpoint("https://graph.microsoft.com");
+    /// client.use_endpoint("https://graph.microsoft.com/v1.0");
     ///
-    /// assert_eq!(client.url().to_string(), "https://graph.microsoft.com/".to_string())
+    /// assert_eq!(client.url().to_string(), "https://graph.microsoft.com/v1.0".to_string())
     /// ```
     pub fn use_endpoint(&mut self, custom_endpoint: &str) {
-        match custom_endpoint.validate(&VALID_HOSTS) {
+        match self.allowed_host_validator.validate_str(custom_endpoint) {
             HostValidator::Valid => {
                 let url = Url::parse(custom_endpoint).expect("Unable to set custom endpoint");
 
-                if !url.scheme().eq("https") || !url.path().eq("/") || url.query().is_some() {
+                if url.query().is_some() {
                     panic!(
-                        "Invalid path query - Provide only the host of the Uri such as https://graph.microsoft.com"
+                        "Invalid query - Provide only the scheme, host, and optional path of the Uri such as https://graph.microsoft.com/v1.0"
                     );
                 }
 
                 self.endpoint.set_host(url.host_str()).unwrap();
-                self.endpoint.set_path("v1.0");
+                self.endpoint.set_path(url.path());
             }
             HostValidator::Invalid => panic!("Invalid host"),
         }
@@ -567,6 +548,7 @@ impl From<GraphClientConfiguration> for Graph {
         Graph {
             client: graph_client_builder.build(),
             endpoint: PARSED_GRAPH_URL.clone(),
+            allowed_host_validator: AllowedHostValidator::default(),
         }
     }
 }
@@ -633,21 +615,20 @@ mod test {
 
     #[test]
     fn try_valid_hosts() {
-        let mut client = Graph::new("token");
-        for url in VALID_HOSTS.iter() {
-            client.custom_endpoint(url.as_str());
-            let mut url1 = url.clone();
-            url1.set_path("v1.0");
-            assert_eq!(client.url().clone(), url1);
-        }
-    }
+        let urls = vec![
+            "https://graph.microsoft.com/v1.0",
+            "https://graph.microsoft.us",
+            "https://dod-graph.microsoft.us",
+            "https://graph.microsoft.de",
+            "https://microsoftgraph.chinacloudapi.cn",
+            "https://canary.graph.microsoft.com",
+        ];
 
-    #[test]
-    fn try_valid_hosts2() {
         let mut client = Graph::new("token");
-        for url in VALID_HOSTS.iter() {
-            client.use_endpoint(url.as_str());
-            assert_eq!(client.url().host_str(), url.host_str());
+
+        for url in urls.iter() {
+            client.custom_endpoint(url);
+            assert_eq!(client.url().clone(), Url::parse(url).unwrap());
         }
     }
 }

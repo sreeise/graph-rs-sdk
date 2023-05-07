@@ -4,7 +4,7 @@
 extern crate serde;
 
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthCodeAuthorizationUrl, AuthorizationCodeCertificateCredential, ClientAssertion,
+    AccessToken, AuthorizationCodeCertificateCredential, ClientAssertion,
     ConfidentialClientApplication, PKey, TokenRequest, X509,
 };
 use std::fs::File;
@@ -57,14 +57,14 @@ pub struct AccessCode {
 }
 
 pub fn authorization_sign_in(client_id: &str, tenant_id: &str) {
-    let auth_url_builder = AuthCodeAuthorizationUrl::builder()
+    let url = AuthorizationCodeCertificateCredential::authorization_url_builder()
         .with_client_id(client_id)
         .with_tenant(tenant_id)
         .with_redirect_uri("http://localhost:8080")
         .with_scope(vec!["User.Read"])
-        .build();
+        .url()
+        .unwrap();
 
-    let url = auth_url_builder.url().unwrap();
     // web browser crate in dev dependencies will open to default browser in the system.
     webbrowser::open(url.as_str()).unwrap();
 }

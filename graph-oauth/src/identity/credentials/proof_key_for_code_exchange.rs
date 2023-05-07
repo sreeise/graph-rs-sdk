@@ -68,3 +68,14 @@ impl ProofKeyForCodeExchange {
         })
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn pkce_generate() {
+        let pkce = ProofKeyForCodeExchange::generate().unwrap();
+        assert_eq!(pkce.code_challenge.len(), 43);
+    }
+}

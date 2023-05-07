@@ -481,6 +481,8 @@ impl OAuth {
         self.insert(OAuthCredential::Nonce, value)
     }
 
+    // rand = "0.8.5"
+
     /// Set the prompt for open id.
     ///
     /// # Example
