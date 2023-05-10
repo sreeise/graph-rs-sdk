@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ResponseType {
     #[default]
     Code,

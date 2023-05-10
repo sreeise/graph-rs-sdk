@@ -44,7 +44,7 @@ use crate::identity_governance::IdentityGovernanceApiClient;
 use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdApiClient};
 use crate::invitations::InvitationsApiClient;
 use crate::me::MeApiClient;
-use crate::oauth::{AccessToken, AllowedHostValidator, HostValidator, OAuth};
+use crate::oauth::{AccessToken, AllowedHostValidator, HostValidator, OAuthSerializer};
 use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
 };
@@ -532,10 +532,10 @@ impl From<&AccessToken> for Graph {
     }
 }
 
-impl TryFrom<&OAuth> for Graph {
+impl TryFrom<&OAuthSerializer> for Graph {
     type Error = GraphFailure;
 
-    fn try_from(oauth: &OAuth) -> Result<Self, Self::Error> {
+    fn try_from(oauth: &OAuthSerializer) -> Result<Self, Self::Error> {
         let access_token = oauth
             .get_access_token()
             .ok_or_else(|| GraphFailure::not_found("no access token"))?;

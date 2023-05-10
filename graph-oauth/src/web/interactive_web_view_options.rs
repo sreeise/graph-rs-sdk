@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 #[derive(Clone)]
 pub struct InteractiveWebViewOptions {
     pub panic_on_invalid_uri_navigation_attempt: bool,
@@ -6,6 +8,7 @@ pub struct InteractiveWebViewOptions {
     /// This assumes that you have http://localhost or http://localhost:port
     /// for each port registered in your ADF application registration.
     pub ports: Vec<usize>,
+    pub timeout: Duration,
 }
 
 impl Default for InteractiveWebViewOptions {
@@ -14,6 +17,8 @@ impl Default for InteractiveWebViewOptions {
             panic_on_invalid_uri_navigation_attempt: true,
             theme: None,
             ports: vec![],
+            // 10 Minutes default timeout
+            timeout: Duration::from_secs(10 * 60),
         }
     }
 }

@@ -63,6 +63,7 @@ extern crate pretty_env_logger;
 
 mod access_token;
 mod auth;
+mod auth_response_query;
 mod device_code;
 mod discovery;
 mod grants;
@@ -76,8 +77,9 @@ pub mod web;
 pub mod oauth {
     pub use crate::access_token::AccessToken;
     pub use crate::auth::GrantSelector;
-    pub use crate::auth::OAuth;
-    pub use crate::auth::OAuthCredential;
+    pub use crate::auth::OAuthParameter;
+    pub use crate::auth::OAuthSerializer;
+    pub use crate::auth_response_query::*;
     pub use crate::device_code::*;
     pub use crate::discovery::graph_discovery;
     pub use crate::discovery::jwt_keys;

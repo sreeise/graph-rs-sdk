@@ -1,11 +1,11 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs_sdk::oauth::{AccessToken, GrantRequest, OAuth};
+use graph_rs_sdk::oauth::{AccessToken, GrantRequest, OAuthSerializer};
 use test_tools::oauth::OAuthTestTool;
 use url::{Host, Url};
 
 #[test]
 pub fn authorization_url() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .authorization_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
@@ -37,7 +37,7 @@ pub fn authorization_url() {
 
 #[test]
 fn access_token_uri() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .client_secret("CLDIE3F")
@@ -58,7 +58,7 @@ fn access_token_uri() {
 
 #[test]
 fn refresh_token_uri() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .client_secret("CLDIE3F")
@@ -82,7 +82,7 @@ fn refresh_token_uri() {
 
 #[test]
 pub fn access_token_body_contains() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .authorization_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")

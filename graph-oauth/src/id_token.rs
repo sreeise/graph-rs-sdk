@@ -1,5 +1,5 @@
 use crate::jwt::{JsonWebToken, JwtParser};
-use serde::de::Visitor;
+use serde::de::{Error, Visitor};
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::borrow::Cow;
@@ -157,6 +157,13 @@ impl<'de> Deserialize<'de> for IdToken {
                     }
                 }
                 Ok(id_token)
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: Error,
+            {
+                IdToken::from_str(v).map_err(|err| Error::custom(err))
             }
         }
         deserializer.deserialize_identifier(IdTokenVisitor)

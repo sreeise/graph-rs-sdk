@@ -1,9 +1,9 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs_sdk::oauth::{GrantRequest, OAuth};
+use graph_rs_sdk::oauth::{GrantRequest, OAuthSerializer};
 
 #[test]
 pub fn token_flow_url() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .authorization_url("https://login.live.com/oauth20_authorize.srf?")
         .client_id("bb301aaa-1201-4259-a230923fds32")

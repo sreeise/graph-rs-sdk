@@ -48,17 +48,13 @@ async fn use_reqwest_async_body() {
     let body = reqwest::Body::from(String::new());
 
     let client = Graph::new("token");
-    client
-        .user("id")
-        .get_mail_tips(body)
-        .into_blocking()
-        .send()
-        .unwrap();
+    client.user("id").get_mail_tips(body).send().await.unwrap();
 }
 
 // Using BodyRead
 
-// BodyRead is basically
+// BodyRead is a helper struct for using many different types
+// as the body of a request.
 
 fn use_body_read(file: File) {
     let _ = BodyRead::from_read(file).unwrap();

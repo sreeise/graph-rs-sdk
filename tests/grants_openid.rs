@@ -1,9 +1,9 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs_sdk::oauth::{GrantRequest, OAuth};
+use graph_rs_sdk::oauth::{GrantRequest, OAuthSerializer};
 use url::{Host, Url};
 
-pub fn oauth() -> OAuth {
-    let mut oauth = OAuth::new();
+pub fn oauth() -> OAuthSerializer {
+    let mut oauth = OAuthSerializer::new();
     oauth
         .authorization_url("https://login.microsoftonline.com/common/oauth2/authorize")
         .client_id("6731de76-14a6-49ae-97bc-6eba6914391e")

@@ -84,15 +84,11 @@ async fn handle_redirect(
             if response.status().is_success() {
                 let mut access_token: AccessToken = response.json().await.unwrap();
 
-                // Option<&JsonWebToken>
-                let jwt = access_token.jwt();
-                println!("{jwt:#?}");
-
+                // Enables the printing of the bearer, refresh, and id token.
+                access_token.enable_pii_logging(true);
                 println!("{:#?}", access_token);
 
                 // This will print the actual access token to the console.
-                println!("Access Token: {:#?}", access_token.bearer_token());
-                println!("Refresh Token: {:#?}", access_token.refresh_token());
             } else {
                 // See if Microsoft Graph returned an error in the Response body
                 let result: reqwest::Result<serde_json::Value> = response.json().await;

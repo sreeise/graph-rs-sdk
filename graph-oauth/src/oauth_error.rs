@@ -1,4 +1,4 @@
-use crate::auth::OAuthCredential;
+use crate::auth::OAuthParameter;
 use crate::grants::{GrantRequest, GrantType};
 use graph_error::{GraphFailure, GraphResult};
 use std::error;
@@ -26,11 +26,11 @@ impl OAuthError {
         OAuthError::error_kind(ErrorKind::InvalidData, msg)
     }
 
-    pub fn error_from<T>(c: OAuthCredential) -> Result<T, GraphFailure> {
+    pub fn error_from<T>(c: OAuthParameter) -> Result<T, GraphFailure> {
         Err(OAuthError::credential_error(c))
     }
 
-    pub fn credential_error(c: OAuthCredential) -> GraphFailure {
+    pub fn credential_error(c: OAuthParameter) -> GraphFailure {
         GraphFailure::error_kind(
             ErrorKind::NotFound,
             format!("MISSING OR INVALID: {c:#?}").as_str(),

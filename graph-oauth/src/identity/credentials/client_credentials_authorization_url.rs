@@ -1,4 +1,4 @@
-use crate::auth::{OAuth, OAuthCredential};
+use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{Authority, AzureAuthorityHost};
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
@@ -35,14 +35,14 @@ impl ClientCredentialsAuthorizationUrl {
         &self,
         azure_authority_host: &AzureAuthorityHost,
     ) -> AuthorizationResult<Url> {
-        let mut serializer = OAuth::new();
+        let mut serializer = OAuthSerializer::new();
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::ClientId.alias());
+            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
         }
 
         if self.redirect_uri.trim().is_empty() {
             return AuthorizationFailure::required_value_result(
-                OAuthCredential::RedirectUri.alias(),
+                OAuthParameter::RedirectUri.alias(),
             );
         }
 
@@ -59,23 +59,23 @@ impl ClientCredentialsAuthorizationUrl {
         let mut encoder = Serializer::new(String::new());
         serializer.form_encode_credentials(
             vec![
-                OAuthCredential::ClientId,
-                OAuthCredential::RedirectUri,
-                OAuthCredential::State,
+                OAuthParameter::ClientId,
+                OAuthParameter::RedirectUri,
+                OAuthParameter::State,
             ],
             &mut encoder,
         );
 
         let mut url = Url::parse(
             serializer
-                .get(OAuthCredential::AuthorizationUrl)
+                .get(OAuthParameter::AuthorizationUrl)
                 .ok_or(AuthorizationFailure::required_value(
-                    OAuthCredential::AuthorizationUrl.alias(),
+                    OAuthParameter::AuthorizationUrl.alias(),
                 ))?
                 .as_str(),
         )
         .or(AuthorizationFailure::required_value_result(
-            OAuthCredential::AuthorizationUrl.alias(),
+            OAuthParameter::AuthorizationUrl.alias(),
         ))?;
         url.set_query(Some(encoder.finish().as_str()));
         Ok(url)

@@ -1,71 +1,71 @@
 use graph_oauth::oauth::jwt_keys::JWTKeys;
-use graph_oauth::oauth::{OAuth, OAuthCredential};
+use graph_oauth::oauth::{OAuthParameter, OAuthSerializer};
 use graph_rs_sdk::oauth::graph_discovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
 
 #[test]
 fn graph_discovery_oauth_v1() {
-    let oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
+    let oauth: OAuthSerializer = GraphDiscovery::V1.oauth().unwrap();
     let keys: MicrosoftSigningKeysV1 = GraphDiscovery::V1.signing_keys().unwrap();
     assert_eq!(
-        oauth.get(OAuthCredential::AuthorizationUrl),
+        oauth.get(OAuthParameter::AuthorizationUrl),
         Some(keys.authorization_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::AccessTokenUrl),
+        oauth.get(OAuthParameter::AccessTokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::RefreshTokenUrl),
+        oauth.get(OAuthParameter::RefreshTokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::LogoutURL),
+        oauth.get(OAuthParameter::LogoutURL),
         Some(keys.end_session_endpoint)
     );
 }
 
 #[test]
 fn graph_discovery_oauth_v2() {
-    let oauth: OAuth = GraphDiscovery::V2.oauth().unwrap();
+    let oauth: OAuthSerializer = GraphDiscovery::V2.oauth().unwrap();
     let keys: MicrosoftSigningKeysV2 = GraphDiscovery::V2.signing_keys().unwrap();
     assert_eq!(
-        oauth.get(OAuthCredential::AuthorizationUrl),
+        oauth.get(OAuthParameter::AuthorizationUrl),
         Some(keys.authorization_endpoint)
     );
     assert_eq!(
-        oauth.get(OAuthCredential::AccessTokenUrl),
+        oauth.get(OAuthParameter::AccessTokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::RefreshTokenUrl),
+        oauth.get(OAuthParameter::RefreshTokenUrl),
         Some(keys.token_endpoint)
     );
     assert_eq!(
-        oauth.get(OAuthCredential::LogoutURL),
+        oauth.get(OAuthParameter::LogoutURL),
         Some(keys.end_session_endpoint)
     );
 }
 
 #[tokio::test]
 async fn async_graph_discovery_oauth_v2() {
-    let oauth: OAuth = GraphDiscovery::V2.async_oauth().await.unwrap();
+    let oauth: OAuthSerializer = GraphDiscovery::V2.async_oauth().await.unwrap();
     let keys: MicrosoftSigningKeysV2 = GraphDiscovery::V2.async_signing_keys().await.unwrap();
     assert_eq!(
-        oauth.get(OAuthCredential::AuthorizationUrl),
+        oauth.get(OAuthParameter::AuthorizationUrl),
         Some(keys.authorization_endpoint)
     );
     assert_eq!(
-        oauth.get(OAuthCredential::AccessTokenUrl),
+        oauth.get(OAuthParameter::AccessTokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthCredential::RefreshTokenUrl),
+        oauth.get(OAuthParameter::RefreshTokenUrl),
         Some(keys.token_endpoint)
     );
     assert_eq!(
-        oauth.get(OAuthCredential::LogoutURL),
+        oauth.get(OAuthParameter::LogoutURL),
         Some(keys.end_session_endpoint)
     );
 }

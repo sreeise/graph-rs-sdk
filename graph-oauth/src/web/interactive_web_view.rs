@@ -1,6 +1,9 @@
+use anyhow::Context;
+use std::time::Duration;
 use url::Url;
 
 use crate::web::InteractiveWebViewOptions;
+use wry::application::platform::windows::EventLoopExtWindows;
 use wry::{
     application::{
         event::{Event, StartCause, WindowEvent},
@@ -58,14 +61,16 @@ pub struct InteractiveWebView;
 
 impl InteractiveWebView {
     pub fn interactive_authentication(
-        uri: &Url,
-        redirect_uri: &Url,
+        uri: Url,
+        redirect_uri: Url,
         options: InteractiveWebViewOptions,
+        sender: std::sync::mpsc::Sender<String>,
     ) -> anyhow::Result<()> {
-        let event_loop: EventLoop<UserEvents> = EventLoop::<UserEvents>::with_user_event();
+        let event_loop: EventLoop<UserEvents> = EventLoop::<UserEvents>::new_any_thread();
         let proxy = event_loop.create_proxy();
+        let sender2 = sender.clone();
 
-        let validator = WebViewValidHosts::new(uri.clone(), redirect_uri.clone())?;
+        let validator = WebViewValidHosts::new(uri.clone(), redirect_uri)?;
 
         let window = WindowBuilder::new()
             .with_title("Sign In")
@@ -87,6 +92,8 @@ impl InteractiveWebView {
                     let is_redirect = validator.is_redirect_host(&url);
 
                     if is_redirect {
+                        sender2.send(uri.clone()).context("mpsc error").unwrap();
+                        std::thread::sleep(Duration::from_secs(1));
                         let _ = proxy.send_event(UserEvents::ReachedRedirectUri(url));
                         return true;
                     }
@@ -107,26 +114,26 @@ impl InteractiveWebView {
             *control_flow = ControlFlow::Wait;
 
             match event {
-                Event::NewEvents(StartCause::Init) => println!("Wry has started!"),
+                Event::NewEvents(StartCause::Init) => info!("Webview runtime started"),
                 Event::UserEvent(UserEvents::CloseWindow) | Event::WindowEvent {
                     event: WindowEvent::CloseRequested,
                     ..
                 } => {
-                    let _ = webview.clear_all_browsing_data();
                     *control_flow = ControlFlow::Exit
                 }
                 Event::UserEvent(UserEvents::ReachedRedirectUri(uri)) => {
                     dbg!(&uri);
-                    let _ = webview.clear_all_browsing_data();
+                    info!("Matched on redirect uri - closing window: {uri:#?}");
+                    sender.send(uri.to_string()).unwrap();
                     *control_flow = ControlFlow::Exit
                 }
                 Event::UserEvent(UserEvents::InvalidNavigationAttempt(url_option)) => {
-                    error!("WebView or possible attacker attempted to navigate to invalid host - closing window for security reasons. Possible url attempted: {url_option:#?}");
+                    error!("WebView attempted to navigate to invalid host - closing window for security reasons. Possible url attempted: {url_option:#?}");
                     let _ = webview.clear_all_browsing_data();
                     *control_flow = ControlFlow::Exit;
 
                     if options.panic_on_invalid_uri_navigation_attempt {
-                        panic!("WebView or possible attacker attempted to navigate to invalid host. Possible url attempted: {url_option:#?}")
+                        panic!("WebView attempted to navigate to invalid host. Possible url attempted: {url_option:#?}")
                     }
                 }
                 _ => (),

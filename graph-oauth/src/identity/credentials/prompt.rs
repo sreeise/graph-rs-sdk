@@ -38,3 +38,12 @@ impl AsRef<str> for Prompt {
         }
     }
 }
+
+impl IntoIterator for Prompt {
+    type Item = Prompt;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        vec![self].into_iter()
+    }
+}

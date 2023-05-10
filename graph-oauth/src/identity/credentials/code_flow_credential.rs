@@ -1,5 +1,5 @@
-use crate::auth::{OAuth, OAuthCredential};
-use crate::identity::form_credential::FormCredential;
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::form_credential::SerializerField;
 use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost};
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
@@ -34,7 +34,7 @@ pub struct CodeFlowCredential {
     pub(crate) client_secret: String,
     /// The same redirect_uri value that was used to acquire the authorization_code.
     pub(crate) redirect_uri: String,
-    serializer: OAuth,
+    serializer: OAuthSerializer,
 }
 
 impl CodeFlowCredential {
@@ -50,7 +50,7 @@ impl CodeFlowCredential {
             client_id: client_id.as_ref().to_owned(),
             client_secret: client_secret.as_ref().to_owned(),
             redirect_uri: redirect_uri.as_ref().to_owned(),
-            serializer: OAuth::new(),
+            serializer: OAuthSerializer::new(),
         }
     }
 
@@ -72,7 +72,7 @@ impl AuthorizationSerializer for CodeFlowCredential {
             .authority(azure_authority_host, &Authority::Common);
 
         if self.refresh_token.is_none() {
-            let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
+            let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
                 AuthorizationFailure::required_value_msg(
                     "access_token_url",
                     Some("Internal Error"),
@@ -80,13 +80,12 @@ impl AuthorizationSerializer for CodeFlowCredential {
             )?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         } else {
-            let uri = self
-                .serializer
-                .get(OAuthCredential::RefreshTokenUrl)
-                .ok_or(AuthorizationFailure::required_value_msg(
+            let uri = self.serializer.get(OAuthParameter::RefreshTokenUrl).ok_or(
+                AuthorizationFailure::required_value_msg(
                     "refresh_token_url",
                     Some("Internal Error"),
-                ))?;
+                ),
+            )?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         }
     }
@@ -96,25 +95,25 @@ impl AuthorizationSerializer for CodeFlowCredential {
             return AuthorizationFailure::required_value_msg_result(
                 &format!(
                     "{} or {}",
-                    OAuthCredential::AuthorizationCode.alias(),
-                    OAuthCredential::RefreshToken.alias()
+                    OAuthParameter::AuthorizationCode.alias(),
+                    OAuthParameter::RefreshToken.alias()
                 ),
                 Some("Authorization code and refresh token should not be set at the same time - Internal Error"),
             );
         }
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::ClientId.alias());
+            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
         }
 
         if self.client_secret.trim().is_empty() {
             return AuthorizationFailure::required_value_result(
-                OAuthCredential::ClientSecret.alias(),
+                OAuthParameter::ClientSecret.alias(),
             );
         }
 
         if self.redirect_uri.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::RedirectUri);
+            return AuthorizationFailure::required_value_result(OAuthParameter::RedirectUri);
         }
 
         self.serializer
@@ -126,7 +125,7 @@ impl AuthorizationSerializer for CodeFlowCredential {
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
                 return AuthorizationFailure::required_value_msg_result(
-                    OAuthCredential::RefreshToken.alias(),
+                    OAuthParameter::RefreshToken.alias(),
                     Some("Either authorization code or refresh token is required"),
                 );
             }
@@ -134,15 +133,15 @@ impl AuthorizationSerializer for CodeFlowCredential {
             self.serializer.refresh_token(refresh_token.as_ref());
 
             return self.serializer.authorization_form(vec![
-                FormCredential::Required(OAuthCredential::ClientId),
-                FormCredential::Required(OAuthCredential::ClientSecret),
-                FormCredential::Required(OAuthCredential::RefreshToken),
-                FormCredential::Required(OAuthCredential::RedirectUri),
+                SerializerField::Required(OAuthParameter::ClientId),
+                SerializerField::Required(OAuthParameter::ClientSecret),
+                SerializerField::Required(OAuthParameter::RefreshToken),
+                SerializerField::Required(OAuthParameter::RedirectUri),
             ]);
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
                 return AuthorizationFailure::required_value_msg_result(
-                    OAuthCredential::RefreshToken.alias(),
+                    OAuthParameter::RefreshToken.alias(),
                     Some("Either authorization code or refresh token is required"),
                 );
             }
@@ -151,18 +150,18 @@ impl AuthorizationSerializer for CodeFlowCredential {
                 .authorization_code(authorization_code.as_ref());
 
             return self.serializer.authorization_form(vec![
-                FormCredential::Required(OAuthCredential::ClientId),
-                FormCredential::Required(OAuthCredential::ClientSecret),
-                FormCredential::Required(OAuthCredential::RedirectUri),
-                FormCredential::Required(OAuthCredential::AuthorizationCode),
+                SerializerField::Required(OAuthParameter::ClientId),
+                SerializerField::Required(OAuthParameter::ClientSecret),
+                SerializerField::Required(OAuthParameter::RedirectUri),
+                SerializerField::Required(OAuthParameter::AuthorizationCode),
             ]);
         }
 
         AuthorizationFailure::required_value_msg_result(
             &format!(
                 "{} or {}",
-                OAuthCredential::AuthorizationCode.alias(),
-                OAuthCredential::RefreshToken.alias()
+                OAuthParameter::AuthorizationCode.alias(),
+                OAuthParameter::RefreshToken.alias()
             ),
             Some("Either authorization code or refresh token is required"),
         )

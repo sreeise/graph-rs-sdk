@@ -1,10 +1,10 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs_sdk::oauth::{AccessToken, GrantRequest, OAuth};
+use graph_rs_sdk::oauth::{AccessToken, GrantRequest, OAuthSerializer};
 
 #[test]
 fn sign_in_code_url() {
     // Test the sign in url with a manually set response type.
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .authorization_url("https://login.live.com/oauth20_authorize.srf?")
         .client_id("bb301aaa-1201-4259-a230923fds32")
@@ -23,7 +23,7 @@ fn sign_in_code_url() {
 #[test]
 fn sign_in_code_url_with_state() {
     // Test the sign in url with a manually set response type.
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .authorization_url("https://example.com/oauth2/v2.0/authorize")
         .client_id("bb301aaa-1201-4259-a230923fds32")
@@ -41,7 +41,7 @@ fn sign_in_code_url_with_state() {
 
 #[test]
 fn access_token() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
@@ -67,7 +67,7 @@ fn access_token() {
 
 #[test]
 fn refresh_token() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
@@ -90,7 +90,7 @@ fn refresh_token() {
 
 #[test]
 fn get_refresh_token() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .redirect_uri("http://localhost:8888/redirect")
@@ -109,7 +109,7 @@ fn get_refresh_token() {
 
 #[test]
 fn multi_scope() {
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
     oauth
         .client_id("bb301aaa-1201-4259-a230923fds32")
         .add_scope("Files.Read")

@@ -1,5 +1,5 @@
-use crate::auth::{OAuth, OAuthCredential};
-use crate::identity::form_credential::FormCredential;
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions,
 };
@@ -31,7 +31,7 @@ pub struct ResourceOwnerPasswordCredential {
     pub(crate) scope: Vec<String>,
     pub(crate) authority: Authority,
     pub(crate) token_credential_options: TokenCredentialOptions,
-    serializer: OAuth,
+    serializer: OAuthSerializer,
 }
 
 impl ResourceOwnerPasswordCredential {
@@ -74,7 +74,7 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
+        let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
             AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
         )?;
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
@@ -82,15 +82,15 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::ClientId.alias());
+            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
         }
 
         if self.username.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::Username.alias());
+            return AuthorizationFailure::required_value_result(OAuthParameter::Username.alias());
         }
 
         if self.password.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::Password.alias());
+            return AuthorizationFailure::required_value_result(OAuthParameter::Password.alias());
         }
 
         self.serializer
@@ -99,9 +99,9 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
             .extend_scopes(self.scope.iter());
 
         self.serializer.authorization_form(vec![
-            FormCredential::Required(OAuthCredential::ClientId),
-            FormCredential::Required(OAuthCredential::GrantType),
-            FormCredential::NotRequired(OAuthCredential::Scope),
+            SerializerField::Required(OAuthParameter::ClientId),
+            SerializerField::Required(OAuthParameter::GrantType),
+            SerializerField::NotRequired(OAuthParameter::Scope),
         ])
     }
 

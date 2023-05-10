@@ -2,7 +2,7 @@
 
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use graph_rs_sdk::oauth::{AccessToken, ClientSecretCredential, OAuth};
+use graph_rs_sdk::oauth::{AccessToken, ClientSecretCredential, OAuthSerializer};
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
@@ -131,8 +131,8 @@ impl OAuthTestCredentials {
         creds
     }
 
-    fn into_oauth(self) -> OAuth {
-        let mut oauth = OAuth::new();
+    fn into_oauth(self) -> OAuthSerializer {
+        let mut oauth = OAuthSerializer::new();
         oauth
             .client_id(self.client_id.as_str())
             .client_secret(self.client_secret.as_str())
@@ -164,7 +164,7 @@ pub enum OAuthTestClient {
 impl OAuthTestClient {
     fn get_access_token(&self, creds: OAuthTestCredentials) -> Option<(String, AccessToken)> {
         let user_id = creds.user_id.clone()?;
-        let mut oauth: OAuth = creds.into_oauth();
+        let mut oauth: OAuthSerializer = creds.into_oauth();
         let mut req = {
             match self {
                 OAuthTestClient::ClientCredentials => oauth.build().client_credentials(),
@@ -190,7 +190,7 @@ impl OAuthTestClient {
         creds: OAuthTestCredentials,
     ) -> Option<(String, AccessToken)> {
         let user_id = creds.user_id.clone()?;
-        let mut oauth: OAuth = creds.into_oauth();
+        let mut oauth: OAuthSerializer = creds.into_oauth();
         let mut req = {
             match self {
                 OAuthTestClient::ClientCredentials => oauth.build_async().client_credentials(),

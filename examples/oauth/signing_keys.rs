@@ -1,7 +1,7 @@
 use graph_rs_sdk::oauth::graph_discovery::{
     GraphDiscovery, MicrosoftSigningKeysV1, MicrosoftSigningKeysV2,
 };
-use graph_rs_sdk::oauth::OAuth;
+use graph_rs_sdk::oauth::OAuthSerializer;
 
 fn get_signing_keys() {
     // Lists info such as the authorization and token urls, jwks uri, and response types supported.
@@ -16,11 +16,11 @@ fn get_signing_keys() {
     // configuration time when setting values for OAuth. However, this will disregard
     // all other parameters for the MicrosoftSigningKeys. Use this if you do not
     // need the other values.
-    let _oauth: OAuth = GraphDiscovery::V1.oauth().unwrap();
+    let _oauth: OAuthSerializer = GraphDiscovery::V1.oauth().unwrap();
 }
 
 fn tenant_discovery() {
-    let _oauth: OAuth = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
+    let _oauth: OAuthSerializer = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
         .oauth()
         .unwrap();
 }
@@ -37,7 +37,7 @@ async fn async_keys_discovery() {
 }
 
 async fn async_tenant_discovery() {
-    let _oauth: OAuth = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
+    let _oauth: OAuthSerializer = GraphDiscovery::Tenant("<YOUR_TENANT_ID>".into())
         .async_oauth()
         .await
         .unwrap();

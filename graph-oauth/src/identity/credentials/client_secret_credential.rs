@@ -1,5 +1,5 @@
-use crate::auth::{OAuth, OAuthCredential};
-use crate::identity::form_credential::FormCredential;
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost,
     ClientCredentialsAuthorizationUrlBuilder, TokenRequest,
@@ -42,7 +42,7 @@ pub struct ClientSecretCredential {
     pub(crate) scopes: Vec<String>,
     pub(crate) authority: Authority,
     pub(crate) token_credential_options: TokenCredentialOptions,
-    serializer: OAuth,
+    serializer: OAuthSerializer,
 }
 
 impl ClientSecretCredential {
@@ -53,7 +53,7 @@ impl ClientSecretCredential {
             scopes: vec![],
             authority: Default::default(),
             token_credential_options: Default::default(),
-            serializer: OAuth::new(),
+            serializer: OAuthSerializer::new(),
         }
     }
 
@@ -68,7 +68,7 @@ impl ClientSecretCredential {
             scopes: vec![],
             authority: Authority::TenantId(tenant_id.as_ref().to_owned()),
             token_credential_options: Default::default(),
-            serializer: OAuth::new(),
+            serializer: OAuthSerializer::new(),
         }
     }
 
@@ -92,7 +92,7 @@ impl AuthorizationSerializer for ClientSecretCredential {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
+        let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
             AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
         )?;
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
@@ -100,11 +100,11 @@ impl AuthorizationSerializer for ClientSecretCredential {
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::ClientId);
+            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId);
         }
 
         if self.client_secret.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::ClientSecret);
+            return AuthorizationFailure::required_value_result(OAuthParameter::ClientSecret);
         }
 
         self.serializer.grant_type("client_credentials");
@@ -117,8 +117,8 @@ impl AuthorizationSerializer for ClientSecretCredential {
         }
 
         self.serializer.authorization_form(vec![
-            FormCredential::Required(OAuthCredential::GrantType),
-            FormCredential::NotRequired(OAuthCredential::Scope),
+            SerializerField::Required(OAuthParameter::GrantType),
+            SerializerField::NotRequired(OAuthParameter::Scope),
         ])
     }
 

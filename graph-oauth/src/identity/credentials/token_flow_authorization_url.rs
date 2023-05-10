@@ -1,5 +1,5 @@
-use crate::auth::{OAuth, OAuthCredential};
-use crate::oauth::form_credential::FormCredential;
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::oauth::form_credential::SerializerField;
 use crate::oauth::ResponseType;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
@@ -35,7 +35,7 @@ impl TokenFlowAuthorizationUrl {
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
-        let mut serializer = OAuth::new();
+        let mut serializer = OAuthSerializer::new();
         if self.redirect_uri.trim().is_empty() {
             return AuthorizationFailure::required_value_msg_result("redirect_uri", None);
         }
@@ -58,15 +58,15 @@ impl TokenFlowAuthorizationUrl {
         let mut encoder = Serializer::new(String::new());
         serializer.url_query_encode(
             vec![
-                FormCredential::Required(OAuthCredential::ClientId),
-                FormCredential::Required(OAuthCredential::RedirectUri),
-                FormCredential::Required(OAuthCredential::Scope),
-                FormCredential::Required(OAuthCredential::ResponseType),
+                SerializerField::Required(OAuthParameter::ClientId),
+                SerializerField::Required(OAuthParameter::RedirectUri),
+                SerializerField::Required(OAuthParameter::Scope),
+                SerializerField::Required(OAuthParameter::ResponseType),
             ],
             &mut encoder,
         )?;
 
-        if let Some(authorization_url) = serializer.get(OAuthCredential::AuthorizationUrl) {
+        if let Some(authorization_url) = serializer.get(OAuthParameter::AuthorizationUrl) {
             let mut url = Url::parse(authorization_url.as_str())?;
             url.set_query(Some(encoder.finish().as_str()));
             Ok(url)

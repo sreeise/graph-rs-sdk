@@ -1,13 +1,13 @@
-use graph_rs_sdk::oauth::{AccessToken, OAuth};
+use graph_rs_sdk::oauth::{AccessToken, OAuthSerializer};
 use graph_rs_sdk::GraphResult;
 use std::time::Duration;
 
 // https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
 
 // Update the client id with your own.
-fn get_oauth() -> OAuth {
+fn get_oauth() -> OAuthSerializer {
     let client_id = "CLIENT_ID";
-    let mut oauth = OAuth::new();
+    let mut oauth = OAuthSerializer::new();
 
     oauth
         .client_id(client_id)

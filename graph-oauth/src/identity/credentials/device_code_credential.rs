@@ -1,8 +1,8 @@
-use crate::auth::{OAuth, OAuthCredential};
+use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions,
 };
-use crate::oauth::form_credential::FormCredential;
+use crate::oauth::form_credential::SerializerField;
 use crate::oauth::DeviceCode;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
@@ -39,7 +39,7 @@ pub struct DeviceAuthorizationCredential {
     /// The Azure Active Directory tenant (directory) Id of the service principal.
     pub(crate) authority: Authority,
     pub(crate) token_credential_options: TokenCredentialOptions,
-    serializer: OAuth,
+    serializer: OAuthSerializer,
 }
 
 impl DeviceAuthorizationCredential {
@@ -70,7 +70,7 @@ impl AuthorizationSerializer for DeviceAuthorizationCredential {
             .authority(azure_authority_host, &self.authority);
 
         if self.refresh_token.is_none() {
-            let uri = self.serializer.get(OAuthCredential::AccessTokenUrl).ok_or(
+            let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
                 AuthorizationFailure::required_value_msg(
                     "access_token_url",
                     Some("Internal Error"),
@@ -78,13 +78,12 @@ impl AuthorizationSerializer for DeviceAuthorizationCredential {
             )?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         } else {
-            let uri = self
-                .serializer
-                .get(OAuthCredential::RefreshTokenUrl)
-                .ok_or(AuthorizationFailure::required_value_msg(
+            let uri = self.serializer.get(OAuthParameter::RefreshTokenUrl).ok_or(
+                AuthorizationFailure::required_value_msg(
                     "refresh_token_url",
                     Some("Internal Error"),
-                ))?;
+                ),
+            )?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         }
     }
@@ -94,15 +93,15 @@ impl AuthorizationSerializer for DeviceAuthorizationCredential {
             return AuthorizationFailure::required_value_msg_result(
                 &format!(
                     "{} or {}",
-                    OAuthCredential::DeviceCode.alias(),
-                    OAuthCredential::RefreshToken.alias()
+                    OAuthParameter::DeviceCode.alias(),
+                    OAuthParameter::RefreshToken.alias()
                 ),
                 Some("Device code and refresh token should not be set at the same time - Internal Error"),
             );
         }
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthCredential::ClientId.alias());
+            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
         }
 
         self.serializer
@@ -112,7 +111,7 @@ impl AuthorizationSerializer for DeviceAuthorizationCredential {
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
                 return AuthorizationFailure::required_value_msg_result(
-                    OAuthCredential::RefreshToken.alias(),
+                    OAuthParameter::RefreshToken.alias(),
                     Some("Either device code or refresh token is required - found empty refresh token"),
                 );
             }
@@ -122,15 +121,15 @@ impl AuthorizationSerializer for DeviceAuthorizationCredential {
                 .device_code(refresh_token.as_ref());
 
             return self.serializer.authorization_form(vec![
-                FormCredential::Required(OAuthCredential::ClientId),
-                FormCredential::Required(OAuthCredential::RefreshToken),
-                FormCredential::Required(OAuthCredential::Scope),
-                FormCredential::Required(OAuthCredential::GrantType),
+                SerializerField::Required(OAuthParameter::ClientId),
+                SerializerField::Required(OAuthParameter::RefreshToken),
+                SerializerField::Required(OAuthParameter::Scope),
+                SerializerField::Required(OAuthParameter::GrantType),
             ]);
         } else if let Some(device_code) = self.device_code.as_ref() {
             if device_code.trim().is_empty() {
                 return AuthorizationFailure::required_value_msg_result(
-                    OAuthCredential::DeviceCode.alias(),
+                    OAuthParameter::DeviceCode.alias(),
                     Some(
                         "Either device code or refresh token is required - found empty device code",
                     ),
@@ -142,18 +141,18 @@ impl AuthorizationSerializer for DeviceAuthorizationCredential {
                 .device_code(device_code.as_ref());
 
             return self.serializer.authorization_form(vec![
-                FormCredential::Required(OAuthCredential::ClientId),
-                FormCredential::Required(OAuthCredential::DeviceCode),
-                FormCredential::Required(OAuthCredential::Scope),
-                FormCredential::Required(OAuthCredential::GrantType),
+                SerializerField::Required(OAuthParameter::ClientId),
+                SerializerField::Required(OAuthParameter::DeviceCode),
+                SerializerField::Required(OAuthParameter::Scope),
+                SerializerField::Required(OAuthParameter::GrantType),
             ]);
         }
 
         AuthorizationFailure::required_value_msg_result(
             &format!(
                 "{} or {}",
-                OAuthCredential::DeviceCode.alias(),
-                OAuthCredential::RefreshToken.alias()
+                OAuthParameter::DeviceCode.alias(),
+                OAuthParameter::RefreshToken.alias()
             ),
             Some("Either device code or refresh token is required"),
         )

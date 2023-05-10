@@ -1,5 +1,5 @@
-use crate::auth::{OAuth, OAuthCredential};
-use crate::identity::form_credential::FormCredential;
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::form_credential::SerializerField;
 use crate::identity::{Authority, AzureAuthorityHost, ResponseMode};
 use crate::oauth::{Prompt, ResponseType};
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
@@ -120,7 +120,7 @@ impl ImplicitCredentialAuthorizationUrl {
         &self,
         azure_authority_host: &AzureAuthorityHost,
     ) -> AuthorizationResult<Url> {
-        let mut serializer = OAuth::new();
+        let mut serializer = OAuthSerializer::new();
 
         if self.client_id.trim().is_empty() {
             return AuthorizationFailure::required_value_result("client_id");
@@ -200,22 +200,22 @@ impl ImplicitCredentialAuthorizationUrl {
         }
 
         let authorization_credentials = vec![
-            FormCredential::Required(OAuthCredential::ClientId),
-            FormCredential::Required(OAuthCredential::ResponseType),
-            FormCredential::Required(OAuthCredential::Scope),
-            FormCredential::Required(OAuthCredential::Nonce),
-            FormCredential::NotRequired(OAuthCredential::RedirectUri),
-            FormCredential::NotRequired(OAuthCredential::ResponseMode),
-            FormCredential::NotRequired(OAuthCredential::State),
-            FormCredential::NotRequired(OAuthCredential::Prompt),
-            FormCredential::NotRequired(OAuthCredential::LoginHint),
-            FormCredential::NotRequired(OAuthCredential::DomainHint),
+            SerializerField::Required(OAuthParameter::ClientId),
+            SerializerField::Required(OAuthParameter::ResponseType),
+            SerializerField::Required(OAuthParameter::Scope),
+            SerializerField::Required(OAuthParameter::Nonce),
+            SerializerField::NotRequired(OAuthParameter::RedirectUri),
+            SerializerField::NotRequired(OAuthParameter::ResponseMode),
+            SerializerField::NotRequired(OAuthParameter::State),
+            SerializerField::NotRequired(OAuthParameter::Prompt),
+            SerializerField::NotRequired(OAuthParameter::LoginHint),
+            SerializerField::NotRequired(OAuthParameter::DomainHint),
         ];
 
         let mut encoder = Serializer::new(String::new());
         serializer.url_query_encode(authorization_credentials, &mut encoder)?;
 
-        if let Some(authorization_url) = serializer.get(OAuthCredential::AuthorizationUrl) {
+        if let Some(authorization_url) = serializer.get(OAuthParameter::AuthorizationUrl) {
             let mut url = Url::parse(authorization_url.as_str())?;
             url.set_query(Some(encoder.finish().as_str()));
             Ok(url)

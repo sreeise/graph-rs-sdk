@@ -1,7 +1,7 @@
-use crate::auth::OAuthCredential;
+use crate::auth::OAuthParameter;
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum FormCredential {
-    Required(OAuthCredential),
-    NotRequired(OAuthCredential),
+pub enum SerializerField {
+    Required(OAuthParameter),
+    NotRequired(OAuthParameter),
 }

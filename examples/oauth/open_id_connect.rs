@@ -1,4 +1,4 @@
-use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuth};
+use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuthSerializer};
 /// # Example
 /// ```
 /// use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuth};
@@ -19,8 +19,8 @@ use warp::Filter;
 static CLIENT_ID: &str = "<YOUR_CLIENT_ID>";
 static CLIENT_SECRET: &str = "<YOUR_CLIENT_SECRET>";
 
-fn oauth_open_id() -> OAuth {
-    let mut oauth = OAuth::new();
+fn oauth_open_id() -> OAuthSerializer {
+    let mut oauth = OAuthSerializer::new();
     oauth
         .client_id(CLIENT_ID)
         .client_secret(CLIENT_SECRET)

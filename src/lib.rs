@@ -179,8 +179,8 @@
 //!
 //! # Example
 //! ```
-//! use graph_rs_sdk::oauth::OAuth;
-//! let mut oauth = OAuth::new();
+//! use graph_rs_sdk::oauth::OAuthSerializer;
+//! let mut oauth = OAuthSerializer::new();
 //! oauth
 //!     .client_id("<YOUR_CLIENT_ID>")
 //!     .client_secret("<YOUR_CLIENT_SECRET>")

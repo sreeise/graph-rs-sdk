@@ -1,5 +1,5 @@
 use crate::oauth::well_known::WellKnown;
-use crate::oauth::{OAuth, OAuthError};
+use crate::oauth::{OAuthError, OAuthSerializer};
 
 static LOGIN_LIVE_HOST: &str = "https://login.live.com";
 static MICROSOFT_ONLINE_HOST: &str = "https://login.microsoftonline.com";
@@ -122,8 +122,8 @@ impl GraphDiscovery {
     /// let oauth = GraphDiscovery::V1.oauth().unwrap();
     /// println!("{:#?}", oauth);
     /// ```
-    pub fn oauth(self) -> Result<OAuth, OAuthError> {
-        let mut oauth = OAuth::new();
+    pub fn oauth(self) -> Result<OAuthSerializer, OAuthError> {
+        let mut oauth = OAuthSerializer::new();
         match self {
             GraphDiscovery::V1 => {
                 let k: MicrosoftSigningKeysV1 = self.signing_keys()?;
@@ -156,8 +156,8 @@ impl GraphDiscovery {
     /// let oauth = GraphDiscovery::V1.async_oauth().await.unwrap();
     /// println!("{:#?}", oauth);
     /// ```
-    pub async fn async_oauth(self) -> Result<OAuth, OAuthError> {
-        let mut oauth = OAuth::new();
+    pub async fn async_oauth(self) -> Result<OAuthSerializer, OAuthError> {
+        let mut oauth = OAuthSerializer::new();
         match self {
             GraphDiscovery::V1 => {
                 let k: MicrosoftSigningKeysV1 = self.async_signing_keys().await?;

@@ -6,29 +6,29 @@ use url::Url;
 pub struct OAuthTestTool;
 
 impl OAuthTestTool {
-    fn match_grant_credential(grant_request: GrantRequest) -> OAuthCredential {
+    fn match_grant_credential(grant_request: GrantRequest) -> OAuthParameter {
         match grant_request {
-            GrantRequest::Authorization => OAuthCredential::AuthorizationUrl,
-            GrantRequest::AccessToken => OAuthCredential::AccessTokenUrl,
-            GrantRequest::RefreshToken => OAuthCredential::RefreshTokenUrl,
+            GrantRequest::Authorization => OAuthParameter::AuthorizationUrl,
+            GrantRequest::AccessToken => OAuthParameter::AccessTokenUrl,
+            GrantRequest::RefreshToken => OAuthParameter::RefreshTokenUrl,
         }
     }
 
     pub fn oauth_query_uri_test(
-        oauth: &mut OAuth,
+        oauth: &mut OAuthSerializer,
         grant_type: GrantType,
         grant_request: GrantRequest,
-        includes: Vec<OAuthCredential>,
+        includes: Vec<OAuthParameter>,
     ) {
         let mut url = String::new();
         if grant_request.eq(&GrantRequest::AccessToken) {
-            let mut atu = oauth.get(OAuthCredential::AccessTokenUrl).unwrap();
+            let mut atu = oauth.get(OAuthParameter::AccessTokenUrl).unwrap();
             if !atu.ends_with('?') {
                 atu.push('?');
             }
             url.push_str(atu.as_str());
         } else if grant_request.eq(&GrantRequest::RefreshToken) {
-            let mut rtu = oauth.get(OAuthCredential::RefreshTokenUrl).unwrap();
+            let mut rtu = oauth.get(OAuthParameter::RefreshTokenUrl).unwrap();
             if !rtu.ends_with('?') {
                 rtu.push('?');
             }
@@ -45,9 +45,9 @@ impl OAuthTestTool {
         let mut cow_cred_false: Vec<(Cow<str>, Cow<str>)> = Vec::new();
         let not_includes = OAuthTestTool::credentials_not_including(&includes);
 
-        for oac in OAuthCredential::iter() {
+        for oac in OAuthParameter::iter() {
             if oauth.contains(oac) && includes.contains(&oac) && !not_includes.contains(&oac) {
-                if oac.eq(&OAuthCredential::Scope) {
+                if oac.eq(&OAuthParameter::Scope) {
                     let s = oauth.join_scopes(" ");
                     cow_cred.push((Cow::from(oac.alias()), Cow::from(s.to_owned())));
                 } else if !oac.eq(&OAuthTestTool::match_grant_credential(grant_request)) {
@@ -55,7 +55,7 @@ impl OAuthTestTool {
                     cow_cred.push((Cow::from(oac.alias()), Cow::from(s.to_owned())));
                 }
             } else if oauth.contains(oac) && not_includes.contains(&oac) {
-                if oac.eq(&OAuthCredential::Scope) {
+                if oac.eq(&OAuthParameter::Scope) {
                     let s = oauth.join_scopes(" ");
                     cow_cred.push((Cow::from(oac.alias()), Cow::from(s.to_owned())));
                 } else if !oac.eq(&OAuthTestTool::match_grant_credential(grant_request)) {
@@ -74,9 +74,9 @@ impl OAuthTestTool {
         }
     }
 
-    fn credentials_not_including(included: &[OAuthCredential]) -> Vec<OAuthCredential> {
+    fn credentials_not_including(included: &[OAuthParameter]) -> Vec<OAuthParameter> {
         let mut vec = Vec::new();
-        for oac in OAuthCredential::iter() {
+        for oac in OAuthParameter::iter() {
             if !included.contains(&oac) {
                 vec.push(oac);
             }
@@ -85,7 +85,7 @@ impl OAuthTestTool {
         vec
     }
 
-    pub fn oauth_contains_credentials(oauth: &mut OAuth, credentials: &[OAuthCredential]) {
+    pub fn oauth_contains_credentials(oauth: &mut OAuthSerializer, credentials: &[OAuthParameter]) {
         for oac in credentials.iter() {
             assert!(oauth.contains(*oac));
         }
@@ -102,31 +102,31 @@ impl OAuthTestTool {
 
     pub fn for_each_fn_scope<F>(mut func: F, scopes: &[String])
     where
-        F: FnMut(&mut OAuth, &[String]),
+        F: FnMut(&mut OAuthSerializer, &[String]),
     {
-        let mut oauth = OAuth::new();
+        let mut oauth = OAuthSerializer::new();
         oauth.extend_scopes(scopes);
         func(&mut oauth, scopes)
     }
 
-    pub fn join_scopes(oauth: &mut OAuth, s: &[String]) {
+    pub fn join_scopes(oauth: &mut OAuthSerializer, s: &[String]) {
         assert_eq!(s.join(" "), oauth.join_scopes(" "));
     }
 
-    pub fn contains_scopes(oauth: &mut OAuth, s: &[String]) {
+    pub fn contains_scopes(oauth: &mut OAuthSerializer, s: &[String]) {
         for string in s {
             assert!(oauth.contains_scope(string.as_str()));
         }
     }
 
-    pub fn remove_scopes(oauth: &mut OAuth, s: &[String]) {
+    pub fn remove_scopes(oauth: &mut OAuthSerializer, s: &[String]) {
         for string in s {
             oauth.remove_scope(string.as_str());
             assert!(!oauth.contains_scope(string));
         }
     }
 
-    pub fn get_scopes(oauth: &mut OAuth, s: &[String]) {
+    pub fn get_scopes(oauth: &mut OAuthSerializer, s: &[String]) {
         assert_eq!(
             s,
             oauth
@@ -138,14 +138,14 @@ impl OAuthTestTool {
         )
     }
 
-    pub fn clear_scopes(oauth: &mut OAuth, s: &[String]) {
+    pub fn clear_scopes(oauth: &mut OAuthSerializer, s: &[String]) {
         OAuthTestTool::join_scopes(oauth, s);
         assert!(!oauth.get_scopes().is_empty());
         oauth.clear_scopes();
         assert!(oauth.get_scopes().is_empty())
     }
 
-    pub fn distinct_scopes(oauth: &mut OAuth, s: &[String]) {
+    pub fn distinct_scopes(oauth: &mut OAuthSerializer, s: &[String]) {
         assert_eq!(s.len(), oauth.get_scopes().len());
         let s0 = &s[0];
         oauth.add_scope(s0.as_str());

@@ -1,7 +1,7 @@
 use crate::access_token::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
 use crate::id_token::IdToken;
-use crate::identity::form_credential::FormCredential;
+use crate::identity::form_credential::SerializerField;
 use crate::identity::{Authority, AzureAuthorityHost};
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
@@ -20,7 +20,7 @@ use url::Url;
 #[derive(
     Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize, EnumIter,
 )]
-pub enum OAuthCredential {
+pub enum OAuthParameter {
     ClientId,
     ClientSecret,
     AuthorizationUrl,
@@ -55,67 +55,67 @@ pub enum OAuthCredential {
     DeviceCode,
 }
 
-impl OAuthCredential {
+impl OAuthParameter {
     pub fn alias(self) -> &'static str {
         match self {
-            OAuthCredential::ClientId => "client_id",
-            OAuthCredential::ClientSecret => "client_secret",
-            OAuthCredential::AuthorizationUrl => "authorization_url",
-            OAuthCredential::AccessTokenUrl => "access_token_url",
-            OAuthCredential::RefreshTokenUrl => "refresh_token_url",
-            OAuthCredential::RedirectUri => "redirect_uri",
-            OAuthCredential::AuthorizationCode => "code",
-            OAuthCredential::AccessToken => "access_token",
-            OAuthCredential::RefreshToken => "refresh_token",
-            OAuthCredential::ResponseMode => "response_mode",
-            OAuthCredential::ResponseType => "response_type",
-            OAuthCredential::State => "state",
-            OAuthCredential::SessionState => "session_state",
-            OAuthCredential::GrantType => "grant_type",
-            OAuthCredential::Nonce => "nonce",
-            OAuthCredential::Prompt => "prompt",
-            OAuthCredential::IdToken => "id_token",
-            OAuthCredential::Resource => "resource",
-            OAuthCredential::DomainHint => "domain_hint",
-            OAuthCredential::Scope => "scope",
-            OAuthCredential::LoginHint => "login_hint",
-            OAuthCredential::ClientAssertion => "client_assertion",
-            OAuthCredential::ClientAssertionType => "client_assertion_type",
-            OAuthCredential::CodeVerifier => "code_verifier",
-            OAuthCredential::CodeChallenge => "code_challenge",
-            OAuthCredential::CodeChallengeMethod => "code_challenge_method",
-            OAuthCredential::LogoutURL => "logout_url",
-            OAuthCredential::PostLogoutRedirectURI => "post_logout_redirect_uri",
-            OAuthCredential::AdminConsent => "admin_consent",
-            OAuthCredential::Username => "username",
-            OAuthCredential::Password => "password",
-            OAuthCredential::DeviceCode => "device_code",
+            OAuthParameter::ClientId => "client_id",
+            OAuthParameter::ClientSecret => "client_secret",
+            OAuthParameter::AuthorizationUrl => "authorization_url",
+            OAuthParameter::AccessTokenUrl => "access_token_url",
+            OAuthParameter::RefreshTokenUrl => "refresh_token_url",
+            OAuthParameter::RedirectUri => "redirect_uri",
+            OAuthParameter::AuthorizationCode => "code",
+            OAuthParameter::AccessToken => "access_token",
+            OAuthParameter::RefreshToken => "refresh_token",
+            OAuthParameter::ResponseMode => "response_mode",
+            OAuthParameter::ResponseType => "response_type",
+            OAuthParameter::State => "state",
+            OAuthParameter::SessionState => "session_state",
+            OAuthParameter::GrantType => "grant_type",
+            OAuthParameter::Nonce => "nonce",
+            OAuthParameter::Prompt => "prompt",
+            OAuthParameter::IdToken => "id_token",
+            OAuthParameter::Resource => "resource",
+            OAuthParameter::DomainHint => "domain_hint",
+            OAuthParameter::Scope => "scope",
+            OAuthParameter::LoginHint => "login_hint",
+            OAuthParameter::ClientAssertion => "client_assertion",
+            OAuthParameter::ClientAssertionType => "client_assertion_type",
+            OAuthParameter::CodeVerifier => "code_verifier",
+            OAuthParameter::CodeChallenge => "code_challenge",
+            OAuthParameter::CodeChallengeMethod => "code_challenge_method",
+            OAuthParameter::LogoutURL => "logout_url",
+            OAuthParameter::PostLogoutRedirectURI => "post_logout_redirect_uri",
+            OAuthParameter::AdminConsent => "admin_consent",
+            OAuthParameter::Username => "username",
+            OAuthParameter::Password => "password",
+            OAuthParameter::DeviceCode => "device_code",
         }
     }
 
     fn is_debug_redacted(&self) -> bool {
         matches!(
             self,
-            OAuthCredential::ClientId
-                | OAuthCredential::ClientSecret
-                | OAuthCredential::AccessToken
-                | OAuthCredential::RefreshToken
-                | OAuthCredential::IdToken
-                | OAuthCredential::CodeVerifier
-                | OAuthCredential::CodeChallenge
-                | OAuthCredential::Password
-                | OAuthCredential::AuthorizationCode
+            OAuthParameter::ClientId
+                | OAuthParameter::ClientSecret
+                | OAuthParameter::AccessToken
+                | OAuthParameter::RefreshToken
+                | OAuthParameter::IdToken
+                | OAuthParameter::CodeVerifier
+                | OAuthParameter::CodeChallenge
+                | OAuthParameter::Password
+                | OAuthParameter::AuthorizationCode
         )
     }
 }
 
-impl ToString for OAuthCredential {
+impl ToString for OAuthParameter {
     fn to_string(&self) -> String {
         self.alias().to_string()
     }
 }
 
-impl AsRef<str> for OAuthCredential {
+impl AsRef<str> for OAuthParameter {
     fn as_ref(&self) -> &'static str {
         self.alias()
     }
@@ -143,55 +143,55 @@ impl AsRef<str> for OAuthCredential {
 ///
 /// # Example
 /// ```
-/// use graph_oauth::oauth::OAuth;
-/// let oauth = OAuth::new();
+/// use graph_oauth::oauth::OAuthSerializer;
+/// let oauth = OAuthSerializer::new();
 /// ```
 #[derive(Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct OAuth {
+pub struct OAuthSerializer {
     access_token: Option<AccessToken>,
     scopes: BTreeSet<String>,
     credentials: BTreeMap<String, String>,
 }
 
-impl OAuth {
+impl OAuthSerializer {
     /// Create a new OAuth instance.
     ///
     /// # Example
     /// ```
-    /// use graph_oauth::oauth::{OAuth, GrantType};
+    /// use graph_oauth::oauth::{OAuthSerializer, GrantType};
     ///
-    /// let mut oauth = OAuth::new();
+    /// let mut oauth = OAuthSerializer::new();
     /// ```
-    pub fn new() -> OAuth {
-        OAuth {
+    pub fn new() -> OAuthSerializer {
+        OAuthSerializer {
             access_token: None,
             scopes: BTreeSet::new(),
             credentials: BTreeMap::new(),
         }
     }
 
-    /// Insert oauth credentials using the OAuthCredential enum.
+    /// Insert oauth credentials using the OAuthParameter enum.
     /// This method is used internally for each of the setter methods.
     /// Callers can optionally use this method to set credentials instead
     /// of the individual setter methods.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::new();
-    /// oauth.insert(OAuthCredential::AuthorizationUrl, "https://example.com");
-    /// assert!(oauth.contains(OAuthCredential::AuthorizationUrl));
-    /// println!("{:#?}", oauth.get(OAuthCredential::AuthorizationUrl));
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # let mut oauth = OAuthSerializer::new();
+    /// oauth.insert(OAuthParameter::AuthorizationUrl, "https://example.com");
+    /// assert!(oauth.contains(OAuthParameter::AuthorizationUrl));
+    /// println!("{:#?}", oauth.get(OAuthParameter::AuthorizationUrl));
     /// ```
-    pub fn insert<V: ToString>(&mut self, oac: OAuthCredential, value: V) -> &mut OAuth {
+    pub fn insert<V: ToString>(&mut self, oac: OAuthParameter, value: V) -> &mut OAuthSerializer {
         let v = value.to_string();
         match oac {
-            OAuthCredential::RefreshTokenUrl
-            | OAuthCredential::PostLogoutRedirectURI
-            | OAuthCredential::AccessTokenUrl
-            | OAuthCredential::AuthorizationUrl
-            | OAuthCredential::LogoutURL => {
+            OAuthParameter::RefreshTokenUrl
+            | OAuthParameter::PostLogoutRedirectURI
+            | OAuthParameter::AccessTokenUrl
+            | OAuthParameter::AuthorizationUrl
+            | OAuthParameter::LogoutURL => {
                 Url::parse(v.as_ref()).unwrap();
             }
             _ => {}
@@ -203,24 +203,24 @@ impl OAuth {
 
     /// Insert and OAuth credential using the entry trait and
     /// returning the credential. This internally calls
-    /// `entry.(OAuthCredential).or_insret_with(value)`.
+    /// `entry.(OAuthParameter).or_insret_with(value)`.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::new();
-    /// let entry = oauth.entry(OAuthCredential::AuthorizationUrl, "https://example.com");
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # let mut oauth = OAuthSerializer::new();
+    /// let entry = oauth.entry(OAuthParameter::AuthorizationUrl, "https://example.com");
     /// assert_eq!(entry, "https://example.com")
     /// ```
-    pub fn entry<V: ToString>(&mut self, oac: OAuthCredential, value: V) -> &mut String {
+    pub fn entry<V: ToString>(&mut self, oac: OAuthParameter, value: V) -> &mut String {
         let v = value.to_string();
         match oac {
-            OAuthCredential::RefreshTokenUrl
-            | OAuthCredential::PostLogoutRedirectURI
-            | OAuthCredential::AccessTokenUrl
-            | OAuthCredential::AuthorizationUrl
-            | OAuthCredential::LogoutURL => {
+            OAuthParameter::RefreshTokenUrl
+            | OAuthParameter::PostLogoutRedirectURI
+            | OAuthParameter::AccessTokenUrl
+            | OAuthParameter::AuthorizationUrl
+            | OAuthParameter::LogoutURL => {
                 Url::parse(v.as_ref()).unwrap();
             }
             _ => {}
@@ -235,12 +235,12 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::new();
-    /// let a = oauth.get(OAuthCredential::AuthorizationUrl);
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # let mut oauth = OAuthSerializer::new();
+    /// let a = oauth.get(OAuthParameter::AuthorizationUrl);
     /// ```
-    pub fn get(&self, oac: OAuthCredential) -> Option<String> {
+    pub fn get(&self, oac: OAuthParameter) -> Option<String> {
         self.credentials.get(oac.alias()).cloned()
     }
 
@@ -248,13 +248,13 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::new();
-    /// println!("{:#?}", oauth.contains(OAuthCredential::Nonce));
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # let mut oauth = OAuthSerializer::new();
+    /// println!("{:#?}", oauth.contains(OAuthParameter::Nonce));
     /// ```
-    pub fn contains(&self, t: OAuthCredential) -> bool {
-        if t == OAuthCredential::Scope {
+    pub fn contains(&self, t: OAuthParameter) -> bool {
+        if t == OAuthParameter::Scope {
             return !self.scopes.is_empty();
         }
         self.credentials.contains_key(t.alias())
@@ -268,17 +268,17 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_id("client_id");
     ///
-    /// assert_eq!(oauth.contains(OAuthCredential::ClientId), true);
-    /// oauth.remove(OAuthCredential::ClientId);
+    /// assert_eq!(oauth.contains(OAuthParameter::ClientId), true);
+    /// oauth.remove(OAuthParameter::ClientId);
     ///
-    /// assert_eq!(oauth.contains(OAuthCredential::ClientId), false);
+    /// assert_eq!(oauth.contains(OAuthParameter::ClientId), false);
     /// ```
-    pub fn remove(&mut self, oac: OAuthCredential) -> &mut OAuth {
+    pub fn remove(&mut self, oac: OAuthParameter) -> &mut OAuthSerializer {
         self.credentials.remove(oac.alias());
         self
     }
@@ -287,74 +287,74 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_id("client_id");
     /// ```
-    pub fn client_id(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ClientId, value)
+    pub fn client_id(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::ClientId, value)
     }
 
     /// Set the state for an OAuth request.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # use graph_oauth::oauth::OAuthCredential;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.state("1234");
     /// ```
-    pub fn state(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::State, value)
+    pub fn state(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::State, value)
     }
 
     /// Set the client secret for an OAuth request.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_secret("client_secret");
     /// ```
-    pub fn client_secret(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ClientSecret, value)
+    pub fn client_secret(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::ClientSecret, value)
     }
 
     /// Set the authorization URL.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.authorization_url("https://example.com/authorize");
     /// ```
-    pub fn authorization_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AuthorizationUrl, value)
+    pub fn authorization_url(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::AuthorizationUrl, value)
     }
 
     /// Set the access token url of a request for OAuth
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.access_token_url("https://example.com/token");
     /// ```
-    pub fn access_token_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AccessTokenUrl, value)
+    pub fn access_token_url(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::AccessTokenUrl, value)
     }
 
     /// Set the refresh token url of a request for OAuth
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.refresh_token_url("https://example.com/token");
     /// ```
-    pub fn refresh_token_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::RefreshTokenUrl, value)
+    pub fn refresh_token_url(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::RefreshTokenUrl, value)
     }
 
     /// Set the authorization, access token, and refresh token URL
@@ -362,11 +362,11 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.tenant_id("tenant_id");
     /// ```
-    pub fn tenant_id(&mut self, value: &str) -> &mut OAuth {
+    pub fn tenant_id(&mut self, value: &str) -> &mut OAuthSerializer {
         let token_url = format!("https://login.microsoftonline.com/{value}/oauth2/v2.0/token",);
         let auth_url = format!("https://login.microsoftonline.com/{value}/oauth2/v2.0/authorize",);
 
@@ -380,11 +380,15 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.tenant_id("tenant_id");
     /// ```
-    pub fn authority(&mut self, host: &AzureAuthorityHost, authority: &Authority) -> &mut OAuth {
+    pub fn authority(
+        &mut self,
+        host: &AzureAuthorityHost,
+        authority: &Authority,
+    ) -> &mut OAuthSerializer {
         if host.eq(&AzureAuthorityHost::OneDriveAndSharePoint) {
             return self.legacy_authority();
         }
@@ -405,7 +409,7 @@ impl OAuth {
         &mut self,
         host: &AzureAuthorityHost,
         authority: &Authority,
-    ) -> &mut OAuth {
+    ) -> &mut OAuthSerializer {
         let token_url = format!("{}/{}/oauth2/v2.0/token", host.as_ref(), authority.as_ref());
         let auth_url = format!("{}/{}/adminconsent", host.as_ref(), authority.as_ref());
 
@@ -414,7 +418,7 @@ impl OAuth {
             .refresh_token_url(&token_url)
     }
 
-    pub fn legacy_authority(&mut self) -> &mut OAuth {
+    pub fn legacy_authority(&mut self) -> &mut OAuthSerializer {
         self.authorization_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref());
         self.access_token_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref());
         self.refresh_token_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref())
@@ -424,61 +428,61 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.redirect_uri("https://localhost:8888/redirect");
     /// ```
-    pub fn redirect_uri(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::RedirectUri, value)
+    pub fn redirect_uri(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::RedirectUri, value)
     }
 
     /// Set the access code.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.authorization_code("LDSF[POK43");
     /// ```
-    pub fn authorization_code(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::AuthorizationCode, value)
+    pub fn authorization_code(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::AuthorizationCode, value)
     }
 
     /// Set the response mode.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.response_mode("query");
     /// ```
-    pub fn response_mode(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ResponseMode, value)
+    pub fn response_mode(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::ResponseMode, value)
     }
 
     /// Set the response type.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.response_type("token");
     /// ```
-    pub fn response_type<T: ToString>(&mut self, value: T) -> &mut OAuth {
-        self.insert(OAuthCredential::ResponseType, value)
+    pub fn response_type<T: ToString>(&mut self, value: T) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::ResponseType, value)
     }
 
     /// Set the nonce.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthSerializer;
     ///
-    /// # let mut oauth = OAuth::new();
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.nonce("1234");
     /// ```
-    pub fn nonce(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Nonce, value)
+    pub fn nonce(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::Nonce, value)
     }
 
     // rand = "0.8.5"
@@ -487,118 +491,118 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthSerializer;
     ///
-    /// # let mut oauth = OAuth::new();
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.prompt("login");
     /// ```
-    pub fn prompt(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Prompt, value)
+    pub fn prompt(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::Prompt, value)
     }
 
     /// Set id token for open id.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{OAuth, IdToken};
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::{OAuthSerializer, IdToken};
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.id_token(IdToken::new("1345", "code", "state", "session_state"));
     /// ```
-    pub fn id_token(&mut self, value: IdToken) -> &mut OAuth {
+    pub fn id_token(&mut self, value: IdToken) -> &mut OAuthSerializer {
         if let Some(code) = value.get_code() {
             self.authorization_code(code.as_str());
         }
         if let Some(state) = value.get_state() {
-            let _ = self.entry(OAuthCredential::State, state.as_str());
+            let _ = self.entry(OAuthParameter::State, state.as_str());
         }
         if let Some(session_state) = value.get_session_state() {
             self.session_state(session_state.as_str());
         }
-        self.insert(OAuthCredential::IdToken, value.get_id_token().as_str())
+        self.insert(OAuthParameter::IdToken, value.get_id_token().as_str())
     }
 
     /// Set the session state.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.session_state("session-state");
     /// ```
-    pub fn session_state(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::SessionState, value)
+    pub fn session_state(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::SessionState, value)
     }
 
     /// Set the grant_type.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.grant_type("token");
     /// ```
-    pub fn grant_type(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::GrantType, value)
+    pub fn grant_type(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::GrantType, value)
     }
 
     /// Set the resource.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.resource("resource");
     /// ```
-    pub fn resource(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Resource, value)
+    pub fn resource(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::Resource, value)
     }
 
     /// Set the code verifier.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.code_verifier("code_verifier");
     /// ```
-    pub fn code_verifier(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::CodeVerifier, value)
+    pub fn code_verifier(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::CodeVerifier, value)
     }
 
     /// Set the domain hint.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.domain_hint("domain_hint");
     /// ```
-    pub fn domain_hint(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::DomainHint, value)
+    pub fn domain_hint(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::DomainHint, value)
     }
 
     /// Set the code challenge.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.code_challenge("code_challenge");
     /// ```
-    pub fn code_challenge(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::CodeChallenge, value)
+    pub fn code_challenge(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::CodeChallenge, value)
     }
 
     /// Set the code challenge method.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.code_challenge_method("code_challenge_method");
     /// ```
-    pub fn code_challenge_method(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::CodeChallengeMethod, value)
+    pub fn code_challenge_method(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::CodeChallengeMethod, value)
     }
 
     /// Generate a code challenge and code verifier for the
@@ -622,22 +626,22 @@ impl OAuth {
     /// # Example
     /// ```
     /// # use base64::Engine;
-    /// use graph_oauth::oauth::OAuth;
-    /// use graph_oauth::oauth::OAuthCredential;
+    /// use graph_oauth::oauth::OAuthSerializer;
+    /// use graph_oauth::oauth::OAuthParameter;
     ///
-    /// let mut oauth = OAuth::new();
+    /// let mut oauth = OAuthSerializer::new();
     /// oauth.generate_sha256_challenge_and_verifier().unwrap();
     ///
-    /// # assert!(oauth.contains(OAuthCredential::CodeChallenge));
-    /// # assert!(oauth.contains(OAuthCredential::CodeVerifier));
-    /// # assert!(oauth.contains(OAuthCredential::CodeChallengeMethod));
-    /// println!("Code Challenge: {:#?}", oauth.get(OAuthCredential::CodeChallenge));
-    /// println!("Code Verifier: {:#?}", oauth.get(OAuthCredential::CodeVerifier));
-    /// println!("Code Challenge Method: {:#?}", oauth.get(OAuthCredential::CodeChallengeMethod));
+    /// # assert!(oauth.contains(OAuthParameter::CodeChallenge));
+    /// # assert!(oauth.contains(OAuthParameter::CodeVerifier));
+    /// # assert!(oauth.contains(OAuthParameter::CodeChallengeMethod));
+    /// println!("Code Challenge: {:#?}", oauth.get(OAuthParameter::CodeChallenge));
+    /// println!("Code Verifier: {:#?}", oauth.get(OAuthParameter::CodeVerifier));
+    /// println!("Code Challenge Method: {:#?}", oauth.get(OAuthParameter::CodeChallengeMethod));
     ///
-    /// # let challenge = oauth.get(OAuthCredential::CodeChallenge).unwrap();
+    /// # let challenge = oauth.get(OAuthParameter::CodeChallenge).unwrap();
     /// # let mut context = ring::digest::Context::new(&ring::digest::SHA256);
-    /// # context.update(oauth.get(OAuthCredential::CodeVerifier).unwrap().as_bytes());
+    /// # context.update(oauth.get(OAuthParameter::CodeVerifier).unwrap().as_bytes());
     /// # let verifier = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(context.finish().as_ref());
     /// # assert_eq!(challenge, verifier);
     /// ```
@@ -661,118 +665,118 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.login_hint("login_hint");
     /// ```
-    pub fn login_hint(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::LoginHint, value)
+    pub fn login_hint(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::LoginHint, value)
     }
 
     /// Set the client assertion.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_assertion("client_assertion");
     /// ```
-    pub fn client_assertion(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ClientAssertion, value)
+    pub fn client_assertion(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::ClientAssertion, value)
     }
 
     /// Set the client assertion type.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_assertion_type("client_assertion_type");
     /// ```
-    pub fn client_assertion_type(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::ClientAssertionType, value)
+    pub fn client_assertion_type(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::ClientAssertionType, value)
     }
 
     /// Set the url to send a post request that will log out the user.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.logout_url("https://example.com/logout?");
     /// ```
-    pub fn logout_url(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::LogoutURL, value)
+    pub fn logout_url(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::LogoutURL, value)
     }
 
     /// Set the redirect uri that user will be redirected to after logging out.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.post_logout_redirect_uri("http://localhost:8080");
     /// ```
-    pub fn post_logout_redirect_uri(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::PostLogoutRedirectURI, value)
+    pub fn post_logout_redirect_uri(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::PostLogoutRedirectURI, value)
     }
 
     /// Set the redirect uri that user will be redirected to after logging out.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{OAuth, OAuthCredential};
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::{OAuthSerializer, OAuthParameter};
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.username("user");
-    /// assert!(oauth.contains(OAuthCredential::Username))
+    /// assert!(oauth.contains(OAuthParameter::Username))
     /// ```
-    pub fn username(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Username, value)
+    pub fn username(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::Username, value)
     }
 
     /// Set the redirect uri that user will be redirected to after logging out.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{OAuth, OAuthCredential};
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::{OAuthSerializer, OAuthParameter};
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.password("user");
-    /// assert!(oauth.contains(OAuthCredential::Password))
+    /// assert!(oauth.contains(OAuthParameter::Password))
     /// ```
-    pub fn password(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::Password, value)
+    pub fn password(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::Password, value)
     }
 
-    pub fn refresh_token(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::RefreshToken, value)
+    pub fn refresh_token(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::RefreshToken, value)
     }
 
     /// Set the device code for the device authorization flow.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{OAuth, OAuthCredential};
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::{OAuthSerializer, OAuthParameter};
+    /// # let mut oauth = OAuthSerializer::new();
     /// oauth.device_code("device_code");
-    /// assert!(oauth.contains(OAuthCredential::DeviceCode))
+    /// assert!(oauth.contains(OAuthParameter::DeviceCode))
     /// ```
-    pub fn device_code(&mut self, value: &str) -> &mut OAuth {
-        self.insert(OAuthCredential::DeviceCode, value)
+    pub fn device_code(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::DeviceCode, value)
     }
 
     /// Add a scope' for the OAuth URL.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     ///
     /// oauth.add_scope("Sites.Read")
     ///     .add_scope("Sites.ReadWrite")
     ///     .add_scope("Sites.ReadWrite.All");
     /// assert_eq!(oauth.join_scopes(" "), "Sites.Read Sites.ReadWrite Sites.ReadWrite.All");
     /// ```
-    pub fn add_scope<T: ToString>(&mut self, scope: T) -> &mut OAuth {
+    pub fn add_scope<T: ToString>(&mut self, scope: T) -> &mut OAuthSerializer {
         self.scopes.insert(scope.to_string());
         self
     }
@@ -781,8 +785,8 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// let mut oauth = OAuthSerializer::new();
     /// oauth.add_scope("Files.Read");
     /// oauth.add_scope("Files.ReadWrite");
     ///
@@ -798,8 +802,8 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     ///
     /// // the scopes take a separator just like Vec join.
     ///  let s = oauth.join_scopes(" ");
@@ -817,9 +821,9 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthSerializer;
     /// # use std::collections::HashSet;
-    /// # let mut oauth = OAuth::new();
+    /// # let mut oauth = OAuthSerializer::new();
     ///
     /// let scopes1 = vec!["Files.Read", "Files.ReadWrite"];
     /// oauth.extend_scopes(&scopes1);
@@ -835,8 +839,8 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     ///
     /// oauth.add_scope("Files.Read");
     /// assert_eq!(oauth.contains_scope("Files.Read"), true);
@@ -853,8 +857,8 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     ///
     /// oauth.add_scope("scope");
     /// # assert!(oauth.contains_scope("scope"));
@@ -869,8 +873,8 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     ///
     /// oauth.add_scope("Files.Read").add_scope("Files.ReadWrite");
     /// assert_eq!("Files.Read Files.ReadWrite", oauth.join_scopes(" "));
@@ -886,9 +890,9 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// use graph_oauth::oauth::OAuth;
+    /// use graph_oauth::oauth::OAuthSerializer;
     /// use graph_oauth::oauth::AccessToken;
-    /// let mut oauth = OAuth::new();
+    /// let mut oauth = OAuthSerializer::new();
     /// let access_token = AccessToken::default();
     /// oauth.access_token(access_token);
     /// ```
@@ -903,10 +907,10 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthSerializer;
     /// # use graph_oauth::oauth::AccessToken;
     /// # let access_token = AccessToken::default();
-    /// # let mut oauth = OAuth::new();
+    /// # let mut oauth = OAuthSerializer::new();
     /// # oauth.access_token(access_token);
     /// let access_token = oauth.get_access_token().unwrap();
     /// println!("{:#?}", access_token);
@@ -921,9 +925,9 @@ impl OAuth {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
+    /// # use graph_oauth::oauth::OAuthSerializer;
     /// # use graph_oauth::oauth::AccessToken;
-    /// # let mut oauth = OAuth::new();
+    /// # let mut oauth = OAuthSerializer::new();
     /// let mut  access_token = AccessToken::default();
     /// access_token.set_refresh_token("refresh_token");
     /// oauth.access_token(access_token);
@@ -932,16 +936,16 @@ impl OAuth {
     /// println!("{:#?}", refresh_token);
     /// ```
     pub fn get_refresh_token(&self) -> GraphResult<String> {
-        if let Some(refresh_token) = self.get(OAuthCredential::RefreshToken) {
+        if let Some(refresh_token) = self.get(OAuthParameter::RefreshToken) {
             return Ok(refresh_token);
         }
 
         match self.get_access_token() {
             Some(token) => match token.refresh_token() {
                 Some(t) => Ok(t),
-                None => OAuthError::error_from::<String>(OAuthCredential::RefreshToken),
+                None => OAuthError::error_from::<String>(OAuthParameter::RefreshToken),
             },
-            None => OAuthError::error_from::<String>(OAuthCredential::RefreshToken),
+            None => OAuthError::error_from::<String>(OAuthParameter::RefreshToken),
         }
     }
 
@@ -969,7 +973,7 @@ impl OAuth {
     /// oauth.v1_logout().unwrap();
     /// ```
     pub fn v1_logout(&mut self) -> GraphResult<()> {
-        let mut url = self.get_or_else(OAuthCredential::LogoutURL)?;
+        let mut url = self.get_or_else(OAuthParameter::LogoutURL)?;
         if !url.ends_with('?') {
             url.push('?');
         }
@@ -977,13 +981,13 @@ impl OAuth {
         let mut vec = vec![
             url,
             "&client_id=".to_string(),
-            self.get_or_else(OAuthCredential::ClientId)?,
+            self.get_or_else(OAuthParameter::ClientId)?,
             "&redirect_uri=".to_string(),
         ];
 
-        if let Some(redirect) = self.get(OAuthCredential::PostLogoutRedirectURI) {
+        if let Some(redirect) = self.get(OAuthParameter::PostLogoutRedirectURI) {
             vec.push(redirect);
-        } else if let Some(redirect) = self.get(OAuthCredential::RedirectUri) {
+        } else if let Some(redirect) = self.get(OAuthParameter::RedirectUri) {
             vec.push(redirect);
         }
         webbrowser::open(vec.join("").as_str()).map_err(GraphFailure::from)
@@ -999,15 +1003,15 @@ impl OAuth {
     /// oauth.v2_logout().unwrap();
     /// ```
     pub fn v2_logout(&self) -> GraphResult<()> {
-        let mut url = self.get_or_else(OAuthCredential::LogoutURL)?;
+        let mut url = self.get_or_else(OAuthParameter::LogoutURL)?;
         if !url.ends_with('?') {
             url.push('?');
         }
-        if let Some(redirect) = self.get(OAuthCredential::PostLogoutRedirectURI) {
+        if let Some(redirect) = self.get(OAuthParameter::PostLogoutRedirectURI) {
             url.push_str("post_logout_redirect_uri=");
             url.push_str(redirect.as_str());
         } else {
-            let redirect_uri = self.get_or_else(OAuthCredential::RedirectUri)?;
+            let redirect_uri = self.get_or_else(OAuthParameter::RedirectUri)?;
             url.push_str("post_logout_redirect_uri=");
             url.push_str(redirect_uri.as_str());
         }
@@ -1015,14 +1019,14 @@ impl OAuth {
     }
 }
 
-impl OAuth {
-    pub fn get_or_else(&self, c: OAuthCredential) -> GraphResult<String> {
+impl OAuthSerializer {
+    pub fn get_or_else(&self, c: OAuthParameter) -> GraphResult<String> {
         self.get(c).ok_or_else(|| OAuthError::credential_error(c))
     }
 
     pub fn form_encode_credentials(
         &mut self,
-        pairs: Vec<OAuthCredential>,
+        pairs: Vec<OAuthParameter>,
         encoder: &mut Serializer<String>,
     ) {
         pairs
@@ -1037,11 +1041,11 @@ impl OAuth {
             });
     }
 
-    fn query_encode_filter(&self, form_credential: &FormCredential) -> bool {
+    fn query_encode_filter(&self, form_credential: &SerializerField) -> bool {
         let oac = {
             match form_credential {
-                FormCredential::Required(oac) => *oac,
-                FormCredential::NotRequired(oac) => *oac,
+                SerializerField::Required(oac) => *oac,
+                SerializerField::NotRequired(oac) => *oac,
             }
         };
         self.contains_key(oac.alias()) || oac.alias().eq("scope")
@@ -1049,13 +1053,13 @@ impl OAuth {
 
     pub fn url_query_encode(
         &mut self,
-        pairs: Vec<FormCredential>,
+        pairs: Vec<SerializerField>,
         encoder: &mut Serializer<String>,
     ) -> AuthorizationResult<()> {
         for form_credential in pairs.iter() {
             if self.query_encode_filter(form_credential) {
                 match form_credential {
-                    FormCredential::Required(oac) => {
+                    SerializerField::Required(oac) => {
                         if oac.alias().eq("scope") {
                             if self.scopes.is_empty() {
                                 return AuthorizationFailure::required_value_msg_result::<()>(
@@ -1074,7 +1078,7 @@ impl OAuth {
                             );
                         }
                     }
-                    FormCredential::NotRequired(oac) => {
+                    SerializerField::NotRequired(oac) => {
                         if oac.alias().eq("scope") && !self.scopes.is_empty() {
                             encoder.append_pair("scope", self.join_scopes(" ").as_str());
                         } else if let Some(val) = self.get(*oac) {
@@ -1088,10 +1092,10 @@ impl OAuth {
         Ok(())
     }
 
-    pub fn params(&mut self, pairs: Vec<OAuthCredential>) -> GraphResult<HashMap<String, String>> {
+    pub fn params(&mut self, pairs: Vec<OAuthParameter>) -> GraphResult<HashMap<String, String>> {
         let mut map: HashMap<String, String> = HashMap::new();
         for oac in pairs.iter() {
-            if oac.eq(&OAuthCredential::RefreshToken) {
+            if oac.eq(&OAuthParameter::RefreshToken) {
                 if let Some(val) = self.get(*oac) {
                     map.insert(oac.to_string(), val);
                 } else {
@@ -1108,13 +1112,13 @@ impl OAuth {
 
     pub fn authorization_form(
         &mut self,
-        form_credentials: Vec<FormCredential>,
+        form_credentials: Vec<SerializerField>,
     ) -> AuthorizationResult<HashMap<String, String>> {
         let mut map: HashMap<String, String> = HashMap::new();
 
         for form_credential in form_credentials.iter() {
             match form_credential {
-                FormCredential::Required(oac) => {
+                SerializerField::Required(oac) => {
                     let val = self.get(*oac).ok_or(AuthorizationFailure::RequiredValue {
                         name: oac.alias().into(),
                         message: None,
@@ -1125,8 +1129,8 @@ impl OAuth {
                         map.insert(oac.to_string(), val);
                     }
                 }
-                FormCredential::NotRequired(oac) => {
-                    if oac.eq(&OAuthCredential::Scope) && !self.scopes.is_empty() {
+                SerializerField::NotRequired(oac) => {
+                    if oac.eq(&OAuthParameter::Scope) && !self.scopes.is_empty() {
                         map.insert("scope".into(), self.join_scopes(" "));
                     } else if let Some(val) = self.get(*oac) {
                         if !val.trim().is_empty() {
@@ -1150,9 +1154,9 @@ impl OAuth {
 			GrantType::TokenFlow =>
 				match request_type {
 					GrantRequest::Authorization => {
-						let _ = self.entry(OAuthCredential::ResponseType, "token");
+						let _ = self.entry(OAuthParameter::ResponseType, "token");
 						self.form_encode_credentials(GrantType::TokenFlow.available_credentials(GrantRequest::Authorization), &mut encoder);
-						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
+						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1170,11 +1174,11 @@ impl OAuth {
 			GrantType::CodeFlow =>
 				match request_type {
 					GrantRequest::Authorization => {
-						let _ = self.entry(OAuthCredential::ResponseType, "code");
-						let _ = self.entry(OAuthCredential::ResponseMode, "query");
+						let _ = self.entry(OAuthParameter::ResponseType, "code");
+						let _ = self.entry(OAuthParameter::ResponseMode, "query");
 						self.form_encode_credentials(GrantType::CodeFlow.available_credentials(GrantRequest::Authorization), &mut encoder);
 
-						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
+						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1182,13 +1186,13 @@ impl OAuth {
 						Ok(url)
 					}
 					GrantRequest::AccessToken => {
-						let _ = self.entry(OAuthCredential::ResponseType, "token");
-						let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+						let _ = self.entry(OAuthParameter::ResponseType, "token");
+						let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
 						self.form_encode_credentials(GrantType::CodeFlow.available_credentials(GrantRequest::AccessToken), &mut encoder);
 						Ok(encoder.finish())
 					}
 					GrantRequest::RefreshToken => {
-						let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+						let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
 						self.form_encode_credentials(GrantType::CodeFlow.available_credentials(GrantRequest::RefreshToken), &mut encoder);
 						Ok(encoder.finish())
 					}
@@ -1196,10 +1200,10 @@ impl OAuth {
 			GrantType::AuthorizationCode =>
 				match request_type {
 					GrantRequest::Authorization => {
-						let _ = self.entry(OAuthCredential::ResponseType, "code");
-						let _ = self.entry(OAuthCredential::ResponseMode, "query");
+						let _ = self.entry(OAuthParameter::ResponseType, "code");
+						let _ = self.entry(OAuthParameter::ResponseMode, "query");
 						self.form_encode_credentials(GrantType::AuthorizationCode.available_credentials(GrantRequest::Authorization), &mut encoder);
-						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
+						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1208,9 +1212,9 @@ impl OAuth {
 					}
 					GrantRequest::AccessToken | GrantRequest::RefreshToken => {
 						if request_type == GrantRequest::AccessToken {
-							let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+							let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
 						} else {
-							let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+							let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
 						}
 						self.form_encode_credentials(GrantType::AuthorizationCode.available_credentials(request_type), &mut encoder);
 						Ok(encoder.finish())
@@ -1220,10 +1224,10 @@ impl OAuth {
 				match request_type {
 					GrantRequest::Authorization => {
 						if !self.scopes.is_empty() {
-							let _ = self.entry(OAuthCredential::ResponseType, "token");
+							let _ = self.entry(OAuthParameter::ResponseType, "token");
 						}
 						self.form_encode_credentials(GrantType::Implicit.available_credentials(GrantRequest::Authorization), &mut encoder);
-						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
+						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1243,7 +1247,7 @@ impl OAuth {
                     GrantRequest::Authorization => {
                         self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::Authorization), &mut encoder);
 
-                        let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
+                        let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
                         if !url.ends_with('?') {
                             url.push('?');
                         }
@@ -1251,12 +1255,12 @@ impl OAuth {
                         Ok(url)
                     }
                     GrantRequest::AccessToken => {
-                        let _ = self.entry(OAuthCredential::GrantType, "urn:ietf:params:oauth:grant-type:device_code");
+                        let _ = self.entry(OAuthParameter::GrantType, "urn:ietf:params:oauth:grant-type:device_code");
                         self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::AccessToken), &mut encoder);
                         Ok(encoder.finish())
                     }
                     GrantRequest::RefreshToken => {
-                        let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                        let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
                         self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::AccessToken), &mut encoder);
                         Ok(encoder.finish())
                     }
@@ -1266,7 +1270,7 @@ impl OAuth {
 					GrantRequest::Authorization => {
 						self.form_encode_credentials(GrantType::OpenId.available_credentials(GrantRequest::Authorization), &mut encoder);
 
-						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
+						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1274,12 +1278,12 @@ impl OAuth {
 						Ok(url)
 					}
 					GrantRequest::AccessToken => {
-						let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+						let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
 						self.form_encode_credentials(GrantType::OpenId.available_credentials(GrantRequest::AccessToken), &mut encoder);
 						Ok(encoder.finish())
 					}
 					GrantRequest::RefreshToken => {
-						let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+						let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
 						self.form_encode_credentials(GrantType::OpenId.available_credentials(GrantRequest::RefreshToken), &mut encoder);
 						Ok(encoder.finish())
 					}
@@ -1288,7 +1292,7 @@ impl OAuth {
 				match request_type {
 					GrantRequest::Authorization => {
 						self.form_encode_credentials(GrantType::ClientCredentials.available_credentials(GrantRequest::Authorization), &mut encoder);
-						let mut url = self.get_or_else(OAuthCredential::AuthorizationUrl)?;
+						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
 						if !url.ends_with('?') {
 							url.push('?');
 						}
@@ -1313,69 +1317,69 @@ impl OAuth {
         match grant {
             GrantType::TokenFlow => {
                 if request_type.eq(&GrantRequest::Authorization) {
-                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                    let _ = self.entry(OAuthParameter::ResponseType, "token");
                 }
             }
             GrantType::CodeFlow => match request_type {
                 GrantRequest::Authorization => {
-                    let _ = self.entry(OAuthCredential::ResponseType, "code");
-                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
+                    let _ = self.entry(OAuthParameter::ResponseType, "code");
+                    let _ = self.entry(OAuthParameter::ResponseMode, "query");
                 }
                 GrantRequest::AccessToken => {
-                    let _ = self.entry(OAuthCredential::ResponseType, "token");
-                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                    let _ = self.entry(OAuthParameter::ResponseType, "token");
+                    let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
                 }
                 GrantRequest::RefreshToken => {
-                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                    let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
                 }
             },
             GrantType::AuthorizationCode => match request_type {
                 GrantRequest::Authorization => {
-                    let _ = self.entry(OAuthCredential::ResponseType, "code");
-                    let _ = self.entry(OAuthCredential::ResponseMode, "query");
+                    let _ = self.entry(OAuthParameter::ResponseType, "code");
+                    let _ = self.entry(OAuthParameter::ResponseMode, "query");
                 }
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => {
                     if request_type == GrantRequest::AccessToken {
-                        let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                        let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
                     } else {
-                        let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                        let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
                     }
                 }
             },
             GrantType::Implicit => {
                 if request_type.eq(&GrantRequest::Authorization) && !self.scopes.is_empty() {
-                    let _ = self.entry(OAuthCredential::ResponseType, "token");
+                    let _ = self.entry(OAuthParameter::ResponseType, "token");
                 }
             }
             GrantType::DeviceCode => {
                 if request_type.eq(&GrantRequest::AccessToken) {
                     let _ = self.entry(
-                        OAuthCredential::GrantType,
+                        OAuthParameter::GrantType,
                         "urn:ietf:params:oauth:grant-type:device_code",
                     );
                 } else if request_type.eq(&GrantRequest::RefreshToken) {
-                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                    let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
                 }
             }
             GrantType::OpenId => {
                 if request_type.eq(&GrantRequest::AccessToken) {
-                    let _ = self.entry(OAuthCredential::GrantType, "authorization_code");
+                    let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
                 } else if request_type.eq(&GrantRequest::RefreshToken) {
-                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                    let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
                 }
             }
             GrantType::ClientCredentials => {
                 if request_type.eq(&GrantRequest::AccessToken)
                     || request_type.eq(&GrantRequest::RefreshToken)
                 {
-                    let _ = self.entry(OAuthCredential::GrantType, "client_credentials");
+                    let _ = self.entry(OAuthParameter::GrantType, "client_credentials");
                 }
             }
             GrantType::ResourceOwnerPasswordCredentials => {
                 if request_type.eq(&GrantRequest::RefreshToken) {
-                    let _ = self.entry(OAuthCredential::GrantType, "refresh_token");
+                    let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
                 } else {
-                    let _ = self.entry(OAuthCredential::GrantType, "password");
+                    let _ = self.entry(OAuthParameter::GrantType, "password");
                 }
             }
         }
@@ -1386,19 +1390,19 @@ impl OAuth {
 ///
 /// # Example
 /// ```
-/// # use graph_oauth::oauth::{OAuth, OAuthCredential};
+/// # use graph_oauth::oauth::{OAuthSerializer, OAuthParameter};
 /// # use std::collections::HashMap;
-/// # let mut oauth = OAuth::new();
-/// let mut map: HashMap<OAuthCredential, &str> = HashMap::new();
-/// map.insert(OAuthCredential::ClientId, "client_id");
-/// map.insert(OAuthCredential::ClientSecret, "client_secret");
+/// # let mut oauth = OAuthSerializer::new();
+/// let mut map: HashMap<OAuthParameter, &str> = HashMap::new();
+/// map.insert(OAuthParameter::ClientId, "client_id");
+/// map.insert(OAuthParameter::ClientSecret, "client_secret");
 ///
 /// oauth.extend(map);
-/// # assert_eq!(oauth.get(OAuthCredential::ClientId), Some("client_id".to_string()));
-/// # assert_eq!(oauth.get(OAuthCredential::ClientSecret), Some("client_secret".to_string()));
+/// # assert_eq!(oauth.get(OAuthParameter::ClientId), Some("client_id".to_string()));
+/// # assert_eq!(oauth.get(OAuthParameter::ClientSecret), Some("client_secret".to_string()));
 /// ```
-impl<V: ToString> Extend<(OAuthCredential, V)> for OAuth {
-    fn extend<I: IntoIterator<Item = (OAuthCredential, V)>>(&mut self, iter: I) {
+impl<V: ToString> Extend<(OAuthParameter, V)> for OAuthSerializer {
+    fn extend<I: IntoIterator<Item = (OAuthParameter, V)>>(&mut self, iter: I) {
         iter.into_iter().for_each(|entry| {
             self.insert(entry.0, entry.1);
         });
@@ -1406,7 +1410,7 @@ impl<V: ToString> Extend<(OAuthCredential, V)> for OAuth {
 }
 
 pub struct GrantSelector<T> {
-    oauth: OAuth,
+    oauth: OAuthSerializer,
     t: PhantomData<T>,
 }
 
@@ -1418,8 +1422,8 @@ impl GrantSelector<AccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().token_flow();
     /// ```
     pub fn token_flow(self) -> ImplicitGrant {
@@ -1436,8 +1440,8 @@ impl GrantSelector<AccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().code_flow();
     /// ```
     pub fn code_flow(self) -> AccessTokenGrant {
@@ -1454,8 +1458,8 @@ impl GrantSelector<AccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().implicit_grant();
     /// ```
     pub fn implicit_grant(self) -> ImplicitGrant {
@@ -1472,8 +1476,8 @@ impl GrantSelector<AccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().authorization_code_grant();
     /// ```
     pub fn authorization_code_grant(self) -> AccessTokenGrant {
@@ -1490,8 +1494,8 @@ impl GrantSelector<AccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let device_code_handler = oauth.build().device_code();
     /// ```
     pub fn device_code(self) -> DeviceCodeGrant {
@@ -1508,8 +1512,8 @@ impl GrantSelector<AccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().open_id_connect();
     /// ```
     pub fn open_id_connect(self) -> AccessTokenGrant {
@@ -1526,8 +1530,8 @@ impl GrantSelector<AccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().client_credentials();
     /// ```
     pub fn client_credentials(self) -> AccessTokenGrant {
@@ -1544,8 +1548,8 @@ impl GrantSelector<AccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().resource_owner_password_credentials();
     /// ```
     pub fn resource_owner_password_credentials(self) -> AccessTokenGrant {
@@ -1564,8 +1568,8 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().token_flow();
     /// ```
     pub fn token_flow(self) -> ImplicitGrant {
@@ -1582,8 +1586,8 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().code_flow();
     /// ```
     pub fn code_flow(self) -> AsyncAccessTokenGrant {
@@ -1600,8 +1604,8 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().implicit_grant();
     /// ```
     pub fn implicit_grant(self) -> ImplicitGrant {
@@ -1618,8 +1622,8 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().authorization_code_grant();
     /// ```
     pub fn authorization_code_grant(self) -> AsyncAccessTokenGrant {
@@ -1636,8 +1640,8 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let device_code_handler = oauth.build().device_code();
     /// ```
     pub fn device_code(self) -> AsyncDeviceCodeGrant {
@@ -1654,8 +1658,8 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().open_id_connect();
     /// ```
     pub fn open_id_connect(self) -> AsyncAccessTokenGrant {
@@ -1672,8 +1676,8 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().client_credentials();
     /// ```
     pub fn client_credentials(self) -> AsyncAccessTokenGrant {
@@ -1690,8 +1694,8 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuth;
-    /// # let mut oauth = OAuth::new();
+    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # let mut oauth = OAuthSerializer::new();
     /// let open_id = oauth.build().resource_owner_password_credentials();
     /// ```
     pub fn resource_owner_password_credentials(self) -> AsyncAccessTokenGrant {
@@ -1728,7 +1732,7 @@ pub struct AccessTokenRequest {
 impl AccessTokenRequest {
     /// Send the request for an access token. If successful, the Response body
     /// should be an access token which you can convert to [AccessToken]
-    /// and pass back to [OAuth] to use to get refresh tokens.
+    /// and pass back to [OAuthSerializer] to use to get refresh tokens.
     ///
     /// # Example
     /// ```rust,ignore
@@ -1807,7 +1811,7 @@ pub struct AsyncAccessTokenRequest {
 impl AsyncAccessTokenRequest {
     /// Send the request for an access token. If successful, the Response body
     /// should be an access token which you can convert to [AccessToken]
-    /// and pass back to [OAuth] to use to get refresh tokens.
+    /// and pass back to [OAuthSerializer] to use to get refresh tokens.
     ///
     /// # Example
     /// ```rust,ignore
@@ -1879,7 +1883,7 @@ impl AsyncAccessTokenRequest {
 
 #[derive(Debug)]
 pub struct ImplicitGrant {
-    oauth: OAuth,
+    oauth: OAuthSerializer,
     grant: GrantType,
 }
 
@@ -1889,7 +1893,7 @@ impl ImplicitGrant {
             .pre_request_check(self.grant, GrantRequest::Authorization);
         Ok(Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizationUrl)?
+                .get_or_else(OAuthParameter::AuthorizationUrl)?
                 .as_str(),
         )?)
     }
@@ -1925,20 +1929,20 @@ impl ImplicitGrant {
     }
 }
 
-impl From<ImplicitGrant> for OAuth {
+impl From<ImplicitGrant> for OAuthSerializer {
     fn from(token_grant: ImplicitGrant) -> Self {
         token_grant.oauth
     }
 }
 
-impl AsRef<OAuth> for ImplicitGrant {
-    fn as_ref(&self) -> &OAuth {
+impl AsRef<OAuthSerializer> for ImplicitGrant {
+    fn as_ref(&self) -> &OAuthSerializer {
         &self.oauth
     }
 }
 
 pub struct DeviceCodeGrant {
-    oauth: OAuth,
+    oauth: OAuthSerializer,
     grant: GrantType,
 }
 
@@ -1952,7 +1956,7 @@ impl DeviceCodeGrant {
         )?;
         let mut url = Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizationUrl)?
+                .get_or_else(OAuthParameter::AuthorizationUrl)?
                 .as_str(),
         )?;
         url.query_pairs_mut().extend_pairs(&params);
@@ -1962,7 +1966,7 @@ impl DeviceCodeGrant {
     pub fn authorization(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::Authorization);
-        let uri = self.oauth.get_or_else(OAuthCredential::AuthorizationUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::AuthorizationUrl);
         let params = self.oauth.params(
             self.grant
                 .available_credentials(GrantRequest::Authorization),
@@ -1994,7 +1998,7 @@ impl DeviceCodeGrant {
     pub fn access_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::AccessTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -2025,7 +2029,7 @@ impl DeviceCodeGrant {
     pub fn refresh_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::RefreshTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));
@@ -2055,7 +2059,7 @@ impl DeviceCodeGrant {
 }
 
 pub struct AsyncDeviceCodeGrant {
-    oauth: OAuth,
+    oauth: OAuthSerializer,
     grant: GrantType,
 }
 
@@ -2069,7 +2073,7 @@ impl AsyncDeviceCodeGrant {
         )?;
         let mut url = Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizationUrl)?
+                .get_or_else(OAuthParameter::AuthorizationUrl)?
                 .as_str(),
         )?;
         url.query_pairs_mut().extend_pairs(&params);
@@ -2079,7 +2083,7 @@ impl AsyncDeviceCodeGrant {
     pub fn authorization(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::Authorization);
-        let uri = self.oauth.get_or_else(OAuthCredential::AuthorizationUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::AuthorizationUrl);
         let params = self.oauth.params(
             self.grant
                 .available_credentials(GrantRequest::Authorization),
@@ -2111,7 +2115,7 @@ impl AsyncDeviceCodeGrant {
     pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::AccessTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -2142,7 +2146,7 @@ impl AsyncDeviceCodeGrant {
     pub fn refresh_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::RefreshTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));
@@ -2173,7 +2177,7 @@ impl AsyncDeviceCodeGrant {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AccessTokenGrant {
-    oauth: OAuth,
+    oauth: OAuthSerializer,
     grant: GrantType,
 }
 
@@ -2187,7 +2191,7 @@ impl AccessTokenGrant {
         )?;
         let mut url = Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizationUrl)?
+                .get_or_else(OAuthParameter::AuthorizationUrl)?
                 .as_str(),
         )?;
         url.query_pairs_mut().extend_pairs(&params);
@@ -2272,7 +2276,7 @@ impl AccessTokenGrant {
     pub fn access_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::AccessTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -2305,7 +2309,7 @@ impl AccessTokenGrant {
     pub fn refresh_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::RefreshTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));
@@ -2336,7 +2340,7 @@ impl AccessTokenGrant {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AsyncAccessTokenGrant {
-    oauth: OAuth,
+    oauth: OAuthSerializer,
     grant: GrantType,
 }
 
@@ -2350,7 +2354,7 @@ impl AsyncAccessTokenGrant {
         )?;
         let mut url = Url::parse(
             self.oauth
-                .get_or_else(OAuthCredential::AuthorizationUrl)?
+                .get_or_else(OAuthParameter::AuthorizationUrl)?
                 .as_str(),
         )?;
         url.query_pairs_mut().extend_pairs(&params);
@@ -2436,7 +2440,7 @@ impl AsyncAccessTokenGrant {
     pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::AccessTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::AccessTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -2469,7 +2473,7 @@ impl AsyncAccessTokenGrant {
     pub fn refresh_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::RefreshToken);
-        let uri = self.oauth.get_or_else(OAuthCredential::RefreshTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::RefreshTokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::RefreshToken));
@@ -2498,29 +2502,29 @@ impl AsyncAccessTokenGrant {
     }
 }
 
-impl From<AccessTokenGrant> for OAuth {
+impl From<AccessTokenGrant> for OAuthSerializer {
     fn from(token_grant: AccessTokenGrant) -> Self {
         token_grant.oauth
     }
 }
 
-impl AsRef<OAuth> for AccessTokenGrant {
-    fn as_ref(&self) -> &OAuth {
+impl AsRef<OAuthSerializer> for AccessTokenGrant {
+    fn as_ref(&self) -> &OAuthSerializer {
         &self.oauth
     }
 }
 
-impl AsMut<OAuth> for AccessTokenGrant {
-    fn as_mut(&mut self) -> &mut OAuth {
+impl AsMut<OAuthSerializer> for AccessTokenGrant {
+    fn as_mut(&mut self) -> &mut OAuthSerializer {
         &mut self.oauth
     }
 }
 
-impl fmt::Debug for OAuth {
+impl fmt::Debug for OAuthSerializer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut map_debug: BTreeMap<&str, &str> = BTreeMap::new();
         for (key, value) in self.credentials.iter() {
-            if let Some(oac) = OAuthCredential::iter()
+            if let Some(oac) = OAuthParameter::iter()
                 .find(|oac| oac.alias().eq(key.as_str()) && oac.is_debug_redacted())
             {
                 map_debug.insert(oac.alias(), "[REDACTED]");
