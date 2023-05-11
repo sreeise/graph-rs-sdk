@@ -75,6 +75,9 @@ pub enum GraphFailure {
 
     #[error("{0:#?}")]
     ErrorMessage(#[from] ErrorMessage),
+
+    #[error("Temporary Graph API Error")]
+    TemporaryError,
 }
 
 impl GraphFailure {

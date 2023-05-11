@@ -4,8 +4,10 @@ use crate::internal::{
     RequestComponents,
 };
 use async_stream::try_stream;
+use backoff::future::retry;
 use futures::Stream;
 use graph_error::{ErrorMessage, GraphFailure, GraphResult};
+use http::StatusCode;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
@@ -187,8 +189,66 @@ impl RequestHandler {
 
     #[inline]
     pub async fn send(self) -> GraphResult<reqwest::Response> {
-        let request_builder = self.build()?;
-        request_builder.send().await.map_err(GraphFailure::from)
+        match self.client_builder.get_retries() {
+            true => {
+                let backoff = self.client_builder.get_retries_exponential_backoff();
+                let request_builder = self.build()?;
+                match request_builder.try_clone() {
+                    Some(request_builder_clone) => {
+                        retry(backoff, || async {
+                            match request_builder_clone.try_clone().unwrap() // we already proved we could clone
+                                .send().await {
+                                Ok(response) => match response.status() {
+                                    StatusCode::TOO_MANY_REQUESTS
+                                    | StatusCode::INTERNAL_SERVER_ERROR
+                                    | StatusCode::SERVICE_UNAVAILABLE
+                                    | StatusCode::GATEWAY_TIMEOUT => {
+                                        match response.headers().get("Retry-After") {
+                                            Some(retry_after) => {
+                                                let retry_after = match retry_after.to_str() {
+                                                    Ok(ra) => match ra.parse::<u64>() {
+                                                        Ok(ra) => Some(Duration::from_secs(ra)),
+                                                        Err(_) => None,
+                                                    },
+                                                    Err(_) => None,
+                                                }; // if None will use the configured exponential backoff
+                                                Err(backoff::Error::Transient {
+                                                    err: GraphFailure::TemporaryError,
+                                                    retry_after,
+                                                })
+                                            }
+                                            None => Err(backoff::Error::Transient {
+                                                err: GraphFailure::TemporaryError,
+                                                retry_after: None,
+                                            }),
+                                        }
+                                    }
+                                    _ => Ok(response),
+                                },
+                                Err(e) => match e.status() {
+                                    Some(StatusCode::TOO_MANY_REQUESTS)
+                                    | Some(StatusCode::INTERNAL_SERVER_ERROR)
+                                    | Some(StatusCode::SERVICE_UNAVAILABLE)
+                                    | Some(StatusCode::GATEWAY_TIMEOUT) => {
+                                        Err(backoff::Error::Transient {
+                                            err: GraphFailure::TemporaryError,
+                                            retry_after: None,
+                                        })
+                                    }
+                                    _ => Err(backoff::Error::Permanent(GraphFailure::from(e))),
+                                },
+                            }
+                        })
+                        .await
+                    }
+                    None => request_builder.send().await.map_err(GraphFailure::from),
+                }
+            }
+            false => {
+                let request_builder = self.build()?;
+                request_builder.send().await.map_err(GraphFailure::from)
+            }
+        }
     }
 }
 
