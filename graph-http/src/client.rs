@@ -10,13 +10,11 @@ use reqwest::tls::Version;
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
-use std::time::{Duration, Instant};
+use std::time::{Duration};
 use url::Url;
 
 #[derive(Debug, Clone)]
 pub struct RetriesConfig {
-    /// The current retry interval.
-    pub current_interval: Duration,
     /// The initial retry interval.
     pub initial_interval: Duration,
     /// The randomization factor to use for creating a range around the retry interval.
@@ -29,9 +27,6 @@ pub struct RetriesConfig {
     /// The maximum value of the back off period. Once the retry interval reaches this
     /// value it stops increasing.
     pub max_interval: Duration,
-    /// The system time. It is calculated when an [`ExponentialBackoff`](struct.ExponentialBackoff.html) instance is
-    /// created and is reset when [`retry`](../trait.Operation.html#method.retry) is called.
-    pub start_time: Instant,
     /// The maximum elapsed time after instantiating [`ExponentialBackoff`](struct.ExponentialBackoff.html) or calling
     /// [`reset`](trait.Backoff.html#method.reset) after which [`next_backoff`](../trait.Backoff.html#method.reset) returns `None`.
     pub max_elapsed_time: Option<Duration>,
@@ -40,13 +35,11 @@ pub struct RetriesConfig {
 impl Default for RetriesConfig {
     fn default() -> RetriesConfig {
         RetriesConfig {
-            current_interval: Duration::from_millis(500),
             initial_interval: Duration::from_millis(500),
             randomization_factor: 0.0,
             multiplier: 1.5,
             max_interval: Duration::from_secs(450),
             max_elapsed_time: Some(Duration::from_millis(450)),
-            start_time: Instant::now(),
         }
     }
 }
