@@ -29,7 +29,7 @@
 //!
 //! # Example
 //! ```
-//! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication};
+//! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication, CredentialBuilder};
 //!
 //! pub fn authorization_url(client_id: &str) {
 //!     let _url = AuthorizationCodeCredential::authorization_url_builder()
@@ -40,16 +40,16 @@
 //!         .unwrap();
 //! }
 //!
-//! pub fn get_confidential_client(authorization_code: &str, client_id: &str, client_secret: &str) -> ConfidentialClientApplication {
+//! pub fn get_confidential_client(authorization_code: &str, client_id: &str, client_secret: &str) -> anyhow::Result<ConfidentialClientApplication> {
 //!     let credential = AuthorizationCodeCredential::builder()
 //!         .with_authorization_code(authorization_code)
 //!         .with_client_id(client_id)
 //!         .with_client_secret(client_secret)
 //!         .with_scope(vec!["user.read"])
-//!         .with_redirect_uri("http://localhost:8000/redirect")
+//!         .with_redirect_uri("http://localhost:8000/redirect")?
 //!         .build();
 //!
-//!     ConfidentialClientApplication::from(credential)
+//!     Ok(ConfidentialClientApplication::from(credential))
 //! }
 //! ```
 

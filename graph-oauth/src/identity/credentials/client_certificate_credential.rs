@@ -1,7 +1,8 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::form_credential::SerializerField;
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions, TokenRequest,
+    Authority, AuthorizationSerializer, AzureAuthorityHost, CredentialBuilder,
+    TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
@@ -9,10 +10,16 @@ use std::collections::HashMap;
 use url::Url;
 
 #[cfg(feature = "openssl")]
-use crate::identity::ClientAssertion;
+use crate::identity::X509Certificate;
 use crate::oauth::ClientCredentialsAuthorizationUrlBuilder;
 
-static CLIENT_ASSERTION_TYPE: &str = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+pub(crate) static CLIENT_ASSERTION_TYPE: &str =
+    "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+
+credential_builder_impl!(
+    ClientCertificateCredentialBuilder,
+    ClientCertificateCredential
+);
 
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/active-directory-certificate-credentials
 #[derive(Clone)]
@@ -24,7 +31,7 @@ pub struct ClientCertificateCredential {
     /// identifier (application ID URI) of the resource you want, affixed with the .default
     /// suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
     /// Default is https://graph.microsoft.com/.default.
-    pub(crate) scopes: Vec<String>,
+    pub(crate) scope: Vec<String>,
     pub(crate) authority: Authority,
     pub(crate) client_assertion_type: String,
     pub(crate) client_assertion: String,
@@ -37,7 +44,7 @@ impl ClientCertificateCredential {
     pub fn new<T: AsRef<str>>(client_id: T, client_assertion: T) -> ClientCertificateCredential {
         ClientCertificateCredential {
             client_id: client_id.as_ref().to_owned(),
-            scopes: vec![],
+            scope: vec!["https://graph.microsoft.com/.default".into()],
             authority: Default::default(),
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
@@ -112,7 +119,7 @@ impl AuthorizationSerializer for ClientCertificateCredential {
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str());
 
-        if self.scopes.is_empty() {
+        if self.scope.is_empty() {
             self.serializer
                 .add_scope("https://graph.microsoft.com/.default");
         }
@@ -133,18 +140,18 @@ impl AuthorizationSerializer for ClientCertificateCredential {
                 SerializerField::Required(OAuthParameter::RefreshToken),
                 SerializerField::Required(OAuthParameter::ClientId),
                 SerializerField::Required(OAuthParameter::GrantType),
-                SerializerField::NotRequired(OAuthParameter::Scope),
                 SerializerField::Required(OAuthParameter::ClientAssertion),
                 SerializerField::Required(OAuthParameter::ClientAssertionType),
+                SerializerField::NotRequired(OAuthParameter::Scope),
             ])
         } else {
             self.serializer.grant_type("client_credentials");
             self.serializer.authorization_form(vec![
                 SerializerField::Required(OAuthParameter::ClientId),
                 SerializerField::Required(OAuthParameter::GrantType),
-                SerializerField::NotRequired(OAuthParameter::Scope),
                 SerializerField::Required(OAuthParameter::ClientAssertion),
                 SerializerField::Required(OAuthParameter::ClientAssertionType),
+                SerializerField::NotRequired(OAuthParameter::Scope),
             ])
         };
     }
@@ -158,8 +165,8 @@ impl ClientCertificateCredentialBuilder {
     fn new() -> ClientCertificateCredentialBuilder {
         ClientCertificateCredentialBuilder {
             credential: ClientCertificateCredential {
-                client_id: String::new(),
-                scopes: vec![],
+                client_id: String::with_capacity(32),
+                scope: vec!["https://graph.microsoft.com/.default".into()],
                 authority: Default::default(),
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: String::new(),
@@ -170,17 +177,16 @@ impl ClientCertificateCredentialBuilder {
         }
     }
 
-    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.credential.client_id = client_id.as_ref().to_owned();
-        self
-    }
-
     #[cfg(feature = "openssl")]
     pub fn with_certificate(
         &mut self,
-        certificate_assertion: &ClientAssertion,
+        certificate_assertion: &X509Certificate,
     ) -> anyhow::Result<&mut Self> {
-        self.with_client_assertion(certificate_assertion.sign()?);
+        if let Some(tenant_id) = self.credential.authority.tenant_id() {
+            self.with_client_assertion(certificate_assertion.sign(Some(tenant_id.clone()))?);
+        } else {
+            self.with_client_assertion(certificate_assertion.sign(None)?);
+        }
         Ok(self)
     }
 
@@ -193,38 +199,33 @@ impl ClientCertificateCredentialBuilder {
         self.credential.refresh_token = Some(refresh_token.as_ref().to_owned());
         self
     }
-
-    /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
-    pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.credential.authority = Authority::TenantId(tenant.as_ref().to_owned());
-        self
-    }
-
-    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.credential.authority = authority.into();
-        self
-    }
-
-    /// Defaults to "https://graph.microsoft.com/.default"
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.credential.scopes = scopes.into_iter().map(|s| s.to_string()).collect();
-        self
-    }
-
-    pub fn with_token_credential_options(
-        &mut self,
-        token_credential_options: TokenCredentialOptions,
-    ) {
-        self.credential.token_credential_options = token_credential_options;
-    }
-
-    pub fn build(&self) -> ClientCertificateCredential {
-        self.credential.clone()
-    }
 }
 
 impl From<ClientCertificateCredential> for ClientCertificateCredentialBuilder {
     fn from(credential: ClientCertificateCredential) -> Self {
         ClientCertificateCredentialBuilder { credential }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    static TEST_CLIENT_ID: &str = "671a21bd-b91b-8ri7-94cb-e2cea49f30e1";
+
+    #[test]
+    fn credential_builder() {
+        let mut builder = ClientCertificateCredentialBuilder::new();
+        builder.with_client_id(TEST_CLIENT_ID);
+        assert_eq!(builder.credential.client_id, TEST_CLIENT_ID);
+
+        builder.with_client_id("123");
+        assert_eq!(builder.credential.client_id, "123");
+
+        builder.credential.client_id = "".into();
+        assert!(builder.credential.client_id.is_empty());
+
+        builder.with_client_id(TEST_CLIENT_ID);
+        assert_eq!(builder.credential.client_id, TEST_CLIENT_ID);
     }
 }

@@ -4,8 +4,8 @@
 extern crate serde;
 
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthorizationCodeCertificateCredential, ClientAssertion,
-    ConfidentialClientApplication, PKey, TokenRequest, X509,
+    AccessToken, AuthorizationCodeCertificateCredential, ConfidentialClientApplication,
+    CredentialBuilder, PKey, TokenRequest, X509Certificate, X509,
 };
 use std::fs::File;
 use std::io::Read;
@@ -74,6 +74,7 @@ pub fn get_confidential_client(
     client_id: &str,
     tenant_id: &str,
 ) -> anyhow::Result<ConfidentialClientApplication> {
+    // Use include_bytes!(file_path) if the files are local
     let mut cert_file = File::open(PRIVATE_KEY_PATH).unwrap();
     let mut certificate: Vec<u8> = Vec::new();
     cert_file.read_to_end(&mut certificate)?;
@@ -85,16 +86,17 @@ pub fn get_confidential_client(
     let cert = X509::from_pem(certificate.as_slice()).unwrap();
     let pkey = PKey::private_key_from_pem(private_key.as_slice()).unwrap();
 
-    let signed_client_assertion =
-        ClientAssertion::new_with_tenant(client_id, tenant_id, cert, pkey);
+    let mut x509_certificate = X509Certificate::new(client_id, cert, pkey);
+
+    x509_certificate.with_tenant(tenant_id);
 
     let credentials = AuthorizationCodeCertificateCredential::builder()
         .with_authorization_code(authorization_code)
         .with_client_id(client_id)
         .with_tenant(tenant_id)
-        .with_certificate(&signed_client_assertion)?
+        .with_certificate(&x509_certificate)?
         .with_scope(vec!["User.Read"])
-        .with_redirect_uri("http://localhost:8080")
+        .with_redirect_uri("http://localhost:8080")?
         .build();
 
     Ok(ConfidentialClientApplication::from(credentials))

@@ -1,7 +1,7 @@
 use graph_rs_sdk::error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
     AccessToken, AuthCodeAuthorizationUrl, AuthorizationCodeCredential,
-    ConfidentialClientApplication, ProofKeyForCodeExchange, TokenRequest,
+    ConfidentialClientApplication, CredentialBuilder, ProofKeyForCodeExchange, TokenRequest,
 };
 use lazy_static::lazy_static;
 use warp::{get, Filter};
@@ -44,16 +44,18 @@ fn authorization_sign_in() {
 }
 
 /// Build the Authorization Code Grant Credential.
-fn get_confidential_client_application(authorization_code: &str) -> ConfidentialClientApplication {
+fn get_confidential_client_application(
+    authorization_code: &str,
+) -> anyhow::Result<ConfidentialClientApplication> {
     let credential = AuthorizationCodeCredential::builder()
         .with_authorization_code(authorization_code)
         .with_client_id(CLIENT_ID)
         .with_client_secret(CLIENT_SECRET)
-        .with_redirect_uri("http://localhost:8000/redirect")
+        .with_redirect_uri("http://localhost:8000/redirect")?
         .with_proof_key_for_code_exchange(&PKCE)
         .build();
 
-    ConfidentialClientApplication::from(credential)
+    Ok(ConfidentialClientApplication::from(credential))
 }
 
 // When the authorization code comes in on the redirect from sign in, call the get_credential
@@ -69,7 +71,7 @@ async fn handle_redirect(
             println!("{:#?}", access_code.code);
 
             let mut confidential_client =
-                get_confidential_client_application(access_code.code.as_str());
+                get_confidential_client_application(access_code.code.as_str()).unwrap();
 
             // Returns reqwest::Response
             let response = confidential_client.get_token_async().await.unwrap();

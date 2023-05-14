@@ -78,4 +78,3 @@ debug = false
 name = "oauth_certificate_main"
 path = "examples/oauth_certificate/main.rs"
 required-features = ["openssl"]
-

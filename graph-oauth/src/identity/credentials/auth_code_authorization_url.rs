@@ -1,5 +1,5 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::auth_response_query::AuthResponseQuery;
+use crate::auth_response_query::AuthQueryResponse;
 use crate::identity::{
     Authority, AuthorizationUrl, AzureAuthorityHost, Crypto, Prompt, ResponseMode,
 };
@@ -95,7 +95,7 @@ impl AuthCodeAuthorizationUrl {
     pub fn interactive_webview_authentication(
         &self,
         interactive_web_view_options: Option<InteractiveWebViewOptions>,
-    ) -> anyhow::Result<AuthResponseQuery> {
+    ) -> anyhow::Result<AuthQueryResponse> {
         let url_string = self
             .interactive_authentication(interactive_web_view_options)?
             .ok_or(anyhow::Error::msg(
@@ -133,7 +133,7 @@ impl AuthCodeAuthorizationUrl {
             )),
         ))?;
 
-        let response_query: AuthResponseQuery = serde_urlencoded::from_str(query)?;
+        let response_query: AuthQueryResponse = serde_urlencoded::from_str(query)?;
         Ok(response_query)
     }
 }

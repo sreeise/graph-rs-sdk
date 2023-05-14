@@ -1,20 +1,22 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::form_credential::SerializerField;
-use crate::identity::{Authority, AzureAuthorityHost, ResponseMode};
-use crate::oauth::{Prompt, ResponseType};
-use base64::engine::general_purpose::URL_SAFE_NO_PAD;
-use base64::Engine;
+use crate::identity::{
+    Authority, AzureAuthorityHost, CredentialBuilder, Crypto, Prompt, ResponseMode, ResponseType,
+};
+use crate::oauth::TokenCredentialOptions;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
-use ring::rand::SecureRandom;
 use url::form_urlencoded::Serializer;
 use url::Url;
+
+credential_builder_impl!(ImplicitCredentialBuilder, ImplicitCredential);
+
 /// The defining characteristic of the implicit grant is that tokens (ID tokens or access tokens)
 /// are returned directly from the /authorize endpoint instead of the /token endpoint. This is
 /// often used as part of the authorization code flow, in what is called the "hybrid flow" -
 /// retrieving the ID token on the /authorize request along with an authorization code.
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow
 #[derive(Clone)]
-pub struct ImplicitCredentialAuthorizationUrl {
+pub struct ImplicitCredential {
     /// Required.
     /// The Application (client) ID that the Azure portal - App registrations page assigned
     /// to your app
@@ -33,6 +35,8 @@ pub struct ImplicitCredentialAuthorizationUrl {
     /// The redirect_uri of your app, where authentication responses can be sent and received
     /// by your app. It must exactly match one of the redirect_uris you registered in the portal,
     /// except it must be URL-encoded.
+    ///
+    /// URL-encoding is done for you in the sdk client.
     pub(crate) redirect_uri: Option<String>,
     /// Required
     /// A space-separated list of scopes. For OpenID Connect (id_tokens), it must include the
@@ -85,15 +89,18 @@ pub struct ImplicitCredentialAuthorizationUrl {
     pub(crate) domain_hint: Option<String>,
     /// The Azure Active Directory tenant (directory) Id of the service principal.
     pub(crate) authority: Authority,
+    /// [ImplicitCredential] does not use TokenCredentialOptions.
+    /// This is here for compatibility with the [CredentialBuilder] trait.
+    token_credential_options: TokenCredentialOptions,
 }
 
-impl ImplicitCredentialAuthorizationUrl {
+impl ImplicitCredential {
     pub fn new<T: AsRef<str>, U: ToString, I: IntoIterator<Item = U>>(
         client_id: T,
         nonce: T,
         scope: I,
-    ) -> ImplicitCredentialAuthorizationUrl {
-        ImplicitCredentialAuthorizationUrl {
+    ) -> ImplicitCredential {
+        ImplicitCredential {
             client_id: client_id.as_ref().to_owned(),
             response_type: vec![ResponseType::Token],
             redirect_uri: None,
@@ -105,11 +112,12 @@ impl ImplicitCredentialAuthorizationUrl {
             login_hint: None,
             domain_hint: None,
             authority: Default::default(),
+            token_credential_options: Default::default(),
         }
     }
 
-    pub fn builder() -> ImplicitCredentialAuthorizationUrlBuilder {
-        ImplicitCredentialAuthorizationUrlBuilder::new()
+    pub fn builder() -> ImplicitCredentialBuilder {
+        ImplicitCredentialBuilder::new()
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
@@ -229,21 +237,21 @@ impl ImplicitCredentialAuthorizationUrl {
 }
 
 #[derive(Clone)]
-pub struct ImplicitCredentialAuthorizationUrlBuilder {
-    implicit_credential_authorization_url: ImplicitCredentialAuthorizationUrl,
+pub struct ImplicitCredentialBuilder {
+    credential: ImplicitCredential,
 }
 
-impl Default for ImplicitCredentialAuthorizationUrlBuilder {
+impl Default for ImplicitCredentialBuilder {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl ImplicitCredentialAuthorizationUrlBuilder {
-    pub fn new() -> ImplicitCredentialAuthorizationUrlBuilder {
-        ImplicitCredentialAuthorizationUrlBuilder {
-            implicit_credential_authorization_url: ImplicitCredentialAuthorizationUrl {
-                client_id: String::new(),
+impl ImplicitCredentialBuilder {
+    pub fn new() -> ImplicitCredentialBuilder {
+        ImplicitCredentialBuilder {
+            credential: ImplicitCredential {
+                client_id: String::with_capacity(32),
                 response_type: vec![ResponseType::Code],
                 redirect_uri: None,
                 scope: vec![],
@@ -254,30 +262,13 @@ impl ImplicitCredentialAuthorizationUrlBuilder {
                 login_hint: None,
                 domain_hint: None,
                 authority: Default::default(),
+                token_credential_options: Default::default(),
             },
         }
     }
 
-    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.implicit_credential_authorization_url.client_id = client_id.as_ref().to_owned();
-        self
-    }
-
     pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
-        self.implicit_credential_authorization_url.redirect_uri =
-            Some(redirect_uri.as_ref().to_owned());
-        self
-    }
-
-    /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
-    pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.implicit_credential_authorization_url.authority =
-            Authority::TenantId(tenant.as_ref().to_owned());
-        self
-    }
-
-    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.implicit_credential_authorization_url.authority = authority.into();
+        self.credential.redirect_uri = Some(redirect_uri.as_ref().to_owned());
         self
     }
 
@@ -287,8 +278,7 @@ impl ImplicitCredentialAuthorizationUrlBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.implicit_credential_authorization_url.response_type =
-            response_type.into_iter().collect();
+        self.credential.response_type = response_type.into_iter().collect();
         self
     }
 
@@ -304,7 +294,7 @@ impl ImplicitCredentialAuthorizationUrlBuilder {
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
     ///     Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
-        self.implicit_credential_authorization_url.response_mode = response_mode;
+        self.credential.response_mode = response_mode;
         self
     }
 
@@ -313,7 +303,7 @@ impl ImplicitCredentialAuthorizationUrlBuilder {
     /// replay attacks. The value is typically a randomized, unique string that can be used
     /// to identify the origin of the request.
     pub fn with_nonce<T: AsRef<str>>(&mut self, nonce: T) -> &mut Self {
-        self.implicit_credential_authorization_url.nonce = nonce.as_ref().to_owned();
+        self.credential.nonce = nonce.as_ref().to_owned();
         self
     }
 
@@ -329,28 +319,12 @@ impl ImplicitCredentialAuthorizationUrlBuilder {
     /// encoded (no padding). This sequence is hashed using SHA256 and
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     pub fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        let mut buf = [0; 32];
-        let rng = ring::rand::SystemRandom::new();
-        rng.fill(&mut buf)
-            .map_err(|_| anyhow::Error::msg("ring::error::Unspecified"))?;
-        let base_64_random_string = URL_SAFE_NO_PAD.encode(buf);
-
-        let mut context = ring::digest::Context::new(&ring::digest::SHA256);
-        context.update(base_64_random_string.as_bytes());
-
-        let nonce = URL_SAFE_NO_PAD.encode(context.finish().as_ref());
-        self.implicit_credential_authorization_url.nonce = nonce;
+        self.credential.nonce = Crypto::secure_random_string()?;
         Ok(self)
     }
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
-        self.implicit_credential_authorization_url.state = Some(state.as_ref().to_owned());
-        self
-    }
-
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.implicit_credential_authorization_url.scope =
-            scope.into_iter().map(|s| s.to_string()).collect();
+        self.credential.state = Some(state.as_ref().to_owned());
         self
     }
 
@@ -365,28 +339,22 @@ impl ImplicitCredentialAuthorizationUrlBuilder {
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience
     ///     listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether.
     pub fn with_prompt(&mut self, prompt: Prompt) -> &mut Self {
-        self.implicit_credential_authorization_url.prompt = Some(prompt);
+        self.credential.prompt = Some(prompt);
         self
     }
 
     pub fn with_domain_hint<T: AsRef<str>>(&mut self, domain_hint: T) -> &mut Self {
-        self.implicit_credential_authorization_url.domain_hint =
-            Some(domain_hint.as_ref().to_owned());
+        self.credential.domain_hint = Some(domain_hint.as_ref().to_owned());
         self
     }
 
     pub fn with_login_hint<T: AsRef<str>>(&mut self, login_hint: T) -> &mut Self {
-        self.implicit_credential_authorization_url.login_hint =
-            Some(login_hint.as_ref().to_owned());
+        self.credential.login_hint = Some(login_hint.as_ref().to_owned());
         self
     }
 
-    pub fn build(&self) -> ImplicitCredentialAuthorizationUrl {
-        self.implicit_credential_authorization_url.clone()
-    }
-
     pub fn url(&self) -> AuthorizationResult<Url> {
-        self.implicit_credential_authorization_url.url()
+        self.credential.url()
     }
 }
 
@@ -396,7 +364,7 @@ mod test {
 
     #[test]
     fn serialize_uri() {
-        let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+        let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::Token])
             .with_redirect_uri("https::/localhost:8080/myapp")
@@ -414,7 +382,7 @@ mod test {
 
     #[test]
     fn set_open_id_fragment() {
-        let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+        let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken])
             .with_response_mode(ResponseMode::Fragment)
@@ -432,7 +400,7 @@ mod test {
 
     #[test]
     fn set_open_id_fragment2() {
-        let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+        let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_mode(ResponseMode::Fragment)
             .with_redirect_uri("https::/localhost:8080/myapp")
@@ -449,7 +417,7 @@ mod test {
 
     #[test]
     fn response_type_join() {
-        let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+        let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Token])
             .with_redirect_uri("https::/localhost:8080/myapp")
@@ -466,7 +434,7 @@ mod test {
 
     #[test]
     fn response_type_join_string() {
-        let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+        let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(ResponseType::FromString(vec![
                 "id_token".to_owned(),
@@ -486,7 +454,7 @@ mod test {
 
     #[test]
     fn response_type_into_iter() {
-        let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+        let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(ResponseType::IdToken)
             .with_redirect_uri("https::/localhost:8080/myapp")
@@ -503,7 +471,7 @@ mod test {
 
     #[test]
     fn response_type_into_iter2() {
-        let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+        let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Token])
             .with_redirect_uri("https::/localhost:8080/myapp")
@@ -521,7 +489,7 @@ mod test {
     #[test]
     #[should_panic]
     fn missing_scope_panic() {
-        let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+        let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::Token])
             .with_redirect_uri("https::/localhost:8080/myapp")
@@ -533,7 +501,7 @@ mod test {
 
     #[test]
     fn generate_nonce() {
-        let url = ImplicitCredentialAuthorizationUrl::builder()
+        let url = ImplicitCredential::builder()
             .with_redirect_uri("https::/localhost:8080")
             .with_client_id("client_id")
             .with_scope(["read", "write"])

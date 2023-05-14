@@ -23,7 +23,6 @@ pub enum AzureAuthorityHost {
 impl AsRef<str> for AzureAuthorityHost {
     fn as_ref(&self) -> &str {
         match self {
-            //AzureAuthorityHost::Custom(url) => url.as_str(),
             AzureAuthorityHost::AzurePublic => "https://login.microsoftonline.com",
             AzureAuthorityHost::AzureChina => "https://login.chinacloudapi.cn",
             AzureAuthorityHost::AzureGermany => "https://login.microsoftonline.de",
@@ -50,7 +49,6 @@ impl AzureAuthorityHost {
 
     pub fn default_managed_identity_scope(&self) -> &'static str {
         match self {
-            //AzureAuthorityHost::Custom(_) => "https://management.azure.com//.default",
             AzureAuthorityHost::AzurePublic => "https://management.azure.com//.default",
             AzureAuthorityHost::AzureChina => "https://management.chinacloudapi.cn/.default",
             AzureAuthorityHost::AzureGermany => "https://management.microsoftazure.de/.default",
@@ -74,6 +72,15 @@ pub enum Authority {
     TenantId(String),
 }
 
+impl Authority {
+    pub fn tenant_id(&self) -> Option<&String> {
+        match self {
+            Authority::TenantId(tenant_id) => Some(tenant_id),
+            _ => None,
+        }
+    }
+}
+
 impl AsRef<str> for Authority {
     fn as_ref(&self) -> &str {
         match self {
@@ -95,6 +102,7 @@ impl ToString for Authority {
 impl From<&str> for Authority {
     fn from(value: &str) -> Self {
         match value.as_bytes() {
+            b"aad" => Authority::AzureActiveDirectory,
             b"common" => Authority::Common,
             b"adfs" => Authority::AzureDirectoryFederatedServices,
             b"organizations" => Authority::Organizations,

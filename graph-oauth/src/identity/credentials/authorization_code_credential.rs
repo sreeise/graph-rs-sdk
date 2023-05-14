@@ -2,13 +2,19 @@ use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
-    ProofKeyForCodeExchange, TokenCredentialOptions, TokenRequest,
+    CredentialBuilder, ProofKeyForCodeExchange, TokenCredentialOptions, TokenRequest,
 };
 use crate::oauth::AuthCodeAuthorizationUrlBuilder;
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
+use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
+
+credential_builder_impl!(
+    AuthorizationCodeCredentialBuilder,
+    AuthorizationCodeCredential
+);
 
 /// The OAuth 2.0 authorization code grant type, or auth code flow, enables a client application
 /// to obtain authorized access to protected resources like web APIs. The auth code flow requires
@@ -41,7 +47,7 @@ pub struct AuthorizationCodeCredential {
     /// header, per RFC 6749 is also supported.
     pub(crate) client_secret: String,
     /// The same redirect_uri value that was used to acquire the authorization_code.
-    pub(crate) redirect_uri: String,
+    pub(crate) redirect_uri: Url,
     /// A space-separated list of scopes. The scopes must all be from a single resource,
     /// along with OIDC scopes (profile, openid, email). For more information, see Permissions
     /// and consent in the Microsoft identity platform. This parameter is a Microsoft extension
@@ -59,24 +65,26 @@ pub struct AuthorizationCodeCredential {
 }
 
 impl AuthorizationCodeCredential {
-    pub fn new<T: AsRef<str>>(
+    pub fn new<T: AsRef<str>, U: IntoUrl>(
         client_id: T,
         client_secret: T,
         authorization_code: T,
-        redirect_uri: T,
-    ) -> AuthorizationCodeCredential {
-        AuthorizationCodeCredential {
+        redirect_uri: U,
+    ) -> AuthorizationResult<AuthorizationCodeCredential> {
+        let redirect_uri_result = Url::parse(redirect_uri.as_str());
+
+        Ok(AuthorizationCodeCredential {
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_id: client_id.as_ref().to_owned(),
             client_secret: client_secret.as_ref().to_owned(),
-            redirect_uri: redirect_uri.as_ref().to_owned(),
+            redirect_uri: redirect_uri.into_url().or(redirect_uri_result)?,
             scope: vec![],
             authority: Default::default(),
             code_verifier: None,
             token_credential_options: TokenCredentialOptions::default(),
             serializer: OAuthSerializer::new(),
-        }
+        })
     }
 
     pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) {
@@ -125,17 +133,6 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        if self.authorization_code.is_some() && self.refresh_token.is_some() {
-            return AuthorizationFailure::required_value_msg_result(
-                &format!(
-                    "{} or {}",
-                    OAuthParameter::AuthorizationCode.alias(),
-                    OAuthParameter::RefreshToken.alias()
-                ),
-                Some("Authorization code and refresh token should not be set at the same time - Internal Error"),
-            );
-        }
-
         if self.client_id.trim().is_empty() {
             return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
         }
@@ -176,10 +173,6 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
                     OAuthParameter::AuthorizationCode.alias(),
                     Some("Either authorization code or refresh token is required"),
                 );
-            }
-
-            if self.redirect_uri.trim().is_empty() {
-                return AuthorizationFailure::required_value_result(OAuthParameter::RedirectUri);
             }
 
             self.serializer
@@ -230,7 +223,8 @@ impl AuthorizationCodeCredentialBuilder {
                 refresh_token: None,
                 client_id: String::new(),
                 client_secret: String::new(),
-                redirect_uri: String::new(),
+                redirect_uri: Url::parse("http://localhost")
+                    .expect("Internal Error - please report"),
                 scope: vec![],
                 authority: Default::default(),
                 code_verifier: None,
@@ -252,29 +246,14 @@ impl AuthorizationCodeCredentialBuilder {
         self
     }
 
-    pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
-        self.credential.redirect_uri = redirect_uri.as_ref().to_owned();
-        self
-    }
-
-    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.credential.client_id = client_id.as_ref().to_owned();
-        self
+    /// Defaults to http://localhost
+    pub fn with_redirect_uri<U: IntoUrl>(&mut self, redirect_uri: U) -> anyhow::Result<&mut Self> {
+        self.credential.redirect_uri = redirect_uri.into_url()?;
+        Ok(self)
     }
 
     pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
         self.credential.client_secret = client_secret.as_ref().to_owned();
-        self
-    }
-
-    /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
-    pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.credential.authority = Authority::TenantId(tenant.as_ref().to_owned());
-        self
-    }
-
-    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.credential.authority = authority.into();
         self
     }
 
@@ -290,31 +269,15 @@ impl AuthorizationCodeCredentialBuilder {
         self.with_code_verifier(proof_key_for_code_exchange.code_verifier.as_str());
         self
     }
-
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.credential.scope = scopes.into_iter().map(|s| s.to_string()).collect();
-        self
-    }
-
-    pub fn with_token_credential_options(
-        &mut self,
-        token_credential_options: TokenCredentialOptions,
-    ) {
-        self.credential.token_credential_options = token_credential_options;
-    }
-
-    pub fn build(&self) -> AuthorizationCodeCredential {
-        self.credential.clone()
-    }
 }
 
 impl From<AuthCodeAuthorizationUrl> for AuthorizationCodeCredentialBuilder {
     fn from(value: AuthCodeAuthorizationUrl) -> Self {
         let mut builder = AuthorizationCodeCredentialBuilder::new();
+        let _ = builder.with_redirect_uri(value.redirect_uri);
         builder
             .with_scope(value.scope)
             .with_client_id(value.client_id)
-            .with_redirect_uri(value.redirect_uri)
             .with_authority(value.authority);
 
         builder
@@ -355,6 +318,7 @@ mod test {
         let mut credential_builder = AuthorizationCodeCredential::builder();
         credential_builder
             .with_redirect_uri("https://localhost:8080")
+            .unwrap()
             .with_client_id("client_id")
             .with_client_secret("client_secret")
             .with_scope(vec!["scope"])

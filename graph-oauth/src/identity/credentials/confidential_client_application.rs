@@ -171,7 +171,7 @@ impl From<ClientCertificateCredential> for ConfidentialClientApplication {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::identity::{Authority, AzureAuthorityHost};
+    use crate::identity::{Authority, AzureAuthorityHost, CredentialBuilder};
 
     #[test]
     fn confidential_client_new() {
@@ -181,6 +181,7 @@ mod test {
             .with_client_secret("CLDIE3F")
             .with_scope(vec!["Read.Write", "Fall.Down"])
             .with_redirect_uri("http://localhost:8888/redirect")
+            .unwrap()
             .build();
 
         let mut confidential_client =
@@ -205,6 +206,7 @@ mod test {
             .with_client_secret("CLDIE3F")
             .with_scope(vec!["Read.Write", "Fall.Down"])
             .with_redirect_uri("http://localhost:8888/redirect")
+            .unwrap()
             .with_authority(Authority::Consumers)
             .build();
         let mut confidential_client =

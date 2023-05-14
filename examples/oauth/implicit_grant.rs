@@ -16,10 +16,12 @@
 // 2. Implicit grant flow for v2.0: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow
 //
 // To better understand OAuth V2.0 and the implicit flow see: https://tools.ietf.org/html/rfc6749#section-1.3.2
-use graph_rs_sdk::oauth::{ImplicitCredentialAuthorizationUrl, Prompt, ResponseMode, ResponseType};
+use graph_rs_sdk::oauth::{
+    CredentialBuilder, ImplicitCredential, Prompt, ResponseMode, ResponseType,
+};
 
 fn oauth_implicit_flow() {
-    let authorizer = ImplicitCredentialAuthorizationUrl::builder()
+    let authorizer = ImplicitCredential::builder()
         .with_client_id("<YOUR_CLIENT_ID>")
         .with_redirect_uri("http://localhost:8000/redirect")
         .with_prompt(Prompt::Login)
@@ -42,13 +44,13 @@ fn oauth_implicit_flow() {
 }
 
 fn multi_response_types() {
-    let _ = ImplicitCredentialAuthorizationUrl::builder()
+    let _ = ImplicitCredential::builder()
         .with_response_type(vec![ResponseType::Token, ResponseType::IdToken])
         .build();
 
     // Or
 
-    let _ = ImplicitCredentialAuthorizationUrl::builder()
+    let _ = ImplicitCredential::builder()
         .with_response_type(ResponseType::FromString(vec![
             "token".to_string(),
             "id_token".to_string(),

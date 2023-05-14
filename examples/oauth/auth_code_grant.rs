@@ -1,6 +1,6 @@
 use graph_rs_sdk::oauth::{
     AccessToken, AuthCodeAuthorizationUrl, AuthorizationCodeCredential,
-    ConfidentialClientApplication, TokenRequest,
+    ConfidentialClientApplication, CredentialBuilder, TokenRequest,
 };
 use graph_rs_sdk::*;
 use warp::Filter;
@@ -25,16 +25,18 @@ pub fn authorization_sign_in() {
     webbrowser::open(url.as_str()).unwrap();
 }
 
-pub fn get_confidential_client(authorization_code: &str) -> ConfidentialClientApplication {
+pub fn get_confidential_client(
+    authorization_code: &str,
+) -> anyhow::Result<ConfidentialClientApplication> {
     let auth_code_credential = AuthorizationCodeCredential::builder()
         .with_authorization_code(authorization_code)
         .with_client_id(CLIENT_ID)
         .with_client_secret(CLIENT_SECRET)
         .with_scope(vec!["files.read", "offline_access"])
-        .with_redirect_uri("http://localhost:8000/redirect")
+        .with_redirect_uri("http://localhost:8000/redirect")?
         .build();
 
-    ConfidentialClientApplication::from(auth_code_credential)
+    Ok(ConfidentialClientApplication::from(auth_code_credential))
 }
 
 /// # Example
@@ -73,7 +75,7 @@ async fn handle_redirect(
             // Callers should handle the Result from requesting an access token
             // in case of an error here.
             let mut confidential_client_application =
-                get_confidential_client(access_code.code.as_str());
+                get_confidential_client(access_code.code.as_str()).unwrap();
 
             let response = confidential_client_application
                 .get_token_async()

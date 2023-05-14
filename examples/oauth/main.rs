@@ -30,7 +30,8 @@ mod signing_keys;
 use graph_rs_sdk::oauth::{
     AccessToken, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceAuthorizationCredential, ProofKeyForCodeExchange, PublicClientApplication, TokenRequest,
+    CredentialBuilder, DeviceAuthorizationCredential, ProofKeyForCodeExchange,
+    PublicClientApplication, TokenRequest,
 };
 
 #[tokio::main]
@@ -63,6 +64,7 @@ async fn auth_code_grant(authorization_code: &str) {
         .with_client_id("CLIENT_ID")
         .with_client_secret("CLIENT_SECRET")
         .with_redirect_uri("http://localhost:8000/redirect")
+        .unwrap()
         .with_proof_key_for_code_exchange(&pkce)
         .build();
 

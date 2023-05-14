@@ -2,12 +2,14 @@ use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost,
-    ClientCredentialsAuthorizationUrlBuilder, TokenRequest,
+    ClientCredentialsAuthorizationUrlBuilder, CredentialBuilder, TokenRequest,
 };
 use crate::oauth::TokenCredentialOptions;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
+
+credential_builder_impl!(ClientSecretCredentialBuilder, ClientSecretCredential);
 
 /// Client Credentials flow using a client secret.
 ///
@@ -39,7 +41,7 @@ pub struct ClientSecretCredential {
     /// identifier (application ID URI) of the resource you want, affixed with the .default
     /// suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
     /// Default is https://graph.microsoft.com/.default.
-    pub(crate) scopes: Vec<String>,
+    pub(crate) scope: Vec<String>,
     pub(crate) authority: Authority,
     pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuthSerializer,
@@ -50,7 +52,7 @@ impl ClientSecretCredential {
         ClientSecretCredential {
             client_id: client_id.as_ref().to_owned(),
             client_secret: client_secret.as_ref().to_owned(),
-            scopes: vec![],
+            scope: vec!["https://graph.microsoft.com/.default".into()],
             authority: Default::default(),
             token_credential_options: Default::default(),
             serializer: OAuthSerializer::new(),
@@ -65,7 +67,7 @@ impl ClientSecretCredential {
         ClientSecretCredential {
             client_id: client_id.as_ref().to_owned(),
             client_secret: client_secret.as_ref().to_owned(),
-            scopes: vec![],
+            scope: vec!["https://graph.microsoft.com/.default".into()],
             authority: Authority::TenantId(tenant_id.as_ref().to_owned()),
             token_credential_options: Default::default(),
             serializer: OAuthSerializer::new(),
@@ -109,11 +111,11 @@ impl AuthorizationSerializer for ClientSecretCredential {
 
         self.serializer.grant_type("client_credentials");
 
-        if self.scopes.is_empty() {
+        if self.scope.is_empty() {
             self.serializer
                 .extend_scopes(vec!["https://graph.microsoft.com/.default".to_owned()]);
         } else {
-            self.serializer.extend_scopes(&self.scopes);
+            self.serializer.extend_scopes(&self.scope);
         }
 
         self.serializer.authorization_form(vec![
@@ -138,7 +140,7 @@ impl ClientSecretCredentialBuilder {
             credential: ClientSecretCredential {
                 client_id: String::new(),
                 client_secret: String::new(),
-                scopes: vec![],
+                scope: vec![],
                 authority: Default::default(),
                 token_credential_options: Default::default(),
                 serializer: Default::default(),
@@ -146,42 +148,9 @@ impl ClientSecretCredentialBuilder {
         }
     }
 
-    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.credential.client_id = client_id.as_ref().to_owned();
-        self
-    }
-
     pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
         self.credential.client_secret = client_secret.as_ref().to_owned();
         self
-    }
-
-    /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
-    pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.credential.authority = Authority::TenantId(tenant.as_ref().to_owned());
-        self
-    }
-
-    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.credential.authority = authority.into();
-        self
-    }
-
-    /// Defaults to "https://graph.microsoft.com/.default"
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.credential.scopes = scope.into_iter().map(|s| s.to_string()).collect();
-        self
-    }
-
-    pub fn with_token_credential_options(
-        &mut self,
-        token_credential_options: TokenCredentialOptions,
-    ) {
-        self.credential.token_credential_options = token_credential_options;
-    }
-
-    pub fn build(&self) -> ClientSecretCredential {
-        self.credential.clone()
     }
 }
 

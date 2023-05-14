@@ -1,3 +1,6 @@
+#[macro_use]
+mod credential_builder;
+
 mod auth_code_authorization_url;
 mod authorization_code_certificate_credential;
 mod authorization_code_credential;
@@ -26,7 +29,7 @@ mod token_flow_authorization_url;
 mod token_request;
 
 #[cfg(feature = "openssl")]
-mod client_assertion;
+mod x509_certificate;
 
 pub use auth_code_authorization_url::*;
 pub use authorization_code_certificate_credential::*;
@@ -37,7 +40,8 @@ pub use client_secret_credential::*;
 pub use code_flow_authorization_url::*;
 pub use code_flow_credential::*;
 pub use confidential_client_application::*;
-pub use crypto::*;
+pub use credential_builder::*;
+pub(crate) use crypto::*;
 pub use device_code_credential::*;
 pub use display::*;
 pub use environment_credential::*;
@@ -56,4 +60,4 @@ pub use token_flow_authorization_url::*;
 pub use token_request::*;
 
 #[cfg(feature = "openssl")]
-pub use client_assertion::*;
+pub use x509_certificate::*;
