@@ -1,6 +1,7 @@
 #[macro_use]
 mod credential_builder;
 
+mod as_query;
 mod auth_code_authorization_url;
 mod authorization_code_certificate_credential;
 mod authorization_code_credential;
@@ -31,6 +32,7 @@ mod token_request;
 #[cfg(feature = "openssl")]
 mod x509_certificate;
 
+pub use as_query::*;
 pub use auth_code_authorization_url::*;
 pub use authorization_code_certificate_credential::*;
 pub use authorization_code_credential::*;

@@ -1,3 +1,4 @@
+mod api_client_impl;
 mod async_iterator;
 mod async_try_from;
 mod body_ext;
@@ -8,6 +9,7 @@ mod odata_query;
 mod response_blocking_ext;
 mod response_ext;
 
+pub use api_client_impl::*;
 pub use async_iterator::*;
 pub use async_try_from::*;
 pub use body_ext::*;

@@ -1,5 +1,4 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost, CredentialBuilder,
     TokenCredentialOptions, TokenRequest,
@@ -82,18 +81,12 @@ impl AuthorizationSerializer for ClientCertificateCredential {
 
         if self.refresh_token.is_none() {
             let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-                AuthorizationFailure::required_value_msg(
-                    "access_token_url",
-                    Some("Internal Error"),
-                ),
+                AuthorizationFailure::msg_err("access_token_url", "Internal Error"),
             )?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         } else {
             let uri = self.serializer.get(OAuthParameter::RefreshTokenUrl).ok_or(
-                AuthorizationFailure::required_value_msg(
-                    "refresh_token_url",
-                    Some("Internal Error"),
-                ),
+                AuthorizationFailure::msg_err("refresh_token_url", "Internal Error"),
             )?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         }
@@ -101,13 +94,11 @@ impl AuthorizationSerializer for ClientCertificateCredential {
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
+            return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
 
         if self.client_assertion.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(
-                OAuthParameter::ClientAssertion.alias(),
-            );
+            return AuthorizationFailure::result(OAuthParameter::ClientAssertion.alias());
         }
 
         if self.client_assertion_type.trim().is_empty() {
@@ -126,9 +117,9 @@ impl AuthorizationSerializer for ClientCertificateCredential {
 
         return if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
-                return AuthorizationFailure::required_value_msg_result(
+                return AuthorizationFailure::msg_result(
                     OAuthParameter::RefreshToken.alias(),
-                    Some("refresh_token is set but is empty"),
+                    "refresh_token is set but is empty",
                 );
             }
 
@@ -136,23 +127,28 @@ impl AuthorizationSerializer for ClientCertificateCredential {
                 .refresh_token(refresh_token.as_ref())
                 .grant_type("refresh_token");
 
-            self.serializer.authorization_form(vec![
-                SerializerField::Required(OAuthParameter::RefreshToken),
-                SerializerField::Required(OAuthParameter::ClientId),
-                SerializerField::Required(OAuthParameter::GrantType),
-                SerializerField::Required(OAuthParameter::ClientAssertion),
-                SerializerField::Required(OAuthParameter::ClientAssertionType),
-                SerializerField::NotRequired(OAuthParameter::Scope),
-            ])
+            self.serializer.as_credential_map(
+                vec![OAuthParameter::Scope],
+                vec![
+                    OAuthParameter::ClientId,
+                    OAuthParameter::GrantType,
+                    OAuthParameter::ClientAssertion,
+                    OAuthParameter::ClientAssertionType,
+                    OAuthParameter::RefreshToken,
+                ],
+            )
         } else {
             self.serializer.grant_type("client_credentials");
-            self.serializer.authorization_form(vec![
-                SerializerField::Required(OAuthParameter::ClientId),
-                SerializerField::Required(OAuthParameter::GrantType),
-                SerializerField::Required(OAuthParameter::ClientAssertion),
-                SerializerField::Required(OAuthParameter::ClientAssertionType),
-                SerializerField::NotRequired(OAuthParameter::Scope),
-            ])
+
+            self.serializer.as_credential_map(
+                vec![OAuthParameter::Scope],
+                vec![
+                    OAuthParameter::ClientId,
+                    OAuthParameter::GrantType,
+                    OAuthParameter::ClientAssertion,
+                    OAuthParameter::ClientAssertionType,
+                ],
+            )
         };
     }
 }

@@ -1,5 +1,4 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost,
     ClientCredentialsAuthorizationUrlBuilder, CredentialBuilder, TokenRequest,
@@ -95,18 +94,18 @@ impl AuthorizationSerializer for ClientSecretCredential {
             .authority(azure_authority_host, &self.authority);
 
         let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-            AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
+            AuthorizationFailure::msg_err("access_token_url", "Internal Error"),
         )?;
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId);
+            return AuthorizationFailure::result(OAuthParameter::ClientId);
         }
 
         if self.client_secret.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthParameter::ClientSecret);
+            return AuthorizationFailure::result(OAuthParameter::ClientSecret);
         }
 
         self.serializer.grant_type("client_credentials");
@@ -118,10 +117,8 @@ impl AuthorizationSerializer for ClientSecretCredential {
             self.serializer.extend_scopes(&self.scope);
         }
 
-        self.serializer.authorization_form(vec![
-            SerializerField::Required(OAuthParameter::GrantType),
-            SerializerField::NotRequired(OAuthParameter::Scope),
-        ])
+        self.serializer
+            .as_credential_map(vec![OAuthParameter::Scope], vec![OAuthParameter::GrantType])
     }
 
     ///

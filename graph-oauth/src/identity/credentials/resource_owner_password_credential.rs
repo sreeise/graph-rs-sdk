@@ -1,5 +1,4 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions,
 };
@@ -75,22 +74,22 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
             .authority(azure_authority_host, &self.authority);
 
         let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-            AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
+            AuthorizationFailure::msg_err("access_token_url", "Internal Error"),
         )?;
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
+            return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
 
         if self.username.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthParameter::Username.alias());
+            return AuthorizationFailure::result(OAuthParameter::Username.alias());
         }
 
         if self.password.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthParameter::Password.alias());
+            return AuthorizationFailure::result(OAuthParameter::Password.alias());
         }
 
         self.serializer
@@ -98,11 +97,10 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
             .grant_type("password")
             .extend_scopes(self.scope.iter());
 
-        self.serializer.authorization_form(vec![
-            SerializerField::Required(OAuthParameter::ClientId),
-            SerializerField::Required(OAuthParameter::GrantType),
-            SerializerField::NotRequired(OAuthParameter::Scope),
-        ])
+        self.serializer.as_credential_map(
+            vec![OAuthParameter::Scope],
+            vec![OAuthParameter::ClientId, OAuthParameter::GrantType],
+        )
     }
 
     fn basic_auth(&self) -> Option<(String, String)> {
@@ -165,9 +163,9 @@ impl ResourceOwnerPasswordCredentialBuilder {
             || authority.eq(&Authority::AzureActiveDirectory)
             || authority.eq(&Authority::Consumers)
         {
-            return AuthorizationFailure::required_value_msg_result(
+            return AuthorizationFailure::msg_result(
                 "tenant_id",
-                Some("The grant type isn't supported on the /common or /consumers authentication contexts")
+                "Authority Azure Active Directory, common, and consumers are not supported authentication contexts for ROPC"
             );
         }
 

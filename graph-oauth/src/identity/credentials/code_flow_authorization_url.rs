@@ -1,5 +1,4 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::oauth::form_credential::SerializerField;
 use crate::oauth::ResponseType;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
@@ -50,15 +49,15 @@ impl CodeFlowAuthorizationUrl {
     pub fn url(&self) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
         if self.redirect_uri.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg_result("redirect_uri", None);
+            return AuthorizationFailure::result("redirect_uri");
         }
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg_result("client_id", None);
+            return AuthorizationFailure::result("client_id");
         }
 
         if self.scope.is_empty() {
-            return AuthorizationFailure::required_value_msg_result("scope", None);
+            return AuthorizationFailure::result("scope");
         }
 
         serializer
@@ -69,12 +68,14 @@ impl CodeFlowAuthorizationUrl {
             .response_type(self.response_type.clone());
 
         let mut encoder = Serializer::new(String::new());
-        serializer.url_query_encode(
+
+        serializer.encode_query(
+            vec![],
             vec![
-                SerializerField::Required(OAuthParameter::ClientId),
-                SerializerField::Required(OAuthParameter::RedirectUri),
-                SerializerField::Required(OAuthParameter::Scope),
-                SerializerField::Required(OAuthParameter::ResponseType),
+                OAuthParameter::ClientId,
+                OAuthParameter::RedirectUri,
+                OAuthParameter::Scope,
+                OAuthParameter::ResponseType,
             ],
             &mut encoder,
         )?;
@@ -84,10 +85,7 @@ impl CodeFlowAuthorizationUrl {
             url.set_query(Some(encoder.finish().as_str()));
             Ok(url)
         } else {
-            AuthorizationFailure::required_value_msg_result(
-                "authorization_url",
-                Some("Internal Error"),
-            )
+            AuthorizationFailure::msg_result("authorization_url", "Internal Error")
         }
     }
 }

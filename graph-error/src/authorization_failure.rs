@@ -1,5 +1,7 @@
 use crate::AuthorizationResult;
 
+pub type AF = AuthorizationFailure;
+
 #[derive(Debug, thiserror::Error)]
 pub enum AuthorizationFailure {
     #[error("Required value missing:\n{0:#?}", name)]
@@ -13,34 +15,34 @@ pub enum AuthorizationFailure {
 }
 
 impl AuthorizationFailure {
-    pub fn required_value<T: AsRef<str>>(name: T) -> AuthorizationFailure {
+    pub fn err<T: AsRef<str>>(name: T) -> AuthorizationFailure {
         AuthorizationFailure::RequiredValue {
             name: name.as_ref().to_owned(),
             message: None,
         }
     }
 
-    pub fn required_value_result<T: AsRef<str>, U>(name: T) -> AuthorizationResult<U> {
+    pub fn result<U>(name: impl AsRef<str>) -> AuthorizationResult<U> {
         Err(AuthorizationFailure::RequiredValue {
             name: name.as_ref().to_owned(),
             message: None,
         })
     }
 
-    pub fn required_value_msg<T: AsRef<str>>(name: T, message: Option<T>) -> AuthorizationFailure {
+    pub fn msg_err<T: AsRef<str>>(name: T, message: T) -> AuthorizationFailure {
         AuthorizationFailure::RequiredValue {
             name: name.as_ref().to_owned(),
-            message: message.map(|s| s.as_ref().to_owned()),
+            message: Some(message.as_ref().to_owned()),
         }
     }
 
-    pub fn required_value_msg_result<T>(
-        name: &str,
-        message: Option<&str>,
+    pub fn msg_result<T>(
+        name: impl AsRef<str>,
+        message: impl ToString,
     ) -> Result<T, AuthorizationFailure> {
         Err(AuthorizationFailure::RequiredValue {
-            name: name.to_owned(),
-            message: message.map(|s| s.to_owned()),
+            name: name.as_ref().to_owned(),
+            message: Some(message.to_string()),
         })
     }
 

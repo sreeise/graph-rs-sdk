@@ -3,11 +3,10 @@ use crate::auth_response_query::AuthQueryResponse;
 use crate::identity::{
     Authority, AuthorizationUrl, AzureAuthorityHost, Crypto, Prompt, ResponseMode,
 };
-use crate::oauth::form_credential::SerializerField;
 use crate::oauth::{ProofKeyForCodeExchange, ResponseType};
 use crate::web::{InteractiveAuthenticator, InteractiveWebViewOptions};
 
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 
 use std::collections::BTreeSet;
 use url::form_urlencoded::Serializer;
@@ -92,6 +91,16 @@ impl AuthCodeAuthorizationUrl {
         self.authorization_url_with_host(azure_authority_host)
     }
 
+    /// Get the nonce.
+    ///
+    /// This value may be generated automatically by the client and may be useful for users
+    /// who want to manually verify that the nonce stored in the client is the same as the
+    /// nonce returned in the response from the authorization server.
+    /// Verifying the nonce helps mitigate token replay attacks.
+    pub fn nonce(&mut self) -> Option<&String> {
+        self.nonce.as_ref()
+    }
+
     pub fn interactive_webview_authentication(
         &self,
         interactive_web_view_options: Option<InteractiveWebViewOptions>,
@@ -126,11 +135,9 @@ impl AuthCodeAuthorizationUrl {
          */
 
         let url = Url::parse(&url_string)?;
-        let query = url.query().ok_or(AuthorizationFailure::required_value_msg(
+        let query = url.query().ok_or(AF::msg_err(
             "query",
-            Some(&format!(
-                "Url returned on redirect is missing query parameters, url: {url}"
-            )),
+            &format!("Url returned on redirect is missing query parameters, url: {url}"),
         ))?;
 
         let response_query: AuthQueryResponse = serde_urlencoded::from_str(query)?;
@@ -147,16 +154,16 @@ mod web_view_authenticator {
             &self,
             interactive_web_view_options: Option<InteractiveWebViewOptions>,
         ) -> anyhow::Result<Option<String>> {
-            let url = self.authorization_url()?;
-            let redirect_url = self.redirect_uri()?;
+            let uri = self.authorization_url()?;
+            let redirect_uri = self.redirect_uri()?;
             let web_view_options = interactive_web_view_options.unwrap_or_default();
             let _timeout = web_view_options.timeout;
             let (sender, receiver) = std::sync::mpsc::channel();
 
             std::thread::spawn(move || {
                 InteractiveWebView::interactive_authentication(
-                    url,
-                    redirect_url,
+                    uri,
+                    redirect_uri,
                     web_view_options,
                     sender,
                 )
@@ -190,15 +197,22 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
         let mut serializer = OAuthSerializer::new();
 
         if self.redirect_uri.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg_result("redirect_uri", None);
+            return AuthorizationFailure::result("redirect_uri");
         }
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg_result("client_id", None);
+            return AuthorizationFailure::result("client_id");
         }
 
         if self.scope.is_empty() {
-            return AuthorizationFailure::required_value_msg_result("scope", None);
+            return AuthorizationFailure::result("scope");
+        }
+
+        if self.scope.contains(&String::from("openid")) {
+            return AuthorizationFailure::msg_result(
+                "openid",
+                "Scope openid is not valid for authorization code - instead use OpenIdCredential",
+            );
         }
 
         serializer
@@ -227,9 +241,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
             if self.response_type.contains(&ResponseType::IdToken) {
                 if let Some(response_mode) = self.response_mode.as_ref() {
                     // id_token requires fragment or form_post. The Microsoft identity
-                    // platform recommends form_post. Unless you explicitly set
-                    // fragment then form_post is used here. Please file an issue
-                    // if you experience encounter related problems.
+                    // platform recommends form_post but fragment is default.
                     if response_mode.eq(&ResponseMode::Query) {
                         serializer.response_mode(ResponseMode::Fragment.as_ref());
                     } else {
@@ -271,34 +283,33 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
             serializer.code_challenge_method(code_challenge_method.as_str());
         }
 
-        let authorization_credentials = vec![
-            SerializerField::Required(OAuthParameter::ClientId),
-            SerializerField::Required(OAuthParameter::ResponseType),
-            SerializerField::Required(OAuthParameter::RedirectUri),
-            SerializerField::Required(OAuthParameter::Scope),
-            SerializerField::NotRequired(OAuthParameter::ResponseMode),
-            SerializerField::NotRequired(OAuthParameter::State),
-            SerializerField::NotRequired(OAuthParameter::Prompt),
-            SerializerField::NotRequired(OAuthParameter::LoginHint),
-            SerializerField::NotRequired(OAuthParameter::DomainHint),
-            SerializerField::NotRequired(OAuthParameter::Nonce),
-            SerializerField::NotRequired(OAuthParameter::CodeChallenge),
-            SerializerField::NotRequired(OAuthParameter::CodeChallengeMethod),
-        ];
-
         let mut encoder = Serializer::new(String::new());
-        serializer.url_query_encode(authorization_credentials, &mut encoder)?;
+        serializer.encode_query(
+            vec![
+                OAuthParameter::ResponseMode,
+                OAuthParameter::State,
+                OAuthParameter::Prompt,
+                OAuthParameter::LoginHint,
+                OAuthParameter::DomainHint,
+                OAuthParameter::Nonce,
+                OAuthParameter::CodeChallenge,
+                OAuthParameter::CodeChallengeMethod,
+            ],
+            vec![
+                OAuthParameter::ClientId,
+                OAuthParameter::ResponseType,
+                OAuthParameter::RedirectUri,
+                OAuthParameter::Scope,
+            ],
+            &mut encoder,
+        )?;
 
-        if let Some(authorization_url) = serializer.get(OAuthParameter::AuthorizationUrl) {
-            let mut url = Url::parse(authorization_url.as_str())?;
-            url.set_query(Some(encoder.finish().as_str()));
-            Ok(url)
-        } else {
-            AuthorizationFailure::required_value_msg_result(
-                "authorization_url",
-                Some("Internal Error"),
-            )
-        }
+        let authorization_url = serializer
+            .get(OAuthParameter::AuthorizationUrl)
+            .ok_or(AF::msg_err("authorization_url", "Internal Error"))?;
+        let mut url = Url::parse(authorization_url.as_str())?;
+        url.set_query(Some(encoder.finish().as_str()));
+        Ok(url)
     }
 }
 
@@ -363,7 +374,9 @@ impl AuthCodeAuthorizationUrlBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.auth_url_parameters.response_type = response_type.into_iter().collect();
+        self.auth_url_parameters
+            .response_type
+            .extend(response_type.into_iter());
         self
     }
 
@@ -403,8 +416,9 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// generate a secure random 32-octet sequence that is base64 URL
     /// encoded (no padding). This sequence is hashed using SHA256 and
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
-    pub fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        self.auth_url_parameters.nonce = Some(Crypto::secure_random_string()?);
+    #[doc(hidden)]
+    pub(crate) fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
+        self.auth_url_parameters.nonce = Some(Crypto::sha256_secure_string()?.1);
         Ok(self)
     }
 
@@ -413,8 +427,18 @@ impl AuthCodeAuthorizationUrlBuilder {
         self
     }
 
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.auth_url_parameters.scope = scopes.into_iter().map(|s| s.to_string()).collect();
+    /// Set the required permissions for the authorization request.
+    ///
+    /// Providing a scope of `id_token` automatically adds [ResponseType::IdToken]
+    /// and generates a secure nonce value.
+    /// See [AuthCodeAuthorizationUrlBuilder::with_nonce_generated]
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.auth_url_parameters.scope.extend(
+            scope
+                .into_iter()
+                .map(|s| s.to_string())
+                .map(|s| s.trim().to_owned()),
+        );
 
         if self.auth_url_parameters.nonce.is_none()
             && self
@@ -456,7 +480,7 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// Including `id_token` also requires a nonce parameter.
     /// This is generated automatically.
     /// See [AuthCodeAuthorizationUrlBuilder::with_nonce_generated]
-    pub fn with_id_token_scope(&mut self) -> anyhow::Result<&mut Self> {
+    fn with_id_token_scope(&mut self) -> anyhow::Result<&mut Self> {
         self.with_nonce_generated()?;
         self.auth_url_parameters
             .response_type
@@ -573,8 +597,9 @@ mod test {
             .unwrap();
 
         let query = url.query().unwrap();
+        dbg!(query);
         assert!(query.contains("response_mode=fragment"));
-        assert!(query.contains("response_type=id_token"));
+        assert!(query.contains("response_type=code+id_token"));
     }
 
     #[test]

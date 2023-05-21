@@ -1,5 +1,4 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     Authority, AzureAuthorityHost, CredentialBuilder, Crypto, Prompt, ResponseMode, ResponseType,
 };
@@ -131,11 +130,11 @@ impl ImplicitCredential {
         let mut serializer = OAuthSerializer::new();
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result("client_id");
+            return AuthorizationFailure::result("client_id");
         }
 
         if self.nonce.trim().is_empty() {
-            return AuthorizationFailure::required_value_result("nonce");
+            return AuthorizationFailure::result("nonce");
         }
 
         serializer
@@ -179,13 +178,12 @@ impl ImplicitCredential {
             if self.response_type.contains(&ResponseType::IdToken) {
                 serializer.add_scope("openid");
             } else {
-                return AuthorizationFailure::required_value_msg_result(
+                return AuthorizationFailure::msg_result(
                     "scope",
-                    Some(
-                        &format!("{} {}",
-                                "scope must be provided or response_type must be id_token which will add openid to scope:",
-                            "https://learn.microsoft.com/en-us/azure/active-directory/develop/scopes-oidc"
-                        )
+                    format!("{} {}",
+                            "scope must be provided or response_type must be id_token which will add openid to scope:",
+                        "https://learn.microsoft.com/en-us/azure/active-directory/develop/scopes-oidc"
+
                     )
                 );
             }
@@ -207,31 +205,31 @@ impl ImplicitCredential {
             serializer.login_hint(login_hint.as_str());
         }
 
-        let authorization_credentials = vec![
-            SerializerField::Required(OAuthParameter::ClientId),
-            SerializerField::Required(OAuthParameter::ResponseType),
-            SerializerField::Required(OAuthParameter::Scope),
-            SerializerField::Required(OAuthParameter::Nonce),
-            SerializerField::NotRequired(OAuthParameter::RedirectUri),
-            SerializerField::NotRequired(OAuthParameter::ResponseMode),
-            SerializerField::NotRequired(OAuthParameter::State),
-            SerializerField::NotRequired(OAuthParameter::Prompt),
-            SerializerField::NotRequired(OAuthParameter::LoginHint),
-            SerializerField::NotRequired(OAuthParameter::DomainHint),
-        ];
-
         let mut encoder = Serializer::new(String::new());
-        serializer.url_query_encode(authorization_credentials, &mut encoder)?;
+        serializer.encode_query(
+            vec![
+                OAuthParameter::RedirectUri,
+                OAuthParameter::ResponseMode,
+                OAuthParameter::State,
+                OAuthParameter::Prompt,
+                OAuthParameter::LoginHint,
+                OAuthParameter::DomainHint,
+            ],
+            vec![
+                OAuthParameter::ClientId,
+                OAuthParameter::ResponseType,
+                OAuthParameter::Scope,
+                OAuthParameter::Nonce,
+            ],
+            &mut encoder,
+        )?;
 
         if let Some(authorization_url) = serializer.get(OAuthParameter::AuthorizationUrl) {
             let mut url = Url::parse(authorization_url.as_str())?;
             url.set_query(Some(encoder.finish().as_str()));
             Ok(url)
         } else {
-            AuthorizationFailure::required_value_msg_result(
-                "authorization_url",
-                Some("Internal Error"),
-            )
+            AuthorizationFailure::msg_result("authorization_url", "Internal Error")
         }
     }
 }
@@ -319,7 +317,7 @@ impl ImplicitCredentialBuilder {
     /// encoded (no padding). This sequence is hashed using SHA256 and
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     pub fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        self.credential.nonce = Crypto::secure_random_string()?;
+        self.credential.nonce = Crypto::sha256_secure_string()?.1;
         Ok(self)
     }
 

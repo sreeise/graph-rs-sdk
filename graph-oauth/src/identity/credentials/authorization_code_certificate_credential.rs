@@ -1,12 +1,11 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     AuthCodeAuthorizationUrl, AuthCodeAuthorizationUrlBuilder, Authority, AuthorizationSerializer,
     AzureAuthorityHost, CredentialBuilder, TokenCredentialOptions, TokenRequest,
     CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationResult, AF};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
@@ -109,30 +108,24 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-            AuthorizationFailure::required_value_msg("access_token_url", Some("Internal Error")),
-        )?;
-        Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+        let uri = self
+            .serializer
+            .get(OAuthParameter::AccessTokenUrl)
+            .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
+        Url::parse(uri.as_str()).map_err(AF::from)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg_result(
-                OAuthParameter::ClientId.alias(),
-                None,
-            );
+            return AF::result(OAuthParameter::ClientId);
         }
 
         if self.client_assertion.trim().is_empty() {
-            return AuthorizationFailure::required_value_msg_result(
-                OAuthParameter::ClientAssertion.alias(),
-                None,
-            );
+            return AF::result(OAuthParameter::ClientAssertion);
         }
 
         if self.client_assertion_type.trim().is_empty() {
-            self.client_assertion_type =
-                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer".to_owned();
+            self.client_assertion_type = CLIENT_ASSERTION_TYPE.to_owned();
         }
 
         self.serializer
@@ -148,9 +141,9 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
-                return AuthorizationFailure::required_value_msg_result(
+                return AF::msg_result(
                     OAuthParameter::RefreshToken.alias(),
-                    Some("refresh_token is an empty string"),
+                    "refresh_token is empty - cannot be an empty string",
                 );
             }
 
@@ -158,19 +151,21 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
                 .refresh_token(refresh_token.as_ref())
                 .grant_type("refresh_token");
 
-            return self.serializer.authorization_form(vec![
-                SerializerField::Required(OAuthParameter::RefreshToken),
-                SerializerField::Required(OAuthParameter::ClientId),
-                SerializerField::Required(OAuthParameter::GrantType),
-                SerializerField::Required(OAuthParameter::ClientAssertion),
-                SerializerField::Required(OAuthParameter::ClientAssertionType),
-                SerializerField::NotRequired(OAuthParameter::Scope),
-            ]);
+            return self.serializer.as_credential_map(
+                vec![OAuthParameter::Scope],
+                vec![
+                    OAuthParameter::RefreshToken,
+                    OAuthParameter::ClientId,
+                    OAuthParameter::GrantType,
+                    OAuthParameter::ClientAssertion,
+                    OAuthParameter::ClientAssertionType,
+                ],
+            );
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
-                return AuthorizationFailure::required_value_msg_result(
+                return AF::msg_result(
                     OAuthParameter::AuthorizationCode.alias(),
-                    Some("authorization_code is an empty string"),
+                    "authorization_code is empty - cannot be an empty string",
                 );
             }
 
@@ -178,25 +173,26 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
                 .authorization_code(authorization_code.as_str())
                 .grant_type("authorization_code");
 
-            return self.serializer.authorization_form(vec![
-                SerializerField::Required(OAuthParameter::AuthorizationCode),
-                SerializerField::Required(OAuthParameter::ClientId),
-                SerializerField::Required(OAuthParameter::RedirectUri),
-                SerializerField::Required(OAuthParameter::GrantType),
-                SerializerField::Required(OAuthParameter::ClientAssertion),
-                SerializerField::Required(OAuthParameter::ClientAssertionType),
-                SerializerField::NotRequired(OAuthParameter::Scope),
-                SerializerField::NotRequired(OAuthParameter::CodeVerifier),
-            ]);
+            return self.serializer.as_credential_map(
+                vec![OAuthParameter::Scope, OAuthParameter::CodeVerifier],
+                vec![
+                    OAuthParameter::AuthorizationCode,
+                    OAuthParameter::ClientId,
+                    OAuthParameter::GrantType,
+                    OAuthParameter::RedirectUri,
+                    OAuthParameter::ClientAssertion,
+                    OAuthParameter::ClientAssertionType,
+                ],
+            );
         }
 
-        AuthorizationFailure::required_value_msg_result(
-            &format!(
+        AF::msg_result(
+            format!(
                 "{} or {}",
                 OAuthParameter::AuthorizationCode.alias(),
                 OAuthParameter::RefreshToken.alias()
             ),
-            Some("Either authorization code or refresh token is required"),
+            "Either authorization code or refresh token is required",
         )
     }
 }

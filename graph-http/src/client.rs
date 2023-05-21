@@ -1,7 +1,4 @@
 use crate::blocking::BlockingClient;
-use crate::traits::ODataQuery;
-
-use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
@@ -9,7 +6,6 @@ use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
 use std::time::Duration;
-use url::Url;
 
 #[derive(Clone)]
 struct ClientConfiguration {
@@ -145,12 +141,12 @@ impl GraphClientConfiguration {
 
         if !self.config.headers.contains_key(USER_AGENT) {
             let mut headers = self.config.headers.clone();
-            let version = std::env::var("GRAPH_RS_SDK").unwrap();
-            headers.insert(
-                USER_AGENT,
-                HeaderValue::from_str(&format!("graph-rs-sdk/{version}")).unwrap(),
-            );
-            builder = builder.default_headers(self.config.headers);
+            if let Ok(user_agent_header) = std::env::var("USER_AGENT") {
+                if let Ok(header_value) = HeaderValue::from_str(&user_agent_header) {
+                    headers.insert(USER_AGENT, header_value);
+                    builder = builder.default_headers(self.config.headers);
+                }
+            }
         } else {
             builder = builder.default_headers(self.config.headers);
         }
@@ -182,12 +178,12 @@ impl GraphClientConfiguration {
 
         if !self.config.headers.contains_key(USER_AGENT) {
             let mut headers = self.config.headers.clone();
-            let version = std::env::var("GRAPH_RS_SDK").unwrap();
-            headers.insert(
-                USER_AGENT,
-                HeaderValue::from_str(&format!("graph-rs-sdk/{version}")).unwrap(),
-            );
-            builder = builder.default_headers(self.config.headers);
+            if let Ok(user_agent_header) = std::env::var("USER_AGENT") {
+                if let Ok(header_value) = HeaderValue::from_str(&user_agent_header) {
+                    headers.insert(USER_AGENT, header_value);
+                    builder = builder.default_headers(self.config.headers);
+                }
+            }
         } else {
             builder = builder.default_headers(self.config.headers);
         }
@@ -259,30 +255,5 @@ impl Debug for Client {
             .field("headers", &self.headers)
             .field("builder", &self.builder)
             .finish()
-    }
-}
-
-pub trait ApiClientImpl: ODataQuery + Sized {
-    fn url(&self) -> Url;
-
-    fn render_path<S: AsRef<str>>(
-        &self,
-        path: S,
-        path_params_map: &serde_json::Value,
-    ) -> GraphResult<String>;
-
-    fn build_url<S: AsRef<str>>(
-        &self,
-        path: S,
-        path_params_map: &serde_json::Value,
-    ) -> GraphResult<Url> {
-        let path = self.render_path(path.as_ref(), path_params_map)?;
-        let mut vec: Vec<&str> = path.split('/').collect();
-        vec.retain(|s| !s.is_empty());
-        let mut url = self.url();
-        if let Ok(mut p) = url.path_segments_mut() {
-            p.extend(&vec);
-        }
-        Ok(url)
     }
 }

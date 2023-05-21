@@ -1,5 +1,4 @@
-use base64::Engine;
-use ring::rand::SecureRandom;
+use crate::oauth::Crypto;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ProofKeyForCodeExchange {
@@ -51,16 +50,7 @@ impl ProofKeyForCodeExchange {
     /// encoded (no padding). This sequence is hashed using SHA256 and
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     pub fn generate() -> anyhow::Result<ProofKeyForCodeExchange> {
-        let mut buf = [0; 32];
-        let rng = ring::rand::SystemRandom::new();
-        rng.fill(&mut buf)
-            .map_err(|_| anyhow::Error::msg("ring::error::Unspecified"))?;
-        let code_verifier = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(buf);
-        let mut context = ring::digest::Context::new(&ring::digest::SHA256);
-        context.update(code_verifier.as_bytes());
-        let code_challenge =
-            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(context.finish().as_ref());
-
+        let (code_verifier, code_challenge) = Crypto::sha256_secure_string()?;
         Ok(ProofKeyForCodeExchange {
             code_verifier,
             code_challenge,

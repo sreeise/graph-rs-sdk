@@ -1,7 +1,11 @@
+use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationUrl, AzureAuthorityHost, Crypto, Prompt, ResponseMode, ResponseType,
+    AsQuery, Authority, AuthorizationUrl, AzureAuthorityHost, Crypto, Prompt, ResponseMode,
+    ResponseType,
 };
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
+use std::collections::BTreeSet;
+use url::form_urlencoded::Serializer;
 use url::Url;
 
 /// OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional
@@ -19,10 +23,10 @@ pub struct OpenIdAuthorizationUrl {
     /// by your app. It must exactly match one of the redirect URIs you registered in the portal,
     /// except that it must be URL-encoded. If not present, the endpoint will pick one registered
     /// redirect_uri at random to send the user back to.
-    pub(crate) redirect_uri: String,
+    pub(crate) redirect_uri: Option<String>,
     /// Required
     /// Must include code for OpenID Connect sign-in.
-    pub(crate) response_type: Vec<ResponseType>,
+    pub(crate) response_type: BTreeSet<ResponseType>,
     /// Optional
     /// Specifies how the identity platform should return the requested token to your app.
     ///
@@ -75,7 +79,7 @@ pub struct OpenIdAuthorizationUrl {
     /// Finally, [Prompt::SelectAccount] shows the user an account selector, negating silent SSO but
     /// allowing the user to pick which account they intend to sign in with, without requiring
     /// credential entry. You can't use both login_hint and select_account.
-    pub(crate) prompt: Vec<Prompt>,
+    pub(crate) prompt: BTreeSet<Prompt>,
     /// Optional
     /// The realm of the user in a federated directory. This skips the email-based discovery
     /// process that the user goes through on the sign-in page, for a slightly more streamlined
@@ -92,19 +96,19 @@ pub struct OpenIdAuthorizationUrl {
 }
 
 impl OpenIdAuthorizationUrl {
-    pub fn new<T: AsRef<str>>(
-        client_id: T,
-        redirect_uri: T,
-    ) -> anyhow::Result<OpenIdAuthorizationUrl> {
+    pub fn new<T: AsRef<str>>(client_id: T) -> anyhow::Result<OpenIdAuthorizationUrl> {
+        let mut response_type = BTreeSet::new();
+        response_type.insert(ResponseType::Code);
+
         Ok(OpenIdAuthorizationUrl {
             client_id: client_id.as_ref().to_owned(),
-            redirect_uri: redirect_uri.as_ref().to_owned(),
-            response_type: vec![ResponseType::Code],
+            redirect_uri: None,
+            response_type,
             response_mode: None,
-            nonce: Crypto::secure_random_string()?,
+            nonce: Crypto::sha256_secure_string()?.1,
             state: None,
             scope: vec!["openid".to_owned()],
-            prompt: vec![],
+            prompt: BTreeSet::new(),
             domain_hint: None,
             login_hint: None,
             authority: Authority::default(),
@@ -125,11 +129,27 @@ impl OpenIdAuthorizationUrl {
     ) -> AuthorizationResult<Url> {
         self.authorization_url_with_host(azure_authority_host)
     }
+
+    /// Get the nonce.
+    ///
+    /// This value may be generated automatically by the client and may be useful for users
+    /// who want to manually verify that the nonce stored in the client is the same as the
+    /// nonce returned in the response from the authorization server.
+    /// Verifying the nonce helps mitigate token replay attacks.
+    pub fn nonce(&mut self) -> &String {
+        &self.nonce
+    }
 }
 
 impl AuthorizationUrl for OpenIdAuthorizationUrl {
     fn redirect_uri(&self) -> AuthorizationResult<Url> {
-        Url::parse(self.redirect_uri.as_str()).map_err(AuthorizationFailure::from)
+        let redirect_uri = self.redirect_uri.as_ref()
+            .ok_or(AuthorizationFailure::msg_err(
+                "redirect_uri",
+                "If not provided, the authorization server will pick one registered redirect_uri at random to send the user back to"
+            ))?;
+
+        Url::parse(redirect_uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
     fn authorization_url(&self) -> AuthorizationResult<Url> {
@@ -138,9 +158,76 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
 
     fn authorization_url_with_host(
         &self,
-        _azure_authority_host: &AzureAuthorityHost,
+        azure_authority_host: &AzureAuthorityHost,
     ) -> AuthorizationResult<Url> {
-        unimplemented!()
+        let mut serializer = OAuthSerializer::new();
+
+        if self.client_id.trim().is_empty() {
+            return AuthorizationFailure::result("client_id");
+        }
+
+        if self.scope.is_empty() {
+            return AuthorizationFailure::result("scope");
+        }
+
+        if self.nonce.is_empty() {
+            return AuthorizationFailure::msg_result(
+                "nonce",
+                "nonce is empty - nonce can be automatically generated if not updated by the caller"
+            );
+        }
+
+        serializer
+            .client_id(self.client_id.as_str())
+            .extend_scopes(self.scope.clone())
+            .nonce(self.nonce.as_str())
+            .authority(azure_authority_host, &self.authority);
+
+        if let Some(redirect_uri) = self.redirect_uri.as_ref() {
+            serializer.redirect_uri(redirect_uri.as_ref());
+        }
+
+        if let Some(state) = self.state.as_ref() {
+            serializer.state(state.as_str());
+        }
+
+        if !self.prompt.is_empty() {
+            serializer.prompt(&self.prompt.as_query());
+        }
+
+        if let Some(domain_hint) = self.domain_hint.as_ref() {
+            serializer.domain_hint(domain_hint.as_str());
+        }
+
+        if let Some(login_hint) = self.login_hint.as_ref() {
+            serializer.login_hint(login_hint.as_str());
+        }
+
+        let mut encoder = Serializer::new(String::new());
+        serializer.encode_query(
+            vec![
+                OAuthParameter::RedirectUri,
+                OAuthParameter::ResponseMode,
+                OAuthParameter::State,
+                OAuthParameter::Prompt,
+                OAuthParameter::LoginHint,
+                OAuthParameter::DomainHint,
+            ],
+            vec![
+                OAuthParameter::ClientId,
+                OAuthParameter::ResponseType,
+                OAuthParameter::Scope,
+                OAuthParameter::Nonce,
+            ],
+            &mut encoder,
+        )?;
+
+        let authorization_url = serializer
+            .get(OAuthParameter::AuthorizationUrl)
+            .ok_or(AF::msg_err("authorization_url", "Internal Error"))?;
+        let mut url = Url::parse(authorization_url.as_str())?;
+        url.set_query(Some(encoder.finish().as_str()));
+        Ok(url)
     }
 }
 
@@ -149,14 +236,14 @@ pub struct OpenIdAuthorizationUrlBuilder {
 }
 
 impl OpenIdAuthorizationUrlBuilder {
-    fn new() -> anyhow::Result<OpenIdAuthorizationUrlBuilder> {
+    pub(crate) fn new() -> anyhow::Result<OpenIdAuthorizationUrlBuilder> {
         Ok(OpenIdAuthorizationUrlBuilder {
-            auth_url_parameters: OpenIdAuthorizationUrl::new(String::new(), String::new())?,
+            auth_url_parameters: OpenIdAuthorizationUrl::new(String::with_capacity(32))?,
         })
     }
 
     pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
-        self.auth_url_parameters.redirect_uri = redirect_uri.as_ref().to_owned();
+        self.auth_url_parameters.redirect_uri = Some(redirect_uri.as_ref().to_owned());
         self
     }
 
@@ -182,7 +269,9 @@ impl OpenIdAuthorizationUrlBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.auth_url_parameters.response_type = response_type.into_iter().collect();
+        self.auth_url_parameters
+            .response_type
+            .extend(response_type.into_iter());
         self
     }
 
@@ -229,8 +318,8 @@ impl OpenIdAuthorizationUrlBuilder {
     /// encoded (no padding). This sequence is hashed using SHA256 and
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     #[doc(hidden)]
-    fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        self.auth_url_parameters.nonce = Crypto::secure_random_string()?;
+    pub(crate) fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
+        self.auth_url_parameters.nonce = Crypto::sha256_secure_string()?.1;
         Ok(self)
     }
 
@@ -265,7 +354,7 @@ impl OpenIdAuthorizationUrlBuilder {
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience
     ///     listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether.
     pub fn with_prompt<I: IntoIterator<Item = Prompt>>(&mut self, prompt: I) -> &mut Self {
-        self.auth_url_parameters.prompt = prompt.into_iter().collect();
+        self.auth_url_parameters.prompt.extend(prompt.into_iter());
         self
     }
 

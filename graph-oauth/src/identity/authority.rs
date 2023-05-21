@@ -62,13 +62,34 @@ impl AzureAuthorityHost {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum Authority {
+    /// Users with both a personal Microsoft account and a work or school account
+    /// from Azure AD can sign in to the application.
+    ///
+    /// [Authority::AzureActiveDirectory] is the same as [Authority::Common].
+    /// [Authority::Common] is a convenience enum variant that may be more
+    /// familiar with it from the Microsoft Identity Platform documentation.
     #[default]
     AzureActiveDirectory,
     AzureDirectoryFederatedServices,
-    /// Same as Aad. This is here since `common` is more familiar some times
+    /// Users with both a personal Microsoft account and a work or school account
+    /// from Azure AD can sign in to the application.
+    ///
+    /// [Authority::Common] is the same as [Authority::AzureActiveDirectory].
+    ///
+    /// [Authority::Common] is a convenience enum variant that may be more
+    /// familiar with it from the Microsoft Identity Platform documentation.
     Common,
+    /// Only users with work or school accounts from Azure AD can sign in to the application.
     Organizations,
+    /// Only users with a personal Microsoft account can sign in to the application.
     Consumers,
+    /// The value can be the domain name of the Azure AD tenant or the tenant ID in GUID format.
+    /// You can also use the consumer tenant GUID, 9188040d-6c67-4c5b-b112-36a304b66dad,
+    /// in place of consumers.
+    ///
+    /// Only users from a specific Azure AD tenant (directory members with a work or
+    /// school account or directory guests with a personal Microsoft account) can sign in
+    /// to the application.
     TenantId(String),
 }
 

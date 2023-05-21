@@ -1,3 +1,6 @@
+use crate::identity::credentials::as_query::AsQuery;
+use std::collections::BTreeSet;
+
 /// Indicates the type of user interaction that is required. Valid values are login, none,
 /// consent, and select_account.
 ///
@@ -45,5 +48,23 @@ impl IntoIterator for Prompt {
 
     fn into_iter(self) -> Self::IntoIter {
         vec![self].into_iter()
+    }
+}
+
+impl AsQuery for Vec<Prompt> {
+    fn as_query(&self) -> String {
+        self.iter()
+            .map(|s| s.as_ref())
+            .collect::<Vec<&str>>()
+            .join(" ")
+    }
+}
+
+impl AsQuery for BTreeSet<Prompt> {
+    fn as_query(&self) -> String {
+        self.iter()
+            .map(|s| s.as_ref())
+            .collect::<Vec<&str>>()
+            .join(" ")
     }
 }

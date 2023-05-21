@@ -1,12 +1,11 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::form_credential::SerializerField;
 use crate::identity::{
     AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
     CredentialBuilder, ProofKeyForCodeExchange, TokenCredentialOptions, TokenRequest,
 };
 use crate::oauth::AuthCodeAuthorizationUrlBuilder;
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationResult, AF};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
@@ -114,33 +113,27 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
             .authority(azure_authority_host, &self.authority);
 
         if self.refresh_token.is_none() {
-            let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-                AuthorizationFailure::required_value_msg(
-                    "access_token_url",
-                    Some("Internal Error"),
-                ),
-            )?;
-            Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+            let uri = self
+                .serializer
+                .get(OAuthParameter::AccessTokenUrl)
+                .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
+            Url::parse(uri.as_str()).map_err(AF::from)
         } else {
-            let uri = self.serializer.get(OAuthParameter::RefreshTokenUrl).ok_or(
-                AuthorizationFailure::required_value_msg(
-                    "refresh_token_url",
-                    Some("Internal Error"),
-                ),
-            )?;
-            Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+            let uri = self
+                .serializer
+                .get(OAuthParameter::RefreshTokenUrl)
+                .ok_or(AF::msg_err("refresh_token_url", "Internal Error"))?;
+            Url::parse(uri.as_str()).map_err(AF::from)
         }
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
+            return AF::result(OAuthParameter::ClientId.alias());
         }
 
         if self.client_secret.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(
-                OAuthParameter::ClientSecret.alias(),
-            );
+            return AF::result(OAuthParameter::ClientSecret.alias());
         }
 
         self.serializer
@@ -150,28 +143,27 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
-                return AuthorizationFailure::required_value_msg_result(
-                    OAuthParameter::RefreshToken.alias(),
-                    Some("Either authorization code or refresh token is required"),
-                );
+                return AF::msg_result(OAuthParameter::RefreshToken, "Refresh token is empty");
             }
 
             self.serializer
                 .grant_type("refresh_token")
                 .refresh_token(refresh_token.as_ref());
 
-            return self.serializer.authorization_form(vec![
-                SerializerField::Required(OAuthParameter::ClientId),
-                SerializerField::Required(OAuthParameter::ClientSecret),
-                SerializerField::Required(OAuthParameter::RefreshToken),
-                SerializerField::Required(OAuthParameter::GrantType),
-                SerializerField::NotRequired(OAuthParameter::Scope),
-            ]);
+            return self.serializer.as_credential_map(
+                vec![OAuthParameter::Scope],
+                vec![
+                    OAuthParameter::ClientId,
+                    OAuthParameter::ClientSecret,
+                    OAuthParameter::RefreshToken,
+                    OAuthParameter::GrantType,
+                ],
+            );
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
-                return AuthorizationFailure::required_value_msg_result(
+                return AF::msg_result(
                     OAuthParameter::AuthorizationCode.alias(),
-                    Some("Either authorization code or refresh token is required"),
+                    "Authorization code is empty",
                 );
             }
 
@@ -184,24 +176,25 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
                 self.serializer.code_verifier(code_verifier.as_str());
             }
 
-            return self.serializer.authorization_form(vec![
-                SerializerField::Required(OAuthParameter::ClientId),
-                SerializerField::Required(OAuthParameter::ClientSecret),
-                SerializerField::Required(OAuthParameter::RedirectUri),
-                SerializerField::Required(OAuthParameter::AuthorizationCode),
-                SerializerField::Required(OAuthParameter::GrantType),
-                SerializerField::NotRequired(OAuthParameter::Scope),
-                SerializerField::NotRequired(OAuthParameter::CodeVerifier),
-            ]);
+            return self.serializer.as_credential_map(
+                vec![OAuthParameter::Scope, OAuthParameter::CodeVerifier],
+                vec![
+                    OAuthParameter::ClientId,
+                    OAuthParameter::ClientSecret,
+                    OAuthParameter::RedirectUri,
+                    OAuthParameter::AuthorizationCode,
+                    OAuthParameter::GrantType,
+                ],
+            );
         }
 
-        AuthorizationFailure::required_value_msg_result(
-            &format!(
+        AF::msg_result(
+            format!(
                 "{} or {}",
                 OAuthParameter::AuthorizationCode.alias(),
                 OAuthParameter::RefreshToken.alias()
             ),
-            Some("Either authorization code or refresh token is required"),
+            "Either authorization code or refresh token is required",
         )
     }
 
@@ -221,7 +214,7 @@ impl AuthorizationCodeCredentialBuilder {
             credential: AuthorizationCodeCredential {
                 authorization_code: None,
                 refresh_token: None,
-                client_id: String::new(),
+                client_id: String::with_capacity(32),
                 client_secret: String::new(),
                 redirect_uri: Url::parse("http://localhost")
                     .expect("Internal Error - please report"),
@@ -257,7 +250,7 @@ impl AuthorizationCodeCredentialBuilder {
         self
     }
 
-    pub fn with_code_verifier<T: AsRef<str>>(&mut self, code_verifier: T) -> &mut Self {
+    fn with_code_verifier<T: AsRef<str>>(&mut self, code_verifier: T) -> &mut Self {
         self.credential.code_verifier = Some(code_verifier.as_ref().to_owned());
         self
     }
@@ -336,5 +329,22 @@ mod test {
             .with_refresh_token("token");
         let mut credential = credential_builder.build();
         let _ = credential.form_urlencode().unwrap();
+    }
+
+    #[test]
+    fn serialization() {
+        let mut credential_builder = AuthorizationCodeCredential::builder();
+        let mut credential = credential_builder
+            .with_redirect_uri("https://localhost")
+            .unwrap()
+            .with_client_id("client_id")
+            .with_client_secret("client_secret")
+            .with_scope(vec!["scope"])
+            .with_tenant("tenant_id")
+            .with_authorization_code("authorization_code")
+            .build();
+
+        let map = credential.form_urlencode().unwrap();
+        assert_eq!(map.get("client_id"), Some(&String::from("client_id")))
     }
 }

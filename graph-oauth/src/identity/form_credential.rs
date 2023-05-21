@@ -1,7 +1,7 @@
 use crate::auth::OAuthParameter;
 
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum SerializerField {
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub enum ParameterIs {
     Required(OAuthParameter),
-    NotRequired(OAuthParameter),
+    Optional(OAuthParameter),
 }

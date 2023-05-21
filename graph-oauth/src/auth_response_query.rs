@@ -9,8 +9,10 @@ pub struct AuthQueryResponse {
     pub access_token: Option<String>,
     pub state: Option<String>,
     pub nonce: Option<String>,
+    pub error: Option<String>,
+    pub error_description: Option<String>,
     #[serde(flatten)]
-    additional_fields: HashMap<String, Value>,
+    pub additional_fields: HashMap<String, Value>,
     #[serde(skip)]
     log_pii: bool,
 }

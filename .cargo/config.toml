@@ -1,2 +1,2 @@
 [env]
-GRAPH_RS_SDK = "1.1.1"
+USER_AGENT = "graph-rs-sdk/1.1.1"

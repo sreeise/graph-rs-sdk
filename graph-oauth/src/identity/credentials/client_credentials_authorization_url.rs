@@ -37,13 +37,11 @@ impl ClientCredentialsAuthorizationUrl {
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(OAuthParameter::ClientId.alias());
+            return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
 
         if self.redirect_uri.trim().is_empty() {
-            return AuthorizationFailure::required_value_result(
-                OAuthParameter::RedirectUri.alias(),
-            );
+            return AuthorizationFailure::result(OAuthParameter::RedirectUri.alias());
         }
 
         serializer
@@ -69,12 +67,12 @@ impl ClientCredentialsAuthorizationUrl {
         let mut url = Url::parse(
             serializer
                 .get(OAuthParameter::AuthorizationUrl)
-                .ok_or(AuthorizationFailure::required_value(
+                .ok_or(AuthorizationFailure::err(
                     OAuthParameter::AuthorizationUrl.alias(),
                 ))?
                 .as_str(),
         )
-        .or(AuthorizationFailure::required_value_result(
+        .or(AuthorizationFailure::result(
             OAuthParameter::AuthorizationUrl.alias(),
         ))?;
         url.set_query(Some(encoder.finish().as_str()));

@@ -1,7 +1,7 @@
 use crate::access_token::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
 use crate::id_token::IdToken;
-use crate::identity::form_credential::SerializerField;
+use crate::identity::form_credential::ParameterIs;
 use crate::identity::{Authority, AzureAuthorityHost};
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
@@ -151,6 +151,7 @@ pub struct OAuthSerializer {
     access_token: Option<AccessToken>,
     scopes: BTreeSet<String>,
     credentials: BTreeMap<String, String>,
+    parameters: HashMap<ParameterIs, String>,
 }
 
 impl OAuthSerializer {
@@ -167,6 +168,7 @@ impl OAuthSerializer {
             access_token: None,
             scopes: BTreeSet::new(),
             credentials: BTreeMap::new(),
+            parameters: HashMap::with_capacity(10),
         }
     }
 
@@ -812,7 +814,7 @@ impl OAuthSerializer {
     pub fn join_scopes(&self, sep: &str) -> String {
         self.scopes
             .iter()
-            .map(|s| s.as_str())
+            .map(|s| &**s)
             .collect::<Vec<&str>>()
             .join(sep)
     }
@@ -825,8 +827,8 @@ impl OAuthSerializer {
     /// # use std::collections::HashSet;
     /// # let mut oauth = OAuthSerializer::new();
     ///
-    /// let scopes1 = vec!["Files.Read", "Files.ReadWrite"];
-    /// oauth.extend_scopes(&scopes1);
+    /// let scopes = vec!["Files.Read", "Files.ReadWrite"];
+    /// oauth.extend_scopes(&scopes);
     ///
     /// assert_eq!(oauth.join_scopes(" "), "Files.Read Files.ReadWrite");
     /// ```
@@ -1024,6 +1026,21 @@ impl OAuthSerializer {
         self.get(c).ok_or_else(|| OAuthError::credential_error(c))
     }
 
+    pub fn ok_or(&self, oac: &OAuthParameter) -> AuthorizationResult<String> {
+        self.get(*oac).ok_or(AuthorizationFailure::err(oac))
+    }
+
+    pub fn try_as_tuple(&self, oac: &OAuthParameter) -> AuthorizationResult<(String, String)> {
+        if oac.eq(&OAuthParameter::Scope) {
+            Ok((oac.alias().to_owned(), self.join_scopes(" ")))
+        } else {
+            Ok((
+                oac.alias().to_owned(),
+                self.get(*oac).ok_or(AuthorizationFailure::err(oac))?,
+            ))
+        }
+    }
+
     pub fn form_encode_credentials(
         &mut self,
         pairs: Vec<OAuthParameter>,
@@ -1041,49 +1058,64 @@ impl OAuthSerializer {
             });
     }
 
-    fn query_encode_filter(&self, form_credential: &SerializerField) -> bool {
-        let oac = {
-            match form_credential {
-                SerializerField::Required(oac) => *oac,
-                SerializerField::NotRequired(oac) => *oac,
+    pub fn encode_query(
+        &mut self,
+        optional_fields: Vec<OAuthParameter>,
+        required_fields: Vec<OAuthParameter>,
+        encoder: &mut Serializer<String>,
+    ) -> AuthorizationResult<()> {
+        for parameter in required_fields {
+            if parameter.alias().eq("scope") {
+                if self.scopes.is_empty() {
+                    return AuthorizationFailure::result::<()>(parameter.alias());
+                } else {
+                    encoder.append_pair("scope", self.join_scopes(" ").as_str());
+                }
+            } else {
+                let value = self
+                    .get(parameter)
+                    .ok_or(AuthorizationFailure::err(parameter))?;
+
+                encoder.append_pair(parameter.alias(), value.as_str());
             }
-        };
-        self.contains_key(oac.alias()) || oac.alias().eq("scope")
+        }
+
+        for parameter in optional_fields {
+            if parameter.alias().eq("scope") && !self.scopes.is_empty() {
+                encoder.append_pair("scope", self.join_scopes(" ").as_str());
+            } else if let Some(val) = self.get(parameter) {
+                encoder.append_pair(parameter.alias(), val.as_str());
+            }
+        }
+
+        Ok(())
     }
 
     pub fn url_query_encode(
         &mut self,
-        pairs: Vec<SerializerField>,
+        pairs: Vec<ParameterIs>,
         encoder: &mut Serializer<String>,
     ) -> AuthorizationResult<()> {
         for form_credential in pairs.iter() {
-            if self.query_encode_filter(form_credential) {
-                match form_credential {
-                    SerializerField::Required(oac) => {
-                        if oac.alias().eq("scope") {
-                            if self.scopes.is_empty() {
-                                return AuthorizationFailure::required_value_msg_result::<()>(
-                                    oac.alias(),
-                                    None,
-                                );
-                            } else {
-                                encoder.append_pair("scope", self.join_scopes(" ").as_str());
-                            }
-                        } else if let Some(val) = self.get(*oac) {
-                            encoder.append_pair(oac.alias(), val.as_str());
+            match form_credential {
+                ParameterIs::Required(oac) => {
+                    if oac.alias().eq("scope") {
+                        if self.scopes.is_empty() {
+                            return AuthorizationFailure::result::<()>(oac.alias());
                         } else {
-                            return AuthorizationFailure::required_value_msg_result::<()>(
-                                oac.alias(),
-                                None,
-                            );
-                        }
-                    }
-                    SerializerField::NotRequired(oac) => {
-                        if oac.alias().eq("scope") && !self.scopes.is_empty() {
                             encoder.append_pair("scope", self.join_scopes(" ").as_str());
-                        } else if let Some(val) = self.get(*oac) {
-                            encoder.append_pair(oac.alias(), val.as_str());
                         }
+                    } else {
+                        let value = self.get(*oac).ok_or(AuthorizationFailure::err(oac))?;
+
+                        encoder.append_pair(oac.alias(), value.as_str());
+                    }
+                }
+                ParameterIs::Optional(oac) => {
+                    if oac.alias().eq("scope") && !self.scopes.is_empty() {
+                        encoder.append_pair("scope", self.join_scopes(" ").as_str());
+                    } else if let Some(val) = self.get(*oac) {
+                        encoder.append_pair(oac.alias(), val.as_str());
                     }
                 }
             }
@@ -1110,26 +1142,44 @@ impl OAuthSerializer {
         Ok(map)
     }
 
+    pub fn as_credential_map(
+        &mut self,
+        optional_fields: Vec<OAuthParameter>,
+        required_fields: Vec<OAuthParameter>,
+    ) -> AuthorizationResult<HashMap<String, String>> {
+        let mut required_map = required_fields
+            .iter()
+            .map(|oac| self.try_as_tuple(oac))
+            .collect::<AuthorizationResult<HashMap<String, String>>>()?;
+
+        let optional_map: HashMap<String, String> = optional_fields
+            .iter()
+            .flat_map(|oac| self.try_as_tuple(oac))
+            .collect();
+
+        required_map.extend(optional_map);
+        Ok(required_map)
+    }
+
     pub fn authorization_form(
         &mut self,
-        form_credentials: Vec<SerializerField>,
+        form_credentials: Vec<ParameterIs>,
     ) -> AuthorizationResult<HashMap<String, String>> {
         let mut map: HashMap<String, String> = HashMap::new();
 
         for form_credential in form_credentials.iter() {
             match form_credential {
-                SerializerField::Required(oac) => {
-                    let val = self.get(*oac).ok_or(AuthorizationFailure::RequiredValue {
-                        name: oac.alias().into(),
-                        message: None,
-                    })?;
+                ParameterIs::Required(oac) => {
+                    let val = self
+                        .get(*oac)
+                        .ok_or(AuthorizationFailure::err(oac.alias()))?;
                     if val.trim().is_empty() {
-                        return AuthorizationFailure::required_value_result(oac);
+                        return AuthorizationFailure::msg_result(oac, "Value cannot be empty");
                     } else {
                         map.insert(oac.to_string(), val);
                     }
                 }
-                SerializerField::NotRequired(oac) => {
+                ParameterIs::Optional(oac) => {
                     if oac.eq(&OAuthParameter::Scope) && !self.scopes.is_empty() {
                         map.insert("scope".into(), self.join_scopes(" "));
                     } else if let Some(val) = self.get(*oac) {
