@@ -2,7 +2,7 @@ use crate::access_token::AccessToken;
 use crate::identity::{CredentialStore, CredentialStoreType, TokenCacheProviderType};
 use std::collections::BTreeMap;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct InMemoryCredentialStore {
     credentials: BTreeMap<String, CredentialStoreType>,
 }
@@ -48,7 +48,7 @@ impl CredentialStore for InMemoryCredentialStore {
         info!("InMemoryCredentialStore");
         self.credentials
             .get(client_id)
-            .unwrap_or_else(|| &CredentialStoreType::UnInitialized)
+            .unwrap_or(&CredentialStoreType::UnInitialized)
     }
 
     fn update_by_client_id(&mut self, client_id: &str, credential_store_type: CredentialStoreType) {

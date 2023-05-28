@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredential, TokenCredentialOptions,
+    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions,
 };
 use crate::oauth::DeviceCode;
 use graph_error::{AuthorizationFailure, AuthorizationResult};

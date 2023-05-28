@@ -1,5 +1,5 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredential};
+use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost};
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;

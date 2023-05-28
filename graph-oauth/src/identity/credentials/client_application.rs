@@ -1,8 +1,6 @@
 use crate::identity::{CredentialStoreType, TokenRequest};
 use crate::oauth::AccessToken;
 use async_trait::async_trait;
-use serde_json::from_str;
-use serde_urlencoded::from_bytes;
 
 #[async_trait]
 pub trait ClientApplication: TokenRequest {

@@ -1,6 +1,6 @@
 use crate::id_token::IdToken;
-use crate::jwt::{Claim, JsonWebToken, JwtParser};
-use chrono::{DateTime, Duration, LocalResult, TimeZone, Utc};
+use crate::jwt::{JsonWebToken, JwtParser};
+use chrono::{DateTime, Duration, Utc};
 use chrono_humanize::HumanTime;
 use graph_error::GraphFailure;
 use serde::{Deserialize, Deserializer};
@@ -8,7 +8,7 @@ use serde_aux::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
-use std::fmt::format;
+
 use std::str::FromStr;
 
 // Used to set timestamp based on expires in
@@ -81,8 +81,8 @@ impl AccessToken {
     pub fn new(token_type: &str, expires_in: i64, scope: &str, access_token: &str) -> AccessToken {
         AccessToken {
             token_type: token_type.into(),
-            ext_expires_in: Some(expires_in.clone()),
-            expires_in: expires_in.clone(),
+            ext_expires_in: Some(expires_in),
+            expires_in,
             scope: Some(scope.into()),
             access_token: access_token.into(),
             refresh_token: None,
@@ -119,7 +119,7 @@ impl AccessToken {
     /// access_token.set_expires_in(3600);
     /// ```
     pub fn set_expires_in(&mut self, expires_in: i64) -> &mut AccessToken {
-        self.expires_in = expires_in.clone();
+        self.expires_in = expires_in;
         self.timestamp = Some(Utc::now() + Duration::seconds(expires_in));
         self
     }
@@ -264,7 +264,7 @@ impl AccessToken {
     /// // The timestamp is in UTC.
     /// ```
     pub fn gen_timestamp(&mut self) {
-        self.timestamp = Some(Utc::now() + Duration::seconds(self.expires_in.clone()));
+        self.timestamp = Some(Utc::now() + Duration::seconds(self.expires_in));
     }
 
     /// Check whether the access token is expired. Uses the expires_in
@@ -344,7 +344,7 @@ impl TryFrom<reqwest::blocking::RequestBuilder> for AccessToken {
 
     fn try_from(value: reqwest::blocking::RequestBuilder) -> Result<Self, Self::Error> {
         let response = value.send()?;
-        Ok(AccessToken::try_from(response)?)
+        AccessToken::try_from(response)
     }
 }
 
@@ -413,7 +413,7 @@ impl<'de> Deserialize<'de> for AccessToken {
         Ok(AccessToken {
             access_token: inner_access_token.access_token,
             token_type: inner_access_token.token_type,
-            expires_in: inner_access_token.expires_in.clone(),
+            expires_in: inner_access_token.expires_in,
             ext_expires_in: inner_access_token.ext_expires_in,
             scope: inner_access_token.scope,
             refresh_token: inner_access_token.refresh_token,

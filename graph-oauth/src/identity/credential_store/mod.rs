@@ -7,6 +7,7 @@ pub use token_cache_providers::*;
 use crate::oauth::AccessToken;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
 pub enum CredentialStoreType {
     Bearer(String),
     AccessToken(AccessToken),

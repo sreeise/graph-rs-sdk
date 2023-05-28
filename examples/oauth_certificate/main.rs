@@ -125,7 +125,7 @@ async fn handle_redirect(
                 let access_token: AccessToken = response.json().await.unwrap();
 
                 // If all went well here we can print out the Access Token.
-                println!("AccessToken: {:#?}", access_token.bearer_token());
+                println!("AccessToken: {:#?}", access_token.access_token);
             } else {
                 // See if Microsoft Graph returned an error in the Response body
                 let result: reqwest::Result<serde_json::Value> = response.json().await;
