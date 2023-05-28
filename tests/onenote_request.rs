@@ -1,3 +1,4 @@
+use graph_core::resource::ResourceIdentity;
 use graph_http::traits::ResponseExt;
 use graph_rs_sdk::header::{HeaderValue, CONTENT_TYPE};
 use graph_rs_sdk::http::FileConfig;
@@ -15,7 +16,8 @@ async fn list_get_notebooks_and_sections() {
     }
 
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+    if let Some((id, client)) = OAuthTestClient::graph_by_rid_async(ResourceIdentity::Onenote).await
+    {
         let notebooks = client
             .user(id.as_str())
             .onenote()
@@ -78,12 +80,13 @@ async fn list_get_notebooks_and_sections() {
 
 #[tokio::test]
 async fn create_delete_page_from_file() {
-    if Environment::is_appveyor() {
+    if Environment::is_appveyor() || Environment::is_local() {
         return;
     }
 
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+    if let Some((id, client)) = OAuthTestClient::graph_by_rid_async(ResourceIdentity::Onenote).await
+    {
         let res = client
             .user(&id)
             .onenote()
@@ -117,12 +120,14 @@ async fn create_delete_page_from_file() {
 
 #[tokio::test]
 async fn download_page() {
-    if Environment::is_appveyor() {
+    if Environment::is_appveyor() || Environment::is_local() {
         return;
     }
 
     let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((user_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+    if let Some((user_id, client)) =
+        OAuthTestClient::graph_by_rid_async(ResourceIdentity::Onenote).await
+    {
         let file_location = "./test_files/downloaded_page.html";
         let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
         clean_up.rm_files(file_location.into());

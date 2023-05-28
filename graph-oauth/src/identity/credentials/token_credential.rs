@@ -1,6 +1,5 @@
-use crate::identity::AzureAuthorityHost;
+use crate::identity::{AuthorizationSerializer, CredentialStoreType, TokenRequest};
 
-#[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct TokenCredentialOptions {
-    pub(crate) azure_authority_host: AzureAuthorityHost,
+pub trait TokenCredential: AuthorizationSerializer + TokenRequest {
+    fn client_id(&self) -> &String;
 }

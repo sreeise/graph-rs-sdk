@@ -1,5 +1,5 @@
 use crate::identity::{
-    AuthorizationSerializer, AzureAuthorityHost, ResourceOwnerPasswordCredential,
+    AuthorizationSerializer, AzureAuthorityHost, ResourceOwnerPasswordCredential, TokenCredential,
     TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
@@ -18,7 +18,7 @@ use url::Url;
 pub struct PublicClientApplication {
     http_client: reqwest::Client,
     token_credential_options: TokenCredentialOptions,
-    credential: Box<dyn AuthorizationSerializer + Send>,
+    credential: Box<dyn TokenCredential + Send>,
 }
 
 impl PublicClientApplication {
@@ -108,6 +108,12 @@ impl TokenRequest for PublicClientApplication {
                 .send()
                 .await?)
         }
+    }
+}
+
+impl TokenCredential for PublicClientApplication {
+    fn client_id(&self) -> &String {
+        self.credential.client_id()
     }
 }
 

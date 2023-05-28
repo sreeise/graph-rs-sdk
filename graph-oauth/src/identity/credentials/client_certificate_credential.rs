@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, CredentialBuilder,
+    Authority, AuthorizationSerializer, AzureAuthorityHost, CredentialBuilder, TokenCredential,
     TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
@@ -150,6 +150,12 @@ impl AuthorizationSerializer for ClientCertificateCredential {
                 ],
             )
         };
+    }
+}
+
+impl TokenCredential for ClientCertificateCredential {
+    fn client_id(&self) -> &String {
+        &self.client_id
     }
 }
 

@@ -1,7 +1,9 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions,
+    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredential,
+    TokenCredentialOptions, TokenRequest,
 };
+use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
@@ -66,6 +68,17 @@ impl ResourceOwnerPasswordCredential {
             serializer: Default::default(),
         }
     }
+
+    pub fn builder() -> ResourceOwnerPasswordCredentialBuilder {
+        ResourceOwnerPasswordCredentialBuilder::new()
+    }
+}
+
+#[async_trait]
+impl TokenRequest for ResourceOwnerPasswordCredential {
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
+    }
 }
 
 impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
@@ -108,13 +121,19 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
     }
 }
 
+impl TokenCredential for ResourceOwnerPasswordCredential {
+    fn client_id(&self) -> &String {
+        &self.client_id
+    }
+}
+
 #[derive(Clone)]
 pub struct ResourceOwnerPasswordCredentialBuilder {
     credential: ResourceOwnerPasswordCredential,
 }
 
 impl ResourceOwnerPasswordCredentialBuilder {
-    pub fn new() -> ResourceOwnerPasswordCredentialBuilder {
+    fn new() -> ResourceOwnerPasswordCredentialBuilder {
         ResourceOwnerPasswordCredentialBuilder {
             credential: ResourceOwnerPasswordCredential {
                 client_id: String::new(),

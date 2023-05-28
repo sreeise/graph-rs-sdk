@@ -1,3 +1,4 @@
+use graph_core::resource::ResourceIdentity;
 use graph_http::api_impl::ODataQuery;
 use test_tools::oauth_request::ASYNC_THROTTLE_MUTEX;
 use test_tools::oauth_request::{Environment, OAuthTestClient};
@@ -6,7 +7,9 @@ use test_tools::oauth_request::{Environment, OAuthTestClient};
 async fn get_drafts_mail_folder() {
     if Environment::is_local() {
         let _ = ASYNC_THROTTLE_MUTEX.lock().await;
-        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        if let Some((id, client)) =
+            OAuthTestClient::graph_by_rid_async(ResourceIdentity::MailFolders).await
+        {
             let response = client
                 .user(id.as_str())
                 .mail_folder("drafts")
@@ -27,7 +30,9 @@ async fn get_drafts_mail_folder() {
 async fn mail_folder_list_messages() {
     if Environment::is_local() {
         let _ = ASYNC_THROTTLE_MUTEX.lock().await;
-        if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
+        if let Some((id, client)) =
+            OAuthTestClient::graph_by_rid_async(ResourceIdentity::MailFolders).await
+        {
             let response = client
                 .user(id.as_str())
                 .mail_folder("inbox")
@@ -40,6 +45,7 @@ async fn mail_folder_list_messages() {
 
             assert!(response.status().is_success());
             let body: serde_json::Value = response.json().await.unwrap();
+            dbg!(&body);
             let messages = body["value"].as_array().unwrap();
             assert_eq!(messages.len(), 2);
         }

@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions,
+    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredential, TokenCredentialOptions,
 };
 use crate::oauth::DeviceCode;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
@@ -15,7 +15,7 @@ static DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_c
 /// and refresh tokens as needed.
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
 #[derive(Clone)]
-pub struct DeviceAuthorizationCredential {
+pub struct DeviceCodeCredential {
     /// Required when requesting a new access token using a refresh token
     /// The refresh token needed to make an access token request using a refresh token.
     /// Do not include an authorization code when using a refresh token.
@@ -41,13 +41,13 @@ pub struct DeviceAuthorizationCredential {
     serializer: OAuthSerializer,
 }
 
-impl DeviceAuthorizationCredential {
+impl DeviceCodeCredential {
     pub fn new<T: AsRef<str>, U: ToString, I: IntoIterator<Item = U>>(
         client_id: T,
         device_code: T,
         scope: I,
-    ) -> DeviceAuthorizationCredential {
-        DeviceAuthorizationCredential {
+    ) -> DeviceCodeCredential {
+        DeviceCodeCredential {
             refresh_token: None,
             client_id: client_id.as_ref().to_owned(),
             device_code: Some(device_code.as_ref().to_owned()),
@@ -63,7 +63,7 @@ impl DeviceAuthorizationCredential {
     }
 }
 
-impl AuthorizationSerializer for DeviceAuthorizationCredential {
+impl AuthorizationSerializer for DeviceCodeCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
@@ -158,13 +158,13 @@ impl AuthorizationSerializer for DeviceAuthorizationCredential {
 
 #[derive(Clone)]
 pub struct DeviceCodeCredentialBuilder {
-    credential: DeviceAuthorizationCredential,
+    credential: DeviceCodeCredential,
 }
 
 impl DeviceCodeCredentialBuilder {
     fn new() -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder {
-            credential: DeviceAuthorizationCredential {
+            credential: DeviceCodeCredential {
                 refresh_token: None,
                 client_id: String::new(),
                 device_code: None,
@@ -216,7 +216,7 @@ impl DeviceCodeCredentialBuilder {
         self.credential.token_credential_options = token_credential_options;
     }
 
-    pub fn build(&self) -> DeviceAuthorizationCredential {
+    pub fn build(&self) -> DeviceCodeCredential {
         self.credential.clone()
     }
 }
@@ -224,7 +224,7 @@ impl DeviceCodeCredentialBuilder {
 impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
     fn from(value: &DeviceCode) -> Self {
         DeviceCodeCredentialBuilder {
-            credential: DeviceAuthorizationCredential {
+            credential: DeviceCodeCredential {
                 refresh_token: None,
                 client_id: String::new(),
                 device_code: Some(value.device_code.clone()),
@@ -244,7 +244,7 @@ mod test {
     #[test]
     #[should_panic]
     fn no_device_code() {
-        let mut credential = DeviceAuthorizationCredential::builder()
+        let mut credential = DeviceCodeCredential::builder()
             .with_client_id("CLIENT_ID")
             .with_scope(vec!["scope"])
             .build();

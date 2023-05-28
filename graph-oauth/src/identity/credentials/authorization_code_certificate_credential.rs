@@ -1,7 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     AuthCodeAuthorizationUrl, AuthCodeAuthorizationUrlBuilder, Authority, AuthorizationSerializer,
-    AzureAuthorityHost, CredentialBuilder, TokenCredentialOptions, TokenRequest,
+    AzureAuthorityHost, CredentialBuilder, TokenCredential, TokenCredentialOptions, TokenRequest,
     CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;
@@ -194,6 +194,12 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
             ),
             "Either authorization code or refresh token is required",
         )
+    }
+}
+
+impl TokenCredential for AuthorizationCodeCertificateCredential {
+    fn client_id(&self) -> &String {
+        &self.client_id
     }
 }
 

@@ -1,8 +1,13 @@
-use crate::identity::{AuthorizationSerializer, ClientSecretCredential};
+use crate::identity::{
+    AuthorizationSerializer, AzureAuthorityHost, ClientSecretCredential, TokenCredential,
+};
 use crate::oauth::{
     ConfidentialClientApplication, PublicClientApplication, ResourceOwnerPasswordCredential,
 };
+use graph_error::AuthorizationResult;
+use std::collections::HashMap;
 use std::env::VarError;
+use url::Url;
 
 const AZURE_TENANT_ID: &str = "AZURE_TENANT_ID";
 const AZURE_CLIENT_ID: &str = "AZURE_CLIENT_ID";
@@ -11,7 +16,7 @@ const AZURE_USERNAME: &str = "AZURE_USERNAME";
 const AZURE_PASSWORD: &str = "AZURE_PASSWORD";
 
 pub struct EnvironmentCredential {
-    pub credential: Box<dyn AuthorizationSerializer + Send>,
+    pub credential: Box<dyn TokenCredential + Send>,
 }
 
 impl EnvironmentCredential {
@@ -133,6 +138,16 @@ impl EnvironmentCredential {
             )
             .map_err(|_| VarError::NotPresent)?),
         }
+    }
+}
+
+impl AuthorizationSerializer for EnvironmentCredential {
+    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+        self.credential.uri(azure_authority_host)
+    }
+
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+        self.credential.form_urlencode()
     }
 }
 

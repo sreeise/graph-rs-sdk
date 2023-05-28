@@ -1,7 +1,8 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
-    CredentialBuilder, ProofKeyForCodeExchange, TokenCredentialOptions, TokenRequest,
+    CredentialBuilder, ProofKeyForCodeExchange, TokenCredential, TokenCredentialOptions,
+    TokenRequest,
 };
 use crate::oauth::AuthCodeAuthorizationUrlBuilder;
 use async_trait::async_trait;
@@ -200,6 +201,12 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
 
     fn basic_auth(&self) -> Option<(String, String)> {
         Some((self.client_id.clone(), self.client_secret.clone()))
+    }
+}
+
+impl TokenCredential for AuthorizationCodeCredential {
+    fn client_id(&self) -> &String {
+        &self.client_id
     }
 }
 

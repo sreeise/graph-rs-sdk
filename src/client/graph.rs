@@ -528,7 +528,7 @@ impl From<String> for Graph {
 
 impl From<&AccessToken> for Graph {
     fn from(token: &AccessToken) -> Self {
-        Graph::new(token.bearer_token())
+        Graph::new(token.access_token.as_str())
     }
 }
 

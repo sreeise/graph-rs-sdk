@@ -899,7 +899,7 @@ impl OAuthSerializer {
     /// oauth.access_token(access_token);
     /// ```
     pub fn access_token(&mut self, ac: AccessToken) {
-        if let Some(refresh_token) = ac.refresh_token() {
+        if let Some(refresh_token) = ac.refresh_token.as_ref() {
             self.refresh_token(refresh_token.as_str());
         }
         self.access_token.replace(ac);
@@ -943,7 +943,7 @@ impl OAuthSerializer {
         }
 
         match self.get_access_token() {
-            Some(token) => match token.refresh_token() {
+            Some(token) => match token.refresh_token {
                 Some(t) => Ok(t),
                 None => OAuthError::error_from::<String>(OAuthParameter::RefreshToken),
             },

@@ -3,36 +3,6 @@ use std::thread;
 use std::time::Duration;
 
 #[test]
-fn get_method() {
-    let mut access_token = AccessToken::default();
-    access_token
-        .set_expires_in(3600)
-        .set_token_type("bearer")
-        .set_bearer_token("ASODFIUJ34KJ;LADSK")
-        .set_scope("offline")
-        .set_refresh_token("eyJh...9323");
-    assert_eq!(access_token.expires_in(), 3600);
-    assert_eq!(access_token.token_type(), "bearer");
-    assert_eq!(access_token.bearer_token(), "ASODFIUJ34KJ;LADSK");
-    assert_eq!(access_token.scopes(), Some(&"offline".into()));
-    assert_eq!(
-        access_token.refresh_token(),
-        Some("eyJh...9323".to_string())
-    );
-}
-
-#[test]
-fn access_token_field_encoding() {
-    // Internally this is base64.
-    let mut access_token = AccessToken::default();
-    access_token.set_bearer_token("ASDFJ;34LIUASDOFI NASDOFIUY OP");
-    assert_eq!(
-        "ASDFJ;34LIUASDOFI NASDOFIUY OP",
-        access_token.bearer_token()
-    );
-}
-
-#[test]
 fn is_expired_test() {
     let mut access_token = AccessToken::default();
     access_token.set_expires_in(1);

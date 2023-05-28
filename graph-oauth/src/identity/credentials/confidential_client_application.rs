@@ -1,8 +1,10 @@
 use crate::identity::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AuthorizationSerializer,
-    AzureAuthorityHost, ClientCertificateCredential, ClientSecretCredential,
-    TokenCredentialOptions, TokenRequest,
+    AzureAuthorityHost, ClientApplication, ClientCertificateCredential, ClientSecretCredential,
+    CredentialStore, CredentialStoreType, InMemoryCredentialStore, OpenIdCredential,
+    TokenCacheProviderType, TokenCredential, TokenCredentialOptions, TokenRequest,
 };
+use crate::oauth::UnInitializedCredentialStore;
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, GraphResult};
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
@@ -18,7 +20,8 @@ use wry::http::HeaderMap;
 pub struct ConfidentialClientApplication {
     http_client: reqwest::Client,
     token_credential_options: TokenCredentialOptions,
-    credential: Box<dyn AuthorizationSerializer + Send>,
+    credential: Box<dyn TokenCredential + Send>,
+    credential_store: Box<dyn CredentialStore + Send>,
 }
 
 impl ConfidentialClientApplication {
@@ -112,6 +115,40 @@ impl TokenRequest for ConfidentialClientApplication {
     }
 }
 
+impl TokenCredential for ConfidentialClientApplication {
+    fn client_id(&self) -> &String {
+        self.credential.client_id()
+    }
+}
+
+impl ClientApplication for ConfidentialClientApplication {
+    fn get_credential_from_store(&self) -> &CredentialStoreType {
+        match self.credential_store.token_cache_provider() {
+            TokenCacheProviderType::UnInitialized => &CredentialStoreType::UnInitialized,
+            TokenCacheProviderType::InMemory => {
+                let client_id = self.client_id();
+                self.credential_store
+                    .get_token_by_client_id(client_id.as_str())
+            }
+            TokenCacheProviderType::Session => &CredentialStoreType::UnInitialized,
+            TokenCacheProviderType::Distributed => &CredentialStoreType::UnInitialized,
+        }
+    }
+
+    fn update_token_credential_store(&mut self, credential_store_type: CredentialStoreType) {
+        match self.credential_store.token_cache_provider() {
+            TokenCacheProviderType::UnInitialized => {}
+            TokenCacheProviderType::InMemory => {
+                let client_id = self.client_id().clone();
+                self.credential_store
+                    .update_by_client_id(client_id.as_str(), credential_store_type);
+            }
+            TokenCacheProviderType::Session => {}
+            TokenCacheProviderType::Distributed => {}
+        }
+    }
+}
+
 impl From<AuthorizationCodeCredential> for ConfidentialClientApplication {
     fn from(value: AuthorizationCodeCredential) -> Self {
         ConfidentialClientApplication {
@@ -122,6 +159,7 @@ impl From<AuthorizationCodeCredential> for ConfidentialClientApplication {
                 .unwrap(),
             token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
+            credential_store: Box::new(UnInitializedCredentialStore),
         }
     }
 }
@@ -136,6 +174,7 @@ impl From<AuthorizationCodeCertificateCredential> for ConfidentialClientApplicat
                 .unwrap(),
             token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
+            credential_store: Box::new(UnInitializedCredentialStore),
         }
     }
 }
@@ -150,6 +189,7 @@ impl From<ClientSecretCredential> for ConfidentialClientApplication {
                 .unwrap(),
             token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
+            credential_store: Box::new(InMemoryCredentialStore::new()),
         }
     }
 }
@@ -164,6 +204,22 @@ impl From<ClientCertificateCredential> for ConfidentialClientApplication {
                 .unwrap(),
             token_credential_options: value.token_credential_options.clone(),
             credential: Box::new(value),
+            credential_store: Box::new(UnInitializedCredentialStore),
+        }
+    }
+}
+
+impl From<OpenIdCredential> for ConfidentialClientApplication {
+    fn from(value: OpenIdCredential) -> Self {
+        ConfidentialClientApplication {
+            http_client: ClientBuilder::new()
+                .min_tls_version(Version::TLS_1_2)
+                .https_only(true)
+                .build()
+                .unwrap(),
+            token_credential_options: value.token_credential_options.clone(),
+            credential: Box::new(value),
+            credential_store: Box::new(UnInitializedCredentialStore),
         }
     }
 }

@@ -21,6 +21,7 @@ mod auth_code_grant_refresh_token;
 mod client_credentials;
 mod client_credentials_admin_consent;
 mod device_code;
+mod enable_pii_logging;
 mod environment_credential;
 mod implicit_grant;
 mod is_access_token_expired;
@@ -30,8 +31,8 @@ mod signing_keys;
 use graph_rs_sdk::oauth::{
     AccessToken, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    CredentialBuilder, DeviceAuthorizationCredential, ProofKeyForCodeExchange,
-    PublicClientApplication, TokenRequest,
+    CredentialBuilder, DeviceCodeCredential, ProofKeyForCodeExchange, PublicClientApplication,
+    TokenRequest,
 };
 
 #[tokio::main]
@@ -74,7 +75,7 @@ async fn auth_code_grant(authorization_code: &str) {
     println!("{response:#?}");
 
     let access_token: AccessToken = response.json().await.unwrap();
-    println!("{:#?}", access_token.bearer_token());
+    println!("{:#?}", access_token.access_token);
 }
 
 // Client Credentials Grant
@@ -86,5 +87,5 @@ async fn client_credentials() {
     println!("{response:#?}");
 
     let access_token: AccessToken = response.json().await.unwrap();
-    println!("{:#?}", access_token.bearer_token());
+    println!("{:#?}", access_token.access_token);
 }

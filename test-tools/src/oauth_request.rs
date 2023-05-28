@@ -2,7 +2,10 @@
 
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use graph_rs_sdk::oauth::{AccessToken, ClientSecretCredential, OAuthSerializer};
+use graph_rs_sdk::oauth::{
+    AccessToken, AuthorizationCodeCredential, ClientSecretCredential, CredentialBuilder,
+    OAuthSerializer, ResourceOwnerPasswordCredential, TokenRequest,
+};
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
@@ -119,38 +122,23 @@ impl OAuthTestCredentials {
         }
     }
 
-    pub fn new_local() -> OAuthTestCredentials {
-        OAuthTestCredentials::new_local_from_path("./env.toml")
-    }
-
-    pub fn new_local_from_path(path: &str) -> OAuthTestCredentials {
-        let mut creds: OAuthTestCredentials = OAuthTestCredentials::from_file(path).unwrap();
-        creds
-            .scope
-            .push("https://graph.microsoft.com/.default".into());
-        creds
-    }
-
-    fn into_oauth(self) -> OAuthSerializer {
-        let mut oauth = OAuthSerializer::new();
-        oauth
-            .client_id(self.client_id.as_str())
-            .client_secret(self.client_secret.as_str())
-            .username(self.username.as_str())
-            .password(self.password.as_str())
-            .add_scope("https://graph.microsoft.com/.default")
-            .access_token_url(
-                format!(
-                    "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
-                    self.tenant.as_str()
-                )
-                .as_str(),
-            );
-        oauth
-    }
-
     fn client_credentials(self) -> ClientSecretCredential {
-        ClientSecretCredential::new(self.client_id.as_str(), self.client_secret.as_str())
+        ClientSecretCredential::builder()
+            .with_client_secret(self.client_secret.as_str())
+            .with_client_id(self.client_id.as_str())
+            .with_tenant(self.tenant.as_str())
+            .with_scope(vec!["https://graph.microsoft.com/.default"])
+            .build()
+    }
+
+    fn resource_owner_password_credential(self) -> ResourceOwnerPasswordCredential {
+        ResourceOwnerPasswordCredential::builder()
+            .with_tenant(self.tenant.as_str())
+            .with_client_id(self.client_id.as_str())
+            .with_username(self.username.as_str())
+            .with_password(self.password.as_str())
+            .with_scope(vec!["https://graph.microsoft.com/.default"])
+            .build()
     }
 }
 
@@ -164,25 +152,31 @@ pub enum OAuthTestClient {
 impl OAuthTestClient {
     fn get_access_token(&self, creds: OAuthTestCredentials) -> Option<(String, AccessToken)> {
         let user_id = creds.user_id.clone()?;
-        let mut oauth: OAuthSerializer = creds.into_oauth();
-        let mut req = {
-            match self {
-                OAuthTestClient::ClientCredentials => oauth.build().client_credentials(),
-                OAuthTestClient::ResourceOwnerPasswordCredentials => {
-                    oauth.build().resource_owner_password_credentials()
-                }
-                OAuthTestClient::AuthorizationCodeCredential => {
-                    oauth.build().authorization_code_grant()
+        match self {
+            OAuthTestClient::ClientCredentials => {
+                let mut credential = creds.client_credentials();
+                if let Ok(response) = credential.get_token() {
+                    let token: AccessToken = response.json().unwrap();
+                    Some((user_id, token))
+                } else {
+                    None
                 }
             }
-        };
-
-        if let Ok(response) = req.access_token().send() {
-            let token: AccessToken = response.json().unwrap();
-            Some((user_id, token))
-        } else {
-            None
+            OAuthTestClient::ResourceOwnerPasswordCredentials => {
+                let mut credential = creds.resource_owner_password_credential();
+                if let Ok(response) = credential.get_token() {
+                    let token: AccessToken = response.json().unwrap();
+                    Some((user_id, token))
+                } else {
+                    None
+                }
+            }
+            _ => None,
         }
+    }
+
+    pub fn get_client_credentials(&self, creds: OAuthTestCredentials) -> ClientSecretCredential {
+        creds.client_credentials()
     }
 
     async fn get_access_token_async(
@@ -190,25 +184,28 @@ impl OAuthTestClient {
         creds: OAuthTestCredentials,
     ) -> Option<(String, AccessToken)> {
         let user_id = creds.user_id.clone()?;
-        let mut oauth: OAuthSerializer = creds.into_oauth();
-        let mut req = {
-            match self {
-                OAuthTestClient::ClientCredentials => oauth.build_async().client_credentials(),
-                OAuthTestClient::ResourceOwnerPasswordCredentials => {
-                    oauth.build_async().resource_owner_password_credentials()
-                }
-                OAuthTestClient::AuthorizationCodeCredential => {
-                    oauth.build_async().authorization_code_grant()
+        match self {
+            OAuthTestClient::ClientCredentials => {
+                let mut credential = creds.client_credentials();
+                match credential.get_token_async().await {
+                    Ok(response) => {
+                        let token: AccessToken = response.json().await.unwrap();
+                        Some((user_id, token))
+                    }
+                    Err(_) => None,
                 }
             }
-        };
-
-        match req.access_token().send().await {
-            Ok(response) => {
-                let token: AccessToken = response.json().await.unwrap();
-                Some((user_id, token))
+            OAuthTestClient::ResourceOwnerPasswordCredentials => {
+                let mut credential = creds.resource_owner_password_credential();
+                match credential.get_token_async().await {
+                    Ok(response) => {
+                        let token: AccessToken = response.json().await.unwrap();
+                        Some((user_id, token))
+                    }
+                    Err(_) => None,
+                }
             }
-            Err(_) => None,
+            _ => None,
         }
     }
 
@@ -261,10 +258,19 @@ impl OAuthTestClient {
         let (test_client, credentials) = client.default_client()?;
 
         if let Some((id, token)) = test_client.get_access_token(credentials) {
-            Some((id, Graph::new(token.bearer_token())))
+            Some((id, Graph::new(token.access_token.as_str())))
         } else {
             None
         }
+    }
+
+    pub fn client_credentials_by_rid(
+        resource_identity: ResourceIdentity,
+    ) -> Option<ClientSecretCredential> {
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by_resource_identity(resource_identity)?;
+        let (test_client, credentials) = client.default_client()?;
+        Some(test_client.get_client_credentials(credentials))
     }
 
     pub async fn graph_by_rid_async(
@@ -274,7 +280,7 @@ impl OAuthTestClient {
         let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
         if let Some((id, token)) = test_client.get_access_token_async(credentials).await {
-            Some((id, Graph::new(token.bearer_token())))
+            Some((id, Graph::new(token.access_token.as_str())))
         } else {
             None
         }
@@ -282,7 +288,7 @@ impl OAuthTestClient {
 
     pub fn graph(&self) -> Option<(String, Graph)> {
         if let Some((id, token)) = self.request_access_token() {
-            Some((id, Graph::new(token.bearer_token())))
+            Some((id, Graph::new(token.access_token.as_str())))
         } else {
             None
         }
@@ -290,7 +296,7 @@ impl OAuthTestClient {
 
     pub async fn graph_async(&self) -> Option<(String, Graph)> {
         if let Some((id, token)) = self.request_access_token_async().await {
-            Some((id, Graph::new(token.bearer_token())))
+            Some((id, Graph::new(token.access_token.as_str())))
         } else {
             None
         }

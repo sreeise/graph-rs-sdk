@@ -131,6 +131,13 @@ impl<'de> Deserialize<'de> for IdToken {
                 formatter.write_str("`code`, `id_token`, `state`, and `session_state`")
             }
 
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: Error,
+            {
+                IdToken::from_str(v).map_err(|err| Error::custom(err))
+            }
+
             fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
             where
                 E: serde::de::Error,
@@ -157,13 +164,6 @@ impl<'de> Deserialize<'de> for IdToken {
                     }
                 }
                 Ok(id_token)
-            }
-
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-            where
-                E: Error,
-            {
-                IdToken::from_str(v).map_err(|err| Error::custom(err))
             }
         }
         deserializer.deserialize_identifier(IdTokenVisitor)

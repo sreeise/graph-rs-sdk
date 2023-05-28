@@ -1,7 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost,
-    ClientCredentialsAuthorizationUrlBuilder, CredentialBuilder, TokenRequest,
+    ClientCredentialsAuthorizationUrlBuilder, CredentialBuilder, TokenCredential, TokenRequest,
 };
 use crate::oauth::TokenCredentialOptions;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
@@ -127,6 +127,12 @@ impl AuthorizationSerializer for ClientSecretCredential {
     }
 }
 
+impl TokenCredential for ClientSecretCredential {
+    fn client_id(&self) -> &String {
+        &self.client_id
+    }
+}
+
 pub struct ClientSecretCredentialBuilder {
     credential: ClientSecretCredential,
 }
@@ -137,7 +143,7 @@ impl ClientSecretCredentialBuilder {
             credential: ClientSecretCredential {
                 client_id: String::new(),
                 client_secret: String::new(),
-                scope: vec![],
+                scope: vec!["https://graph.microsoft.com/.default".into()],
                 authority: Default::default(),
                 token_credential_options: Default::default(),
                 serializer: Default::default(),
