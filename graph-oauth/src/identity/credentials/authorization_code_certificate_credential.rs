@@ -39,7 +39,7 @@ pub struct AuthorizationCodeCertificateCredential {
     /// The redirect_uri of your app, where authentication responses can be sent and received
     /// by your app. It must exactly match one of the redirect_uris you registered in the portal,
     /// except it must be URL-encoded.
-    pub(crate) redirect_uri: Url,
+    pub(crate) redirect_uri: Option<Url>,
     /// The same code_verifier that was used to obtain the authorization_code.
     /// Required if PKCE was used in the authorization code grant request. For more information,
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
@@ -68,15 +68,21 @@ impl AuthorizationCodeCertificateCredential {
         client_id: T,
         authorization_code: T,
         client_assertion: T,
-        redirect_uri: U,
+        redirect_uri: Option<U>,
     ) -> AuthorizationResult<AuthorizationCodeCertificateCredential> {
-        let redirect_uri_result = Url::parse(redirect_uri.as_str());
+        let redirect_uri = {
+            if let Some(redirect_uri) = redirect_uri {
+                redirect_uri.into_url().ok()
+            } else {
+                None
+            }
+        };
 
         Ok(AuthorizationCodeCertificateCredential {
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_id: client_id.as_ref().to_owned(),
-            redirect_uri: redirect_uri.into_url().or(redirect_uri_result)?,
+            redirect_uri,
             code_verifier: None,
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
@@ -111,7 +117,7 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
         let uri = self
             .serializer
             .get(OAuthParameter::AccessTokenUrl)
-            .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
+            .ok_or(AF::msg_internal_err("access_token_url"))?;
         Url::parse(uri.as_str()).map_err(AF::from)
     }
 
@@ -130,10 +136,13 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
 
         self.serializer
             .client_id(self.client_id.as_str())
-            .redirect_uri(self.redirect_uri.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
             .extend_scopes(self.scope.clone());
+
+        if let Some(redirect_uri) = self.redirect_uri.as_ref() {
+            self.serializer.redirect_uri(redirect_uri.as_str());
+        }
 
         if let Some(code_verifier) = self.code_verifier.as_ref() {
             self.serializer.code_verifier(code_verifier.as_ref());
@@ -215,8 +224,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
                 authorization_code: None,
                 refresh_token: None,
                 client_id: String::with_capacity(32),
-                redirect_uri: Url::parse("http://localhost")
-                    .expect("Internal Error - please report"),
+                redirect_uri: None,
                 code_verifier: None,
                 client_assertion_type: String::new(),
                 client_assertion: CLIENT_ASSERTION_TYPE.to_owned(),
@@ -240,7 +248,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
     }
 
     pub fn with_redirect_uri(&mut self, redirect_uri: impl IntoUrl) -> anyhow::Result<&mut Self> {
-        self.credential.redirect_uri = redirect_uri.into_url()?;
+        self.credential.redirect_uri = Some(redirect_uri.into_url()?);
         Ok(self)
     }
 

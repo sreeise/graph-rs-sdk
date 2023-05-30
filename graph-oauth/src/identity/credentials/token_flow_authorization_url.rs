@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::oauth::ResponseType;
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use url::form_urlencoded::Serializer;
 use url::Url;
 
@@ -71,7 +71,7 @@ impl TokenFlowAuthorizationUrl {
             url.set_query(Some(encoder.finish().as_str()));
             Ok(url)
         } else {
-            AuthorizationFailure::msg_result("authorization_url", "Internal Error")
+            AF::msg_internal_result("authorization_url")
         }
     }
 }

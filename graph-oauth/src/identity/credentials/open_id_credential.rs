@@ -91,7 +91,7 @@ impl OpenIdCredential {
         OpenIdCredentialBuilder::new()
     }
 
-    pub fn authorization_url_builder() -> anyhow::Result<OpenIdAuthorizationUrlBuilder> {
+    pub fn authorization_url_builder() -> AuthorizationResult<OpenIdAuthorizationUrlBuilder> {
         OpenIdAuthorizationUrlBuilder::new()
     }
 }
@@ -112,13 +112,13 @@ impl AuthorizationSerializer for OpenIdCredential {
             let uri = self
                 .serializer
                 .get(OAuthParameter::AccessTokenUrl)
-                .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
+                .ok_or(AF::msg_internal_err("access_token_url"))?;
             Url::parse(uri.as_str()).map_err(AF::from)
         } else {
             let uri = self
                 .serializer
                 .get(OAuthParameter::RefreshTokenUrl)
-                .ok_or(AF::msg_err("refresh_token_url", "Internal Error"))?;
+                .ok_or(AF::msg_internal_err("refresh_token_url"))?;
             Url::parse(uri.as_str()).map_err(AF::from)
         }
     }
@@ -270,7 +270,7 @@ impl From<OpenIdAuthorizationUrl> for OpenIdCredentialBuilder {
     fn from(value: OpenIdAuthorizationUrl) -> Self {
         let mut builder = OpenIdCredentialBuilder::new();
         if let Some(redirect_uri) = value.redirect_uri.as_ref() {
-            let _ = builder.with_redirect_uri(redirect_uri);
+            let _ = builder.with_redirect_uri(redirect_uri.clone());
         }
         builder
             .with_scope(value.scope)

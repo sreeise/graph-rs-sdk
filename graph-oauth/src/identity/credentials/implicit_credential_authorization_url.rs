@@ -434,10 +434,11 @@ mod test {
     fn response_type_join_string() {
         let authorizer = ImplicitCredential::builder()
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
-            .with_response_type(ResponseType::FromString(vec![
-                "id_token".to_owned(),
-                "token".to_owned(),
-            ]))
+            .with_response_type(ResponseType::StringSet(
+                vec!["id_token".to_owned(), "token".to_owned()]
+                    .into_iter()
+                    .collect(),
+            ))
             .with_redirect_uri("https::/localhost:8080/myapp")
             .with_scope(["User.Read"])
             .with_nonce("678910")

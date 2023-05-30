@@ -1,4 +1,7 @@
+use graph_oauth::identity::{CredentialBuilder, ResponseType, TokenRequest};
+use graph_oauth::oauth::{OpenIdAuthorizationUrl, OpenIdCredential};
 use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuthSerializer};
+use url::Url;
 /// # Example
 /// ```
 /// use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuth};
@@ -15,62 +18,66 @@ use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuthSerializer};
 /// OAuth-enabled applications by using a security token called an ID token.
 use warp::Filter;
 
-// The client id and client secret must be changed before running this example.
-static CLIENT_ID: &str = "<YOUR_CLIENT_ID>";
-static CLIENT_SECRET: &str = "<YOUR_CLIENT_SECRET>";
+//       "client_id": "e0951f73-cafa-455f-9365-50dfd22f56b6",
+//       "client_secret": "rUWHfYygz~IZH~7I~2.w1-Sedf~T16g8OR",
 
-fn oauth_open_id() -> OAuthSerializer {
-    let mut oauth = OAuthSerializer::new();
-    oauth
-        .client_id(CLIENT_ID)
-        .client_secret(CLIENT_SECRET)
-        .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
-        .redirect_uri("http://localhost:8000/redirect")
-        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-        .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-        .response_type("id_token code")
-        .response_mode("form_post")
-        .add_scope("openid")
-        .add_scope("Files.Read")
-        .add_scope("Files.ReadWrite")
-        .add_scope("Files.Read.All")
-        .add_scope("Files.ReadWrite.All")
-        .add_scope("offline_access")
-        .nonce("7362CAEA-9CA5")
-        .prompt("login")
-        .state("12345");
-    oauth
+// The client id and client secret must be changed before running this example.
+static CLIENT_ID: &str = "e0951f73-cafa-455f-9365-50dfd22f56b6";
+static CLIENT_SECRET: &str = "rUWHfYygz~IZH~7I~2.w1-Sedf~T16g8OR";
+
+fn open_id_credential(
+    authorization_code: &str,
+    client_id: &str,
+    client_secret: &str,
+) -> anyhow::Result<OpenIdCredential> {
+    Ok(OpenIdCredential::builder()
+        .with_authorization_code(authorization_code)
+        .with_client_id(client_id)
+        .with_client_secret(client_secret)
+        .with_redirect_uri("http://localhost:8000")?
+        .with_scope(vec!["offline_access", "Files.Read"]) // OpenIdCredential automatically sets the openid scope
+        .build())
 }
 
-async fn handle_redirect(id_token: IdToken) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
+fn open_id_authorization_url(client_id: &str, client_secret: &str) -> anyhow::Result<Url> {
+    Ok(OpenIdCredential::authorization_url_builder()
+        .new_with_secure_nonce()?
+        .with_client_id(client_id)
+        .with_default_scope()?
+        .extend_scope(vec!["Files.Read"])
+        .build()
+        .url()?)
+}
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct OpenIdResponse {
+    pub code: String,
+    pub id_token: String,
+    pub session_state: String,
+}
+
+async fn handle_redirect(
+    id_token: OpenIdResponse,
+) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
     println!("Received IdToken: {id_token:#?}");
+    let code = id_token.code.clone();
 
-    let mut oauth = oauth_open_id();
+    let mut credential = open_id_credential(code.as_ref(), CLIENT_ID, CLIENT_SECRET).unwrap();
+    let mut result = credential.get_token_async().await;
 
-    // Pass the id token to the oauth client.
-    oauth.id_token(id_token);
+    dbg!(&result);
 
-    // Build the request to get an access token using open id connect.
-    let mut request = oauth.build_async().open_id_connect();
+    if let Ok(response) = result {
+        if response.status().is_success() {
+            let mut access_token: AccessToken = response.json().await.unwrap();
+            access_token.enable_pii_logging(true);
 
-    // Request an access token.
-    let response = request.access_token().send().await.unwrap();
-    println!("{response:#?}");
-
-    if response.status().is_success() {
-        let access_token: AccessToken = response.json().await.unwrap();
-
-        // You can optionally pass the access token to the oauth client in order
-        // to use a refresh token to get more access tokens. The refresh token
-        // is stored in AccessToken.
-        oauth.access_token(access_token);
-
-        // If all went well here we can print out the OAuth config with the Access Token.
-        println!("OAuth:\n{:#?}\n", &oauth);
-    } else {
-        // See if Microsoft Graph returned an error in the Response body
-        let result: reqwest::Result<serde_json::Value> = response.json().await;
-        println!("{result:#?}");
+            // If all went well here we can print out the OAuth config with the Access Token.
+            println!("\n{:#?}\n", access_token);
+        } else {
+            // See if Microsoft Graph returned an error in the Response body
+            let result: reqwest::Result<serde_json::Value> = response.json().await;
+            println!("{result:#?}");
+        }
     }
 
     // Generic login page response.
@@ -94,10 +101,36 @@ pub async fn start_server_main() {
         .and(warp::body::json())
         .and_then(handle_redirect);
 
-    // Get the oauth client and request a browser sign in.
-    let mut oauth = oauth_open_id();
-    let mut request = oauth.build_async().open_id_connect();
-    request.browser_authorization().open().unwrap();
+    std::env::set_var("RUST_LOG", "trace");
+    std::env::set_var("GRAPH_TEST_ENV", "true");
+
+    let url = open_id_authorization_url(CLIENT_ID, CLIENT_SECRET).unwrap();
+    webbrowser::open(url.as_ref());
 
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
 }
+
+/*
+fn oauth_open_id() -> OAuthSerializer {
+    let mut oauth = OAuthSerializer::new();
+    oauth
+        .client_id(CLIENT_ID)
+        .client_secret(CLIENT_SECRET)
+        .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
+        .redirect_uri("http://localhost:8000/redirect")
+        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
+        .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
+        .response_type("id_token code")
+        .response_mode("form_post")
+        .add_scope("openid")
+        .add_scope("Files.Read")
+        .add_scope("Files.ReadWrite")
+        .add_scope("Files.Read.All")
+        .add_scope("Files.ReadWrite.All")
+        .add_scope("offline_access")
+        .nonce("7362CAEA-9CA5")
+        .prompt("login")
+        .state("12345");
+    oauth
+}
+ */

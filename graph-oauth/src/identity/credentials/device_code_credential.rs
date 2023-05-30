@@ -3,11 +3,11 @@ use crate::identity::{
     Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions,
 };
 use crate::oauth::DeviceCode;
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use std::collections::HashMap;
 use url::Url;
 
-static DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
+const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
 /// Allows users to sign in to input-constrained devices such as a smart TV, IoT device,
 /// or a printer. To enable this flow, the device has the user visit a webpage in a browser on
@@ -69,30 +69,21 @@ impl AuthorizationSerializer for DeviceCodeCredential {
             .authority(azure_authority_host, &self.authority);
 
         if self.refresh_token.is_none() {
-            let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-                AuthorizationFailure::msg_err("access_token_url", "Internal Error"),
-            )?;
+            let uri = self
+                .serializer
+                .get(OAuthParameter::AccessTokenUrl)
+                .ok_or(AF::msg_internal_err("access_token_url"))?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         } else {
-            let uri = self.serializer.get(OAuthParameter::RefreshTokenUrl).ok_or(
-                AuthorizationFailure::msg_err("refresh_token_url", "Internal Error"),
-            )?;
+            let uri = self
+                .serializer
+                .get(OAuthParameter::RefreshTokenUrl)
+                .ok_or(AF::msg_internal_err("refresh_token_url"))?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         }
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        if self.device_code.is_some() && self.refresh_token.is_some() {
-            return AuthorizationFailure::msg_result(
-                format!(
-                    "{} or {}",
-                    OAuthParameter::DeviceCode.alias(),
-                    OAuthParameter::RefreshToken.alias()
-                ),
-                "Device code and refresh token should not be set at the same time - Internal Error",
-            );
-        }
-
         if self.client_id.trim().is_empty() {
             return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
@@ -105,7 +96,7 @@ impl AuthorizationSerializer for DeviceCodeCredential {
             if refresh_token.trim().is_empty() {
                 return AuthorizationFailure::msg_result(
                     OAuthParameter::RefreshToken.alias(),
-                    "Either device code or refresh token is required - found empty refresh token",
+                    "Refresh token string is empty - Either device code or refresh token is required",
                 );
             }
 

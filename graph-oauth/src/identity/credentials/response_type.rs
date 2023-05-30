@@ -1,10 +1,24 @@
+use crate::identity::AsQuery;
+use std::collections::BTreeSet;
+
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ResponseType {
     #[default]
     Code,
     Token,
     IdToken,
-    FromString(Vec<String>),
+    StringSet(BTreeSet<String>),
+}
+
+impl ResponseType {
+    pub fn try_from_set(response_types: &BTreeSet<ResponseType>) -> String {
+        dbg!(response_types);
+
+        info!("{:#?}", &response_types);
+        let response_type_list: Vec<String> =
+            response_types.iter().map(|rt| rt.to_string()).collect();
+        response_type_list.join(" ")
+    }
 }
 
 impl ToString for ResponseType {
@@ -13,13 +27,7 @@ impl ToString for ResponseType {
             ResponseType::Code => "code".to_owned(),
             ResponseType::Token => "token".to_owned(),
             ResponseType::IdToken => "id_token".to_owned(),
-            ResponseType::FromString(response_type_vec) => {
-                let response_types: Vec<String> = response_type_vec
-                    .iter()
-                    .map(|s| s.trim().to_owned())
-                    .collect();
-                response_types.join(" ")
-            }
+            ResponseType::StringSet(response_type_vec) => response_type_vec.iter().as_query(),
         }
     }
 }
@@ -30,5 +38,30 @@ impl IntoIterator for ResponseType {
 
     fn into_iter(self) -> Self::IntoIter {
         vec![self].into_iter()
+    }
+}
+
+impl<A: ToString> std::iter::FromIterator<A> for ResponseType {
+    fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self {
+        let vec: BTreeSet<String> = iter.into_iter().map(|v| v.to_string()).collect();
+        ResponseType::StringSet(vec)
+    }
+}
+
+impl AsQuery for Vec<ResponseType> {
+    fn as_query(&self) -> String {
+        self.iter()
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>()
+            .join(" ")
+    }
+}
+
+impl AsQuery for BTreeSet<ResponseType> {
+    fn as_query(&self) -> String {
+        self.iter()
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>()
+            .join(" ")
     }
 }

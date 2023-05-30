@@ -306,7 +306,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
 
         let authorization_url = serializer
             .get(OAuthParameter::AuthorizationUrl)
-            .ok_or(AF::msg_err("authorization_url", "Internal Error"))?;
+            .ok_or(AF::msg_internal_err("authorization_url"))?;
         let mut url = Url::parse(authorization_url.as_str())?;
         url.set_query(Some(encoder.finish().as_str()));
         Ok(url)

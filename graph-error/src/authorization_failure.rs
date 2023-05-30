@@ -12,10 +12,21 @@ pub enum AuthorizationFailure {
 
     #[error("{0:#?}")]
     UrlParseError(#[from] url::ParseError),
+
+    #[error("{0:#?}")]
+    Unknown(String),
 }
 
 impl AuthorizationFailure {
-    pub fn err<T: AsRef<str>>(name: T) -> AuthorizationFailure {
+    pub fn unknown<T: ToString>(value: T) -> AuthorizationFailure {
+        AuthorizationFailure::Unknown(value.to_string())
+    }
+
+    pub fn unknown_result<T: ToString>(value: T) -> AuthorizationResult<AuthorizationFailure> {
+        Err(AuthorizationFailure::Unknown(value.to_string()))
+    }
+
+    pub fn required<T: AsRef<str>>(name: T) -> AuthorizationFailure {
         AuthorizationFailure::RequiredValue {
             name: name.as_ref().to_owned(),
             message: None,
@@ -36,6 +47,13 @@ impl AuthorizationFailure {
         }
     }
 
+    pub fn msg_internal_err<T: AsRef<str>>(name: T) -> AuthorizationFailure {
+        AuthorizationFailure::RequiredValue {
+            name: name.as_ref().to_owned(),
+            message: Some("Internal error please file an issue on GitHub https://github.com/sreeise/graph-rs-sdk/issues".to_owned()),
+        }
+    }
+
     pub fn msg_result<T>(
         name: impl AsRef<str>,
         message: impl ToString,
@@ -44,6 +62,10 @@ impl AuthorizationFailure {
             name: name.as_ref().to_owned(),
             message: Some(message.to_string()),
         })
+    }
+
+    pub fn msg_internal_result<T>(name: impl AsRef<str>) -> Result<T, AuthorizationFailure> {
+        Err(AF::msg_internal_err(name))
     }
 
     pub fn url_parse_error<T>(url_parse_error: url::ParseError) -> Result<T, AuthorizationFailure> {

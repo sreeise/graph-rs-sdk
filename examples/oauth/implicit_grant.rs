@@ -51,7 +51,7 @@ fn multi_response_types() {
     // Or
 
     let _ = ImplicitCredential::builder()
-        .with_response_type(ResponseType::FromString(vec![
+        .with_response_type(ResponseType::StringSet(vec![
             "token".to_string(),
             "id_token".to_string(),
         ]))

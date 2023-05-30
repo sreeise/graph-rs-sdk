@@ -23,18 +23,25 @@ pub struct OpenIdAuthorizationUrl {
     /// by your app. It must exactly match one of the redirect URIs you registered in the portal,
     /// except that it must be URL-encoded. If not present, the endpoint will pick one registered
     /// redirect_uri at random to send the user back to.
-    pub(crate) redirect_uri: Option<String>,
+    pub(crate) redirect_uri: Option<Url>,
     /// Required
     /// Must include code for OpenID Connect sign-in.
     pub(crate) response_type: BTreeSet<ResponseType>,
     /// Optional
     /// Specifies how the identity platform should return the requested token to your app.
     ///
+    /// Specifies the method that should be used to send the resulting authorization code back
+    /// to your app.
+    ///
+    /// Can be form_post or fragment.
+    ///
+    /// For web applications, Microsoft recommends using response_mode=form_post,
+    /// to ensure the most secure transfer of tokens to your application.
+    ///
+    /// Open Id does not support the query response mode.
+    ///
     /// Supported values:
     ///
-    /// - query: Default when requesting an access token. Provides the code as a query string
-    /// parameter on your redirect URI. The query parameter isn't supported when requesting an
-    /// ID token by using the implicit flow.
     /// - fragment: Default when requesting an ID token by using the implicit flow.
     /// Also supported if requesting only a code.
     /// - form_post: Executes a POST containing the code to your redirect URI.
@@ -58,7 +65,7 @@ pub struct OpenIdAuthorizationUrl {
     /// A space-separated list of scopes. For OpenID Connect, it must include the scope openid,
     /// which translates to the Sign you in permission in the consent UI. You might also include
     /// other scopes in this request for requesting consent.
-    pub(crate) scope: Vec<String>,
+    pub(crate) scope: BTreeSet<String>,
     /// Optional
     /// Indicates the type of user interaction that is required. The only valid values at
     /// this time are login, none, consent, and select_account.
@@ -89,33 +96,51 @@ pub struct OpenIdAuthorizationUrl {
     /// Optional
     /// You can use this parameter to pre-fill the username and email address field of the
     /// sign-in page for the user, if you know the username ahead of time. Often, apps use
-    /// this parameter during reauthentication, after already extracting the login_hint
+    /// this parameter during re-authentication, after already extracting the login_hint
     /// optional claim from an earlier sign-in.
     pub(crate) login_hint: Option<String>,
     pub(crate) authority: Authority,
+    response_types_supported: Vec<String>,
 }
 
 impl OpenIdAuthorizationUrl {
-    pub fn new<T: AsRef<str>>(client_id: T) -> anyhow::Result<OpenIdAuthorizationUrl> {
-        let mut response_type = BTreeSet::new();
-        response_type.insert(ResponseType::Code);
+    pub fn new<T: AsRef<str>, U: ToString, I: IntoIterator<Item = U>>(
+        client_id: T,
+        redirect_uri: Option<T>,
+        scope: I,
+    ) -> AuthorizationResult<OpenIdAuthorizationUrl> {
+        let mut scope_set = BTreeSet::new();
+        scope_set.insert("openid".to_owned());
+        scope_set.extend(scope.into_iter().map(|s| s.to_string()));
 
-        Ok(OpenIdAuthorizationUrl {
+        let mut open_id_url = OpenIdAuthorizationUrl {
             client_id: client_id.as_ref().to_owned(),
             redirect_uri: None,
-            response_type,
+            response_type: BTreeSet::new(),
             response_mode: None,
             nonce: Crypto::sha256_secure_string()?.1,
             state: None,
-            scope: vec!["openid".to_owned()],
+            scope: scope_set,
             prompt: BTreeSet::new(),
             domain_hint: None,
             login_hint: None,
             authority: Authority::default(),
-        })
+            response_types_supported: vec![
+                "code".into(),
+                "id_token".into(),
+                "code id_token".into(),
+                "id_token token".into(),
+            ],
+        };
+
+        if let Some(redirect_uri) = redirect_uri.as_ref() {
+            open_id_url.redirect_uri = Some(Url::parse(redirect_uri.as_ref())?);
+        }
+
+        Ok(open_id_url)
     }
 
-    pub fn builder() -> anyhow::Result<OpenIdAuthorizationUrlBuilder> {
+    pub fn builder() -> AuthorizationResult<OpenIdAuthorizationUrlBuilder> {
         OpenIdAuthorizationUrlBuilder::new()
     }
 
@@ -173,7 +198,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
         if self.nonce.is_empty() {
             return AuthorizationFailure::msg_result(
                 "nonce",
-                "nonce is empty - nonce can be automatically generated if not updated by the caller"
+                "nonce is empty - nonce is automatically generated if not updated by the caller",
             );
         }
 
@@ -182,6 +207,27 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
             .extend_scopes(self.scope.clone())
             .nonce(self.nonce.as_str())
             .authority(azure_authority_host, &self.authority);
+
+        if self.response_type.is_empty() {
+            serializer.response_type("code");
+        } else {
+            let response_types = self.response_type.as_query();
+            if !self.response_types_supported.contains(&response_types) {
+                return AuthorizationFailure::msg_result(
+                    "response_type",
+                    format!(
+                        "response_type is not supported - supported response types are: {}",
+                        self.response_types_supported
+                            .iter()
+                            .map(|s| format!("`{}`", s))
+                            .collect::<Vec<String>>()
+                            .join(", ")
+                    ),
+                );
+            }
+
+            serializer.response_types(self.response_type.iter());
+        }
 
         if let Some(redirect_uri) = self.redirect_uri.as_ref() {
             serializer.redirect_uri(redirect_uri.as_ref());
@@ -236,15 +282,49 @@ pub struct OpenIdAuthorizationUrlBuilder {
 }
 
 impl OpenIdAuthorizationUrlBuilder {
-    pub(crate) fn new() -> anyhow::Result<OpenIdAuthorizationUrlBuilder> {
+    pub(crate) fn new() -> AuthorizationResult<OpenIdAuthorizationUrlBuilder> {
+        let mut scope = BTreeSet::new();
+        scope.insert("openid".to_owned());
+
         Ok(OpenIdAuthorizationUrlBuilder {
-            auth_url_parameters: OpenIdAuthorizationUrl::new(String::with_capacity(32))?,
+            auth_url_parameters: OpenIdAuthorizationUrl {
+                client_id: String::with_capacity(32),
+                redirect_uri: None,
+                response_type: BTreeSet::new(),
+                response_mode: None,
+                nonce: Crypto::sha256_secure_string()?.1,
+                state: None,
+                scope,
+                prompt: Default::default(),
+                domain_hint: None,
+                login_hint: None,
+                authority: Default::default(),
+                response_types_supported: vec![
+                    "code".into(),
+                    "id_token".into(),
+                    "code id_token".into(),
+                    "id_token token".into(),
+                ],
+            },
         })
     }
 
-    pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
-        self.auth_url_parameters.redirect_uri = Some(redirect_uri.as_ref().to_owned());
-        self
+    pub fn new_with_secure_nonce(&mut self) -> anyhow::Result<OpenIdAuthorizationUrlBuilder> {
+        Ok(OpenIdAuthorizationUrlBuilder {
+            auth_url_parameters: OpenIdAuthorizationUrl::new(
+                String::with_capacity(32),
+                None,
+                BTreeSet::<String>::new(),
+            )?,
+        })
+    }
+
+    pub fn with_redirect_uri<T: AsRef<str>>(
+        &mut self,
+        redirect_uri: T,
+    ) -> anyhow::Result<&mut Self> {
+        self.auth_url_parameters.redirect_uri = Some(Url::parse(redirect_uri.as_ref())?);
+        Ok(self)
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
@@ -263,15 +343,21 @@ impl OpenIdAuthorizationUrlBuilder {
         self
     }
 
-    /// Default is code. Must include code for the authorization code flow.
+    /// Default is code.
+    /// Must include code for the open id connect flow.
     /// Can also include id_token or token if using the hybrid flow.
+    ///
+    /// Supported response types are:
+    ///
+    ///     code
+    ///     id_token
+    ///     code id_token
+    ///     id_token token
     pub fn with_response_type<I: IntoIterator<Item = ResponseType>>(
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.auth_url_parameters
-            .response_type
-            .extend(response_type.into_iter());
+        self.auth_url_parameters.response_type = BTreeSet::from_iter(response_type.into_iter());
         self
     }
 
@@ -279,15 +365,14 @@ impl OpenIdAuthorizationUrlBuilder {
     ///
     /// Supported values:
     ///
-    /// - **query**: Default when requesting an access token. Provides the code as a query string
-    ///     parameter on your redirect URI. The query parameter is not supported when requesting an
-    ///     ID token by using the implicit flow.
     /// - **fragment**: Default when requesting an ID token by using the implicit flow.
     ///     Also supported if requesting only a code.
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
     ///     Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
-        self.auth_url_parameters.response_mode = Some(response_mode);
+        if !response_mode.eq(&ResponseMode::Query) {
+            self.auth_url_parameters.response_mode = Some(response_mode);
+        }
         self
     }
 
@@ -302,7 +387,11 @@ impl OpenIdAuthorizationUrlBuilder {
     /// authorization code grant. If you are unsure or unclear how the nonce works then it is
     /// recommended to stay with the generated nonce as it is cryptographically secure.
     pub fn with_nonce<T: AsRef<str>>(&mut self, nonce: T) -> &mut Self {
-        self.auth_url_parameters.nonce = nonce.as_ref().to_owned();
+        if self.auth_url_parameters.nonce.is_empty() {
+            self.auth_url_parameters.nonce.push_str(nonce.as_ref());
+        } else {
+            self.auth_url_parameters.nonce = nonce.as_ref().to_owned();
+        }
         self
     }
 
@@ -328,18 +417,32 @@ impl OpenIdAuthorizationUrlBuilder {
         self
     }
 
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scopes: I) -> &mut Self {
-        self.auth_url_parameters.scope = scopes.into_iter().map(|s| s.to_string()).collect();
+    /// Takes an iterator of scopes to use in the request.
+    /// Replaces current scopes if any were added previously.
+    /// To extend scopes use [OpenIdAuthorizationUrlBuilder::extend_scope].
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.auth_url_parameters.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
-    /// Automatically adds profile, email, id_token, and offline_access to the scope parameter.
+    /// Extend the current list of scopes.
+    pub fn extend_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.auth_url_parameters
+            .scope
+            .extend(scope.into_iter().map(|s| s.to_string()));
+        self
+    }
+
+    /// Automatically adds profile, email, and offline_access to the scope parameter.
     /// The openid scope is already included when using [OpenIdCredential]
     pub fn with_default_scope(&mut self) -> anyhow::Result<&mut Self> {
         self.with_nonce_generated()?;
-        self.with_response_mode(ResponseMode::FormPost);
         self.with_response_type(vec![ResponseType::Code, ResponseType::IdToken]);
-        self.with_scope(vec!["profile", "email", "id_token", "offline_access"]);
+        self.auth_url_parameters.scope.extend(
+            vec!["profile", "email", "offline_access"]
+                .into_iter()
+                .map(|s| s.to_string()),
+        );
         Ok(self)
     }
 
@@ -384,5 +487,22 @@ impl OpenIdAuthorizationUrlBuilder {
 
     pub fn url(&self) -> AuthorizationResult<Url> {
         self.auth_url_parameters.url()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    #[should_panic]
+    fn unsupported_response_type() {
+        let _ = OpenIdAuthorizationUrl::builder()
+            .unwrap()
+            .with_response_type([ResponseType::Code, ResponseType::Token])
+            .with_client_id("client_id")
+            .with_scope(["scope"])
+            .url()
+            .unwrap();
     }
 }

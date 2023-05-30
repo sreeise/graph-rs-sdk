@@ -2,7 +2,8 @@ use crate::access_token::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
 use crate::id_token::IdToken;
 use crate::identity::form_credential::ParameterIs;
-use crate::identity::{Authority, AzureAuthorityHost};
+use crate::identity::{AsQuery, Authority, AzureAuthorityHost, Prompt};
+use crate::oauth::ResponseType;
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
 use base64::Engine;
@@ -474,6 +475,13 @@ impl OAuthSerializer {
         self.insert(OAuthParameter::ResponseType, value)
     }
 
+    pub fn response_types(
+        &mut self,
+        value: std::collections::btree_set::Iter<'_, ResponseType>,
+    ) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::ResponseType, value.as_query())
+    }
+
     /// Set the nonce.
     ///
     /// # Example
@@ -487,8 +495,6 @@ impl OAuthSerializer {
         self.insert(OAuthParameter::Nonce, value)
     }
 
-    // rand = "0.8.5"
-
     /// Set the prompt for open id.
     ///
     /// # Example
@@ -500,6 +506,10 @@ impl OAuthSerializer {
     /// ```
     pub fn prompt(&mut self, value: &str) -> &mut OAuthSerializer {
         self.insert(OAuthParameter::Prompt, value)
+    }
+
+    pub fn prompts(&mut self, value: &[Prompt]) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::Prompt, value.to_vec().as_query())
     }
 
     /// Set id token for open id.
@@ -1027,7 +1037,7 @@ impl OAuthSerializer {
     }
 
     pub fn ok_or(&self, oac: &OAuthParameter) -> AuthorizationResult<String> {
-        self.get(*oac).ok_or(AuthorizationFailure::err(oac))
+        self.get(*oac).ok_or(AuthorizationFailure::required(oac))
     }
 
     pub fn try_as_tuple(&self, oac: &OAuthParameter) -> AuthorizationResult<(String, String)> {
@@ -1036,7 +1046,7 @@ impl OAuthSerializer {
         } else {
             Ok((
                 oac.alias().to_owned(),
-                self.get(*oac).ok_or(AuthorizationFailure::err(oac))?,
+                self.get(*oac).ok_or(AuthorizationFailure::required(oac))?,
             ))
         }
     }
@@ -1074,7 +1084,7 @@ impl OAuthSerializer {
             } else {
                 let value = self
                     .get(parameter)
-                    .ok_or(AuthorizationFailure::err(parameter))?;
+                    .ok_or(AuthorizationFailure::required(parameter))?;
 
                 encoder.append_pair(parameter.alias(), value.as_str());
             }
@@ -1106,7 +1116,7 @@ impl OAuthSerializer {
                             encoder.append_pair("scope", self.join_scopes(" ").as_str());
                         }
                     } else {
-                        let value = self.get(*oac).ok_or(AuthorizationFailure::err(oac))?;
+                        let value = self.get(*oac).ok_or(AuthorizationFailure::required(oac))?;
 
                         encoder.append_pair(oac.alias(), value.as_str());
                     }
@@ -1172,7 +1182,7 @@ impl OAuthSerializer {
                 ParameterIs::Required(oac) => {
                     let val = self
                         .get(*oac)
-                        .ok_or(AuthorizationFailure::err(oac.alias()))?;
+                        .ok_or(AuthorizationFailure::required(oac.alias()))?;
                     if val.trim().is_empty() {
                         return AuthorizationFailure::msg_result(oac, "Value cannot be empty");
                     } else {

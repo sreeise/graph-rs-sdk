@@ -67,7 +67,7 @@ impl ClientCredentialsAuthorizationUrl {
         let mut url = Url::parse(
             serializer
                 .get(OAuthParameter::AuthorizationUrl)
-                .ok_or(AuthorizationFailure::err(
+                .ok_or(AuthorizationFailure::required(
                     OAuthParameter::AuthorizationUrl.alias(),
                 ))?
                 .as_str(),

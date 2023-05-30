@@ -37,22 +37,26 @@ use graph_rs_sdk::oauth::{
 
 #[tokio::main]
 async fn main() {
-    // Some examples of what you can use for authentication and getting access tokens. There are
-    // more ways to perform oauth authorization.
-
-    // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
-    auth_code_grant::start_server_main().await;
-    auth_code_grant_pkce::start_server_main().await;
-
-    // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow
-    client_credentials_admin_consent::start_server_main().await;
-
-    // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
-    device_code::device_code();
-
-    // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
     open_id_connect::start_server_main().await;
 }
+
+/*
+   // Some examples of what you can use for authentication and getting access tokens. There are
+   // more ways to perform oauth authorization.
+
+   // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
+   auth_code_grant::start_server_main().await;
+   auth_code_grant_pkce::start_server_main().await;
+
+   // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow
+   client_credentials_admin_consent::start_server_main().await;
+
+   // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
+   device_code::device_code();
+
+   // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
+   open_id_connect::start_server_main().await;
+*/
 
 // Quick Examples
 
