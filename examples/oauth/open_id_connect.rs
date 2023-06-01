@@ -1,4 +1,4 @@
-use graph_oauth::identity::{CredentialBuilder, ResponseType, TokenRequest};
+use graph_oauth::identity::{ResponseType, TokenRequest};
 use graph_oauth::oauth::{OpenIdAuthorizationUrl, OpenIdCredential};
 use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuthSerializer};
 use url::Url;
@@ -18,12 +18,9 @@ use url::Url;
 /// OAuth-enabled applications by using a security token called an ID token.
 use warp::Filter;
 
-//       "client_id": "e0951f73-cafa-455f-9365-50dfd22f56b6",
-//       "client_secret": "rUWHfYygz~IZH~7I~2.w1-Sedf~T16g8OR",
-
 // The client id and client secret must be changed before running this example.
-static CLIENT_ID: &str = "e0951f73-cafa-455f-9365-50dfd22f56b6";
-static CLIENT_SECRET: &str = "rUWHfYygz~IZH~7I~2.w1-Sedf~T16g8OR";
+static CLIENT_ID: &str = "";
+static CLIENT_SECRET: &str = "";
 
 fn open_id_credential(
     authorization_code: &str,
@@ -40,8 +37,7 @@ fn open_id_credential(
 }
 
 fn open_id_authorization_url(client_id: &str, client_secret: &str) -> anyhow::Result<Url> {
-    Ok(OpenIdCredential::authorization_url_builder()
-        .new_with_secure_nonce()?
+    Ok(OpenIdCredential::authorization_url_builder()?
         .with_client_id(client_id)
         .with_default_scope()?
         .extend_scope(vec!["Files.Read"])

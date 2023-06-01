@@ -78,13 +78,13 @@ impl TokenFlowAuthorizationUrl {
 
 #[derive(Clone)]
 pub struct TokenFlowAuthorizationUrlBuilder {
-    token_flow_authorization_url: TokenFlowAuthorizationUrl,
+    authorization_url: TokenFlowAuthorizationUrl,
 }
 
 impl TokenFlowAuthorizationUrlBuilder {
     fn new() -> TokenFlowAuthorizationUrlBuilder {
         TokenFlowAuthorizationUrlBuilder {
-            token_flow_authorization_url: TokenFlowAuthorizationUrl {
+            authorization_url: TokenFlowAuthorizationUrl {
                 client_id: String::new(),
                 redirect_uri: String::new(),
                 response_type: ResponseType::Token,
@@ -94,18 +94,18 @@ impl TokenFlowAuthorizationUrlBuilder {
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.token_flow_authorization_url.client_id = client_id.as_ref().to_owned();
+        self.authorization_url.client_id = client_id.as_ref().to_owned();
         self
     }
 
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.token_flow_authorization_url.scope =
+        self.authorization_url.scope =
             scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
     pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
-        self.token_flow_authorization_url.redirect_uri = redirect_uri.as_ref().to_owned();
+        self.authorization_url.redirect_uri = redirect_uri.as_ref().to_owned();
         self
     }
 }

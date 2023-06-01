@@ -1,13 +1,12 @@
 use crate::access_token::AccessToken;
 use crate::grants::{GrantRequest, GrantType};
 use crate::id_token::IdToken;
-use crate::identity::form_credential::ParameterIs;
 use crate::identity::{AsQuery, Authority, AzureAuthorityHost, Prompt};
 use crate::oauth::ResponseType;
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
 use base64::Engine;
-use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
+use graph_error::{AF, AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
 use ring::rand::SecureRandom;
 use std::collections::btree_map::BTreeMap;
 use std::collections::{BTreeSet, HashMap};
@@ -152,7 +151,6 @@ pub struct OAuthSerializer {
     access_token: Option<AccessToken>,
     scopes: BTreeSet<String>,
     credentials: BTreeMap<String, String>,
-    parameters: HashMap<ParameterIs, String>,
 }
 
 impl OAuthSerializer {
@@ -169,7 +167,6 @@ impl OAuthSerializer {
             access_token: None,
             scopes: BTreeSet::new(),
             credentials: BTreeMap::new(),
-            parameters: HashMap::with_capacity(10),
         }
     }
 
@@ -224,7 +221,8 @@ impl OAuthSerializer {
             | OAuthParameter::AccessTokenUrl
             | OAuthParameter::AuthorizationUrl
             | OAuthParameter::LogoutURL => {
-                Url::parse(v.as_ref()).unwrap();
+                Url::parse(v.as_ref()).map_err(|_| AF::msg_internal_err("authorization_url | refresh_token_url"))
+                    .unwrap();
             }
             _ => {}
         }
@@ -1101,39 +1099,6 @@ impl OAuthSerializer {
         Ok(())
     }
 
-    pub fn url_query_encode(
-        &mut self,
-        pairs: Vec<ParameterIs>,
-        encoder: &mut Serializer<String>,
-    ) -> AuthorizationResult<()> {
-        for form_credential in pairs.iter() {
-            match form_credential {
-                ParameterIs::Required(oac) => {
-                    if oac.alias().eq("scope") {
-                        if self.scopes.is_empty() {
-                            return AuthorizationFailure::result::<()>(oac.alias());
-                        } else {
-                            encoder.append_pair("scope", self.join_scopes(" ").as_str());
-                        }
-                    } else {
-                        let value = self.get(*oac).ok_or(AuthorizationFailure::required(oac))?;
-
-                        encoder.append_pair(oac.alias(), value.as_str());
-                    }
-                }
-                ParameterIs::Optional(oac) => {
-                    if oac.alias().eq("scope") && !self.scopes.is_empty() {
-                        encoder.append_pair("scope", self.join_scopes(" ").as_str());
-                    } else if let Some(val) = self.get(*oac) {
-                        encoder.append_pair(oac.alias(), val.as_str());
-                    }
-                }
-            }
-        }
-
-        Ok(())
-    }
-
     pub fn params(&mut self, pairs: Vec<OAuthParameter>) -> GraphResult<HashMap<String, String>> {
         let mut map: HashMap<String, String> = HashMap::new();
         for oac in pairs.iter() {
@@ -1169,39 +1134,6 @@ impl OAuthSerializer {
 
         required_map.extend(optional_map);
         Ok(required_map)
-    }
-
-    pub fn authorization_form(
-        &mut self,
-        form_credentials: Vec<ParameterIs>,
-    ) -> AuthorizationResult<HashMap<String, String>> {
-        let mut map: HashMap<String, String> = HashMap::new();
-
-        for form_credential in form_credentials.iter() {
-            match form_credential {
-                ParameterIs::Required(oac) => {
-                    let val = self
-                        .get(*oac)
-                        .ok_or(AuthorizationFailure::required(oac.alias()))?;
-                    if val.trim().is_empty() {
-                        return AuthorizationFailure::msg_result(oac, "Value cannot be empty");
-                    } else {
-                        map.insert(oac.to_string(), val);
-                    }
-                }
-                ParameterIs::Optional(oac) => {
-                    if oac.eq(&OAuthParameter::Scope) && !self.scopes.is_empty() {
-                        map.insert("scope".into(), self.join_scopes(" "));
-                    } else if let Some(val) = self.get(*oac) {
-                        if !val.trim().is_empty() {
-                            map.insert(oac.to_string(), val);
-                        }
-                    }
-                }
-            }
-        }
-
-        Ok(map)
     }
 
     pub fn encode_uri(

@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 // The following example shows authenticating an application to use the OneDrive REST API
 // for a native client. Native clients typically use the implicit OAuth flow. This requires
 // using the browser to log in. To get an access token, set the response type to 'token'
@@ -51,9 +52,9 @@ fn multi_response_types() {
     // Or
 
     let _ = ImplicitCredential::builder()
-        .with_response_type(ResponseType::StringSet(vec![
+        .with_response_type(ResponseType::StringSet(BTreeSet::from_iter(vec![
             "token".to_string(),
             "id_token".to_string(),
-        ]))
+        ])))
         .build();
 }

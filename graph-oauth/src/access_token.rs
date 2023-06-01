@@ -409,19 +409,19 @@ impl<'de> Deserialize<'de> for AccessToken {
     where
         D: Deserializer<'de>,
     {
-        let inner_access_token: PhantomAccessToken = Deserialize::deserialize(deserializer)?;
+        let phantom_access_token: PhantomAccessToken = Deserialize::deserialize(deserializer)?;
         Ok(AccessToken {
-            access_token: inner_access_token.access_token,
-            token_type: inner_access_token.token_type,
-            expires_in: inner_access_token.expires_in,
-            ext_expires_in: inner_access_token.ext_expires_in,
-            scope: inner_access_token.scope,
-            refresh_token: inner_access_token.refresh_token,
-            user_id: inner_access_token.user_id,
-            id_token: inner_access_token.id_token,
-            state: inner_access_token.state,
-            timestamp: Some(Utc::now() + Duration::seconds(inner_access_token.expires_in)),
-            additional_fields: inner_access_token.additional_fields,
+            access_token: phantom_access_token.access_token,
+            token_type: phantom_access_token.token_type,
+            expires_in: phantom_access_token.expires_in,
+            ext_expires_in: phantom_access_token.ext_expires_in,
+            scope: phantom_access_token.scope,
+            refresh_token: phantom_access_token.refresh_token,
+            user_id: phantom_access_token.user_id,
+            id_token: phantom_access_token.id_token,
+            state: phantom_access_token.state,
+            timestamp: Some(Utc::now() + Duration::seconds(phantom_access_token.expires_in)),
+            additional_fields: phantom_access_token.additional_fields,
             log_pii: false,
         })
     }

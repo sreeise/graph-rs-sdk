@@ -9,6 +9,11 @@ use url::Url;
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
+credential_builder_impl!(
+    DeviceCodeCredentialBuilder,
+    DeviceCodeCredential
+);
+
 /// Allows users to sign in to input-constrained devices such as a smart TV, IoT device,
 /// or a printer. To enable this flow, the device has the user visit a webpage in a browser on
 /// another device to sign in. Once the user signs in, the device is able to get access tokens
@@ -56,6 +61,12 @@ impl DeviceCodeCredential {
             token_credential_options: Default::default(),
             serializer: Default::default(),
         }
+    }
+
+    pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) -> &mut Self {
+        self.device_code = None;
+        self.refresh_token = Some(refresh_token.as_ref().to_owned());
+        self
     }
 
     pub fn builder() -> DeviceCodeCredentialBuilder {
@@ -157,7 +168,7 @@ impl DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder {
             credential: DeviceCodeCredential {
                 refresh_token: None,
-                client_id: String::new(),
+                client_id: String::with_capacity(32),
                 device_code: None,
                 scope: vec![],
                 authority: Default::default(),
@@ -165,11 +176,6 @@ impl DeviceCodeCredentialBuilder {
                 serializer: Default::default(),
             },
         }
-    }
-
-    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.credential.client_id = client_id.as_ref().to_owned();
-        self
     }
 
     pub fn with_device_code<T: AsRef<str>>(&mut self, device_code: T) -> &mut Self {
@@ -182,33 +188,6 @@ impl DeviceCodeCredentialBuilder {
         self.credential.device_code = None;
         self.credential.refresh_token = Some(refresh_token.as_ref().to_owned());
         self
-    }
-
-    /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
-    pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.credential.authority = Authority::TenantId(tenant.as_ref().to_owned());
-        self
-    }
-
-    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.credential.authority = authority.into();
-        self
-    }
-
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
-        self
-    }
-
-    pub fn with_token_credential_options(
-        &mut self,
-        token_credential_options: TokenCredentialOptions,
-    ) {
-        self.credential.token_credential_options = token_credential_options;
-    }
-
-    pub fn build(&self) -> DeviceCodeCredential {
-        self.credential.clone()
     }
 }
 

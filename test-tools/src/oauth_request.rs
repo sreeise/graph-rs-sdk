@@ -3,7 +3,7 @@
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_rs_sdk::oauth::{
-    AccessToken, ClientSecretCredential, CredentialBuilder, ResourceOwnerPasswordCredential,
+    AccessToken, ClientSecretCredential, ResourceOwnerPasswordCredential,
     TokenRequest,
 };
 use graph_rs_sdk::Graph;

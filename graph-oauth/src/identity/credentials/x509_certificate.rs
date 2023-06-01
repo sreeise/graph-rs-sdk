@@ -12,30 +12,26 @@ use std::collections::HashMap;
 use time::OffsetDateTime;
 use uuid::Uuid;
 
-pub(crate) trait EncodeCert {
-    fn encode_cert(cert: &X509) -> anyhow::Result<String> {
-        Ok(format!(
-            "\"{}\"",
-            URL_SAFE_NO_PAD.encode(cert.to_pem().map_err(|err| anyhow!(err.to_string()))?)
-        ))
-    }
-
-    fn encode_cert_ref(cert: &X509Ref) -> anyhow::Result<String> {
-        Ok(format!(
-            "\"{}\"",
-            URL_SAFE_NO_PAD.encode(cert.to_pem().map_err(|err| anyhow!(err.to_string()))?)
-        ))
-    }
-
-    fn thumbprint(cert: &X509) -> anyhow::Result<String> {
-        let digest_bytes = cert
-            .digest(MessageDigest::sha1())
-            .map_err(|err| anyhow!(err.to_string()))?;
-        Ok(URL_SAFE_NO_PAD.encode(digest_bytes))
-    }
+fn encode_cert(cert: &X509) -> anyhow::Result<String> {
+    Ok(format!(
+        "\"{}\"",
+        URL_SAFE_NO_PAD.encode(cert.to_pem().map_err(|err| anyhow!(err.to_string()))?)
+    ))
 }
 
-impl EncodeCert for X509Certificate {}
+fn encode_cert_ref(cert: &X509Ref) -> anyhow::Result<String> {
+    Ok(format!(
+        "\"{}\"",
+        URL_SAFE_NO_PAD.encode(cert.to_pem().map_err(|err| anyhow!(err.to_string()))?)
+    ))
+}
+
+fn thumbprint(cert: &X509) -> anyhow::Result<String> {
+    let digest_bytes = cert
+        .digest(MessageDigest::sha1())
+        .map_err(|err| anyhow!(err.to_string()))?;
+    Ok(URL_SAFE_NO_PAD.encode(digest_bytes))
+}
 
 /// Computes the client assertion used in certificate credential authorization flows.
 /// The client assertion is computed from the DER encoding of an X509 certificate and it's private key.
@@ -45,7 +41,6 @@ impl EncodeCert for X509Certificate {}
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-client-assertions
 pub struct X509Certificate {
     client_id: String,
-    tenant_id: Option<String>,
     claims: Option<HashMap<String, String>>,
     extend_claims: bool,
     certificate: X509,
@@ -59,7 +54,6 @@ impl X509Certificate {
     pub fn new<T: AsRef<str>>(client_id: T, certificate: X509, private_key: PKey<Private>) -> Self {
         Self {
             client_id: client_id.as_ref().to_owned(),
-            tenant_id: None,
             claims: None,
             extend_claims: true,
             certificate,
@@ -75,7 +69,7 @@ impl X509Certificate {
         pass: T,
         certificate: X509,
     ) -> anyhow::Result<Self> {
-        let der = X509Certificate::encode_cert(&certificate)?;
+        let der = encode_cert(&certificate)?;
         let parsed_pkcs12 =
             Pkcs12::from_der(&URL_SAFE_NO_PAD.decode(der)?)?.parse2(pass.as_ref())?;
 
@@ -89,7 +83,6 @@ impl X509Certificate {
 
         Ok(Self {
             client_id: client_id.as_ref().to_owned(),
-            tenant_id: None,
             claims: None,
             extend_claims: true,
             certificate,
@@ -98,10 +91,6 @@ impl X509Certificate {
             parsed_pkcs12: Some(parsed_pkcs12),
             uuid: Uuid::new_v4(),
         })
-    }
-
-    pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) {
-        self.tenant_id = Some(tenant.as_ref().to_owned());
     }
 
     /// Provide your own set of claims in the payload of the JWT.
@@ -180,12 +169,12 @@ impl X509Certificate {
             "No certificate found after parsing Pkcs12 using pass"
         ))?;
 
-        let sig = X509Certificate::encode_cert(certificate)?;
+        let sig = encode_cert(certificate)?;
 
         if let Some(stack) = parsed_pkcs12.ca.as_ref() {
             let chain = stack
                 .into_iter()
-                .map(X509Certificate::encode_cert_ref)
+                .map(encode_cert_ref)
                 .collect::<anyhow::Result<Vec<String>>>()
                 .map_err(|err| {
                     anyhow!("Unable to encode certificates in certificate chain - error {err}")
@@ -221,11 +210,6 @@ impl X509Certificate {
 
         let aud = {
             if let Some(tenant_id) = tenant_id.as_ref() {
-                format!(
-                    "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
-                    tenant_id
-                )
-            } else if let Some(tenant_id) = self.tenant_id.as_ref() {
                 format!(
                     "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
                     tenant_id

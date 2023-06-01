@@ -3,7 +3,6 @@ mod authority;
 mod authorization_serializer;
 mod credential_store;
 mod credentials;
-pub(crate) mod form_credential;
 
 pub use allowed_host_validator::*;
 pub use authority::*;

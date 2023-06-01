@@ -1,6 +1,6 @@
 use graph_oauth::identity::AuthorizationCodeCredentialBuilder;
 use graph_rs_sdk::oauth::{
-    AuthorizationCodeCredential, ConfidentialClientApplication, CredentialBuilder, TokenRequest,
+    AuthorizationCodeCredential, ConfidentialClientApplication, TokenRequest,
 };
 
 // Use a refresh token to get a new access token.

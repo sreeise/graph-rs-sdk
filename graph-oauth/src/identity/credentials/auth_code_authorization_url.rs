@@ -135,9 +135,10 @@ impl AuthCodeAuthorizationUrl {
          */
 
         let url = Url::parse(&url_string)?;
-        let query = url.query().ok_or(AF::msg_err(
-            "query",
-            &format!("Url returned on redirect is missing query parameters, url: {url}"),
+        let query = url.query()
+            .or(url.fragment()).ok_or(AF::msg_err(
+            "query | fragment",
+            &format!("No query or fragment returned on redirect, url: {url}"),
         ))?;
 
         let response_query: AuthQueryResponse = serde_urlencoded::from_str(query)?;
@@ -197,19 +198,19 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
         let mut serializer = OAuthSerializer::new();
 
         if self.redirect_uri.trim().is_empty() {
-            return AuthorizationFailure::result("redirect_uri");
+            return AF::result("redirect_uri");
         }
 
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::result("client_id");
+            return AF::result("client_id");
         }
 
         if self.scope.is_empty() {
-            return AuthorizationFailure::result("scope");
+            return AF::result("scope");
         }
 
         if self.scope.contains(&String::from("openid")) {
-            return AuthorizationFailure::msg_result(
+            return AF::msg_result(
                 "openid",
                 "Scope openid is not valid for authorization code - instead use OpenIdCredential",
             );
@@ -239,16 +240,10 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
 
             // Set response_mode
             if self.response_type.contains(&ResponseType::IdToken) {
-                if let Some(response_mode) = self.response_mode.as_ref() {
-                    // id_token requires fragment or form_post. The Microsoft identity
-                    // platform recommends form_post but fragment is default.
-                    if response_mode.eq(&ResponseMode::Query) {
-                        serializer.response_mode(ResponseMode::Fragment.as_ref());
-                    } else {
-                        serializer.response_mode(response_mode.as_ref());
-                    }
-                } else {
+                if self.response_mode.is_none() || self.response_mode.eq(&Some(ResponseMode::Query)) {
                     serializer.response_mode(ResponseMode::Fragment.as_ref());
+                } else if let Some(response_mode) = self.response_mode.as_ref() {
+                    serializer.response_mode(response_mode.as_ref());
                 }
             } else if let Some(response_mode) = self.response_mode.as_ref() {
                 serializer.response_mode(response_mode.as_ref());
@@ -315,7 +310,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrl {
 
 #[derive(Clone)]
 pub struct AuthCodeAuthorizationUrlBuilder {
-    auth_url_parameters: AuthCodeAuthorizationUrl,
+    authorization_url: AuthCodeAuthorizationUrl,
 }
 
 impl Default for AuthCodeAuthorizationUrlBuilder {
@@ -329,8 +324,8 @@ impl AuthCodeAuthorizationUrlBuilder {
         let mut response_type = BTreeSet::new();
         response_type.insert(ResponseType::Code);
         AuthCodeAuthorizationUrlBuilder {
-            auth_url_parameters: AuthCodeAuthorizationUrl {
-                client_id: String::new(),
+            authorization_url: AuthCodeAuthorizationUrl {
+                client_id: String::with_capacity(32),
                 redirect_uri: String::new(),
                 authority: Authority::default(),
                 response_mode: None,
@@ -348,23 +343,23 @@ impl AuthCodeAuthorizationUrlBuilder {
     }
 
     pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
-        self.auth_url_parameters.redirect_uri = redirect_uri.as_ref().to_owned();
+        self.authorization_url.redirect_uri = redirect_uri.as_ref().to_owned();
         self
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.auth_url_parameters.client_id = client_id.as_ref().to_owned();
+        self.authorization_url.client_id = client_id.as_ref().to_owned();
         self
     }
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.auth_url_parameters.authority = Authority::TenantId(tenant.as_ref().to_owned());
+        self.authorization_url.authority = Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
     pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.auth_url_parameters.authority = authority.into();
+        self.authorization_url.authority = authority.into();
         self
     }
 
@@ -374,7 +369,7 @@ impl AuthCodeAuthorizationUrlBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.auth_url_parameters
+        self.authorization_url
             .response_type
             .extend(response_type.into_iter());
         self
@@ -392,7 +387,7 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
     ///     Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
-        self.auth_url_parameters.response_mode = Some(response_mode);
+        self.authorization_url.response_mode = Some(response_mode);
         self
     }
 
@@ -401,7 +396,7 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// replay attacks. The value is typically a randomized, unique string that can be used
     /// to identify the origin of the request.
     pub fn with_nonce<T: AsRef<str>>(&mut self, nonce: T) -> &mut Self {
-        self.auth_url_parameters.nonce = Some(nonce.as_ref().to_owned());
+        self.authorization_url.nonce = Some(nonce.as_ref().to_owned());
         self
     }
 
@@ -418,12 +413,12 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     #[doc(hidden)]
     pub(crate) fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        self.auth_url_parameters.nonce = Some(Crypto::sha256_secure_string()?.1);
+        self.authorization_url.nonce = Some(Crypto::sha256_secure_string()?.1);
         Ok(self)
     }
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
-        self.auth_url_parameters.state = Some(state.as_ref().to_owned());
+        self.authorization_url.state = Some(state.as_ref().to_owned());
         self
     }
 
@@ -433,16 +428,16 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// and generates a secure nonce value.
     /// See [AuthCodeAuthorizationUrlBuilder::with_nonce_generated]
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.auth_url_parameters.scope.extend(
+        self.authorization_url.scope.extend(
             scope
                 .into_iter()
                 .map(|s| s.to_string())
                 .map(|s| s.trim().to_owned()),
         );
 
-        if self.auth_url_parameters.nonce.is_none()
+        if self.authorization_url.nonce.is_none()
             && self
-                .auth_url_parameters
+                .authorization_url
                 .scope
                 .contains(&String::from("id_token"))
         {
@@ -456,7 +451,7 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// If you need a refresh token then include `offline_access` as a scope.
     /// The `offline_access` scope is not included here.
     pub fn with_default_scope(&mut self) -> anyhow::Result<&mut Self> {
-        self.auth_url_parameters
+        self.authorization_url
             .scope
             .extend(vec!["profile".to_owned(), "email".to_owned()]);
         Ok(self)
@@ -465,7 +460,7 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// Adds the `offline_access` scope parameter which tells the authorization server
     /// to include a refresh token in the redirect uri query.
     pub fn with_refresh_token_scope(&mut self) -> &mut Self {
-        self.auth_url_parameters
+        self.authorization_url
             .scope
             .extend(vec!["offline_access".to_owned()]);
         self
@@ -482,10 +477,10 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// See [AuthCodeAuthorizationUrlBuilder::with_nonce_generated]
     fn with_id_token_scope(&mut self) -> anyhow::Result<&mut Self> {
         self.with_nonce_generated()?;
-        self.auth_url_parameters
+        self.authorization_url
             .response_type
             .extend(ResponseType::IdToken);
-        self.auth_url_parameters
+        self.authorization_url
             .scope
             .extend(vec!["id_token".to_owned()]);
         Ok(self)
@@ -502,24 +497,24 @@ impl AuthCodeAuthorizationUrlBuilder {
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience
     ///     listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether.
     pub fn with_prompt(&mut self, prompt: Prompt) -> &mut Self {
-        self.auth_url_parameters.prompt = Some(prompt);
+        self.authorization_url.prompt = Some(prompt);
         self
     }
 
     pub fn with_domain_hint<T: AsRef<str>>(&mut self, domain_hint: T) -> &mut Self {
-        self.auth_url_parameters.domain_hint = Some(domain_hint.as_ref().to_owned());
+        self.authorization_url.domain_hint = Some(domain_hint.as_ref().to_owned());
         self
     }
 
     pub fn with_login_hint<T: AsRef<str>>(&mut self, login_hint: T) -> &mut Self {
-        self.auth_url_parameters.login_hint = Some(login_hint.as_ref().to_owned());
+        self.authorization_url.login_hint = Some(login_hint.as_ref().to_owned());
         self
     }
 
     /// Used to secure authorization code grants by using Proof Key for Code Exchange (PKCE).
     /// Required if code_challenge_method is included.
     pub fn with_code_challenge<T: AsRef<str>>(&mut self, code_challenge: T) -> &mut Self {
-        self.auth_url_parameters.code_challenge = Some(code_challenge.as_ref().to_owned());
+        self.authorization_url.code_challenge = Some(code_challenge.as_ref().to_owned());
         self
     }
 
@@ -532,7 +527,7 @@ impl AuthCodeAuthorizationUrlBuilder {
         &mut self,
         code_challenge_method: T,
     ) -> &mut Self {
-        self.auth_url_parameters.code_challenge_method =
+        self.authorization_url.code_challenge_method =
             Some(code_challenge_method.as_ref().to_owned());
         self
     }
@@ -550,11 +545,11 @@ impl AuthCodeAuthorizationUrlBuilder {
     }
 
     pub fn build(&self) -> AuthCodeAuthorizationUrl {
-        self.auth_url_parameters.clone()
+        self.authorization_url.clone()
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
-        self.auth_url_parameters.url()
+        self.authorization_url.url()
     }
 }
 

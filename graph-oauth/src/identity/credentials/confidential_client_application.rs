@@ -227,7 +227,7 @@ impl From<OpenIdCredential> for ConfidentialClientApplication {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::identity::{Authority, AzureAuthorityHost, CredentialBuilder};
+    use crate::identity::{Authority, AzureAuthorityHost};
 
     #[test]
     fn confidential_client_new() {

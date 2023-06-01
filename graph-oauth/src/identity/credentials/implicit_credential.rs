@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AzureAuthorityHost, CredentialBuilder, Crypto, Prompt, ResponseMode, ResponseType,
+    Authority, AzureAuthorityHost, Crypto, Prompt, ResponseMode, ResponseType,
 };
 use crate::oauth::TokenCredentialOptions;
 use graph_error::{AuthorizationFailure, AuthorizationResult};

@@ -4,7 +4,7 @@ use crate::identity::{
     TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AF, AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
 
@@ -87,22 +87,22 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
             .authority(azure_authority_host, &self.authority);
 
         let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-            AuthorizationFailure::msg_err("access_token_url", "Internal Error"),
+            AF::msg_err("access_token_url", "Internal Error"),
         )?;
-        Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+        Url::parse(uri.as_str()).map_err(AF::from)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
-            return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
+            return AF::result(OAuthParameter::ClientId.alias());
         }
 
         if self.username.trim().is_empty() {
-            return AuthorizationFailure::result(OAuthParameter::Username.alias());
+            return AF::result(OAuthParameter::Username.alias());
         }
 
         if self.password.trim().is_empty() {
-            return AuthorizationFailure::result(OAuthParameter::Password.alias());
+            return AF::result(OAuthParameter::Password.alias());
         }
 
         self.serializer
@@ -136,7 +136,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
     fn new() -> ResourceOwnerPasswordCredentialBuilder {
         ResourceOwnerPasswordCredentialBuilder {
             credential: ResourceOwnerPasswordCredential {
-                client_id: String::new(),
+                client_id: String::with_capacity(32),
                 username: String::new(),
                 password: String::new(),
                 scope: vec![],
@@ -148,7 +148,11 @@ impl ResourceOwnerPasswordCredentialBuilder {
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.credential.client_id = client_id.as_ref().to_owned();
+        if self.credential.client_id.is_empty() {
+            self.credential.client_id.push_str(client_id.as_ref());
+        } else {
+            self.credential.client_id = client_id.as_ref().to_owned();
+        }
         self
     }
 
@@ -178,13 +182,20 @@ impl ResourceOwnerPasswordCredentialBuilder {
         authority: T,
     ) -> AuthorizationResult<&mut Self> {
         let authority = authority.into();
+        if vec![Authority::Common, Authority::Consumers, Authority::AzureActiveDirectory].contains(&authority) {
+            return AF::msg_result(
+                "tenant_id",
+                "Authority Azure Active Directory, common, and consumers are not supported authentication contexts for ROPC"
+            );
+        }
+
         if authority.eq(&Authority::Common)
             || authority.eq(&Authority::AzureActiveDirectory)
             || authority.eq(&Authority::Consumers)
         {
             return AuthorizationFailure::msg_result(
                 "tenant_id",
-                "Authority Azure Active Directory, common, and consumers are not supported authentication contexts for ROPC"
+                "ADFS, common, and consumers are not supported authentication contexts for ROPC"
             );
         }
 
@@ -213,5 +224,37 @@ impl ResourceOwnerPasswordCredentialBuilder {
 impl Default for ResourceOwnerPasswordCredentialBuilder {
     fn default() -> Self {
         ResourceOwnerPasswordCredentialBuilder::new()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    #[should_panic]
+    fn fail_on_authority_common() {
+        let _ = ResourceOwnerPasswordCredential::builder()
+            .with_authority(Authority::Common)
+            .unwrap()
+            .build();
+    }
+
+    #[test]
+    #[should_panic]
+    fn fail_on_authority_adfs() {
+        let _ = ResourceOwnerPasswordCredential::builder()
+            .with_authority(Authority::AzureActiveDirectory)
+            .unwrap()
+            .build();
+    }
+
+    #[test]
+    #[should_panic]
+    fn fail_on_authority_consumers() {
+        let _ = ResourceOwnerPasswordCredential::builder()
+            .with_authority(Authority::Consumers)
+            .unwrap()
+            .build();
     }
 }

@@ -1,7 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     AuthCodeAuthorizationUrl, AuthCodeAuthorizationUrlBuilder, Authority, AuthorizationSerializer,
-    AzureAuthorityHost, CredentialBuilder, TokenCredential, TokenCredentialOptions, TokenRequest,
+    AzureAuthorityHost, TokenCredential, TokenCredentialOptions, TokenRequest,
     CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;

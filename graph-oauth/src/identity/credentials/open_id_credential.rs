@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, CredentialBuilder,
+    Authority, AuthorizationSerializer, AzureAuthorityHost,
     OpenIdAuthorizationUrl, ProofKeyForCodeExchange, TokenCredential, TokenCredentialOptions,
     TokenRequest,
 };

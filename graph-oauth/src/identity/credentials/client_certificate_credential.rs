@@ -1,10 +1,10 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, CredentialBuilder, TokenCredential,
+    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredential,
     TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AF, AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
 
@@ -81,14 +81,14 @@ impl AuthorizationSerializer for ClientCertificateCredential {
 
         if self.refresh_token.is_none() {
             let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-                AuthorizationFailure::msg_err("access_token_url", "Internal Error"),
+                AF::msg_err("access_token_url", "Internal Error"),
             )?;
-            Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+            Url::parse(uri.as_str()).map_err(AF::from)
         } else {
             let uri = self.serializer.get(OAuthParameter::RefreshTokenUrl).ok_or(
-                AuthorizationFailure::msg_err("refresh_token_url", "Internal Error"),
+                AF::msg_err("refresh_token_url", "Internal Error"),
             )?;
-            Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+            Url::parse(uri.as_str()).map_err(AF::from)
         }
     }
 
@@ -182,12 +182,12 @@ impl ClientCertificateCredentialBuilder {
     #[cfg(feature = "openssl")]
     pub fn with_certificate(
         &mut self,
-        certificate_assertion: &X509Certificate,
+        certificate: &X509Certificate,
     ) -> anyhow::Result<&mut Self> {
         if let Some(tenant_id) = self.credential.authority.tenant_id() {
-            self.with_client_assertion(certificate_assertion.sign(Some(tenant_id.clone()))?);
+            self.with_client_assertion(certificate.sign(Some(tenant_id.clone()))?);
         } else {
-            self.with_client_assertion(certificate_assertion.sign(None)?);
+            self.with_client_assertion(certificate.sign(None)?);
         }
         Ok(self)
     }
