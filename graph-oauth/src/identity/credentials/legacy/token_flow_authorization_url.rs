@@ -99,8 +99,7 @@ impl TokenFlowAuthorizationUrlBuilder {
     }
 
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.authorization_url.scope =
-            scope.into_iter().map(|s| s.to_string()).collect();
+        self.authorization_url.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 

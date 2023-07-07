@@ -1,8 +1,8 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    AuthCodeAuthorizationUrl, AuthCodeAuthorizationUrlBuilder, Authority, AuthorizationSerializer,
-    AzureAuthorityHost, TokenCredential, TokenCredentialOptions, TokenRequest,
-    CLIENT_ASSERTION_TYPE,
+    AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters, Authority,
+    AuthorizationSerializer, AzureAuthorityHost, TokenCredential, TokenCredentialOptions,
+    TokenRequest, CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
@@ -97,19 +97,13 @@ impl AuthorizationCodeCertificateCredential {
         AuthorizationCodeCertificateCredentialBuilder::new()
     }
 
-    pub fn authorization_url_builder() -> AuthCodeAuthorizationUrlBuilder {
-        AuthCodeAuthorizationUrlBuilder::new()
+    pub fn authorization_url_builder() -> AuthCodeAuthorizationUrlParameterBuilder {
+        AuthCodeAuthorizationUrlParameterBuilder::new()
     }
 }
 
 #[async_trait]
-impl TokenRequest for AuthorizationCodeCertificateCredential {
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
-    }
-}
-
-impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
+impl TokenCredential for AuthorizationCodeCertificateCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
@@ -204,11 +198,13 @@ impl AuthorizationSerializer for AuthorizationCodeCertificateCredential {
             "Either authorization code or refresh token is required",
         )
     }
-}
 
-impl TokenCredential for AuthorizationCodeCertificateCredential {
     fn client_id(&self) -> &String {
         &self.client_id
+    }
+
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
     }
 }
 
@@ -263,9 +259,11 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         certificate_assertion: &X509Certificate,
     ) -> anyhow::Result<&mut Self> {
         if let Some(tenant_id) = self.credential.authority.tenant_id() {
-            self.with_client_assertion(certificate_assertion.sign(Some(tenant_id.clone()))?);
+            self.with_client_assertion(
+                certificate_assertion.sign_with_tenant(Some(tenant_id.clone()))?,
+            );
         } else {
-            self.with_client_assertion(certificate_assertion.sign(None)?);
+            self.with_client_assertion(certificate_assertion.sign_with_tenant(None)?);
         }
         Ok(self)
     }
@@ -284,8 +282,8 @@ impl AuthorizationCodeCertificateCredentialBuilder {
     }
 }
 
-impl From<AuthCodeAuthorizationUrl> for AuthorizationCodeCertificateCredentialBuilder {
-    fn from(value: AuthCodeAuthorizationUrl) -> Self {
+impl From<AuthCodeAuthorizationUrlParameters> for AuthorizationCodeCertificateCredentialBuilder {
+    fn from(value: AuthCodeAuthorizationUrlParameters) -> Self {
         let mut builder = AuthorizationCodeCertificateCredentialBuilder::new();
         let _ = builder.with_redirect_uri(value.redirect_uri);
         builder

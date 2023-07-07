@@ -4,7 +4,7 @@ use crate::identity::{
     TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
-use graph_error::{AF, AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use std::collections::HashMap;
 use url::Url;
 
@@ -75,20 +75,15 @@ impl ResourceOwnerPasswordCredential {
 }
 
 #[async_trait]
-impl TokenRequest for ResourceOwnerPasswordCredential {
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
-    }
-}
-
-impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
+impl TokenCredential for ResourceOwnerPasswordCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
-        let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-            AF::msg_err("access_token_url", "Internal Error"),
-        )?;
+        let uri = self
+            .serializer
+            .get(OAuthParameter::AccessTokenUrl)
+            .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
         Url::parse(uri.as_str()).map_err(AF::from)
     }
 
@@ -116,14 +111,16 @@ impl AuthorizationSerializer for ResourceOwnerPasswordCredential {
         )
     }
 
-    fn basic_auth(&self) -> Option<(String, String)> {
-        Some((self.username.to_string(), self.password.to_string()))
-    }
-}
-
-impl TokenCredential for ResourceOwnerPasswordCredential {
     fn client_id(&self) -> &String {
         &self.client_id
+    }
+
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
+    }
+
+    fn basic_auth(&self) -> Option<(String, String)> {
+        Some((self.username.to_string(), self.password.to_string()))
     }
 }
 
@@ -182,7 +179,13 @@ impl ResourceOwnerPasswordCredentialBuilder {
         authority: T,
     ) -> AuthorizationResult<&mut Self> {
         let authority = authority.into();
-        if vec![Authority::Common, Authority::Consumers, Authority::AzureActiveDirectory].contains(&authority) {
+        if vec![
+            Authority::Common,
+            Authority::Consumers,
+            Authority::AzureActiveDirectory,
+        ]
+        .contains(&authority)
+        {
             return AF::msg_result(
                 "tenant_id",
                 "Authority Azure Active Directory, common, and consumers are not supported authentication contexts for ROPC"
@@ -195,7 +198,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
         {
             return AuthorizationFailure::msg_result(
                 "tenant_id",
-                "ADFS, common, and consumers are not supported authentication contexts for ROPC"
+                "ADFS, common, and consumers are not supported authentication contexts for ROPC",
             );
         }
 

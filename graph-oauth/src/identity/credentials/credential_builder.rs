@@ -12,11 +12,15 @@ macro_rules! credential_builder_impl {
 
             /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
             pub fn with_tenant(&mut self, tenant: impl AsRef<str>) -> &mut Self {
-                self.credential.authority = crate::identity::Authority::TenantId(tenant.as_ref().to_owned());
+                self.credential.authority =
+                    crate::identity::Authority::TenantId(tenant.as_ref().to_owned());
                 self
             }
 
-            pub fn with_authority<T: Into<crate::identity::Authority>>(&mut self, authority: T) -> &mut Self {
+            pub fn with_authority<T: Into<crate::identity::Authority>>(
+                &mut self,
+                authority: T,
+            ) -> &mut Self {
                 self.credential.authority = authority.into();
                 self
             }
@@ -41,5 +45,5 @@ macro_rules! credential_builder_impl {
                 self.credential.clone()
             }
         }
-    }
+    };
 }

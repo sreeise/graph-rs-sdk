@@ -1,6 +1,6 @@
 use crate::identity::{
-    AuthorizationSerializer, AzureAuthorityHost, ResourceOwnerPasswordCredential, TokenCredential,
-    TokenCredentialOptions, TokenRequest,
+    AuthorizationSerializer, AzureAuthorityHost, DeviceCodeCredential,
+    ResourceOwnerPasswordCredential, TokenCredential, TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;
@@ -35,7 +35,8 @@ impl PublicClientApplication {
     }
 }
 
-impl AuthorizationSerializer for PublicClientApplication {
+#[async_trait]
+impl TokenCredential for PublicClientApplication {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.credential.uri(azure_authority_host)
     }
@@ -43,10 +44,11 @@ impl AuthorizationSerializer for PublicClientApplication {
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         self.credential.form_urlencode()
     }
-}
 
-#[async_trait]
-impl TokenRequest for PublicClientApplication {
+    fn client_id(&self) -> &String {
+        self.credential.client_id()
+    }
+
     fn token_credential_options(&self) -> &TokenCredentialOptions {
         &self.token_credential_options
     }
@@ -111,14 +113,22 @@ impl TokenRequest for PublicClientApplication {
     }
 }
 
-impl TokenCredential for PublicClientApplication {
-    fn client_id(&self) -> &String {
-        self.credential.client_id()
+impl From<ResourceOwnerPasswordCredential> for PublicClientApplication {
+    fn from(value: ResourceOwnerPasswordCredential) -> Self {
+        PublicClientApplication {
+            http_client: ClientBuilder::new()
+                .min_tls_version(Version::TLS_1_2)
+                .https_only(true)
+                .build()
+                .unwrap(),
+            token_credential_options: value.token_credential_options.clone(),
+            credential: Box::new(value),
+        }
     }
 }
 
-impl From<ResourceOwnerPasswordCredential> for PublicClientApplication {
-    fn from(value: ResourceOwnerPasswordCredential) -> Self {
+impl From<DeviceCodeCredential> for PublicClientApplication {
+    fn from(value: DeviceCodeCredential) -> Self {
         PublicClientApplication {
             http_client: ClientBuilder::new()
                 .min_tls_version(Version::TLS_1_2)

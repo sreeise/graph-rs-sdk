@@ -31,7 +31,7 @@ mod signing_keys;
 use graph_rs_sdk::oauth::{
     AccessToken, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, ProofKeyForCodeExchange, PublicClientApplication,
+    DeviceCodeCredential, ProofKeyForCodeExchange, PublicClientApplication, TokenCredential,
     TokenRequest,
 };
 

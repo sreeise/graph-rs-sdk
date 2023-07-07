@@ -1,3 +1,4 @@
+use graph_oauth::identity::{DeviceCodeCredential, TokenCredential};
 use graph_rs_sdk::oauth::{AccessToken, OAuthSerializer};
 use graph_rs_sdk::GraphResult;
 use std::time::Duration;
@@ -20,6 +21,15 @@ fn get_oauth() -> OAuthSerializer {
     oauth
 }
 
+fn device_code_credential() -> DeviceCodeCredential {
+    let client_id = "CLIENT_ID";
+
+    DeviceCodeCredential::builder()
+        .with_scope(vec!["files.read", "offline_access"])
+        .with_client_id(client_id)
+        .build()
+}
+
 // When polling to wait on the user to enter a device code you should check the errors
 // so that you know what to do next.
 //
@@ -32,6 +42,8 @@ async fn poll_for_access_token(
     interval: u64,
     message: &str,
 ) -> GraphResult<serde_json::Value> {
+    let mut credential = device_code_credential();
+
     let mut oauth = get_oauth();
     oauth.device_code(device_code);
 
@@ -67,7 +79,9 @@ async fn poll_for_access_token(
                     match error {
                         "authorization_pending" => println!("Still waiting on user to sign in"),
                         "authorization_declined" => panic!("user declined to sign in"),
-                        "bad_verification_code" => println!("User is lost\n{message:#?}"),
+                        "bad_verification_code" => {
+                            println!("Bad verification code. Message:\n{message:#?}")
+                        }
                         "expired_token" => panic!("token has expired - user did not sign in"),
                         _ => {
                             panic!("This isn't the error we expected: {error:#?}");
@@ -87,10 +101,8 @@ async fn poll_for_access_token(
 // The authorization url for device code must be https://login.microsoftonline.com/{tenant}/oauth2/v2.0/devicecode
 // where tenant can be common,
 pub async fn device_code() -> GraphResult<()> {
-    let mut oauth = get_oauth();
-
-    let mut handler = oauth.build_async().device_code();
-    let response = handler.authorization().send().await?;
+    let mut credential = device_code_credential();
+    let response = credential.get_token_async().await?;
 
     println!("{:#?}", response);
     let json: serde_json::Value = response.json().await?;

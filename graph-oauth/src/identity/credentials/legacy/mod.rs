@@ -1,5 +1,5 @@
-mod code_flow_credential;
 mod code_flow_authorization_url;
+mod code_flow_credential;
 mod token_flow_authorization_url;
 
 pub use code_flow_authorization_url::*;

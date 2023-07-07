@@ -4,7 +4,7 @@ use crate::identity::{
     TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
-use graph_error::{AF, AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use std::collections::HashMap;
 use url::Url;
 
@@ -68,26 +68,22 @@ impl ClientCertificateCredential {
 }
 
 #[async_trait]
-impl TokenRequest for ClientCertificateCredential {
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
-    }
-}
-
-impl AuthorizationSerializer for ClientCertificateCredential {
+impl TokenCredential for ClientCertificateCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 
         if self.refresh_token.is_none() {
-            let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-                AF::msg_err("access_token_url", "Internal Error"),
-            )?;
+            let uri = self
+                .serializer
+                .get(OAuthParameter::AccessTokenUrl)
+                .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
             Url::parse(uri.as_str()).map_err(AF::from)
         } else {
-            let uri = self.serializer.get(OAuthParameter::RefreshTokenUrl).ok_or(
-                AF::msg_err("refresh_token_url", "Internal Error"),
-            )?;
+            let uri = self
+                .serializer
+                .get(OAuthParameter::RefreshTokenUrl)
+                .ok_or(AF::msg_err("refresh_token_url", "Internal Error"))?;
             Url::parse(uri.as_str()).map_err(AF::from)
         }
     }
@@ -151,11 +147,13 @@ impl AuthorizationSerializer for ClientCertificateCredential {
             )
         };
     }
-}
 
-impl TokenCredential for ClientCertificateCredential {
     fn client_id(&self) -> &String {
         &self.client_id
+    }
+
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
     }
 }
 
@@ -180,14 +178,11 @@ impl ClientCertificateCredentialBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn with_certificate(
-        &mut self,
-        certificate: &X509Certificate,
-    ) -> anyhow::Result<&mut Self> {
+    pub fn with_certificate(&mut self, certificate: &X509Certificate) -> anyhow::Result<&mut Self> {
         if let Some(tenant_id) = self.credential.authority.tenant_id() {
-            self.with_client_assertion(certificate.sign(Some(tenant_id.clone()))?);
+            self.with_client_assertion(certificate.sign_with_tenant(Some(tenant_id.clone()))?);
         } else {
-            self.with_client_assertion(certificate.sign(None)?);
+            self.with_client_assertion(certificate.sign_with_tenant(None)?);
         }
         Ok(self)
     }

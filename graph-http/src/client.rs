@@ -7,6 +7,11 @@ use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
 use std::time::Duration;
 
+fn user_agent_header_from_env() -> Option<HeaderValue> {
+    let header = std::option_env!("GRAPH_CLIENT_USER_AGENT")?;
+    HeaderValue::from_str(&header).ok()
+}
+
 #[derive(Clone)]
 struct ClientConfiguration {
     access_token: Option<String>,
@@ -23,6 +28,10 @@ impl ClientConfiguration {
     pub fn new() -> ClientConfiguration {
         let mut headers: HeaderMap<HeaderValue> = HeaderMap::with_capacity(2);
         headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
+
+        if let Some(user_agent) = user_agent_header_from_env() {
+            headers.insert(USER_AGENT, user_agent);
+        }
 
         ClientConfiguration {
             access_token: None,
@@ -129,6 +138,15 @@ impl GraphClientConfiguration {
         self
     }
 
+    fn retain_agent_header(&self) -> Option<HeaderValue> {
+        if !self.config.headers.contains_key(USER_AGENT) {
+            let header = std::env::var(USER_AGENT.as_str()).ok()?;
+            HeaderValue::from_str(&header).ok()
+        } else {
+            None
+        }
+    }
+
     pub fn build(self) -> Client {
         let config = self.clone();
         let headers = self.config.headers.clone();
@@ -137,19 +155,8 @@ impl GraphClientConfiguration {
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
             .min_tls_version(self.config.min_tls_version)
-            .redirect(Policy::limited(2));
-
-        if !self.config.headers.contains_key(USER_AGENT) {
-            let mut headers = self.config.headers.clone();
-            if let Ok(user_agent_header) = std::env::var("USER_AGENT") {
-                if let Ok(header_value) = HeaderValue::from_str(&user_agent_header) {
-                    headers.insert(USER_AGENT, header_value);
-                    builder = builder.default_headers(self.config.headers);
-                }
-            }
-        } else {
-            builder = builder.default_headers(self.config.headers);
-        }
+            .redirect(Policy::limited(2))
+            .default_headers(self.config.headers);
 
         if let Some(timeout) = self.config.timeout {
             builder = builder.timeout(timeout);
@@ -174,19 +181,8 @@ impl GraphClientConfiguration {
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
             .min_tls_version(self.config.min_tls_version)
-            .redirect(Policy::limited(2));
-
-        if !self.config.headers.contains_key(USER_AGENT) {
-            let mut headers = self.config.headers.clone();
-            if let Ok(user_agent_header) = std::env::var("USER_AGENT") {
-                if let Ok(header_value) = HeaderValue::from_str(&user_agent_header) {
-                    headers.insert(USER_AGENT, header_value);
-                    builder = builder.default_headers(self.config.headers);
-                }
-            }
-        } else {
-            builder = builder.default_headers(self.config.headers);
-        }
+            .redirect(Policy::limited(2))
+            .default_headers(self.config.headers);
 
         if let Some(timeout) = self.config.timeout {
             builder = builder.timeout(timeout);
@@ -255,5 +251,31 @@ impl Debug for Client {
             .field("headers", &self.headers)
             .field("builder", &self.builder)
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn compile_time_user_agent_header() {
+        let mut client = GraphClientConfiguration::new()
+            .access_token("access_token")
+            .build();
+
+        assert!(client.builder.config.headers.contains_key(USER_AGENT));
+    }
+
+    #[test]
+    fn update_user_agent_header() {
+        let mut client = GraphClientConfiguration::new()
+            .access_token("access_token")
+            .user_agent(HeaderValue::from_static("user_agent"))
+            .build();
+
+        assert!(client.builder.config.headers.contains_key(USER_AGENT));
+        let user_agent_header = client.builder.config.headers.get(USER_AGENT).unwrap();
+        assert_eq!("user_agent", user_agent_header.to_str().unwrap());
     }
 }

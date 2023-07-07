@@ -38,7 +38,8 @@ impl ConfidentialClientApplication {
     }
 }
 
-impl AuthorizationSerializer for ConfidentialClientApplication {
+#[async_trait]
+impl TokenCredential for ConfidentialClientApplication {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.credential.uri(azure_authority_host)
     }
@@ -46,10 +47,11 @@ impl AuthorizationSerializer for ConfidentialClientApplication {
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         self.credential.form_urlencode()
     }
-}
 
-#[async_trait]
-impl TokenRequest for ConfidentialClientApplication {
+    fn client_id(&self) -> &String {
+        self.credential.client_id()
+    }
+
     fn token_credential_options(&self) -> &TokenCredentialOptions {
         &self.token_credential_options
     }
@@ -112,12 +114,6 @@ impl TokenRequest for ConfidentialClientApplication {
                 .send()
                 .await?)
         }
-    }
-}
-
-impl TokenCredential for ConfidentialClientApplication {
-    fn client_id(&self) -> &String {
-        self.credential.client_id()
     }
 }
 

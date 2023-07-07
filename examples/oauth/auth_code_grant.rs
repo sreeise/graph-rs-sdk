@@ -1,6 +1,6 @@
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthCodeAuthorizationUrl, AuthorizationCodeCredential,
-    ConfidentialClientApplication, CredentialBuilder, TokenRequest,
+    AccessToken, AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential,
+    ConfidentialClientApplication, TokenCredential, TokenRequest,
 };
 use graph_rs_sdk::*;
 use warp::Filter;

@@ -41,6 +41,7 @@ fn thumbprint(cert: &X509) -> anyhow::Result<String> {
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-client-assertions
 pub struct X509Certificate {
     client_id: String,
+    tenant_id: Option<String>,
     claims: Option<HashMap<String, String>>,
     extend_claims: bool,
     certificate: X509,
@@ -54,6 +55,26 @@ impl X509Certificate {
     pub fn new<T: AsRef<str>>(client_id: T, certificate: X509, private_key: PKey<Private>) -> Self {
         Self {
             client_id: client_id.as_ref().to_owned(),
+            tenant_id: None,
+            claims: None,
+            extend_claims: true,
+            certificate,
+            certificate_chain: false,
+            pkey: private_key,
+            parsed_pkcs12: None,
+            uuid: Uuid::new_v4(),
+        }
+    }
+
+    pub fn new_with_tenant<T: AsRef<str>>(
+        client_id: T,
+        tenant_id: T,
+        certificate: X509,
+        private_key: PKey<Private>,
+    ) -> Self {
+        Self {
+            client_id: client_id.as_ref().to_owned(),
+            tenant_id: Some(tenant_id.as_ref().to_owned()),
             claims: None,
             extend_claims: true,
             certificate,
@@ -83,6 +104,38 @@ impl X509Certificate {
 
         Ok(Self {
             client_id: client_id.as_ref().to_owned(),
+            tenant_id: None,
+            claims: None,
+            extend_claims: true,
+            certificate,
+            certificate_chain: true,
+            pkey: private_key.clone(),
+            parsed_pkcs12: Some(parsed_pkcs12),
+            uuid: Uuid::new_v4(),
+        })
+    }
+
+    pub fn new_from_pass_with_tenant<T: AsRef<str>>(
+        client_id: T,
+        tenant_id: T,
+        pass: T,
+        certificate: X509,
+    ) -> anyhow::Result<Self> {
+        let der = encode_cert(&certificate)?;
+        let parsed_pkcs12 =
+            Pkcs12::from_der(&URL_SAFE_NO_PAD.decode(der)?)?.parse2(pass.as_ref())?;
+
+        let _ = parsed_pkcs12.cert.as_ref().ok_or(anyhow::Error::msg(
+            "No certificate found after parsing Pkcs12 using pass",
+        ))?;
+
+        let private_key = parsed_pkcs12.pkey.as_ref().ok_or(anyhow::Error::msg(
+            "No private key found after parsing Pkcs12 using pass",
+        ))?;
+
+        Ok(Self {
+            client_id: client_id.as_ref().to_owned(),
+            tenant_id: Some(tenant_id.as_ref().to_owned()),
             claims: None,
             extend_claims: true,
             certificate,
@@ -271,11 +324,22 @@ impl X509Certificate {
            Ok(signed_client_assertion)
     */
 
+    pub fn sign(&self) -> anyhow::Result<String> {
+        let token = self.base64_token(self.tenant_id.clone())?;
+
+        let mut signer = Signer::new(MessageDigest::sha256(), &self.pkey)?;
+        signer.set_rsa_padding(Padding::PKCS1)?;
+        signer.update(token.as_str().as_bytes())?;
+        let signature = URL_SAFE_NO_PAD.encode(signer.sign_to_vec()?);
+
+        Ok(format!("{token}.{signature}"))
+    }
+
     /// Get the signed client assertion.
     ///
     /// The signature is a Base64 Url encoded (No Pad) JWT Header and Payload signed with the private key using SHA_256
     /// and RSA padding PKCS1
-    pub fn sign(&self, tenant_id: Option<String>) -> anyhow::Result<String> {
+    pub fn sign_with_tenant(&self, tenant_id: Option<String>) -> anyhow::Result<String> {
         let token = self.base64_token(tenant_id)?;
 
         let mut signer = Signer::new(MessageDigest::sha256(), &self.pkey)?;
@@ -325,6 +389,6 @@ mod test {
         let private_key = PKey::private_key_from_pem(private_key_bytes).unwrap();
 
         let certificate = X509Certificate::new("client_id", cert, private_key);
-        assert!(certificate.sign(None).is_ok());
+        assert!(certificate.sign_with_tenant(None).is_ok());
     }
 }

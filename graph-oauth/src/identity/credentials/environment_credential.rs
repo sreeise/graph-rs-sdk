@@ -39,7 +39,11 @@ impl EnvironmentCredential {
         let tenant_id = option_env!("AZURE_TENANT_ID");
         let azure_client_id = option_env!("AZURE_CLIENT_ID").ok_or(VarError::NotPresent)?;
         let azure_client_secret = option_env!("AZURE_CLIENT_SECRET").ok_or(VarError::NotPresent)?;
-        EnvironmentCredential::client_secret_env(tenant_id.map(|s| s.to_owned()), azure_client_id.to_owned(), azure_client_secret.to_owned())
+        EnvironmentCredential::client_secret_env(
+            tenant_id.map(|s| s.to_owned()),
+            azure_client_id.to_owned(),
+            azure_client_secret.to_owned(),
+        )
     }
 
     fn try_azure_client_secret_runtime_env() -> Result<ConfidentialClientApplication, VarError> {
@@ -49,7 +53,11 @@ impl EnvironmentCredential {
         EnvironmentCredential::client_secret_env(tenant_id, azure_client_id, azure_client_secret)
     }
 
-    fn client_secret_env(tenant_id: Option<String>, azure_client_id: String, azure_client_secret: String) -> Result<ConfidentialClientApplication, VarError> {
+    fn client_secret_env(
+        tenant_id: Option<String>,
+        azure_client_id: String,
+        azure_client_secret: String,
+    ) -> Result<ConfidentialClientApplication, VarError> {
         match tenant_id {
             Some(tenant_id) => Ok(ConfidentialClientApplication::new(
                 ClientSecretCredential::new_with_tenant(
@@ -59,12 +67,12 @@ impl EnvironmentCredential {
                 ),
                 Default::default(),
             )
-                .map_err(|_| VarError::NotPresent)?),
+            .map_err(|_| VarError::NotPresent)?),
             None => Ok(ConfidentialClientApplication::new(
                 ClientSecretCredential::new(azure_client_id, azure_client_secret),
                 Default::default(),
             )
-                .map_err(|_| VarError::NotPresent)?),
+            .map_err(|_| VarError::NotPresent)?),
         }
     }
 
@@ -73,7 +81,12 @@ impl EnvironmentCredential {
         let azure_client_id = option_env!("AZURE_CLIENT_ID").ok_or(VarError::NotPresent)?;
         let azure_username = option_env!("AZURE_USERNAME").ok_or(VarError::NotPresent)?;
         let azure_password = option_env!("AZURE_PASSWORD").ok_or(VarError::NotPresent)?;
-        EnvironmentCredential::username_password_env(tenant_id.map(|s| s.to_owned()), azure_client_id.to_owned(), azure_username.to_owned(), azure_password.to_owned())
+        EnvironmentCredential::username_password_env(
+            tenant_id.map(|s| s.to_owned()),
+            azure_client_id.to_owned(),
+            azure_username.to_owned(),
+            azure_password.to_owned(),
+        )
     }
 
     fn try_username_password_runtime_env() -> Result<PublicClientApplication, VarError> {
@@ -81,10 +94,20 @@ impl EnvironmentCredential {
         let azure_client_id = std::env::var(AZURE_CLIENT_ID)?;
         let azure_username = std::env::var(AZURE_USERNAME)?;
         let azure_password = std::env::var(AZURE_PASSWORD)?;
-        EnvironmentCredential::username_password_env(tenant_id, azure_client_id, azure_username, azure_password)
+        EnvironmentCredential::username_password_env(
+            tenant_id,
+            azure_client_id,
+            azure_username,
+            azure_password,
+        )
     }
 
-    fn username_password_env(tenant_id: Option<String>, azure_client_id: String, azure_username: String, azure_password: String) -> Result<PublicClientApplication, VarError> {
+    fn username_password_env(
+        tenant_id: Option<String>,
+        azure_client_id: String,
+        azure_username: String,
+        azure_password: String,
+    ) -> Result<PublicClientApplication, VarError> {
         match tenant_id {
             Some(tenant_id) => Ok(PublicClientApplication::new(
                 ResourceOwnerPasswordCredential::new_with_tenant(
@@ -95,7 +118,7 @@ impl EnvironmentCredential {
                 ),
                 Default::default(),
             )
-                .map_err(|_| VarError::NotPresent)?),
+            .map_err(|_| VarError::NotPresent)?),
             None => Ok(PublicClientApplication::new(
                 ResourceOwnerPasswordCredential::new(
                     azure_client_id,
@@ -104,7 +127,7 @@ impl EnvironmentCredential {
                 ),
                 Default::default(),
             )
-                .map_err(|_| VarError::NotPresent)?),
+            .map_err(|_| VarError::NotPresent)?),
         }
     }
 }

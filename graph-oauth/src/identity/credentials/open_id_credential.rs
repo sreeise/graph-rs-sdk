@@ -1,8 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost,
-    OpenIdAuthorizationUrl, ProofKeyForCodeExchange, TokenCredential, TokenCredentialOptions,
-    TokenRequest,
+    Authority, AuthorizationSerializer, AzureAuthorityHost, OpenIdAuthorizationUrl,
+    ProofKeyForCodeExchange, TokenCredential, TokenCredentialOptions, TokenRequest,
 };
 use crate::oauth::OpenIdAuthorizationUrlBuilder;
 use async_trait::async_trait;
@@ -97,13 +96,7 @@ impl OpenIdCredential {
 }
 
 #[async_trait]
-impl TokenRequest for OpenIdCredential {
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
-    }
-}
-
-impl AuthorizationSerializer for OpenIdCredential {
+impl TokenCredential for OpenIdCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
@@ -194,14 +187,16 @@ impl AuthorizationSerializer for OpenIdCredential {
         )
     }
 
-    fn basic_auth(&self) -> Option<(String, String)> {
-        Some((self.client_id.clone(), self.client_secret.clone()))
-    }
-}
-
-impl TokenCredential for OpenIdCredential {
     fn client_id(&self) -> &String {
         &self.client_id
+    }
+
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
+    }
+
+    fn basic_auth(&self) -> Option<(String, String)> {
+        Some((self.client_id.clone(), self.client_secret.clone()))
     }
 }
 

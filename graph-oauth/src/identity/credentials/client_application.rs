@@ -1,9 +1,9 @@
-use crate::identity::{CredentialStoreType, TokenRequest};
+use crate::identity::{CredentialStoreType, TokenCredential};
 use crate::oauth::AccessToken;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait ClientApplication: TokenRequest {
+pub trait ClientApplication: TokenCredential {
     fn get_credential_from_store(&self) -> &CredentialStoreType;
 
     fn update_token_credential_store(&mut self, credential_store_type: CredentialStoreType);

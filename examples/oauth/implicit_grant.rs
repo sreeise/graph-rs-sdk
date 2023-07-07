@@ -18,7 +18,7 @@ use std::collections::BTreeSet;
 //
 // To better understand OAuth V2.0 and the implicit flow see: https://tools.ietf.org/html/rfc6749#section-1.3.2
 use graph_rs_sdk::oauth::{
-    CredentialBuilder, ImplicitCredential, Prompt, ResponseMode, ResponseType,
+    ImplicitCredential, Prompt, ResponseMode, ResponseType, TokenCredential,
 };
 
 fn oauth_implicit_flow() {

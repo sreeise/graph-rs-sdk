@@ -4,7 +4,7 @@ mod credential_builder;
 pub mod legacy;
 
 mod as_query;
-mod auth_code_authorization_url;
+mod auth_code_authorization_url_parameters;
 mod authorization_code_certificate_credential;
 mod authorization_code_credential;
 mod client_application;
@@ -34,7 +34,7 @@ mod token_request;
 mod x509_certificate;
 
 pub use as_query::*;
-pub use auth_code_authorization_url::*;
+pub use auth_code_authorization_url_parameters::*;
 pub use authorization_code_certificate_credential::*;
 pub use authorization_code_credential::*;
 pub use client_application::*;

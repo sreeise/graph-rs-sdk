@@ -4,6 +4,7 @@ use crate::identity::{
     ClientCredentialsAuthorizationUrlBuilder, TokenCredential, TokenRequest,
 };
 use crate::oauth::TokenCredentialOptions;
+use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
@@ -82,13 +83,8 @@ impl ClientSecretCredential {
     }
 }
 
-impl TokenRequest for ClientSecretCredential {
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
-    }
-}
-
-impl AuthorizationSerializer for ClientSecretCredential {
+#[async_trait]
+impl TokenCredential for ClientSecretCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
@@ -121,15 +117,16 @@ impl AuthorizationSerializer for ClientSecretCredential {
             .as_credential_map(vec![OAuthParameter::Scope], vec![OAuthParameter::GrantType])
     }
 
-    ///
-    fn basic_auth(&self) -> Option<(String, String)> {
-        Some((self.client_id.clone(), self.client_secret.clone()))
-    }
-}
-
-impl TokenCredential for ClientSecretCredential {
     fn client_id(&self) -> &String {
         &self.client_id
+    }
+
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
+    }
+
+    fn basic_auth(&self) -> Option<(String, String)> {
+        Some((self.client_id.clone(), self.client_secret.clone()))
     }
 }
 

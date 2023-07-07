@@ -1,4 +1,4 @@
-use graph_oauth::identity::{ResponseType, TokenRequest};
+use graph_oauth::identity::{ResponseType, TokenCredential, TokenRequest};
 use graph_oauth::oauth::{OpenIdAuthorizationUrl, OpenIdCredential};
 use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuthSerializer};
 use url::Url;
@@ -67,7 +67,6 @@ async fn handle_redirect(
             let mut access_token: AccessToken = response.json().await.unwrap();
             access_token.enable_pii_logging(true);
 
-            // If all went well here we can print out the OAuth config with the Access Token.
             println!("\n{:#?}\n", access_token);
         } else {
             // See if Microsoft Graph returned an error in the Response body

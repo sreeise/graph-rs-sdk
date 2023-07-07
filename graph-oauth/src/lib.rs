@@ -69,6 +69,7 @@ mod discovery;
 mod grants;
 mod id_token;
 pub mod jwt;
+mod oauth2_header;
 mod oauth_error;
 
 pub mod identity;
@@ -88,6 +89,7 @@ pub mod oauth {
     pub use crate::grants::GrantType;
     pub use crate::id_token::IdToken;
     pub use crate::identity::*;
+    pub use crate::oauth2_header::*;
     pub use crate::oauth_error::OAuthError;
     pub use crate::strum::IntoEnumIterator;
 }

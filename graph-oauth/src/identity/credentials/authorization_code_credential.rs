@@ -1,9 +1,9 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    AuthCodeAuthorizationUrl, Authority, AuthorizationSerializer, AzureAuthorityHost,
+    AuthCodeAuthorizationUrlParameters, Authority, AuthorizationSerializer, AzureAuthorityHost,
     ProofKeyForCodeExchange, TokenCredential, TokenCredentialOptions, TokenRequest,
 };
-use crate::oauth::AuthCodeAuthorizationUrlBuilder;
+use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
 use reqwest::IntoUrl;
@@ -95,19 +95,13 @@ impl AuthorizationCodeCredential {
         AuthorizationCodeCredentialBuilder::new()
     }
 
-    pub fn authorization_url_builder() -> AuthCodeAuthorizationUrlBuilder {
-        AuthCodeAuthorizationUrlBuilder::new()
+    pub fn authorization_url_builder() -> AuthCodeAuthorizationUrlParameterBuilder {
+        AuthCodeAuthorizationUrlParameterBuilder::new()
     }
 }
 
 #[async_trait]
-impl TokenRequest for AuthorizationCodeCredential {
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
-    }
-}
-
-impl AuthorizationSerializer for AuthorizationCodeCredential {
+impl TokenCredential for AuthorizationCodeCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
@@ -198,14 +192,16 @@ impl AuthorizationSerializer for AuthorizationCodeCredential {
         )
     }
 
-    fn basic_auth(&self) -> Option<(String, String)> {
-        Some((self.client_id.clone(), self.client_secret.clone()))
-    }
-}
-
-impl TokenCredential for AuthorizationCodeCredential {
     fn client_id(&self) -> &String {
         &self.client_id
+    }
+
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
+    }
+
+    fn basic_auth(&self) -> Option<(String, String)> {
+        Some((self.client_id.clone(), self.client_secret.clone()))
     }
 }
 
@@ -270,8 +266,8 @@ impl AuthorizationCodeCredentialBuilder {
     }
 }
 
-impl From<AuthCodeAuthorizationUrl> for AuthorizationCodeCredentialBuilder {
-    fn from(value: AuthCodeAuthorizationUrl) -> Self {
+impl From<AuthCodeAuthorizationUrlParameters> for AuthorizationCodeCredentialBuilder {
+    fn from(value: AuthCodeAuthorizationUrlParameters) -> Self {
         let mut builder = AuthorizationCodeCredentialBuilder::new();
         let _ = builder.with_redirect_uri(value.redirect_uri);
         builder

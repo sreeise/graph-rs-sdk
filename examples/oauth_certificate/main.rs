@@ -4,8 +4,8 @@
 extern crate serde;
 
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthorizationCodeCertificateCredential, ConfidentialClientApplication,
-    CredentialBuilder, PKey, TokenRequest, X509Certificate, X509,
+    AccessToken, AuthorizationCodeCertificateCredential, ConfidentialClientApplication, PKey,
+    TokenCredential, X509Certificate, X509,
 };
 use std::fs::File;
 use std::io::Read;
@@ -86,9 +86,7 @@ pub fn get_confidential_client(
     let cert = X509::from_pem(certificate.as_slice()).unwrap();
     let pkey = PKey::private_key_from_pem(private_key.as_slice()).unwrap();
 
-    let mut x509_certificate = X509Certificate::new(client_id, cert, pkey);
-
-    x509_certificate.with_tenant(tenant_id);
+    let x509_certificate = X509Certificate::new_with_tenant(client_id, tenant_id, cert, pkey);
 
     let credentials = AuthorizationCodeCertificateCredential::builder()
         .with_authorization_code(authorization_code)

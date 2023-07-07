@@ -1,18 +1,19 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions,
+    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredential,
+    TokenCredentialOptions, TokenRequest,
 };
-use crate::oauth::DeviceCode;
-use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
+use crate::oauth::{DeviceCode, PublicClientApplication};
+use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult, AF};
+use reqwest::Response;
 use std::collections::HashMap;
+use std::time::Duration;
 use url::Url;
+use wry::http;
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
-credential_builder_impl!(
-    DeviceCodeCredentialBuilder,
-    DeviceCodeCredential
-);
+credential_builder_impl!(DeviceCodeCredentialBuilder, DeviceCodeCredential);
 
 /// Allows users to sign in to input-constrained devices such as a smart TV, IoT device,
 /// or a printer. To enable this flow, the device has the user visit a webpage in a browser on
@@ -69,12 +70,95 @@ impl DeviceCodeCredential {
         self
     }
 
+    pub fn with_device_code<T: AsRef<str>>(&mut self, device_code: T) -> &mut Self {
+        self.refresh_token = None;
+        self.device_code = Some(device_code.as_ref().to_owned());
+        self
+    }
+
+    /*
+        pub async fn poll_async(&mut self, buffer: Option<usize>) -> tokio::sync::mpsc::Receiver<GraphResult<http::Response<serde_json::Value>>> {
+        let (sender, receiver) = {
+          if let Some(buffer) = buffer {
+              tokio::sync::mpsc::channel(buffer)
+          }  else {
+              tokio::sync::mpsc::channel(100)
+          }
+        };
+
+        let mut credential = self.clone();
+        let mut application = PublicClientApplication::from(self.clone());
+
+        tokio::spawn(async move {
+            let response = application.get_token_async().await
+                .map_err(GraphFailure::from);
+
+            match response {
+                Ok(response) => {
+                    let status = response.status();
+
+                    let body: serde_json::Value = response.json().await?;
+                    println!("{body:#?}");
+
+                    let device_code = body["device_code"].as_str().unwrap();
+                    let interval = body["interval"].as_u64().unwrap();
+                    let message = body["message"].as_str().unwrap();
+                    credential.with_device_code(device_code);
+                    let mut application = PublicClientApplication::from(credential);
+
+                    if !status.is_success() {
+                        loop {
+                            // Wait the amount of seconds that interval is.
+                            std::thread::sleep(Duration::from_secs(interval.clone()));
+
+                            let response = application.get_token_async().await
+                                .map_err(GraphFailure::from).unwrap();
+
+                            let status = response.status();
+                            println!("{response:#?}");
+
+                            let body: serde_json::Value = response.json().await.unwrap();
+                            println!("{body:#?}");
+
+                            if status.is_success() {
+                                sender.send_timeout(Ok(body), Duration::from_secs(60));
+                            } else {
+                                let option_error = body["error"].as_str();
+
+                                if let Some(error) = option_error {
+                                    match error {
+                                        "authorization_pending" => println!("Still waiting on user to sign in"),
+                                        "authorization_declined" => panic!("user declined to sign in"),
+                                        "bad_verification_code" => println!("Bad verification code. Message:\n{message:#?}"),
+                                        "expired_token" => panic!("token has expired - user did not sign in"),
+                                        _ => {
+                                            panic!("This isn't the error we expected: {error:#?}");
+                                        }
+                                    }
+                                } else {
+                                    // Body should have error or we should bail.
+                                    panic!("Crap hit the fan");
+                                }
+                            }
+                        }
+                    }
+                }
+                Err(err) => {
+                    sender.send_timeout(Err(err), Duration::from_secs(60));
+                }
+            }
+        });
+
+        return receiver;
+    }
+     */
+
     pub fn builder() -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder::new()
     }
 }
 
-impl AuthorizationSerializer for DeviceCodeCredential {
+impl TokenCredential for DeviceCodeCredential {
     fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
@@ -140,21 +224,31 @@ impl AuthorizationSerializer for DeviceCodeCredential {
                 vec![],
                 vec![
                     OAuthParameter::ClientId,
-                    OAuthParameter::ClientSecret,
+                    OAuthParameter::DeviceCode,
                     OAuthParameter::Scope,
                     OAuthParameter::GrantType,
                 ],
             );
         }
 
-        AuthorizationFailure::msg_result(
-            format!(
-                "{} or {}",
-                OAuthParameter::DeviceCode.alias(),
-                OAuthParameter::RefreshToken.alias()
-            ),
-            "Either device code or refresh token is required",
-        )
+        self.serializer.grant_type(DEVICE_CODE_GRANT_TYPE);
+
+        return self.serializer.as_credential_map(
+            vec![],
+            vec![
+                OAuthParameter::ClientId,
+                OAuthParameter::Scope,
+                OAuthParameter::GrantType,
+            ],
+        );
+    }
+
+    fn client_id(&self) -> &String {
+        &self.client_id
+    }
+
+    fn token_credential_options(&self) -> &TokenCredentialOptions {
+        &self.token_credential_options
     }
 }
 
@@ -213,10 +307,9 @@ mod test {
 
     #[test]
     #[should_panic]
-    fn no_device_code() {
+    fn no_scope() {
         let mut credential = DeviceCodeCredential::builder()
             .with_client_id("CLIENT_ID")
-            .with_scope(vec!["scope"])
             .build();
 
         let _ = credential.form_urlencode().unwrap();

@@ -6,9 +6,9 @@ use crate::oauth::ResponseType;
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
 use base64::Engine;
-use graph_error::{AF, AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult};
+use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult, AF};
 use ring::rand::SecureRandom;
-use std::collections::btree_map::BTreeMap;
+use std::collections::btree_map::{BTreeMap, Entry};
 use std::collections::{BTreeSet, HashMap};
 use std::default::Default;
 use std::fmt;
@@ -121,25 +121,20 @@ impl AsRef<str> for OAuthParameter {
     }
 }
 
-/// # OAuth
+pub struct OAuth2Client {
+    headers: HashMap<String, String>,
+    query_parameters: HashMap<String, String>,
+    body_parameters: HashMap<String, String>,
+}
+
+impl OAuth2Client {
+    pub fn new(logger: impl log::Log) {}
+}
+
+/// Serializer for query/x-www-form-urlencoded OAuth requests.
 ///
-/// OAuth client implementing the OAuth 2.0 and OpenID Connect protocols
-/// on Microsoft identity platform.
-///
-/// The client supports almost all OAuth 2.0 flows that Microsoft
-/// implements as well as the token and code flow specific to the
-/// OneDrive api.
-///
-/// The OAuth client is strict on what can be used for a specific OAuth
-/// flow. This is to ensure that the credentials used in requests include
-/// only information that is required or optional for that specific grant
-/// and not any other. Even if you accidentally pass a value, such as a nonce,
-/// for a grant type that does not use it, any request that is made will not
-/// include the nonce regardless.
-///
-/// # Disclaimer
-/// Using this API for other resource owners besides Microsoft may work but
-/// functionality will more then likely be limited.
+/// OAuth Serializer for query/form serialization that supports the OAuth 2.0 and OpenID
+/// Connect protocols on Microsoft identity platform.
 ///
 /// # Example
 /// ```
@@ -192,7 +187,9 @@ impl OAuthSerializer {
             | OAuthParameter::AccessTokenUrl
             | OAuthParameter::AuthorizationUrl
             | OAuthParameter::LogoutURL => {
-                Url::parse(v.as_ref()).unwrap();
+                Url::parse(v.as_ref())
+                    .map_err(|_| AF::msg_internal_err("authorization_url | refresh_token_url"))
+                    .unwrap();
             }
             _ => {}
         }
@@ -210,10 +207,10 @@ impl OAuthSerializer {
     /// # use graph_oauth::oauth::OAuthSerializer;
     /// # use graph_oauth::oauth::OAuthParameter;
     /// # let mut oauth = OAuthSerializer::new();
-    /// let entry = oauth.entry(OAuthParameter::AuthorizationUrl, "https://example.com");
+    /// let entry = oauth.entry_with(OAuthParameter::AuthorizationUrl, "https://example.com");
     /// assert_eq!(entry, "https://example.com")
     /// ```
-    pub fn entry<V: ToString>(&mut self, oac: OAuthParameter, value: V) -> &mut String {
+    pub fn entry_with<V: ToString>(&mut self, oac: OAuthParameter, value: V) -> &mut String {
         let v = value.to_string();
         match oac {
             OAuthParameter::RefreshTokenUrl
@@ -221,7 +218,8 @@ impl OAuthSerializer {
             | OAuthParameter::AccessTokenUrl
             | OAuthParameter::AuthorizationUrl
             | OAuthParameter::LogoutURL => {
-                Url::parse(v.as_ref()).map_err(|_| AF::msg_internal_err("authorization_url | refresh_token_url"))
+                Url::parse(v.as_ref())
+                    .map_err(|_| AF::msg_internal_err("authorization_url | refresh_token_url"))
                     .unwrap();
             }
             _ => {}
@@ -230,6 +228,15 @@ impl OAuthSerializer {
         self.credentials
             .entry(oac.alias().to_string())
             .or_insert_with(|| v)
+    }
+
+    /// A view into a single entry in a map, which may either be vacant or occupied.
+    ///
+    /// This `enum` is constructed from the [`entry`] method on [`BTreeMap`].
+    ///
+    /// [`entry`]: BTreeMap::entry
+    pub fn entry<V: ToString>(&mut self, oac: OAuthParameter) -> Entry<String, String> {
+        self.credentials.entry(oac.alias().to_string())
     }
 
     /// Get a previously set credential.
@@ -523,7 +530,7 @@ impl OAuthSerializer {
             self.authorization_code(code.as_str());
         }
         if let Some(state) = value.get_state() {
-            let _ = self.entry(OAuthParameter::State, state.as_str());
+            let _ = self.entry_with(OAuthParameter::State, state.as_str());
         }
         if let Some(session_state) = value.get_session_state() {
             self.session_state(session_state.as_str());
@@ -1146,7 +1153,7 @@ impl OAuthSerializer {
 			GrantType::TokenFlow =>
 				match request_type {
 					GrantRequest::Authorization => {
-						let _ = self.entry(OAuthParameter::ResponseType, "token");
+						let _ = self.entry_with(OAuthParameter::ResponseType, "token");
 						self.form_encode_credentials(GrantType::TokenFlow.available_credentials(GrantRequest::Authorization), &mut encoder);
 						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
 						if !url.ends_with('?') {
@@ -1166,8 +1173,8 @@ impl OAuthSerializer {
 			GrantType::CodeFlow =>
 				match request_type {
 					GrantRequest::Authorization => {
-						let _ = self.entry(OAuthParameter::ResponseType, "code");
-						let _ = self.entry(OAuthParameter::ResponseMode, "query");
+						let _ = self.entry_with(OAuthParameter::ResponseType, "code");
+						let _ = self.entry_with(OAuthParameter::ResponseMode, "query");
 						self.form_encode_credentials(GrantType::CodeFlow.available_credentials(GrantRequest::Authorization), &mut encoder);
 
 						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
@@ -1178,13 +1185,13 @@ impl OAuthSerializer {
 						Ok(url)
 					}
 					GrantRequest::AccessToken => {
-						let _ = self.entry(OAuthParameter::ResponseType, "token");
-						let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
+						let _ = self.entry_with(OAuthParameter::ResponseType, "token");
+						let _ = self.entry_with(OAuthParameter::GrantType, "authorization_code");
 						self.form_encode_credentials(GrantType::CodeFlow.available_credentials(GrantRequest::AccessToken), &mut encoder);
 						Ok(encoder.finish())
 					}
 					GrantRequest::RefreshToken => {
-						let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+						let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
 						self.form_encode_credentials(GrantType::CodeFlow.available_credentials(GrantRequest::RefreshToken), &mut encoder);
 						Ok(encoder.finish())
 					}
@@ -1192,8 +1199,8 @@ impl OAuthSerializer {
 			GrantType::AuthorizationCode =>
 				match request_type {
 					GrantRequest::Authorization => {
-						let _ = self.entry(OAuthParameter::ResponseType, "code");
-						let _ = self.entry(OAuthParameter::ResponseMode, "query");
+						let _ = self.entry_with(OAuthParameter::ResponseType, "code");
+						let _ = self.entry_with(OAuthParameter::ResponseMode, "query");
 						self.form_encode_credentials(GrantType::AuthorizationCode.available_credentials(GrantRequest::Authorization), &mut encoder);
 						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
 						if !url.ends_with('?') {
@@ -1204,9 +1211,9 @@ impl OAuthSerializer {
 					}
 					GrantRequest::AccessToken | GrantRequest::RefreshToken => {
 						if request_type == GrantRequest::AccessToken {
-							let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
+							let _ = self.entry_with(OAuthParameter::GrantType, "authorization_code");
 						} else {
-							let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+							let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
 						}
 						self.form_encode_credentials(GrantType::AuthorizationCode.available_credentials(request_type), &mut encoder);
 						Ok(encoder.finish())
@@ -1216,7 +1223,7 @@ impl OAuthSerializer {
 				match request_type {
 					GrantRequest::Authorization => {
 						if !self.scopes.is_empty() {
-							let _ = self.entry(OAuthParameter::ResponseType, "token");
+							let _ = self.entry_with(OAuthParameter::ResponseType, "token");
 						}
 						self.form_encode_credentials(GrantType::Implicit.available_credentials(GrantRequest::Authorization), &mut encoder);
 						let mut url = self.get_or_else(OAuthParameter::AuthorizationUrl)?;
@@ -1247,12 +1254,12 @@ impl OAuthSerializer {
                         Ok(url)
                     }
                     GrantRequest::AccessToken => {
-                        let _ = self.entry(OAuthParameter::GrantType, "urn:ietf:params:oauth:grant-type:device_code");
+                        let _ = self.entry_with(OAuthParameter::GrantType, "urn:ietf:params:oauth:grant-type:device_code");
                         self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::AccessToken), &mut encoder);
                         Ok(encoder.finish())
                     }
                     GrantRequest::RefreshToken => {
-                        let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+                        let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
                         self.form_encode_credentials(GrantType::DeviceCode.available_credentials(GrantRequest::AccessToken), &mut encoder);
                         Ok(encoder.finish())
                     }
@@ -1270,12 +1277,12 @@ impl OAuthSerializer {
 						Ok(url)
 					}
 					GrantRequest::AccessToken => {
-						let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
+						let _ = self.entry_with(OAuthParameter::GrantType, "authorization_code");
 						self.form_encode_credentials(GrantType::OpenId.available_credentials(GrantRequest::AccessToken), &mut encoder);
 						Ok(encoder.finish())
 					}
 					GrantRequest::RefreshToken => {
-						let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+						let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
 						self.form_encode_credentials(GrantType::OpenId.available_credentials(GrantRequest::RefreshToken), &mut encoder);
 						Ok(encoder.finish())
 					}
@@ -1309,69 +1316,69 @@ impl OAuthSerializer {
         match grant {
             GrantType::TokenFlow => {
                 if request_type.eq(&GrantRequest::Authorization) {
-                    let _ = self.entry(OAuthParameter::ResponseType, "token");
+                    let _ = self.entry_with(OAuthParameter::ResponseType, "token");
                 }
             }
             GrantType::CodeFlow => match request_type {
                 GrantRequest::Authorization => {
-                    let _ = self.entry(OAuthParameter::ResponseType, "code");
-                    let _ = self.entry(OAuthParameter::ResponseMode, "query");
+                    let _ = self.entry_with(OAuthParameter::ResponseType, "code");
+                    let _ = self.entry_with(OAuthParameter::ResponseMode, "query");
                 }
                 GrantRequest::AccessToken => {
-                    let _ = self.entry(OAuthParameter::ResponseType, "token");
-                    let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
+                    let _ = self.entry_with(OAuthParameter::ResponseType, "token");
+                    let _ = self.entry_with(OAuthParameter::GrantType, "authorization_code");
                 }
                 GrantRequest::RefreshToken => {
-                    let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+                    let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
                 }
             },
             GrantType::AuthorizationCode => match request_type {
                 GrantRequest::Authorization => {
-                    let _ = self.entry(OAuthParameter::ResponseType, "code");
-                    let _ = self.entry(OAuthParameter::ResponseMode, "query");
+                    let _ = self.entry_with(OAuthParameter::ResponseType, "code");
+                    let _ = self.entry_with(OAuthParameter::ResponseMode, "query");
                 }
                 GrantRequest::AccessToken | GrantRequest::RefreshToken => {
                     if request_type == GrantRequest::AccessToken {
-                        let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
+                        let _ = self.entry_with(OAuthParameter::GrantType, "authorization_code");
                     } else {
-                        let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+                        let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
                     }
                 }
             },
             GrantType::Implicit => {
                 if request_type.eq(&GrantRequest::Authorization) && !self.scopes.is_empty() {
-                    let _ = self.entry(OAuthParameter::ResponseType, "token");
+                    let _ = self.entry_with(OAuthParameter::ResponseType, "token");
                 }
             }
             GrantType::DeviceCode => {
                 if request_type.eq(&GrantRequest::AccessToken) {
-                    let _ = self.entry(
+                    let _ = self.entry_with(
                         OAuthParameter::GrantType,
                         "urn:ietf:params:oauth:grant-type:device_code",
                     );
                 } else if request_type.eq(&GrantRequest::RefreshToken) {
-                    let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+                    let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
                 }
             }
             GrantType::OpenId => {
                 if request_type.eq(&GrantRequest::AccessToken) {
-                    let _ = self.entry(OAuthParameter::GrantType, "authorization_code");
+                    let _ = self.entry_with(OAuthParameter::GrantType, "authorization_code");
                 } else if request_type.eq(&GrantRequest::RefreshToken) {
-                    let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+                    let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
                 }
             }
             GrantType::ClientCredentials => {
                 if request_type.eq(&GrantRequest::AccessToken)
                     || request_type.eq(&GrantRequest::RefreshToken)
                 {
-                    let _ = self.entry(OAuthParameter::GrantType, "client_credentials");
+                    let _ = self.entry_with(OAuthParameter::GrantType, "client_credentials");
                 }
             }
             GrantType::ResourceOwnerPasswordCredentials => {
                 if request_type.eq(&GrantRequest::RefreshToken) {
-                    let _ = self.entry(OAuthParameter::GrantType, "refresh_token");
+                    let _ = self.entry_with(OAuthParameter::GrantType, "refresh_token");
                 } else {
-                    let _ = self.entry(OAuthParameter::GrantType, "password");
+                    let _ = self.entry_with(OAuthParameter::GrantType, "password");
                 }
             }
         }
