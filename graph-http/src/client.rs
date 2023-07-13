@@ -1,8 +1,8 @@
 use crate::blocking::BlockingClient;
 use crate::traits::ODataQuery;
 
-use backoff::exponential::ExponentialBackoff;
-use backoff::{ExponentialBackoffBuilder, SystemClock};
+use crate::internal::{ExponentialBackoffRetryPolicy, ThrottleRetryPolicy, TransportPolicy};
+use crate::http_pipeline::HttpPipelinePolicy;
 use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
@@ -10,39 +10,9 @@ use reqwest::tls::Version;
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
-use std::time::{Duration};
+use std::sync::Arc;
+use std::time::Duration;
 use url::Url;
-
-#[derive(Debug, Clone)]
-pub struct RetriesConfig {
-    /// The initial retry interval.
-    pub initial_interval: Duration,
-    /// The randomization factor to use for creating a range around the retry interval.
-    ///
-    /// A randomization factor of 0.5 results in a random period ranging between 50% below and 50%
-    /// above the retry interval.
-    pub randomization_factor: f64,
-    /// The value to multiply the current interval with for each retry attempt.
-    pub multiplier: f64,
-    /// The maximum value of the back off period. Once the retry interval reaches this
-    /// value it stops increasing.
-    pub max_interval: Duration,
-    /// The maximum elapsed time after instantiating [`ExponentialBackoff`](struct.ExponentialBackoff.html) or calling
-    /// [`reset`](trait.Backoff.html#method.reset) after which [`next_backoff`](../trait.Backoff.html#method.reset) returns `None`.
-    pub max_elapsed_time: Option<Duration>,
-}
-
-impl Default for RetriesConfig {
-    fn default() -> RetriesConfig {
-        RetriesConfig {
-            initial_interval: Duration::from_millis(500),
-            randomization_factor: 0.0,
-            multiplier: 1.5,
-            max_interval: Duration::from_secs(450),
-            max_elapsed_time: Some(Duration::from_millis(450)),
-        }
-    }
-}
 
 #[derive(Clone)]
 struct ClientConfiguration {
@@ -50,8 +20,6 @@ struct ClientConfiguration {
     headers: HeaderMap,
     referer: bool,
     timeout: Option<Duration>,
-    retries: bool,
-    retries_config: RetriesConfig,
     connect_timeout: Option<Duration>,
     connection_verbose: bool,
     https_only: bool,
@@ -68,8 +36,6 @@ impl ClientConfiguration {
             headers,
             referer: true,
             timeout: None,
-            retries: false,
-            retries_config: RetriesConfig::default(),
             connect_timeout: None,
             connection_verbose: false,
             https_only: true,
@@ -86,8 +52,6 @@ impl Debug for ClientConfiguration {
             .field("headers", &self.headers)
             .field("referer", &self.referer)
             .field("timeout", &self.timeout)
-            .field("retries", &self.retries)
-            .field("retries_config", &self.retries_config)
             .field("connect_timeout", &self.connect_timeout)
             .field("https_only", &self.https_only)
             .field("min_tls_version", &self.min_tls_version)
@@ -151,44 +115,6 @@ impl GraphClientConfiguration {
         self
     }
 
-    /// Enables the client to perform retries if the request fail.
-    ///
-    /// Default is no retries.
-    pub fn retries(mut self, retries: bool) -> GraphClientConfiguration {
-        self.config.retries = retries;
-        self
-    }
-
-    pub(crate) fn get_retries(&self) -> bool {
-        self.config.retries
-    }
-
-    /// Set the Retries Config to be used by the Exponential Backoff Builder
-    /// Has no effect if the retries are not enabled
-    ///
-    /// # Note
-    ///
-    /// If Graph API returns an Error 429 Too Many Requests with a Retry-After header
-    /// it will be preferred over the configured exponential backoff
-    pub fn retries_config(mut self, config: RetriesConfig) -> GraphClientConfiguration {
-        self.config.retries_config = config;
-        self
-    }
-
-    pub fn get_retries_config(self) -> RetriesConfig {
-        self.config.retries_config
-    }
-
-    pub(crate) fn get_retries_exponential_backoff(&self) -> ExponentialBackoff<SystemClock> {
-        ExponentialBackoffBuilder::new()
-            .with_initial_interval(self.config.retries_config.initial_interval)
-            .with_multiplier(self.config.retries_config.multiplier)
-            .with_randomization_factor(self.config.retries_config.randomization_factor)
-            .with_max_interval(self.config.retries_config.max_interval)
-            .with_max_elapsed_time(self.config.retries_config.max_elapsed_time)
-            .build()
-    }
-
     /// Set whether connections should emit verbose logs.
     ///
     /// Enabling this option will emit [log][] messages at the `TRACE` level
@@ -234,6 +160,11 @@ impl GraphClientConfiguration {
             inner: builder.build().unwrap(),
             headers,
             builder: config,
+            pipeline: vec![
+                Arc::new(ExponentialBackoffRetryPolicy::default()),
+                Arc::new(ThrottleRetryPolicy {}),
+                Arc::new(TransportPolicy {}),
+            ],
         }
     }
 
@@ -275,6 +206,7 @@ pub struct Client {
     pub(crate) inner: reqwest::Client,
     pub(crate) headers: HeaderMap,
     pub(crate) builder: GraphClientConfiguration,
+    pub(crate) pipeline: Vec<Arc<dyn HttpPipelinePolicy + Send + Sync>>,
 }
 
 impl Client {

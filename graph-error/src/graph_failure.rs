@@ -5,6 +5,7 @@ use reqwest::header::HeaderMap;
 use std::cell::BorrowMutError;
 use std::io;
 use std::io::ErrorKind;
+use std::num::ParseIntError;
 use std::str::Utf8Error;
 use std::sync::mpsc;
 
@@ -78,6 +79,9 @@ pub enum GraphFailure {
 
     #[error("Temporary Graph API Error")]
     TemporaryError,
+
+    #[error("Parse Int error:\n{0:#?}")]
+    ParseIntError(#[from] ParseIntError),
 }
 
 impl GraphFailure {

@@ -300,7 +300,7 @@ pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 
 pub use crate::client::Graph;
 pub use graph_error::{GraphFailure, GraphResult};
-pub use graph_http::api_impl::{GraphClientConfiguration, RetriesConfig, ODataQuery};
+pub use graph_http::api_impl::{GraphClientConfiguration, ODataQuery};
 
 /// Reexport of graph-oauth crate.
 pub mod oauth {
