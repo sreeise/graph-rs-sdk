@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use backoff::backoff::Backoff;
 use backoff::{future::retry, ExponentialBackoff, ExponentialBackoffBuilder};
 use graph_error::{GraphFailure, GraphResult};
 use http::StatusCode;
@@ -58,18 +59,22 @@ pub struct ExponentialBackoffRetryPolicy {
     /// The maximum elapsed time after instantiating [`ExponentialBackoff`](struct.ExponentialBackoff.html) or calling
     /// [`reset`](trait.Backoff.html#method.reset) after which [`next_backoff`](../trait.Backoff.html#method.reset) returns `None`.
     pub max_elapsed_time: Option<Duration>,
-    pub max_retries: i32,
+    pub max_retries: usize,
 }
 
 impl ExponentialBackoffRetryPolicy {
-    pub(crate) fn get_retries_exponential_backoff(&self) -> ExponentialBackoff {
-        ExponentialBackoffBuilder::new()
-            .with_initial_interval(self.initial_interval)
-            .with_multiplier(self.multiplier)
-            .with_randomization_factor(self.randomization_factor)
-            .with_max_interval(self.max_interval)
-            .with_max_elapsed_time(self.max_elapsed_time)
-            .build()
+    pub(crate) fn get_exponential_backoff_with_max_retries(&self) -> ExponentialBackoffWithMaxRetries {
+        ExponentialBackoffWithMaxRetries {
+            exp: ExponentialBackoffBuilder::new()
+                .with_initial_interval(self.initial_interval)
+                .with_multiplier(self.multiplier)
+                .with_randomization_factor(self.randomization_factor)
+                .with_max_interval(self.max_interval)
+                .with_max_elapsed_time(self.max_elapsed_time)
+                .build(),
+            retries: 0,
+            max_retries: self.max_retries,
+        }
     }
 }
 
@@ -86,6 +91,28 @@ impl Default for ExponentialBackoffRetryPolicy {
     }
 }
 
+pub struct ExponentialBackoffWithMaxRetries {
+    exp: ExponentialBackoff,
+    retries: usize,
+    max_retries: usize,
+}
+
+impl Backoff for ExponentialBackoffWithMaxRetries {
+    fn reset(&mut self) {
+        self.exp.reset();
+        self.retries = 0;
+    }
+
+    fn next_backoff(&mut self) -> Option<Duration> {
+        self.retries += 1;
+        if self.retries < self.max_retries + 1 {
+            self.exp.next_backoff()
+        } else {
+            None
+        }
+    }
+}
+
 #[async_trait]
 impl HttpPipelinePolicy for ExponentialBackoffRetryPolicy {
     async fn process_async(
@@ -94,7 +121,7 @@ impl HttpPipelinePolicy for ExponentialBackoffRetryPolicy {
         request: &mut reqwest::Request,
         pipeline: &[Arc<dyn HttpPipelinePolicy + Send + Sync>],
     ) -> GraphResult<reqwest::Response> {
-        retry(self.get_retries_exponential_backoff(), || async {
+        retry(self.get_exponential_backoff_with_max_retries(), || async {
             Ok(pipeline[0]
                 .process_async(
                     client.clone(),
