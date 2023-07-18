@@ -1,8 +1,8 @@
 use crate::blocking::BlockingClient;
 use crate::traits::ODataQuery;
 
-use crate::internal::{ExponentialBackoffRetryPolicy, ThrottleRetryPolicy, TransportPolicy};
 use crate::http_pipeline::HttpPipelinePolicy;
+use crate::internal::{ExponentialBackoffRetryPolicy, ThrottleRetryPolicy, TransportPolicy};
 use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
@@ -24,6 +24,7 @@ struct ClientConfiguration {
     connection_verbose: bool,
     https_only: bool,
     min_tls_version: Version,
+    pipeline: Vec<Arc<dyn HttpPipelinePolicy + Send + Sync>>,
 }
 
 impl ClientConfiguration {
@@ -42,6 +43,7 @@ impl ClientConfiguration {
             /// TLS 1.2 required to support all features in Microsoft Graph
             /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
             min_tls_version: Version::TLS_1_2,
+            pipeline: vec![],
         }
     }
 }
@@ -136,6 +138,30 @@ impl GraphClientConfiguration {
         self
     }
 
+    pub fn pipeline(
+        mut self,
+        pipeline: Vec<Arc<dyn HttpPipelinePolicy + Send + Sync>>,
+    ) -> GraphClientConfiguration {
+        self.config.pipeline = pipeline;
+        self
+    }
+
+    pub fn add_pipeline_policy(
+        mut self,
+        policy: Arc<dyn HttpPipelinePolicy + Send + Sync>,
+    ) -> GraphClientConfiguration {
+        self.config.pipeline.push(policy);
+        self
+    }
+
+    pub fn add_default_pipeline_retries_policies(mut self) -> GraphClientConfiguration {
+        self.config
+            .pipeline
+            .push(Arc::new(ExponentialBackoffRetryPolicy::default()));
+        self.config.pipeline.push(Arc::new(ThrottleRetryPolicy {}));
+        self
+    }
+
     pub fn build(self) -> Client {
         let config = self.clone();
         let headers = self.config.headers.clone();
@@ -155,16 +181,15 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
+        let mut pipeline = self.config.pipeline;
+        pipeline.push(Arc::new(TransportPolicy {}));
+
         Client {
             access_token: self.config.access_token.unwrap_or_default(),
             inner: builder.build().unwrap(),
             headers,
             builder: config,
-            pipeline: vec![
-                Arc::new(ExponentialBackoffRetryPolicy::default()),
-                Arc::new(ThrottleRetryPolicy {}),
-                Arc::new(TransportPolicy {}),
-            ],
+            pipeline,
         }
     }
 

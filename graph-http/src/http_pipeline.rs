@@ -63,7 +63,7 @@ pub struct ExponentialBackoffRetryPolicy {
 }
 
 impl ExponentialBackoffRetryPolicy {
-    pub(crate) fn get_exponential_backoff_with_max_retries(&self) -> ExponentialBackoffWithMaxRetries {
+    fn get_exponential_backoff_with_max_retries(&self) -> ExponentialBackoffWithMaxRetries {
         ExponentialBackoffWithMaxRetries {
             exp: ExponentialBackoffBuilder::new()
                 .with_initial_interval(self.initial_interval)
@@ -86,7 +86,7 @@ impl Default for ExponentialBackoffRetryPolicy {
             multiplier: 1.5,
             max_interval: Duration::from_secs(450),
             max_elapsed_time: Some(Duration::from_secs(450)),
-            max_retries: 10,
+            max_retries: 5,
         }
     }
 }
@@ -138,7 +138,7 @@ impl HttpPipelinePolicy for ExponentialBackoffRetryPolicy {
 pub struct ThrottleRetryPolicy {}
 
 impl ThrottleRetryPolicy {
-    pub(crate) fn get_retries_zero_backoff(&self) -> ExponentialBackoff {
+    fn get_retries_zero_backoff(&self) -> ExponentialBackoff {
         ExponentialBackoffBuilder::new()
             .with_initial_interval(Duration::ZERO)
             .with_multiplier(0.0)

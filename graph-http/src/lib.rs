@@ -41,5 +41,6 @@ pub mod api_impl {
     pub use crate::resource_identifier::{ResourceConfig, ResourceIdentifier};
     pub use crate::traits::{BodyExt, ODataQuery};
     pub use crate::upload_session::UploadSession;
+    pub use crate::http_pipeline::{HttpPipelinePolicy, ThrottleRetryPolicy, ExponentialBackoffRetryPolicy};
     pub use graph_error::{GraphFailure, GraphResult};
 }
