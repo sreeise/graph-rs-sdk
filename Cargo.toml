@@ -25,8 +25,7 @@ members = [
     "test-tools",
     "graph-codegen",
     "graph-http",
-    "graph-core",
-    "graph-sdk-abstractions"
+    "graph-core"
 ]
 
 [dependencies]
@@ -71,7 +70,6 @@ from_as = "0.2.0"
 actix = "0.13.0"
 actix-rt = "2.8.0"
 
-graph-sdk-abstractions = { path = "./graph-sdk-abstractions" }
 graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
 test-tools = { path = "./test-tools", version = "0.0.1" }
 
