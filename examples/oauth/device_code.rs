@@ -1,5 +1,5 @@
 use graph_oauth::identity::{DeviceCodeCredential, TokenCredential};
-use graph_rs_sdk::oauth::{AccessToken, OAuthSerializer};
+use graph_rs_sdk::oauth::{MsalTokenResponse, OAuthSerializer};
 use graph_rs_sdk::GraphResult;
 use std::time::Duration;
 
@@ -131,7 +131,7 @@ pub async fn device_code() -> GraphResult<()> {
     // Poll for the response to the token endpoint. This will go through once
     // the user has entered the code and signed in.
     let access_token_json = poll_for_access_token(device_code, interval, message).await?;
-    let access_token: AccessToken = serde_json::from_value(access_token_json)?;
+    let access_token: MsalTokenResponse = serde_json::from_value(access_token_json)?;
     println!("{access_token:#?}");
 
     // Get a refresh token. First pass the access token to the oauth instance.

@@ -1,5 +1,5 @@
 use crate::identity::{
-    AuthorizationSerializer, AzureAuthorityHost, DeviceCodeCredential,
+    AuthorizationSerializer, AzureCloudInstance, DeviceCodeCredential,
     ResourceOwnerPasswordCredential, TokenCredential, TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
@@ -37,7 +37,7 @@ impl PublicClientApplication {
 
 #[async_trait]
 impl TokenCredential for PublicClientApplication {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.credential.uri(azure_authority_host)
     }
 

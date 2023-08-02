@@ -1,7 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters, Authority,
-    AuthorizationSerializer, AzureAuthorityHost, TokenCredential, TokenCredentialOptions,
+    AuthorizationSerializer, AzureCloudInstance, TokenCredential, TokenCredentialOptions,
     TokenRequest, CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;
@@ -104,7 +104,7 @@ impl AuthorizationCodeCertificateCredential {
 
 #[async_trait]
 impl TokenCredential for AuthorizationCodeCertificateCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 

@@ -1,6 +1,6 @@
 use graph_oauth::identity::{ResponseType, TokenCredential, TokenRequest};
 use graph_oauth::oauth::{OpenIdAuthorizationUrl, OpenIdCredential};
-use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuthSerializer};
+use graph_rs_sdk::oauth::{MsalTokenResponse, IdToken, OAuthSerializer};
 use url::Url;
 /// # Example
 /// ```
@@ -64,7 +64,7 @@ async fn handle_redirect(
 
     if let Ok(response) = result {
         if response.status().is_success() {
-            let mut access_token: AccessToken = response.json().await.unwrap();
+            let mut access_token: MsalTokenResponse = response.json().await.unwrap();
             access_token.enable_pii_logging(true);
 
             println!("\n{:#?}\n", access_token);

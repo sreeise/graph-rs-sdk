@@ -1,4 +1,4 @@
-use crate::identity::{AzureAuthorityHost, TokenCredential};
+use crate::identity::{AzureCloudInstance, TokenCredential};
 use crate::oauth::{AuthorizationSerializer, TokenCredentialOptions};
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;

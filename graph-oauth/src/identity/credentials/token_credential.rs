@@ -1,5 +1,5 @@
 use crate::identity::{
-    AuthorizationSerializer, AzureAuthorityHost, TokenCredentialOptions, TokenRequest,
+    AuthorizationSerializer, AzureCloudInstance, TokenCredentialOptions, TokenRequest,
 };
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;
@@ -11,7 +11,7 @@ use url::Url;
 
 #[async_trait]
 pub trait TokenCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url>;
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url>;
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>>;
     fn client_id(&self) -> &String;
     fn token_credential_options(&self) -> &TokenCredentialOptions;

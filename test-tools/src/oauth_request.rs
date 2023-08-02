@@ -3,7 +3,7 @@
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_rs_sdk::oauth::{
-    AccessToken, ClientSecretCredential, ResourceOwnerPasswordCredential, TokenCredential,
+    MsalTokenResponse, ClientSecretCredential, ResourceOwnerPasswordCredential, TokenCredential,
 };
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};
@@ -149,13 +149,13 @@ pub enum OAuthTestClient {
 }
 
 impl OAuthTestClient {
-    fn get_access_token(&self, creds: OAuthTestCredentials) -> Option<(String, AccessToken)> {
+    fn get_access_token(&self, creds: OAuthTestCredentials) -> Option<(String, MsalTokenResponse)> {
         let user_id = creds.user_id.clone()?;
         match self {
             OAuthTestClient::ClientCredentials => {
                 let mut credential = creds.client_credentials();
                 if let Ok(response) = credential.get_token() {
-                    let token: AccessToken = response.json().unwrap();
+                    let token: MsalTokenResponse = response.json().unwrap();
                     Some((user_id, token))
                 } else {
                     None
@@ -164,7 +164,7 @@ impl OAuthTestClient {
             OAuthTestClient::ResourceOwnerPasswordCredentials => {
                 let mut credential = creds.resource_owner_password_credential();
                 if let Ok(response) = credential.get_token() {
-                    let token: AccessToken = response.json().unwrap();
+                    let token: MsalTokenResponse = response.json().unwrap();
                     Some((user_id, token))
                 } else {
                     None
@@ -181,14 +181,14 @@ impl OAuthTestClient {
     async fn get_access_token_async(
         &self,
         creds: OAuthTestCredentials,
-    ) -> Option<(String, AccessToken)> {
+    ) -> Option<(String, MsalTokenResponse)> {
         let user_id = creds.user_id.clone()?;
         match self {
             OAuthTestClient::ClientCredentials => {
                 let mut credential = creds.client_credentials();
                 match credential.get_token_async().await {
                     Ok(response) => {
-                        let token: AccessToken = response.json().await.unwrap();
+                        let token: MsalTokenResponse = response.json().await.unwrap();
                         Some((user_id, token))
                     }
                     Err(_) => None,
@@ -198,7 +198,7 @@ impl OAuthTestClient {
                 let mut credential = creds.resource_owner_password_credential();
                 match credential.get_token_async().await {
                     Ok(response) => {
-                        let token: AccessToken = response.json().await.unwrap();
+                        let token: MsalTokenResponse = response.json().await.unwrap();
                         Some((user_id, token))
                     }
                     Err(_) => None,
@@ -208,7 +208,7 @@ impl OAuthTestClient {
         }
     }
 
-    pub fn request_access_token(&self) -> Option<(String, AccessToken)> {
+    pub fn request_access_token(&self) -> Option<(String, MsalTokenResponse)> {
         if Environment::is_local() || Environment::is_travis() {
             let map: OAuthTestClientMap = OAuthTestClientMap::from_file("./env.json").unwrap();
             self.get_access_token(map.get(self).unwrap())
@@ -223,7 +223,7 @@ impl OAuthTestClient {
         }
     }
 
-    pub async fn request_access_token_async(&self) -> Option<(String, AccessToken)> {
+    pub async fn request_access_token_async(&self) -> Option<(String, MsalTokenResponse)> {
         if Environment::is_local() || Environment::is_travis() {
             let map: OAuthTestClientMap = OAuthTestClientMap::from_file("./env.json").unwrap();
             self.get_access_token_async(map.get(self).unwrap()).await
@@ -301,7 +301,7 @@ impl OAuthTestClient {
         }
     }
 
-    pub fn token(resource_identity: ResourceIdentity) -> Option<AccessToken> {
+    pub fn token(resource_identity: ResourceIdentity) -> Option<MsalTokenResponse> {
         let app_registration = OAuthTestClient::get_app_registration()?;
         let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, _credentials) = client.default_client()?;

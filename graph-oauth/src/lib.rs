@@ -76,7 +76,7 @@ pub mod identity;
 pub mod web;
 
 pub mod oauth {
-    pub use crate::access_token::AccessToken;
+    pub use crate::access_token::MsalTokenResponse;
     pub use crate::auth::GrantSelector;
     pub use crate::auth::OAuthParameter;
     pub use crate::auth::OAuthSerializer;

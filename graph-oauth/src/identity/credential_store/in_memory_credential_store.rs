@@ -1,4 +1,4 @@
-use crate::access_token::AccessToken;
+use crate::access_token::MsalTokenResponse;
 use crate::identity::{CredentialStore, CredentialStoreType, TokenCacheProviderType};
 use std::collections::BTreeMap;
 
@@ -28,7 +28,7 @@ impl InMemoryCredentialStore {
 
     pub fn from_access_token<T: AsRef<str>>(
         client_id: T,
-        access_token: AccessToken,
+        access_token: MsalTokenResponse,
     ) -> InMemoryCredentialStore {
         let mut credentials = BTreeMap::new();
         credentials.insert(

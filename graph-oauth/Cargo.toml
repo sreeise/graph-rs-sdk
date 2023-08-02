@@ -30,7 +30,7 @@ serde-aux = "4.1.2"
 serde_json = "1"
 serde_urlencoded = "0.7.1"
 strum = { version = "0.24.1", features = ["derive"] }
-url = "2"
+url = { version = "2", features = ["serde"] }
 time = { version = "0.3.10", features = ["local-offset"] }
 webbrowser = "0.8.7"
 wry = "0.28.3"

@@ -1,4 +1,5 @@
 mod allowed_host_validator;
+mod application_options;
 mod authority;
 mod authorization_serializer;
 mod credential_store;

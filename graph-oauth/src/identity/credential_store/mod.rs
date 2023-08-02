@@ -4,13 +4,13 @@ mod token_cache_providers;
 pub use in_memory_credential_store::*;
 pub use token_cache_providers::*;
 
-use crate::oauth::AccessToken;
+use crate::oauth::MsalTokenResponse;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 #[allow(clippy::large_enum_variant)]
 pub enum CredentialStoreType {
     Bearer(String),
-    AccessToken(AccessToken),
+    AccessToken(MsalTokenResponse),
     UnInitialized,
 }
 

@@ -4,7 +4,7 @@
 extern crate serde;
 
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthorizationCodeCertificateCredential, ConfidentialClientApplication, PKey,
+    MsalTokenResponse, AuthorizationCodeCertificateCredential, ConfidentialClientApplication, PKey,
     TokenCredential, X509Certificate, X509,
 };
 use std::fs::File;
@@ -120,7 +120,7 @@ async fn handle_redirect(
             println!("{response:#?}");
 
             if response.status().is_success() {
-                let access_token: AccessToken = response.json().await.unwrap();
+                let access_token: MsalTokenResponse = response.json().await.unwrap();
 
                 // If all went well here we can print out the Access Token.
                 println!("AccessToken: {:#?}", access_token.access_token);

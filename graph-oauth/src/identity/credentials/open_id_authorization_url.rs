@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    AsQuery, Authority, AuthorizationUrl, AzureAuthorityHost, Crypto, Prompt, ResponseMode,
+    AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, Crypto, Prompt, ResponseMode,
     ResponseType,
 };
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
@@ -145,12 +145,12 @@ impl OpenIdAuthorizationUrl {
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
-        self.url_with_host(&AzureAuthorityHost::default())
+        self.url_with_host(&AzureCloudInstance::default())
     }
 
     pub fn url_with_host(
         &self,
-        azure_authority_host: &AzureAuthorityHost,
+        azure_authority_host: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         self.authorization_url_with_host(azure_authority_host)
     }
@@ -178,12 +178,12 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
     }
 
     fn authorization_url(&self) -> AuthorizationResult<Url> {
-        self.authorization_url_with_host(&AzureAuthorityHost::default())
+        self.authorization_url_with_host(&AzureCloudInstance::default())
     }
 
     fn authorization_url_with_host(
         &self,
-        azure_authority_host: &AzureAuthorityHost,
+        azure_authority_host: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
 

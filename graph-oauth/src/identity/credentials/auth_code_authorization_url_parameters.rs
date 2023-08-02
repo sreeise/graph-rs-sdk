@@ -1,7 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::auth_response_query::AuthQueryResponse;
 use crate::identity::{
-    Authority, AuthorizationUrl, AzureAuthorityHost, Crypto, Prompt, ResponseMode,
+    Authority, AuthorizationUrl, AzureCloudInstance, Crypto, Prompt, ResponseMode,
 };
 use crate::oauth::{ProofKeyForCodeExchange, ResponseType};
 use crate::web::{InteractiveAuthenticator, InteractiveWebViewOptions};
@@ -81,12 +81,12 @@ impl AuthCodeAuthorizationUrlParameters {
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
-        self.url_with_host(&AzureAuthorityHost::default())
+        self.url_with_host(&AzureCloudInstance::default())
     }
 
     pub fn url_with_host(
         &self,
-        azure_authority_host: &AzureAuthorityHost,
+        azure_authority_host: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         self.authorization_url_with_host(azure_authority_host)
     }
@@ -187,12 +187,12 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
     }
 
     fn authorization_url(&self) -> AuthorizationResult<Url> {
-        self.authorization_url_with_host(&AzureAuthorityHost::default())
+        self.authorization_url_with_host(&AzureCloudInstance::default())
     }
 
     fn authorization_url_with_host(
         &self,
-        azure_authority_host: &AzureAuthorityHost,
+        azure_authority_host: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
 
@@ -577,7 +577,7 @@ mod test {
             .with_scope(["read", "write"])
             .build();
 
-        let url_result = authorizer.url_with_host(&AzureAuthorityHost::AzureGermany);
+        let url_result = authorizer.url_with_host(&AzureCloudInstance::AzureGermany);
         assert!(url_result.is_ok());
     }
 

@@ -1,7 +1,7 @@
-use crate::access_token::AccessToken;
+use crate::access_token::MsalTokenResponse;
 use crate::grants::{GrantRequest, GrantType};
 use crate::id_token::IdToken;
-use crate::identity::{AsQuery, Authority, AzureAuthorityHost, Prompt};
+use crate::identity::{AsQuery, Authority, AzureCloudInstance, Prompt};
 use crate::oauth::ResponseType;
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
@@ -143,7 +143,7 @@ impl OAuth2Client {
 /// ```
 #[derive(Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct OAuthSerializer {
-    access_token: Option<AccessToken>,
+    access_token: Option<MsalTokenResponse>,
     scopes: BTreeSet<String>,
     credentials: BTreeMap<String, String>,
 }
@@ -394,10 +394,10 @@ impl OAuthSerializer {
     /// ```
     pub fn authority(
         &mut self,
-        host: &AzureAuthorityHost,
+        host: &AzureCloudInstance,
         authority: &Authority,
     ) -> &mut OAuthSerializer {
-        if host.eq(&AzureAuthorityHost::OneDriveAndSharePoint) {
+        if host.eq(&AzureCloudInstance::OneDriveAndSharePoint) {
             return self.legacy_authority();
         }
 
@@ -415,7 +415,7 @@ impl OAuthSerializer {
 
     pub fn authority_admin_consent(
         &mut self,
-        host: &AzureAuthorityHost,
+        host: &AzureCloudInstance,
         authority: &Authority,
     ) -> &mut OAuthSerializer {
         let token_url = format!("{}/{}/oauth2/v2.0/token", host.as_ref(), authority.as_ref());
@@ -427,9 +427,9 @@ impl OAuthSerializer {
     }
 
     pub fn legacy_authority(&mut self) -> &mut OAuthSerializer {
-        self.authorization_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref());
-        self.access_token_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref());
-        self.refresh_token_url(AzureAuthorityHost::OneDriveAndSharePoint.as_ref())
+        self.authorization_url(AzureCloudInstance::OneDriveAndSharePoint.as_ref());
+        self.access_token_url(AzureCloudInstance::OneDriveAndSharePoint.as_ref());
+        self.refresh_token_url(AzureCloudInstance::OneDriveAndSharePoint.as_ref())
     }
 
     /// Set the redirect url of a request
@@ -908,12 +908,12 @@ impl OAuthSerializer {
     /// # Example
     /// ```
     /// use graph_oauth::oauth::OAuthSerializer;
-    /// use graph_oauth::oauth::AccessToken;
+    /// use graph_oauth::oauth::MsalTokenResponse;
     /// let mut oauth = OAuthSerializer::new();
-    /// let access_token = AccessToken::default();
+    /// let access_token = MsalTokenResponse::default();
     /// oauth.access_token(access_token);
     /// ```
-    pub fn access_token(&mut self, ac: AccessToken) {
+    pub fn access_token(&mut self, ac: MsalTokenResponse) {
         if let Some(refresh_token) = ac.refresh_token.as_ref() {
             self.refresh_token(refresh_token.as_str());
         }
@@ -925,14 +925,14 @@ impl OAuthSerializer {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::AccessToken;
-    /// # let access_token = AccessToken::default();
+    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # let access_token = MsalTokenResponse::default();
     /// # let mut oauth = OAuthSerializer::new();
     /// # oauth.access_token(access_token);
     /// let access_token = oauth.get_access_token().unwrap();
     /// println!("{:#?}", access_token);
     /// ```
-    pub fn get_access_token(&self) -> Option<AccessToken> {
+    pub fn get_access_token(&self) -> Option<MsalTokenResponse> {
         self.access_token.clone()
     }
 
@@ -943,9 +943,9 @@ impl OAuthSerializer {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::AccessToken;
+    /// # use graph_oauth::oauth::MsalTokenResponse;
     /// # let mut oauth = OAuthSerializer::new();
-    /// let mut  access_token = AccessToken::default();
+    /// let mut  access_token = MsalTokenResponse::default();
     /// access_token.set_refresh_token("refresh_token");
     /// oauth.access_token(access_token);
     ///
@@ -1730,7 +1730,7 @@ pub struct AccessTokenRequest {
 
 impl AccessTokenRequest {
     /// Send the request for an access token. If successful, the Response body
-    /// should be an access token which you can convert to [AccessToken]
+    /// should be an access token which you can convert to [MsalTokenResponse]
     /// and pass back to [OAuthSerializer] to use to get refresh tokens.
     ///
     /// # Example
@@ -1809,7 +1809,7 @@ pub struct AsyncAccessTokenRequest {
 
 impl AsyncAccessTokenRequest {
     /// Send the request for an access token. If successful, the Response body
-    /// should be an access token which you can convert to [AccessToken]
+    /// should be an access token which you can convert to [MsalTokenResponse]
     /// and pass back to [OAuthSerializer] to use to get refresh tokens.
     ///
     /// # Example

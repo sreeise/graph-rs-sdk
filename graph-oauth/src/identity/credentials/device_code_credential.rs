@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, TokenCredential,
+    Authority, AuthorizationSerializer, AzureCloudInstance, TokenCredential,
     TokenCredentialOptions, TokenRequest,
 };
 use crate::oauth::{DeviceCode, PublicClientApplication};
@@ -159,7 +159,7 @@ impl DeviceCodeCredential {
 }
 
 impl TokenCredential for DeviceCodeCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 

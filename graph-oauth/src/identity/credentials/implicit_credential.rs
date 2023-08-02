@@ -1,5 +1,5 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{Authority, AzureAuthorityHost, Crypto, Prompt, ResponseMode, ResponseType};
+use crate::identity::{Authority, AzureCloudInstance, Crypto, Prompt, ResponseMode, ResponseType};
 use crate::oauth::TokenCredentialOptions;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
@@ -118,12 +118,12 @@ impl ImplicitCredential {
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
-        self.url_with_host(&AzureAuthorityHost::default())
+        self.url_with_host(&AzureCloudInstance::default())
     }
 
     pub fn url_with_host(
         &self,
-        azure_authority_host: &AzureAuthorityHost,
+        azure_authority_host: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
 

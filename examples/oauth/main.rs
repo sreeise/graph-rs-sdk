@@ -29,7 +29,7 @@ mod open_id_connect;
 mod signing_keys;
 
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
+    MsalTokenResponse, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
     DeviceCodeCredential, ProofKeyForCodeExchange, PublicClientApplication, TokenCredential,
     TokenRequest,
@@ -78,7 +78,7 @@ async fn auth_code_grant(authorization_code: &str) {
     let response = confidential_client.get_token_async().await.unwrap();
     println!("{response:#?}");
 
-    let access_token: AccessToken = response.json().await.unwrap();
+    let access_token: MsalTokenResponse = response.json().await.unwrap();
     println!("{:#?}", access_token.access_token);
 }
 
@@ -90,6 +90,6 @@ async fn client_credentials() {
     let response = confidential_client.get_token_async().await.unwrap();
     println!("{response:#?}");
 
-    let access_token: AccessToken = response.json().await.unwrap();
+    let access_token: MsalTokenResponse = response.json().await.unwrap();
     println!("{:#?}", access_token.access_token);
 }

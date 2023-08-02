@@ -1,10 +1,9 @@
 use url::Url;
 
 /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
-/// Authentication libraries from Microsoft (this is not one) call this the
-/// AzureCloudInstance enum or the Instance url string.
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum AzureAuthorityHost {
+/// Maps to the instance url string.
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+pub enum AzureCloudInstance {
     // Custom Value communicating that the AzureCloudInstance.
     //Custom(String),
     /// Microsoft Azure public cloud. Maps to https://login.microsoftonline.com
@@ -16,54 +15,92 @@ pub enum AzureAuthorityHost {
     AzureGermany,
     /// US Government cloud. Maps to https://login.microsoftonline.us
     AzureUsGovernment,
-
+    /// Legacy OneDrive and SharePoint. Maps to "https://login.live.com/oauth20_desktop.srf"
     OneDriveAndSharePoint,
 }
 
-impl AsRef<str> for AzureAuthorityHost {
+impl AsRef<str> for AzureCloudInstance {
     fn as_ref(&self) -> &str {
         match self {
-            AzureAuthorityHost::AzurePublic => "https://login.microsoftonline.com",
-            AzureAuthorityHost::AzureChina => "https://login.chinacloudapi.cn",
-            AzureAuthorityHost::AzureGermany => "https://login.microsoftonline.de",
-            AzureAuthorityHost::AzureUsGovernment => "https://login.microsoftonline.us",
-            AzureAuthorityHost::OneDriveAndSharePoint => {
+            AzureCloudInstance::AzurePublic => "https://login.microsoftonline.com",
+            AzureCloudInstance::AzureChina => "https://login.chinacloudapi.cn",
+            AzureCloudInstance::AzureGermany => "https://login.microsoftonline.de",
+            AzureCloudInstance::AzureUsGovernment => "https://login.microsoftonline.us",
+            AzureCloudInstance::OneDriveAndSharePoint => {
                 "https://login.live.com/oauth20_desktop.srf"
             }
         }
     }
 }
 
-impl TryFrom<AzureAuthorityHost> for Url {
+impl TryFrom<AzureCloudInstance> for Url {
     type Error = url::ParseError;
 
-    fn try_from(azure_cloud_instance: AzureAuthorityHost) -> Result<Self, Self::Error> {
+    fn try_from(azure_cloud_instance: AzureCloudInstance) -> Result<Self, Self::Error> {
         Url::parse(azure_cloud_instance.as_ref())
     }
 }
 
-impl AzureAuthorityHost {
+impl AzureCloudInstance {
     pub fn default_microsoft_graph_scope(&self) -> &'static str {
         "https://graph.microsoft.com/.default"
     }
 
     pub fn default_managed_identity_scope(&self) -> &'static str {
         match self {
-            AzureAuthorityHost::AzurePublic => "https://management.azure.com//.default",
-            AzureAuthorityHost::AzureChina => "https://management.chinacloudapi.cn/.default",
-            AzureAuthorityHost::AzureGermany => "https://management.microsoftazure.de/.default",
-            AzureAuthorityHost::AzureUsGovernment => {
+            AzureCloudInstance::AzurePublic => "https://management.azure.com//.default",
+            AzureCloudInstance::AzureChina => "https://management.chinacloudapi.cn/.default",
+            AzureCloudInstance::AzureGermany => "https://management.microsoftazure.de/.default",
+            AzureCloudInstance::AzureUsGovernment => {
                 "https://management.usgovcloudapi.net/.default"
             }
-            AzureAuthorityHost::OneDriveAndSharePoint => "",
+            AzureCloudInstance::OneDriveAndSharePoint => "",
         }
     }
 }
 
+/// Specifies which Microsoft accounts can be used for sign-in with a given application.
+/// See https://aka.ms/msal-net-application-configuration
+///
+/// [AadAuthorityAudience] uses the application names selected in the Azure Portal and
+/// maps to [Authority]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+pub enum AadAuthorityAudience {
+    /// The sign-in audience was not specified
+    #[default]
+    None,
+
+    /// Users with a Microsoft work or school account in my organization’s Azure AD tenant (i.e. single tenant).
+    /// Maps to https://[AzureCloudInstance]/[AadAuthorityAudience::AzureAdMyOrg(tenant_id)]
+    /// or https://[instance]/[tenant_id]
+    ///
+    /// # Using Tenant Id
+    /// ```rust
+    /// # use graph_oauth::oauth::AadAuthorityAudience;
+    /// let authority_audience = AadAuthorityAudience::AzureAdMyOrg("tenant_id".into());
+    /// ```
+    AzureAdMyOrg(String),
+
+    /// Users with a personal Microsoft account, or a work or school account in any organization’s Azure AD tenant
+    /// Maps to https://[AzureCloudInstance]/common/ or https://[instance]/[common]/
+    AzureAdAndPersonalMicrosoftAccount,
+
+    /// Users with a Microsoft work or school account in any organization’s Azure AD tenant (i.e. multi-tenant).
+    /// Maps to https://[AzureCloudInstance]/organizations/ or https://[instance]/organizations/
+    AzureAdMultipleOrgs,
+
+    /// Users with a personal Microsoft account. Maps to https://[AzureCloudInstance]/consumers/
+    /// or https://[instance]/consumers/
+    PersonalMicrosoftAccount
+}
+
+/// Specifies which Microsoft accounts can be used for sign-in with a given application.
+/// See https://aka.ms/msal-net-application-configuration
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum Authority {
     /// Users with both a personal Microsoft account and a work or school account
     /// from Azure AD can sign in to the application.
+    /// /// Maps to https://[AzureCloudInstance]/common/
     ///
     /// [Authority::AzureActiveDirectory] is the same as [Authority::Common].
     /// [Authority::Common] is a convenience enum variant that may be more
@@ -73,6 +110,7 @@ pub enum Authority {
     AzureDirectoryFederatedServices,
     /// Users with both a personal Microsoft account and a work or school account
     /// from Azure AD can sign in to the application.
+    /// Maps to https://[instance]/common/
     ///
     /// [Authority::Common] is the same as [Authority::AzureActiveDirectory].
     ///
@@ -98,6 +136,18 @@ impl Authority {
         match self {
             Authority::TenantId(tenant_id) => Some(tenant_id),
             _ => None,
+        }
+    }
+}
+
+impl From<AadAuthorityAudience> for Authority {
+    fn from(value: AadAuthorityAudience) -> Self {
+        match value {
+            AadAuthorityAudience::None => Authority::Common,
+            AadAuthorityAudience::AzureAdMyOrg(tenant_id) => Authority::TenantId(tenant_id),
+            AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount => Authority::Common,
+            AadAuthorityAudience::AzureAdMultipleOrgs => Authority::Organizations,
+            AadAuthorityAudience::PersonalMicrosoftAccount => Authority::Consumers,
         }
     }
 }

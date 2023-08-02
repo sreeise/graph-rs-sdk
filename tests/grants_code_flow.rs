@@ -1,5 +1,5 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs_sdk::oauth::{AccessToken, GrantRequest, OAuthSerializer};
+use graph_rs_sdk::oauth::{MsalTokenResponse, GrantRequest, OAuthSerializer};
 
 #[test]
 fn sign_in_code_url() {
@@ -49,7 +49,7 @@ fn access_token() {
         .authorization_url("https://www.example.com/token")
         .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
-    let mut builder = AccessToken::default();
+    let mut builder = MsalTokenResponse::default();
     builder
         .set_token_type("token")
         .set_bearer_token("access_token")
@@ -75,7 +75,7 @@ fn refresh_token() {
         .authorization_url("https://www.example.com/token")
         .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
-    let mut access_token = AccessToken::new("access_token", 3600, "Read.Write", "asfasf");
+    let mut access_token = MsalTokenResponse::new("access_token", 3600, "Read.Write", "asfasf");
     access_token.set_refresh_token("32LKLASDKJ");
     oauth.access_token(access_token);
 
@@ -100,7 +100,7 @@ fn get_refresh_token() {
         .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
         .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 
-    let mut access_token = AccessToken::new("access_token", 3600, "Read.Write", "asfasf");
+    let mut access_token = MsalTokenResponse::new("access_token", 3600, "Read.Write", "asfasf");
     access_token.set_refresh_token("32LKLASDKJ");
     oauth.access_token(access_token);
 

@@ -1,5 +1,5 @@
 use crate::identity::{CredentialStoreType, TokenCredential};
-use crate::oauth::AccessToken;
+use crate::oauth::MsalTokenResponse;
 use async_trait::async_trait;
 
 #[async_trait]
@@ -17,7 +17,7 @@ pub trait ClientApplication: TokenCredential {
             let response = self.get_token()?;
             let token_value: serde_json::Value = response.json()?;
             let bearer = token_value.to_string();
-            let access_token_result: serde_json::Result<AccessToken> =
+            let access_token_result: serde_json::Result<MsalTokenResponse> =
                 serde_json::from_value(token_value);
             match access_token_result {
                 Ok(access_token) => {
@@ -43,7 +43,7 @@ pub trait ClientApplication: TokenCredential {
             let response = self.get_token_async().await?;
             let token_value: serde_json::Value = response.json().await?;
             let bearer = token_value.to_string();
-            let access_token_result: serde_json::Result<AccessToken> =
+            let access_token_result: serde_json::Result<MsalTokenResponse> =
                 serde_json::from_value(token_value);
             match access_token_result {
                 Ok(access_token) => {

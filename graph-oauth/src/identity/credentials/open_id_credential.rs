@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost, OpenIdAuthorizationUrl,
+    Authority, AuthorizationSerializer, AzureCloudInstance, OpenIdAuthorizationUrl,
     ProofKeyForCodeExchange, TokenCredential, TokenCredentialOptions, TokenRequest,
 };
 use crate::oauth::OpenIdAuthorizationUrlBuilder;
@@ -97,7 +97,7 @@ impl OpenIdCredential {
 
 #[async_trait]
 impl TokenCredential for OpenIdCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 

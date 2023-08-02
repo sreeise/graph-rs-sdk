@@ -1,6 +1,6 @@
 use graph_rs_sdk::error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
-    AccessToken, AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential,
+    MsalTokenResponse, AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential,
     ConfidentialClientApplication, ProofKeyForCodeExchange, TokenCredential, TokenRequest,
 };
 use lazy_static::lazy_static;
@@ -78,7 +78,7 @@ async fn handle_redirect(
             println!("{response:#?}");
 
             if response.status().is_success() {
-                let access_token: AccessToken = response.json().await.unwrap();
+                let access_token: MsalTokenResponse = response.json().await.unwrap();
 
                 // If all went well here we can print out the OAuth config with the Access Token.
                 println!("AccessToken: {:#?}", access_token.access_token);

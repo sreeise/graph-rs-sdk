@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureAuthorityHost,
+    Authority, AuthorizationSerializer, AzureCloudInstance,
     ClientCredentialsAuthorizationUrlBuilder, TokenCredential, TokenRequest,
 };
 use crate::oauth::TokenCredentialOptions;
@@ -85,7 +85,7 @@ impl ClientSecretCredential {
 
 #[async_trait]
 impl TokenCredential for ClientSecretCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
             .authority(azure_authority_host, &self.authority);
 

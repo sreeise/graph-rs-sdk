@@ -1,5 +1,5 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{Authority, AzureAuthorityHost};
+use crate::identity::{Authority, AzureCloudInstance};
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use url::form_urlencoded::Serializer;
 use url::Url;
@@ -28,12 +28,12 @@ impl ClientCredentialsAuthorizationUrl {
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
-        self.url_with_host(&AzureAuthorityHost::AzurePublic)
+        self.url_with_host(&AzureCloudInstance::AzurePublic)
     }
 
     pub fn url_with_host(
         &self,
-        azure_authority_host: &AzureAuthorityHost,
+        azure_authority_host: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
         if self.client_id.trim().is_empty() {

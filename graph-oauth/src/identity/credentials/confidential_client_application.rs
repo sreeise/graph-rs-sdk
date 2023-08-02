@@ -1,6 +1,6 @@
 use crate::identity::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AuthorizationSerializer,
-    AzureAuthorityHost, ClientApplication, ClientCertificateCredential, ClientSecretCredential,
+    AzureCloudInstance, ClientApplication, ClientCertificateCredential, ClientSecretCredential,
     CredentialStore, CredentialStoreType, InMemoryCredentialStore, OpenIdCredential,
     TokenCacheProviderType, TokenCredential, TokenCredentialOptions, TokenRequest,
 };
@@ -40,7 +40,7 @@ impl ConfidentialClientApplication {
 
 #[async_trait]
 impl TokenCredential for ConfidentialClientApplication {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.credential.uri(azure_authority_host)
     }
 
@@ -223,7 +223,7 @@ impl From<OpenIdCredential> for ConfidentialClientApplication {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::identity::{Authority, AzureAuthorityHost};
+    use crate::identity::{Authority, AzureCloudInstance};
 
     #[test]
     fn confidential_client_new() {
@@ -241,7 +241,7 @@ mod test {
                 .unwrap();
         let credential_uri = confidential_client
             .credential
-            .uri(&AzureAuthorityHost::AzurePublic)
+            .uri(&AzureCloudInstance::AzurePublic)
             .unwrap();
 
         assert_eq!(
@@ -266,7 +266,7 @@ mod test {
                 .unwrap();
         let credential_uri = confidential_client
             .credential
-            .uri(&AzureAuthorityHost::AzurePublic)
+            .uri(&AzureCloudInstance::AzurePublic)
             .unwrap();
 
         assert_eq!(

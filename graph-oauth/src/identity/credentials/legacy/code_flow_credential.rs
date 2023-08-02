@@ -1,5 +1,5 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{Authority, AuthorizationSerializer, AzureAuthorityHost};
+use crate::identity::{Authority, AuthorizationSerializer, AzureCloudInstance};
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
@@ -59,11 +59,11 @@ impl CodeFlowCredential {
 }
 
 impl AuthorizationSerializer for CodeFlowCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
-        if azure_authority_host.ne(&AzureAuthorityHost::OneDriveAndSharePoint) {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
+        if azure_authority_host.ne(&AzureCloudInstance::OneDriveAndSharePoint) {
             return AuthorizationFailure::msg_result(
                 "uri",
-                "Code flow can only be used with AzureAuthorityHost::OneDriveAndSharePoint",
+                "Code flow can only be used with AzureCloudInstance::OneDriveAndSharePoint",
             );
         }
 

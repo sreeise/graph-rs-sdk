@@ -1,5 +1,5 @@
 use crate::identity::{
-    AuthorizationSerializer, AzureAuthorityHost, ClientSecretCredential, TokenCredential,
+    AuthorizationSerializer, AzureCloudInstance, ClientSecretCredential, TokenCredential,
 };
 use crate::oauth::{
     ConfidentialClientApplication, PublicClientApplication, ResourceOwnerPasswordCredential,
@@ -133,7 +133,7 @@ impl EnvironmentCredential {
 }
 
 impl AuthorizationSerializer for EnvironmentCredential {
-    fn uri(&mut self, azure_authority_host: &AzureAuthorityHost) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.credential.uri(azure_authority_host)
     }
 
