@@ -3,6 +3,7 @@ mod credential_builder;
 
 pub mod legacy;
 
+mod application_builder;
 mod as_query;
 mod auth_code_authorization_url_parameters;
 mod authorization_code_certificate_credential;
@@ -12,7 +13,6 @@ mod client_certificate_credential;
 mod client_credentials_authorization_url;
 mod client_secret_credential;
 mod confidential_client_application;
-mod application_builder;
 mod crypto;
 mod device_code_credential;
 mod display;

@@ -44,7 +44,7 @@ use crate::identity_governance::IdentityGovernanceApiClient;
 use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdApiClient};
 use crate::invitations::InvitationsApiClient;
 use crate::me::MeApiClient;
-use crate::oauth::{MsalTokenResponse, AllowedHostValidator, HostValidator, OAuthSerializer};
+use crate::oauth::{AllowedHostValidator, HostValidator, MsalTokenResponse, OAuthSerializer};
 use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
 };

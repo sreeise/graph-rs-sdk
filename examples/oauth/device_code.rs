@@ -101,6 +101,7 @@ async fn poll_for_access_token(
 // The authorization url for device code must be https://login.microsoftonline.com/{tenant}/oauth2/v2.0/devicecode
 // where tenant can be common,
 pub async fn device_code() -> GraphResult<()> {
+    /*
     let mut credential = device_code_credential();
     let response = credential.get_token_async().await?;
 
@@ -111,6 +112,7 @@ pub async fn device_code() -> GraphResult<()> {
     let device_code = json["device_code"].as_str().unwrap();
     let interval = json["interval"].as_u64().unwrap();
     let message = json["message"].as_str().unwrap();
+     */
 
     /*
     The authorization request is a POST and a successful response body will look similar to:
@@ -125,6 +127,7 @@ pub async fn device_code() -> GraphResult<()> {
     }
     */
 
+    /*
     // Print the message to the user who needs to sign in:
     println!("{message:#?}");
 
@@ -133,16 +136,19 @@ pub async fn device_code() -> GraphResult<()> {
     let access_token_json = poll_for_access_token(device_code, interval, message).await?;
     let access_token: MsalTokenResponse = serde_json::from_value(access_token_json)?;
     println!("{access_token:#?}");
+     */
 
-    // Get a refresh token. First pass the access token to the oauth instance.
-    oauth.access_token(access_token);
-    let mut handler = oauth.build_async().device_code();
+    /*
+       // Get a refresh token. First pass the access token to the oauth instance.
+       oauth.access_token(access_token);
+       let mut handler = oauth.build_async().device_code();
 
-    let response = handler.refresh_token().send().await?;
-    println!("{response:#?}");
+       let response = handler.refresh_token().send().await?;
+       println!("{response:#?}");
 
-    let body: serde_json::Value = response.json().await?;
-    println!("{body:#?}");
+       let body: serde_json::Value = response.json().await?;
+       println!("{body:#?}");
 
+    */
     Ok(())
 }

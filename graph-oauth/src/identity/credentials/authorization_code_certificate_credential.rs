@@ -1,8 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters, Authority,
-    AuthorizationSerializer, AzureCloudInstance, TokenCredential, TokenCredentialOptions,
-    TokenRequest, CLIENT_ASSERTION_TYPE,
+    AzureCloudInstance, TokenCredential, TokenCredentialOptions, CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};

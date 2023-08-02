@@ -26,6 +26,7 @@ fn encode_cert_ref(cert: &X509Ref) -> anyhow::Result<String> {
     ))
 }
 
+#[allow(unused)]
 fn thumbprint(cert: &X509) -> anyhow::Result<String> {
     let digest_bytes = cert
         .digest(MessageDigest::sha1())

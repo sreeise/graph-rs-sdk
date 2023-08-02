@@ -1,19 +1,16 @@
-use std::collections::HashMap;
-use anyhow::{anyhow, ensure};
-use reqwest::header::HeaderMap;
-use url::Url;
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
-use crate::identity::{Authority};
-use crate::identity::application_options::ApplicationOptions;
-use crate::oauth::{AzureCloudInstance, ConfidentialClientApplication};
+use crate::identity::{application_options::ApplicationOptions, Authority, AzureCloudInstance};
+use reqwest::header::HeaderMap;
+use std::collections::HashMap;
+use url::Url;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum AuthorityHost {
     /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
     /// Maps to the instance url string.
     AzureCloudInstance(AzureCloudInstance),
-    Uri(Url)
+    Uri(Url),
 }
 
 impl From<AzureCloudInstance> for AuthorityHost {
@@ -36,9 +33,9 @@ impl Default for AuthorityHost {
 
 pub enum ClientCredentialParameter {
     #[cfg(feature = "openssl")]
-    CertificateClientCredential(X509Certificate),
-    SecretStringClientCredential(String),
-    SignedAssertionClientCredential(String),
+    Certificate(X509Certificate),
+    SecretString(String),
+    SignedAssertion(String),
 }
 
 pub struct ConfidentialClientApplicationBuilder {
@@ -68,7 +65,9 @@ impl ConfidentialClientApplicationBuilder {
         }
     }
 
-    pub fn create_with_application_options(application_options: ApplicationOptions) -> anyhow::Result<ConfidentialClientApplicationBuilder> {
+    pub fn create_with_application_options(
+        application_options: ApplicationOptions,
+    ) -> anyhow::Result<ConfidentialClientApplicationBuilder> {
         ConfidentialClientApplicationBuilder::try_from(application_options)
     }
 
@@ -100,7 +99,10 @@ impl ConfidentialClientApplicationBuilder {
         self
     }
 
-    pub fn with_azure_cloud_instance(&mut self, azure_cloud_instance: AzureCloudInstance) -> &mut Self {
+    pub fn with_azure_cloud_instance(
+        &mut self,
+        azure_cloud_instance: AzureCloudInstance,
+    ) -> &mut Self {
         self.authority_url = AuthorityHost::AzureCloudInstance(azure_cloud_instance);
         self
     }
@@ -117,22 +119,30 @@ impl ConfidentialClientApplicationBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn with_certificate(&mut self, certificate: X509Certificate) -> &mut self {
-        self.client_credential_parameter = Some(ClientCredentialParameter::CertificateClientCredential(certificate));
+    pub fn with_certificate(&mut self, certificate: X509Certificate) -> &mut Self {
+        self.client_credential_parameter =
+            Some(ClientCredentialParameter::Certificate(certificate));
         self
     }
 
     pub fn with_client_secret(&mut self, client_secret: impl AsRef<str>) -> &mut Self {
-        self.client_credential_parameter = Some(ClientCredentialParameter::SecretStringClientCredential(client_secret.as_ref().to_owned()));
+        self.client_credential_parameter = Some(ClientCredentialParameter::SecretString(
+            client_secret.as_ref().to_owned(),
+        ));
         self
     }
 
     pub fn with_signed_assertion(&mut self, signed_assertion: impl AsRef<str>) -> &mut Self {
-        self.client_credential_parameter = Some(ClientCredentialParameter::SignedAssertionClientCredential(signed_assertion.as_ref().to_owned()));
+        self.client_credential_parameter = Some(ClientCredentialParameter::SignedAssertion(
+            signed_assertion.as_ref().to_owned(),
+        ));
         self
     }
 
-    pub fn with_extra_query_parameters(&mut self, query_parameters: HashMap<String, String>) -> &mut Self {
+    pub fn with_extra_query_parameters(
+        &mut self,
+        query_parameters: HashMap<String, String>,
+    ) -> &mut Self {
         self.extra_query_parameters = query_parameters;
         self
     }
@@ -148,16 +158,26 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
 
     fn try_from(value: ApplicationOptions) -> Result<Self, Self::Error> {
         anyhow::ensure!(value.client_id.is_empty(), "Client id cannot be empty");
-        anyhow::ensure!(!(value.instance.is_some() && value.azure_cloud_instance.is_some()), "Instance and AzureCloudInstance cannot both be set");
-        anyhow::ensure!(!(value.tenant_id.is_some() && value.aad_authority_audience.is_some()), "TenantId and AadAuthorityAudience cannot both be set");
+        anyhow::ensure!(
+            !(value.instance.is_some() && value.azure_cloud_instance.is_some()),
+            "Instance and AzureCloudInstance cannot both be set"
+        );
+        anyhow::ensure!(
+            !(value.tenant_id.is_some() && value.aad_authority_audience.is_some()),
+            "TenantId and AadAuthorityAudience cannot both be set"
+        );
         let default_redirect_uri = value.redirect_uri.is_none();
 
         Ok(ConfidentialClientApplicationBuilder {
             client_id: value.client_id,
             tenant_id: value.tenant_id,
-            authority: value.aad_authority_audience.map(|aud| Authority::from(aud))
+            authority: value
+                .aad_authority_audience
+                .map(Authority::from)
                 .unwrap_or_default(),
-            authority_url: value.azure_cloud_instance.map(|aci| AuthorityHost::AzureCloudInstance(aci))
+            authority_url: value
+                .azure_cloud_instance
+                .map(AuthorityHost::AzureCloudInstance)
                 .unwrap_or_default(),
             redirect_uri: value.redirect_uri,
             default_redirect_uri,
@@ -182,6 +202,7 @@ mod test {
             instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
             azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
             redirect_uri: None,
-        }).unwrap();
+        })
+        .unwrap();
     }
 }

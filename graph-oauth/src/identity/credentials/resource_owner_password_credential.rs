@@ -1,8 +1,5 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{
-    Authority, AuthorizationSerializer, AzureCloudInstance, TokenCredential,
-    TokenCredentialOptions, TokenRequest,
-};
+use crate::identity::{Authority, AzureCloudInstance, TokenCredential, TokenCredentialOptions};
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use std::collections::HashMap;

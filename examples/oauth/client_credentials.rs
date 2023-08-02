@@ -10,7 +10,7 @@
 // only has to be done once for a user. After admin consent is given, the oauth client can be
 // used to continue getting new access tokens programmatically.
 use graph_rs_sdk::oauth::{
-    MsalTokenResponse, ClientSecretCredential, ConfidentialClientApplication, TokenCredential,
+    ClientSecretCredential, ConfidentialClientApplication, MsalTokenResponse, TokenCredential,
     TokenRequest,
 };
 

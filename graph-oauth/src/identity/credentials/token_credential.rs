@@ -1,6 +1,4 @@
-use crate::identity::{
-    AuthorizationSerializer, AzureCloudInstance, TokenCredentialOptions, TokenRequest,
-};
+use crate::identity::{AzureCloudInstance, TokenCredentialOptions};
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};

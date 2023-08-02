@@ -1,8 +1,8 @@
 use crate::identity::{
-    AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AuthorizationSerializer,
-    AzureCloudInstance, ClientApplication, ClientCertificateCredential, ClientSecretCredential,
-    CredentialStore, CredentialStoreType, InMemoryCredentialStore, OpenIdCredential,
-    TokenCacheProviderType, TokenCredential, TokenCredentialOptions, TokenRequest,
+    AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AzureCloudInstance,
+    ClientApplication, ClientCertificateCredential, ClientSecretCredential, CredentialStore,
+    CredentialStoreType, InMemoryCredentialStore, OpenIdCredential, TokenCacheProviderType,
+    TokenCredential, TokenCredentialOptions,
 };
 use crate::oauth::UnInitializedCredentialStore;
 use async_trait::async_trait;

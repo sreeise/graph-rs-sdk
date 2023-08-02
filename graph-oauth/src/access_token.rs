@@ -82,11 +82,16 @@ pub struct MsalTokenResponse {
 }
 
 impl MsalTokenResponse {
-    pub fn new(token_type: &str, expires_in: i64, scope: &str, access_token: &str) -> MsalTokenResponse {
+    pub fn new(
+        token_type: &str,
+        expires_in: i64,
+        scope: &str,
+        access_token: &str,
+    ) -> MsalTokenResponse {
         MsalTokenResponse {
             token_type: token_type.into(),
-            ext_expires_in: Some(expires_in.clone()),
-            expires_in: expires_in.clone(),
+            ext_expires_in: Some(expires_in),
+            expires_in,
             scope: Some(scope.into()),
             access_token: access_token.into(),
             refresh_token: None,
@@ -421,7 +426,7 @@ impl<'de> Deserialize<'de> for MsalTokenResponse {
         Ok(MsalTokenResponse {
             access_token: phantom_access_token.access_token,
             token_type: phantom_access_token.token_type,
-            expires_in: phantom_access_token.expires_in.clone(),
+            expires_in: phantom_access_token.expires_in,
             ext_expires_in: phantom_access_token.ext_expires_in,
             scope: phantom_access_token.scope,
             refresh_token: phantom_access_token.refresh_token,

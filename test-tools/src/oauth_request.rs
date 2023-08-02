@@ -3,7 +3,7 @@
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_rs_sdk::oauth::{
-    MsalTokenResponse, ClientSecretCredential, ResourceOwnerPasswordCredential, TokenCredential,
+    ClientSecretCredential, MsalTokenResponse, ResourceOwnerPasswordCredential, TokenCredential,
 };
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};

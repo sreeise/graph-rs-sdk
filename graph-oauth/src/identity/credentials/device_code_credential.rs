@@ -1,15 +1,11 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{
-    Authority, AuthorizationSerializer, AzureCloudInstance, TokenCredential,
-    TokenCredentialOptions, TokenRequest,
-};
-use crate::oauth::{DeviceCode, PublicClientApplication};
-use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult, AF};
-use reqwest::Response;
+use crate::identity::{Authority, AzureCloudInstance, TokenCredential, TokenCredentialOptions};
+use crate::oauth::DeviceCode;
+use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
+
 use std::collections::HashMap;
-use std::time::Duration;
+
 use url::Url;
-use wry::http;
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -233,14 +229,14 @@ impl TokenCredential for DeviceCodeCredential {
 
         self.serializer.grant_type(DEVICE_CODE_GRANT_TYPE);
 
-        return self.serializer.as_credential_map(
+        self.serializer.as_credential_map(
             vec![],
             vec![
                 OAuthParameter::ClientId,
                 OAuthParameter::Scope,
                 OAuthParameter::GrantType,
             ],
-        );
+        )
     }
 
     fn client_id(&self) -> &String {

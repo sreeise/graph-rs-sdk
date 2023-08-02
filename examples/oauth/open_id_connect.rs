@@ -1,6 +1,6 @@
 use graph_oauth::identity::{ResponseType, TokenCredential, TokenRequest};
 use graph_oauth::oauth::{OpenIdAuthorizationUrl, OpenIdCredential};
-use graph_rs_sdk::oauth::{MsalTokenResponse, IdToken, OAuthSerializer};
+use graph_rs_sdk::oauth::{IdToken, MsalTokenResponse, OAuthSerializer};
 use url::Url;
 /// # Example
 /// ```

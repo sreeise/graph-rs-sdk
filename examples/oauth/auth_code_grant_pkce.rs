@@ -1,7 +1,7 @@
 use graph_rs_sdk::error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
-    MsalTokenResponse, AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential,
-    ConfidentialClientApplication, ProofKeyForCodeExchange, TokenCredential, TokenRequest,
+    AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
+    MsalTokenResponse, ProofKeyForCodeExchange, TokenCredential, TokenRequest,
 };
 use lazy_static::lazy_static;
 use warp::{get, Filter};

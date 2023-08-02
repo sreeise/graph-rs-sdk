@@ -39,9 +39,9 @@ pub struct ExponentialBackoffRetryPolicy {
 impl HttpPipelinePolicy for ExponentialBackoffRetryPolicy {
     fn process_async(
         &self,
-        context: &RequestContext,
-        request: &mut Request<Value>,
-        pipeline: &[Arc<dyn HttpPipelinePolicy>],
+        _context: &RequestContext,
+        _request: &mut Request<Value>,
+        _pipeline: &[Arc<dyn HttpPipelinePolicy>],
     ) -> Result<SomePolicyResult, Box<dyn Error>> {
         // modify request...
 
@@ -56,9 +56,9 @@ pub struct ThrottleRetryPolicy {
 impl HttpPipelinePolicy for ThrottleRetryPolicy {
     fn process_async(
         &self,
-        context: &RequestContext,
-        request: &mut Request<Value>,
-        pipeline: &[Arc<dyn HttpPipelinePolicy>],
+        _context: &RequestContext,
+        _request: &mut Request<Value>,
+        _pipeline: &[Arc<dyn HttpPipelinePolicy>],
     ) -> Result<SomePolicyResult, Box<dyn Error>> {
         // modify request...
 

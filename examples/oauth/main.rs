@@ -29,10 +29,10 @@ mod open_id_connect;
 mod signing_keys;
 
 use graph_rs_sdk::oauth::{
-    MsalTokenResponse, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
+    AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, ProofKeyForCodeExchange, PublicClientApplication, TokenCredential,
-    TokenRequest,
+    DeviceCodeCredential, MsalTokenResponse, ProofKeyForCodeExchange, PublicClientApplication,
+    TokenCredential, TokenRequest,
 };
 
 #[tokio::main]

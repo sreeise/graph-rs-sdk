@@ -1,7 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureCloudInstance, OpenIdAuthorizationUrl,
-    ProofKeyForCodeExchange, TokenCredential, TokenCredentialOptions, TokenRequest,
+    Authority, AzureCloudInstance, OpenIdAuthorizationUrl, ProofKeyForCodeExchange,
+    TokenCredential, TokenCredentialOptions,
 };
 use crate::oauth::OpenIdAuthorizationUrlBuilder;
 use async_trait::async_trait;

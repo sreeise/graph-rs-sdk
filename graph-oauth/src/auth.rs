@@ -121,16 +121,6 @@ impl AsRef<str> for OAuthParameter {
     }
 }
 
-pub struct OAuth2Client {
-    headers: HashMap<String, String>,
-    query_parameters: HashMap<String, String>,
-    body_parameters: HashMap<String, String>,
-}
-
-impl OAuth2Client {
-    pub fn new(logger: impl log::Log) {}
-}
-
 /// Serializer for query/x-www-form-urlencoded OAuth requests.
 ///
 /// OAuth Serializer for query/form serialization that supports the OAuth 2.0 and OpenID

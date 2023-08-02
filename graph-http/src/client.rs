@@ -9,7 +9,7 @@ use std::time::Duration;
 
 fn user_agent_header_from_env() -> Option<HeaderValue> {
     let header = std::option_env!("GRAPH_CLIENT_USER_AGENT")?;
-    HeaderValue::from_str(&header).ok()
+    HeaderValue::from_str(header).ok()
 }
 
 #[derive(Clone)]
@@ -138,15 +138,6 @@ impl GraphClientConfiguration {
         self
     }
 
-    fn retain_agent_header(&self) -> Option<HeaderValue> {
-        if !self.config.headers.contains_key(USER_AGENT) {
-            let header = std::env::var(USER_AGENT.as_str()).ok()?;
-            HeaderValue::from_str(&header).ok()
-        } else {
-            None
-        }
-    }
-
     pub fn build(self) -> Client {
         let config = self.clone();
         let headers = self.config.headers.clone();
@@ -260,7 +251,7 @@ mod test {
 
     #[test]
     fn compile_time_user_agent_header() {
-        let mut client = GraphClientConfiguration::new()
+        let client = GraphClientConfiguration::new()
             .access_token("access_token")
             .build();
 
@@ -269,7 +260,7 @@ mod test {
 
     #[test]
     fn update_user_agent_header() {
-        let mut client = GraphClientConfiguration::new()
+        let client = GraphClientConfiguration::new()
             .access_token("access_token")
             .user_agent(HeaderValue::from_static("user_agent"))
             .build();

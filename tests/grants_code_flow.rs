@@ -1,5 +1,5 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs_sdk::oauth::{MsalTokenResponse, GrantRequest, OAuthSerializer};
+use graph_rs_sdk::oauth::{GrantRequest, MsalTokenResponse, OAuthSerializer};
 
 #[test]
 fn sign_in_code_url() {

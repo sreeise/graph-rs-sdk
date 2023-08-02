@@ -4,7 +4,7 @@
 extern crate serde;
 
 use graph_rs_sdk::oauth::{
-    MsalTokenResponse, AuthorizationCodeCertificateCredential, ConfidentialClientApplication, PKey,
+    AuthorizationCodeCertificateCredential, ConfidentialClientApplication, MsalTokenResponse, PKey,
     TokenCredential, X509Certificate, X509,
 };
 use std::fs::File;

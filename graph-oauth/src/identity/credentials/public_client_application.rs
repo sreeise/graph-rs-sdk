@@ -1,6 +1,6 @@
 use crate::identity::{
-    AuthorizationSerializer, AzureCloudInstance, DeviceCodeCredential,
-    ResourceOwnerPasswordCredential, TokenCredential, TokenCredentialOptions, TokenRequest,
+    AzureCloudInstance, DeviceCodeCredential, ResourceOwnerPasswordCredential, TokenCredential,
+    TokenCredentialOptions,
 };
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;

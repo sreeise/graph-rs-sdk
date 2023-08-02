@@ -2,7 +2,9 @@ use url::Url;
 
 /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
 /// Maps to the instance url string.
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Copy, Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize,
+)]
 pub enum AzureCloudInstance {
     // Custom Value communicating that the AzureCloudInstance.
     //Custom(String),
@@ -91,7 +93,7 @@ pub enum AadAuthorityAudience {
 
     /// Users with a personal Microsoft account. Maps to https://[AzureCloudInstance]/consumers/
     /// or https://[instance]/consumers/
-    PersonalMicrosoftAccount
+    PersonalMicrosoftAccount,
 }
 
 /// Specifies which Microsoft accounts can be used for sign-in with a given application.
