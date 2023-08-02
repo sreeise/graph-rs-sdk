@@ -191,6 +191,7 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::oauth::AadAuthorityAudience;
 
     #[test]
     #[should_panic]
@@ -201,6 +202,20 @@ mod test {
             aad_authority_audience: None,
             instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
             azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
+            redirect_uri: None,
+        })
+        .unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn error_result_on_tenant_id_and_aad_audience() {
+        ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
+            client_id: "client-id".to_owned(),
+            tenant_id: Some("tenant_id".to_owned()),
+            aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
+            instance: None,
+            azure_cloud_instance: None,
             redirect_uri: None,
         })
         .unwrap();

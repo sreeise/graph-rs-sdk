@@ -44,6 +44,7 @@ fn open_id_authorization_url(client_id: &str, client_secret: &str) -> anyhow::Re
         .build()
         .url()?)
 }
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct OpenIdResponse {
     pub code: String,

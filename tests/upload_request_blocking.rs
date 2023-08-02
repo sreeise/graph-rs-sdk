@@ -1,6 +1,6 @@
 use graph_rs_sdk::*;
-use std::thread;
 use std::time::Duration;
+use std::{env, thread};
 use test_tools::oauth_request::OAuthTestClient;
 
 fn get_special_folder_id(user_id: &str, folder: &str, client: &Graph) -> GraphResult<String> {

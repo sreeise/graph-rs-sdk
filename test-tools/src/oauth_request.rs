@@ -10,10 +10,11 @@ use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
+use std::path::Path;
 use std::sync::Mutex;
 
 // static mutex's that are used for preventing test failures
-// due to too many concurrent requests for Microsoft Graph.
+// due to too many concurrent requests (throttling) for Microsoft Graph.
 lazy_static! {
     pub static ref THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
     pub static ref DRIVE_THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
@@ -25,7 +26,6 @@ lazy_static! {
 pub enum TestEnv {
     AppVeyor,
     GitHub,
-    TravisCI,
     #[default]
     Local,
 }
@@ -35,7 +35,6 @@ impl TestEnv {
         match self {
             TestEnv::AppVeyor => Environment::is_appveyor(),
             TestEnv::GitHub => Environment::is_github(),
-            TestEnv::TravisCI => Environment::is_travis(),
             TestEnv::Local => Environment::is_local(),
         }
     }
@@ -368,7 +367,7 @@ pub struct AppRegistrationClient {
     permissions: Vec<String>,
     test_envs: Vec<TestEnv>,
     test_resources: Vec<ResourceIdentity>,
-    clients: OAuthTestClientMap,
+    clients: HashMap<OAuthTestClient, OAuthTestCredentials>,
 }
 
 impl AppRegistrationClient {
@@ -383,7 +382,7 @@ impl AppRegistrationClient {
             permissions,
             test_envs,
             test_resources,
-            clients: OAuthTestClientMap::new(),
+            clients: HashMap::new(),
         }
     }
 
@@ -392,11 +391,22 @@ impl AppRegistrationClient {
     }
 
     pub fn get(&self, client: &OAuthTestClient) -> Option<OAuthTestCredentials> {
-        self.clients.get(client)
+        self.clients.get(client).cloned()
     }
 
     pub fn default_client(&self) -> Option<(OAuthTestClient, OAuthTestCredentials)> {
-        self.clients.get_any()
+        let client = self.get(&OAuthTestClient::ClientCredentials);
+        if client.is_none() {
+            self.get(&OAuthTestClient::ResourceOwnerPasswordCredentials)
+                .map(|credentials| {
+                    (
+                        OAuthTestClient::ResourceOwnerPasswordCredentials,
+                        credentials,
+                    )
+                })
+        } else {
+            client.map(|credentials| (OAuthTestClient::ClientCredentials, credentials))
+        }
     }
 }
 

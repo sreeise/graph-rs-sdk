@@ -9,6 +9,7 @@ description = "Microsoft Graph Api Client"
 publish = false
 
 [dependencies]
+anyhow = { version = "1.0.69", features = ["backtrace"]}
 futures = "0.3"
 from_as = "0.2.0"
 lazy_static = "1.4.0"

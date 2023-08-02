@@ -969,61 +969,6 @@ impl OAuthSerializer {
             t: PhantomData,
         }
     }
-
-    /// Sign the user out using the OneDrive v1.0 endpoint.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::new();
-    ///
-    /// oauth.v1_logout().unwrap();
-    /// ```
-    pub fn v1_logout(&mut self) -> GraphResult<()> {
-        let mut url = self.get_or_else(OAuthParameter::LogoutURL)?;
-        if !url.ends_with('?') {
-            url.push('?');
-        }
-
-        let mut vec = vec![
-            url,
-            "&client_id=".to_string(),
-            self.get_or_else(OAuthParameter::ClientId)?,
-            "&redirect_uri=".to_string(),
-        ];
-
-        if let Some(redirect) = self.get(OAuthParameter::PostLogoutRedirectURI) {
-            vec.push(redirect);
-        } else if let Some(redirect) = self.get(OAuthParameter::RedirectUri) {
-            vec.push(redirect);
-        }
-        webbrowser::open(vec.join("").as_str()).map_err(GraphFailure::from)
-    }
-
-    /// Sign the user out using the OneDrive v2.0 endpoint.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// use graph_oauth::oauth::OAuth;
-    /// let mut oauth = OAuth::new();
-    ///
-    /// oauth.v2_logout().unwrap();
-    /// ```
-    pub fn v2_logout(&self) -> GraphResult<()> {
-        let mut url = self.get_or_else(OAuthParameter::LogoutURL)?;
-        if !url.ends_with('?') {
-            url.push('?');
-        }
-        if let Some(redirect) = self.get(OAuthParameter::PostLogoutRedirectURI) {
-            url.push_str("post_logout_redirect_uri=");
-            url.push_str(redirect.as_str());
-        } else {
-            let redirect_uri = self.get_or_else(OAuthParameter::RedirectUri)?;
-            url.push_str("post_logout_redirect_uri=");
-            url.push_str(redirect_uri.as_str());
-        }
-        webbrowser::open(url.as_str()).map_err(GraphFailure::from)
-    }
 }
 
 impl OAuthSerializer {
@@ -1037,6 +982,9 @@ impl OAuthSerializer {
 
     pub fn try_as_tuple(&self, oac: &OAuthParameter) -> AuthorizationResult<(String, String)> {
         if oac.eq(&OAuthParameter::Scope) {
+            if self.scopes.is_empty() {
+                return Err(AuthorizationFailure::required(oac));
+            }
             Ok((oac.alias().to_owned(), self.join_scopes(" ")))
         } else {
             Ok((
