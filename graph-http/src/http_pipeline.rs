@@ -13,7 +13,7 @@ pub struct RequestContext {
 }
 
 #[async_trait]
-pub trait HttpPipelinePolicy: HttpPipelinePolicyClone {
+pub trait HttpPipelinePolicy {
     // Modify the request.
     async fn process_async(
         &self,
@@ -21,25 +21,6 @@ pub trait HttpPipelinePolicy: HttpPipelinePolicyClone {
         request: &mut reqwest::Request,
         pipeline: &[Arc<dyn HttpPipelinePolicy + Send + Sync>],
     ) -> GraphResult<reqwest::Response>;
-}
-
-pub trait HttpPipelinePolicyClone {
-    fn clone_box(&self) -> Box<dyn HttpPipelinePolicy>;
-}
-
-impl<T> HttpPipelinePolicyClone for T
-where
-    T: 'static + HttpPipelinePolicy + Clone,
-{
-    fn clone_box(&self) -> Box<dyn HttpPipelinePolicy> {
-        Box::new(self.clone())
-    }
-}
-
-impl Clone for Box<dyn HttpPipelinePolicy> {
-    fn clone(&self) -> Box<dyn HttpPipelinePolicy> {
-        self.clone_box()
-    }
 }
 
 #[derive(Clone)]
