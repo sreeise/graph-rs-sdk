@@ -349,7 +349,7 @@ mod test {
         authorizer
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::Token])
-            .with_redirect_uri("https::/localhost:8080/myapp")
+            .with_redirect_uri("https://localhost/myapp")
             .unwrap()
             .with_scope(["User.Read"])
             .with_response_mode(ResponseMode::Fragment)
@@ -370,7 +370,7 @@ mod test {
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken])
             .with_response_mode(ResponseMode::Fragment)
-            .with_redirect_uri("https::/localhost:8080/myapp")
+            .with_redirect_uri("https://localhost:8080/myapp")
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
@@ -389,7 +389,7 @@ mod test {
         authorizer
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_mode(ResponseMode::Fragment)
-            .with_redirect_uri("https::/localhost:8080/myapp")
+            .with_redirect_uri("https://localhost:8080/myapp")
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
@@ -408,7 +408,7 @@ mod test {
         authorizer
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Token])
-            .with_redirect_uri("https::/localhost:8080/myapp")
+            .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
@@ -431,7 +431,7 @@ mod test {
                     .into_iter()
                     .collect(),
             ))
-            .with_redirect_uri("https::/localhost:8080/myapp")
+            .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
@@ -450,7 +450,7 @@ mod test {
         authorizer
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(ResponseType::IdToken)
-            .with_redirect_uri("https::/localhost:8080/myapp")
+            .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
@@ -469,7 +469,7 @@ mod test {
         authorizer
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Token])
-            .with_redirect_uri("https::/localhost:8080/myapp")
+            .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
@@ -489,7 +489,7 @@ mod test {
         authorizer
             .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::Token])
-            .with_redirect_uri("https::/localhost:8080/myapp")
+            .with_redirect_uri("https://example.com/myapp")
             .unwrap()
             .with_nonce("678910")
             .build_credential();
@@ -500,7 +500,7 @@ mod test {
     #[test]
     fn generate_nonce() {
         let url = ImplicitCredential::builder()
-            .with_redirect_uri("https::/localhost:8080")
+            .with_redirect_uri("http://localhost:8080")
             .unwrap()
             .with_client_id("client_id")
             .with_scope(["read", "write"])
