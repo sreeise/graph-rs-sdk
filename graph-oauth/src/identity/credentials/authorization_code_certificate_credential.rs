@@ -3,7 +3,7 @@ use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters, Authority,
     AzureCloudInstance, ConfidentialClientApplication, TokenCredentialExecutor,
-    TokenCredentialOptions, CLIENT_ASSERTION_TYPE,
+    CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
@@ -75,7 +75,7 @@ impl AuthorizationCodeCertificateCredential {
             authority_url: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
-            redirect_uri: redirect_uri.clone(),
+            redirect_uri,
         };
 
         Ok(AuthorizationCodeCertificateCredential {

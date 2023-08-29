@@ -1,11 +1,11 @@
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{Authority, AzureCloudInstance, TokenCredentialOptions};
-use crate::oauth::MsalTokenResponse;
+use crate::identity::{Authority, AzureCloudInstance};
+
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
-use reqwest::{ClientBuilder, ResponseBuilderExt};
+use reqwest::ClientBuilder;
 use std::collections::HashMap;
 use url::Url;
 

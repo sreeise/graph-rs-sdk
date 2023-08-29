@@ -1,8 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{
-    Authority, AzureCloudInstance, TokenCredentialExecutor, TokenCredentialOptions,
-};
+use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use std::collections::HashMap;
@@ -54,7 +52,7 @@ impl ResourceOwnerPasswordCredential {
         password: T,
     ) -> ResourceOwnerPasswordCredential {
         ResourceOwnerPasswordCredential {
-            app_config: AppConfig::init(tenant_id.as_ref().to_owned(), client_id),
+            app_config: AppConfig::init(tenant_id.as_ref(), client_id),
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
             scope: vec![],

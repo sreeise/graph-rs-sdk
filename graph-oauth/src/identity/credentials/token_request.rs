@@ -1,4 +1,4 @@
-use crate::oauth::{AuthorizationSerializer, TokenCredentialOptions};
+use crate::oauth::AuthorizationSerializer;
 use async_trait::async_trait;
 
 use crate::identity::AzureCloudInstance;

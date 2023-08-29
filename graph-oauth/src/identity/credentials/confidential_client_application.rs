@@ -1,24 +1,15 @@
-use crate::identity::application_options::ApplicationOptions;
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::credentials::application_builder::{
-    ClientCredentialParameter, ConfidentialClientApplicationBuilder,
-};
+use crate::identity::credentials::application_builder::ConfidentialClientApplicationBuilder;
 use crate::identity::credentials::client_assertion_credential::ClientAssertionCredential;
 use crate::identity::{
-    AuthCodeAuthorizationUrlParameterBuilder, Authority, AuthorizationCodeCertificateCredential,
-    AuthorizationCodeCredential, AzureCloudInstance, ClientApplication,
-    ClientCertificateCredential, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredential,
-    CredentialStore, CredentialStoreType, InMemoryCredentialStore, OpenIdCredential,
-    TokenCacheProviderType, TokenCredentialExecutor, TokenCredentialOptions,
+    Authority, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
+    AzureCloudInstance, ClientCertificateCredential, ClientSecretCredential, OpenIdCredential,
+    TokenCredentialExecutor,
 };
-use crate::oauth::{
-    AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
-    ClientCertificateCredentialBuilder, ClientSecretCredentialBuilder,
-    UnInitializedCredentialStore,
-};
+
 use async_trait::async_trait;
-use graph_error::{AuthorizationResult, GraphResult};
-use http_body_util::BodyExt;
+use graph_error::AuthorizationResult;
+
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
 use reqwest::{ClientBuilder, Response};
@@ -205,7 +196,7 @@ mod test {
             .unwrap()
             .build();
 
-        let mut confidential_client = ConfidentialClientApplication::from(credential);
+        let mut confidential_client = credential;
         let credential_uri = confidential_client
             .credential
             .uri(&AzureCloudInstance::AzurePublic)
@@ -226,7 +217,7 @@ mod test {
             .unwrap()
             .with_authority(Authority::Consumers)
             .build();
-        let mut confidential_client = ConfidentialClientApplication::from(credential);
+        let mut confidential_client = credential;
         let credential_uri = confidential_client
             .credential
             .uri(&AzureCloudInstance::AzurePublic)

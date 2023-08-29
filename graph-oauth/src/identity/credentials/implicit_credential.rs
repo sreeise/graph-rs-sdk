@@ -1,7 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{Authority, AzureCloudInstance, Crypto, Prompt, ResponseMode, ResponseType};
-use crate::oauth::TokenCredentialOptions;
+use crate::identity::{AzureCloudInstance, Crypto, Prompt, ResponseMode, ResponseType};
+
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use reqwest::IntoUrl;
 use url::form_urlencoded::Serializer;

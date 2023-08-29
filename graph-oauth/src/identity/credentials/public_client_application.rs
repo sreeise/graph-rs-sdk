@@ -1,7 +1,7 @@
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     Authority, AzureCloudInstance, DeviceCodeCredential, ResourceOwnerPasswordCredential,
-    TokenCredentialExecutor, TokenCredentialOptions,
+    TokenCredentialExecutor,
 };
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;

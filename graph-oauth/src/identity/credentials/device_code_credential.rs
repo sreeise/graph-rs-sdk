@@ -1,7 +1,5 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{
-    Authority, AzureCloudInstance, TokenCredentialExecutor, TokenCredentialOptions,
-};
+use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use crate::oauth::{DeviceCode, PublicClientApplication};
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 

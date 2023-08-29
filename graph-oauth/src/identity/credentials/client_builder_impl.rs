@@ -1,4 +1,3 @@
-use crate::identity::credentials::app_config::AppConfig;
 macro_rules! credential_builder_impl {
     ($name:ident, $credential:ty) => {
         impl $name {

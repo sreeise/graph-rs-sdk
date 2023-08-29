@@ -4,7 +4,7 @@ use crate::identity::{
     Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder,
     ConfidentialClientApplication, TokenCredentialExecutor,
 };
-use crate::oauth::TokenCredentialOptions;
+
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;

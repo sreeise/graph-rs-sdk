@@ -72,7 +72,7 @@ async fn auth_code_grant(authorization_code: &str) {
         .with_pkce(&pkce)
         .build();
 
-    let mut confidential_client = ConfidentialClientApplication::from(credential);
+    let mut confidential_client = credential;
 
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");

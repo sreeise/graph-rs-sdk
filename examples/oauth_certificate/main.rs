@@ -96,7 +96,7 @@ pub fn get_confidential_client(
         .with_redirect_uri("http://localhost:8080")?
         .build();
 
-    Ok(ConfidentialClientApplication::from(credentials))
+    Ok(credentials)
 }
 
 // When the authorization code comes in on the redirect from sign in, call the get_credential

@@ -1,8 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{
-    Authority, AzureCloudInstance, TokenCredentialExecutor, TokenCredentialOptions,
-};
+use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use http_body_util::BodyExt;
@@ -56,7 +54,7 @@ impl ClientCertificateCredential {
     ) -> anyhow::Result<ClientCertificateCredential> {
         let mut builder = ClientCertificateCredentialBuilder::new();
         builder
-            .with_client_id(client_id.as_ref().to_owned())
+            .with_client_id(client_id.as_ref())
             .with_certificate(x509)?;
         Ok(builder.credential)
     }
@@ -208,7 +206,7 @@ impl ClientCertificateCredentialBuilder {
 
     #[cfg(feature = "openssl")]
     pub fn with_certificate(&mut self, certificate: &X509Certificate) -> anyhow::Result<&mut Self> {
-        if let Some(tenant_id) = self.credential.authority.tenant_id() {
+        if let Some(tenant_id) = self.credential.app_config.authority.tenant_id() {
             self.with_client_assertion(certificate.sign_with_tenant(Some(tenant_id.clone()))?);
         } else {
             self.with_client_assertion(certificate.sign_with_tenant(None)?);

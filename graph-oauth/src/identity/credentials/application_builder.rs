@@ -4,12 +4,11 @@ use crate::identity::credentials::client_assertion_credential::ClientAssertionCr
 use crate::identity::X509Certificate;
 use crate::identity::{
     application_options::ApplicationOptions, AuthCodeAuthorizationUrlParameterBuilder, Authority,
-    AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredential,
-    AuthorizationCodeCredentialBuilder, AzureCloudInstance, ClientCertificateCredential,
-    ClientCertificateCredentialBuilder, ClientCredentialsAuthorizationUrlBuilder,
-    ClientSecretCredentialBuilder,
+    AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
+    AzureCloudInstance, ClientCertificateCredentialBuilder,
+    ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
 };
-use crate::oauth::ConfidentialClientApplication;
+
 use reqwest::header::HeaderMap;
 use std::collections::HashMap;
 use url::Url;
@@ -362,8 +361,6 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
 mod test {
     use super::*;
     use crate::oauth::AadAuthorityAudience;
-    use reqwest::header::AUTHORIZATION;
-    use wry::http::HeaderValue;
 
     #[test]
     #[should_panic]

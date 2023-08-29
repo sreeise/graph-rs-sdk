@@ -11,7 +11,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
-use std::path::Path;
+
 use std::sync::Mutex;
 
 // static mutex's that are used for preventing test failures

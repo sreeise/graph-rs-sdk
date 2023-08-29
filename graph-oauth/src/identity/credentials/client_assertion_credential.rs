@@ -4,7 +4,7 @@ use crate::identity::{
 };
 use crate::oauth::{ConfidentialClientApplication, OAuthParameter, OAuthSerializer};
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
+use graph_error::{AuthorizationResult, AF};
 use std::collections::HashMap;
 use url::Url;
 
