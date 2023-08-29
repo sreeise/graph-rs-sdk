@@ -69,34 +69,21 @@ pub fn authorization_sign_in(client_id: &str, tenant_id: &str) {
     webbrowser::open(url.as_str()).unwrap();
 }
 
-pub fn get_confidential_client(
-    authorization_code: &str,
-    client_id: &str,
-    tenant_id: &str,
-) -> anyhow::Result<ConfidentialClientApplication> {
+pub fn x509_certificate(client_id: &str, tenant_id: &str) -> anyhow::Result<X509Certificate> {
     // Use include_bytes!(file_path) if the files are local
-    let mut cert_file = File::open(PRIVATE_KEY_PATH).unwrap();
+    let mut cert_file = File::open(PRIVATE_KEY_PATH)?;
     let mut certificate: Vec<u8> = Vec::new();
     cert_file.read_to_end(&mut certificate)?;
 
-    let mut private_key_file = File::open(CERTIFICATE_PATH).unwrap();
+    let mut private_key_file = File::open(CERTIFICATE_PATH)?;
     let mut private_key: Vec<u8> = Vec::new();
     private_key_file.read_to_end(&mut private_key)?;
 
-    let cert = X509::from_pem(certificate.as_slice()).unwrap();
-    let pkey = PKey::private_key_from_pem(private_key.as_slice()).unwrap();
-
-    let x509_certificate = X509Certificate::new_with_tenant(client_id, tenant_id, cert, pkey);
-
-    let credentials = AuthorizationCodeCertificateCredential::builder(authorization_code)
-        .with_client_id(client_id)
-        .with_tenant(tenant_id)
-        .with_x509(&x509_certificate)?
-        .with_scope(vec!["User.Read"])
-        .with_redirect_uri("http://localhost:8080")?
-        .build();
-
-    Ok(credentials)
+    let cert = X509::from_pem(certificate.as_slice())?;
+    let pkey = PKey::private_key_from_pem(private_key.as_slice())?;
+    Ok(X509Certificate::new_with_tenant(
+        client_id, tenant_id, cert, pkey,
+    ))
 }
 
 // When the authorization code comes in on the redirect from sign in, call the get_credential
@@ -111,18 +98,28 @@ async fn handle_redirect(
             // Print out the code for debugging purposes.
             println!("{:#?}", access_code.code);
 
-            let mut confidential_client =
-                get_confidential_client(access_code.code.as_str(), CLIENT_ID, TENANT).unwrap();
+            let authorization_code = access_code.code;
+            let x509 = x509_certificate(CLIENT_ID, TENANT).unwrap();
+
+            let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
+                .with_authorization_code_certificate(authorization_code, &x509)
+                .unwrap()
+                .with_tenant(TENANT)
+                .with_scope(vec!["User.Read"])
+                .with_redirect_uri("http://localhost:8080")
+                .unwrap()
+                .build();
 
             // Returns reqwest::Response
             let response = confidential_client.execute_async().await.unwrap();
             println!("{response:#?}");
 
             if response.status().is_success() {
-                let access_token: MsalTokenResponse = response.json().await.unwrap();
+                let mut msal_token: MsalTokenResponse = response.json().await.unwrap();
+                msal_token.enable_pii_logging(true);
 
                 // If all went well here we can print out the Access Token.
-                println!("AccessToken: {:#?}", access_token.access_token);
+                println!("AccessToken: {:#?}", msal_token);
             } else {
                 // See if Microsoft Graph returned an error in the Response body
                 let result: reqwest::Result<serde_json::Value> = response.json().await;

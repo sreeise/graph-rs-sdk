@@ -1,101 +1,13 @@
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::credentials::client_assertion_credential::ClientAssertionCredentialBuilder;
-#[cfg(feature = "openssl")]
-use crate::identity::X509Certificate;
 use crate::identity::{
     application_options::ApplicationOptions, AuthCodeAuthorizationUrlParameterBuilder, Authority,
     AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
-    AzureCloudInstance, ClientCertificateCredentialBuilder,
-    ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
+    AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
 };
-
-use reqwest::header::HeaderMap;
-use std::collections::HashMap;
+#[cfg(feature = "openssl")]
+use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
 use url::Url;
-
-macro_rules! application_builder_impl {
-    ($name:ident) => {
-        impl $name {
-            pub fn with_client_id(&mut self, client_id: impl AsRef<str>) -> &mut Self {
-                self.client_id = client_id.as_ref().to_owned();
-                self
-            }
-
-            pub fn with_tenant_id(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
-                self.tenant_id = Some(tenant_id.as_ref().to_owned());
-                self.authority = Authority::TenantId(tenant_id.as_ref().to_owned());
-                self
-            }
-
-            pub fn with_authority<T: Into<AuthorityHost>, U: Into<Authority>>(
-                &mut self,
-                authority_host: T,
-                authority: U,
-            ) -> &mut Self {
-                self.authority_url = authority_host.into();
-                self.authority = authority.into();
-                self
-            }
-
-            /// Adds a known Azure AD authority to the application to sign-in users specifying
-            /// the full authority Uri. See https://aka.ms/msal-net-application-configuration.
-            pub fn with_authority_uri(&mut self, authority_uri: Url) -> &mut Self {
-                self.authority_url = AuthorityHost::Uri(authority_uri);
-                self
-            }
-
-            pub fn with_azure_cloud_instance(
-                &mut self,
-                azure_cloud_instance: AzureCloudInstance,
-            ) -> &mut Self {
-                self.authority_url = AuthorityHost::AzureCloudInstance(azure_cloud_instance);
-                self
-            }
-
-            pub fn with_redirect_uri(&mut self, redirect_uri: Url) -> &mut Self {
-                self.redirect_uri = Some(redirect_uri);
-                self.default_redirect_uri = false;
-                self
-            }
-
-            pub fn with_default_redirect_uri(&mut self) -> &mut Self {
-                self.default_redirect_uri = true;
-                self
-            }
-
-            pub fn with_extra_query_parameters<F: Fn(&mut HashMap<String, String>)>(
-                &mut self,
-                f: F,
-            ) -> &mut Self {
-                f(&mut self.extra_query_parameters);
-                self
-            }
-
-            pub fn with_extra_header_parameters<F: Fn(&mut HeaderMap)>(
-                &mut self,
-                f: F,
-            ) -> &mut Self {
-                f(&mut self.extra_header_parameters);
-                self
-            }
-        }
-    };
-}
-
-/*
-pub fn with_extra_query_parameters(
-                &mut self,
-                query_parameters: HashMap<String, String>,
-            ) -> &mut Self {
-                self.extra_query_parameters = query_parameters;
-                self
-            }
-
-            pub fn with_extra_header_parameters(&mut self, header_parameters: HeaderMap) -> &mut Self {
-                self.extra_header_parameters = header_parameters;
-                self
-            }
- */
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum AuthorityHost {
@@ -123,29 +35,14 @@ impl Default for AuthorityHost {
     }
 }
 
-pub enum ClientCredentialParameter {
-    #[cfg(feature = "openssl")]
-    Certificate(X509Certificate),
-    SecretString(String),
-    SignedAssertion(String),
-}
-
 pub struct ConfidentialClientApplicationBuilder {
     app_config: AppConfig,
-    default_redirect_uri: bool,
-    redirect_uri: Option<Url>,
-    client_credential_parameter: Option<ClientCredentialParameter>,
 }
-
-// application_builder_impl!(ConfidentialClientApplicationBuilder);
 
 impl ConfidentialClientApplicationBuilder {
     pub fn new(client_id: impl AsRef<str>) -> ConfidentialClientApplicationBuilder {
         ConfidentialClientApplicationBuilder {
             app_config: AppConfig::new_with_client_id(client_id),
-            default_redirect_uri: false,
-            redirect_uri: None,
-            client_credential_parameter: None,
         }
     }
 
@@ -202,7 +99,7 @@ impl ConfidentialClientApplicationBuilder {
         AuthorizationCodeCredentialBuilder::new_with_auth_code(self.into(), authorization_code)
     }
 
-    pub fn with_authorization_code_assertion_credential(
+    pub fn with_authorization_code_assertion(
         self,
         authorization_code: impl AsRef<str>,
         assertion: impl AsRef<str>,
@@ -215,7 +112,7 @@ impl ConfidentialClientApplicationBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn with_authorization_code_certificate_credential(
+    pub fn with_authorization_code_certificate(
         self,
         authorization_code: impl AsRef<str>,
         x509: &X509Certificate,
@@ -248,19 +145,6 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
             "TenantId and AadAuthorityAudience both represent an authority audience and cannot be set at the same time"
         );
 
-        /*
-        client_id: value.client_id,
-            tenant_id: value.tenant_id,
-            authority: value
-                .aad_authority_audience
-                .map(Authority::from)
-                .unwrap_or_default(),
-            authority_url: value
-                .azure_cloud_instance
-                .map(AuthorityHost::AzureCloudInstance)
-                .unwrap_or_default(),
-         */
-
         Ok(ConfidentialClientApplicationBuilder {
             app_config: AppConfig {
                 tenant_id: value.tenant_id,
@@ -277,46 +161,24 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
             },
-            default_redirect_uri: value.redirect_uri.is_none(),
-            redirect_uri: value.redirect_uri,
-            client_credential_parameter: None,
         })
     }
 }
 
-pub struct ConfidentialClientAppSelectionBuilder {
-    builder: ConfidentialClientApplicationBuilder,
-}
-
-impl ConfidentialClientAppSelectionBuilder {}
-
+#[allow(dead_code)]
 pub struct PublicClientApplicationBuilder {
-    client_id: String,
-    tenant_id: Option<String>,
-    authority: Authority,
-    authority_url: AuthorityHost,
-    redirect_uri: Option<Url>,
-    default_redirect_uri: bool,
-    extra_query_parameters: HashMap<String, String>,
-    extra_header_parameters: HeaderMap,
+    app_config: AppConfig,
 }
-
-application_builder_impl!(PublicClientApplicationBuilder);
 
 impl PublicClientApplicationBuilder {
+    #[allow(dead_code)]
     pub fn new(client_id: &str) -> PublicClientApplicationBuilder {
         PublicClientApplicationBuilder {
-            client_id: client_id.to_owned(),
-            tenant_id: None,
-            authority: Default::default(),
-            authority_url: Default::default(),
-            default_redirect_uri: false,
-            redirect_uri: None,
-            extra_query_parameters: Default::default(),
-            extra_header_parameters: Default::default(),
+            app_config: AppConfig::new_with_client_id(client_id),
         }
     }
 
+    #[allow(dead_code)]
     pub fn create_with_application_options(
         application_options: ApplicationOptions,
     ) -> anyhow::Result<PublicClientApplicationBuilder> {
@@ -339,84 +201,85 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
         );
 
         Ok(PublicClientApplicationBuilder {
-            client_id: value.client_id,
-            tenant_id: value.tenant_id,
-            authority: value
-                .aad_authority_audience
-                .map(Authority::from)
-                .unwrap_or_default(),
-            authority_url: value
-                .azure_cloud_instance
-                .map(AuthorityHost::AzureCloudInstance)
-                .unwrap_or_default(),
-            default_redirect_uri: value.redirect_uri.is_none(),
-            redirect_uri: value.redirect_uri,
-            extra_query_parameters: Default::default(),
-            extra_header_parameters: Default::default(),
+            app_config: AppConfig {
+                tenant_id: value.tenant_id,
+                client_id: value.client_id,
+                authority: value
+                    .aad_authority_audience
+                    .map(Authority::from)
+                    .unwrap_or_default(),
+                authority_url: value
+                    .azure_cloud_instance
+                    .map(AuthorityHost::AzureCloudInstance)
+                    .unwrap_or_default(),
+                extra_query_parameters: Default::default(),
+                extra_header_parameters: Default::default(),
+                redirect_uri: None,
+            },
         })
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::oauth::AadAuthorityAudience;
 
-    #[test]
-    #[should_panic]
-    fn confidential_client_error_result_on_instance_and_aci() {
-        ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
-            client_id: "client-id".to_string(),
-            tenant_id: None,
-            aad_authority_audience: None,
-            instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
-            azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
-            redirect_uri: None,
-        })
-        .unwrap();
-    }
+    /*
+       #[test]
+       #[should_panic]
+       fn confidential_client_error_result_on_instance_and_aci() {
+           ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
+               client_id: "client-id".to_string(),
+               tenant_id: None,
+               aad_authority_audience: None,
+               instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
+               azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
+               redirect_uri: None,
+           })
+           .unwrap();
+       }
 
-    #[test]
-    #[should_panic]
-    fn confidential_client_error_result_on_tenant_id_and_aad_audience() {
-        ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
-            client_id: "client-id".to_owned(),
-            tenant_id: Some("tenant_id".to_owned()),
-            aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
-            instance: None,
-            azure_cloud_instance: None,
-            redirect_uri: None,
-        })
-        .unwrap();
-    }
+       #[test]
+       #[should_panic]
+       fn confidential_client_error_result_on_tenant_id_and_aad_audience() {
+           ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
+               client_id: "client-id".to_owned(),
+               tenant_id: Some("tenant_id".to_owned()),
+               aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
+               instance: None,
+               azure_cloud_instance: None,
+               redirect_uri: None,
+           })
+           .unwrap();
+       }
 
-    #[test]
-    #[should_panic]
-    fn public_client_error_result_on_instance_and_aci() {
-        PublicClientApplicationBuilder::try_from(ApplicationOptions {
-            client_id: "client-id".to_string(),
-            tenant_id: None,
-            aad_authority_audience: None,
-            instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
-            azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
-            redirect_uri: None,
-        })
-        .unwrap();
-    }
+       #[test]
+       #[should_panic]
+       fn public_client_error_result_on_instance_and_aci() {
+           PublicClientApplicationBuilder::try_from(ApplicationOptions {
+               client_id: "client-id".to_string(),
+               tenant_id: None,
+               aad_authority_audience: None,
+               instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
+               azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
+               redirect_uri: None,
+           })
+           .unwrap();
+       }
 
-    #[test]
-    #[should_panic]
-    fn public_client_error_result_on_tenant_id_and_aad_audience() {
-        PublicClientApplicationBuilder::try_from(ApplicationOptions {
-            client_id: "client-id".to_owned(),
-            tenant_id: Some("tenant_id".to_owned()),
-            aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
-            instance: None,
-            azure_cloud_instance: None,
-            redirect_uri: None,
-        })
-        .unwrap();
-    }
+       #[test]
+       #[should_panic]
+       fn public_client_error_result_on_tenant_id_and_aad_audience() {
+           PublicClientApplicationBuilder::try_from(ApplicationOptions {
+               client_id: "client-id".to_owned(),
+               tenant_id: Some("tenant_id".to_owned()),
+               aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
+               instance: None,
+               azure_cloud_instance: None,
+               redirect_uri: None,
+           })
+           .unwrap();
+       }
+    */
 
     /*
        #[test]

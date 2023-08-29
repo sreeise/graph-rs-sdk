@@ -66,14 +66,6 @@ impl ClientSecretCredential {
         }
     }
 
-    pub(crate) fn create() -> ClientSecretCredentialBuilder {
-        ClientSecretCredentialBuilder::new()
-    }
-
-    pub fn builder() -> ClientSecretCredentialBuilder {
-        ClientSecretCredentialBuilder::new()
-    }
-
     pub fn authorization_url_builder() -> ClientCredentialsAuthorizationUrlBuilder {
         ClientCredentialsAuthorizationUrlBuilder::new()
     }
@@ -154,26 +146,6 @@ impl ClientSecretCredentialBuilder {
         }
     }
 
-    fn builder<T: ToString, I: IntoIterator<Item = T>>(scopes: I) -> ClientSecretCredentialBuilder {
-        let provided_scopes: Vec<String> = scopes.into_iter().map(|s| s.to_string()).collect();
-        let scope = {
-            if provided_scopes.is_empty() {
-                vec!["https://graph.microsoft.com/.default".into()]
-            } else {
-                provided_scopes
-            }
-        };
-
-        Self {
-            credential: ClientSecretCredential {
-                app_config: Default::default(),
-                client_secret: String::new(),
-                scope,
-                serializer: Default::default(),
-            },
-        }
-    }
-
     pub(crate) fn new_with_client_secret(
         client_secret: impl AsRef<str>,
         app_config: AppConfig,
@@ -194,8 +166,8 @@ impl ClientSecretCredentialBuilder {
         self
     }
 
-    pub fn credential(self) -> ClientSecretCredential {
-        self.credential
+    pub fn credential(&self) -> ClientSecretCredential {
+        self.credential.clone()
     }
 }
 

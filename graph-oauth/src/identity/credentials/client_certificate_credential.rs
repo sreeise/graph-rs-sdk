@@ -3,7 +3,6 @@ use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
-use http_body_util::BodyExt;
 use std::collections::HashMap;
 use url::Url;
 
@@ -178,21 +177,6 @@ impl ClientCertificateCredentialBuilder {
         }
     }
 
-    fn builder<T: ToString, I: IntoIterator<Item = T>>(
-        scopes: I,
-    ) -> ClientCertificateCredentialBuilder {
-        ClientCertificateCredentialBuilder {
-            credential: ClientCertificateCredential {
-                app_config: Default::default(),
-                scope: scopes.into_iter().map(|s| s.to_string()).collect(),
-                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
-                client_assertion: String::new(),
-                refresh_token: None,
-                serializer: OAuthSerializer::new(),
-            },
-        }
-    }
-
     #[cfg(feature = "openssl")]
     pub(crate) fn new_with_certificate(
         x509: &X509Certificate,
@@ -224,7 +208,7 @@ impl ClientCertificateCredentialBuilder {
         self
     }
 
-    pub(crate) fn credential(self) -> ClientCertificateCredential {
+    pub fn credential(self) -> ClientCertificateCredential {
         self.credential
     }
 }

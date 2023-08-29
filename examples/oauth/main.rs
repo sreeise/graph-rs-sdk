@@ -16,14 +16,9 @@
 extern crate serde;
 
 mod auth_code_grant;
-mod auth_code_grant_pkce;
-mod auth_code_grant_refresh_token;
 mod client_credentials;
-mod client_credentials_admin_consent;
 mod device_code;
-mod enable_pii_logging;
 mod environment_credential;
-mod implicit_grant;
 mod is_access_token_expired;
 mod open_id_connect;
 mod signing_keys;

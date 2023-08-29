@@ -144,7 +144,7 @@ impl ImplicitCredential {
                 // id_token requires fragment or form_post. The Microsoft identity
                 // platform recommends form_post. Unless you explicitly set
                 // fragment then form_post is used here. Please file an issue
-                // if you experience encounter related problems.
+                // if you encounter related problems.
                 if self.response_mode.eq(&ResponseMode::Query) {
                     serializer.response_mode(ResponseMode::Fragment.as_ref());
                 } else {

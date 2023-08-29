@@ -17,8 +17,6 @@ use std::collections::HashMap;
 use url::Url;
 use wry::http::HeaderMap;
 
-pub(crate) struct CredentialExecutor<T: TokenCredentialExecutor + Send>(T);
-
 /// Clients capable of maintaining the confidentiality of their credentials
 /// (e.g., client implemented on a secure server with restricted access to the client credentials),
 /// or capable of secure client authentication using other means.

@@ -49,6 +49,7 @@ pub struct ClientAssertionCredentialBuilder {
 }
 
 impl ClientAssertionCredentialBuilder {
+    #[allow(dead_code)]
     pub(crate) fn new() -> ClientAssertionCredentialBuilder {
         ClientAssertionCredentialBuilder {
             credential: ClientAssertionCredential {

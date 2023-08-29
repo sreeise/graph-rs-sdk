@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 // NOTICE: The Implicit Flow is considered legacy and cannot be used in a
-// ConfidentialClientApplication or Public
+// ConfidentialClientApplication or PublicClientApplication
 
 // The following example shows authenticating an application to use the OneDrive REST API
 // for a native client. Native clients typically use the implicit OAuth flow. This requires

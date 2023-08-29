@@ -14,6 +14,10 @@ use graph_rs_sdk::oauth::{
     TokenCredentialExecutor, TokenRequest,
 };
 
+mod client_credentials_admin_consent;
+
+pub use client_credentials_admin_consent::*;
+
 // This example shows programmatically getting an access token using the client credentials
 // flow after admin consent has been granted. If you have not granted admin consent, see
 // examples/client_credentials_admin_consent.rs for more info.

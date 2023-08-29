@@ -3,8 +3,8 @@
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_rs_sdk::oauth::{
-    ClientSecretCredential, MsalTokenResponse, ResourceOwnerPasswordCredential,
-    TokenCredentialExecutor,
+    ClientSecretCredential, ConfidentialClientApplication, MsalTokenResponse,
+    ResourceOwnerPasswordCredential, TokenCredentialExecutor,
 };
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};
@@ -122,13 +122,13 @@ impl OAuthTestCredentials {
     }
 
     fn client_credentials(self) -> ClientSecretCredential {
-        let mut credential = ClientSecretCredential::builder();
-        credential
-            .with_client_secret(self.client_secret.as_str())
-            .with_client_id(self.client_id.as_str())
+        let mut builder = ConfidentialClientApplication::builder(self.client_id.as_str())
+            .with_client_secret_credential(self.client_secret.as_str());
+
+        builder
             .with_tenant(self.tenant.as_str())
-            .with_scope(vec!["https://graph.microsoft.com/.default"]);
-        credential.credential()
+            .with_scope(vec!["https://graph.microsoft.com/.default"])
+            .credential()
     }
 
     fn resource_owner_password_credential(self) -> ResourceOwnerPasswordCredential {
