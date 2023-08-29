@@ -1,6 +1,7 @@
 use graph_oauth::identity::AuthorizationCodeCredentialBuilder;
 use graph_rs_sdk::oauth::{
-    AuthorizationCodeCredential, ConfidentialClientApplication, TokenCredential, TokenRequest,
+    AuthorizationCodeCredential, ConfidentialClientApplication, TokenCredentialExecutor,
+    TokenRequest,
 };
 
 // Use a refresh token to get a new access token.
@@ -11,7 +12,7 @@ async fn using_auth_code_credential(
 ) {
     credential.with_refresh_token(refresh_token);
 
-    let _response = credential.get_token_async().await;
+    let _response = credential.execute_async().await;
 }
 
 async fn using_confidential_client(
@@ -21,7 +22,7 @@ async fn using_confidential_client(
     credential.with_refresh_token(refresh_token);
     let mut confidential_client = ConfidentialClientApplication::from(credential);
 
-    let _response = confidential_client.get_token_async().await;
+    let _response = confidential_client.execute_async().await;
 }
 
 async fn using_auth_code_credential_builder(
@@ -32,5 +33,5 @@ async fn using_auth_code_credential_builder(
         .with_refresh_token(refresh_token)
         .build();
 
-    let _response = credential.get_token_async().await;
+    let _response = credential.execute_async().await;
 }

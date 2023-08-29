@@ -349,10 +349,10 @@ impl OpenIdAuthorizationUrlBuilder {
     ///
     /// Supported response types are:
     ///
-    ///     code
-    ///     id_token
-    ///     code id_token
-    ///     id_token token
+    /// - code
+    /// - id_token
+    /// - code id_token
+    /// - id_token token
     pub fn with_response_type<I: IntoIterator<Item = ResponseType>>(
         &mut self,
         response_type: I,

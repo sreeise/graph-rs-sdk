@@ -9,7 +9,7 @@ impl OAuthTestTool {
     fn match_grant_credential(grant_request: GrantRequest) -> OAuthParameter {
         match grant_request {
             GrantRequest::Authorization => OAuthParameter::AuthorizationUrl,
-            GrantRequest::AccessToken => OAuthParameter::AccessTokenUrl,
+            GrantRequest::AccessToken => OAuthParameter::TokenUrl,
             GrantRequest::RefreshToken => OAuthParameter::RefreshTokenUrl,
         }
     }
@@ -22,7 +22,7 @@ impl OAuthTestTool {
     ) {
         let mut url = String::new();
         if grant_request.eq(&GrantRequest::AccessToken) {
-            let mut atu = oauth.get(OAuthParameter::AccessTokenUrl).unwrap();
+            let mut atu = oauth.get(OAuthParameter::TokenUrl).unwrap();
             if !atu.ends_with('?') {
                 atu.push('?');
             }

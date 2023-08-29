@@ -98,7 +98,7 @@ fn get_refresh_token() {
         .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
         .refresh_token_url("https://www.example.com/token?")
         .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
-        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
+        .token_uri("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 
     let mut access_token = MsalTokenResponse::new("access_token", 3600, "Read.Write", "asfasf");
     access_token.set_refresh_token("32LKLASDKJ");
@@ -119,7 +119,7 @@ fn multi_scope() {
         .add_scope("wl.offline_access")
         .redirect_uri("http://localhost:8000/redirect")
         .authorization_url("https://login.live.com/oauth20_authorize.srf?")
-        .access_token_url("https://login.live.com/oauth20_token.srf")
+        .token_uri("https://login.live.com/oauth20_token.srf")
         .refresh_token_url("https://login.live.com/oauth20_token.srf")
         .response_type("code")
         .logout_url("https://login.live.com/oauth20_logout.srf?");

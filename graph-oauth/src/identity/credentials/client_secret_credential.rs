@@ -1,6 +1,8 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, TokenCredential,
+    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder,
+    ConfidentialClientApplication, TokenCredentialExecutor,
 };
 use crate::oauth::TokenCredentialOptions;
 use async_trait::async_trait;
@@ -8,7 +10,7 @@ use graph_error::{AuthorizationFailure, AuthorizationResult};
 use std::collections::HashMap;
 use url::Url;
 
-credential_builder_impl!(ClientSecretCredentialBuilder, ClientSecretCredential);
+credential_builder!(ClientSecretCredentialBuilder, ConfidentialClientApplication);
 
 /// Client Credentials flow using a client secret.
 ///
@@ -22,10 +24,7 @@ credential_builder_impl!(ClientSecretCredentialBuilder, ClientSecretCredential);
 /// See [Microsoft identity platform and the OAuth 2.0 client credentials flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
 #[derive(Clone, Debug)]
 pub struct ClientSecretCredential {
-    /// Required.
-    /// The Application (client) ID that the Azure portal - App registrations page assigned
-    /// to your app
-    pub(crate) client_id: String,
+    pub(crate) app_config: AppConfig,
     /// Required
     /// The application secret that you created in the app registration portal for your app.
     /// Don't use the application secret in a native app or single page app because a
@@ -41,19 +40,15 @@ pub struct ClientSecretCredential {
     /// suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
     /// Default is https://graph.microsoft.com/.default.
     pub(crate) scope: Vec<String>,
-    pub(crate) authority: Authority,
-    pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuthSerializer,
 }
 
 impl ClientSecretCredential {
     pub fn new<T: AsRef<str>>(client_id: T, client_secret: T) -> ClientSecretCredential {
         ClientSecretCredential {
-            client_id: client_id.as_ref().to_owned(),
+            app_config: AppConfig::new_with_client_id(client_id),
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
-            authority: Default::default(),
-            token_credential_options: Default::default(),
             serializer: OAuthSerializer::new(),
         }
     }
@@ -64,13 +59,15 @@ impl ClientSecretCredential {
         client_secret: T,
     ) -> ClientSecretCredential {
         ClientSecretCredential {
-            client_id: client_id.as_ref().to_owned(),
+            app_config: AppConfig::init(tenant_id, client_id),
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
-            authority: Authority::TenantId(tenant_id.as_ref().to_owned()),
-            token_credential_options: Default::default(),
             serializer: OAuthSerializer::new(),
         }
+    }
+
+    pub(crate) fn create() -> ClientSecretCredentialBuilder {
+        ClientSecretCredentialBuilder::new()
     }
 
     pub fn builder() -> ClientSecretCredentialBuilder {
@@ -83,19 +80,24 @@ impl ClientSecretCredential {
 }
 
 #[async_trait]
-impl TokenCredential for ClientSecretCredential {
+impl TokenCredentialExecutor for ClientSecretCredential {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.authority);
+            .authority(azure_authority_host, &self.authority());
 
-        let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
-            AuthorizationFailure::msg_err("access_token_url", "Internal Error"),
-        )?;
+        let uri =
+            self.serializer
+                .get(OAuthParameter::TokenUrl)
+                .ok_or(AuthorizationFailure::msg_err(
+                    "access_token_url",
+                    "Internal Error",
+                ))?;
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        if self.client_id.trim().is_empty() {
+        let client_id = self.client_id().clone();
+        if client_id.trim().is_empty() {
             return AuthorizationFailure::result(OAuthParameter::ClientId);
         }
 
@@ -117,15 +119,22 @@ impl TokenCredential for ClientSecretCredential {
     }
 
     fn client_id(&self) -> &String {
-        &self.client_id
+        &self.app_config.client_id
     }
 
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
+    fn authority(&self) -> Authority {
+        self.app_config.authority.clone()
     }
 
     fn basic_auth(&self) -> Option<(String, String)> {
-        Some((self.client_id.clone(), self.client_secret.clone()))
+        Some((
+            self.app_config.client_id.clone(),
+            self.client_secret.clone(),
+        ))
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        &self.app_config
     }
 }
 
@@ -137,11 +146,44 @@ impl ClientSecretCredentialBuilder {
     fn new() -> Self {
         Self {
             credential: ClientSecretCredential {
-                client_id: String::new(),
+                app_config: Default::default(),
                 client_secret: String::new(),
                 scope: vec!["https://graph.microsoft.com/.default".into()],
-                authority: Default::default(),
-                token_credential_options: Default::default(),
+                serializer: Default::default(),
+            },
+        }
+    }
+
+    fn builder<T: ToString, I: IntoIterator<Item = T>>(scopes: I) -> ClientSecretCredentialBuilder {
+        let provided_scopes: Vec<String> = scopes.into_iter().map(|s| s.to_string()).collect();
+        let scope = {
+            if provided_scopes.is_empty() {
+                vec!["https://graph.microsoft.com/.default".into()]
+            } else {
+                provided_scopes
+            }
+        };
+
+        Self {
+            credential: ClientSecretCredential {
+                app_config: Default::default(),
+                client_secret: String::new(),
+                scope,
+                serializer: Default::default(),
+            },
+        }
+    }
+
+    pub(crate) fn new_with_client_secret(
+        client_secret: impl AsRef<str>,
+        app_config: AppConfig,
+    ) -> ClientSecretCredentialBuilder {
+        println!("{:#?}", &app_config);
+        Self {
+            credential: ClientSecretCredential {
+                app_config,
+                client_secret: client_secret.as_ref().to_string(),
+                scope: vec!["https://graph.microsoft.com/.default".into()],
                 serializer: Default::default(),
             },
         }
@@ -150,6 +192,10 @@ impl ClientSecretCredentialBuilder {
     pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
         self.credential.client_secret = client_secret.as_ref().to_owned();
         self
+    }
+
+    pub fn credential(self) -> ClientSecretCredential {
+        self.credential
     }
 }
 

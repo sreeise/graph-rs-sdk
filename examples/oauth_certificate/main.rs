@@ -5,7 +5,7 @@ extern crate serde;
 
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, ConfidentialClientApplication, MsalTokenResponse, PKey,
-    TokenCredential, X509Certificate, X509,
+    TokenCredentialExecutor, X509Certificate, X509,
 };
 use std::fs::File;
 use std::io::Read;
@@ -88,11 +88,10 @@ pub fn get_confidential_client(
 
     let x509_certificate = X509Certificate::new_with_tenant(client_id, tenant_id, cert, pkey);
 
-    let credentials = AuthorizationCodeCertificateCredential::builder()
-        .with_authorization_code(authorization_code)
+    let credentials = AuthorizationCodeCertificateCredential::builder(authorization_code)
         .with_client_id(client_id)
         .with_tenant(tenant_id)
-        .with_certificate(&x509_certificate)?
+        .with_x509(&x509_certificate)?
         .with_scope(vec!["User.Read"])
         .with_redirect_uri("http://localhost:8080")?
         .build();
@@ -116,7 +115,7 @@ async fn handle_redirect(
                 get_confidential_client(access_code.code.as_str(), CLIENT_ID, TENANT).unwrap();
 
             // Returns reqwest::Response
-            let response = confidential_client.get_token_async().await.unwrap();
+            let response = confidential_client.execute_async().await.unwrap();
             println!("{response:#?}");
 
             if response.status().is_success() {

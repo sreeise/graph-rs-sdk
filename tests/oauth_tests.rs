@@ -10,7 +10,7 @@ fn oauth_parameters_from_credential() {
         .client_id("client_id")
         .client_secret("client_secret")
         .authorization_url("https://example.com/authorize?")
-        .access_token_url("https://example.com/token?")
+        .token_uri("https://example.com/token?")
         .refresh_token_url("https://example.com/token?")
         .redirect_uri("https://example.com/redirect?")
         .authorization_code("ADSLFJL4L3")
@@ -43,7 +43,7 @@ fn oauth_parameters_from_credential() {
                     oauth.get(credential),
                     Some("https://example.com/authorize?".into())
                 ),
-                OAuthParameter::AccessTokenUrl => assert_eq!(
+                OAuthParameter::TokenUrl => assert_eq!(
                     oauth.get(credential),
                     Some("https://example.com/token?".into())
                 ),
@@ -132,7 +132,7 @@ fn setters() {
         .client_secret("client_secret")
         .authorization_url("https://example.com/authorize")
         .refresh_token_url("https://example.com/token")
-        .access_token_url("https://example.com/token")
+        .token_uri("https://example.com/token")
         .redirect_uri("https://example.com/redirect")
         .authorization_code("access_code");
 
@@ -150,7 +150,7 @@ fn setters() {
         "https://example.com/authorize",
     );
     test_setter(OAuthParameter::RefreshTokenUrl, "https://example.com/token");
-    test_setter(OAuthParameter::AccessTokenUrl, "https://example.com/token");
+    test_setter(OAuthParameter::TokenUrl, "https://example.com/token");
     test_setter(OAuthParameter::RedirectUri, "https://example.com/redirect");
     test_setter(OAuthParameter::AuthorizationCode, "access_code");
 }

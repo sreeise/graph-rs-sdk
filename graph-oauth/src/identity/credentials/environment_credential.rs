@@ -1,5 +1,7 @@
+use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    AuthorizationSerializer, AzureCloudInstance, ClientSecretCredential, TokenCredential,
+    Authority, AuthorizationSerializer, AzureCloudInstance, ClientSecretCredential,
+    TokenCredentialExecutor,
 };
 use crate::oauth::{
     ConfidentialClientApplication, PublicClientApplication, ResourceOwnerPasswordCredential,
@@ -16,7 +18,7 @@ const AZURE_USERNAME: &str = "AZURE_USERNAME";
 const AZURE_PASSWORD: &str = "AZURE_PASSWORD";
 
 pub struct EnvironmentCredential {
-    pub credential: Box<dyn TokenCredential + Send>,
+    pub credential: Box<dyn TokenCredentialExecutor + Send>,
 }
 
 impl EnvironmentCredential {
@@ -65,14 +67,10 @@ impl EnvironmentCredential {
                     azure_client_id,
                     azure_client_secret,
                 ),
-                Default::default(),
-            )
-            .map_err(|_| VarError::NotPresent)?),
+            )),
             None => Ok(ConfidentialClientApplication::new(
                 ClientSecretCredential::new(azure_client_id, azure_client_secret),
-                Default::default(),
-            )
-            .map_err(|_| VarError::NotPresent)?),
+            )),
         }
     }
 
@@ -81,12 +79,12 @@ impl EnvironmentCredential {
         let azure_client_id = option_env!("AZURE_CLIENT_ID").ok_or(VarError::NotPresent)?;
         let azure_username = option_env!("AZURE_USERNAME").ok_or(VarError::NotPresent)?;
         let azure_password = option_env!("AZURE_PASSWORD").ok_or(VarError::NotPresent)?;
-        EnvironmentCredential::username_password_env(
+        Ok(EnvironmentCredential::username_password_env(
             tenant_id.map(|s| s.to_owned()),
             azure_client_id.to_owned(),
             azure_username.to_owned(),
             azure_password.to_owned(),
-        )
+        ))
     }
 
     fn try_username_password_runtime_env() -> Result<PublicClientApplication, VarError> {
@@ -94,12 +92,12 @@ impl EnvironmentCredential {
         let azure_client_id = std::env::var(AZURE_CLIENT_ID)?;
         let azure_username = std::env::var(AZURE_USERNAME)?;
         let azure_password = std::env::var(AZURE_PASSWORD)?;
-        EnvironmentCredential::username_password_env(
+        Ok(EnvironmentCredential::username_password_env(
             tenant_id,
             azure_client_id,
             azure_username,
             azure_password,
-        )
+        ))
     }
 
     fn username_password_env(
@@ -107,27 +105,21 @@ impl EnvironmentCredential {
         azure_client_id: String,
         azure_username: String,
         azure_password: String,
-    ) -> Result<PublicClientApplication, VarError> {
+    ) -> PublicClientApplication {
         match tenant_id {
-            Some(tenant_id) => Ok(PublicClientApplication::new(
-                ResourceOwnerPasswordCredential::new_with_tenant(
+            Some(tenant_id) => {
+                PublicClientApplication::new(ResourceOwnerPasswordCredential::new_with_tenant(
                     tenant_id,
                     azure_client_id,
                     azure_username,
                     azure_password,
-                ),
-                Default::default(),
-            )
-            .map_err(|_| VarError::NotPresent)?),
-            None => Ok(PublicClientApplication::new(
-                ResourceOwnerPasswordCredential::new(
-                    azure_client_id,
-                    azure_username,
-                    azure_password,
-                ),
-                Default::default(),
-            )
-            .map_err(|_| VarError::NotPresent)?),
+                ))
+            }
+            None => PublicClientApplication::new(ResourceOwnerPasswordCredential::new(
+                azure_client_id,
+                azure_username,
+                azure_password,
+            )),
         }
     }
 }
@@ -139,6 +131,28 @@ impl AuthorizationSerializer for EnvironmentCredential {
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
         self.credential.form_urlencode()
+    }
+}
+
+impl TokenCredentialExecutor for EnvironmentCredential {
+    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
+        self.credential.uri(azure_authority_host)
+    }
+
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+        self.credential.form_urlencode()
+    }
+
+    fn client_id(&self) -> &String {
+        self.credential.client_id()
+    }
+
+    fn authority(&self) -> Authority {
+        self.credential.authority()
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        self.credential.app_config()
     }
 }
 

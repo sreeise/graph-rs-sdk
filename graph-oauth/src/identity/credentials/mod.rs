@@ -1,14 +1,16 @@
 #[macro_use]
-mod credential_builder;
+mod client_builder_impl;
 
 pub mod legacy;
 
+mod app_config;
 mod application_builder;
 mod as_query;
 mod auth_code_authorization_url_parameters;
 mod authorization_code_certificate_credential;
 mod authorization_code_credential;
 mod client_application;
+mod client_assertion_credential;
 mod client_certificate_credential;
 mod client_credentials_authorization_url;
 mod client_secret_credential;
@@ -27,7 +29,7 @@ mod public_client_application_builder;
 mod resource_owner_password_credential;
 mod response_mode;
 mod response_type;
-mod token_credential;
+mod token_credential_executor;
 mod token_credential_options;
 mod token_request;
 
@@ -39,11 +41,11 @@ pub use auth_code_authorization_url_parameters::*;
 pub use authorization_code_certificate_credential::*;
 pub use authorization_code_credential::*;
 pub use client_application::*;
+pub use client_builder_impl::*;
 pub use client_certificate_credential::*;
 pub use client_credentials_authorization_url::*;
 pub use client_secret_credential::*;
 pub use confidential_client_application::*;
-pub use credential_builder::*;
 pub(crate) use crypto::*;
 pub use device_code_credential::*;
 pub use display::*;
@@ -58,7 +60,7 @@ pub use public_client_application_builder::*;
 pub use resource_owner_password_credential::*;
 pub use response_mode::*;
 pub use response_type::*;
-pub use token_credential::*;
+pub use token_credential_executor::*;
 pub use token_credential_options::*;
 pub use token_request::*;
 

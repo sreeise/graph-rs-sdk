@@ -1,10 +1,15 @@
 use std::collections::BTreeSet;
+
+// NOTICE: The Implicit Flow is considered legacy and cannot be used in a
+// ConfidentialClientApplication or Public
+
 // The following example shows authenticating an application to use the OneDrive REST API
 // for a native client. Native clients typically use the implicit OAuth flow. This requires
 // using the browser to log in. To get an access token, set the response type to 'token'
 // which will return an access token in the URL. The implicit flow does not make POST requests
 // for access tokens like other flows do.
 //
+
 // There are two versions of the implicit flow. The first, called token flow is used
 // for Microsoft V1.0 OneDrive authentication. The second is Microsoft's implementation
 // of the OAuth V2.0 implicit flow.
@@ -18,20 +23,20 @@ use std::collections::BTreeSet;
 //
 // To better understand OAuth V2.0 and the implicit flow see: https://tools.ietf.org/html/rfc6749#section-1.3.2
 use graph_rs_sdk::oauth::{
-    ImplicitCredential, Prompt, ResponseMode, ResponseType, TokenCredential,
+    ImplicitCredential, Prompt, ResponseMode, ResponseType, TokenCredentialExecutor,
 };
 
 fn oauth_implicit_flow() {
     let authorizer = ImplicitCredential::builder()
         .with_client_id("<YOUR_CLIENT_ID>")
-        .with_redirect_uri("http://localhost:8000/redirect")
         .with_prompt(Prompt::Login)
         .with_response_type(ResponseType::Token)
         .with_response_mode(ResponseMode::Fragment)
         .with_redirect_uri("https::/localhost:8080/myapp")
+        .unwrap()
         .with_scope(["User.Read"])
         .with_nonce("678910")
-        .build();
+        .build_credential();
 
     let url = authorizer.url().unwrap();
 
@@ -47,7 +52,7 @@ fn oauth_implicit_flow() {
 fn multi_response_types() {
     let _ = ImplicitCredential::builder()
         .with_response_type(vec![ResponseType::Token, ResponseType::IdToken])
-        .build();
+        .build_credential();
 
     // Or
 
@@ -56,5 +61,5 @@ fn multi_response_types() {
             "token".to_string(),
             "id_token".to_string(),
         ])))
-        .build();
+        .build_credential();
 }

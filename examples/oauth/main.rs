@@ -32,7 +32,7 @@ use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
     DeviceCodeCredential, MsalTokenResponse, ProofKeyForCodeExchange, PublicClientApplication,
-    TokenCredential, TokenRequest,
+    TokenCredentialExecutor, TokenRequest,
 };
 
 #[tokio::main]
@@ -64,18 +64,17 @@ async fn main() {
 async fn auth_code_grant(authorization_code: &str) {
     let pkce = ProofKeyForCodeExchange::generate().unwrap();
 
-    let credential = AuthorizationCodeCredential::builder()
-        .with_authorization_code(authorization_code)
+    let credential = AuthorizationCodeCredential::builder(authorization_code)
         .with_client_id("CLIENT_ID")
         .with_client_secret("CLIENT_SECRET")
         .with_redirect_uri("http://localhost:8000/redirect")
         .unwrap()
-        .with_proof_key_for_code_exchange(&pkce)
+        .with_pkce(&pkce)
         .build();
 
     let mut confidential_client = ConfidentialClientApplication::from(credential);
 
-    let response = confidential_client.get_token_async().await.unwrap();
+    let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
     let access_token: MsalTokenResponse = response.json().await.unwrap();
@@ -87,7 +86,7 @@ async fn client_credentials() {
     let client_secret_credential = ClientSecretCredential::new("CLIENT_ID", "CLIENT_SECRET");
     let mut confidential_client = ConfidentialClientApplication::from(client_secret_credential);
 
-    let response = confidential_client.get_token_async().await.unwrap();
+    let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
     let access_token: MsalTokenResponse = response.json().await.unwrap();

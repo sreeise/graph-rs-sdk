@@ -1,7 +1,9 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters, Authority,
-    AzureCloudInstance, TokenCredential, TokenCredentialOptions, CLIENT_ASSERTION_TYPE,
+    AzureCloudInstance, ConfidentialClientApplication, TokenCredentialExecutor,
+    TokenCredentialOptions, CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
@@ -12,9 +14,9 @@ use url::Url;
 #[cfg(feature = "openssl")]
 use crate::oauth::X509Certificate;
 
-credential_builder_impl!(
+credential_builder!(
     AuthorizationCodeCertificateCredentialBuilder,
-    AuthorizationCodeCertificateCredential
+    ConfidentialClientApplication
 );
 
 /// The OAuth 2.0 authorization code grant type, or auth code flow, enables a client application
@@ -25,20 +27,12 @@ credential_builder_impl!(
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
 #[derive(Clone, Debug)]
 pub struct AuthorizationCodeCertificateCredential {
+    pub(crate) app_config: AppConfig,
     /// The authorization code obtained from a call to authorize. The code should be obtained with all required scopes.
     pub(crate) authorization_code: Option<String>,
     /// The refresh token needed to make an access token request using a refresh token.
     /// Do not include an authorization code when using a refresh token.
     pub(crate) refresh_token: Option<String>,
-    /// Required.
-    /// The Application (client) ID that the Azure portal - App registrations page assigned
-    /// to your app
-    pub(crate) client_id: String,
-    /// Optional
-    /// The redirect_uri of your app, where authentication responses can be sent and received
-    /// by your app. It must exactly match one of the redirect_uris you registered in the portal,
-    /// except it must be URL-encoded.
-    pub(crate) redirect_uri: Option<Url>,
     /// The same code_verifier that was used to obtain the authorization_code.
     /// Required if PKCE was used in the authorization code grant request. For more information,
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
@@ -56,9 +50,6 @@ pub struct AuthorizationCodeCertificateCredential {
     /// to additional user data. You may also include other scopes in this request for requesting
     /// consent to various resources, if an access token is requested.
     pub(crate) scope: Vec<String>,
-    /// The Azure Active Directory tenant (directory) Id of the service principal.
-    pub(crate) authority: Authority,
-    pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuthSerializer,
 }
 
@@ -77,23 +68,35 @@ impl AuthorizationCodeCertificateCredential {
             }
         };
 
+        let app_config = AppConfig {
+            client_id: client_id.as_ref().to_owned(),
+            tenant_id: None,
+            authority: Default::default(),
+            authority_url: Default::default(),
+            extra_query_parameters: Default::default(),
+            extra_header_parameters: Default::default(),
+            redirect_uri: redirect_uri.clone(),
+        };
+
         Ok(AuthorizationCodeCertificateCredential {
+            app_config,
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
-            client_id: client_id.as_ref().to_owned(),
-            redirect_uri,
             code_verifier: None,
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
             scope: vec![],
-            authority: Default::default(),
-            token_credential_options: TokenCredentialOptions::default(),
             serializer: OAuthSerializer::new(),
         })
     }
 
-    pub fn builder() -> AuthorizationCodeCertificateCredentialBuilder {
-        AuthorizationCodeCertificateCredentialBuilder::new()
+    pub fn builder(
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeCertificateCredentialBuilder {
+        AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code(
+            Default::default(),
+            authorization_code,
+        )
     }
 
     pub fn authorization_url_builder() -> AuthCodeAuthorizationUrlParameterBuilder {
@@ -102,20 +105,21 @@ impl AuthorizationCodeCertificateCredential {
 }
 
 #[async_trait]
-impl TokenCredential for AuthorizationCodeCertificateCredential {
+impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.authority);
+            .authority(azure_authority_host, &self.authority());
 
         let uri = self
             .serializer
-            .get(OAuthParameter::AccessTokenUrl)
-            .ok_or(AF::msg_internal_err("access_token_url"))?;
+            .get(OAuthParameter::TokenUrl)
+            .ok_or(AF::msg_internal_err("token_url"))?;
         Url::parse(uri.as_str()).map_err(AF::from)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        if self.client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.trim();
+        if client_id.is_empty() {
             return AF::result(OAuthParameter::ClientId);
         }
 
@@ -128,12 +132,12 @@ impl TokenCredential for AuthorizationCodeCertificateCredential {
         }
 
         self.serializer
-            .client_id(self.client_id.as_str())
+            .client_id(client_id)
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
             .extend_scopes(self.scope.clone());
 
-        if let Some(redirect_uri) = self.redirect_uri.as_ref() {
+        if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
             self.serializer.redirect_uri(redirect_uri.as_str());
         }
 
@@ -199,11 +203,15 @@ impl TokenCredential for AuthorizationCodeCertificateCredential {
     }
 
     fn client_id(&self) -> &String {
-        &self.client_id
+        &self.app_config.client_id
     }
 
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
+    fn app_config(&self) -> &AppConfig {
+        &self.app_config
+    }
+
+    fn authority(&self) -> Authority {
+        self.app_config.authority.clone()
     }
 }
 
@@ -216,19 +224,76 @@ impl AuthorizationCodeCertificateCredentialBuilder {
     fn new() -> AuthorizationCodeCertificateCredentialBuilder {
         Self {
             credential: AuthorizationCodeCertificateCredential {
+                app_config: Default::default(),
                 authorization_code: None,
                 refresh_token: None,
-                client_id: String::with_capacity(32),
-                redirect_uri: None,
                 code_verifier: None,
-                client_assertion_type: String::new(),
-                client_assertion: CLIENT_ASSERTION_TYPE.to_owned(),
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
+                client_assertion: String::new(),
                 scope: vec![],
-                authority: Default::default(),
-                token_credential_options: TokenCredentialOptions::default(),
                 serializer: OAuthSerializer::new(),
             },
         }
+    }
+
+    pub(crate) fn new_with_auth_code(
+        app_config: AppConfig,
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeCertificateCredentialBuilder {
+        Self {
+            credential: AuthorizationCodeCertificateCredential {
+                app_config,
+                authorization_code: Some(authorization_code.as_ref().to_owned()),
+                refresh_token: None,
+                code_verifier: None,
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
+                client_assertion: String::new(),
+                scope: vec![],
+                serializer: OAuthSerializer::new(),
+            },
+        }
+    }
+
+    pub(crate) fn new_with_auth_code_and_assertion(
+        app_config: AppConfig,
+        authorization_code: impl AsRef<str>,
+        assertion: impl AsRef<str>,
+    ) -> AuthorizationCodeCertificateCredentialBuilder {
+        Self {
+            credential: AuthorizationCodeCertificateCredential {
+                app_config,
+                authorization_code: Some(authorization_code.as_ref().to_owned()),
+                refresh_token: None,
+                code_verifier: None,
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
+                client_assertion: assertion.as_ref().to_owned(),
+                scope: vec![],
+                serializer: OAuthSerializer::new(),
+            },
+        }
+    }
+
+    #[cfg(feature = "openssl")]
+    pub(crate) fn new_with_auth_code_and_x509(
+        app_config: AppConfig,
+        authorization_code: impl AsRef<str>,
+        x509: &X509Certificate,
+    ) -> anyhow::Result<AuthorizationCodeCertificateCredentialBuilder> {
+        let mut builder = Self {
+            credential: AuthorizationCodeCertificateCredential {
+                app_config,
+                authorization_code: Some(authorization_code.as_ref().to_owned()),
+                refresh_token: None,
+                code_verifier: None,
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
+                client_assertion: String::new(),
+                scope: vec![],
+                serializer: OAuthSerializer::new(),
+            },
+        };
+
+        builder.with_x509(x509)?;
+        Ok(builder)
     }
 
     pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
@@ -243,7 +308,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
     }
 
     pub fn with_redirect_uri(&mut self, redirect_uri: impl IntoUrl) -> anyhow::Result<&mut Self> {
-        self.credential.redirect_uri = Some(redirect_uri.into_url()?);
+        self.credential.app_config.redirect_uri = Some(redirect_uri.into_url()?);
         Ok(self)
     }
 
@@ -253,11 +318,11 @@ impl AuthorizationCodeCertificateCredentialBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn with_certificate(
+    pub fn with_x509(
         &mut self,
         certificate_assertion: &X509Certificate,
     ) -> anyhow::Result<&mut Self> {
-        if let Some(tenant_id) = self.credential.authority.tenant_id() {
+        if let Some(tenant_id) = self.credential.authority().tenant_id() {
             self.with_client_assertion(
                 certificate_assertion.sign_with_tenant(Some(tenant_id.clone()))?,
             );
@@ -279,6 +344,10 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         self.credential.client_assertion_type = client_assertion_type.as_ref().to_owned();
         self
     }
+
+    pub fn credential(self) -> AuthorizationCodeCertificateCredential {
+        self.credential
+    }
 }
 
 impl From<AuthCodeAuthorizationUrlParameters> for AuthorizationCodeCertificateCredentialBuilder {
@@ -299,5 +368,13 @@ impl From<AuthorizationCodeCertificateCredential>
 {
     fn from(credential: AuthorizationCodeCertificateCredential) -> Self {
         AuthorizationCodeCertificateCredentialBuilder { credential }
+    }
+}
+
+impl From<AuthorizationCodeCertificateCredentialBuilder>
+    for AuthorizationCodeCertificateCredential
+{
+    fn from(builder: AuthorizationCodeCertificateCredentialBuilder) -> Self {
+        builder.credential
     }
 }

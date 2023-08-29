@@ -1,4 +1,6 @@
-use graph_oauth::identity::{ResponseType, TokenCredential, TokenRequest};
+use graph_oauth::identity::{
+    ConfidentialClientApplication, ResponseType, TokenCredentialExecutor, TokenRequest,
+};
 use graph_oauth::oauth::{OpenIdAuthorizationUrl, OpenIdCredential};
 use graph_rs_sdk::oauth::{IdToken, MsalTokenResponse, OAuthSerializer};
 use url::Url;
@@ -26,7 +28,7 @@ fn open_id_credential(
     authorization_code: &str,
     client_id: &str,
     client_secret: &str,
-) -> anyhow::Result<OpenIdCredential> {
+) -> anyhow::Result<ConfidentialClientApplication> {
     Ok(OpenIdCredential::builder()
         .with_authorization_code(authorization_code)
         .with_client_id(client_id)
@@ -59,7 +61,7 @@ async fn handle_redirect(
     let code = id_token.code.clone();
 
     let mut credential = open_id_credential(code.as_ref(), CLIENT_ID, CLIENT_SECRET).unwrap();
-    let mut result = credential.get_token_async().await;
+    let mut result = credential.execute_async().await;
 
     dbg!(&result);
 
@@ -98,7 +100,6 @@ pub async fn start_server_main() {
         .and_then(handle_redirect);
 
     std::env::set_var("RUST_LOG", "trace");
-    std::env::set_var("GRAPH_TEST_ENV", "true");
 
     let url = open_id_authorization_url(CLIENT_ID, CLIENT_SECRET).unwrap();
     webbrowser::open(url.as_ref());

@@ -13,7 +13,7 @@ use std::env::VarError;
 // "AZURE_USERNAME" (Required)
 // "AZURE_PASSWORD"  (Required)
 pub fn username_password() -> Result<(), VarError> {
-    let public_client_application = EnvironmentCredential::resource_owner_password_credential()?;
+    let public_client = EnvironmentCredential::resource_owner_password_credential()?;
     Ok(())
 }
 
@@ -22,6 +22,6 @@ pub fn username_password() -> Result<(), VarError> {
 // "AZURE_CLIENT_ID" (Required)
 // "AZURE_CLIENT_SECRET" (Required)
 pub fn client_secret_credential() -> Result<(), VarError> {
-    let confidential_client_application = EnvironmentCredential::client_secret_credential()?;
+    let confidential_client = EnvironmentCredential::client_secret_credential()?;
     Ok(())
 }

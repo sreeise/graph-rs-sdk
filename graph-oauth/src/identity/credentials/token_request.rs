@@ -1,17 +1,19 @@
 use crate::oauth::{AuthorizationSerializer, TokenCredentialOptions};
 use async_trait::async_trait;
 
+use crate::identity::AzureCloudInstance;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
 use reqwest::ClientBuilder;
 
 #[async_trait]
 pub trait TokenRequest: AuthorizationSerializer {
-    fn token_credential_options(&self) -> &TokenCredentialOptions;
+    fn azure_cloud_instance(&self) -> AzureCloudInstance;
 
     fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
-        let options = self.token_credential_options().clone();
-        let uri = self.uri(&options.azure_authority_host)?;
+        let azure_cloud_instance = self.azure_cloud_instance();
+        let uri = self.uri(&azure_cloud_instance)?;
+
         let form = self.form_urlencode()?;
         let http_client = reqwest::blocking::ClientBuilder::new()
             .min_tls_version(Version::TLS_1_2)
@@ -38,8 +40,9 @@ pub trait TokenRequest: AuthorizationSerializer {
     }
 
     async fn get_token_async(&mut self) -> anyhow::Result<reqwest::Response> {
-        let options = self.token_credential_options().clone();
-        let uri = self.uri(&options.azure_authority_host)?;
+        let azure_cloud_instance = self.azure_cloud_instance();
+        let uri = self.uri(&azure_cloud_instance)?;
+
         let form = self.form_urlencode()?;
         let http_client = ClientBuilder::new()
             .min_tls_version(Version::TLS_1_2)

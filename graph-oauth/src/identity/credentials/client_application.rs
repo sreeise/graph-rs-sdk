@@ -1,9 +1,9 @@
-use crate::identity::{CredentialStoreType, TokenCredential};
+use crate::identity::{CredentialStoreType, TokenCredentialExecutor};
 use crate::oauth::MsalTokenResponse;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait ClientApplication: TokenCredential {
+pub trait ClientApplication: TokenCredentialExecutor {
     fn get_credential_from_store(&self) -> &CredentialStoreType;
 
     fn update_token_credential_store(&mut self, credential_store_type: CredentialStoreType);
@@ -14,7 +14,7 @@ pub trait ClientApplication: TokenCredential {
         if !credential_from_store.eq(&CredentialStoreType::UnInitialized) {
             Ok(credential_from_store.clone())
         } else {
-            let response = self.get_token()?;
+            let response = self.execute()?;
             let token_value: serde_json::Value = response.json()?;
             let bearer = token_value.to_string();
             let access_token_result: serde_json::Result<MsalTokenResponse> =
@@ -40,7 +40,7 @@ pub trait ClientApplication: TokenCredential {
         if !credential_from_store.eq(&CredentialStoreType::UnInitialized) {
             Ok(credential_from_store.clone())
         } else {
-            let response = self.get_token_async().await?;
+            let response = self.execute_async().await?;
             let token_value: serde_json::Value = response.json().await?;
             let bearer = token_value.to_string();
             let access_token_result: serde_json::Result<MsalTokenResponse> =

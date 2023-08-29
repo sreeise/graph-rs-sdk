@@ -60,18 +60,11 @@ impl CodeFlowCredential {
 
 impl AuthorizationSerializer for CodeFlowCredential {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
-        if azure_authority_host.ne(&AzureCloudInstance::OneDriveAndSharePoint) {
-            return AuthorizationFailure::msg_result(
-                "uri",
-                "Code flow can only be used with AzureCloudInstance::OneDriveAndSharePoint",
-            );
-        }
-
         self.serializer
             .authority(azure_authority_host, &Authority::Common);
 
         if self.refresh_token.is_none() {
-            let uri = self.serializer.get(OAuthParameter::AccessTokenUrl).ok_or(
+            let uri = self.serializer.get(OAuthParameter::TokenUrl).ok_or(
                 AuthorizationFailure::msg_err("access_token_url", "Internal Error"),
             )?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)

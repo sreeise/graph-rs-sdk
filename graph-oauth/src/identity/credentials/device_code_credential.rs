@@ -1,15 +1,18 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{Authority, AzureCloudInstance, TokenCredential, TokenCredentialOptions};
-use crate::oauth::DeviceCode;
+use crate::identity::{
+    Authority, AzureCloudInstance, TokenCredentialExecutor, TokenCredentialOptions,
+};
+use crate::oauth::{DeviceCode, PublicClientApplication};
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 
 use std::collections::HashMap;
 
+use crate::identity::credentials::app_config::AppConfig;
 use url::Url;
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
-credential_builder_impl!(DeviceCodeCredentialBuilder, DeviceCodeCredential);
+credential_builder!(DeviceCodeCredentialBuilder, PublicClientApplication);
 
 /// Allows users to sign in to input-constrained devices such as a smart TV, IoT device,
 /// or a printer. To enable this flow, the device has the user visit a webpage in a browser on
@@ -18,14 +21,11 @@ credential_builder_impl!(DeviceCodeCredentialBuilder, DeviceCodeCredential);
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
 #[derive(Clone)]
 pub struct DeviceCodeCredential {
+    pub(crate) app_config: AppConfig,
     /// Required when requesting a new access token using a refresh token
     /// The refresh token needed to make an access token request using a refresh token.
     /// Do not include an authorization code when using a refresh token.
     pub(crate) refresh_token: Option<String>,
-    /// Required.
-    /// The Application (client) ID that the Azure portal - App registrations page assigned
-    /// to your app
-    pub(crate) client_id: String,
     /// Required.
     /// The device_code returned in the device authorization request.
     /// A device_code is a long string used to verify the session between the client and the authorization server.
@@ -37,9 +37,6 @@ pub struct DeviceCodeCredential {
     /// to the authorization code flow, intended to allow apps to declare the resource they want
     /// the token for during token redemption.
     pub(crate) scope: Vec<String>,
-    /// The Azure Active Directory tenant (directory) Id of the service principal.
-    pub(crate) authority: Authority,
-    pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuthSerializer,
 }
 
@@ -50,12 +47,10 @@ impl DeviceCodeCredential {
         scope: I,
     ) -> DeviceCodeCredential {
         DeviceCodeCredential {
+            app_config: AppConfig::new_with_client_id(client_id),
             refresh_token: None,
-            client_id: client_id.as_ref().to_owned(),
             device_code: Some(device_code.as_ref().to_owned()),
             scope: scope.into_iter().map(|s| s.to_string()).collect(),
-            authority: Default::default(),
-            token_credential_options: Default::default(),
             serializer: Default::default(),
         }
     }
@@ -154,15 +149,15 @@ impl DeviceCodeCredential {
     }
 }
 
-impl TokenCredential for DeviceCodeCredential {
+impl TokenCredentialExecutor for DeviceCodeCredential {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.authority);
+            .authority(azure_authority_host, &self.app_config.authority);
 
         if self.refresh_token.is_none() {
             let uri = self
                 .serializer
-                .get(OAuthParameter::AccessTokenUrl)
+                .get(OAuthParameter::TokenUrl)
                 .ok_or(AF::msg_internal_err("access_token_url"))?;
             Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
         } else {
@@ -175,12 +170,13 @@ impl TokenCredential for DeviceCodeCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        if self.client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.trim();
+        if client_id.is_empty() {
             return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
 
         self.serializer
-            .client_id(self.client_id.as_str())
+            .client_id(client_id)
             .extend_scopes(self.scope.clone());
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
@@ -240,11 +236,15 @@ impl TokenCredential for DeviceCodeCredential {
     }
 
     fn client_id(&self) -> &String {
-        &self.client_id
+        &self.app_config.client_id
     }
 
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
+    fn authority(&self) -> Authority {
+        self.app_config.authority.clone()
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        &self.app_config
     }
 }
 
@@ -257,12 +257,10 @@ impl DeviceCodeCredentialBuilder {
     fn new() -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder {
             credential: DeviceCodeCredential {
+                app_config: Default::default(),
                 refresh_token: None,
-                client_id: String::with_capacity(32),
                 device_code: None,
                 scope: vec![],
-                authority: Default::default(),
-                token_credential_options: Default::default(),
                 serializer: Default::default(),
             },
         }
@@ -279,18 +277,22 @@ impl DeviceCodeCredentialBuilder {
         self.credential.refresh_token = Some(refresh_token.as_ref().to_owned());
         self
     }
+
+    /*
+     pub fn build(&self) -> PublicClientApplication {
+        PublicClientApplication::from(self.credential.clone())
+    }
+     */
 }
 
 impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
     fn from(value: &DeviceCode) -> Self {
         DeviceCodeCredentialBuilder {
             credential: DeviceCodeCredential {
+                app_config: AppConfig::new(),
                 refresh_token: None,
-                client_id: String::new(),
                 device_code: Some(value.device_code.clone()),
                 scope: vec![],
-                authority: Default::default(),
-                token_credential_options: Default::default(),
                 serializer: Default::default(),
             },
         }

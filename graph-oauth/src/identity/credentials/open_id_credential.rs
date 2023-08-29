@@ -1,16 +1,17 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     Authority, AzureCloudInstance, OpenIdAuthorizationUrl, ProofKeyForCodeExchange,
-    TokenCredential, TokenCredentialOptions,
+    TokenCredentialExecutor,
 };
-use crate::oauth::OpenIdAuthorizationUrlBuilder;
+use crate::oauth::{ConfidentialClientApplication, OpenIdAuthorizationUrlBuilder};
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
 
-credential_builder_impl!(OpenIdCredentialBuilder, OpenIdCredential);
+credential_builder!(OpenIdCredentialBuilder, ConfidentialClientApplication);
 
 /// OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional
 /// authentication protocol. You can use OIDC to enable single sign-on (SSO) between your
@@ -18,6 +19,8 @@ credential_builder_impl!(OpenIdCredentialBuilder, OpenIdCredential);
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
 #[derive(Clone)]
 pub struct OpenIdCredential {
+    pub(crate) app_config: AppConfig,
+
     /// Required unless requesting a refresh token
     /// The authorization code obtained from a call to authorize.
     /// The code should be obtained with all required scopes.
@@ -26,10 +29,6 @@ pub struct OpenIdCredential {
     /// The refresh token needed to make an access token request using a refresh token.
     /// Do not include an authorization code when using a refresh token.
     pub(crate) refresh_token: Option<String>,
-    /// Required.
-    /// The Application (client) ID that the Azure portal - App registrations page assigned
-    /// to your app
-    pub(crate) client_id: String,
     /// Required
     /// The application secret that you created in the app registration portal for your app.
     /// Don't use the application secret in a native app or single page app because a
@@ -41,20 +40,17 @@ pub struct OpenIdCredential {
     /// header, per RFC 6749 is also supported.
     pub(crate) client_secret: String,
     /// The same redirect_uri value that was used to acquire the authorization_code.
-    pub(crate) redirect_uri: Url,
+    // pub(crate) redirect_uri: Url,
     /// A space-separated list of scopes. The scopes must all be from a single resource,
     /// along with OIDC scopes (profile, openid, email). For more information, see Permissions
     /// and consent in the Microsoft identity platform. This parameter is a Microsoft extension
     /// to the authorization code flow, intended to allow apps to declare the resource they want
     /// the token for during token redemption.
     pub(crate) scope: Vec<String>,
-    /// The Azure Active Directory tenant (directory) Id of the service principal.
-    pub(crate) authority: Authority,
     /// The same code_verifier that was used to obtain the authorization_code.
     /// Required if PKCE was used in the authorization code grant request. For more information,
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
     pub(crate) code_verifier: Option<String>,
-    pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuthSerializer,
 }
 
@@ -66,17 +62,21 @@ impl OpenIdCredential {
         redirect_uri: U,
     ) -> AuthorizationResult<OpenIdCredential> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
-
         Ok(OpenIdCredential {
+            app_config: AppConfig {
+                tenant_id: None,
+                client_id: client_id.as_ref().to_owned(),
+                authority: Default::default(),
+                authority_url: Default::default(),
+                extra_query_parameters: Default::default(),
+                extra_header_parameters: Default::default(),
+                redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
+            },
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
-            client_id: client_id.as_ref().to_owned(),
             client_secret: client_secret.as_ref().to_owned(),
-            redirect_uri: redirect_uri.into_url().or(redirect_uri_result)?,
             scope: vec!["openid".to_owned()],
-            authority: Default::default(),
             code_verifier: None,
-            token_credential_options: TokenCredentialOptions::default(),
             serializer: OAuthSerializer::new(),
         })
     }
@@ -96,15 +96,15 @@ impl OpenIdCredential {
 }
 
 #[async_trait]
-impl TokenCredential for OpenIdCredential {
+impl TokenCredentialExecutor for OpenIdCredential {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.authority);
+            .authority(azure_authority_host, &self.app_config.authority);
 
         if self.refresh_token.is_none() {
             let uri = self
                 .serializer
-                .get(OAuthParameter::AccessTokenUrl)
+                .get(OAuthParameter::TokenUrl)
                 .ok_or(AF::msg_internal_err("access_token_url"))?;
             Url::parse(uri.as_str()).map_err(AF::from)
         } else {
@@ -117,7 +117,8 @@ impl TokenCredential for OpenIdCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        if self.client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.trim();
+        if client_id.is_empty() {
             return AF::result(OAuthParameter::ClientId.alias());
         }
 
@@ -126,7 +127,7 @@ impl TokenCredential for OpenIdCredential {
         }
 
         self.serializer
-            .client_id(self.client_id.as_str())
+            .client_id(client_id)
             .client_secret(self.client_secret.as_str())
             .extend_scopes(self.scope.clone());
 
@@ -156,10 +157,13 @@ impl TokenCredential for OpenIdCredential {
                 );
             }
 
+            if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
+                self.serializer.redirect_uri(redirect_uri.as_str());
+            }
+
             self.serializer
                 .authorization_code(authorization_code.as_ref())
-                .grant_type("authorization_code")
-                .redirect_uri(self.redirect_uri.as_str());
+                .grant_type("authorization_code");
 
             if let Some(code_verifier) = self.code_verifier.as_ref() {
                 self.serializer.code_verifier(code_verifier.as_str());
@@ -188,15 +192,22 @@ impl TokenCredential for OpenIdCredential {
     }
 
     fn client_id(&self) -> &String {
-        &self.client_id
+        &self.app_config.client_id
     }
 
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
+    fn authority(&self) -> Authority {
+        self.app_config.authority.clone()
     }
 
     fn basic_auth(&self) -> Option<(String, String)> {
-        Some((self.client_id.clone(), self.client_secret.clone()))
+        Some((
+            self.app_config.client_id.clone(),
+            self.client_secret.clone(),
+        ))
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        &self.app_config
     }
 }
 
@@ -207,18 +218,17 @@ pub struct OpenIdCredentialBuilder {
 
 impl OpenIdCredentialBuilder {
     fn new() -> OpenIdCredentialBuilder {
+        let redirect_url = Url::parse("http://localhost").expect("Internal Error - please report");
+        let mut app_config = AppConfig::new();
+        app_config.redirect_uri = Some(redirect_url);
         Self {
             credential: OpenIdCredential {
+                app_config,
                 authorization_code: None,
                 refresh_token: None,
-                client_id: String::with_capacity(32),
                 client_secret: String::new(),
-                redirect_uri: Url::parse("http://localhost")
-                    .expect("Internal Error - please report"),
                 scope: vec![],
-                authority: Default::default(),
                 code_verifier: None,
-                token_credential_options: TokenCredentialOptions::default(),
                 serializer: OAuthSerializer::new(),
             },
         }
@@ -238,7 +248,7 @@ impl OpenIdCredentialBuilder {
 
     /// Defaults to http://localhost
     pub fn with_redirect_uri<U: IntoUrl>(&mut self, redirect_uri: U) -> anyhow::Result<&mut Self> {
-        self.credential.redirect_uri = redirect_uri.into_url()?;
+        self.credential.app_config.redirect_uri = Some(redirect_uri.into_url()?);
         Ok(self)
     }
 
@@ -252,12 +262,16 @@ impl OpenIdCredentialBuilder {
         self
     }
 
-    pub fn with_proof_key_for_code_exchange(
+    pub fn with_pkce(
         &mut self,
         proof_key_for_code_exchange: &ProofKeyForCodeExchange,
     ) -> &mut Self {
         self.with_code_verifier(proof_key_for_code_exchange.code_verifier.as_str());
         self
+    }
+
+    pub fn credential(&self) -> &OpenIdCredential {
+        &self.credential
     }
 }
 
@@ -292,7 +306,7 @@ mod test {
             .with_authority(Authority::TenantId("common".into()))
             .build();
 
-        assert_eq!(credential.authority, Authority::TenantId("common".into()))
+        assert_eq!(credential.authority(), Authority::TenantId("common".into()))
     }
 
     #[test]
@@ -301,6 +315,6 @@ mod test {
             .with_authority(Authority::AzureDirectoryFederatedServices)
             .build();
 
-        assert_eq!(credential.authority.as_ref(), "adfs");
+        assert_eq!(credential.authority().as_ref(), "adfs");
     }
 }

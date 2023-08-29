@@ -13,7 +13,7 @@ fn graph_discovery_oauth_v1() {
         Some(keys.authorization_endpoint.to_string())
     );
     assert_eq!(
-        oauth.get(OAuthParameter::AccessTokenUrl),
+        oauth.get(OAuthParameter::TokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
@@ -35,7 +35,7 @@ fn graph_discovery_oauth_v2() {
         Some(keys.authorization_endpoint)
     );
     assert_eq!(
-        oauth.get(OAuthParameter::AccessTokenUrl),
+        oauth.get(OAuthParameter::TokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(
@@ -57,7 +57,7 @@ async fn async_graph_discovery_oauth_v2() {
         Some(keys.authorization_endpoint)
     );
     assert_eq!(
-        oauth.get(OAuthParameter::AccessTokenUrl),
+        oauth.get(OAuthParameter::TokenUrl),
         Some(keys.token_endpoint.to_string())
     );
     assert_eq!(

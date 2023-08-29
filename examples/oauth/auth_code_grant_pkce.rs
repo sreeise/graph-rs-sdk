@@ -1,7 +1,7 @@
 use graph_rs_sdk::error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    MsalTokenResponse, ProofKeyForCodeExchange, TokenCredential, TokenRequest,
+    MsalTokenResponse, ProofKeyForCodeExchange, TokenCredentialExecutor, TokenRequest,
 };
 use lazy_static::lazy_static;
 use warp::{get, Filter};
@@ -43,21 +43,6 @@ fn authorization_sign_in() {
     webbrowser::open(url.as_str()).unwrap();
 }
 
-/// Build the Authorization Code Grant Credential.
-fn get_confidential_client_application(
-    authorization_code: &str,
-) -> anyhow::Result<ConfidentialClientApplication> {
-    let credential = AuthorizationCodeCredential::builder()
-        .with_authorization_code(authorization_code)
-        .with_client_id(CLIENT_ID)
-        .with_client_secret(CLIENT_SECRET)
-        .with_redirect_uri("http://localhost:8000/redirect")?
-        .with_proof_key_for_code_exchange(&PKCE)
-        .build();
-
-    Ok(ConfidentialClientApplication::from(credential))
-}
-
 // When the authorization code comes in on the redirect from sign in, call the get_credential
 // method passing in the authorization code. The AuthorizationCodeCredential can be passed
 // to a confidential client application in order to exchange the authorization code
@@ -70,11 +55,17 @@ async fn handle_redirect(
             // Print out the code for debugging purposes.
             println!("{:#?}", access_code.code);
 
-            let mut confidential_client =
-                get_confidential_client_application(access_code.code.as_str()).unwrap();
+            let authorization_code = access_code.code;
+            let mut confidential_client = AuthorizationCodeCredential::builder(authorization_code)
+                .with_client_id(CLIENT_ID)
+                .with_client_secret(CLIENT_SECRET)
+                .with_redirect_uri("http://localhost:8000/redirect")
+                .unwrap()
+                .with_pkce(&PKCE)
+                .build();
 
             // Returns reqwest::Response
-            let response = confidential_client.get_token_async().await.unwrap();
+            let response = confidential_client.execute_async().await.unwrap();
             println!("{response:#?}");
 
             if response.status().is_success() {

@@ -24,7 +24,7 @@ pub enum OAuthParameter {
     ClientId,
     ClientSecret,
     AuthorizationUrl,
-    AccessTokenUrl,
+    TokenUrl,
     RefreshTokenUrl,
     RedirectUri,
     AuthorizationCode,
@@ -61,7 +61,7 @@ impl OAuthParameter {
             OAuthParameter::ClientId => "client_id",
             OAuthParameter::ClientSecret => "client_secret",
             OAuthParameter::AuthorizationUrl => "authorization_url",
-            OAuthParameter::AccessTokenUrl => "access_token_url",
+            OAuthParameter::TokenUrl => "access_token_url",
             OAuthParameter::RefreshTokenUrl => "refresh_token_url",
             OAuthParameter::RedirectUri => "redirect_uri",
             OAuthParameter::AuthorizationCode => "code",
@@ -172,9 +172,8 @@ impl OAuthSerializer {
     pub fn insert<V: ToString>(&mut self, oac: OAuthParameter, value: V) -> &mut OAuthSerializer {
         let v = value.to_string();
         match oac {
-            OAuthParameter::RefreshTokenUrl
-            | OAuthParameter::PostLogoutRedirectURI
-            | OAuthParameter::AccessTokenUrl
+            OAuthParameter::PostLogoutRedirectURI
+            | OAuthParameter::TokenUrl
             | OAuthParameter::AuthorizationUrl
             | OAuthParameter::LogoutURL => {
                 Url::parse(v.as_ref())
@@ -203,9 +202,8 @@ impl OAuthSerializer {
     pub fn entry_with<V: ToString>(&mut self, oac: OAuthParameter, value: V) -> &mut String {
         let v = value.to_string();
         match oac {
-            OAuthParameter::RefreshTokenUrl
-            | OAuthParameter::PostLogoutRedirectURI
-            | OAuthParameter::AccessTokenUrl
+            OAuthParameter::PostLogoutRedirectURI
+            | OAuthParameter::TokenUrl
             | OAuthParameter::AuthorizationUrl
             | OAuthParameter::LogoutURL => {
                 Url::parse(v.as_ref())
@@ -337,10 +335,10 @@ impl OAuthSerializer {
     /// ```
     /// # use graph_oauth::oauth::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
-    /// oauth.access_token_url("https://example.com/token");
+    /// oauth.token_uri("https://example.com/token");
     /// ```
-    pub fn access_token_url(&mut self, value: &str) -> &mut OAuthSerializer {
-        self.insert(OAuthParameter::AccessTokenUrl, value)
+    pub fn token_uri(&mut self, value: &str) -> &mut OAuthSerializer {
+        self.insert(OAuthParameter::TokenUrl, value)
     }
 
     /// Set the refresh token url of a request for OAuth
@@ -368,9 +366,7 @@ impl OAuthSerializer {
         let token_url = format!("https://login.microsoftonline.com/{value}/oauth2/v2.0/token",);
         let auth_url = format!("https://login.microsoftonline.com/{value}/oauth2/v2.0/authorize",);
 
-        self.authorization_url(&auth_url)
-            .access_token_url(&token_url)
-            .refresh_token_url(&token_url)
+        self.authorization_url(&auth_url).token_uri(&token_url)
     }
 
     /// Set the authorization, access token, and refresh token URL
@@ -387,10 +383,6 @@ impl OAuthSerializer {
         host: &AzureCloudInstance,
         authority: &Authority,
     ) -> &mut OAuthSerializer {
-        if host.eq(&AzureCloudInstance::OneDriveAndSharePoint) {
-            return self.legacy_authority();
-        }
-
         let token_url = format!("{}/{}/oauth2/v2.0/token", host.as_ref(), authority.as_ref());
         let auth_url = format!(
             "{}/{}/oauth2/v2.0/authorize",
@@ -398,9 +390,7 @@ impl OAuthSerializer {
             authority.as_ref()
         );
 
-        self.authorization_url(&auth_url)
-            .access_token_url(&token_url)
-            .refresh_token_url(&token_url)
+        self.authorization_url(&auth_url).token_uri(&token_url)
     }
 
     pub fn authority_admin_consent(
@@ -411,15 +401,13 @@ impl OAuthSerializer {
         let token_url = format!("{}/{}/oauth2/v2.0/token", host.as_ref(), authority.as_ref());
         let auth_url = format!("{}/{}/adminconsent", host.as_ref(), authority.as_ref());
 
-        self.authorization_url(&auth_url)
-            .access_token_url(&token_url)
-            .refresh_token_url(&token_url)
+        self.authorization_url(&auth_url).token_uri(&token_url)
     }
 
     pub fn legacy_authority(&mut self) -> &mut OAuthSerializer {
-        self.authorization_url(AzureCloudInstance::OneDriveAndSharePoint.as_ref());
-        self.access_token_url(AzureCloudInstance::OneDriveAndSharePoint.as_ref());
-        self.refresh_token_url(AzureCloudInstance::OneDriveAndSharePoint.as_ref())
+        let url = "https://login.live.com/oauth20_desktop.srf".to_string();
+        self.authorization_url(url.as_str());
+        self.token_uri(url.as_str())
     }
 
     /// Set the redirect url of a request
@@ -1935,7 +1923,7 @@ impl DeviceCodeGrant {
     pub fn access_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthParameter::AccessTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::TokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -2052,7 +2040,7 @@ impl AsyncDeviceCodeGrant {
     pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthParameter::AccessTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::TokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -2213,7 +2201,7 @@ impl AccessTokenGrant {
     pub fn access_token(&mut self) -> AccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthParameter::AccessTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::TokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));
@@ -2377,7 +2365,7 @@ impl AsyncAccessTokenGrant {
     pub fn access_token(&mut self) -> AsyncAccessTokenRequest {
         self.oauth
             .pre_request_check(self.grant, GrantRequest::AccessToken);
-        let uri = self.oauth.get_or_else(OAuthParameter::AccessTokenUrl);
+        let uri = self.oauth.get_or_else(OAuthParameter::TokenUrl);
         let params = self
             .oauth
             .params(self.grant.available_credentials(GrantRequest::AccessToken));

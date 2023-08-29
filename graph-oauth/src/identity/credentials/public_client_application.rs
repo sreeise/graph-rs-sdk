@@ -1,6 +1,7 @@
+use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    AzureCloudInstance, DeviceCodeCredential, ResourceOwnerPasswordCredential, TokenCredential,
-    TokenCredentialOptions,
+    Authority, AzureCloudInstance, DeviceCodeCredential, ResourceOwnerPasswordCredential,
+    TokenCredentialExecutor, TokenCredentialOptions,
 };
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;
@@ -17,26 +18,34 @@ use url::Url;
 /// https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
 pub struct PublicClientApplication {
     http_client: reqwest::Client,
-    token_credential_options: TokenCredentialOptions,
-    credential: Box<dyn TokenCredential + Send>,
+    credential: Box<dyn TokenCredentialExecutor + Send>,
 }
 
 impl PublicClientApplication {
-    pub fn new<T>(
-        credential: T,
-        options: TokenCredentialOptions,
-    ) -> anyhow::Result<PublicClientApplication>
+    pub fn new<T>(credential: T) -> PublicClientApplication
     where
         T: Into<PublicClientApplication>,
     {
-        let mut public_client_application = credential.into();
-        public_client_application.token_credential_options = options;
-        Ok(public_client_application)
+        credential.into()
+    }
+
+    pub(crate) fn credential<T>(credential: T) -> PublicClientApplication
+    where
+        T: TokenCredentialExecutor + Send + 'static,
+    {
+        PublicClientApplication {
+            http_client: ClientBuilder::new()
+                .min_tls_version(Version::TLS_1_2)
+                .https_only(true)
+                .build()
+                .unwrap(),
+            credential: Box::new(credential),
+        }
     }
 }
 
 #[async_trait]
-impl TokenCredential for PublicClientApplication {
+impl TokenCredentialExecutor for PublicClientApplication {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.credential.uri(azure_authority_host)
     }
@@ -49,13 +58,22 @@ impl TokenCredential for PublicClientApplication {
         self.credential.client_id()
     }
 
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
+    fn authority(&self) -> Authority {
+        self.credential.authority()
     }
 
-    fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
-        let azure_authority_host = self.token_credential_options.azure_authority_host;
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.credential.azure_cloud_instance()
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        self.credential.app_config()
+    }
+
+    fn execute(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
+        let azure_authority_host = self.azure_cloud_instance();
         let uri = self.credential.uri(&azure_authority_host)?;
+
         let form = self.credential.form_urlencode()?;
         let http_client = reqwest::blocking::ClientBuilder::new()
             .min_tls_version(Version::TLS_1_2)
@@ -80,9 +98,10 @@ impl TokenCredential for PublicClientApplication {
         }
     }
 
-    async fn get_token_async(&mut self) -> anyhow::Result<Response> {
-        let azure_authority_host = self.token_credential_options.azure_authority_host;
-        let uri = self.credential.uri(&azure_authority_host)?;
+    async fn execute_async(&mut self) -> anyhow::Result<Response> {
+        let azure_cloud_instance = self.credential.azure_cloud_instance();
+        let uri = self.credential.uri(&azure_cloud_instance)?;
+
         let form = self.credential.form_urlencode()?;
         let basic_auth = self.credential.basic_auth();
         let mut headers = HeaderMap::new();
@@ -115,28 +134,12 @@ impl TokenCredential for PublicClientApplication {
 
 impl From<ResourceOwnerPasswordCredential> for PublicClientApplication {
     fn from(value: ResourceOwnerPasswordCredential) -> Self {
-        PublicClientApplication {
-            http_client: ClientBuilder::new()
-                .min_tls_version(Version::TLS_1_2)
-                .https_only(true)
-                .build()
-                .unwrap(),
-            token_credential_options: value.token_credential_options.clone(),
-            credential: Box::new(value),
-        }
+        PublicClientApplication::credential(value)
     }
 }
 
 impl From<DeviceCodeCredential> for PublicClientApplication {
     fn from(value: DeviceCodeCredential) -> Self {
-        PublicClientApplication {
-            http_client: ClientBuilder::new()
-                .min_tls_version(Version::TLS_1_2)
-                .https_only(true)
-                .build()
-                .unwrap(),
-            token_credential_options: value.token_credential_options.clone(),
-            credential: Box::new(value),
-        }
+        PublicClientApplication::credential(value)
     }
 }

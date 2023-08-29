@@ -1,5 +1,8 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{Authority, AzureCloudInstance, TokenCredential, TokenCredentialOptions};
+use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::{
+    Authority, AzureCloudInstance, TokenCredentialExecutor, TokenCredentialOptions,
+};
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use std::collections::HashMap;
@@ -12,10 +15,7 @@ use url::Url;
 /// https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.3
 #[derive(Clone)]
 pub struct ResourceOwnerPasswordCredential {
-    /// Required.
-    /// The Application (client) ID that the Azure portal - App registrations page assigned
-    /// to your app
-    pub(crate) client_id: String,
+    pub(crate) app_config: AppConfig,
     /// Required
     /// The user's email address.
     pub(crate) username: String,
@@ -27,8 +27,6 @@ pub struct ResourceOwnerPasswordCredential {
     /// suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
     /// Default is https://graph.microsoft.com/.default.
     pub(crate) scope: Vec<String>,
-    pub(crate) authority: Authority,
-    pub(crate) token_credential_options: TokenCredentialOptions,
     serializer: OAuthSerializer,
 }
 
@@ -38,30 +36,28 @@ impl ResourceOwnerPasswordCredential {
         username: T,
         password: T,
     ) -> ResourceOwnerPasswordCredential {
+        let mut app_config = AppConfig::new_with_client_id(client_id.as_ref());
+        app_config.authority = Authority::Organizations;
         ResourceOwnerPasswordCredential {
-            client_id: client_id.as_ref().to_owned(),
+            app_config,
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
             scope: vec![],
-            authority: Default::default(),
-            token_credential_options: Default::default(),
             serializer: Default::default(),
         }
     }
 
     pub fn new_with_tenant<T: AsRef<str>>(
-        tenant: T,
+        tenant_id: T,
         client_id: T,
         username: T,
         password: T,
     ) -> ResourceOwnerPasswordCredential {
         ResourceOwnerPasswordCredential {
-            client_id: client_id.as_ref().to_owned(),
+            app_config: AppConfig::init(tenant_id.as_ref().to_owned(), client_id),
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
             scope: vec![],
-            authority: Authority::TenantId(tenant.as_ref().to_owned()),
-            token_credential_options: Default::default(),
             serializer: Default::default(),
         }
     }
@@ -72,20 +68,21 @@ impl ResourceOwnerPasswordCredential {
 }
 
 #[async_trait]
-impl TokenCredential for ResourceOwnerPasswordCredential {
+impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.authority);
+            .authority(azure_authority_host, &self.app_config.authority);
 
         let uri = self
             .serializer
-            .get(OAuthParameter::AccessTokenUrl)
+            .get(OAuthParameter::TokenUrl)
             .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
         Url::parse(uri.as_str()).map_err(AF::from)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        if self.client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.trim();
+        if client_id.trim().is_empty() {
             return AF::result(OAuthParameter::ClientId.alias());
         }
 
@@ -98,7 +95,7 @@ impl TokenCredential for ResourceOwnerPasswordCredential {
         }
 
         self.serializer
-            .client_id(self.client_id.as_str())
+            .client_id(client_id)
             .grant_type("password")
             .extend_scopes(self.scope.iter());
 
@@ -109,15 +106,19 @@ impl TokenCredential for ResourceOwnerPasswordCredential {
     }
 
     fn client_id(&self) -> &String {
-        &self.client_id
+        &self.app_config.client_id
     }
 
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
+    fn authority(&self) -> Authority {
+        self.app_config.authority.clone()
     }
 
     fn basic_auth(&self) -> Option<(String, String)> {
         Some((self.username.to_string(), self.password.to_string()))
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        todo!()
     }
 }
 
@@ -130,22 +131,23 @@ impl ResourceOwnerPasswordCredentialBuilder {
     fn new() -> ResourceOwnerPasswordCredentialBuilder {
         ResourceOwnerPasswordCredentialBuilder {
             credential: ResourceOwnerPasswordCredential {
-                client_id: String::with_capacity(32),
+                app_config: Default::default(),
                 username: String::new(),
                 password: String::new(),
                 scope: vec![],
-                authority: Authority::Organizations,
-                token_credential_options: Default::default(),
                 serializer: Default::default(),
             },
         }
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        if self.credential.client_id.is_empty() {
-            self.credential.client_id.push_str(client_id.as_ref());
+        if self.credential.app_config.client_id.is_empty() {
+            self.credential
+                .app_config
+                .client_id
+                .push_str(client_id.as_ref());
         } else {
-            self.credential.client_id = client_id.as_ref().to_owned();
+            self.credential.app_config.client_id = client_id.as_ref().to_owned();
         }
         self
     }
@@ -164,7 +166,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
     /// Use /organizations or a tenant ID instead.
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.credential.authority = Authority::TenantId(tenant.as_ref().to_owned());
+        self.credential.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
@@ -199,7 +201,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
             );
         }
 
-        self.credential.authority = authority;
+        self.credential.app_config.authority = authority;
         Ok(self)
     }
 
@@ -207,13 +209,6 @@ impl ResourceOwnerPasswordCredentialBuilder {
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
         self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
-    }
-
-    pub fn with_token_credential_options(
-        &mut self,
-        token_credential_options: TokenCredentialOptions,
-    ) {
-        self.credential.token_credential_options = token_credential_options;
     }
 
     pub fn build(&self) -> ResourceOwnerPasswordCredential {

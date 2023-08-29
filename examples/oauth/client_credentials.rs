@@ -10,8 +10,8 @@
 // only has to be done once for a user. After admin consent is given, the oauth client can be
 // used to continue getting new access tokens programmatically.
 use graph_rs_sdk::oauth::{
-    ClientSecretCredential, ConfidentialClientApplication, MsalTokenResponse, TokenCredential,
-    TokenRequest,
+    ClientSecretCredential, ConfidentialClientApplication, MsalTokenResponse,
+    TokenCredentialExecutor, TokenRequest,
 };
 
 // This example shows programmatically getting an access token using the client credentials
@@ -28,9 +28,20 @@ pub async fn get_token_silent() {
         ConfidentialClientApplication::from(client_secret_credential);
 
     let response = confidential_client_application
-        .get_token_async()
+        .execute_async()
         .await
         .unwrap();
+    println!("{response:#?}");
+
+    let body: MsalTokenResponse = response.json().await.unwrap();
+}
+
+pub async fn get_token_silent2() {
+    let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
+        .with_client_secret_credential(CLIENT_SECRET)
+        .build();
+
+    let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
     let body: MsalTokenResponse = response.json().await.unwrap();

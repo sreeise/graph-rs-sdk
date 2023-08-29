@@ -1,6 +1,6 @@
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    MsalTokenResponse, TokenCredential, TokenRequest,
+    MsalTokenResponse, TokenCredentialExecutor, TokenRequest,
 };
 use graph_rs_sdk::*;
 use warp::Filter;
@@ -23,20 +23,6 @@ pub fn authorization_sign_in() {
 
     // web browser crate in dev dependencies will open to default browser in the system.
     webbrowser::open(url.as_str()).unwrap();
-}
-
-pub fn get_confidential_client(
-    authorization_code: &str,
-) -> anyhow::Result<ConfidentialClientApplication> {
-    let auth_code_credential = AuthorizationCodeCredential::builder()
-        .with_authorization_code(authorization_code)
-        .with_client_id(CLIENT_ID)
-        .with_client_secret(CLIENT_SECRET)
-        .with_scope(vec!["files.read", "offline_access"])
-        .with_redirect_uri("http://localhost:8000/redirect")?
-        .build();
-
-    Ok(ConfidentialClientApplication::from(auth_code_credential))
 }
 
 /// # Example
@@ -71,16 +57,20 @@ async fn handle_redirect(
             // Print out the code for debugging purposes.
             println!("{access_code:#?}");
 
+            let authorization_code = access_code.code;
+
             // Set the access code and request an access token.
             // Callers should handle the Result from requesting an access token
             // in case of an error here.
-            let mut confidential_client_application =
-                get_confidential_client(access_code.code.as_str()).unwrap();
+            let mut confidential_client = AuthorizationCodeCredential::builder(authorization_code)
+                .with_client_id(CLIENT_ID)
+                .with_client_secret(CLIENT_SECRET)
+                .with_scope(vec!["files.read", "offline_access"])
+                .with_redirect_uri("http://localhost:8000/redirect")
+                .unwrap()
+                .build();
 
-            let response = confidential_client_application
-                .get_token_async()
-                .await
-                .unwrap();
+            let response = confidential_client.execute_async().await.unwrap();
             println!("{response:#?}");
 
             if response.status().is_success() {

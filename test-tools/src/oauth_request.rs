@@ -3,7 +3,8 @@
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_rs_sdk::oauth::{
-    ClientSecretCredential, MsalTokenResponse, ResourceOwnerPasswordCredential, TokenCredential,
+    ClientSecretCredential, MsalTokenResponse, ResourceOwnerPasswordCredential,
+    TokenCredentialExecutor,
 };
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};
@@ -121,12 +122,13 @@ impl OAuthTestCredentials {
     }
 
     fn client_credentials(self) -> ClientSecretCredential {
-        ClientSecretCredential::builder()
+        let mut credential = ClientSecretCredential::builder();
+        credential
             .with_client_secret(self.client_secret.as_str())
             .with_client_id(self.client_id.as_str())
             .with_tenant(self.tenant.as_str())
-            .with_scope(vec!["https://graph.microsoft.com/.default"])
-            .build()
+            .with_scope(vec!["https://graph.microsoft.com/.default"]);
+        credential.credential()
     }
 
     fn resource_owner_password_credential(self) -> ResourceOwnerPasswordCredential {
@@ -153,7 +155,7 @@ impl OAuthTestClient {
         match self {
             OAuthTestClient::ClientCredentials => {
                 let mut credential = creds.client_credentials();
-                if let Ok(response) = credential.get_token() {
+                if let Ok(response) = credential.execute() {
                     let token: MsalTokenResponse = response.json().unwrap();
                     Some((user_id, token))
                 } else {
@@ -162,7 +164,7 @@ impl OAuthTestClient {
             }
             OAuthTestClient::ResourceOwnerPasswordCredentials => {
                 let mut credential = creds.resource_owner_password_credential();
-                if let Ok(response) = credential.get_token() {
+                if let Ok(response) = credential.execute() {
                     let token: MsalTokenResponse = response.json().unwrap();
                     Some((user_id, token))
                 } else {
@@ -185,7 +187,7 @@ impl OAuthTestClient {
         match self {
             OAuthTestClient::ClientCredentials => {
                 let mut credential = creds.client_credentials();
-                match credential.get_token_async().await {
+                match credential.execute_async().await {
                     Ok(response) => {
                         let token: MsalTokenResponse = response.json().await.unwrap();
                         Some((user_id, token))
@@ -195,7 +197,7 @@ impl OAuthTestClient {
             }
             OAuthTestClient::ResourceOwnerPasswordCredentials => {
                 let mut credential = creds.resource_owner_password_credential();
-                match credential.get_token_async().await {
+                match credential.execute_async().await {
                     Ok(response) => {
                         let token: MsalTokenResponse = response.json().await.unwrap();
                         Some((user_id, token))

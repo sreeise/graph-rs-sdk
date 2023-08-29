@@ -17,8 +17,6 @@ pub enum AzureCloudInstance {
     AzureGermany,
     /// US Government cloud. Maps to https://login.microsoftonline.us
     AzureUsGovernment,
-    /// Legacy OneDrive and SharePoint. Maps to "https://login.live.com/oauth20_desktop.srf"
-    OneDriveAndSharePoint,
 }
 
 impl AsRef<str> for AzureCloudInstance {
@@ -28,9 +26,6 @@ impl AsRef<str> for AzureCloudInstance {
             AzureCloudInstance::AzureChina => "https://login.chinacloudapi.cn",
             AzureCloudInstance::AzureGermany => "https://login.microsoftonline.de",
             AzureCloudInstance::AzureUsGovernment => "https://login.microsoftonline.us",
-            AzureCloudInstance::OneDriveAndSharePoint => {
-                "https://login.live.com/oauth20_desktop.srf"
-            }
         }
     }
 }
@@ -56,7 +51,6 @@ impl AzureCloudInstance {
             AzureCloudInstance::AzureUsGovernment => {
                 "https://management.usgovcloudapi.net/.default"
             }
-            AzureCloudInstance::OneDriveAndSharePoint => "",
         }
     }
 }

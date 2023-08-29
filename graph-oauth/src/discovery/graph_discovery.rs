@@ -129,7 +129,7 @@ impl GraphDiscovery {
                 let k: MicrosoftSigningKeysV1 = self.signing_keys()?;
                 oauth
                     .authorization_url(k.authorization_endpoint.as_str())
-                    .access_token_url(k.token_endpoint.as_str())
+                    .token_uri(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)
@@ -138,7 +138,7 @@ impl GraphDiscovery {
                 let k: MicrosoftSigningKeysV2 = self.signing_keys()?;
                 oauth
                     .authorization_url(k.authorization_endpoint.as_str())
-                    .access_token_url(k.token_endpoint.as_str())
+                    .token_uri(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)
@@ -163,7 +163,7 @@ impl GraphDiscovery {
                 let k: MicrosoftSigningKeysV1 = self.async_signing_keys().await?;
                 oauth
                     .authorization_url(k.authorization_endpoint.as_str())
-                    .access_token_url(k.token_endpoint.as_str())
+                    .token_uri(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)
@@ -172,7 +172,7 @@ impl GraphDiscovery {
                 let k: MicrosoftSigningKeysV2 = self.async_signing_keys().await?;
                 oauth
                     .authorization_url(k.authorization_endpoint.as_str())
-                    .access_token_url(k.token_endpoint.as_str())
+                    .token_uri(k.token_endpoint.as_str())
                     .refresh_token_url(k.token_endpoint.as_str())
                     .logout_url(k.end_session_endpoint.as_str());
                 Ok(oauth)

@@ -60,7 +60,6 @@ extern crate serde;
 #[macro_use]
 extern crate log;
 extern crate pretty_env_logger;
-
 mod access_token;
 mod auth;
 mod auth_response_query;

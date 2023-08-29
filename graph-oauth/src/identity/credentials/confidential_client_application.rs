@@ -1,12 +1,24 @@
-use crate::identity::{
-    AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AzureCloudInstance,
-    ClientApplication, ClientCertificateCredential, ClientSecretCredential, CredentialStore,
-    CredentialStoreType, InMemoryCredentialStore, OpenIdCredential, TokenCacheProviderType,
-    TokenCredential, TokenCredentialOptions,
+use crate::identity::application_options::ApplicationOptions;
+use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::credentials::application_builder::{
+    ClientCredentialParameter, ConfidentialClientApplicationBuilder,
 };
-use crate::oauth::UnInitializedCredentialStore;
+use crate::identity::credentials::client_assertion_credential::ClientAssertionCredential;
+use crate::identity::{
+    AuthCodeAuthorizationUrlParameterBuilder, Authority, AuthorizationCodeCertificateCredential,
+    AuthorizationCodeCredential, AzureCloudInstance, ClientApplication,
+    ClientCertificateCredential, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredential,
+    CredentialStore, CredentialStoreType, InMemoryCredentialStore, OpenIdCredential,
+    TokenCacheProviderType, TokenCredentialExecutor, TokenCredentialOptions,
+};
+use crate::oauth::{
+    AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
+    ClientCertificateCredentialBuilder, ClientSecretCredentialBuilder,
+    UnInitializedCredentialStore,
+};
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, GraphResult};
+use http_body_util::BodyExt;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
 use reqwest::{ClientBuilder, Response};
@@ -14,32 +26,45 @@ use std::collections::HashMap;
 use url::Url;
 use wry::http::HeaderMap;
 
+pub(crate) struct CredentialExecutor<T: TokenCredentialExecutor + Send>(T);
+
 /// Clients capable of maintaining the confidentiality of their credentials
 /// (e.g., client implemented on a secure server with restricted access to the client credentials),
 /// or capable of secure client authentication using other means.
 pub struct ConfidentialClientApplication {
     http_client: reqwest::Client,
-    token_credential_options: TokenCredentialOptions,
-    credential: Box<dyn TokenCredential + Send>,
-    credential_store: Box<dyn CredentialStore + Send>,
+    credential: Box<dyn TokenCredentialExecutor + Send>,
 }
 
 impl ConfidentialClientApplication {
-    pub fn new<T>(
-        credential: T,
-        options: TokenCredentialOptions,
-    ) -> GraphResult<ConfidentialClientApplication>
+    pub(crate) fn new<T>(credential: T) -> ConfidentialClientApplication
     where
         T: Into<ConfidentialClientApplication>,
     {
-        let mut confidential_client = credential.into();
-        confidential_client.token_credential_options = options;
-        Ok(confidential_client)
+        credential.into()
+    }
+
+    pub(crate) fn credential<T>(credential: T) -> ConfidentialClientApplication
+    where
+        T: TokenCredentialExecutor + Send + 'static,
+    {
+        ConfidentialClientApplication {
+            http_client: ClientBuilder::new()
+                .min_tls_version(Version::TLS_1_2)
+                .https_only(true)
+                .build()
+                .unwrap(),
+            credential: Box::new(credential),
+        }
+    }
+
+    pub fn builder(client_id: &str) -> ConfidentialClientApplicationBuilder {
+        ConfidentialClientApplicationBuilder::new(client_id)
     }
 }
 
 #[async_trait]
-impl TokenCredential for ConfidentialClientApplication {
+impl TokenCredentialExecutor for ConfidentialClientApplication {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.credential.uri(azure_authority_host)
     }
@@ -52,13 +77,25 @@ impl TokenCredential for ConfidentialClientApplication {
         self.credential.client_id()
     }
 
-    fn token_credential_options(&self) -> &TokenCredentialOptions {
-        &self.token_credential_options
+    fn authority(&self) -> Authority {
+        self.credential.authority()
     }
 
-    fn get_token(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
-        let azure_authority_host = self.token_credential_options.azure_authority_host;
-        let uri = self.credential.uri(&azure_authority_host)?;
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.credential.azure_cloud_instance()
+    }
+
+    fn basic_auth(&self) -> Option<(String, String)> {
+        self.credential.basic_auth()
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        self.credential.app_config()
+    }
+
+    fn execute(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
+        let azure_cloud_instance = self.azure_cloud_instance();
+        let uri = self.credential.uri(&azure_cloud_instance)?;
         let form = self.credential.form_urlencode()?;
         let http_client = reqwest::blocking::ClientBuilder::new()
             .min_tls_version(Version::TLS_1_2)
@@ -84,9 +121,9 @@ impl TokenCredential for ConfidentialClientApplication {
         }
     }
 
-    async fn get_token_async(&mut self) -> anyhow::Result<Response> {
-        let azure_authority_host = self.token_credential_options.azure_authority_host;
-        let uri = self.credential.uri(&azure_authority_host)?;
+    async fn execute_async(&mut self) -> anyhow::Result<Response> {
+        let azure_cloud_instance = self.azure_cloud_instance();
+        let uri = self.credential.uri(&azure_cloud_instance)?;
         let form = self.credential.form_urlencode()?;
         let basic_auth = self.credential.basic_auth();
         let mut headers = HeaderMap::new();
@@ -117,106 +154,39 @@ impl TokenCredential for ConfidentialClientApplication {
     }
 }
 
-impl ClientApplication for ConfidentialClientApplication {
-    fn get_credential_from_store(&self) -> &CredentialStoreType {
-        match self.credential_store.token_cache_provider() {
-            TokenCacheProviderType::UnInitialized => &CredentialStoreType::UnInitialized,
-            TokenCacheProviderType::InMemory => {
-                let client_id = self.client_id();
-                self.credential_store
-                    .get_token_by_client_id(client_id.as_str())
-            }
-            TokenCacheProviderType::Session => &CredentialStoreType::UnInitialized,
-            TokenCacheProviderType::Distributed => &CredentialStoreType::UnInitialized,
-        }
-    }
-
-    fn update_token_credential_store(&mut self, credential_store_type: CredentialStoreType) {
-        match self.credential_store.token_cache_provider() {
-            TokenCacheProviderType::UnInitialized => {}
-            TokenCacheProviderType::InMemory => {
-                let client_id = self.client_id().clone();
-                self.credential_store
-                    .update_by_client_id(client_id.as_str(), credential_store_type);
-            }
-            TokenCacheProviderType::Session => {}
-            TokenCacheProviderType::Distributed => {}
-        }
-    }
-}
-
 impl From<AuthorizationCodeCredential> for ConfidentialClientApplication {
     fn from(value: AuthorizationCodeCredential) -> Self {
-        ConfidentialClientApplication {
-            http_client: ClientBuilder::new()
-                .min_tls_version(Version::TLS_1_2)
-                .https_only(true)
-                .build()
-                .unwrap(),
-            token_credential_options: value.token_credential_options.clone(),
-            credential: Box::new(value),
-            credential_store: Box::new(UnInitializedCredentialStore),
-        }
+        ConfidentialClientApplication::credential(value)
     }
 }
 
 impl From<AuthorizationCodeCertificateCredential> for ConfidentialClientApplication {
     fn from(value: AuthorizationCodeCertificateCredential) -> Self {
-        ConfidentialClientApplication {
-            http_client: ClientBuilder::new()
-                .min_tls_version(Version::TLS_1_2)
-                .https_only(true)
-                .build()
-                .unwrap(),
-            token_credential_options: value.token_credential_options.clone(),
-            credential: Box::new(value),
-            credential_store: Box::new(UnInitializedCredentialStore),
-        }
+        ConfidentialClientApplication::credential(value)
     }
 }
 
 impl From<ClientSecretCredential> for ConfidentialClientApplication {
     fn from(value: ClientSecretCredential) -> Self {
-        ConfidentialClientApplication {
-            http_client: ClientBuilder::new()
-                .min_tls_version(Version::TLS_1_2)
-                .https_only(true)
-                .build()
-                .unwrap(),
-            token_credential_options: value.token_credential_options.clone(),
-            credential: Box::new(value),
-            credential_store: Box::new(InMemoryCredentialStore::new()),
-        }
+        ConfidentialClientApplication::credential(value)
     }
 }
 
 impl From<ClientCertificateCredential> for ConfidentialClientApplication {
     fn from(value: ClientCertificateCredential) -> Self {
-        ConfidentialClientApplication {
-            http_client: ClientBuilder::new()
-                .min_tls_version(Version::TLS_1_2)
-                .https_only(true)
-                .build()
-                .unwrap(),
-            token_credential_options: value.token_credential_options.clone(),
-            credential: Box::new(value),
-            credential_store: Box::new(UnInitializedCredentialStore),
-        }
+        ConfidentialClientApplication::credential(value)
+    }
+}
+
+impl From<ClientAssertionCredential> for ConfidentialClientApplication {
+    fn from(value: ClientAssertionCredential) -> Self {
+        ConfidentialClientApplication::credential(value)
     }
 }
 
 impl From<OpenIdCredential> for ConfidentialClientApplication {
     fn from(value: OpenIdCredential) -> Self {
-        ConfidentialClientApplication {
-            http_client: ClientBuilder::new()
-                .min_tls_version(Version::TLS_1_2)
-                .https_only(true)
-                .build()
-                .unwrap(),
-            token_credential_options: value.token_credential_options.clone(),
-            credential: Box::new(value),
-            credential_store: Box::new(UnInitializedCredentialStore),
-        }
+        ConfidentialClientApplication::credential(value)
     }
 }
 
@@ -227,8 +197,7 @@ mod test {
 
     #[test]
     fn confidential_client_new() {
-        let credential = AuthorizationCodeCredential::builder()
-            .with_authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+        let credential = AuthorizationCodeCredential::builder("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
             .with_client_id("bb301aaa-1201-4259-a230923fds32")
             .with_client_secret("CLDIE3F")
             .with_scope(vec!["Read.Write", "Fall.Down"])
@@ -236,9 +205,7 @@ mod test {
             .unwrap()
             .build();
 
-        let mut confidential_client =
-            ConfidentialClientApplication::new(credential, TokenCredentialOptions::default())
-                .unwrap();
+        let mut confidential_client = ConfidentialClientApplication::from(credential);
         let credential_uri = confidential_client
             .credential
             .uri(&AzureCloudInstance::AzurePublic)
@@ -252,18 +219,14 @@ mod test {
 
     #[test]
     fn confidential_client_tenant() {
-        let credential = AuthorizationCodeCredential::builder()
-            .with_authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+        let credential = AuthorizationCodeCredential::builder("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
             .with_client_id("bb301aaa-1201-4259-a230923fds32")
             .with_client_secret("CLDIE3F")
-            .with_scope(vec!["Read.Write", "Fall.Down"])
             .with_redirect_uri("http://localhost:8888/redirect")
             .unwrap()
             .with_authority(Authority::Consumers)
             .build();
-        let mut confidential_client =
-            ConfidentialClientApplication::new(credential, TokenCredentialOptions::default())
-                .unwrap();
+        let mut confidential_client = ConfidentialClientApplication::from(credential);
         let credential_uri = confidential_client
             .credential
             .uri(&AzureCloudInstance::AzurePublic)
