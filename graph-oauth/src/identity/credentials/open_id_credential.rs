@@ -7,6 +7,7 @@ use crate::identity::{
 use crate::oauth::{ConfidentialClientApplication, OpenIdAuthorizationUrlBuilder};
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
+use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
@@ -51,6 +52,9 @@ pub struct OpenIdCredential {
     /// Required if PKCE was used in the authorization code grant request. For more information,
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
     pub(crate) code_verifier: Option<String>,
+    /// Used only when the client generates the pkce itself when the generate method
+    /// is called.
+    pub(crate) pkce: Option<ProofKeyForCodeExchange>,
     serializer: OAuthSerializer,
 }
 
@@ -77,6 +81,7 @@ impl OpenIdCredential {
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["openid".to_owned()],
             code_verifier: None,
+            pkce: None,
             serializer: OAuthSerializer::new(),
         })
     }
@@ -92,6 +97,10 @@ impl OpenIdCredential {
 
     pub fn authorization_url_builder() -> AuthorizationResult<OpenIdAuthorizationUrlBuilder> {
         OpenIdAuthorizationUrlBuilder::new()
+    }
+
+    pub fn pkce(&self) -> Option<&ProofKeyForCodeExchange> {
+        self.pkce.as_ref()
     }
 }
 
@@ -227,9 +236,29 @@ impl OpenIdCredentialBuilder {
                 authorization_code: None,
                 refresh_token: None,
                 client_secret: String::new(),
+                scope: vec!["openid".to_owned()],
+                code_verifier: None,
+                pkce: None,
+                serializer: OAuthSerializer::new(),
+            },
+        }
+    }
+
+    pub(crate) fn new_with_auth_code_and_secret(
+        authorization_code: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
+        app_config: AppConfig,
+    ) -> OpenIdCredentialBuilder {
+        OpenIdCredentialBuilder {
+            credential: OpenIdCredential {
+                app_config,
+                authorization_code: Some(authorization_code.as_ref().to_owned()),
+                refresh_token: None,
+                client_secret: client_secret.as_ref().to_owned(),
                 scope: vec![],
                 code_verifier: None,
-                serializer: OAuthSerializer::new(),
+                pkce: None,
+                serializer: Default::default(),
             },
         }
     }
@@ -268,6 +297,13 @@ impl OpenIdCredentialBuilder {
     ) -> &mut Self {
         self.with_code_verifier(proof_key_for_code_exchange.code_verifier.as_str());
         self
+    }
+
+    pub fn generate_pkce(&mut self) -> AuthorizationResult<&mut Self> {
+        let pkce = ProofKeyForCodeExchange::generate()?;
+        self.with_code_verifier(pkce.code_verifier.as_str());
+        self.credential.pkce = Some(pkce);
+        Ok(self)
     }
 
     pub fn credential(&self) -> &OpenIdCredential {

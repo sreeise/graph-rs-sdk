@@ -71,4 +71,12 @@ impl AuthorizationFailure {
     pub fn url_parse_error<T>(url_parse_error: url::ParseError) -> Result<T, AuthorizationFailure> {
         Err(AuthorizationFailure::UrlParseError(url_parse_error))
     }
+
+    pub fn condition(cond: bool, name: &str, msg: &str) -> AuthorizationResult<()> {
+        if cond {
+            AF::msg_result(name, msg)
+        } else {
+            Ok(())
+        }
+    }
 }

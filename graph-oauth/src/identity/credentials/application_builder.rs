@@ -7,6 +7,10 @@ use crate::identity::{
 };
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
+use crate::oauth::OpenIdCredentialBuilder;
+use graph_error::{AuthorizationResult, AF};
+use http::{HeaderMap, HeaderName, HeaderValue};
+use std::collections::HashMap;
 use url::Url;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -36,11 +40,11 @@ impl Default for AuthorityHost {
 }
 
 pub struct ConfidentialClientApplicationBuilder {
-    app_config: AppConfig,
+    pub(crate) app_config: AppConfig,
 }
 
 impl ConfidentialClientApplicationBuilder {
-    pub fn new(client_id: impl AsRef<str>) -> ConfidentialClientApplicationBuilder {
+    pub fn new(client_id: impl AsRef<str>) -> Self {
         ConfidentialClientApplicationBuilder {
             app_config: AppConfig::new_with_client_id(client_id),
         }
@@ -48,17 +52,64 @@ impl ConfidentialClientApplicationBuilder {
 
     pub fn new_with_application_options(
         application_options: ApplicationOptions,
-    ) -> anyhow::Result<ConfidentialClientApplicationBuilder> {
-        ConfidentialClientApplicationBuilder::try_from(application_options)
+    ) -> AuthorizationResult<ConfidentialClientApplicationBuilder> {
+        Ok(ConfidentialClientApplicationBuilder::try_from(
+            application_options,
+        )?)
     }
 
-    pub fn get_authorization_request_url<T: ToString, I: IntoIterator<Item = T>>(
+    pub fn with_tenant_id(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
+        let tenant = tenant_id.as_ref().to_string();
+        self.app_config.tenant_id = Some(tenant.clone());
+        self.app_config.authority = Authority::TenantId(tenant);
+        self
+    }
+
+    /// Extends the query parameters of both the default query params and user defined params.
+    /// Does not overwrite default params.
+    pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
+        self.app_config
+            .extra_query_parameters
+            .insert(query_param.0, query_param.1);
+        self
+    }
+
+    /// Extends the query parameters of both the default query params and user defined params.
+    /// Does not overwrite default params.
+    pub fn with_extra_query_parameters(
         &mut self,
-        scopes: I,
-    ) -> AuthCodeAuthorizationUrlParameterBuilder {
-        let mut builder = AuthCodeAuthorizationUrlParameterBuilder::new();
-        builder.with_scope(scopes);
-        builder
+        query_parameters: HashMap<String, String>,
+    ) -> &mut Self {
+        self.app_config
+            .extra_query_parameters
+            .extend(query_parameters);
+        self
+    }
+
+    /// Extends the header parameters of both the default header params and user defined params.
+    /// Does not overwrite default params.
+    pub fn with_extra_header_param<K: Into<HeaderName>, V: Into<HeaderValue>>(
+        &mut self,
+        header_name: K,
+        header_value: V,
+    ) -> &mut Self {
+        self.app_config
+            .extra_header_parameters
+            .insert(header_name.into(), header_value.into());
+        self
+    }
+
+    /// Extends the header parameters of both the default header params and user defined params.
+    /// Does not overwrite default params.
+    pub fn with_extra_header_parameters(&mut self, header_parameters: HeaderMap) -> &mut Self {
+        self.app_config
+            .extra_header_parameters
+            .extend(header_parameters);
+        self
+    }
+
+    pub fn get_authorization_request_url(&mut self) -> AuthCodeAuthorizationUrlParameterBuilder {
+        AuthCodeAuthorizationUrlParameterBuilder::new()
     }
 
     pub fn get_client_credential_request_url(
@@ -68,21 +119,21 @@ impl ConfidentialClientApplicationBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn with_client_certificate_credential(
+    pub fn with_client_x509_certificate(
         self,
         certificate: &X509Certificate,
     ) -> anyhow::Result<ClientCertificateCredentialBuilder> {
         ClientCertificateCredentialBuilder::new_with_certificate(certificate, self.app_config)
     }
 
-    pub fn with_client_secret_credential(
+    pub fn with_client_secret(
         self,
         client_secret: impl AsRef<str>,
     ) -> ClientSecretCredentialBuilder {
         ClientSecretCredentialBuilder::new_with_client_secret(client_secret, self.app_config)
     }
 
-    pub fn with_client_assertion_credential(
+    pub fn with_client_assertion(
         self,
         signed_assertion: impl AsRef<str>,
     ) -> ClientAssertionCredentialBuilder {
@@ -92,7 +143,7 @@ impl ConfidentialClientApplicationBuilder {
         )
     }
 
-    pub fn with_authorization_code_credential(
+    pub fn with_authorization_code(
         self,
         authorization_code: impl AsRef<str>,
     ) -> AuthorizationCodeCredentialBuilder {
@@ -112,7 +163,7 @@ impl ConfidentialClientApplicationBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn with_authorization_code_certificate(
+    pub fn with_authorization_code_x509_certificate(
         self,
         authorization_code: impl AsRef<str>,
         x509: &X509Certificate,
@@ -121,6 +172,18 @@ impl ConfidentialClientApplicationBuilder {
             self.into(),
             authorization_code,
             x509,
+        )
+    }
+
+    pub fn with_open_id(
+        self,
+        authorization_code: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
+    ) -> OpenIdCredentialBuilder {
+        OpenIdCredentialBuilder::new_with_auth_code_and_secret(
+            authorization_code,
+            client_secret,
+            self.app_config,
         )
     }
 }
@@ -132,18 +195,24 @@ impl From<ConfidentialClientApplicationBuilder> for AppConfig {
 }
 
 impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
-    type Error = anyhow::Error;
+    type Error = AF;
 
     fn try_from(value: ApplicationOptions) -> Result<Self, Self::Error> {
-        anyhow::ensure!(!value.client_id.is_empty(), "Client id cannot be empty");
-        anyhow::ensure!(
+        AF::condition(
+            !value.client_id.is_empty(),
+            "Client Id",
+            "Client Id cannot be empty",
+        )?;
+        AF::condition(
             !(value.instance.is_some() && value.azure_cloud_instance.is_some()),
-            "Instance and AzureCloudInstance both specify the azure cloud instance and cannot be set at the same time"
-        );
-        anyhow::ensure!(
+            "Instance | AzureCloudInstance",
+            "Both specify the azure cloud instance and cannot be set at the same time",
+        )?;
+        AF::condition(
             !(value.tenant_id.is_some() && value.aad_authority_audience.is_some()),
-            "TenantId and AadAuthorityAudience both represent an authority audience and cannot be set at the same time"
-        );
+            "TenantId | AadAuthorityAudience",
+            "Both represent an authority audience and cannot be set at the same time",
+        )?;
 
         Ok(ConfidentialClientApplicationBuilder {
             app_config: AppConfig {
@@ -181,24 +250,32 @@ impl PublicClientApplicationBuilder {
     #[allow(dead_code)]
     pub fn create_with_application_options(
         application_options: ApplicationOptions,
-    ) -> anyhow::Result<PublicClientApplicationBuilder> {
-        PublicClientApplicationBuilder::try_from(application_options)
+    ) -> AuthorizationResult<PublicClientApplicationBuilder> {
+        Ok(PublicClientApplicationBuilder::try_from(
+            application_options,
+        )?)
     }
 }
 
 impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
-    type Error = anyhow::Error;
+    type Error = AF;
 
     fn try_from(value: ApplicationOptions) -> Result<Self, Self::Error> {
-        anyhow::ensure!(!value.client_id.is_empty(), "Client id cannot be empty");
-        anyhow::ensure!(
+        AF::condition(
+            !value.client_id.is_empty(),
+            "client_id",
+            "Client id cannot be empty",
+        )?;
+        AF::condition(
             !(value.instance.is_some() && value.azure_cloud_instance.is_some()),
-            "Instance and AzureCloudInstance both specify the azure cloud instance and cannot be set at the same time"
-        );
-        anyhow::ensure!(
+            "Instance | AzureCloudInstance",
+            "Instance and AzureCloudInstance both specify the azure cloud instance and cannot be set at the same time",
+        )?;
+        AF::condition(
             !(value.tenant_id.is_some() && value.aad_authority_audience.is_some()),
-            "TenantId and AadAuthorityAudience both represent an authority audience and cannot be set at the same time"
-        );
+            "TenantId | AadAuthorityAudience",
+            "TenantId and AadAuthorityAudience both represent an authority audience and cannot be set at the same time",
+        )?;
 
         Ok(PublicClientApplicationBuilder {
             app_config: AppConfig {
@@ -222,77 +299,93 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+    use crate::identity::AadAuthorityAudience;
+    use http::header::AUTHORIZATION;
+    use http::HeaderValue;
 
-    /*
-       #[test]
-       #[should_panic]
-       fn confidential_client_error_result_on_instance_and_aci() {
-           ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
-               client_id: "client-id".to_string(),
-               tenant_id: None,
-               aad_authority_audience: None,
-               instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
-               azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
-               redirect_uri: None,
-           })
-           .unwrap();
-       }
+    #[test]
+    #[should_panic]
+    fn confidential_client_error_result_on_instance_and_aci() {
+        ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
+            client_id: "client-id".to_string(),
+            tenant_id: None,
+            aad_authority_audience: None,
+            instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
+            azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
+            redirect_uri: None,
+        })
+        .unwrap();
+    }
 
-       #[test]
-       #[should_panic]
-       fn confidential_client_error_result_on_tenant_id_and_aad_audience() {
-           ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
-               client_id: "client-id".to_owned(),
-               tenant_id: Some("tenant_id".to_owned()),
-               aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
-               instance: None,
-               azure_cloud_instance: None,
-               redirect_uri: None,
-           })
-           .unwrap();
-       }
+    #[test]
+    #[should_panic]
+    fn confidential_client_error_result_on_tenant_id_and_aad_audience() {
+        ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
+            client_id: "client-id".to_owned(),
+            tenant_id: Some("tenant_id".to_owned()),
+            aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
+            instance: None,
+            azure_cloud_instance: None,
+            redirect_uri: None,
+        })
+        .unwrap();
+    }
 
-       #[test]
-       #[should_panic]
-       fn public_client_error_result_on_instance_and_aci() {
-           PublicClientApplicationBuilder::try_from(ApplicationOptions {
-               client_id: "client-id".to_string(),
-               tenant_id: None,
-               aad_authority_audience: None,
-               instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
-               azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
-               redirect_uri: None,
-           })
-           .unwrap();
-       }
+    #[test]
+    #[should_panic]
+    fn public_client_error_result_on_instance_and_aci() {
+        PublicClientApplicationBuilder::try_from(ApplicationOptions {
+            client_id: "client-id".to_string(),
+            tenant_id: None,
+            aad_authority_audience: None,
+            instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
+            azure_cloud_instance: Some(AzureCloudInstance::AzurePublic),
+            redirect_uri: None,
+        })
+        .unwrap();
+    }
 
-       #[test]
-       #[should_panic]
-       fn public_client_error_result_on_tenant_id_and_aad_audience() {
-           PublicClientApplicationBuilder::try_from(ApplicationOptions {
-               client_id: "client-id".to_owned(),
-               tenant_id: Some("tenant_id".to_owned()),
-               aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
-               instance: None,
-               azure_cloud_instance: None,
-               redirect_uri: None,
-           })
-           .unwrap();
-       }
-    */
+    #[test]
+    #[should_panic]
+    fn public_client_error_result_on_tenant_id_and_aad_audience() {
+        PublicClientApplicationBuilder::try_from(ApplicationOptions {
+            client_id: "client-id".to_owned(),
+            tenant_id: Some("tenant_id".to_owned()),
+            aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
+            instance: None,
+            azure_cloud_instance: None,
+            redirect_uri: None,
+        })
+        .unwrap();
+    }
 
-    /*
-       #[test]
-       fn extra_parameters() {
-           let mut confidential_client = ConfidentialClientApplicationBuilder::new("client-id");
-           confidential_client.with_extra_query_parameters(|query| {
-               query.insert("name".into(), "123".into());
-           })
-               .with_extra_header_parameters(|map| {
-                   map.insert(AUTHORIZATION, HeaderValue::from_static("Bearer Token"));
-               });
-           assert_eq!(confidential_client.extra_header_parameters.get(AUTHORIZATION).unwrap(), &HeaderValue::from_static("Bearer Token"));
-           assert_eq!(confidential_client.extra_query_parameters.get("name").unwrap(), &String::from("123"));
-       }
-    */
+    #[test]
+    fn extra_parameters() {
+        let mut confidential_client = ConfidentialClientApplicationBuilder::new("client-id");
+        let mut map = HashMap::new();
+        map.insert("name".to_owned(), "123".to_owned());
+        confidential_client.with_extra_query_parameters(map);
+
+        let mut header_map = HeaderMap::new();
+        header_map.insert(AUTHORIZATION, HeaderValue::from_static("Bearer Token"));
+        confidential_client.with_extra_header_parameters(header_map);
+
+        assert_eq!(
+            confidential_client
+                .app_config
+                .extra_header_parameters
+                .get(AUTHORIZATION)
+                .unwrap(),
+            &HeaderValue::from_static("Bearer Token")
+        );
+        assert_eq!(
+            confidential_client
+                .app_config
+                .extra_query_parameters
+                .get("name")
+                .unwrap(),
+            &String::from("123")
+        );
+    }
 }

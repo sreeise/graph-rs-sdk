@@ -36,6 +36,56 @@ macro_rules! credential_builder_base {
                 self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
                 self
             }
+
+            /// Extends the query parameters of both the default query params and user defined params.
+            /// Does not overwrite default params.
+            pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
+                self.credential
+                    .app_config
+                    .extra_query_parameters
+                    .insert(query_param.0, query_param.1);
+                self
+            }
+
+            /// Extends the query parameters of both the default query params and user defined params.
+            /// Does not overwrite default params.
+            pub fn with_extra_query_parameters(
+                &mut self,
+                query_parameters: HashMap<String, String>,
+            ) -> &mut Self {
+                self.credential
+                    .app_config
+                    .extra_query_parameters
+                    .extend(query_parameters);
+                self
+            }
+
+            /// Extends the header parameters of both the default header params and user defined params.
+            /// Does not overwrite default params.
+            pub fn with_extra_header_param<K: Into<HeaderName>, V: Into<HeaderValue>>(
+                &mut self,
+                header_name: K,
+                header_value: V,
+            ) -> &mut Self {
+                self.credential
+                    .app_config
+                    .extra_header_parameters
+                    .insert(header_name.into(), header_value.into());
+                self
+            }
+
+            /// Extends the header parameters of both the default header params and user defined params.
+            /// Does not overwrite default params.
+            pub fn with_extra_header_parameters(
+                &mut self,
+                header_parameters: HeaderMap,
+            ) -> &mut Self {
+                self.credential
+                    .app_config
+                    .extra_header_parameters
+                    .extend(header_parameters);
+                self
+            }
         }
     };
 }

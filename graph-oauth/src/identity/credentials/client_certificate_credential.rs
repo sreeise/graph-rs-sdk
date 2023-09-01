@@ -3,6 +3,7 @@ use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
+use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
 

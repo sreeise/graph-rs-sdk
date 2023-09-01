@@ -2,7 +2,7 @@ use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use crate::oauth::{DeviceCode, PublicClientApplication};
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
-
+use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 
 use crate::identity::credentials::app_config::AppConfig;

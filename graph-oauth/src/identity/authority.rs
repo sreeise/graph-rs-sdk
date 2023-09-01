@@ -19,6 +19,12 @@ pub enum AzureCloudInstance {
     AzureUsGovernment,
 }
 
+impl AzureCloudInstance {
+    pub fn get_open_id_configuration_url(&self, authority: Authority) -> String {
+        format!("{}/v2.0/{}", self.as_ref(), authority.as_ref())
+    }
+}
+
 impl AsRef<str> for AzureCloudInstance {
     fn as_ref(&self) -> &str {
         match self {

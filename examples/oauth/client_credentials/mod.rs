@@ -42,7 +42,7 @@ pub async fn get_token_silent() {
 
 pub async fn get_token_silent2() {
     let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
-        .with_client_secret_credential(CLIENT_SECRET)
+        .with_client_secret(CLIENT_SECRET)
         .build();
 
     let response = confidential_client.execute_async().await.unwrap();

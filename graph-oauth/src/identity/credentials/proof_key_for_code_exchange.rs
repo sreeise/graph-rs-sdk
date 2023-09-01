@@ -1,4 +1,5 @@
 use crate::oauth::Crypto;
+use graph_error::AuthorizationResult;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ProofKeyForCodeExchange {
@@ -49,7 +50,7 @@ impl ProofKeyForCodeExchange {
     /// generate a secure random 32-octet sequence that is base64 URL
     /// encoded (no padding). This sequence is hashed using SHA256 and
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
-    pub fn generate() -> anyhow::Result<ProofKeyForCodeExchange> {
+    pub fn generate() -> AuthorizationResult<ProofKeyForCodeExchange> {
         let (code_verifier, code_challenge) = Crypto::sha256_secure_string()?;
         Ok(ProofKeyForCodeExchange {
             code_verifier,

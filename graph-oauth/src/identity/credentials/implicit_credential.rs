@@ -3,7 +3,9 @@ use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{AzureCloudInstance, Crypto, Prompt, ResponseMode, ResponseType};
 
 use graph_error::{AuthorizationFailure, AuthorizationResult};
+use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
+use std::collections::HashMap;
 use url::form_urlencoded::Serializer;
 use url::Url;
 

@@ -218,7 +218,7 @@ impl MsalTokenResponse {
         self.id_token = Some(id_token.get_id_token());
     }
 
-    pub fn parse_id_token(&mut self) -> Option<Result<IdToken, serde_json::Error>> {
+    pub fn parse_id_token(&mut self) -> Option<Result<IdToken, serde::de::value::Error>> {
         self.id_token.clone().map(|s| IdToken::from_str(s.as_str()))
     }
 

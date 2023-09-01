@@ -7,6 +7,7 @@ use crate::identity::{
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
+use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
@@ -66,7 +67,7 @@ impl AuthorizationCodeCredential {
         authorization_code: T,
     ) -> AuthorizationResult<AuthorizationCodeCredential> {
         Ok(AuthorizationCodeCredential {
-            app_config: AppConfig::init(tenant_id, client_id),
+            app_config: AppConfig::new_with_tenant_and_client_id(tenant_id, client_id),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_secret: client_secret.as_ref().to_owned(),

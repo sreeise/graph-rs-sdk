@@ -5,6 +5,7 @@ use crate::identity::{
 use crate::oauth::{ConfidentialClientApplication, OAuthParameter, OAuthSerializer};
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
+use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
 
@@ -15,7 +16,6 @@ credential_builder!(
 
 #[derive(Clone)]
 pub struct ClientAssertionCredential {
-    /// The client (application) ID of the service principal
     pub(crate) app_config: AppConfig,
     /// The value passed for the scope parameter in this request should be the resource
     /// identifier (application ID URI) of the resource you want, affixed with the .default
@@ -30,14 +30,15 @@ pub struct ClientAssertionCredential {
 
 impl ClientAssertionCredential {
     pub fn new(
+        assertion: impl AsRef<str>,
         tenant_id: impl AsRef<str>,
         client_id: impl AsRef<str>,
     ) -> ClientAssertionCredential {
         ClientAssertionCredential {
-            app_config: AppConfig::init(tenant_id, client_id),
+            app_config: AppConfig::new_with_tenant_and_client_id(tenant_id, client_id),
             scope: vec!["https://graph.microsoft.com/.default".into()],
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
-            client_assertion: Default::default(),
+            client_assertion: assertion.as_ref().to_string(),
             refresh_token: None,
             serializer: Default::default(),
         }

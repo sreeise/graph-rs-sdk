@@ -229,6 +229,10 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
             serializer.response_types(self.response_type.iter());
         }
 
+        if let Some(response_mode) = self.response_mode.as_ref() {
+            serializer.response_mode(response_mode.as_ref());
+        }
+
         if let Some(redirect_uri) = self.redirect_uri.as_ref() {
             serializer.redirect_uri(redirect_uri.as_ref());
         }
@@ -253,13 +257,13 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
         serializer.encode_query(
             vec![
                 OAuthParameter::RedirectUri,
-                OAuthParameter::ResponseMode,
                 OAuthParameter::State,
                 OAuthParameter::Prompt,
                 OAuthParameter::LoginHint,
                 OAuthParameter::DomainHint,
             ],
             vec![
+                OAuthParameter::ResponseMode,
                 OAuthParameter::ClientId,
                 OAuthParameter::ResponseType,
                 OAuthParameter::Scope,
@@ -370,9 +374,12 @@ impl OpenIdAuthorizationUrlBuilder {
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
     ///     Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
+        /*
         if !response_mode.eq(&ResponseMode::Query) {
             self.auth_url_parameters.response_mode = Some(response_mode);
         }
+         */
+        self.auth_url_parameters.response_mode = Some(response_mode);
         self
     }
 

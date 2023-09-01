@@ -7,6 +7,7 @@ use crate::identity::{
 };
 use async_trait::async_trait;
 use graph_error::{AuthorizationResult, AF};
+use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;

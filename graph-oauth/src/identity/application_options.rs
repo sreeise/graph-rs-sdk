@@ -34,6 +34,19 @@ pub struct ApplicationOptions {
     pub redirect_uri: Option<Url>,
 }
 
+impl ApplicationOptions {
+    pub fn new(client_id: impl AsRef<str>) -> ApplicationOptions {
+        ApplicationOptions {
+            client_id: client_id.as_ref().to_owned(),
+            tenant_id: None,
+            aad_authority_audience: None,
+            instance: None,
+            azure_cloud_instance: None,
+            redirect_uri: None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

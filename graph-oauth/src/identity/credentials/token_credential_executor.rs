@@ -3,6 +3,7 @@ use crate::identity::{Authority, AzureCloudInstance};
 
 use async_trait::async_trait;
 use graph_error::AuthorizationResult;
+use http::header::ACCEPT;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
 use reqwest::ClientBuilder;
@@ -44,13 +45,65 @@ pub trait TokenCredentialExecutor {
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>>;
     fn client_id(&self) -> &String;
     fn authority(&self) -> Authority;
+
     fn azure_cloud_instance(&self) -> AzureCloudInstance {
         AzureCloudInstance::AzurePublic
     }
+
     fn basic_auth(&self) -> Option<(String, String)> {
         None
     }
+
     fn app_config(&self) -> &AppConfig;
+
+    fn openid_configuration_url(&self) -> AuthorizationResult<Url> {
+        Ok(Url::parse(
+            format!(
+                "{}/{}/2.0/.well-known/openid-configuration",
+                self.azure_cloud_instance().as_ref(),
+                self.authority().as_ref()
+            )
+            .as_str(),
+        )?)
+    }
+
+    fn get_openid_config(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
+        let open_id_url = self.openid_configuration_url()?;
+        let http_client = reqwest::blocking::ClientBuilder::new()
+            .min_tls_version(Version::TLS_1_2)
+            .https_only(true)
+            .build()?;
+        let mut headers = HeaderMap::new();
+        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
+
+        let response = http_client
+            .get(open_id_url)
+            .headers(headers)
+            .send()
+            .expect("Error on header");
+
+        Ok(response)
+    }
+
+    async fn get_openid_config_async(&mut self) -> anyhow::Result<reqwest::Response> {
+        let open_id_config_url = self.openid_configuration_url()?;
+        let http_client = ClientBuilder::new()
+            .min_tls_version(Version::TLS_1_2)
+            .https_only(true)
+            .build()?;
+        let mut headers = HeaderMap::new();
+        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
+
+        let response = http_client
+            .get(open_id_config_url)
+            .headers(headers)
+            .send()
+            .await?;
+
+        println!("{:#?}", response);
+
+        Ok(response)
+    }
 
     fn execute(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
         let options = self.azure_cloud_instance();
@@ -110,5 +163,38 @@ pub trait TokenCredentialExecutor {
                 .send()
                 .await?)
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::identity::credentials::application_builder::ConfidentialClientApplicationBuilder;
+
+    #[test]
+    fn open_id_configuration_url_authority_tenant_id() {
+        let open_id = ConfidentialClientApplicationBuilder::new("client-id")
+            .with_open_id("auth-code", "client-secret")
+            .with_tenant("tenant-id")
+            .build();
+
+        let url = open_id.openid_configuration_url().unwrap();
+        assert_eq!(
+            "https://login.microsoftonline.com/tenant-id/2.0/.well-known/openid-configuration",
+            url.as_str()
+        )
+    }
+
+    #[test]
+    fn open_id_configuration_url_authority_common() {
+        let open_id = ConfidentialClientApplicationBuilder::new("client-id")
+            .with_open_id("auth-code", "client-secret")
+            .build();
+
+        let url = open_id.openid_configuration_url().unwrap();
+        assert_eq!(
+            "https://login.microsoftonline.com/common/2.0/.well-known/openid-configuration",
+            url.as_str()
+        )
     }
 }

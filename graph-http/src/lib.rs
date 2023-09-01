@@ -4,7 +4,6 @@ extern crate serde;
 mod blocking;
 mod client;
 mod core;
-mod pipeline;
 mod request_components;
 mod request_handler;
 mod resource_identifier;
@@ -23,7 +22,6 @@ pub(crate) mod internal {
     pub use crate::client::*;
     pub use crate::core::*;
     pub use crate::io_tools::*;
-    pub use crate::pipeline::*;
     pub use crate::request_components::*;
     pub use crate::request_handler::*;
     pub use crate::resource_identifier::*;

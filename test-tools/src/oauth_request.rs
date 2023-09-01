@@ -123,7 +123,7 @@ impl OAuthTestCredentials {
 
     fn client_credentials(self) -> ClientSecretCredential {
         let mut builder = ConfidentialClientApplication::builder(self.client_id.as_str())
-            .with_client_secret_credential(self.client_secret.as_str());
+            .with_client_secret(self.client_secret.as_str());
 
         builder
             .with_tenant(self.tenant.as_str())

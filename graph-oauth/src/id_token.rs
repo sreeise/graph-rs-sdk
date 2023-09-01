@@ -1,23 +1,22 @@
 use crate::jwt::{JsonWebToken, JwtParser};
-use serde::de::{Error, Visitor};
+use serde::de::{Error, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fmt::{Debug, Formatter};
 
 use std::str::FromStr;
-use url::form_urlencoded;
+use url::form_urlencoded::parse;
 
 #[derive(Default, Clone, Eq, PartialEq, Serialize)]
 pub struct IdToken {
-    code: Option<String>,
-    id_token: String,
-    state: Option<String>,
-    session_state: Option<String>,
+    pub code: Option<String>,
+    pub id_token: String,
+    pub state: Option<String>,
+    pub session_state: Option<String>,
     #[serde(flatten)]
-    additional_fields: HashMap<String, Value>,
+    pub additional_fields: HashMap<String, Value>,
     #[serde(skip)]
     log_pii: bool,
 }
@@ -80,7 +79,7 @@ impl IdToken {
 }
 
 impl TryFrom<String> for IdToken {
-    type Error = std::io::Error;
+    type Error = serde::de::value::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let id_token: IdToken = IdToken::from_str(value.as_str())?;
@@ -89,7 +88,7 @@ impl TryFrom<String> for IdToken {
 }
 
 impl TryFrom<&str> for IdToken {
-    type Error = std::io::Error;
+    type Error = serde::de::value::Error;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let id_token: IdToken = IdToken::from_str(value)?;
@@ -135,22 +134,26 @@ impl<'de> Deserialize<'de> for IdToken {
             where
                 E: Error,
             {
-                IdToken::from_str(v).map_err(|err| Error::custom(err))
+                let d = serde_urlencoded::Deserializer::new(parse(v.as_bytes()));
+                d.deserialize_str(IdTokenVisitor)
+                    .map_err(|err| Error::custom(err))
             }
 
             fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
             where
                 E: serde::de::Error,
             {
-                let vec: Vec<(Cow<str>, Cow<str>)> = form_urlencoded::parse(v).collect();
+                let d = serde_urlencoded::Deserializer::new(parse(v));
+                d.deserialize_bytes(IdTokenVisitor)
+                    .map_err(|err| Error::custom(err))
+            }
 
-                if vec.is_empty() {
-                    return serde_json::from_slice(v)
-                        .map_err(|err| serde::de::Error::custom(err.to_string()));
-                }
-
+            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+            where
+                A: MapAccess<'de>,
+            {
                 let mut id_token = IdToken::default();
-                for (key, value) in vec.iter() {
+                while let Ok(Some((key, value))) = map.next_entry::<String, String>() {
                     match key.as_bytes() {
                         b"code" => id_token.code(value.as_ref()),
                         b"id_token" => id_token.id_token(value.as_ref()),
@@ -163,6 +166,7 @@ impl<'de> Deserialize<'de> for IdToken {
                         }
                     }
                 }
+
                 Ok(id_token)
             }
         }
@@ -171,27 +175,9 @@ impl<'de> Deserialize<'de> for IdToken {
 }
 
 impl FromStr for IdToken {
-    type Err = serde_json::Error;
+    type Err = serde::de::value::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let vec: Vec<(Cow<str>, Cow<str>)> = form_urlencoded::parse(s.as_bytes()).collect();
-        if vec.is_empty() {
-            return serde_json::from_slice(s.as_bytes());
-        }
-        let mut id_token = IdToken::default();
-        for (key, value) in vec.iter() {
-            match key.as_bytes() {
-                b"code" => id_token.code(value.as_ref()),
-                b"id_token" => id_token.id_token(value.as_ref()),
-                b"state" => id_token.state(value.as_ref()),
-                b"session_state" => id_token.session_state(value.as_ref()),
-                _ => {
-                    id_token
-                        .additional_fields
-                        .insert(key.to_string(), Value::String(value.to_string()));
-                }
-            }
-        }
-        Ok(id_token)
+        serde_urlencoded::from_str(s)
     }
 }

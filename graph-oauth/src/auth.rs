@@ -504,16 +504,16 @@ impl OAuthSerializer {
     /// oauth.id_token(IdToken::new("1345", "code", "state", "session_state"));
     /// ```
     pub fn id_token(&mut self, value: IdToken) -> &mut OAuthSerializer {
-        if let Some(code) = value.get_code() {
+        if let Some(code) = value.code {
             self.authorization_code(code.as_str());
         }
-        if let Some(state) = value.get_state() {
+        if let Some(state) = value.state {
             let _ = self.entry_with(OAuthParameter::State, state.as_str());
         }
-        if let Some(session_state) = value.get_session_state() {
+        if let Some(session_state) = value.session_state {
             self.session_state(session_state.as_str());
         }
-        self.insert(OAuthParameter::IdToken, value.get_id_token().as_str())
+        self.insert(OAuthParameter::IdToken, value.id_token.as_str())
     }
 
     /// Set the session state.

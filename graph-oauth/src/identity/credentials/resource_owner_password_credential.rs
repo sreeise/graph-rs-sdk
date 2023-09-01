@@ -52,7 +52,7 @@ impl ResourceOwnerPasswordCredential {
         password: T,
     ) -> ResourceOwnerPasswordCredential {
         ResourceOwnerPasswordCredential {
-            app_config: AppConfig::init(tenant_id.as_ref(), client_id),
+            app_config: AppConfig::new_with_tenant_and_client_id(tenant_id.as_ref(), client_id),
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
             scope: vec![],
@@ -69,7 +69,7 @@ impl ResourceOwnerPasswordCredential {
 impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.app_config.authority);
+            .authority(&azure_authority_host, &self.app_config.authority);
 
         let uri = self
             .serializer

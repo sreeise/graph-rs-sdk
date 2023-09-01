@@ -6,6 +6,10 @@ use url::Url;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct AppConfig {
+    /// The directory tenant that you want to request permission from.
+    /// This can be in GUID or friendly name format.
+    /// If you don't know which tenant the user belongs to
+    /// and you want to let them sign in with any tenant, use common.
     pub(crate) tenant_id: Option<String>,
     /// Required.
     /// The Application (client) ID that the Azure portal - App registrations page assigned
@@ -47,7 +51,10 @@ impl AppConfig {
         }
     }
 
-    pub(crate) fn init(tenant_id: impl AsRef<str>, client_id: impl AsRef<str>) -> AppConfig {
+    pub(crate) fn new_with_tenant_and_client_id(
+        tenant_id: impl AsRef<str>,
+        client_id: impl AsRef<str>,
+    ) -> AppConfig {
         AppConfig {
             tenant_id: Some(tenant_id.as_ref().to_string()),
             client_id: client_id.as_ref().to_string(),

@@ -102,7 +102,7 @@ async fn handle_redirect(
             let x509 = x509_certificate(CLIENT_ID, TENANT).unwrap();
 
             let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
-                .with_authorization_code_certificate(authorization_code, &x509)
+                .with_authorization_code_x509_certificate(authorization_code, &x509)
                 .unwrap()
                 .with_tenant(TENANT)
                 .with_scope(vec!["User.Read"])

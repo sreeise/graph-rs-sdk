@@ -7,6 +7,7 @@ use crate::identity::{
 
 use async_trait::async_trait;
 use graph_error::{AuthorizationFailure, AuthorizationResult};
+use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
 
@@ -59,7 +60,7 @@ impl ClientSecretCredential {
         client_secret: T,
     ) -> ClientSecretCredential {
         ClientSecretCredential {
-            app_config: AppConfig::init(tenant_id, client_id),
+            app_config: AppConfig::new_with_tenant_and_client_id(tenant_id, client_id),
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
@@ -81,7 +82,7 @@ impl TokenCredentialExecutor for ClientSecretCredential {
             self.serializer
                 .get(OAuthParameter::TokenUrl)
                 .ok_or(AuthorizationFailure::msg_err(
-                    "access_token_url",
+                    "token_url for access and refresh tokens missing",
                     "Internal Error",
                 ))?;
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
@@ -135,14 +136,9 @@ pub struct ClientSecretCredentialBuilder {
 }
 
 impl ClientSecretCredentialBuilder {
-    fn new() -> Self {
-        Self {
-            credential: ClientSecretCredential {
-                app_config: Default::default(),
-                client_secret: String::new(),
-                scope: vec!["https://graph.microsoft.com/.default".into()],
-                serializer: Default::default(),
-            },
+    pub fn new<T: AsRef<str>>(client_id: T, client_secret: T) -> Self {
+        ClientSecretCredentialBuilder {
+            credential: ClientSecretCredential::new(client_id, client_secret),
         }
     }
 
@@ -150,7 +146,6 @@ impl ClientSecretCredentialBuilder {
         client_secret: impl AsRef<str>,
         app_config: AppConfig,
     ) -> ClientSecretCredentialBuilder {
-        println!("{:#?}", &app_config);
         Self {
             credential: ClientSecretCredential {
                 app_config,
@@ -168,11 +163,5 @@ impl ClientSecretCredentialBuilder {
 
     pub fn credential(&self) -> ClientSecretCredential {
         self.credential.clone()
-    }
-}
-
-impl Default for ClientSecretCredentialBuilder {
-    fn default() -> Self {
-        Self::new()
     }
 }
