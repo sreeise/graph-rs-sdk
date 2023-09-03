@@ -247,11 +247,11 @@ pub mod oauth {
 }
 
 pub mod http {
+    pub use graph_extensions::http::{HttpResponseBuilderExt, HttpResponseExt};
     pub use graph_http::api_impl::{BodyRead, FileConfig, UploadSession};
     pub use graph_http::traits::{
-        AsyncIterator, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
-        ODataMetadataLink, ODataNextLink, ODataQuery, ResponseBlockingExt, ResponseExt,
-        UploadSessionLink,
+        AsyncIterator, ODataDeltaLink, ODataDownloadLink, ODataMetadataLink, ODataNextLink,
+        ODataQuery, ResponseBlockingExt, ResponseExt, UploadSessionLink,
     };
     pub use reqwest::tls::Version;
     pub use reqwest::{Body, Method};

@@ -354,11 +354,8 @@ impl AuthorizationCodeCertificateCredentialBuilder {
 impl From<AuthCodeAuthorizationUrlParameters> for AuthorizationCodeCertificateCredentialBuilder {
     fn from(value: AuthCodeAuthorizationUrlParameters) -> Self {
         let mut builder = AuthorizationCodeCertificateCredentialBuilder::new();
-        let _ = builder.with_redirect_uri(value.redirect_uri);
-        builder
-            .with_scope(value.scope)
-            .with_client_id(value.client_id)
-            .with_authority(value.authority);
+        builder.credential.app_config = value.app_config;
+        builder.with_scope(value.scope);
 
         builder
     }

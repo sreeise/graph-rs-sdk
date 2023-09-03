@@ -404,6 +404,21 @@ impl OAuthSerializer {
         self.authorization_url(&auth_url).token_uri(&token_url)
     }
 
+    pub fn authority_device_code(
+        &mut self,
+        host: &AzureCloudInstance,
+        authority: &Authority,
+    ) -> &mut OAuthSerializer {
+        let token_url = format!("{}/{}/oauth2/v2.0/token", host.as_ref(), authority.as_ref());
+        let auth_url = format!(
+            "{}/{}/oauth2/v2.0/devicecode",
+            host.as_ref(),
+            authority.as_ref()
+        );
+
+        self.authorization_url(&auth_url).token_uri(&token_url)
+    }
+
     pub fn legacy_authority(&mut self) -> &mut OAuthSerializer {
         let url = "https://login.live.com/oauth20_desktop.srf".to_string();
         self.authorization_url(url.as_str());

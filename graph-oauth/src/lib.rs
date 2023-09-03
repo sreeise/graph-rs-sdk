@@ -28,28 +28,26 @@
 //!
 //!
 //! # Example
-//! ```
-//! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication, CredentialBuilder};
+//! ```rust
+//! use url::Url;
+//! use graph_error::AuthorizationResult;
+//! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication};
 //!
-//! pub fn authorization_url(client_id: &str) {
-//!     let _url = AuthorizationCodeCredential::authorization_url_builder()
+//! pub fn authorization_url(client_id: &str) -> AuthorizationResult<Url> {
+//!     AuthorizationCodeCredential::authorization_url_builder()
 //!         .with_client_id(client_id)
 //!         .with_redirect_uri("http://localhost:8000/redirect")
 //!         .with_scope(vec!["user.read"])
 //!         .url()
-//!         .unwrap();
 //! }
 //!
 //! pub fn get_confidential_client(authorization_code: &str, client_id: &str, client_secret: &str) -> anyhow::Result<ConfidentialClientApplication> {
-//!     let credential = AuthorizationCodeCredential::builder()
+//!     Ok(AuthorizationCodeCredential::builder(client_id)
 //!         .with_authorization_code(authorization_code)
-//!         .with_client_id(client_id)
 //!         .with_client_secret(client_secret)
 //!         .with_scope(vec!["user.read"])
 //!         .with_redirect_uri("http://localhost:8000/redirect")?
-//!         .build();
-//!
-//!     Ok(ConfidentialClientApplication::from(credential))
+//!         .build())
 //! }
 //! ```
 
@@ -60,15 +58,13 @@ extern crate serde;
 #[macro_use]
 extern crate log;
 extern crate pretty_env_logger;
+
 mod access_token;
 mod auth;
-mod auth_response_query;
-mod device_code;
 mod discovery;
 mod grants;
 mod id_token;
 pub mod jwt;
-mod oauth2_header;
 mod oauth_error;
 
 pub mod identity;
@@ -79,8 +75,6 @@ pub mod oauth {
     pub use crate::auth::GrantSelector;
     pub use crate::auth::OAuthParameter;
     pub use crate::auth::OAuthSerializer;
-    pub use crate::auth_response_query::*;
-    pub use crate::device_code::*;
     pub use crate::discovery::graph_discovery;
     pub use crate::discovery::jwt_keys;
     pub use crate::discovery::well_known;
@@ -88,7 +82,6 @@ pub mod oauth {
     pub use crate::grants::GrantType;
     pub use crate::id_token::IdToken;
     pub use crate::identity::*;
-    pub use crate::oauth2_header::*;
     pub use crate::oauth_error::OAuthError;
     pub use crate::strum::IntoEnumIterator;
 }

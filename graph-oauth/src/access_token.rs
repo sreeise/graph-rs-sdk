@@ -383,7 +383,7 @@ impl TryFrom<reqwest::blocking::Response> for MsalTokenResponse {
 impl fmt::Debug for MsalTokenResponse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.log_pii {
-            f.debug_struct("AccessToken")
+            f.debug_struct("MsalAccessToken")
                 .field("bearer_token", &self.access_token)
                 .field("refresh_token", &self.refresh_token)
                 .field("token_type", &self.token_type)
@@ -396,13 +396,23 @@ impl fmt::Debug for MsalTokenResponse {
                 .field("additional_fields", &self.additional_fields)
                 .finish()
         } else {
-            f.debug_struct("AccessToken")
-                .field("bearer_token", &"[REDACTED]")
+            f.debug_struct("MsalAccessToken")
+                .field(
+                    "bearer_token",
+                    &"[REDACTED]  - call enable_pii_logging(true) to log value",
+                )
+                .field(
+                    "refresh_token",
+                    &"[REDACTED] - call enable_pii_logging(true) to log value",
+                )
                 .field("token_type", &self.token_type)
                 .field("expires_in", &self.expires_in)
                 .field("scope", &self.scope)
                 .field("user_id", &self.user_id)
-                .field("id_token", &"[REDACTED]")
+                .field(
+                    "id_token",
+                    &"[REDACTED] - call enable_pii_logging(true) to log value",
+                )
                 .field("state", &self.state)
                 .field("timestamp", &self.timestamp)
                 .field("additional_fields", &self.additional_fields)

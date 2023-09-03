@@ -1,5 +1,6 @@
 use crate::AuthorizationResult;
 
+
 pub type AF = AuthorizationFailure;
 
 #[derive(Debug, thiserror::Error)]
@@ -79,4 +80,14 @@ impl AuthorizationFailure {
             Ok(())
         }
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum AuthExecutionError {
+    #[error("{0:#?}")]
+    AuthorizationFailure(#[from] AuthorizationFailure),
+    #[error("{0:#?}")]
+    RequestError(#[from] reqwest::Error),
+    #[error("{0:#?}")]
+    SerdeError(#[from] serde_json::error::Error),
 }

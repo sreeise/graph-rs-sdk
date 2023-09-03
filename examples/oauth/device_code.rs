@@ -1,4 +1,5 @@
 use graph_oauth::identity::{DeviceCodeCredential, TokenCredentialExecutor};
+use graph_oauth::oauth::DeviceCodeCredentialBuilder;
 use graph_rs_sdk::oauth::{MsalTokenResponse, OAuthSerializer};
 use graph_rs_sdk::GraphResult;
 use std::time::Duration;

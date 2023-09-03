@@ -8,7 +8,7 @@ use crate::identity::{
 };
 
 use async_trait::async_trait;
-use graph_error::AuthorizationResult;
+use graph_error::{AuthExecutionResult, AuthorizationResult};
 
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
@@ -82,7 +82,7 @@ impl TokenCredentialExecutor for ConfidentialClientApplication {
         self.credential.app_config()
     }
 
-    fn execute(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
+    fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
         let azure_cloud_instance = self.azure_cloud_instance();
         let uri = self.credential.uri(&azure_cloud_instance)?;
         let form = self.credential.form_urlencode()?;
@@ -110,7 +110,7 @@ impl TokenCredentialExecutor for ConfidentialClientApplication {
         }
     }
 
-    async fn execute_async(&mut self) -> anyhow::Result<Response> {
+    async fn execute_async(&mut self) -> AuthExecutionResult<Response> {
         let azure_cloud_instance = self.azure_cloud_instance();
         let uri = self.credential.uri(&azure_cloud_instance)?;
         let form = self.credential.form_urlencode()?;

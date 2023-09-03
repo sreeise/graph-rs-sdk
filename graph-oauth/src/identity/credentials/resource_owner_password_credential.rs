@@ -69,7 +69,7 @@ impl ResourceOwnerPasswordCredential {
 impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
     fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(&azure_authority_host, &self.app_config.authority);
+            .authority(azure_authority_host, &self.app_config.authority);
 
         let uri = self
             .serializer

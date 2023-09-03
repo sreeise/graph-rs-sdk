@@ -1,14 +1,14 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, Crypto, Prompt, ResponseMode,
     ResponseType,
 };
 use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
-use std::collections::BTreeSet;
 use reqwest::IntoUrl;
+use std::collections::BTreeSet;
 use url::form_urlencoded::Serializer;
 use url::Url;
-use crate::identity::credentials::app_config::AppConfig;
 
 /// OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional
 /// authentication protocol. You can use OIDC to enable single sign-on (SSO) between your
@@ -160,14 +160,8 @@ impl OpenIdAuthorizationUrl {
 }
 
 impl AuthorizationUrl for OpenIdAuthorizationUrl {
-    fn redirect_uri(&self) -> AuthorizationResult<Url> {
-        let redirect_uri = self.app_config.redirect_uri.as_ref()
-            .ok_or(AuthorizationFailure::msg_err(
-                "redirect_uri",
-                "If not provided, the authorization server will pick one registered redirect_uri at random to send the user back to"
-            ))?;
-
-        Url::parse(redirect_uri.as_str()).map_err(AuthorizationFailure::from)
+    fn redirect_uri(&self) -> Option<&Url> {
+        self.app_config.redirect_uri.as_ref()
     }
 
     fn authorization_url(&self) -> AuthorizationResult<Url> {
@@ -250,6 +244,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
         let mut encoder = Serializer::new(String::new());
         serializer.encode_query(
             vec![
+                OAuthParameter::ResponseMode,
                 OAuthParameter::RedirectUri,
                 OAuthParameter::State,
                 OAuthParameter::Prompt,
@@ -257,7 +252,6 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
                 OAuthParameter::DomainHint,
             ],
             vec![
-                OAuthParameter::ResponseMode,
                 OAuthParameter::ClientId,
                 OAuthParameter::ResponseType,
                 OAuthParameter::Scope,
@@ -320,7 +314,8 @@ impl OpenIdAuthorizationUrlBuilder {
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.auth_url_parameters.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
+        self.auth_url_parameters.app_config.authority =
+            Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
@@ -481,7 +476,8 @@ mod test {
     #[test]
     #[should_panic]
     fn unsupported_response_type() {
-        let _ = OpenIdAuthorizationUrl::builder().unwrap()
+        let _ = OpenIdAuthorizationUrl::builder()
+            .unwrap()
             .with_response_type([ResponseType::Code, ResponseType::Token])
             .with_client_id("client_id")
             .with_scope(["scope"])

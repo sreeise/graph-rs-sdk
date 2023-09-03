@@ -1,10 +1,11 @@
 use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::credentials::application_builder::PublicClientApplicationBuilder;
 use crate::identity::{
     Authority, AzureCloudInstance, DeviceCodeCredential, ResourceOwnerPasswordCredential,
     TokenCredentialExecutor,
 };
 use async_trait::async_trait;
-use graph_error::AuthorizationResult;
+use graph_error::{AuthExecutionResult, AuthorizationResult};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
 use reqwest::{ClientBuilder, Response};
@@ -42,12 +43,16 @@ impl PublicClientApplication {
             credential: Box::new(credential),
         }
     }
+
+    pub fn builder(client_id: impl AsRef<str>) -> PublicClientApplicationBuilder {
+        PublicClientApplicationBuilder::new(client_id.as_ref())
+    }
 }
 
 #[async_trait]
 impl TokenCredentialExecutor for PublicClientApplication {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
-        self.credential.uri(azure_authority_host)
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+        self.credential.uri(azure_cloud_instance)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
@@ -70,7 +75,7 @@ impl TokenCredentialExecutor for PublicClientApplication {
         self.credential.app_config()
     }
 
-    fn execute(&mut self) -> anyhow::Result<reqwest::blocking::Response> {
+    fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
         let azure_authority_host = self.azure_cloud_instance();
         let uri = self.credential.uri(&azure_authority_host)?;
 
@@ -98,7 +103,7 @@ impl TokenCredentialExecutor for PublicClientApplication {
         }
     }
 
-    async fn execute_async(&mut self) -> anyhow::Result<Response> {
+    async fn execute_async(&mut self) -> AuthExecutionResult<Response> {
         let azure_cloud_instance = self.credential.azure_cloud_instance();
         let uri = self.credential.uri(&azure_cloud_instance)?;
 

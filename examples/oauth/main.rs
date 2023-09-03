@@ -31,9 +31,7 @@ use graph_rs_sdk::oauth::{
 };
 
 #[tokio::main]
-async fn main() {
-
-}
+async fn main() {}
 
 /*
    // Some examples of what you can use for authentication and getting access tokens. There are

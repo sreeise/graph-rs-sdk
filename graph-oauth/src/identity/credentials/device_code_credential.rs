@@ -1,41 +1,19 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
-use crate::oauth::{DeviceCode, PublicClientApplication};
-use graph_error::{AuthorizationFailure, AuthorizationResult, AF, GraphFailure, GraphResult};
+use crate::oauth::{DeviceCode, PollDeviceCodeType, PublicClientApplication};
+
+use graph_error::{
+    AuthExecutionError, AuthExecutionResult, AuthorizationFailure, AuthorizationResult, AF,
+};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
+use std::ops::Add;
+use std::str::FromStr;
 use std::time::Duration;
-use anyhow::anyhow;
 
 use crate::identity::credentials::app_config::AppConfig;
+
 use url::Url;
-
-/*
-fn response_to_http_response(response: reqwest::Response) -> anyhow::Result<http::Response<>> {
-    let status = response.status();
-    let url = response.url().clone();
-    let headers = response.headers().clone();
-    let version = response.version();
-
-    let body: serde_json::Value = response.json().await?;
-    let next_link = body.odata_next_link();
-    let json = body.clone();
-    let body_result: Result<T, ErrorMessage> = serde_json::from_value(body)
-        .map_err(|_| serde_json::from_value(json.clone()).unwrap_or(ErrorMessage::default()));
-
-    let mut builder = http::Response::builder()
-        .url(url)
-        .json(&json)
-        .status(http::StatusCode::from(&status))
-        .version(version);
-
-    for builder_header in builder.headers_mut().iter_mut() {
-        builder_header.extend(headers.clone());
-    }
-
-    Ok(builder.body(body_result))
-}
- */
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -94,80 +72,100 @@ impl DeviceCodeCredential {
         self
     }
 
-/*
-    pub async fn poll_async(&mut self, buffer: Option<usize>) -> tokio::sync::mpsc::Receiver<anyhow::Result<http::Response<serde_json::Value>>> {
+    pub async fn poll_async(
+        &mut self,
+        buffer: Option<usize>,
+    ) -> AuthExecutionResult<tokio::sync::mpsc::Receiver<http::Response<serde_json::Value>>> {
         let (sender, receiver) = {
             if let Some(buffer) = buffer {
                 tokio::sync::mpsc::channel(buffer)
-            }  else {
+            } else {
                 tokio::sync::mpsc::channel(100)
             }
         };
 
         let mut credential = self.clone();
-        let mut application = PublicClientApplication::from(self.clone());
+        let result = credential
+            .execute_async()
+            .await
+            .map_err(AuthExecutionError::from);
 
-        tokio::spawn(async move {
-            let response = application.execute_async().await.map_err(|err| anyhow!(err));
+        match result {
+            Ok(response) => {
+                let device_code_response: DeviceCode = response.json().await.unwrap();
+                println!("{:#?}", device_code_response);
 
-            match response {
-                Ok(response) => {
-                    let status = response.status();
+                let device_code = device_code_response.device_code;
+                let interval = device_code_response.interval;
+                let _message = device_code_response.message;
+                credential.with_device_code(device_code);
 
-                    let body: serde_json::Value = response.json().await.unwrap();
-                    println!("{body:#?}");
+                tokio::spawn(async move {
+                    let mut should_slow_down = false;
 
-                    let device_code = body["device_code"].as_str().unwrap();
-                    let interval = body["interval"].as_u64().unwrap();
-                    let message = body["message"].as_str().unwrap();
-                    credential.with_device_code(device_code);
-                    let mut application = PublicClientApplication::from(credential);
+                    loop {
+                        // Wait the amount of seconds that interval is.
+                        if should_slow_down {
+                            std::thread::sleep(interval.add(Duration::from_secs(5)));
+                        } else {
+                            std::thread::sleep(interval);
+                        }
 
-                    if !status.is_success() {
-                        loop {
-                            // Wait the amount of seconds that interval is.
-                            std::thread::sleep(Duration::from_secs(interval.clone()));
+                        let response = credential.execute_async().await.unwrap();
 
-                            let response = application.execute_async().await.unwrap();
+                        let status = response.status();
+                        println!("{response:#?}");
 
-                            let status = response.status();
-                            println!("{response:#?}");
+                        let body: serde_json::Value = response.json().await.unwrap();
+                        println!("{body:#?}");
 
-                            let body: serde_json::Value = response.json().await.unwrap();
-                            println!("{body:#?}");
+                        if status.is_success() {
+                            sender
+                                .send_timeout(
+                                    http::Response::builder().status(status).body(body).unwrap(),
+                                    Duration::from_secs(60),
+                                )
+                                .await
+                                .unwrap();
+                        } else {
+                            let option_error = body["error"].as_str().map(|value| value.to_owned());
+                            sender
+                                .send_timeout(
+                                    http::Response::builder().status(status).body(body).unwrap(),
+                                    Duration::from_secs(60),
+                                )
+                                .await
+                                .unwrap();
 
-                            if status.is_success() {
-                                sender.send_timeout(Ok(body), Duration::from_secs(60));
-                            } else {
-                                let option_error = body["error"].as_str();
-
-                                if let Some(error) = option_error {
-                                    match error {
-                                        "authorization_pending" => println!("Still waiting on user to sign in"),
-                                        "authorization_declined" => panic!("user declined to sign in"),
-                                        "bad_verification_code" => println!("Bad verification code. Message:\n{message:#?}"),
-                                        "expired_token" => panic!("token has expired - user did not sign in"),
-                                        _ => {
-                                            panic!("This isn't the error we expected: {error:#?}");
+                            if let Some(error) = option_error {
+                                match PollDeviceCodeType::from_str(error.as_str()) {
+                                    Ok(poll_device_code_type) => match poll_device_code_type {
+                                        PollDeviceCodeType::AuthorizationPending => continue,
+                                        PollDeviceCodeType::AuthorizationDeclined => break,
+                                        PollDeviceCodeType::BadVerificationCode => continue,
+                                        PollDeviceCodeType::ExpiredToken => break,
+                                        PollDeviceCodeType::InvalidType => break,
+                                        PollDeviceCodeType::AccessDenied => break,
+                                        PollDeviceCodeType::SlowDown => {
+                                            should_slow_down = true;
+                                            continue;
                                         }
-                                    }
-                                } else {
-                                    // Body should have error or we should bail.
-                                    panic!("Crap hit the fan");
+                                    },
+                                    Err(_) => break,
                                 }
+                            } else {
+                                // Body should have error or we should bail.
+                                break;
                             }
                         }
                     }
-                }
-                Err(err) => {
-                    sender.send_timeout(Err(err), Duration::from_secs(60)).await;
-                }
+                });
             }
-        });
+            Err(err) => return Err(err),
+        }
 
-        return receiver;
+        Ok(receiver)
     }
- */
 
     pub fn builder() -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder::new()
@@ -175,22 +173,22 @@ impl DeviceCodeCredential {
 }
 
 impl TokenCredentialExecutor for DeviceCodeCredential {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.app_config.authority);
+            .authority_device_code(azure_cloud_instance, &self.app_config.authority);
 
-        if self.refresh_token.is_none() {
+        if self.device_code.is_none() && self.refresh_token.is_none() {
             let uri = self
                 .serializer
-                .get(OAuthParameter::TokenUrl)
-                .ok_or(AF::msg_internal_err("access_token_url"))?;
-            Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+                .get(OAuthParameter::AuthorizationUrl)
+                .ok_or(AF::msg_internal_err("authorization_url"))?;
+            Url::parse(uri.as_str()).map_err(|_err| AF::msg_internal_err("authorization_url"))
         } else {
             let uri = self
                 .serializer
-                .get(OAuthParameter::RefreshTokenUrl)
-                .ok_or(AF::msg_internal_err("refresh_token_url"))?;
-            Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
+                .get(OAuthParameter::TokenUrl)
+                .ok_or(AF::msg_internal_err("token_url"))?;
+            Url::parse(uri.as_str()).map_err(|_err| AF::msg_internal_err("token_url"))
         }
     }
 
@@ -248,15 +246,9 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
             );
         }
 
-        self.serializer.grant_type(DEVICE_CODE_GRANT_TYPE);
-
         self.serializer.as_credential_map(
             vec![],
-            vec![
-                OAuthParameter::ClientId,
-                OAuthParameter::Scope,
-                OAuthParameter::GrantType,
-            ],
+            vec![OAuthParameter::ClientId, OAuthParameter::Scope],
         )
     }
 
@@ -285,6 +277,33 @@ impl DeviceCodeCredentialBuilder {
                 app_config: Default::default(),
                 refresh_token: None,
                 device_code: None,
+                scope: vec![],
+                serializer: Default::default(),
+            },
+        }
+    }
+
+    pub(crate) fn new_with_app_config(app_config: AppConfig) -> DeviceCodeCredentialBuilder {
+        DeviceCodeCredentialBuilder {
+            credential: DeviceCodeCredential {
+                app_config,
+                refresh_token: None,
+                device_code: None,
+                scope: vec![],
+                serializer: Default::default(),
+            },
+        }
+    }
+
+    pub(crate) fn new_with_device_code<T: AsRef<str>>(
+        device_code: T,
+        app_config: AppConfig,
+    ) -> DeviceCodeCredentialBuilder {
+        DeviceCodeCredentialBuilder {
+            credential: DeviceCodeCredential {
+                app_config,
+                refresh_token: None,
+                device_code: Some(device_code.as_ref().to_owned()),
                 scope: vec![],
                 serializer: Default::default(),
             },

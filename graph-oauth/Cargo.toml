@@ -43,6 +43,7 @@ hyper = { version = "1.0.0-rc.3", features = ["full"] }
 http-body-util = "0.1.0-rc.2"
 
 graph-error = { path = "../graph-error" }
+graph-extensions = { path = "../graph-extensions" }
 
 [features]
 default = ["native-tls"]

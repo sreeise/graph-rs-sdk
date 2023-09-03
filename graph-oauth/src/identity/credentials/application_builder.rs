@@ -4,13 +4,15 @@ use crate::identity::{
     application_options::ApplicationOptions, AuthCodeAuthorizationUrlParameterBuilder, Authority,
     AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
     AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
+    DeviceCodeCredentialBuilder, EnvironmentCredential, OpenIdCredentialBuilder,
+    PublicClientApplication,
 };
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
-use crate::oauth::OpenIdCredentialBuilder;
 use graph_error::{AuthorizationResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
+use std::env::VarError;
 use url::Url;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -53,9 +55,7 @@ impl ConfidentialClientApplicationBuilder {
     pub fn new_with_application_options(
         application_options: ApplicationOptions,
     ) -> AuthorizationResult<ConfidentialClientApplicationBuilder> {
-        Ok(ConfidentialClientApplicationBuilder::try_from(
-            application_options,
-        )?)
+        ConfidentialClientApplicationBuilder::try_from(application_options)
     }
 
     pub fn with_tenant_id(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
@@ -118,9 +118,7 @@ impl ConfidentialClientApplicationBuilder {
         ClientCredentialsAuthorizationUrlBuilder::new()
     }
 
-    pub fn openid_authorization_url_builder(
-        &mut self,
-    ) -> ClientCredentialsAuthorizationUrlBuilder {
+    pub fn openid_authorization_url_builder(&mut self) -> ClientCredentialsAuthorizationUrlBuilder {
         ClientCredentialsAuthorizationUrlBuilder::new()
     }
 
@@ -257,9 +255,75 @@ impl PublicClientApplicationBuilder {
     pub fn create_with_application_options(
         application_options: ApplicationOptions,
     ) -> AuthorizationResult<PublicClientApplicationBuilder> {
-        Ok(PublicClientApplicationBuilder::try_from(
-            application_options,
-        )?)
+        PublicClientApplicationBuilder::try_from(application_options)
+    }
+
+    pub fn with_tenant_id(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
+        let tenant = tenant_id.as_ref().to_string();
+        self.app_config.tenant_id = Some(tenant.clone());
+        self.app_config.authority = Authority::TenantId(tenant);
+        self
+    }
+
+    /// Extends the query parameters of both the default query params and user defined params.
+    /// Does not overwrite default params.
+    pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
+        self.app_config
+            .extra_query_parameters
+            .insert(query_param.0, query_param.1);
+        self
+    }
+
+    /// Extends the query parameters of both the default query params and user defined params.
+    /// Does not overwrite default params.
+    pub fn with_extra_query_parameters(
+        &mut self,
+        query_parameters: HashMap<String, String>,
+    ) -> &mut Self {
+        self.app_config
+            .extra_query_parameters
+            .extend(query_parameters);
+        self
+    }
+
+    /// Extends the header parameters of both the default header params and user defined params.
+    /// Does not overwrite default params.
+    pub fn with_extra_header_param<K: Into<HeaderName>, V: Into<HeaderValue>>(
+        &mut self,
+        header_name: K,
+        header_value: V,
+    ) -> &mut Self {
+        self.app_config
+            .extra_header_parameters
+            .insert(header_name.into(), header_value.into());
+        self
+    }
+
+    /// Extends the header parameters of both the default header params and user defined params.
+    /// Does not overwrite default params.
+    pub fn with_extra_header_parameters(&mut self, header_parameters: HeaderMap) -> &mut Self {
+        self.app_config
+            .extra_header_parameters
+            .extend(header_parameters);
+        self
+    }
+
+    pub fn with_device_code_builder(self) -> DeviceCodeCredentialBuilder {
+        DeviceCodeCredentialBuilder::new_with_app_config(self.app_config)
+    }
+
+    pub fn with_device_code(self, device_code: impl AsRef<str>) -> DeviceCodeCredentialBuilder {
+        DeviceCodeCredentialBuilder::new_with_device_code(device_code.as_ref(), self.app_config)
+    }
+
+    /*
+    pub fn interactive_authentication(self) -> DeviceCodeCredentialBuilder {
+
+    }
+     */
+
+    pub fn try_from_environment() -> Result<PublicClientApplication, VarError> {
+        EnvironmentCredential::resource_owner_password_credential()
     }
 }
 

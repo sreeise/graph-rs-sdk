@@ -41,6 +41,7 @@ graph-oauth = { path = "./graph-oauth", version = "1.0.2", default-features=fals
 graph-http = { path = "./graph-http", version = "1.1.0", default-features=false }
 graph-error = { path = "./graph-error", version = "0.2.2" }
 graph-core = { path = "./graph-core", version = "0.4.0" }
+graph-extensions = { path = "./graph-extensions", version = "0.1.0", default-features=false }
 
 # When updating or adding new features to this or dependent crates run
 # cargo tree -e features -i graph-rs-sdk
@@ -50,11 +51,11 @@ graph-core = { path = "./graph-core", version = "0.4.0" }
 
 [features]
 default = ["native-tls"]
-native-tls = ["reqwest/native-tls", "graph-http/native-tls", "graph-oauth/native-tls"]
-rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls-tls"]
-brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli"]
-deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate"]
-trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns"]
+native-tls = ["reqwest/native-tls", "graph-http/native-tls", "graph-oauth/native-tls", "graph-extensions/native-tls"]
+rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls-tls", "graph-extensions/rustls-tls"]
+brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli", "graph-extensions/brotli"]
+deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate", "graph-extensions/deflate"]
+trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns", "graph-extensions/trust-dns"]
 openssl = ["graph-oauth/openssl"]
 
 [dev-dependencies]
