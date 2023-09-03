@@ -27,13 +27,12 @@ static CLIENT_ID: &str = "";
 static CLIENT_SECRET: &str = "";
 static TENANT_ID: &str = "";
 
-fn open_id_authorization_url(client_id: &str, client_secret: &str) -> anyhow::Result<Url> {
-    Ok(OpenIdCredential::authorization_url_builder()?
-        .with_client_id(client_id)
+fn openid_authorization_url(client_id: &str, client_secret: &str) -> anyhow::Result<Url> {
+    Ok(ConfidentialClientApplication::builder(client_id)
+        .with_client_secret(client_secret)
         .with_response_mode(ResponseMode::FormPost)
         .with_response_type([ResponseType::IdToken, ResponseType::Code])
         .with_prompt(Prompt::SelectAccount)
-        .with_default_scope()?
         .extend_scope(vec!["User.Read", "User.ReadWrite"])
         .build()
         .url()?)
@@ -45,10 +44,8 @@ async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, 
 
     let code = id_token.code.unwrap();
 
-    let mut confidential_client = OpenIdCredential::builder()
-        .with_authorization_code(id_token.code)
-        .with_client_id(CLIENT_ID)
-        .with_client_secret(CLIENT_SECRET)
+    let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
+        .with_openid(id_token.code, CLIENT_SECRET)
         .with_tenant(TENANT_ID)
         .with_redirect_uri("http://localhost:8000/redirect")?
         .with_scope(vec!["User.Read", "User.ReadWrite"]) // OpenIdCredential automatically sets the openid scope
@@ -88,7 +85,7 @@ pub async fn start_server_main() {
         .and_then(handle_redirect)
         .with(warp::trace::named("executor"));
 
-    let url = open_id_authorization_url(CLIENT_ID, CLIENT_SECRET).unwrap();
+    let url = openid_authorization_url(CLIENT_ID, CLIENT_SECRET).unwrap();
     webbrowser::open(url.as_ref());
 
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;

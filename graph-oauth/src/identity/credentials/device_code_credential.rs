@@ -1,12 +1,41 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use crate::oauth::{DeviceCode, PublicClientApplication};
-use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
+use graph_error::{AuthorizationFailure, AuthorizationResult, AF, GraphFailure, GraphResult};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
+use std::time::Duration;
+use anyhow::anyhow;
 
 use crate::identity::credentials::app_config::AppConfig;
 use url::Url;
+
+/*
+fn response_to_http_response(response: reqwest::Response) -> anyhow::Result<http::Response<>> {
+    let status = response.status();
+    let url = response.url().clone();
+    let headers = response.headers().clone();
+    let version = response.version();
+
+    let body: serde_json::Value = response.json().await?;
+    let next_link = body.odata_next_link();
+    let json = body.clone();
+    let body_result: Result<T, ErrorMessage> = serde_json::from_value(body)
+        .map_err(|_| serde_json::from_value(json.clone()).unwrap_or(ErrorMessage::default()));
+
+    let mut builder = http::Response::builder()
+        .url(url)
+        .json(&json)
+        .status(http::StatusCode::from(&status))
+        .version(version);
+
+    for builder_header in builder.headers_mut().iter_mut() {
+        builder_header.extend(headers.clone());
+    }
+
+    Ok(builder.body(body_result))
+}
+ */
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -65,28 +94,27 @@ impl DeviceCodeCredential {
         self
     }
 
-    /*
-        pub async fn poll_async(&mut self, buffer: Option<usize>) -> tokio::sync::mpsc::Receiver<GraphResult<http::Response<serde_json::Value>>> {
+/*
+    pub async fn poll_async(&mut self, buffer: Option<usize>) -> tokio::sync::mpsc::Receiver<anyhow::Result<http::Response<serde_json::Value>>> {
         let (sender, receiver) = {
-          if let Some(buffer) = buffer {
-              tokio::sync::mpsc::channel(buffer)
-          }  else {
-              tokio::sync::mpsc::channel(100)
-          }
+            if let Some(buffer) = buffer {
+                tokio::sync::mpsc::channel(buffer)
+            }  else {
+                tokio::sync::mpsc::channel(100)
+            }
         };
 
         let mut credential = self.clone();
         let mut application = PublicClientApplication::from(self.clone());
 
         tokio::spawn(async move {
-            let response = application.get_token_async().await
-                .map_err(GraphFailure::from);
+            let response = application.execute_async().await.map_err(|err| anyhow!(err));
 
             match response {
                 Ok(response) => {
                     let status = response.status();
 
-                    let body: serde_json::Value = response.json().await?;
+                    let body: serde_json::Value = response.json().await.unwrap();
                     println!("{body:#?}");
 
                     let device_code = body["device_code"].as_str().unwrap();
@@ -100,8 +128,7 @@ impl DeviceCodeCredential {
                             // Wait the amount of seconds that interval is.
                             std::thread::sleep(Duration::from_secs(interval.clone()));
 
-                            let response = application.get_token_async().await
-                                .map_err(GraphFailure::from).unwrap();
+                            let response = application.execute_async().await.unwrap();
 
                             let status = response.status();
                             println!("{response:#?}");
@@ -133,14 +160,14 @@ impl DeviceCodeCredential {
                     }
                 }
                 Err(err) => {
-                    sender.send_timeout(Err(err), Duration::from_secs(60));
+                    sender.send_timeout(Err(err), Duration::from_secs(60)).await;
                 }
             }
         });
 
         return receiver;
     }
-     */
+ */
 
     pub fn builder() -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder::new()

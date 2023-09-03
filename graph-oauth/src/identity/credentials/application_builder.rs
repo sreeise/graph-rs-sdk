@@ -108,11 +108,17 @@ impl ConfidentialClientApplicationBuilder {
         self
     }
 
-    pub fn get_authorization_request_url(&mut self) -> AuthCodeAuthorizationUrlParameterBuilder {
+    pub fn authorization_code_url_builder(&mut self) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new()
     }
 
-    pub fn get_client_credential_request_url(
+    pub fn client_credentials_auth_url_builder(
+        &mut self,
+    ) -> ClientCredentialsAuthorizationUrlBuilder {
+        ClientCredentialsAuthorizationUrlBuilder::new()
+    }
+
+    pub fn openid_authorization_url_builder(
         &mut self,
     ) -> ClientCredentialsAuthorizationUrlBuilder {
         ClientCredentialsAuthorizationUrlBuilder::new()
@@ -175,7 +181,7 @@ impl ConfidentialClientApplicationBuilder {
         )
     }
 
-    pub fn with_open_id(
+    pub fn with_openid(
         self,
         authorization_code: impl AsRef<str>,
         client_secret: impl AsRef<str>,

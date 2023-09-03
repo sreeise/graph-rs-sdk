@@ -314,13 +314,8 @@ impl OpenIdCredentialBuilder {
 impl From<OpenIdAuthorizationUrl> for OpenIdCredentialBuilder {
     fn from(value: OpenIdAuthorizationUrl) -> Self {
         let mut builder = OpenIdCredentialBuilder::new();
-        if let Some(redirect_uri) = value.redirect_uri.as_ref() {
-            let _ = builder.with_redirect_uri(redirect_uri.clone());
-        }
-        builder
-            .with_scope(value.scope)
-            .with_client_secret(value.client_id)
-            .with_authority(value.authority);
+        builder.credential.app_config = value.app_config;
+        builder.with_scope(value.scope);
 
         builder
     }

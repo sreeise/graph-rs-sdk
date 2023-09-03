@@ -20,7 +20,7 @@ mod client_credentials;
 mod device_code;
 mod environment_credential;
 mod is_access_token_expired;
-mod open_id_connect;
+mod openid_connect;
 mod signing_keys;
 
 use graph_rs_sdk::oauth::{
@@ -32,7 +32,7 @@ use graph_rs_sdk::oauth::{
 
 #[tokio::main]
 async fn main() {
-    open_id_connect::start_server_main().await;
+
 }
 
 /*

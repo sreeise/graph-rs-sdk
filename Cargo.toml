@@ -25,7 +25,8 @@ members = [
     "test-tools",
     "graph-codegen",
     "graph-http",
-    "graph-core"
+    "graph-core",
+    "graph-extensions"
 ]
 
 [dependencies]

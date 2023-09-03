@@ -174,7 +174,7 @@ mod test {
     #[test]
     fn open_id_configuration_url_authority_tenant_id() {
         let open_id = ConfidentialClientApplicationBuilder::new("client-id")
-            .with_open_id("auth-code", "client-secret")
+            .with_openid("auth-code", "client-secret")
             .with_tenant("tenant-id")
             .build();
 
@@ -188,7 +188,7 @@ mod test {
     #[test]
     fn open_id_configuration_url_authority_common() {
         let open_id = ConfidentialClientApplicationBuilder::new("client-id")
-            .with_open_id("auth-code", "client-secret")
+            .with_openid("auth-code", "client-secret")
             .build();
 
         let url = open_id.openid_configuration_url().unwrap();
