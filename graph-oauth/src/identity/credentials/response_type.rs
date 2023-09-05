@@ -10,17 +10,6 @@ pub enum ResponseType {
     StringSet(BTreeSet<String>),
 }
 
-impl ResponseType {
-    pub fn try_from_set(response_types: &BTreeSet<ResponseType>) -> String {
-        dbg!(response_types);
-
-        info!("{:#?}", &response_types);
-        let response_type_list: Vec<String> =
-            response_types.iter().map(|rt| rt.to_string()).collect();
-        response_type_list.join(" ")
-    }
-}
-
 impl ToString for ResponseType {
     fn to_string(&self) -> String {
         match self {

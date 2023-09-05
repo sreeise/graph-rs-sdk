@@ -14,6 +14,7 @@ use std::time::Duration;
 use crate::identity::credentials::app_config::AppConfig;
 
 use url::Url;
+use uuid::Uuid;
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -167,8 +168,8 @@ impl DeviceCodeCredential {
         Ok(receiver)
     }
 
-    pub fn builder() -> DeviceCodeCredentialBuilder {
-        DeviceCodeCredentialBuilder::new()
+    pub fn builder(client_id: impl AsRef<str>) -> DeviceCodeCredentialBuilder {
+        DeviceCodeCredentialBuilder::new(client_id.as_ref())
     }
 }
 
@@ -193,13 +194,13 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        let client_id = self.app_config.client_id.trim();
-        if client_id.is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
 
         self.serializer
-            .client_id(client_id)
+            .client_id(client_id.as_str())
             .extend_scopes(self.scope.clone());
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
@@ -252,12 +253,16 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
         )
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         &self.app_config.client_id
     }
 
     fn authority(&self) -> Authority {
         self.app_config.authority.clone()
+    }
+
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config.azure_cloud_instance
     }
 
     fn app_config(&self) -> &AppConfig {
@@ -271,10 +276,10 @@ pub struct DeviceCodeCredentialBuilder {
 }
 
 impl DeviceCodeCredentialBuilder {
-    fn new() -> DeviceCodeCredentialBuilder {
+    fn new<T: AsRef<str>>(client_id: T) -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder {
             credential: DeviceCodeCredential {
-                app_config: Default::default(),
+                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
                 refresh_token: None,
                 device_code: None,
                 scope: vec![],
@@ -350,9 +355,7 @@ mod test {
     #[test]
     #[should_panic]
     fn no_scope() {
-        let mut credential = DeviceCodeCredential::builder()
-            .with_client_id("CLIENT_ID")
-            .build();
+        let mut credential = DeviceCodeCredential::builder("CLIENT_ID").build();
 
         let _ = credential.form_urlencode().unwrap();
     }

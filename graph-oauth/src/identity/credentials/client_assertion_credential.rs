@@ -8,6 +8,7 @@ use graph_error::{AuthorizationResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 credential_builder!(
     ClientAssertionCredentialBuilder,
@@ -105,7 +106,7 @@ impl TokenCredentialExecutor for ClientAssertionCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        let client_id = self.client_id().clone();
+        let client_id = self.client_id().to_string();
         if client_id.trim().is_empty() {
             return AF::result(OAuthParameter::ClientId.alias());
         }
@@ -165,12 +166,16 @@ impl TokenCredentialExecutor for ClientAssertionCredential {
         };
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         &self.app_config.client_id
     }
 
     fn authority(&self) -> Authority {
         self.app_config.authority.clone()
+    }
+
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config.azure_cloud_instance
     }
 
     fn app_config(&self) -> &AppConfig {

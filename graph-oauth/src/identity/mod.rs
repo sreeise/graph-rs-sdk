@@ -8,6 +8,7 @@ mod credentials;
 mod device_code;
 
 pub use allowed_host_validator::*;
+pub use application_options::*;
 pub use authority::*;
 pub use authorization_query_response::*;
 pub use authorization_serializer::*;

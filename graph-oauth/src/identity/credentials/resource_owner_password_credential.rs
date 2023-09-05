@@ -2,9 +2,10 @@ use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
+use graph_error::{AuthorizationResult, AF};
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 /// Allows an application to sign in the user by directly handling their password.
 /// Not recommended. ROPC can also be done using a client secret or assertion,
@@ -60,8 +61,8 @@ impl ResourceOwnerPasswordCredential {
         }
     }
 
-    pub fn builder() -> ResourceOwnerPasswordCredentialBuilder {
-        ResourceOwnerPasswordCredentialBuilder::new()
+    pub fn builder<T: AsRef<str>>(client_id: T) -> ResourceOwnerPasswordCredentialBuilder {
+        ResourceOwnerPasswordCredentialBuilder::new(client_id)
     }
 }
 
@@ -79,8 +80,8 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        let client_id = self.app_config.client_id.trim();
-        if client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId.alias());
         }
 
@@ -93,7 +94,7 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
         }
 
         self.serializer
-            .client_id(client_id)
+            .client_id(client_id.as_str())
             .grant_type("password")
             .extend_scopes(self.scope.iter());
 
@@ -103,7 +104,7 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
         )
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         &self.app_config.client_id
     }
 
@@ -111,8 +112,8 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
         self.app_config.authority.clone()
     }
 
-    fn basic_auth(&self) -> Option<(String, String)> {
-        Some((self.username.to_string(), self.password.to_string()))
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config.azure_cloud_instance
     }
 
     fn app_config(&self) -> &AppConfig {
@@ -126,10 +127,10 @@ pub struct ResourceOwnerPasswordCredentialBuilder {
 }
 
 impl ResourceOwnerPasswordCredentialBuilder {
-    fn new() -> ResourceOwnerPasswordCredentialBuilder {
+    fn new<T: AsRef<str>>(client_id: T) -> ResourceOwnerPasswordCredentialBuilder {
         ResourceOwnerPasswordCredentialBuilder {
             credential: ResourceOwnerPasswordCredential {
-                app_config: Default::default(),
+                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
                 username: String::new(),
                 password: String::new(),
                 scope: vec![],
@@ -139,14 +140,8 @@ impl ResourceOwnerPasswordCredentialBuilder {
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        if self.credential.app_config.client_id.is_empty() {
-            self.credential
-                .app_config
-                .client_id
-                .push_str(client_id.as_ref());
-        } else {
-            self.credential.app_config.client_id = client_id.as_ref().to_owned();
-        }
+        self.credential.app_config.client_id =
+            Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
         self
     }
 
@@ -185,17 +180,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
         {
             return AF::msg_result(
                 "tenant_id",
-                "Authority Azure Active Directory, common, and consumers are not supported authentication contexts for ROPC"
-            );
-        }
-
-        if authority.eq(&Authority::Common)
-            || authority.eq(&Authority::AzureActiveDirectory)
-            || authority.eq(&Authority::Consumers)
-        {
-            return AuthorizationFailure::msg_result(
-                "tenant_id",
-                "ADFS, common, and consumers are not supported authentication contexts for ROPC",
+                "AzureActiveDirectory, Common, and Consumers are not supported authentication contexts for ROPC"
             );
         }
 
@@ -214,12 +199,6 @@ impl ResourceOwnerPasswordCredentialBuilder {
     }
 }
 
-impl Default for ResourceOwnerPasswordCredentialBuilder {
-    fn default() -> Self {
-        ResourceOwnerPasswordCredentialBuilder::new()
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -227,7 +206,7 @@ mod test {
     #[test]
     #[should_panic]
     fn fail_on_authority_common() {
-        let _ = ResourceOwnerPasswordCredential::builder()
+        let _ = ResourceOwnerPasswordCredential::builder(Uuid::new_v4().to_string())
             .with_authority(Authority::Common)
             .unwrap()
             .build();
@@ -236,7 +215,7 @@ mod test {
     #[test]
     #[should_panic]
     fn fail_on_authority_adfs() {
-        let _ = ResourceOwnerPasswordCredential::builder()
+        let _ = ResourceOwnerPasswordCredential::builder(Uuid::new_v4().to_string())
             .with_authority(Authority::AzureActiveDirectory)
             .unwrap()
             .build();
@@ -245,7 +224,7 @@ mod test {
     #[test]
     #[should_panic]
     fn fail_on_authority_consumers() {
-        let _ = ResourceOwnerPasswordCredential::builder()
+        let _ = ResourceOwnerPasswordCredential::builder(Uuid::new_v4().to_string())
             .with_authority(Authority::Consumers)
             .unwrap()
             .build();

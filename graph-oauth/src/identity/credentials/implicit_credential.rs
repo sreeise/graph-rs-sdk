@@ -8,6 +8,7 @@ use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::form_urlencoded::Serializer;
 use url::Url;
+use uuid::*;
 
 credential_builder_base!(ImplicitCredentialBuilder);
 
@@ -112,8 +113,8 @@ impl ImplicitCredential {
         azure_authority_host: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
-        let client_id = self.app_config.client_id.trim();
-        if client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result("client_id");
         }
 
@@ -122,7 +123,7 @@ impl ImplicitCredential {
         }
 
         serializer
-            .client_id(client_id)
+            .client_id(client_id.as_str())
             .nonce(self.nonce.as_str())
             .extend_scopes(self.scope.clone())
             .authority(azure_authority_host, &self.app_config.authority);
@@ -504,7 +505,7 @@ mod test {
         let url = ImplicitCredential::builder()
             .with_redirect_uri("http://localhost:8080")
             .unwrap()
-            .with_client_id("client_id")
+            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
             .with_nonce_generated()

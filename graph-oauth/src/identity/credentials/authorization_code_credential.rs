@@ -11,6 +11,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 credential_builder!(
     AuthorizationCodeCredentialBuilder,
@@ -90,9 +91,9 @@ impl AuthorizationCodeCredential {
 
         let app_config = AppConfig {
             tenant_id: Some(tenant_id.as_ref().to_owned()),
-            client_id: client_id.as_ref().to_owned(),
+            client_id: Uuid::try_parse(client_id.as_ref())?,
             authority: Default::default(),
-            authority_url: Default::default(),
+            azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: Some(redirect_uri.clone()),
@@ -250,8 +251,8 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        let client_id = self.client_id().clone();
-        if client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId.alias());
         }
 
@@ -321,7 +322,7 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
         )
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         &self.app_config.client_id
     }
 
@@ -329,9 +330,13 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
         self.app_config.authority.clone()
     }
 
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config.azure_cloud_instance
+    }
+
     fn basic_auth(&self) -> Option<(String, String)> {
         Some((
-            self.app_config.client_id.clone(),
+            self.app_config.client_id.to_string(),
             self.client_secret.clone(),
         ))
     }
@@ -366,11 +371,12 @@ mod test {
     #[test]
     #[should_panic]
     fn authorization_code_missing_required_value() {
+        let uuid_value = Uuid::new_v4();
         let mut credential_builder = AuthorizationCodeCredentialBuilder::new();
         credential_builder
             .with_redirect_uri("https://localhost:8080")
             .unwrap()
-            .with_client_id("client_id")
+            .with_client_id(uuid_value.to_string())
             .with_client_secret("client_secret")
             .with_scope(vec!["scope"])
             .with_tenant("tenant_id");
@@ -391,18 +397,18 @@ mod test {
 
     #[test]
     fn serialization() {
+        let uuid_value = Uuid::new_v4();
         let mut credential_builder = AuthorizationCodeCredential::builder("code");
         let mut credential = credential_builder
             .with_redirect_uri("https://localhost")
             .unwrap()
-            .with_client_id("client_id")
+            .with_client_id(uuid_value.to_string())
             .with_client_secret("client_secret")
             .with_scope(vec!["scope"])
             .with_tenant("tenant_id")
-            .with_authorization_code("authorization_code")
             .build();
 
         let map = credential.form_urlencode().unwrap();
-        assert_eq!(map.get("client_id"), Some(&String::from("client_id")))
+        assert_eq!(map.get("client_id"), Some(&uuid_value.to_string()))
     }
 }

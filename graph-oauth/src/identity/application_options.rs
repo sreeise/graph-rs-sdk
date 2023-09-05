@@ -1,6 +1,7 @@
 use crate::identity::AadAuthorityAudience;
 use crate::oauth::AzureCloudInstance;
 use url::Url;
+use uuid::Uuid;
 
 /// Application Options typically stored as JSON file in .net applications.
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
@@ -9,7 +10,7 @@ pub struct ApplicationOptions {
     /// application registration portal (https://aka.ms/msal-net-register-app)
     /// Required parameter for ApplicationOptions.
     #[serde(alias = "clientId", alias = "ClientId", alias = "client_id")]
-    pub client_id: String,
+    pub client_id: Uuid,
     /// Tenant from which the application will allow users to sign it. This can be:
     /// a domain associated with a tenant, a GUID (tenant id), or a meta-tenant (e.g. consumers).
     /// This property is mutually exclusive with [AadAuthorityAudience]. If both
@@ -37,7 +38,8 @@ pub struct ApplicationOptions {
 impl ApplicationOptions {
     pub fn new(client_id: impl AsRef<str>) -> ApplicationOptions {
         ApplicationOptions {
-            client_id: client_id.as_ref().to_owned(),
+            client_id: Uuid::try_parse(client_id.as_ref())
+                .expect("Invalid Client Id - Must be a valid Uuid"),
             tenant_id: None,
             aad_authority_audience: None,
             instance: None,

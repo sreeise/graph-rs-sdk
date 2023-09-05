@@ -15,6 +15,7 @@ use reqwest::tls::Version;
 use reqwest::{ClientBuilder, Response};
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 use wry::http::HeaderMap;
 
 /// Clients capable of maintaining the confidentiality of their credentials
@@ -62,7 +63,7 @@ impl TokenCredentialExecutor for ConfidentialClientApplication {
         self.credential.form_urlencode()
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         self.credential.client_id()
     }
 

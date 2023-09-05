@@ -1,3 +1,3 @@
-mod openid_local_and_server_auth;
+mod openid_local_server;
 
-pub use openid_local_and_server_auth::*;
+pub use openid_local_server::*;

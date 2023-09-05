@@ -9,17 +9,15 @@ use reqwest::tls::Version;
 use reqwest::ClientBuilder;
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 #[async_trait]
 pub trait TokenCredentialExecutor {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url>;
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url>;
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>>;
-    fn client_id(&self) -> &String;
+    fn client_id(&self) -> &Uuid;
     fn authority(&self) -> Authority;
-
-    fn azure_cloud_instance(&self) -> AzureCloudInstance {
-        AzureCloudInstance::AzurePublic
-    }
+    fn azure_cloud_instance(&self) -> AzureCloudInstance;
 
     fn basic_auth(&self) -> Option<(String, String)> {
         None

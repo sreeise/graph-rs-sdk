@@ -132,7 +132,7 @@ impl OAuthTestCredentials {
     }
 
     fn resource_owner_password_credential(self) -> ResourceOwnerPasswordCredential {
-        ResourceOwnerPasswordCredential::builder()
+        ResourceOwnerPasswordCredential::builder(self.client_id.as_str())
             .with_tenant(self.tenant.as_str())
             .with_client_id(self.client_id.as_str())
             .with_username(self.username.as_str())

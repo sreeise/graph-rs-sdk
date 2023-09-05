@@ -10,6 +10,7 @@ use graph_error::AuthorizationResult;
 use std::collections::HashMap;
 use std::env::VarError;
 use url::Url;
+use uuid::Uuid;
 
 const AZURE_TENANT_ID: &str = "AZURE_TENANT_ID";
 const AZURE_CLIENT_ID: &str = "AZURE_CLIENT_ID";
@@ -143,7 +144,11 @@ impl TokenCredentialExecutor for EnvironmentCredential {
         self.credential.form_urlencode()
     }
 
-    fn client_id(&self) -> &String {
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config().azure_cloud_instance
+    }
+
+    fn client_id(&self) -> &Uuid {
         self.credential.client_id()
     }
 

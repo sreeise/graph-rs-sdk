@@ -6,21 +6,21 @@ Getting the Confidential Client
 
 ```rust
 use graph_rs_sdk::oauth::{
-    AuthorizationCodeCredential, ConfidentialClientApplication,
+    ConfidentialClientApplication,
 };
 
 fn main() {
     let authorization_code = "<AUTH_CODE>";
     let client_id = "<CLIENT_ID>";
     let client_secret = "<CLIENT_SECRET>";
+    let scope = vec!["<SCOPE>", "<SCOPE>"];
 
-    let auth_code_credential = AuthorizationCodeCredential::builder(authorization_code)
-        .with_client_id(client_id)
+    let mut confidential_client = ConfidentialClientApplication::builder(client_id)
+        .with_authorization_code(authorization_code)
         .with_client_secret(client_secret)
-        .with_scope(vec!["files.read", "offline_access"])
-        .with_redirect_uri("http://localhost:8000/redirect")?
+        .with_scope(SCOPE.clone())
+        .with_redirect_uri(REDIRECT_URI)
+        .unwrap()
         .build();
-
-    let confidential_client = ConfidentialClientApplication::from(auth_code_credential);
 }
 ```

@@ -6,6 +6,7 @@ use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
@@ -52,10 +53,8 @@ impl ClientCertificateCredential {
         client_id: T,
         x509: &X509Certificate,
     ) -> anyhow::Result<ClientCertificateCredential> {
-        let mut builder = ClientCertificateCredentialBuilder::new();
-        builder
-            .with_client_id(client_id.as_ref())
-            .with_certificate(x509)?;
+        let mut builder = ClientCertificateCredentialBuilder::new(client_id.as_ref());
+        builder.with_certificate(x509)?;
         Ok(builder.credential)
     }
 
@@ -64,8 +63,8 @@ impl ClientCertificateCredential {
         self
     }
 
-    pub fn builder() -> ClientCertificateCredentialBuilder {
-        ClientCertificateCredentialBuilder::new()
+    pub fn builder<T: AsRef<str>>(client_id: T) -> ClientCertificateCredentialBuilder {
+        ClientCertificateCredentialBuilder::new(client_id)
     }
 
     pub fn authorization_url_builder() -> ClientCredentialsAuthorizationUrlBuilder {
@@ -75,9 +74,9 @@ impl ClientCertificateCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for ClientCertificateCredential {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.app_config.authority);
+            .authority(azure_cloud_instance, &self.app_config.authority);
 
         let uri = self
             .serializer
@@ -87,8 +86,8 @@ impl TokenCredentialExecutor for ClientCertificateCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        let client_id = self.client_id().clone();
-        if client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
 
@@ -147,12 +146,16 @@ impl TokenCredentialExecutor for ClientCertificateCredential {
         };
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         &self.app_config.client_id
     }
 
     fn authority(&self) -> Authority {
         self.app_config.authority.clone()
+    }
+
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config.azure_cloud_instance
     }
 
     fn app_config(&self) -> &AppConfig {
@@ -165,10 +168,10 @@ pub struct ClientCertificateCredentialBuilder {
 }
 
 impl ClientCertificateCredentialBuilder {
-    fn new() -> ClientCertificateCredentialBuilder {
+    fn new<T: AsRef<str>>(client_id: T) -> ClientCertificateCredentialBuilder {
         ClientCertificateCredentialBuilder {
             credential: ClientCertificateCredential {
-                app_config: Default::default(),
+                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
                 scope: vec!["https://graph.microsoft.com/.default".into()],
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: String::new(),
@@ -183,10 +186,18 @@ impl ClientCertificateCredentialBuilder {
         x509: &X509Certificate,
         app_config: AppConfig,
     ) -> anyhow::Result<ClientCertificateCredentialBuilder> {
-        let mut builder = ClientCertificateCredentialBuilder::new();
-        builder.credential.app_config = app_config;
-        builder.with_certificate(x509)?;
-        Ok(builder)
+        let mut credential_builder = ClientCertificateCredentialBuilder {
+            credential: ClientCertificateCredential {
+                app_config,
+                scope: vec!["https://graph.microsoft.com/.default".into()],
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
+                client_assertion: String::new(),
+                refresh_token: None,
+                serializer: OAuthSerializer::new(),
+            },
+        };
+        credential_builder.with_certificate(x509)?;
+        Ok(credential_builder)
     }
 
     #[cfg(feature = "openssl")]
@@ -230,21 +241,30 @@ impl From<ClientCertificateCredentialBuilder> for ClientCertificateCredential {
 mod test {
     use super::*;
 
-    static TEST_CLIENT_ID: &str = "671a21bd-b91b-8ri7-94cb-e2cea49f30e1";
+    #[test]
+    fn test_uuid_fake() {
+        let client_id_uuid = Uuid::new_v4();
+        let builder = ClientCertificateCredentialBuilder::new(client_id_uuid.to_string());
+        assert_eq!(builder.credential.app_config.client_id, client_id_uuid);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_123_uuid() {
+        let builder = ClientCertificateCredentialBuilder::new("123");
+        assert_eq!(
+            builder.credential.app_config.client_id,
+            Uuid::try_parse("123").unwrap()
+        );
+    }
 
     #[test]
     fn credential_builder() {
-        let mut builder = ClientCertificateCredentialBuilder::new();
-        builder.with_client_id(TEST_CLIENT_ID);
-        assert_eq!(builder.credential.app_config.client_id, TEST_CLIENT_ID);
-
-        builder.with_client_id("123");
-        assert_eq!(builder.credential.app_config.client_id, "123");
-
-        builder.credential.app_config.client_id = "".into();
-        assert!(builder.credential.app_config.client_id.is_empty());
-
-        builder.with_client_id(TEST_CLIENT_ID);
-        assert_eq!(builder.credential.app_config.client_id, TEST_CLIENT_ID);
+        let builder =
+            ClientCertificateCredentialBuilder::new("4ef900be-dfd9-4da6-b224-0011e46c54dd");
+        assert_eq!(
+            builder.credential.app_config.client_id.to_string(),
+            "4ef900be-dfd9-4da6-b224-0011e46c54dd"
+        );
     }
 }

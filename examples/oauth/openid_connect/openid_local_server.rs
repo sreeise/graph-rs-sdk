@@ -32,17 +32,17 @@ static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
 fn openid_authorization_url(client_id: &str, client_secret: &str) -> anyhow::Result<Url> {
     Ok(OpenIdCredential::authorization_url_builder()?
-           .with_client_id(CLIENT_ID)
-           .with_tenant(TENANT_ID)
-           //.with_default_scope()?
-           .with_redirect_uri("http://localhost:8000/redirect")?
-           .with_response_mode(ResponseMode::FormPost)
-           .with_response_type([ResponseType::IdToken, ResponseType::Code])
-           .with_prompt(Prompt::SelectAccount)
-           .with_state(REDIRECT_URI)
-           .extend_scope(vec!["User.Read", "User.ReadWrite"])
-           .build()
-           .url()?)
+        .with_client_id(CLIENT_ID)
+        .with_tenant(TENANT_ID)
+        //.with_default_scope()?
+        .with_redirect_uri("http://localhost:8000/redirect")?
+        .with_response_mode(ResponseMode::FormPost)
+        .with_response_type([ResponseType::IdToken, ResponseType::Code])
+        .with_prompt(Prompt::SelectAccount)
+        .with_state(REDIRECT_URI)
+        .extend_scope(vec!["User.Read", "User.ReadWrite"])
+        .build()
+        .url()?)
 }
 
 async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
@@ -54,7 +54,8 @@ async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, 
     let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
         .with_openid(code, CLIENT_SECRET)
         .with_tenant(TENANT_ID)
-        .with_redirect_uri(REDIRECT_URI).unwrap()
+        .with_redirect_uri(REDIRECT_URI)
+        .unwrap()
         .with_scope(vec!["User.Read", "User.ReadWrite"]) // OpenIdCredential automatically sets the openid scope
         .build();
 

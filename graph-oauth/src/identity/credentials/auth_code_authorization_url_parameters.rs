@@ -13,6 +13,7 @@ use reqwest::IntoUrl;
 use std::collections::BTreeSet;
 use url::form_urlencoded::Serializer;
 use url::Url;
+use uuid::Uuid;
 
 /// Get the authorization url required to perform the initial authorization and redirect in the
 /// authorization code flow.
@@ -66,9 +67,9 @@ impl AuthCodeAuthorizationUrlParameters {
         Ok(AuthCodeAuthorizationUrlParameters {
             app_config: AppConfig {
                 tenant_id: None,
-                client_id: client_id.as_ref().to_owned(),
+                client_id: Uuid::try_parse(client_id.as_ref())?,
                 authority: Default::default(),
-                authority_url: Default::default(),
+                azure_cloud_instance: Default::default(),
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
@@ -214,8 +215,8 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
             }
         }
 
-        let client_id = self.app_config.client_id.trim();
-        if client_id.is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result("client_id");
         }
 
@@ -231,7 +232,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
         }
 
         serializer
-            .client_id(client_id)
+            .client_id(client_id.as_str())
             .extend_scopes(self.scope.clone())
             .authority(azure_cloud_instance, &self.app_config.authority);
 
@@ -360,7 +361,8 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.parameters.app_config.client_id = client_id.as_ref().to_owned();
+        self.parameters.app_config.client_id =
+            Uuid::try_parse(client_id.as_ref()).expect("Invalid Client Id - Must be a Uuid ");
         self
     }
 
@@ -565,7 +567,7 @@ mod test {
     fn serialize_uri() {
         let authorizer = AuthCodeAuthorizationUrlParameters::builder()
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id("client_id")
+            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .build();
 
@@ -577,7 +579,7 @@ mod test {
     fn url_with_host() {
         let authorizer = AuthCodeAuthorizationUrlParameters::builder()
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id("client_id")
+            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .build();
 
@@ -589,7 +591,7 @@ mod test {
     fn response_mode_set() {
         let url = AuthCodeAuthorizationUrlParameters::builder()
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id("client_id")
+            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_type(ResponseType::IdToken)
             .url()
@@ -605,7 +607,7 @@ mod test {
     fn response_mode_not_set() {
         let url = AuthCodeAuthorizationUrlParameters::builder()
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id("client_id")
+            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .url()
             .unwrap();
@@ -619,7 +621,7 @@ mod test {
     fn multi_response_type_set() {
         let url = AuthCodeAuthorizationUrlParameters::builder()
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id("client_id")
+            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_mode(ResponseMode::FormPost)
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Code])
@@ -635,7 +637,7 @@ mod test {
     fn generate_nonce() {
         let url = AuthCodeAuthorizationUrlParameters::builder()
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id("client_id")
+            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
             .with_nonce_generated()

@@ -1,6 +1,5 @@
 use crate::AuthorizationResult;
 
-
 pub type AF = AuthorizationFailure;
 
 #[derive(Debug, thiserror::Error)]
@@ -13,6 +12,9 @@ pub enum AuthorizationFailure {
 
     #[error("{0:#?}")]
     UrlParseError(#[from] url::ParseError),
+
+    #[error("{0:#?}")]
+    UuidError(#[from] uuid::Error),
 
     #[error("{0:#?}")]
     Unknown(String),

@@ -8,8 +8,8 @@
 #[macro_use]
 extern crate serde;
 
-mod implicit_grant;
-mod open_id_connect;
+mod legacy;
+mod openid_connect;
 
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
@@ -28,7 +28,7 @@ pub fn auth_code_grant_authorization() {
     let url = AuthorizationCodeCredential::authorization_url_builder()
         .with_client_id(CLIENT_ID)
         .with_redirect_uri("http://localhost:8000/redirect")
-        .with_scope(vec!["offline_access", "files.read"])
+        .with_scope(vec!["user.read"])
         .url()
         .unwrap();
 

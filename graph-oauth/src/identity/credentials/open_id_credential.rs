@@ -11,6 +11,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 credential_builder!(OpenIdCredentialBuilder, ConfidentialClientApplication);
 
@@ -69,9 +70,9 @@ impl OpenIdCredential {
         Ok(OpenIdCredential {
             app_config: AppConfig {
                 tenant_id: None,
-                client_id: client_id.as_ref().to_owned(),
+                client_id: Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
                 authority: Default::default(),
-                authority_url: Default::default(),
+                azure_cloud_instance: Default::default(),
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
@@ -126,8 +127,8 @@ impl TokenCredentialExecutor for OpenIdCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        let client_id = self.app_config.client_id.trim();
-        if client_id.is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId.alias());
         }
 
@@ -136,7 +137,7 @@ impl TokenCredentialExecutor for OpenIdCredential {
         }
 
         self.serializer
-            .client_id(client_id)
+            .client_id(client_id.as_str())
             .client_secret(self.client_secret.as_str())
             .extend_scopes(self.scope.clone());
 
@@ -200,7 +201,7 @@ impl TokenCredentialExecutor for OpenIdCredential {
         )
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         &self.app_config.client_id
     }
 
@@ -208,9 +209,13 @@ impl TokenCredentialExecutor for OpenIdCredential {
         self.app_config.authority.clone()
     }
 
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config.azure_cloud_instance
+    }
+
     fn basic_auth(&self) -> Option<(String, String)> {
         Some((
-            self.app_config.client_id.clone(),
+            self.app_config.client_id.to_string(),
             self.client_secret.clone(),
         ))
     }

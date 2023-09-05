@@ -36,7 +36,7 @@ pub mod api_impl {
     pub use crate::client::*;
     pub use crate::core::*;
     pub use crate::request_components::RequestComponents;
-    pub use crate::request_handler::RequestHandler;
+    pub use crate::request_handler::{PagingResponse, PagingResult, RequestHandler};
     pub use crate::resource_identifier::{ResourceConfig, ResourceIdentifier};
     pub use crate::traits::{ApiClientImpl, BodyExt, ODataQuery};
     pub use crate::upload_session::UploadSession;

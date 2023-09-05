@@ -87,9 +87,9 @@ pub fn x509_certificate(client_id: &str, tenant_id: &str) -> anyhow::Result<X509
 }
 
 // When the authorization code comes in on the redirect from sign in, call the get_credential
-// method passing in the authorization code. The AuthorizationCodeCertificateCredential can be passed
-// to a confidential client application in order to exchange the authorization code
-// for an access token.
+// method passing in the authorization code.
+// Building AuthorizationCodeCertificateCredential will create a ConfidentialClientApplication
+// which can be used to exchange the authorization code for an access token.
 async fn handle_redirect(
     code_option: Option<AccessCode>,
 ) -> Result<Box<dyn warp::Reply>, warp::Rejection> {

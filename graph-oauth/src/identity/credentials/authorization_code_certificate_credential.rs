@@ -11,6 +11,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 #[cfg(feature = "openssl")]
 use crate::oauth::X509Certificate;
@@ -70,10 +71,10 @@ impl AuthorizationCodeCertificateCredential {
         };
 
         let app_config = AppConfig {
-            client_id: client_id.as_ref().to_owned(),
+            client_id: Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
             tenant_id: None,
             authority: Default::default(),
-            authority_url: Default::default(),
+            azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri,
@@ -119,8 +120,8 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        let client_id = self.app_config.client_id.trim();
-        if client_id.is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId);
         }
 
@@ -133,7 +134,7 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
         }
 
         self.serializer
-            .client_id(client_id)
+            .client_id(client_id.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
             .extend_scopes(self.scope.clone());
@@ -203,7 +204,7 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
         )
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         &self.app_config.client_id
     }
 
@@ -213,6 +214,10 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
 
     fn authority(&self) -> Authority {
         self.app_config.authority.clone()
+    }
+
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config.azure_cloud_instance
     }
 }
 

@@ -2,14 +2,8 @@ macro_rules! credential_builder_base {
     ($name:ident) => {
         impl $name {
             pub fn with_client_id(&mut self, client_id: impl AsRef<str>) -> &mut Self {
-                if self.credential.app_config.client_id.is_empty() {
-                    self.credential
-                        .app_config
-                        .client_id
-                        .push_str(client_id.as_ref());
-                } else {
-                    self.credential.app_config.client_id = client_id.as_ref().to_owned();
-                }
+                self.credential.app_config.client_id =
+                    Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
                 self
             }
 

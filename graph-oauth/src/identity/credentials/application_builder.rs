@@ -14,6 +14,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use std::env::VarError;
 use url::Url;
+use uuid::Uuid;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum AuthorityHost {
@@ -203,7 +204,7 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
 
     fn try_from(value: ApplicationOptions) -> Result<Self, Self::Error> {
         AF::condition(
-            !value.client_id.is_empty(),
+            !value.client_id.to_string().is_empty(),
             "Client Id",
             "Client Id cannot be empty",
         )?;
@@ -221,15 +222,12 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
         Ok(ConfidentialClientApplicationBuilder {
             app_config: AppConfig {
                 tenant_id: value.tenant_id,
-                client_id: value.client_id,
+                client_id: Uuid::try_parse(&value.client_id.to_string()).unwrap_or_default(),
                 authority: value
                     .aad_authority_audience
                     .map(Authority::from)
                     .unwrap_or_default(),
-                authority_url: value
-                    .azure_cloud_instance
-                    .map(AuthorityHost::AzureCloudInstance)
-                    .unwrap_or_default(),
+                azure_cloud_instance: value.azure_cloud_instance.unwrap_or_default(),
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
@@ -332,7 +330,7 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
 
     fn try_from(value: ApplicationOptions) -> Result<Self, Self::Error> {
         AF::condition(
-            !value.client_id.is_empty(),
+            !value.client_id.is_nil(),
             "client_id",
             "Client id cannot be empty",
         )?;
@@ -355,10 +353,7 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
                     .aad_authority_audience
                     .map(Authority::from)
                     .unwrap_or_default(),
-                authority_url: value
-                    .azure_cloud_instance
-                    .map(AuthorityHost::AzureCloudInstance)
-                    .unwrap_or_default(),
+                azure_cloud_instance: value.azure_cloud_instance.unwrap_or_default(),
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
@@ -378,7 +373,7 @@ mod test {
     #[should_panic]
     fn confidential_client_error_result_on_instance_and_aci() {
         ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
-            client_id: "client-id".to_string(),
+            client_id: Uuid::new_v4(),
             tenant_id: None,
             aad_authority_audience: None,
             instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
@@ -392,7 +387,7 @@ mod test {
     #[should_panic]
     fn confidential_client_error_result_on_tenant_id_and_aad_audience() {
         ConfidentialClientApplicationBuilder::try_from(ApplicationOptions {
-            client_id: "client-id".to_owned(),
+            client_id: Uuid::new_v4(),
             tenant_id: Some("tenant_id".to_owned()),
             aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
             instance: None,
@@ -406,7 +401,7 @@ mod test {
     #[should_panic]
     fn public_client_error_result_on_instance_and_aci() {
         PublicClientApplicationBuilder::try_from(ApplicationOptions {
-            client_id: "client-id".to_string(),
+            client_id: Uuid::new_v4(),
             tenant_id: None,
             aad_authority_audience: None,
             instance: Some(Url::parse("https://login.microsoft.com").unwrap()),
@@ -420,7 +415,7 @@ mod test {
     #[should_panic]
     fn public_client_error_result_on_tenant_id_and_aad_audience() {
         PublicClientApplicationBuilder::try_from(ApplicationOptions {
-            client_id: "client-id".to_owned(),
+            client_id: Uuid::new_v4(),
             tenant_id: Some("tenant_id".to_owned()),
             aad_authority_audience: Some(AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount),
             instance: None,

@@ -1,8 +1,8 @@
-use crate::identity::credentials::application_builder::AuthorityHost;
-use crate::identity::Authority;
+use crate::identity::{Authority, AzureCloudInstance};
 use reqwest::header::HeaderMap;
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct AppConfig {
@@ -14,9 +14,9 @@ pub struct AppConfig {
     /// Required.
     /// The Application (client) ID that the Azure portal - App registrations page assigned
     /// to your app
-    pub(crate) client_id: String,
+    pub(crate) client_id: Uuid,
     pub(crate) authority: Authority,
-    pub(crate) authority_url: AuthorityHost,
+    pub(crate) azure_cloud_instance: AzureCloudInstance,
     pub(crate) extra_query_parameters: HashMap<String, String>,
     pub(crate) extra_header_parameters: HeaderMap,
     /// Optional -  Some flows may require the redirect URI
@@ -30,9 +30,9 @@ impl AppConfig {
     pub fn new() -> AppConfig {
         AppConfig {
             tenant_id: None,
-            client_id: String::with_capacity(32),
+            client_id: Uuid::default(),
             authority: Default::default(),
-            authority_url: Default::default(),
+            azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,
@@ -42,9 +42,9 @@ impl AppConfig {
     pub(crate) fn new_with_client_id(client_id: impl AsRef<str>) -> AppConfig {
         AppConfig {
             tenant_id: None,
-            client_id: client_id.as_ref().to_string(),
+            client_id: Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
             authority: Default::default(),
-            authority_url: Default::default(),
+            azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,
@@ -57,9 +57,9 @@ impl AppConfig {
     ) -> AppConfig {
         AppConfig {
             tenant_id: Some(tenant_id.as_ref().to_string()),
-            client_id: client_id.as_ref().to_string(),
+            client_id: Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
             authority: Authority::TenantId(tenant_id.as_ref().to_string()),
-            authority_url: Default::default(),
+            azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,

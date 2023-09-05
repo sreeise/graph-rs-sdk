@@ -9,6 +9,7 @@ use reqwest::IntoUrl;
 use std::collections::BTreeSet;
 use url::form_urlencoded::Serializer;
 use url::Url;
+use uuid::Uuid;
 
 /// OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional
 /// authentication protocol. You can use OIDC to enable single sign-on (SSO) between your
@@ -109,9 +110,9 @@ impl OpenIdAuthorizationUrl {
         Ok(OpenIdAuthorizationUrl {
             app_config: AppConfig {
                 tenant_id: None,
-                client_id: client_id.as_ref().to_owned(),
+                client_id: Uuid::try_parse(client_id.as_ref())?,
                 authority: Default::default(),
-                authority_url: Default::default(),
+                azure_cloud_instance: Default::default(),
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
@@ -174,8 +175,8 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
 
-        let client_id = self.app_config.client_id.as_str().trim();
-        if client_id.is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result("client_id");
         }
 
@@ -191,7 +192,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
         }
 
         serializer
-            .client_id(client_id)
+            .client_id(client_id.as_str())
             .extend_scopes(self.scope.clone())
             .nonce(self.nonce.as_str())
             .authority(azure_authority_host, &self.app_config.authority);
@@ -308,7 +309,8 @@ impl OpenIdAuthorizationUrlBuilder {
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.auth_url_parameters.app_config.client_id = client_id.as_ref().to_owned();
+        self.auth_url_parameters.app_config.client_id =
+            Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
         self
     }
 

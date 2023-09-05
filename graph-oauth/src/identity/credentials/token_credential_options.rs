@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct TokenCredentialOptions {
-    pub(crate) azure_authority_host: AzureCloudInstance,
+    pub azure_authority_host: AzureCloudInstance,
 
     pub extra_query_parameters: HashMap<String, String>,
 

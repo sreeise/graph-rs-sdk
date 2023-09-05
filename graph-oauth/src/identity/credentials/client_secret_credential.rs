@@ -10,6 +10,7 @@ use graph_error::{AuthorizationFailure, AuthorizationResult};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
+use uuid::Uuid;
 
 credential_builder!(ClientSecretCredentialBuilder, ConfidentialClientApplication);
 
@@ -89,8 +90,8 @@ impl TokenCredentialExecutor for ClientSecretCredential {
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
-        let client_id = self.client_id().clone();
-        if client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result(OAuthParameter::ClientId);
         }
 
@@ -98,7 +99,10 @@ impl TokenCredentialExecutor for ClientSecretCredential {
             return AuthorizationFailure::result(OAuthParameter::ClientSecret);
         }
 
-        self.serializer.grant_type("client_credentials");
+        self.serializer
+            .client_id(client_id.as_str())
+            .client_secret(self.client_secret.as_str())
+            .grant_type("client_credentials");
 
         if self.scope.is_empty() {
             self.serializer
@@ -107,11 +111,13 @@ impl TokenCredentialExecutor for ClientSecretCredential {
             self.serializer.extend_scopes(&self.scope);
         }
 
+        // Don't include ClientId and Client Secret in the fields for form url encode because
+        // Client Id and Client Secret are already included as basic auth.
         self.serializer
             .as_credential_map(vec![OAuthParameter::Scope], vec![OAuthParameter::GrantType])
     }
 
-    fn client_id(&self) -> &String {
+    fn client_id(&self) -> &Uuid {
         &self.app_config.client_id
     }
 
@@ -119,9 +125,13 @@ impl TokenCredentialExecutor for ClientSecretCredential {
         self.app_config.authority.clone()
     }
 
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        todo!()
+    }
+
     fn basic_auth(&self) -> Option<(String, String)> {
         Some((
-            self.app_config.client_id.clone(),
+            self.app_config.client_id.to_string(),
             self.client_secret.clone(),
         ))
     }
