@@ -3,7 +3,6 @@ use backoff::backoff::Backoff;
 use backoff::{future::retry, ExponentialBackoff, ExponentialBackoffBuilder};
 use graph_error::{GraphFailure, GraphResult};
 use http::StatusCode;
-use reqwest::Client;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -17,7 +16,6 @@ pub trait HttpPipelinePolicy {
     // Modify the request.
     async fn process_async(
         &self,
-        client: Client,
         request: &mut reqwest::Request,
         pipeline: &[Arc<dyn HttpPipelinePolicy + Send + Sync>],
     ) -> GraphResult<reqwest::Response>;
@@ -98,17 +96,12 @@ impl Backoff for ExponentialBackoffWithMaxRetries {
 impl HttpPipelinePolicy for ExponentialBackoffRetryPolicy {
     async fn process_async(
         &self,
-        client: Client,
         request: &mut reqwest::Request,
         pipeline: &[Arc<dyn HttpPipelinePolicy + Send + Sync>],
     ) -> GraphResult<reqwest::Response> {
         retry(self.get_exponential_backoff_with_max_retries(), || async {
             Ok(pipeline[0]
-                .process_async(
-                    client.clone(),
-                    &mut request.try_clone().unwrap(),
-                    &pipeline[1..],
-                )
+                .process_async(&mut request.try_clone().unwrap(), &pipeline[1..])
                 .await?)
         })
         .await
@@ -134,17 +127,12 @@ impl ThrottleRetryPolicy {
 impl HttpPipelinePolicy for ThrottleRetryPolicy {
     async fn process_async(
         &self,
-        client: Client,
         request: &mut reqwest::Request,
         pipeline: &[Arc<dyn HttpPipelinePolicy + Send + Sync>],
     ) -> GraphResult<reqwest::Response> {
         retry(self.get_retries_zero_backoff(), || async {
             match pipeline[0]
-                .process_async(
-                    client.clone(),
-                    &mut request.try_clone().unwrap(),
-                    &pipeline[1..],
-                )
+                .process_async(&mut request.try_clone().unwrap(), &pipeline[1..])
                 .await
             {
                 Ok(response) => match response.status() {
@@ -180,10 +168,11 @@ pub struct TransportPolicy {}
 impl HttpPipelinePolicy for TransportPolicy {
     async fn process_async(
         &self,
-        client: Client,
         request: &mut reqwest::Request,
         _pipeline: &[Arc<dyn HttpPipelinePolicy + Send + Sync>],
     ) -> GraphResult<reqwest::Response> {
+        let client = reqwest::Client::new();
+
         client
             .execute(request.try_clone().unwrap())
             .await

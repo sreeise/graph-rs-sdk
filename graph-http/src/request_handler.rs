@@ -193,11 +193,9 @@ impl RequestHandler {
         let pipeline = self.pipeline.clone();
         let policy = pipeline.first().unwrap();
         let request_builder = self.build()?;
-        let (client, request) = request_builder.build_split();
+        let request = request_builder.build();
 
-        policy
-            .process_async(client, &mut request?, &pipeline[1..])
-            .await
+        policy.process_async(&mut request?, &pipeline[1..]).await
     }
 }
 
