@@ -1,5 +1,3 @@
-use graph_rs_sdk::*;
-
 // For more info on users see: https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0
 
 // Work or school accounts must have the following permissions: User.ReadBasic.All,
@@ -11,16 +9,10 @@ use graph_rs_sdk::*;
 
 // Delegate (Personal microsoft accounts) are not supported in the Graph API.
 
-static USER_ID: &str = "USER_ID";
+use graph_error::GraphResult;
+use graph_rs_sdk::Graph;
 
-#[tokio::main]
-async fn main() {
-    list_users().await.unwrap();
-    get_user().await.unwrap();
-    create_user().await;
-    update_user().await;
-    delete_user().await;
-}
+static USER_ID: &str = "USER_ID";
 
 async fn list_users() -> GraphResult<()> {
     let client = Graph::new("ACCESS_TOKEN");
@@ -39,8 +31,7 @@ async fn get_user() -> GraphResult<()> {
     let client = Graph::new("ACCESS_TOKEN");
 
     let response = client.user(USER_ID).get_user().send().await?;
-
-    println!("{:#?}", &response);
+    println!("{response:#?}");
 
     let body: serde_json::Value = response.json().await?;
     println!("{body:#?}");
@@ -69,8 +60,8 @@ async fn create_user() {
     });
 
     let response = client.users().create_user(&user).send().await.unwrap();
+    println!("{response:#?}");
 
-    println!("{:#?}", &response);
     let body: serde_json::Value = response.json().await.unwrap();
     println!("{body:#?}");
 }
