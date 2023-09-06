@@ -23,6 +23,14 @@ macro_rules! credential_builder_base {
                 self
             }
 
+            pub fn with_azure_cloud_instance(
+                &mut self,
+                azure_cloud_instance: AzureCloudInstance,
+            ) -> &mut Self {
+                self.credential.app_config.azure_cloud_instance = azure_cloud_instance;
+                self
+            }
+
             pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(
                 &mut self,
                 scope: I,

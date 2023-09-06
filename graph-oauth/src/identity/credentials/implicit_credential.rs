@@ -110,7 +110,7 @@ impl ImplicitCredential {
 
     pub fn url_with_host(
         &self,
-        azure_authority_host: &AzureCloudInstance,
+        azure_cloud_instance: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
@@ -126,7 +126,7 @@ impl ImplicitCredential {
             .client_id(client_id.as_str())
             .nonce(self.nonce.as_str())
             .extend_scopes(self.scope.clone())
-            .authority(azure_authority_host, &self.app_config.authority);
+            .authority(azure_cloud_instance, &self.app_config.authority);
 
         let response_types: Vec<String> =
             self.response_type.iter().map(|s| s.to_string()).collect();

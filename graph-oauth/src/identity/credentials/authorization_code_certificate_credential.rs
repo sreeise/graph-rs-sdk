@@ -101,16 +101,18 @@ impl AuthorizationCodeCertificateCredential {
         )
     }
 
-    pub fn authorization_url_builder() -> AuthCodeAuthorizationUrlParameterBuilder {
-        AuthCodeAuthorizationUrlParameterBuilder::new()
+    pub fn authorization_url_builder<T: AsRef<str>>(
+        client_id: T,
+    ) -> AuthCodeAuthorizationUrlParameterBuilder {
+        AuthCodeAuthorizationUrlParameterBuilder::new(client_id)
     }
 }
 
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.authority());
+            .authority(azure_cloud_instance, &self.authority());
 
         let uri = self
             .serializer

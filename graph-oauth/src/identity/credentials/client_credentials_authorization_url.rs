@@ -1,58 +1,74 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance};
 use graph_error::{AuthorizationFailure, AuthorizationResult};
+use reqwest::IntoUrl;
 use url::form_urlencoded::Serializer;
 use url::Url;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct ClientCredentialsAuthorizationUrl {
     /// The client (application) ID of the service principal
-    pub(crate) client_id: String,
-    pub(crate) redirect_uri: String,
+    pub(crate) app_config: AppConfig,
     pub(crate) state: Option<String>,
-    pub(crate) authority: Authority,
 }
 
 impl ClientCredentialsAuthorizationUrl {
-    pub fn new<T: AsRef<str>>(client_id: T, redirect_uri: T) -> ClientCredentialsAuthorizationUrl {
-        ClientCredentialsAuthorizationUrl {
-            client_id: client_id.as_ref().to_owned(),
-            redirect_uri: redirect_uri.as_ref().to_owned(),
+    pub fn new<T: AsRef<str>, U: IntoUrl>(
+        client_id: T,
+        redirect_uri: U,
+    ) -> AuthorizationResult<ClientCredentialsAuthorizationUrl> {
+        let redirect_uri_result = Url::parse(redirect_uri.as_str());
+        let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
+
+        Ok(ClientCredentialsAuthorizationUrl {
+            app_config: AppConfig {
+                tenant_id: None,
+                client_id: Uuid::try_parse(client_id.as_ref())?,
+                authority: Default::default(),
+                azure_cloud_instance: Default::default(),
+                extra_query_parameters: Default::default(),
+                extra_header_parameters: Default::default(),
+                redirect_uri: Some(redirect_uri),
+            },
             state: None,
-            authority: Default::default(),
-        }
+        })
     }
 
-    pub fn builder() -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new()
+    pub fn builder<T: AsRef<str>>(client_id: T) -> ClientCredentialsAuthorizationUrlBuilder {
+        ClientCredentialsAuthorizationUrlBuilder::new(client_id)
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
-        self.url_with_host(&AzureCloudInstance::AzurePublic)
+        self.url_with_host(&self.app_config.azure_cloud_instance)
     }
 
     pub fn url_with_host(
         &self,
-        azure_authority_host: &AzureCloudInstance,
+        azure_cloud_instance: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
-        if self.client_id.trim().is_empty() {
+        let client_id = self.app_config.client_id.to_string();
+        if client_id.trim().is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
 
-        if self.redirect_uri.trim().is_empty() {
+        if self.app_config.redirect_uri.is_none() {
             return AuthorizationFailure::result(OAuthParameter::RedirectUri.alias());
         }
 
-        serializer
-            .client_id(self.client_id.as_str())
-            .redirect_uri(self.redirect_uri.as_str());
+        if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
+            serializer.redirect_uri(redirect_uri.as_str());
+        }
+
+        serializer.client_id(client_id.as_str());
 
         if let Some(state) = self.state.as_ref() {
             serializer.state(state.as_ref());
         }
 
-        serializer.authority_admin_consent(azure_authority_host, &self.authority);
+        serializer.authority_admin_consent(azure_cloud_instance, &self.app_config.authority);
 
         let mut encoder = Serializer::new(String::new());
         serializer.form_encode_credentials(
@@ -81,59 +97,67 @@ impl ClientCredentialsAuthorizationUrl {
 }
 
 pub struct ClientCredentialsAuthorizationUrlBuilder {
-    client_credentials_authorization_url: ClientCredentialsAuthorizationUrl,
+    parameters: ClientCredentialsAuthorizationUrl,
 }
 
 impl ClientCredentialsAuthorizationUrlBuilder {
-    pub fn new() -> Self {
+    pub fn new<T: AsRef<str>>(client_id: T) -> Self {
         Self {
-            client_credentials_authorization_url: ClientCredentialsAuthorizationUrl {
-                client_id: String::new(),
-                redirect_uri: String::new(),
+            parameters: ClientCredentialsAuthorizationUrl {
+                app_config: AppConfig::new_with_client_id(client_id),
                 state: None,
-                authority: Default::default(),
             },
         }
     }
 
-    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.client_credentials_authorization_url.client_id = client_id.as_ref().to_owned();
-        self
+    pub fn new_with_app_config(app_config: AppConfig) -> Self {
+        Self {
+            parameters: ClientCredentialsAuthorizationUrl {
+                app_config,
+                state: None,
+            },
+        }
     }
 
-    pub fn with_redirect_uri<T: AsRef<str>>(&mut self, redirect_uri: T) -> &mut Self {
-        self.client_credentials_authorization_url.redirect_uri = redirect_uri.as_ref().to_owned();
-        self
+    pub fn with_client_id<T: AsRef<str>>(
+        &mut self,
+        client_id: T,
+    ) -> AuthorizationResult<&mut Self> {
+        self.parameters.app_config.client_id = Uuid::try_parse(client_id.as_ref())?;
+        Ok(self)
+    }
+
+    pub fn with_redirect_uri<T: IntoUrl>(
+        &mut self,
+        redirect_uri: T,
+    ) -> AuthorizationResult<&mut Self> {
+        let redirect_uri_result = Url::parse(redirect_uri.as_str());
+        let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
+        self.parameters.app_config.redirect_uri = Some(redirect_uri);
+        Ok(self)
     }
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.client_credentials_authorization_url.authority =
-            Authority::TenantId(tenant.as_ref().to_owned());
+        self.parameters.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
     pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.client_credentials_authorization_url.authority = authority.into();
+        self.parameters.app_config.authority = authority.into();
         self
     }
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
-        self.client_credentials_authorization_url.state = Some(state.as_ref().to_owned());
+        self.parameters.state = Some(state.as_ref().to_owned());
         self
     }
 
     pub fn build(&self) -> ClientCredentialsAuthorizationUrl {
-        self.client_credentials_authorization_url.clone()
+        self.parameters.clone()
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
-        self.client_credentials_authorization_url.url()
-    }
-}
-
-impl Default for ClientCredentialsAuthorizationUrlBuilder {
-    fn default() -> Self {
-        ClientCredentialsAuthorizationUrlBuilder::new()
+        self.parameters.url()
     }
 }

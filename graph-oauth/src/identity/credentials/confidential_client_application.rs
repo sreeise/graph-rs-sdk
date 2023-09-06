@@ -55,8 +55,8 @@ impl ConfidentialClientApplication {
 
 #[async_trait]
 impl TokenCredentialExecutor for ConfidentialClientApplication {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
-        self.credential.uri(azure_authority_host)
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+        self.credential.uri(azure_cloud_instance)
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {

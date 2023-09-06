@@ -59,9 +59,9 @@ impl CodeFlowCredential {
 }
 
 impl AuthorizationSerializer for CodeFlowCredential {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &Authority::Common);
+            .authority(azure_cloud_instance, &Authority::Common);
 
         if self.refresh_token.is_none() {
             let uri = self.serializer.get(OAuthParameter::TokenUrl).ok_or(

@@ -68,16 +68,18 @@ impl ClientSecretCredential {
         }
     }
 
-    pub fn authorization_url_builder() -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new()
+    pub fn authorization_url_builder<T: AsRef<str>>(
+        client_id: T,
+    ) -> ClientCredentialsAuthorizationUrlBuilder {
+        ClientCredentialsAuthorizationUrlBuilder::new(client_id)
     }
 }
 
 #[async_trait]
 impl TokenCredentialExecutor for ClientSecretCredential {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.authority());
+            .authority(azure_cloud_instance, &self.authority());
 
         let uri =
             self.serializer
@@ -126,7 +128,7 @@ impl TokenCredentialExecutor for ClientSecretCredential {
     }
 
     fn azure_cloud_instance(&self) -> AzureCloudInstance {
-        todo!()
+        self.app_config.azure_cloud_instance
     }
 
     fn basic_auth(&self) -> Option<(String, String)> {

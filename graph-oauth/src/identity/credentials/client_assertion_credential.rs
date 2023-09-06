@@ -94,9 +94,9 @@ impl ClientAssertionCredentialBuilder {
 
 #[async_trait]
 impl TokenCredentialExecutor for ClientAssertionCredential {
-    fn uri(&mut self, azure_authority_host: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
         self.serializer
-            .authority(azure_authority_host, &self.authority());
+            .authority(azure_cloud_instance, &self.authority());
 
         let uri = self
             .serializer

@@ -110,17 +110,17 @@ impl ConfidentialClientApplicationBuilder {
     }
 
     pub fn authorization_code_url_builder(&mut self) -> AuthCodeAuthorizationUrlParameterBuilder {
-        AuthCodeAuthorizationUrlParameterBuilder::new()
+        AuthCodeAuthorizationUrlParameterBuilder::new_with_app_config(self.app_config.clone())
     }
 
     pub fn client_credentials_auth_url_builder(
         &mut self,
     ) -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new()
+        ClientCredentialsAuthorizationUrlBuilder::new_with_app_config(self.app_config.clone())
     }
 
     pub fn openid_authorization_url_builder(&mut self) -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new()
+        ClientCredentialsAuthorizationUrlBuilder::new_with_app_config(self.app_config.clone())
     }
 
     #[cfg(feature = "openssl")]

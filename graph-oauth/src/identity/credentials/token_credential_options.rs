@@ -1,15 +1,5 @@
-use crate::identity::AzureCloudInstance;
-use reqwest::header::HeaderMap;
-use std::collections::HashMap;
-
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct TokenCredentialOptions {
-    pub azure_authority_host: AzureCloudInstance,
-
-    pub extra_query_parameters: HashMap<String, String>,
-
-    pub extra_header_parameters: HeaderMap,
-
     /// Specifies if the token request will ignore the access token in the token cache
     /// and will attempt to acquire a new access token.
     pub force_refresh: bool,

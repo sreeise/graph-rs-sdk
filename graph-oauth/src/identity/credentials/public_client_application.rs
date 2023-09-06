@@ -77,8 +77,8 @@ impl TokenCredentialExecutor for PublicClientApplication {
     }
 
     fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let azure_authority_host = self.azure_cloud_instance();
-        let uri = self.credential.uri(&azure_authority_host)?;
+        let azure_cloud_instance = self.azure_cloud_instance();
+        let uri = self.credential.uri(&azure_cloud_instance)?;
 
         let form = self.credential.form_urlencode()?;
         let http_client = reqwest::blocking::ClientBuilder::new()

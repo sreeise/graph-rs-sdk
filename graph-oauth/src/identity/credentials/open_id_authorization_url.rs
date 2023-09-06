@@ -144,9 +144,9 @@ impl OpenIdAuthorizationUrl {
 
     pub fn url_with_host(
         &self,
-        azure_authority_host: &AzureCloudInstance,
+        azure_cloud_instance: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
-        self.authorization_url_with_host(azure_authority_host)
+        self.authorization_url_with_host(azure_cloud_instance)
     }
 
     /// Get the nonce.
@@ -171,7 +171,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
 
     fn authorization_url_with_host(
         &self,
-        azure_authority_host: &AzureCloudInstance,
+        azure_cloud_instance: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
         let mut serializer = OAuthSerializer::new();
 
@@ -195,7 +195,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
             .client_id(client_id.as_str())
             .extend_scopes(self.scope.clone())
             .nonce(self.nonce.as_str())
-            .authority(azure_authority_host, &self.app_config.authority);
+            .authority(azure_cloud_instance, &self.app_config.authority);
 
         if self.response_type.is_empty() {
             serializer.response_type("code");

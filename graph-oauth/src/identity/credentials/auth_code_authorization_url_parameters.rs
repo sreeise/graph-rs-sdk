@@ -87,8 +87,8 @@ impl AuthCodeAuthorizationUrlParameters {
         })
     }
 
-    pub fn builder() -> AuthCodeAuthorizationUrlParameterBuilder {
-        AuthCodeAuthorizationUrlParameterBuilder::new()
+    pub fn builder<T: AsRef<str>>(client_id: T) -> AuthCodeAuthorizationUrlParameterBuilder {
+        AuthCodeAuthorizationUrlParameterBuilder::new(client_id)
     }
 
     pub fn url(&self) -> AuthorizationResult<Url> {
@@ -97,9 +97,9 @@ impl AuthCodeAuthorizationUrlParameters {
 
     pub fn url_with_host(
         &self,
-        azure_authority_host: &AzureCloudInstance,
+        azure_cloud_instance: &AzureCloudInstance,
     ) -> AuthorizationResult<Url> {
-        self.authorization_url_with_host(azure_authority_host)
+        self.authorization_url_with_host(azure_cloud_instance)
     }
 
     /// Get the nonce.
@@ -328,19 +328,35 @@ pub struct AuthCodeAuthorizationUrlParameterBuilder {
     parameters: AuthCodeAuthorizationUrlParameters,
 }
 
-impl Default for AuthCodeAuthorizationUrlParameterBuilder {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl AuthCodeAuthorizationUrlParameterBuilder {
-    pub fn new() -> AuthCodeAuthorizationUrlParameterBuilder {
+    pub fn new<T: AsRef<str>>(client_id: T) -> AuthCodeAuthorizationUrlParameterBuilder {
         let mut response_type = BTreeSet::new();
         response_type.insert(ResponseType::Code);
         AuthCodeAuthorizationUrlParameterBuilder {
             parameters: AuthCodeAuthorizationUrlParameters {
-                app_config: AppConfig::default(),
+                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
+                response_mode: None,
+                response_type,
+                nonce: None,
+                state: None,
+                scope: vec![],
+                prompt: None,
+                domain_hint: None,
+                login_hint: None,
+                code_challenge: None,
+                code_challenge_method: None,
+            },
+        }
+    }
+
+    pub(crate) fn new_with_app_config(
+        app_config: AppConfig,
+    ) -> AuthCodeAuthorizationUrlParameterBuilder {
+        let mut response_type = BTreeSet::new();
+        response_type.insert(ResponseType::Code);
+        AuthCodeAuthorizationUrlParameterBuilder {
+            parameters: AuthCodeAuthorizationUrlParameters {
+                app_config,
                 response_mode: None,
                 response_type,
                 nonce: None,
@@ -565,9 +581,8 @@ mod test {
 
     #[test]
     fn serialize_uri() {
-        let authorizer = AuthCodeAuthorizationUrlParameters::builder()
+        let authorizer = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .build();
 
@@ -577,9 +592,8 @@ mod test {
 
     #[test]
     fn url_with_host() {
-        let authorizer = AuthCodeAuthorizationUrlParameters::builder()
+        let authorizer = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .build();
 
@@ -589,9 +603,8 @@ mod test {
 
     #[test]
     fn response_mode_set() {
-        let url = AuthCodeAuthorizationUrlParameters::builder()
+        let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_type(ResponseType::IdToken)
             .url()
@@ -605,9 +618,8 @@ mod test {
 
     #[test]
     fn response_mode_not_set() {
-        let url = AuthCodeAuthorizationUrlParameters::builder()
+        let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .url()
             .unwrap();
@@ -619,9 +631,8 @@ mod test {
 
     #[test]
     fn multi_response_type_set() {
-        let url = AuthCodeAuthorizationUrlParameters::builder()
+        let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_mode(ResponseMode::FormPost)
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Code])
@@ -635,9 +646,8 @@ mod test {
 
     #[test]
     fn generate_nonce() {
-        let url = AuthCodeAuthorizationUrlParameters::builder()
+        let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
-            .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
             .with_nonce_generated()

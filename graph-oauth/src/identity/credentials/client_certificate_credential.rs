@@ -67,8 +67,10 @@ impl ClientCertificateCredential {
         ClientCertificateCredentialBuilder::new(client_id)
     }
 
-    pub fn authorization_url_builder() -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new()
+    pub fn authorization_url_builder<T: AsRef<str>>(
+        client_id: T,
+    ) -> ClientCredentialsAuthorizationUrlBuilder {
+        ClientCredentialsAuthorizationUrlBuilder::new(client_id)
     }
 }
 
