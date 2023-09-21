@@ -309,7 +309,9 @@ pub mod oauth {
 }
 
 pub mod http {
-    pub use graph_http::api_impl::{BodyRead, FileConfig, UploadSession};
+    pub use graph_http::api_impl::{
+        BodyRead, FileConfig, PagingResponse, PagingResult, UploadSession,
+    };
     pub use graph_http::traits::{
         AsyncIterator, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
         ODataMetadataLink, ODataNextLink, ODataQuery, ResponseBlockingExt, ResponseExt,
