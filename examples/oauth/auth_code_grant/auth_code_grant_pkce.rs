@@ -1,3 +1,4 @@
+use graph_oauth::identity::ResponseType;
 use graph_rs_sdk::error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
@@ -32,8 +33,7 @@ pub struct AccessCode {
 // url and query needed to get an authorization code and opens the default system
 // web browser to this Url.
 fn authorization_sign_in() {
-    let url = AuthorizationCodeCredential::authorization_url_builder()
-        .with_client_id(CLIENT_ID)
+    let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
         .with_scope(vec!["user.read"])
         .with_redirect_uri("http://localhost:8000/redirect")
         .with_pkce(&PKCE)
@@ -56,13 +56,13 @@ async fn handle_redirect(
             println!("{:#?}", access_code.code);
 
             let authorization_code = access_code.code;
-            let mut confidential_client = AuthorizationCodeCredential::builder(authorization_code)
-                .with_client_id(CLIENT_ID)
-                .with_client_secret(CLIENT_SECRET)
-                .with_redirect_uri("http://localhost:8000/redirect")
-                .unwrap()
-                .with_pkce(&PKCE)
-                .build();
+            let mut confidential_client =
+                AuthorizationCodeCredential::builder(CLIENT_ID, authorization_code)
+                    .with_client_secret(CLIENT_SECRET)
+                    .with_redirect_uri("http://localhost:8000/redirect")
+                    .unwrap()
+                    .with_pkce(&PKCE)
+                    .build();
 
             // Returns reqwest::Response
             let response = confidential_client.execute_async().await.unwrap();

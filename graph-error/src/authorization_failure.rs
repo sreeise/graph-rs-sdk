@@ -1,4 +1,5 @@
 use crate::AuthorizationResult;
+use tokio::sync::mpsc::error::SendTimeoutError;
 
 pub type AF = AuthorizationFailure;
 
@@ -92,4 +93,16 @@ pub enum AuthExecutionError {
     RequestError(#[from] reqwest::Error),
     #[error("{0:#?}")]
     SerdeError(#[from] serde_json::error::Error),
+    #[error("{0:#?}")]
+    HttpError(#[from] http::Error),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum AuthTaskExecutionError<R> {
+    #[error("{0:#?}")]
+    AuthExecutionError(#[from] AuthExecutionError),
+    #[error("Tokio SendTimeoutError - Reason: {0:#?}")]
+    SendTimeoutErrorAsync(#[from] SendTimeoutError<R>),
+    #[error("{0:#?}")]
+    JoinError(#[from] tokio::task::JoinError),
 }

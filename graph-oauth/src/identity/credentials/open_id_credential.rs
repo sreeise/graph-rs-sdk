@@ -76,6 +76,7 @@ impl OpenIdCredential {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
+                token_store: Default::default(),
             },
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,

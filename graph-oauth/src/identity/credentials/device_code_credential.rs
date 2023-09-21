@@ -3,7 +3,8 @@ use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use crate::oauth::{DeviceCode, PollDeviceCodeType, PublicClientApplication};
 
 use graph_error::{
-    AuthExecutionError, AuthExecutionResult, AuthorizationFailure, AuthorizationResult, AF,
+    AuthExecutionError, AuthExecutionResult, AuthTaskExecutionResult, AuthorizationFailure,
+    AuthorizationResult, AF,
 };
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
@@ -13,6 +14,9 @@ use std::time::Duration;
 
 use crate::identity::credentials::app_config::AppConfig;
 
+use graph_extensions::http::{
+    AsyncResponseConverterExt, HttpResponseExt, JsonHttpResponse, ResponseConverterExt,
+};
 use url::Url;
 use uuid::Uuid;
 
@@ -73,101 +77,6 @@ impl DeviceCodeCredential {
         self
     }
 
-    pub async fn poll_async(
-        &mut self,
-        buffer: Option<usize>,
-    ) -> AuthExecutionResult<tokio::sync::mpsc::Receiver<http::Response<serde_json::Value>>> {
-        let (sender, receiver) = {
-            if let Some(buffer) = buffer {
-                tokio::sync::mpsc::channel(buffer)
-            } else {
-                tokio::sync::mpsc::channel(100)
-            }
-        };
-
-        let mut credential = self.clone();
-        let result = credential
-            .execute_async()
-            .await
-            .map_err(AuthExecutionError::from);
-
-        match result {
-            Ok(response) => {
-                let device_code_response: DeviceCode = response.json().await.unwrap();
-                println!("{:#?}", device_code_response);
-
-                let device_code = device_code_response.device_code;
-                let interval = device_code_response.interval;
-                let _message = device_code_response.message;
-                credential.with_device_code(device_code);
-
-                tokio::spawn(async move {
-                    let mut should_slow_down = false;
-
-                    loop {
-                        // Wait the amount of seconds that interval is.
-                        if should_slow_down {
-                            std::thread::sleep(interval.add(Duration::from_secs(5)));
-                        } else {
-                            std::thread::sleep(interval);
-                        }
-
-                        let response = credential.execute_async().await.unwrap();
-
-                        let status = response.status();
-                        println!("{response:#?}");
-
-                        let body: serde_json::Value = response.json().await.unwrap();
-                        println!("{body:#?}");
-
-                        if status.is_success() {
-                            sender
-                                .send_timeout(
-                                    http::Response::builder().status(status).body(body).unwrap(),
-                                    Duration::from_secs(60),
-                                )
-                                .await
-                                .unwrap();
-                        } else {
-                            let option_error = body["error"].as_str().map(|value| value.to_owned());
-                            sender
-                                .send_timeout(
-                                    http::Response::builder().status(status).body(body).unwrap(),
-                                    Duration::from_secs(60),
-                                )
-                                .await
-                                .unwrap();
-
-                            if let Some(error) = option_error {
-                                match PollDeviceCodeType::from_str(error.as_str()) {
-                                    Ok(poll_device_code_type) => match poll_device_code_type {
-                                        PollDeviceCodeType::AuthorizationPending => continue,
-                                        PollDeviceCodeType::AuthorizationDeclined => break,
-                                        PollDeviceCodeType::BadVerificationCode => continue,
-                                        PollDeviceCodeType::ExpiredToken => break,
-                                        PollDeviceCodeType::InvalidType => break,
-                                        PollDeviceCodeType::AccessDenied => break,
-                                        PollDeviceCodeType::SlowDown => {
-                                            should_slow_down = true;
-                                            continue;
-                                        }
-                                    },
-                                    Err(_) => break,
-                                }
-                            } else {
-                                // Body should have error or we should bail.
-                                break;
-                            }
-                        }
-                    }
-                });
-            }
-            Err(err) => return Err(err),
-        }
-
-        Ok(receiver)
-    }
-
     pub fn builder(client_id: impl AsRef<str>) -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder::new(client_id.as_ref())
     }
@@ -207,7 +116,7 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
             if refresh_token.trim().is_empty() {
                 return AuthorizationFailure::msg_result(
                     OAuthParameter::RefreshToken.alias(),
-                    "Refresh token string is empty - Either device code or refresh token is required",
+                    "Found empty string for refresh token",
                 );
             }
 
@@ -228,7 +137,7 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
             if device_code.trim().is_empty() {
                 return AuthorizationFailure::msg_result(
                     OAuthParameter::DeviceCode.alias(),
-                    "Either device code or refresh token is required - found empty device code",
+                    "Found empty string for device code",
                 );
             }
 
@@ -288,18 +197,6 @@ impl DeviceCodeCredentialBuilder {
         }
     }
 
-    pub(crate) fn new_with_app_config(app_config: AppConfig) -> DeviceCodeCredentialBuilder {
-        DeviceCodeCredentialBuilder {
-            credential: DeviceCodeCredential {
-                app_config,
-                refresh_token: None,
-                device_code: None,
-                scope: vec![],
-                serializer: Default::default(),
-            },
-        }
-    }
-
     pub(crate) fn new_with_device_code<T: AsRef<str>>(
         device_code: T,
         app_config: AppConfig,
@@ -345,6 +242,183 @@ impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
                 serializer: Default::default(),
             },
         }
+    }
+}
+
+pub struct DeviceCodePollingExecutor {
+    credential: DeviceCodeCredential,
+}
+
+impl DeviceCodePollingExecutor {
+    pub(crate) fn new_with_app_config(app_config: AppConfig) -> DeviceCodePollingExecutor {
+        DeviceCodePollingExecutor {
+            credential: DeviceCodeCredential {
+                app_config,
+                refresh_token: None,
+                device_code: None,
+                scope: vec![],
+                serializer: Default::default(),
+            },
+        }
+    }
+
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self
+    }
+
+    pub fn poll(&mut self) -> AuthExecutionResult<std::sync::mpsc::Receiver<JsonHttpResponse>> {
+        let (sender, receiver) = std::sync::mpsc::channel();
+
+        let mut credential = self.credential.clone();
+        let response = credential.execute()?;
+
+        let http_response = response.into_http_response()?;
+        let json = http_response.json().unwrap();
+        let device_code_response: DeviceCode = serde_json::from_value(json)?;
+
+        sender.send(http_response).unwrap();
+
+        let device_code = device_code_response.device_code;
+        let interval = Duration::from_secs(device_code_response.interval);
+        credential.with_device_code(device_code);
+
+        let _ = std::thread::spawn(move || {
+            let mut should_slow_down = false;
+
+            loop {
+                // Wait the amount of seconds that interval is.
+                if should_slow_down {
+                    should_slow_down = false;
+                    std::thread::sleep(interval.add(Duration::from_secs(5)));
+                } else {
+                    std::thread::sleep(interval);
+                }
+
+                let response = credential.execute().unwrap();
+                let http_response = response.into_http_response()?;
+                let status = http_response.status();
+
+                if status.is_success() {
+                    sender.send(http_response)?;
+                    break;
+                } else {
+                    let json = http_response.json().unwrap();
+                    let option_error = json["error"].as_str().map(|value| value.to_owned());
+                    sender.send(http_response)?;
+
+                    if let Some(error) = option_error {
+                        match PollDeviceCodeType::from_str(error.as_str()) {
+                            Ok(poll_device_code_type) => match poll_device_code_type {
+                                PollDeviceCodeType::AuthorizationPending => continue,
+                                PollDeviceCodeType::AuthorizationDeclined => break,
+                                PollDeviceCodeType::BadVerificationCode => continue,
+                                PollDeviceCodeType::ExpiredToken => break,
+                                PollDeviceCodeType::AccessDenied => break,
+                                PollDeviceCodeType::SlowDown => {
+                                    should_slow_down = true;
+                                    continue;
+                                }
+                            },
+                            Err(_) => break,
+                        }
+                    } else {
+                        // Body should have error or we should bail.
+                        break;
+                    }
+                }
+            }
+            Ok::<(), anyhow::Error>(())
+        });
+
+        Ok(receiver)
+    }
+
+    pub async fn poll_async(
+        &mut self,
+        buffer: Option<usize>,
+    ) -> AuthTaskExecutionResult<tokio::sync::mpsc::Receiver<JsonHttpResponse>, JsonHttpResponse>
+    {
+        let (sender, receiver) = {
+            if let Some(buffer) = buffer {
+                tokio::sync::mpsc::channel(buffer)
+            } else {
+                tokio::sync::mpsc::channel(100)
+            }
+        };
+
+        let mut credential = self.credential.clone();
+        let response = credential.execute_async().await?;
+
+        let http_response = response.into_http_response_async().await?;
+        let json = http_response.json().unwrap();
+        let device_code_response: DeviceCode =
+            serde_json::from_value(json).map_err(AuthExecutionError::from)?;
+
+        sender
+            .send_timeout(http_response, Duration::from_secs(60))
+            .await?;
+
+        let device_code = device_code_response.device_code;
+        let mut interval = Duration::from_secs(device_code_response.interval);
+        credential.with_device_code(device_code);
+
+        let _ = tokio::spawn(async move {
+            let mut should_slow_down = false;
+
+            loop {
+                // Should slow down is part of the openid connect spec and means that
+                // that we should wait longer between polling by the amount specified
+                // in the interval field of the device code.
+                if should_slow_down {
+                    should_slow_down = false;
+                    interval = interval.add(Duration::from_secs(5));
+                }
+
+                // Wait the amount of seconds that interval is.
+                tokio::time::sleep(interval).await;
+
+                let response = credential.execute_async().await?;
+                let http_response = response.into_http_response_async().await?;
+                let status = http_response.status();
+
+                if status.is_success() {
+                    sender
+                        .send_timeout(http_response, Duration::from_secs(60))
+                        .await?;
+                    break;
+                } else {
+                    let json = http_response.json().unwrap();
+                    let option_error = json["error"].as_str().map(|value| value.to_owned());
+                    sender
+                        .send_timeout(http_response, Duration::from_secs(60))
+                        .await?;
+
+                    if let Some(error) = option_error {
+                        match PollDeviceCodeType::from_str(error.as_str()) {
+                            Ok(poll_device_code_type) => match poll_device_code_type {
+                                PollDeviceCodeType::AuthorizationPending => continue,
+                                PollDeviceCodeType::AuthorizationDeclined => break,
+                                PollDeviceCodeType::BadVerificationCode => continue,
+                                PollDeviceCodeType::ExpiredToken => break,
+                                PollDeviceCodeType::AccessDenied => break,
+                                PollDeviceCodeType::SlowDown => {
+                                    should_slow_down = true;
+                                    continue;
+                                }
+                            },
+                            Err(_) => break,
+                        }
+                    } else {
+                        // Body should have error or we should bail.
+                        break;
+                    }
+                }
+            }
+            return Ok::<(), anyhow::Error>(());
+        });
+
+        Ok(receiver)
     }
 }
 

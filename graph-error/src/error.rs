@@ -35,6 +35,16 @@ pub struct ErrorStatus {
     pub inner_error: Option<InnerError>,
 }
 
+#[derive(thiserror::Error, Debug)]
+pub enum HttpResponseErrorMessage {
+    #[error("{0:#?}")]
+    GraphErrorMessage(#[from] ErrorMessage),
+    #[error("{0:#?}")]
+    SerdeJsonError(#[from] serde_json::error::Error),
+    #[error("{0:#?}")]
+    ReqwestError(#[from] reqwest::Error),
+}
+
 #[derive(thiserror::Error, Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ErrorMessage {
     pub error: ErrorStatus,

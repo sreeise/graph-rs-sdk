@@ -73,6 +73,7 @@ impl AuthCodeAuthorizationUrlParameters {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
+                token_store: Default::default(),
             },
             response_type,
             response_mode: None,

@@ -78,6 +78,7 @@ impl AuthorizationCodeCertificateCredential {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri,
+            token_store: Default::default(),
         };
 
         Ok(AuthorizationCodeCertificateCredential {

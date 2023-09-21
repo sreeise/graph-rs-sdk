@@ -11,6 +11,10 @@ use std::collections::HashMap;
 use url::Url;
 use uuid::Uuid;
 
+pub struct UserInfoEndpoint {
+    user_info_endpoint: String,
+}
+
 #[async_trait]
 pub trait TokenCredentialExecutor {
     fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url>;
@@ -28,12 +32,32 @@ pub trait TokenCredentialExecutor {
     fn openid_configuration_url(&self) -> AuthorizationResult<Url> {
         Ok(Url::parse(
             format!(
-                "{}/{}/2.0/.well-known/openid-configuration",
+                "{}/{}/v2.0/.well-known/openid-configuration",
                 self.azure_cloud_instance().as_ref(),
                 self.authority().as_ref()
             )
             .as_str(),
         )?)
+    }
+
+    fn openid_userinfo(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
+        let response = self.get_openid_config()?;
+        let config: serde_json::Value = response.json()?;
+        let user_info_endpoint = Url::parse(config["userinfo_endpoint"].as_str().unwrap()).unwrap();
+        let http_client = reqwest::blocking::ClientBuilder::new()
+            .min_tls_version(Version::TLS_1_2)
+            .https_only(true)
+            .build()?;
+        let mut headers = HeaderMap::new();
+        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
+
+        let response = http_client
+            .get(user_info_endpoint)
+            .headers(headers)
+            .send()
+            .expect("Error on header");
+
+        Ok(response)
     }
 
     fn get_openid_config(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
@@ -149,7 +173,7 @@ mod test {
 
         let url = open_id.openid_configuration_url().unwrap();
         assert_eq!(
-            "https://login.microsoftonline.com/tenant-id/2.0/.well-known/openid-configuration",
+            "https://login.microsoftonline.com/tenant-id/v2.0/.well-known/openid-configuration",
             url.as_str()
         )
     }
@@ -162,7 +186,7 @@ mod test {
 
         let url = open_id.openid_configuration_url().unwrap();
         assert_eq!(
-            "https://login.microsoftonline.com/common/2.0/.well-known/openid-configuration",
+            "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
             url.as_str()
         )
     }

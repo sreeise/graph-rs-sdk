@@ -57,8 +57,7 @@ async fn main() {}
 async fn auth_code_grant(authorization_code: &str) {
     let pkce = ProofKeyForCodeExchange::generate().unwrap();
 
-    let credential = AuthorizationCodeCredential::builder(authorization_code)
-        .with_client_id("CLIENT_ID")
+    let credential = AuthorizationCodeCredential::builder("CLIENT_ID", authorization_code)
         .with_client_secret("CLIENT_SECRET")
         .with_redirect_uri("http://localhost:8000/redirect")
         .unwrap()
@@ -76,8 +75,9 @@ async fn auth_code_grant(authorization_code: &str) {
 
 // Client Credentials Grant
 async fn client_credentials() {
-    let client_secret_credential = ClientSecretCredential::new("CLIENT_ID", "CLIENT_SECRET");
-    let mut confidential_client = ConfidentialClientApplication::from(client_secret_credential);
+    let mut confidential_client = ConfidentialClientApplication::builder("CLIENT_ID")
+        .with_client_secret("CLIENT_SECRET")
+        .build();
 
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");

@@ -23,6 +23,9 @@ use url::Url;
 /// OAuth-enabled applications by using a security token called an ID token.
 use warp::Filter;
 
+// Use the form post form post response mode when listening on a server instead
+// of the URL query because the the query does not get sent to servers.
+
 // The client id and client secret must be changed before running this example.
 static CLIENT_ID: &str = "";
 static CLIENT_SECRET: &str = "";
@@ -30,16 +33,16 @@ static TENANT_ID: &str = "";
 
 static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
-fn openid_authorization_url(client_id: &str, client_secret: &str) -> anyhow::Result<Url> {
+fn openid_authorization_url() -> anyhow::Result<Url> {
     Ok(OpenIdCredential::authorization_url_builder()?
         .with_client_id(CLIENT_ID)
         .with_tenant(TENANT_ID)
         //.with_default_scope()?
-        .with_redirect_uri("http://localhost:8000/redirect")?
+        .with_redirect_uri(REDIRECT_URI)?
         .with_response_mode(ResponseMode::FormPost)
         .with_response_type([ResponseType::IdToken, ResponseType::Code])
         .with_prompt(Prompt::SelectAccount)
-        .with_state(REDIRECT_URI)
+        .with_state("1234")
         .extend_scope(vec!["User.Read", "User.ReadWrite"])
         .build()
         .url()?)
@@ -109,7 +112,7 @@ pub async fn start_server_main() {
         .and_then(handle_redirect)
         .with(warp::trace::named("executor"));
 
-    let url = openid_authorization_url(CLIENT_ID, CLIENT_SECRET).unwrap();
+    let url = openid_authorization_url().unwrap();
     webbrowser::open(url.as_ref());
 
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;

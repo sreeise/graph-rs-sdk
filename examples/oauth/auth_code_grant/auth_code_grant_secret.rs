@@ -19,8 +19,7 @@ pub struct AccessCode {
 }
 
 pub fn authorization_sign_in() {
-    let url = AuthorizationCodeCredential::authorization_url_builder()
-        .with_client_id(CLIENT_ID)
+    let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
         .with_redirect_uri(REDIRECT_URI)
         .with_scope(vec![SCOPE])
         .url()

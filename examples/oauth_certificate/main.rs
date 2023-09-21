@@ -45,6 +45,10 @@ static CLIENT_ID: &str = "<CLIENT_ID>";
 // Only required for certain applications. Used here as an example.
 static TENANT: &str = "<TENANT_ID>";
 
+static REDIRECT_URI: &str = "http://localhost:8000/redirect";
+
+static SCOPE: &str = "User.Read";
+
 // The path to the public key file.
 static CERTIFICATE_PATH: &str = "<CERTIFICATE_PATH>";
 
@@ -56,12 +60,11 @@ pub struct AccessCode {
     code: String,
 }
 
-pub fn authorization_sign_in(client_id: &str, tenant_id: &str) {
-    let url = AuthorizationCodeCertificateCredential::authorization_url_builder()
-        .with_client_id(client_id)
-        .with_tenant(tenant_id)
-        .with_redirect_uri("http://localhost:8080")
-        .with_scope(vec!["User.Read"])
+pub fn authorization_sign_in() {
+    let url = AuthorizationCodeCertificateCredential::authorization_url_builder(CLIENT_ID)
+        .with_tenant(TENANT)
+        .with_redirect_uri(REDIRECT_URI)
+        .with_scope(vec![SCOPE])
         .url()
         .unwrap();
 
@@ -105,8 +108,8 @@ async fn handle_redirect(
                 .with_authorization_code_x509_certificate(authorization_code, &x509)
                 .unwrap()
                 .with_tenant(TENANT)
-                .with_scope(vec!["User.Read"])
-                .with_redirect_uri("http://localhost:8080")
+                .with_scope(vec![SCOPE])
+                .with_redirect_uri(REDIRECT_URI)
                 .unwrap()
                 .build();
 
@@ -155,7 +158,7 @@ pub async fn start_server_main() {
         .and(query)
         .and_then(handle_redirect);
 
-    authorization_sign_in(CLIENT_ID, TENANT);
+    authorization_sign_in();
 
     warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
 }

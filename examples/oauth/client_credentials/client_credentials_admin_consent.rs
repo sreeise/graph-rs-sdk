@@ -28,7 +28,7 @@ static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
 // Paste the URL into a browser and have the admin sign in and approve the admin consent.
 fn get_admin_consent_url() -> AuthorizationResult<url::Url> {
-    let authorization_credential = ClientCredentialsAuthorizationUrl::new(CLIENT_ID, REDIRECT_URI);
+    let authorization_credential = ClientCredentialsAuthorizationUrl::new(CLIENT_ID, REDIRECT_URI)?;
     authorization_credential.url()
 }
 
@@ -36,9 +36,8 @@ fn get_admin_consent_url() -> AuthorizationResult<url::Url> {
 
 // Use the builder if you want to set a specific tenant, or a state, or set a specific Authority.
 fn get_admin_consent_url_from_builder() -> AuthorizationResult<url::Url> {
-    let authorization_credential = ClientCredentialsAuthorizationUrl::builder()
-        .with_client_id(CLIENT_ID)
-        .with_redirect_uri(REDIRECT_URI)
+    let authorization_credential = ClientCredentialsAuthorizationUrl::builder(CLIENT_ID)
+        .with_redirect_uri(REDIRECT_URI)?
         .with_state("123")
         .with_tenant("tenant_id")
         .build();

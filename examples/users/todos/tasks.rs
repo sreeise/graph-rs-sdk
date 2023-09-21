@@ -1,5 +1,5 @@
 use futures::StreamExt;
-use graph_error::GraphResult;
+use graph_rs_sdk::error::GraphResult;
 use graph_rs_sdk::Graph;
 use std::collections::VecDeque;
 
@@ -32,7 +32,7 @@ async fn list_tasks(user_id: &str, list_id: &str) -> GraphResult<()> {
         .tasks()
         .list_tasks()
         .paging()
-        .stream::<TodoListTaskCollection>();
+        .stream::<TodoListTaskCollection>()?;
 
     while let Some(result) = stream.next().await {
         let response = result?;

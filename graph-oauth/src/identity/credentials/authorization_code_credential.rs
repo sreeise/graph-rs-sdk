@@ -94,6 +94,7 @@ impl AuthorizationCodeCredential {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: Some(redirect_uri),
+            token_store: Default::default(),
         };
 
         Ok(AuthorizationCodeCredential {
@@ -113,9 +114,10 @@ impl AuthorizationCodeCredential {
 
     pub fn builder<T: AsRef<str>, U: AsRef<str>>(
         client_id: T,
+        client_secret: T,
         authorization_code: U,
     ) -> AuthorizationCodeCredentialBuilder {
-        AuthorizationCodeCredentialBuilder::new(client_id, authorization_code)
+        AuthorizationCodeCredentialBuilder::new(client_id, client_secret, authorization_code)
     }
 
     pub fn authorization_url_builder<T: AsRef<str>>(
@@ -131,8 +133,9 @@ pub struct AuthorizationCodeCredentialBuilder {
 }
 
 impl AuthorizationCodeCredentialBuilder {
-    pub fn new<T: AsRef<str>, U: AsRef<str>>(
+    fn new<T: AsRef<str>, U: AsRef<str>>(
         client_id: T,
+        client_secret: T,
         authorization_code: U,
     ) -> AuthorizationCodeCredentialBuilder {
         Self {
@@ -140,7 +143,7 @@ impl AuthorizationCodeCredentialBuilder {
                 app_config: AppConfig::new_with_client_id(client_id.as_ref()),
                 authorization_code: Some(authorization_code.as_ref().to_owned()),
                 refresh_token: None,
-                client_secret: String::new(),
+                client_secret: client_secret.as_ref().to_owned(),
                 scope: vec![],
                 code_verifier: None,
                 serializer: OAuthSerializer::new(),

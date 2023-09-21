@@ -41,7 +41,7 @@ pub struct OpenIdAuthorizationUrl {
     /// - form_post: Executes a POST containing the code to your redirect URI.
     /// Supported when requesting a code.
     pub(crate) response_mode: Option<ResponseMode>,
-    /// Optional
+    /// Required
     /// A value generated and sent by your app in its request for an ID token. The same nonce
     /// value is included in the ID token returned to your app by the Microsoft identity platform.
     /// To mitigate token replay attacks, your app should verify the nonce value in the ID token
@@ -116,6 +116,7 @@ impl OpenIdAuthorizationUrl {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
+                token_store: Default::default(),
             },
             response_type: BTreeSet::new(),
             response_mode: None,
@@ -412,19 +413,6 @@ impl OpenIdAuthorizationUrlBuilder {
             .scope
             .extend(scope.into_iter().map(|s| s.to_string()));
         self
-    }
-
-    /// Automatically adds profile, email, and offline_access to the scope parameter.
-    /// The openid scope is already included when using [OpenIdCredential]
-    pub fn with_default_scope(&mut self) -> anyhow::Result<&mut Self> {
-        self.with_nonce_generated()?;
-        self.with_response_type(vec![ResponseType::Code, ResponseType::IdToken]);
-        self.auth_url_parameters.scope.extend(
-            vec!["profile", "email", "offline_access"]
-                .into_iter()
-                .map(|s| s.to_string()),
-        );
-        Ok(self)
     }
 
     /// Indicates the type of user interaction that is required. Valid values are login, none,

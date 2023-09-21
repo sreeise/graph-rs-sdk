@@ -1,7 +1,6 @@
 use serde_json::Value;
 use std::collections::{BTreeSet, HashMap};
 use std::str::FromStr;
-use std::time::Duration;
 
 /// https://datatracker.ietf.org/doc/html/rfc8628#section-3.2
 /// The actual device code response that is received from Microsoft Graph
@@ -29,7 +28,7 @@ pub struct DeviceCode {
     /// SHOULD wait between polling requests to the token endpoint.  If no
     /// value is provided, clients MUST use 5 as the default.
     #[serde(default = "default_interval")]
-    pub interval: Duration,
+    pub interval: u64,
     ///  User friendly text response that can be used for display purpose.
     pub message: String,
     pub user_code: String,
@@ -46,8 +45,8 @@ pub struct DeviceCode {
     pub additional_fields: HashMap<String, Value>,
 }
 
-fn default_interval() -> Duration {
-    Duration::from_secs(5)
+fn default_interval() -> u64 {
+    5
 }
 
 /// Response types used when polling for a device code
@@ -79,13 +78,6 @@ pub enum PollDeviceCodeType {
     /// still pending and polling should continue, but the interval MUST
     /// be increased by 5 seconds for this and all subsequent requests.
     SlowDown,
-
-    /// Indicates the value is not an actual PollDeviceCodeType - this is an internal type not a
-    /// type used in Microsoft Identity Platform or in the OAuth2/OpenId specification.
-    ///
-    /// This is a catch all to prevent parsing errors and break from
-    /// any loop that is used to poll for the device code.
-    InvalidType,
 }
 
 impl FromStr for PollDeviceCodeType {
@@ -99,7 +91,7 @@ impl FromStr for PollDeviceCodeType {
             "expired_token" => Ok(PollDeviceCodeType::ExpiredToken),
             "access_denied" => Ok(PollDeviceCodeType::AccessDenied),
             "slow_down" => Ok(PollDeviceCodeType::SlowDown),
-            _ => Ok(PollDeviceCodeType::InvalidType),
+            _ => Err(()),
         }
     }
 }

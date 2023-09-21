@@ -187,13 +187,15 @@ mod test {
 
     #[test]
     fn confidential_client_new() {
-        let credential = AuthorizationCodeCredential::builder("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
-            .with_client_id("bb301aaa-1201-4259-a230923fds32")
-            .with_client_secret("CLDIE3F")
-            .with_scope(vec!["Read.Write", "Fall.Down"])
-            .with_redirect_uri("http://localhost:8888/redirect")
-            .unwrap()
-            .build();
+        let credential = AuthorizationCodeCredential::builder(
+            Uuid::new_v4().to_string(),
+            "ALDSKFJLKERLKJALSDKJF2209LAKJGFL",
+        )
+        .with_client_secret("CLDIE3F")
+        .with_scope(vec!["Read.Write", "Fall.Down"])
+        .with_redirect_uri("http://localhost:8888/redirect")
+        .unwrap()
+        .build();
 
         let mut confidential_client = credential;
         let credential_uri = confidential_client
@@ -209,14 +211,16 @@ mod test {
 
     #[test]
     fn confidential_client_tenant() {
-        let credential = AuthorizationCodeCredential::builder("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
-            .with_client_id("bb301aaa-1201-4259-a230923fds32")
-            .with_client_secret("CLDIE3F")
-            .with_redirect_uri("http://localhost:8888/redirect")
-            .unwrap()
-            .with_authority(Authority::Consumers)
-            .build();
-        let mut confidential_client = credential;
+        let mut confidential_client = AuthorizationCodeCredential::builder(
+            Uuid::new_v4().to_string(),
+            "ALDSKFJLKERLKJALSDKJF2209LAKJGFL",
+        )
+        .with_client_id("bb301aaa-1201-4259-a230923fds32")
+        .with_client_secret("CLDIE3F")
+        .with_redirect_uri("http://localhost:8888/redirect")
+        .unwrap()
+        .with_authority(Authority::Consumers)
+        .build();
         let credential_uri = confidential_client
             .credential
             .uri(&AzureCloudInstance::AzurePublic)

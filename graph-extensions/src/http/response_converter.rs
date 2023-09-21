@@ -1,47 +1,26 @@
 use crate::http::HttpResponseBuilderExt;
 use async_trait::async_trait;
-use graph_error::{ErrorMessage, GraphResult};
+use graph_error::{AuthExecutionResult, ErrorMessage};
 use http::Response;
 use serde::de::DeserializeOwned;
 
-/*
-pub async fn into_http_response_async<T: DeserializeOwned>(response: reqwest::Response) -> GraphResult<http::Response<Result<T, ErrorMessage>>> {
-    let status = response.status();
-    let url = response.url().clone();
-    let headers = response.headers().clone();
-    let version = response.version();
-
-    let body: serde_json::Value = response.json().await?;
-    let json = body.clone();
-
-    let body_result: Result<T, ErrorMessage> = serde_json::from_value(body)
-        .map_err(|_| serde_json::from_value(json.clone()).unwrap_or(ErrorMessage::default()));
-
-    let mut builder = http::Response::builder()
-        .url(url)
-        .json(&json)
-        .status(http::StatusCode::from(&status))
-        .version(version);
-
-    Ok(builder.body(body_result)?)
-}
- */
+pub type JsonHttpResponse = http::Response<Result<serde_json::Value, ErrorMessage>>;
 
 #[async_trait]
-pub trait ResponseConverterExt {
-    async fn into_json_http_response_async<T: DeserializeOwned>(
+pub trait AsyncResponseConverterExt {
+    async fn into_http_response_async<T: DeserializeOwned>(
         self,
-    ) -> GraphResult<http::Response<Result<T, ErrorMessage>>>;
+    ) -> AuthExecutionResult<http::Response<Result<T, ErrorMessage>>>;
 }
 
 #[async_trait]
-impl ResponseConverterExt for reqwest::Response {
-    async fn into_json_http_response_async<T: DeserializeOwned>(
+impl AsyncResponseConverterExt for reqwest::Response {
+    async fn into_http_response_async<T: DeserializeOwned>(
         self,
-    ) -> GraphResult<Response<Result<T, ErrorMessage>>> {
+    ) -> AuthExecutionResult<Response<Result<T, ErrorMessage>>> {
         let status = self.status();
         let url = self.url().clone();
-        let _headers = self.headers().clone();
+        let headers = self.headers().clone();
         let version = self.version();
 
         let body: serde_json::Value = self.json().await?;
@@ -50,11 +29,50 @@ impl ResponseConverterExt for reqwest::Response {
         let body_result: Result<T, ErrorMessage> = serde_json::from_value(body)
             .map_err(|_| serde_json::from_value(json.clone()).unwrap_or(ErrorMessage::default()));
 
-        let builder = http::Response::builder()
+        let mut builder = http::Response::builder()
             .url(url)
             .json(&json)
             .status(http::StatusCode::from(&status))
             .version(version);
+
+        for builder_header in builder.headers_mut().iter_mut() {
+            builder_header.extend(headers.clone());
+        }
+
+        Ok(builder.body(body_result)?)
+    }
+}
+
+pub trait ResponseConverterExt {
+    fn into_http_response<T: DeserializeOwned>(
+        self,
+    ) -> AuthExecutionResult<http::Response<Result<T, ErrorMessage>>>;
+}
+
+impl ResponseConverterExt for reqwest::blocking::Response {
+    fn into_http_response<T: DeserializeOwned>(
+        self,
+    ) -> AuthExecutionResult<Response<Result<T, ErrorMessage>>> {
+        let status = self.status();
+        let url = self.url().clone();
+        let headers = self.headers().clone();
+        let version = self.version();
+
+        let body: serde_json::Value = self.json()?;
+        let json = body.clone();
+
+        let body_result: Result<T, ErrorMessage> = serde_json::from_value(body)
+            .map_err(|_| serde_json::from_value(json.clone()).unwrap_or(ErrorMessage::default()));
+
+        let mut builder = http::Response::builder()
+            .url(url)
+            .json(&json)
+            .status(http::StatusCode::from(&status))
+            .version(version);
+
+        for builder_header in builder.headers_mut().iter_mut() {
+            builder_header.extend(headers.clone());
+        }
 
         Ok(builder.body(body_result)?)
     }

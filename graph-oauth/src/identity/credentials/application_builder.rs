@@ -4,8 +4,8 @@ use crate::identity::{
     application_options::ApplicationOptions, AuthCodeAuthorizationUrlParameterBuilder, Authority,
     AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
     AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
-    DeviceCodeCredentialBuilder, EnvironmentCredential, OpenIdCredentialBuilder,
-    PublicClientApplication,
+    DeviceCodeCredentialBuilder, DeviceCodePollingExecutor, EnvironmentCredential,
+    OpenIdCredentialBuilder, PublicClientApplication,
 };
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
@@ -231,6 +231,7 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
+                token_store: Default::default(),
             },
         })
     }
@@ -306,8 +307,8 @@ impl PublicClientApplicationBuilder {
         self
     }
 
-    pub fn with_device_code_builder(self) -> DeviceCodeCredentialBuilder {
-        DeviceCodeCredentialBuilder::new_with_app_config(self.app_config)
+    pub fn with_device_code_authorization_executor(self) -> DeviceCodePollingExecutor {
+        DeviceCodePollingExecutor::new_with_app_config(self.app_config)
     }
 
     pub fn with_device_code(self, device_code: impl AsRef<str>) -> DeviceCodeCredentialBuilder {
@@ -320,7 +321,8 @@ impl PublicClientApplicationBuilder {
     }
      */
 
-    pub fn try_from_environment() -> Result<PublicClientApplication, VarError> {
+    pub fn with_resource_owner_password_from_environment(
+    ) -> Result<PublicClientApplication, VarError> {
         EnvironmentCredential::resource_owner_password_credential()
     }
 }
@@ -357,6 +359,7 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
+                token_store: Default::default(),
             },
         })
     }

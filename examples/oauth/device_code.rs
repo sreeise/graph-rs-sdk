@@ -13,11 +13,20 @@ static CLIENT_ID: &str = "<CLIENT_ID>";
 static TENANT: &str = "<TENANT>";
 
 // Make the call to get a device code from the user.
-fn get_auth_call_for_device_code() {
-    let mut public_client = PublicClientApplication::builder(CLIENT_ID)
-        .with_device_code_builder()
-        .with_scope(["User.Read"])
-        .with_tenant(TENANT);
+
+// Poll the device code endpoint to get the code and a url that the user must
+// go to in order to enter the code. Polling will continue until either the user
+// has entered the and an access token is returned or an error happens.
+fn poll_device_code() {
+    let mut device_executor = PublicClientApplication::builder(CLIENT_ID)
+        .with_device_authorization_executor()
+        .with_scope(vec!["User.Read"])
+        .poll()
+        .unwrap();
+
+    while let Ok(response) = device_executor.recv() {
+        println!("{:#?}", response);
+    }
 }
 
 fn get_token(device_code: &str) {
