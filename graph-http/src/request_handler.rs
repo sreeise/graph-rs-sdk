@@ -30,6 +30,9 @@ impl RequestHandler {
         err: Option<GraphFailure>,
         body: Option<BodyRead>,
     ) -> RequestHandler {
+        let mut token = inner.clone();
+        let access_token = token.get_token().unwrap();
+
         let mut original_headers = inner.headers;
         original_headers.extend(request_components.headers.clone());
         request_components.headers = original_headers;
@@ -45,7 +48,7 @@ impl RequestHandler {
 
         RequestHandler {
             inner: inner.inner.clone(),
-            access_token: inner.access_token,
+            access_token,
             request_components,
             error,
             body,

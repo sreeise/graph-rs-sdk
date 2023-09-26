@@ -1,5 +1,5 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs_sdk::oauth::{GrantRequest, MsalTokenResponse, OAuthSerializer};
+use graph_rs_sdk::oauth::{GrantRequest, MsalToken, OAuthSerializer};
 use test_tools::oauth::OAuthTestTool;
 use url::{Host, Url};
 
@@ -68,9 +68,13 @@ fn refresh_token_uri() {
         .add_scope("Fall.Down")
         .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
-    let mut access_token =
-        MsalTokenResponse::new("access_token", 3600, "Read.Write Fall.Down", "asfasf");
-    access_token.set_refresh_token("32LKLASDKJ");
+    let mut access_token = MsalToken::new(
+        "access_token",
+        3600,
+        "asfasf",
+        vec!["Read.Write", "Fall.Down"],
+    );
+    access_token.with_refresh_token("32LKLASDKJ");
     oauth.access_token(access_token);
 
     let body = oauth
@@ -78,7 +82,7 @@ fn refresh_token_uri() {
         .unwrap();
     let test_url =
         "client_id=bb301aaa-1201-4259-a230923fds32&client_secret=CLDIE3F&refresh_token=32LKLASDKJ&grant_type=refresh_token&scope=Fall.Down+Read.Write";
-    assert_eq!(test_url, body);
+    assert_eq!(test_url, access_token.get_token);
 }
 
 #[test]

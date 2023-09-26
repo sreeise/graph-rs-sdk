@@ -7,16 +7,26 @@ repository = "https://github.com/sreeise/graph-rs-sdk"
 description = "Extensions and utilities used across multiple crates that make up the graph-rs-sdk crate"
 
 [dependencies]
+anyhow = { version = "1.0.69", features = ["backtrace"]}
 async-stream = "0.3"
 async-trait = "0.1.35"
 bytes = { version = "1.4.0", features = ["serde"] }
+chrono = { version = "0.4.23", features = ["serde"] }
+chrono-humanize = "0.2.2"
+dyn-clone = "1.0.14"
 futures = "0.3.28"
 http = "0.2.9"
+log = "0.4"
+pretty_env_logger = "0.4"
 reqwest = { version = "0.11.16", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
+serde-aux = "4.1.2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+serde_urlencoded = "0.7.1"
+time = { version = "0.3.10", features = ["local-offset", "serde"] }
 tokio = { version = "1.27.0", features = ["full"] }
 url = { version = "2", features = ["serde"] }
+wry = "0.30.0"
 
 graph-error = { path = "../graph-error"  }
 

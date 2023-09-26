@@ -23,15 +23,17 @@ mod is_access_token_expired;
 mod openid_connect;
 mod signing_keys;
 
+use crate::is_access_token_expired::is_access_token_expired;
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, MsalTokenResponse, ProofKeyForCodeExchange, PublicClientApplication,
+    DeviceCodeCredential, MsalToken, ProofKeyForCodeExchange, PublicClientApplication,
     TokenCredentialExecutor, TokenRequest,
 };
 
-#[tokio::main]
-async fn main() {}
+fn main() {
+    is_access_token_expired();
+}
 
 /*
    // Some examples of what you can use for authentication and getting access tokens. There are
@@ -57,19 +59,19 @@ async fn main() {}
 async fn auth_code_grant(authorization_code: &str) {
     let pkce = ProofKeyForCodeExchange::generate().unwrap();
 
-    let credential = AuthorizationCodeCredential::builder("CLIENT_ID", authorization_code)
-        .with_client_secret("CLIENT_SECRET")
-        .with_redirect_uri("http://localhost:8000/redirect")
-        .unwrap()
-        .with_pkce(&pkce)
-        .build();
+    let credential =
+        AuthorizationCodeCredential::builder("CLIENT_ID", "CLIENT_SECRET", authorization_code)
+            .with_redirect_uri("http://localhost:8000/redirect")
+            .unwrap()
+            .with_pkce(&pkce)
+            .build();
 
     let mut confidential_client = credential;
 
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
-    let access_token: MsalTokenResponse = response.json().await.unwrap();
+    let access_token: MsalToken = response.json().await.unwrap();
     println!("{:#?}", access_token.access_token);
 }
 
@@ -82,6 +84,6 @@ async fn client_credentials() {
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
-    let access_token: MsalTokenResponse = response.json().await.unwrap();
+    let access_token: MsalToken = response.json().await.unwrap();
     println!("{:#?}", access_token.access_token);
 }

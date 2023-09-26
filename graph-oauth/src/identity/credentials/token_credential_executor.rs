@@ -2,6 +2,7 @@ use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance};
 
 use async_trait::async_trait;
+use dyn_clone::DynClone;
 use graph_error::{AuthExecutionResult, AuthorizationResult};
 use http::header::ACCEPT;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
@@ -11,23 +12,43 @@ use std::collections::HashMap;
 use url::Url;
 use uuid::Uuid;
 
-pub struct UserInfoEndpoint {
-    user_info_endpoint: String,
-}
+dyn_clone::clone_trait_object!(TokenCredentialExecutor);
 
 #[async_trait]
-pub trait TokenCredentialExecutor {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url>;
+pub trait TokenCredentialExecutor: DynClone {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn uri(&mut self) -> AuthorizationResult<Url>;
+
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>>;
-    fn client_id(&self) -> &Uuid;
-    fn authority(&self) -> Authority;
-    fn azure_cloud_instance(&self) -> AzureCloudInstance;
+
+    fn client_id(&self) -> &Uuid {
+        &self.app_config().client_id
+    }
+
+    fn authority(&self) -> Authority {
+        self.app_config().authority.clone()
+    }
+
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config().azure_cloud_instance
+    }
 
     fn basic_auth(&self) -> Option<(String, String)> {
         None
     }
 
     fn app_config(&self) -> &AppConfig;
+
+    fn extra_header_parameters(&self) -> &HeaderMap {
+        &self.app_config().extra_header_parameters
+    }
+
+    fn extra_query_parameters(&self) -> &HashMap<String, String> {
+        &self.app_config().extra_query_parameters
+    }
 
     fn openid_configuration_url(&self) -> AuthorizationResult<Url> {
         Ok(Url::parse(
@@ -38,26 +59,6 @@ pub trait TokenCredentialExecutor {
             )
             .as_str(),
         )?)
-    }
-
-    fn openid_userinfo(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let response = self.get_openid_config()?;
-        let config: serde_json::Value = response.json()?;
-        let user_info_endpoint = Url::parse(config["userinfo_endpoint"].as_str().unwrap()).unwrap();
-        let http_client = reqwest::blocking::ClientBuilder::new()
-            .min_tls_version(Version::TLS_1_2)
-            .https_only(true)
-            .build()?;
-        let mut headers = HeaderMap::new();
-        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
-
-        let response = http_client
-            .get(user_info_endpoint)
-            .headers(headers)
-            .send()
-            .expect("Error on header");
-
-        Ok(response)
     }
 
     fn get_openid_config(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
@@ -99,8 +100,7 @@ pub trait TokenCredentialExecutor {
     }
 
     fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let options = self.azure_cloud_instance();
-        let uri = self.uri(&options)?;
+        let mut uri = self.uri()?;
         let form = self.form_urlencode()?;
         let http_client = reqwest::blocking::ClientBuilder::new()
             .min_tls_version(Version::TLS_1_2)
@@ -111,6 +111,25 @@ pub trait TokenCredentialExecutor {
             CONTENT_TYPE,
             HeaderValue::from_static("application/x-www-form-urlencoded"),
         );
+
+        let extra_headers = self.extra_header_parameters();
+        if !extra_headers.is_empty() {
+            if extra_headers.contains_key(ACCEPT) {
+                panic!("extra header parameters cannot contain header key ACCEPT")
+            }
+
+            for (header_name, header_value) in extra_headers.iter() {
+                headers.insert(header_name, header_value.clone());
+            }
+        }
+
+        let extra_query_params = self.extra_query_parameters();
+        if !extra_query_params.is_empty() {
+            for (key, value) in extra_query_params.iter() {
+                uri.query_pairs_mut()
+                    .append_pair(key.as_ref(), value.as_ref());
+            }
+        }
 
         let basic_auth = self.basic_auth();
         if let Some((client_identifier, secret)) = basic_auth {
@@ -126,8 +145,7 @@ pub trait TokenCredentialExecutor {
     }
 
     async fn execute_async(&mut self) -> AuthExecutionResult<reqwest::Response> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        let uri = self.uri(&azure_cloud_instance)?;
+        let mut uri = self.uri()?;
         let form = self.form_urlencode()?;
         let http_client = ClientBuilder::new()
             .min_tls_version(Version::TLS_1_2)
@@ -138,6 +156,25 @@ pub trait TokenCredentialExecutor {
             CONTENT_TYPE,
             HeaderValue::from_static("application/x-www-form-urlencoded"),
         );
+
+        let extra_headers = self.extra_header_parameters();
+        if !extra_headers.is_empty() {
+            if extra_headers.contains_key(ACCEPT) {
+                panic!("extra header parameters cannot contain header key ACCEPT")
+            }
+
+            for (header_name, header_value) in extra_headers.iter() {
+                headers.insert(header_name, header_value.clone());
+            }
+        }
+
+        let extra_query_params = self.extra_query_parameters();
+        if !extra_query_params.is_empty() {
+            for (key, value) in extra_query_params.iter() {
+                uri.query_pairs_mut()
+                    .append_pair(key.as_ref(), value.as_ref());
+            }
+        }
 
         let basic_auth = self.basic_auth();
         if let Some((client_identifier, secret)) = basic_auth {
@@ -156,6 +193,27 @@ pub trait TokenCredentialExecutor {
                 .send()
                 .await?)
         }
+    }
+}
+
+#[derive(Clone)]
+pub struct UnInitializedCredentialExecutor;
+
+impl TokenCredentialExecutor for UnInitializedCredentialExecutor {
+    fn is_initialized(&self) -> bool {
+        false
+    }
+
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        panic!("TokenCredentialExecutor is UnInitialized");
+    }
+
+    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+        panic!("TokenCredentialExecutor is UnInitialized");
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        panic!("TokenCredentialExecutor is UnInitialized");
     }
 }
 

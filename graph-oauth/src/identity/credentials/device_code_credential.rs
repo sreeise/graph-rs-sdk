@@ -83,9 +83,10 @@ impl DeviceCodeCredential {
 }
 
 impl TokenCredentialExecutor for DeviceCodeCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
-            .authority_device_code(azure_cloud_instance, &self.app_config.authority);
+            .authority_device_code(&azure_cloud_instance, &self.authority());
 
         if self.device_code.is_none() && self.refresh_token.is_none() {
             let uri = self

@@ -26,6 +26,7 @@ url = { version = "2", features = ["serde"] }
 graph-error = { path = "../graph-error"  }
 graph-core = { path = "../graph-core" }
 graph-extensions = { path = "../graph-extensions" }
+graph-oauth = { path = "../graph-oauth", version = "1.0.2", default-features=false }
 
 [features]
 default = ["native-tls"]
@@ -34,3 +35,4 @@ rustls-tls = ["reqwest/rustls-tls"]
 brotli = ["reqwest/brotli"]
 deflate = ["reqwest/deflate"]
 trust-dns = ["reqwest/trust-dns"]
+openssl = ["graph-oauth/openssl"]

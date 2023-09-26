@@ -2,7 +2,7 @@ use anyhow::Context;
 use std::time::Duration;
 use url::Url;
 
-use crate::web::InteractiveWebViewOptions;
+use crate::web::WebViewOptions;
 use wry::application::platform::windows::EventLoopExtWindows;
 use wry::{
     application::{
@@ -63,7 +63,7 @@ impl InteractiveWebView {
     pub fn interactive_authentication(
         uri: Url,
         redirect_uri: Url,
-        options: InteractiveWebViewOptions,
+        options: WebViewOptions,
         sender: std::sync::mpsc::Sender<String>,
     ) -> anyhow::Result<()> {
         let event_loop: EventLoop<UserEvents> = EventLoop::<UserEvents>::new_any_thread();

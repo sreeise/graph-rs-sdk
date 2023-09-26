@@ -5,7 +5,8 @@ use crate::identity::{
     AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
     AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
     DeviceCodeCredentialBuilder, DeviceCodePollingExecutor, EnvironmentCredential,
-    OpenIdCredentialBuilder, PublicClientApplication,
+    OpenIdCredentialBuilder, PublicClientApplication, ResourceOwnerPasswordCredential,
+    ResourceOwnerPasswordCredentialBuilder,
 };
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
@@ -59,7 +60,7 @@ impl ConfidentialClientApplicationBuilder {
         ConfidentialClientApplicationBuilder::try_from(application_options)
     }
 
-    pub fn with_tenant_id(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
+    pub fn with_tenant(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
         let tenant = tenant_id.as_ref().to_string();
         self.app_config.tenant_id = Some(tenant.clone());
         self.app_config.authority = Authority::TenantId(tenant);
@@ -231,7 +232,6 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
-                token_store: Default::default(),
             },
         })
     }
@@ -257,7 +257,7 @@ impl PublicClientApplicationBuilder {
         PublicClientApplicationBuilder::try_from(application_options)
     }
 
-    pub fn with_tenant_id(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
+    pub fn with_tenant(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
         let tenant = tenant_id.as_ref().to_string();
         self.app_config.tenant_id = Some(tenant.clone());
         self.app_config.authority = Authority::TenantId(tenant);
@@ -321,8 +321,19 @@ impl PublicClientApplicationBuilder {
     }
      */
 
-    pub fn with_resource_owner_password_from_environment(
-    ) -> Result<PublicClientApplication, VarError> {
+    pub fn with_username_password(
+        self,
+        username: impl AsRef<str>,
+        password: impl AsRef<str>,
+    ) -> ResourceOwnerPasswordCredentialBuilder {
+        ResourceOwnerPasswordCredentialBuilder::new_with_username_password(
+            username.as_ref(),
+            password.as_ref(),
+            self.app_config,
+        )
+    }
+
+    pub fn with_username_password_from_environment() -> Result<PublicClientApplication, VarError> {
         EnvironmentCredential::resource_owner_password_credential()
     }
 }
@@ -359,7 +370,6 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
-                token_store: Default::default(),
             },
         })
     }

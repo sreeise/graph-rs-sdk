@@ -14,7 +14,7 @@ mod openid_connect;
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, MsalTokenResponse, ProofKeyForCodeExchange, PublicClientApplication,
+    DeviceCodeCredential, MsalToken, ProofKeyForCodeExchange, PublicClientApplication,
     TokenCredentialExecutor, TokenRequest,
 };
 

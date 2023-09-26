@@ -2,7 +2,7 @@ use graph_oauth::identity::{
     DeviceCodeCredential, PublicClientApplication, TokenCredentialExecutor,
 };
 use graph_oauth::oauth::DeviceCodeCredentialBuilder;
-use graph_rs_sdk::oauth::{MsalTokenResponse, OAuthSerializer};
+use graph_rs_sdk::oauth::{MsalToken, OAuthSerializer};
 use graph_rs_sdk::GraphResult;
 use std::time::Duration;
 use warp::hyper::body::HttpBody;
@@ -19,7 +19,7 @@ static TENANT: &str = "<TENANT>";
 // has entered the and an access token is returned or an error happens.
 fn poll_device_code() {
     let mut device_executor = PublicClientApplication::builder(CLIENT_ID)
-        .with_device_authorization_executor()
+        .with_device_code_authorization_executor()
         .with_scope(vec!["User.Read"])
         .poll()
         .unwrap();
@@ -39,7 +39,7 @@ fn get_token(device_code: &str) {
     let response = public_client.execute().unwrap();
     println!("{:#?}", response);
 
-    let body: MsalTokenResponse = response.json().unwrap();
+    let body: MsalToken = response.json().unwrap();
 
     println!("{:#?}", body);
 }

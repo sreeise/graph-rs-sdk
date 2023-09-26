@@ -78,7 +78,6 @@ impl AuthorizationCodeCertificateCredential {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri,
-            token_store: Default::default(),
         };
 
         Ok(AuthorizationCodeCertificateCredential {
@@ -111,9 +110,10 @@ impl AuthorizationCodeCertificateCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
-            .authority(azure_cloud_instance, &self.authority());
+            .authority(&azure_cloud_instance, &self.authority());
 
         let uri = self
             .serializer
@@ -211,16 +211,16 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
         &self.app_config.client_id
     }
 
-    fn app_config(&self) -> &AppConfig {
-        &self.app_config
-    }
-
     fn authority(&self) -> Authority {
         self.app_config.authority.clone()
     }
 
     fn azure_cloud_instance(&self) -> AzureCloudInstance {
         self.app_config.azure_cloud_instance
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        &self.app_config
     }
 }
 

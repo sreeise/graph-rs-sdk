@@ -2,7 +2,7 @@ use graph_oauth::identity::ResponseType;
 use graph_rs_sdk::error::AuthorizationResult;
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    MsalTokenResponse, ProofKeyForCodeExchange, TokenCredentialExecutor, TokenRequest,
+    MsalToken, ProofKeyForCodeExchange, TokenCredentialExecutor, TokenRequest,
 };
 use lazy_static::lazy_static;
 use warp::{get, Filter};
@@ -57,8 +57,7 @@ async fn handle_redirect(
 
             let authorization_code = access_code.code;
             let mut confidential_client =
-                AuthorizationCodeCredential::builder(CLIENT_ID, authorization_code)
-                    .with_client_secret(CLIENT_SECRET)
+                AuthorizationCodeCredential::builder(CLIENT_ID, CLIENT_SECRET, authorization_code)
                     .with_redirect_uri("http://localhost:8000/redirect")
                     .unwrap()
                     .with_pkce(&PKCE)
@@ -69,7 +68,7 @@ async fn handle_redirect(
             println!("{response:#?}");
 
             if response.status().is_success() {
-                let access_token: MsalTokenResponse = response.json().await.unwrap();
+                let access_token: MsalToken = response.json().await.unwrap();
 
                 // If all went well here we can print out the OAuth config with the Access Token.
                 println!("AccessToken: {:#?}", access_token.access_token);

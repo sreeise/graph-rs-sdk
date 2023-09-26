@@ -68,9 +68,10 @@ impl ResourceOwnerPasswordCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
-            .authority(azure_cloud_instance, &self.app_config.authority);
+            .authority(&azure_cloud_instance, &self.app_config.authority);
 
         let uri = self
             .serializer
@@ -133,6 +134,22 @@ impl ResourceOwnerPasswordCredentialBuilder {
                 app_config: AppConfig::new_with_client_id(client_id.as_ref()),
                 username: String::new(),
                 password: String::new(),
+                scope: vec![],
+                serializer: Default::default(),
+            },
+        }
+    }
+
+    pub(crate) fn new_with_username_password<T: AsRef<str>>(
+        username: T,
+        password: T,
+        app_config: AppConfig,
+    ) -> ResourceOwnerPasswordCredentialBuilder {
+        ResourceOwnerPasswordCredentialBuilder {
+            credential: ResourceOwnerPasswordCredential {
+                app_config,
+                username: username.as_ref().to_owned(),
+                password: password.as_ref().to_owned(),
                 scope: vec![],
                 serializer: Default::default(),
             },

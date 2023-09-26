@@ -77,9 +77,10 @@ impl ClientSecretCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for ClientSecretCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
-            .authority(azure_cloud_instance, &self.authority());
+            .authority(&azure_cloud_instance, &self.authority());
 
         let uri =
             self.serializer

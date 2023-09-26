@@ -94,7 +94,6 @@ impl AuthorizationCodeCredential {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: Some(redirect_uri),
-            token_store: Default::default(),
         };
 
         Ok(AuthorizationCodeCredential {
@@ -212,9 +211,10 @@ impl From<AuthorizationCodeCredential> for AuthorizationCodeCredentialBuilder {
 
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
-            .authority(azure_cloud_instance, &self.authority());
+            .authority(&azure_cloud_instance, &self.authority());
 
         let uri = self
             .serializer
@@ -328,42 +328,38 @@ mod test {
 
     #[test]
     fn with_tenant_id_common() {
-        let credential = AuthorizationCodeCredential::builder(Uuid::new_v4().to_string(), "code")
-            .with_authority(Authority::TenantId("common".into()))
-            .build();
+        let credential = AuthorizationCodeCredential::builder(
+            Uuid::new_v4().to_string(),
+            "secret".to_string(),
+            "code",
+        )
+        .with_authority(Authority::TenantId("common".into()))
+        .build();
 
         assert_eq!(credential.authority(), Authority::TenantId("common".into()))
     }
 
     #[test]
     fn with_tenant_id_adfs() {
-        let credential = AuthorizationCodeCredential::builder(Uuid::new_v4().to_string(), "code")
-            .with_authority(Authority::AzureDirectoryFederatedServices)
-            .build();
+        let credential = AuthorizationCodeCredential::builder(
+            Uuid::new_v4().to_string(),
+            "secret".to_string(),
+            "code",
+        )
+        .with_authority(Authority::AzureDirectoryFederatedServices)
+        .build();
 
         assert_eq!(credential.authority().as_ref(), "adfs");
     }
 
     #[test]
     #[should_panic]
-    fn authorization_code_missing_required_value() {
-        let mut credential_builder =
-            AuthorizationCodeCredentialBuilder::new(Uuid::new_v4().to_string(), "code");
-        credential_builder
-            .with_redirect_uri("https://localhost:8080")
-            .unwrap()
-            .with_client_secret("client_secret")
-            .with_scope(vec!["scope"])
-            .with_tenant("tenant_id");
-        let mut credential = credential_builder.build();
-        let _ = credential.form_urlencode().unwrap();
-    }
-
-    #[test]
-    #[should_panic]
     fn required_value_missing_client_id() {
-        let mut credential_builder =
-            AuthorizationCodeCredential::builder(Uuid::default().to_string(), "code");
+        let mut credential_builder = AuthorizationCodeCredential::builder(
+            Uuid::default().to_string(),
+            "secret".to_string(),
+            "code",
+        );
         credential_builder
             .with_authorization_code("code")
             .with_refresh_token("token");
@@ -375,7 +371,7 @@ mod test {
     fn serialization() {
         let uuid_value = Uuid::new_v4().to_string();
         let mut credential_builder =
-            AuthorizationCodeCredential::builder(uuid_value.clone(), "code");
+            AuthorizationCodeCredential::builder(uuid_value.clone(), "secret".to_string(), "code");
         let mut credential = credential_builder
             .with_redirect_uri("https://localhost")
             .unwrap()

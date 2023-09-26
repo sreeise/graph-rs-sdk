@@ -18,6 +18,7 @@ const AZURE_CLIENT_SECRET: &str = "AZURE_CLIENT_SECRET";
 const AZURE_USERNAME: &str = "AZURE_USERNAME";
 const AZURE_PASSWORD: &str = "AZURE_PASSWORD";
 
+#[derive(Clone)]
 pub struct EnvironmentCredential {
     pub credential: Box<dyn TokenCredentialExecutor + Send>,
 }
@@ -127,7 +128,7 @@ impl EnvironmentCredential {
 
 impl AuthorizationSerializer for EnvironmentCredential {
     fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
-        self.credential.uri(azure_cloud_instance)
+        self.credential.uri()
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
@@ -136,8 +137,8 @@ impl AuthorizationSerializer for EnvironmentCredential {
 }
 
 impl TokenCredentialExecutor for EnvironmentCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
-        self.credential.uri(azure_cloud_instance)
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        self.credential.uri()
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {

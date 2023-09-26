@@ -1,4 +1,5 @@
 use crate::identity::{Authority, AzureCloudInstance};
+use graph_extensions::cache::{TokenStore, UnInitializedTokenStore};
 use reqwest::header::HeaderMap;
 use std::collections::HashMap;
 use url::Url;
@@ -24,7 +25,6 @@ pub struct AppConfig {
     /// by your app. It must exactly match one of the redirect_uris you registered in the portal,
     /// except it must be URL-encoded.
     pub(crate) redirect_uri: Option<Url>,
-    pub(crate) token_store: HashMap<String, String>,
 }
 
 impl AppConfig {
@@ -37,7 +37,6 @@ impl AppConfig {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,
-            token_store: Default::default(),
         }
     }
 
@@ -50,7 +49,6 @@ impl AppConfig {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,
-            token_store: Default::default(),
         }
     }
 
@@ -66,7 +64,14 @@ impl AppConfig {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,
-            token_store: Default::default(),
+        }
+    }
+
+    pub(crate) fn cache_id(&self) -> String {
+        if let Some(tenant_id) = self.tenant_id.as_ref() {
+            format!("{},{}", tenant_id, self.client_id.to_string())
+        } else {
+            self.client_id.to_string()
         }
     }
 }

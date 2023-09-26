@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 #[derive(Clone)]
-pub struct InteractiveWebViewOptions {
+pub struct WebViewOptions {
     pub panic_on_invalid_uri_navigation_attempt: bool,
     pub theme: Option<wry::application::window::Theme>,
     /// Provide a list of ports to use for interactive authentication.
@@ -11,9 +11,9 @@ pub struct InteractiveWebViewOptions {
     pub timeout: Duration,
 }
 
-impl Default for InteractiveWebViewOptions {
+impl Default for WebViewOptions {
     fn default() -> Self {
-        InteractiveWebViewOptions {
+        WebViewOptions {
             panic_on_invalid_uri_navigation_attempt: true,
             theme: None,
             ports: vec![],

@@ -4,8 +4,13 @@ use crate::identity::{
     Authority, AzureCloudInstance, DeviceCodeCredential, ResourceOwnerPasswordCredential,
     TokenCredentialExecutor,
 };
+use crate::oauth::UnInitializedCredentialExecutor;
 use async_trait::async_trait;
-use graph_error::{AuthExecutionResult, AuthorizationResult};
+use graph_error::{AuthExecutionResult, AuthorizationResult, AF};
+use graph_extensions::cache::{
+    InMemoryCredentialStore, StoredToken, TokenStore, TokenStoreProvider, UnInitializedTokenStore,
+};
+use graph_extensions::token::{ClientApplication, ClientApplicationType, MsalToken};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
 use reqwest::{ClientBuilder, Response};
@@ -18,9 +23,11 @@ use uuid::Uuid;
 /// installed native application or a web browser-based application), and incapable of
 /// secure client authentication via any other means.
 /// https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
+#[derive(Clone)]
 pub struct PublicClientApplication {
     http_client: reqwest::Client,
     credential: Box<dyn TokenCredentialExecutor + Send>,
+    token_store: Box<dyn TokenStore + Send>,
 }
 
 impl PublicClientApplication {
@@ -42,18 +49,120 @@ impl PublicClientApplication {
                 .build()
                 .unwrap(),
             credential: Box::new(credential),
+            token_store: Box::new(UnInitializedTokenStore),
         }
     }
 
     pub fn builder(client_id: impl AsRef<str>) -> PublicClientApplicationBuilder {
         PublicClientApplicationBuilder::new(client_id.as_ref())
     }
+
+    pub fn with_in_memory_token_store(&mut self) {
+        self.token_store = Box::new(InMemoryCredentialStore::new(
+            self.app_config().cache_id(),
+            StoredToken::UnInitialized,
+        ));
+    }
+}
+
+#[async_trait]
+impl ClientApplication for PublicClientApplication {
+    fn client_application_type(&self) -> ClientApplicationType {
+        ClientApplicationType::ConfidentialClientApplication
+    }
+
+    fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
+        let cache_id = self.app_config().cache_id();
+        if self.is_store_and_token_initialized(cache_id.as_str()) {
+            return Ok(self
+                .get_bearer_token_from_store(cache_id.as_str())
+                .ok_or(AF::unknown(
+                    "Unknown error getting token from store - please report issue",
+                ))?
+                .clone());
+        }
+
+        if !self.is_token_store_initialized() {
+            self.with_in_memory_token_store();
+        }
+
+        let response = self.execute()?;
+        let msal_token: MsalToken = response.json()?;
+        self.update_stored_token(cache_id.as_str(), StoredToken::MsalToken(msal_token));
+        Ok(self
+            .get_bearer_token_from_store(cache_id.as_str())
+            .ok_or(AF::unknown(
+                "Unknown error initializing token store - please report issue",
+            ))?
+            .clone())
+    }
+
+    async fn get_token_silent_async(&mut self) -> AuthExecutionResult<String> {
+        let cache_id = self.app_config().cache_id();
+        if self.is_store_and_token_initialized(cache_id.as_str()) {
+            return Ok(self
+                .get_bearer_token_from_store(cache_id.as_str())
+                .ok_or(AF::unknown(
+                    "Unknown error getting token from store - please report issue",
+                ))?
+                .clone());
+        }
+
+        if !self.is_token_store_initialized() {
+            self.with_in_memory_token_store();
+        }
+
+        let response = self.execute_async().await?;
+        let msal_token: MsalToken = response.json().await?;
+        self.update_stored_token(cache_id.as_str(), StoredToken::MsalToken(msal_token));
+        Ok(self
+            .get_bearer_token_from_store(cache_id.as_str())
+            .ok_or(AF::unknown(
+                "Unknown error initializing token store - please report issue",
+            ))?
+            .clone())
+    }
+
+    fn get_stored_application_token(&mut self) -> Option<&StoredToken> {
+        let cache_id = self.app_config().cache_id();
+        if !self.is_store_and_token_initialized(cache_id.as_str()) {
+            self.get_token_silent().ok()?;
+        }
+
+        self.token_store.get_stored_token(cache_id.as_str())
+    }
+}
+
+impl TokenStore for PublicClientApplication {
+    fn token_store_provider(&self) -> TokenStoreProvider {
+        self.token_store.token_store_provider()
+    }
+
+    fn is_stored_token_initialized(&self, id: &str) -> bool {
+        self.token_store.is_stored_token_initialized(id)
+    }
+
+    fn get_stored_token(&self, id: &str) -> Option<&StoredToken> {
+        self.token_store.get_stored_token(id)
+    }
+
+    fn update_stored_token(&mut self, id: &str, stored_token: StoredToken) -> Option<StoredToken> {
+        self.token_store.update_stored_token(id, stored_token)
+    }
+
+    fn get_bearer_token_from_store(&self, id: &str) -> Option<&String> {
+        self.token_store.get_bearer_token_from_store(id)
+    }
+
+    fn get_refresh_token_from_store(&self, id: &str) -> Option<&String> {
+        self.token_store.get_refresh_token_from_store(id)
+    }
 }
 
 #[async_trait]
 impl TokenCredentialExecutor for PublicClientApplication {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
-        self.credential.uri(azure_cloud_instance)
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        self.credential.uri()
     }
 
     fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
@@ -77,8 +186,7 @@ impl TokenCredentialExecutor for PublicClientApplication {
     }
 
     fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        let uri = self.credential.uri(&azure_cloud_instance)?;
+        let uri = self.credential.uri()?;
 
         let form = self.credential.form_urlencode()?;
         let http_client = reqwest::blocking::ClientBuilder::new()
@@ -105,8 +213,7 @@ impl TokenCredentialExecutor for PublicClientApplication {
     }
 
     async fn execute_async(&mut self) -> AuthExecutionResult<Response> {
-        let azure_cloud_instance = self.credential.azure_cloud_instance();
-        let uri = self.credential.uri(&azure_cloud_instance)?;
+        let uri = self.credential.uri()?;
 
         let form = self.credential.form_urlencode()?;
         let basic_auth = self.credential.basic_auth();
@@ -146,6 +253,12 @@ impl From<ResourceOwnerPasswordCredential> for PublicClientApplication {
 
 impl From<DeviceCodeCredential> for PublicClientApplication {
     fn from(value: DeviceCodeCredential) -> Self {
+        PublicClientApplication::credential(value)
+    }
+}
+
+impl From<UnInitializedCredentialExecutor> for PublicClientApplication {
+    fn from(value: UnInitializedCredentialExecutor) -> Self {
         PublicClientApplication::credential(value)
     }
 }

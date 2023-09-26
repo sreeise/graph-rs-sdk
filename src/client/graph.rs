@@ -44,7 +44,7 @@ use crate::identity_governance::IdentityGovernanceApiClient;
 use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdApiClient};
 use crate::invitations::InvitationsApiClient;
 use crate::me::MeApiClient;
-use crate::oauth::{AllowedHostValidator, HostValidator, MsalTokenResponse, OAuthSerializer};
+use crate::oauth::{AllowedHostValidator, HostValidator, MsalToken, OAuthSerializer};
 use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
 };
@@ -65,6 +65,7 @@ use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
+use graph_extensions::token::ClientApplication;
 use graph_http::api_impl::GraphClientConfiguration;
 use lazy_static::lazy_static;
 use std::convert::TryFrom;
@@ -83,9 +84,17 @@ pub struct Graph {
 }
 
 impl Graph {
-    pub fn new(access_token: &str) -> Graph {
+    pub fn new<AT: ToString>(access_token: AT) -> Graph {
         Graph {
-            client: Client::new(access_token),
+            client: Client::new(BearerToken(access_token.to_string())),
+            endpoint: PARSED_GRAPH_URL.clone(),
+            allowed_host_validator: AllowedHostValidator::default(),
+        }
+    }
+
+    pub fn from_client_app<CA: ClientApplication + 'static>(client_app: CA) -> Graph {
+        Graph {
+            client: Client::new(client_app),
             endpoint: PARSED_GRAPH_URL.clone(),
             allowed_host_validator: AllowedHostValidator::default(),
         }
@@ -516,19 +525,19 @@ impl Graph {
 
 impl From<&str> for Graph {
     fn from(token: &str) -> Self {
-        Graph::new(token)
+        Graph::from_client_app(BearerToken(token.into()))
     }
 }
 
 impl From<String> for Graph {
     fn from(token: String) -> Self {
-        Graph::new(token.as_str())
+        Graph::from_client_app(BearerToken(token))
     }
 }
 
-impl From<&MsalTokenResponse> for Graph {
-    fn from(token: &MsalTokenResponse) -> Self {
-        Graph::new(token.access_token.as_str())
+impl From<&MsalToken> for Graph {
+    fn from(token: &MsalToken) -> Self {
+        Graph::from_client_app(BearerToken(token.access_token.clone()))
     }
 }
 

@@ -1,5 +1,3 @@
-use crate::id_token::IdToken;
-use crate::jwt::{JsonWebToken, JwtParser};
 use chrono::{DateTime, Duration, Utc};
 use chrono_humanize::HumanTime;
 use graph_error::GraphFailure;
@@ -8,20 +6,37 @@ use serde_aux::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
+use std::ops::{Add, AddAssign};
 
+use crate::token::IdToken;
 use std::str::FromStr;
+use time::OffsetDateTime;
+
+fn deserialize_scope<'de, D>(scope: D) -> Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let scope_string: Result<String, D::Error> = serde::Deserialize::deserialize(scope);
+    if let Ok(scope) = scope_string {
+        Ok(scope.split(' ').map(|scope| scope.to_owned()).collect())
+    } else {
+        Ok(vec![])
+    }
+}
 
 // Used to set timestamp based on expires in
 // which can only be done after deserialization.
 #[derive(Clone, Serialize, Deserialize)]
-struct PhantomAccessToken {
+struct PhantomMsalToken {
     access_token: String,
     token_type: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
     expires_in: i64,
     /// Legacy version of expires_in
     ext_expires_in: Option<i64>,
-    scope: Option<String>,
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_scope")]
+    scope: Vec<String>,
     refresh_token: Option<String>,
     user_id: Option<String>,
     id_token: Option<String>,
@@ -32,48 +47,51 @@ struct PhantomAccessToken {
     additional_fields: HashMap<String, Value>,
 }
 
-/// OAuth 2.0 Access Token
+/// An access token is a security token issued by an authorization server as part of an OAuth 2.0 flow.
+/// It contains information about the user and the resource for which the token is intended.
+/// The information can be used to access web APIs and other protected resources.
+/// Resources validate access tokens to grant access to a client application.
+/// For more information, see [Access tokens in the Microsoft Identity Platform](https://learn.microsoft.com/en-us/azure/active-directory/develop/access-tokens)
 ///
 /// Create a new AccessToken.
 /// # Example
 /// ```
-/// # use graph_oauth::oauth::MsalTokenResponse;
-/// let token_response = MsalTokenResponse::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
+/// # use graph_extensions::token::MsalToken;
+/// let token_response = MsalToken::new("Bearer", 3600, "ASODFIUJ34KJ;LADSK", vec!["User.Read"]);
 /// ```
-/// The [MsalTokenResponse::jwt] method attempts to parse the access token as a JWT.
+/// The [MsalToken::jwt] method attempts to parse the access token as a JWT.
 /// Tokens returned for personal microsoft accounts that use legacy MSA
 /// are encrypted and cannot be parsed. This bearer token may still be
 /// valid but the jwt() method will return None.
 /// For more info see:
 /// [Microsoft identity platform access tokens](https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens)
-///
-/// * Access Tokens: https://datatracker.ietf.org/doc/html/rfc6749#section-1.4
-/// * Refresh Tokens: https://datatracker.ietf.org/doc/html/rfc6749#section-1.5
-///
-/// # Example
-/// ```
-/// # use graph_oauth::oauth::MsalTokenResponse;
-/// # let mut token = MsalTokenResponse::new("Bearer", 3600, "Read Read.Write", "ASODFIUJ34KJ;LADSK");
-///
-/// // Duration left until expired.
-/// println!("{:#?}", token.elapsed());
 /// ```
 #[derive(Clone, Eq, PartialEq, Serialize)]
-pub struct MsalTokenResponse {
+pub struct MsalToken {
     pub access_token: String,
     pub token_type: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub expires_in: i64,
     /// Legacy version of expires_in
     pub ext_expires_in: Option<i64>,
-    pub scope: Option<String>,
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_scope")]
+    pub scope: Vec<String>,
+
+    /// Because access tokens are valid for only a short period of time,
+    /// authorization servers sometimes issue a refresh token at the same
+    /// time the access token is issued. The client application can then
+    /// exchange this refresh token for a new access token when needed.
+    /// For more information, see
+    /// [Refresh tokens in the Microsoft identity platform.](https://learn.microsoft.com/en-us/azure/active-directory/develop/refresh-tokens)
     pub refresh_token: Option<String>,
     pub user_id: Option<String>,
     pub id_token: Option<String>,
     pub state: Option<String>,
     pub correlation_id: Option<String>,
     pub client_info: Option<String>,
-    pub timestamp: Option<DateTime<Utc>>,
+    pub timestamp: Option<time::OffsetDateTime>,
+    pub expires_on: Option<time::OffsetDateTime>,
     /// Any extra returned fields for AccessToken.
     #[serde(flatten)]
     pub additional_fields: HashMap<String, Value>,
@@ -81,18 +99,21 @@ pub struct MsalTokenResponse {
     log_pii: bool,
 }
 
-impl MsalTokenResponse {
-    pub fn new(
+impl MsalToken {
+    pub fn new<T: ToString, I: IntoIterator<Item = T>>(
         token_type: &str,
         expires_in: i64,
-        scope: &str,
         access_token: &str,
-    ) -> MsalTokenResponse {
-        MsalTokenResponse {
+        scope: I,
+    ) -> MsalToken {
+        let mut timestamp = time::OffsetDateTime::now_utc();
+        let expires_on = timestamp.add(time::Duration::seconds(expires_in));
+
+        MsalToken {
             token_type: token_type.into(),
-            ext_expires_in: Some(expires_in),
+            ext_expires_in: None,
             expires_in,
-            scope: Some(scope.into()),
+            scope: scope.into_iter().map(|s| s.to_string()).collect(),
             access_token: access_token.into(),
             refresh_token: None,
             user_id: None,
@@ -100,7 +121,8 @@ impl MsalTokenResponse {
             state: None,
             correlation_id: None,
             client_info: None,
-            timestamp: Some(Utc::now() + Duration::seconds(expires_in)),
+            timestamp: Some(timestamp),
+            expires_on: Some(expires_on),
             additional_fields: Default::default(),
             log_pii: false,
         }
@@ -110,12 +132,12 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
-    /// access_token.set_token_type("Bearer");
+    /// let mut access_token = MsalToken::default();
+    /// access_token.with_token_type("Bearer");
     /// ```
-    pub fn set_token_type(&mut self, s: &str) -> &mut MsalTokenResponse {
+    pub fn with_token_type(&mut self, s: &str) -> &mut Self {
         self.token_type = s.into();
         self
     }
@@ -124,14 +146,16 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
-    /// access_token.set_expires_in(3600);
+    /// let mut access_token = MsalToken::default();
+    /// access_token.with_expires_in(3600);
     /// ```
-    pub fn set_expires_in(&mut self, expires_in: i64) -> &mut MsalTokenResponse {
+    pub fn with_expires_in(&mut self, expires_in: i64) -> &mut Self {
         self.expires_in = expires_in;
-        self.timestamp = Some(Utc::now() + Duration::seconds(expires_in));
+        let timestamp = time::OffsetDateTime::now_utc();
+        self.expires_on = Some(timestamp.add(time::Duration::seconds(self.expires_in.clone())));
+        self.timestamp = Some(timestamp);
         self
     }
 
@@ -139,13 +163,13 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
-    /// access_token.set_scope("Read Read.Write");
+    /// let mut access_token = MsalToken::default();
+    /// access_token.with_scope(vec!["User.Read"]);
     /// ```
-    pub fn set_scope(&mut self, s: &str) -> &mut MsalTokenResponse {
-        self.scope = Some(s.to_string());
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
@@ -153,12 +177,12 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
-    /// access_token.set_bearer_token("ASODFIUJ34KJ;LADSK");
+    /// let mut access_token = MsalToken::default();
+    /// access_token.with_access_token("ASODFIUJ34KJ;LADSK");
     /// ```
-    pub fn set_bearer_token(&mut self, s: &str) -> &mut MsalTokenResponse {
+    pub fn with_access_token(&mut self, s: &str) -> &mut Self {
         self.access_token = s.into();
         self
     }
@@ -167,12 +191,12 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
-    /// access_token.set_refresh_token("#ASOD323U5342");
+    /// let mut access_token = MsalToken::default();
+    /// access_token.with_refresh_token("#ASOD323U5342");
     /// ```
-    pub fn set_refresh_token(&mut self, s: &str) -> &mut MsalTokenResponse {
+    pub fn with_refresh_token(&mut self, s: &str) -> &mut Self {
         self.refresh_token = Some(s.to_string());
         self
     }
@@ -181,12 +205,12 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
-    /// access_token.set_user_id("user_id");
+    /// let mut access_token = MsalToken::default();
+    /// access_token.with_user_id("user_id");
     /// ```
-    pub fn set_user_id(&mut self, s: &str) -> &mut MsalTokenResponse {
+    pub fn with_user_id(&mut self, s: &str) -> &mut Self {
         self.user_id = Some(s.to_string());
         self
     }
@@ -195,12 +219,12 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{MsalTokenResponse, IdToken};
+    /// # use graph_extensions::token::{MsalToken, IdToken};
     ///
-    /// let mut access_token = MsalTokenResponse::default();
+    /// let mut access_token = MsalToken::default();
     /// access_token.set_id_token("id_token");
     /// ```
-    pub fn set_id_token(&mut self, s: &str) -> &mut MsalTokenResponse {
+    pub fn set_id_token(&mut self, s: &str) -> &mut Self {
         self.id_token = Some(s.to_string());
         self
     }
@@ -209,13 +233,13 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{MsalTokenResponse, IdToken};
+    /// # use graph_extensions::token::{MsalToken, IdToken};
     ///
-    /// let mut access_token = MsalTokenResponse::default();
+    /// let mut access_token = MsalToken::default();
     /// access_token.with_id_token(IdToken::new("id_token", "code", "state", "session_state"));
     /// ```
     pub fn with_id_token(&mut self, id_token: IdToken) {
-        self.id_token = Some(id_token.get_id_token());
+        self.id_token = Some(id_token.id_token);
     }
 
     pub fn parse_id_token(&mut self) -> Option<Result<IdToken, serde::de::value::Error>> {
@@ -226,20 +250,20 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
-    /// # use graph_oauth::oauth::IdToken;
+    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_extensions::token::IdToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
-    /// access_token.set_state("state");
+    /// let mut access_token = MsalToken::default();
+    /// access_token.with_state("state");
     /// ```
-    pub fn set_state(&mut self, s: &str) -> &mut MsalTokenResponse {
+    pub fn with_state(&mut self, s: &str) -> &mut Self {
         self.state = Some(s.to_string());
         self
     }
 
     /// Enable or disable logging of personally identifiable information such
     /// as logging the id_token. This is disabled by default. When log_pii is enabled
-    /// passing [MsalTokenResponse] to logging or print functions will log both the bearer
+    /// passing [MsalToken] to logging or print functions will log both the bearer
     /// access token value, the refresh token value if any, and the id token value.
     /// By default these do not get logged.
     pub fn enable_pii_logging(&mut self, log_pii: bool) {
@@ -260,42 +284,46 @@ impl MsalTokenResponse {
     /// from when the token was first retrieved.
     ///
     /// This will reset the the timestamp from Utc Now + expires_in. This means
-    /// that if calling [MsalTokenResponse::gen_timestamp] will only be reliable if done
+    /// that if calling [MsalToken::gen_timestamp] will only be reliable if done
     /// when the access token is first retrieved.
     ///
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
+    /// let mut access_token = MsalToken::default();
     /// access_token.expires_in = 86999;
     /// access_token.gen_timestamp();
     /// println!("{:#?}", access_token.timestamp);
     /// // The timestamp is in UTC.
     /// ```
     pub fn gen_timestamp(&mut self) {
-        self.timestamp = Some(Utc::now() + Duration::seconds(self.expires_in));
+        let mut timestamp = time::OffsetDateTime::now_utc();
+        let expires_on = timestamp.add(time::Duration::seconds(self.expires_in.clone()));
+        self.timestamp = Some(timestamp);
+        self.expires_on = Some(expires_on);
     }
 
     /// Check whether the access token is expired. Uses the expires_in
     /// field to check time elapsed since token was first deserialized.
-    /// This is done using a Utc timestamp set when the [MsalTokenResponse] is
+    /// This is done using a Utc timestamp set when the [MsalToken] is
     /// deserialized from the api response
     ///
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
+    /// let mut access_token = MsalToken::default();
     /// println!("{:#?}", access_token.is_expired());
     /// ```
     pub fn is_expired(&self) -> bool {
-        if let Some(human_time) = self.elapsed() {
-            return human_time.le(&HumanTime::from(Duration::seconds(0)));
+        if let Some(expires_on) = self.expires_on.as_ref() {
+            expires_on.lt(&OffsetDateTime::now_utc())
+        } else {
+            false
         }
-        true
     }
 
     /// Get the time left in seconds until the access token expires.
@@ -305,31 +333,23 @@ impl MsalTokenResponse {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_extensions::token::MsalToken;
     ///
-    /// let mut access_token = MsalTokenResponse::default();
+    /// let mut access_token = MsalToken::default();
     /// println!("{:#?}", access_token.elapsed());
     /// ```
-    pub fn elapsed(&self) -> Option<HumanTime> {
-        if let Some(timestamp) = self.timestamp {
-            let ht = HumanTime::from(timestamp);
-            return Some(ht);
-        }
-        None
-    }
-
-    pub fn jwt(&mut self) -> Option<JsonWebToken> {
-        JwtParser::parse(self.access_token.as_str()).ok()
+    pub fn elapsed(&self) -> Option<time::Duration> {
+        Some(self.expires_on? - self.timestamp?)
     }
 }
 
-impl Default for MsalTokenResponse {
+impl Default for MsalToken {
     fn default() -> Self {
-        MsalTokenResponse {
+        MsalToken {
             token_type: String::new(),
             expires_in: 0,
-            ext_expires_in: Some(0),
-            scope: None,
+            ext_expires_in: None,
+            scope: vec![],
             access_token: String::new(),
             refresh_token: None,
             user_id: None,
@@ -337,14 +357,18 @@ impl Default for MsalTokenResponse {
             state: None,
             correlation_id: None,
             client_info: None,
-            timestamp: Some(Utc::now() + Duration::seconds(0)),
+            timestamp: Some(time::OffsetDateTime::now_utc()),
+            expires_on: Some(
+                time::OffsetDateTime::from_unix_timestamp(0)
+                    .unwrap_or(time::OffsetDateTime::UNIX_EPOCH),
+            ),
             additional_fields: Default::default(),
             log_pii: false,
         }
     }
 }
 
-impl TryFrom<&str> for MsalTokenResponse {
+impl TryFrom<&str> for MsalToken {
     type Error = GraphFailure;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -352,35 +376,35 @@ impl TryFrom<&str> for MsalTokenResponse {
     }
 }
 
-impl TryFrom<reqwest::blocking::RequestBuilder> for MsalTokenResponse {
+impl TryFrom<reqwest::blocking::RequestBuilder> for MsalToken {
     type Error = GraphFailure;
 
     fn try_from(value: reqwest::blocking::RequestBuilder) -> Result<Self, Self::Error> {
         let response = value.send()?;
-        MsalTokenResponse::try_from(response)
+        MsalToken::try_from(response)
     }
 }
 
-impl TryFrom<Result<reqwest::blocking::Response, reqwest::Error>> for MsalTokenResponse {
+impl TryFrom<Result<reqwest::blocking::Response, reqwest::Error>> for MsalToken {
     type Error = GraphFailure;
 
     fn try_from(
         value: Result<reqwest::blocking::Response, reqwest::Error>,
     ) -> Result<Self, Self::Error> {
         let response = value?;
-        MsalTokenResponse::try_from(response)
+        MsalToken::try_from(response)
     }
 }
 
-impl TryFrom<reqwest::blocking::Response> for MsalTokenResponse {
+impl TryFrom<reqwest::blocking::Response> for MsalToken {
     type Error = GraphFailure;
 
     fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error> {
-        Ok(value.json::<MsalTokenResponse>()?)
+        Ok(value.json::<MsalToken>()?)
     }
 }
 
-impl fmt::Debug for MsalTokenResponse {
+impl fmt::Debug for MsalToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.log_pii {
             f.debug_struct("MsalAccessToken")
@@ -393,6 +417,12 @@ impl fmt::Debug for MsalTokenResponse {
                 .field("id_token", &self.id_token)
                 .field("state", &self.state)
                 .field("timestamp", &self.timestamp)
+                .field("expires_on", &self.expires_on)
+                .field(
+                    "expires_result",
+                    &time::OffsetDateTime::now_utc()
+                        .checked_add(time::Duration::seconds(self.expires_in.clone())),
+                )
                 .field("additional_fields", &self.additional_fields)
                 .finish()
         } else {
@@ -415,25 +445,35 @@ impl fmt::Debug for MsalTokenResponse {
                 )
                 .field("state", &self.state)
                 .field("timestamp", &self.timestamp)
+                .field("expires_on", &self.expires_on)
+                .field(
+                    "expires_result",
+                    &time::OffsetDateTime::now_utc()
+                        .checked_add(time::Duration::seconds(self.expires_in.clone())),
+                )
                 .field("additional_fields", &self.additional_fields)
                 .finish()
         }
     }
 }
 
-impl AsRef<str> for MsalTokenResponse {
+impl AsRef<str> for MsalToken {
     fn as_ref(&self) -> &str {
         self.access_token.as_str()
     }
 }
 
-impl<'de> Deserialize<'de> for MsalTokenResponse {
+impl<'de> Deserialize<'de> for MsalToken {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        let phantom_access_token: PhantomAccessToken = Deserialize::deserialize(deserializer)?;
-        Ok(MsalTokenResponse {
+        let phantom_access_token: PhantomMsalToken = Deserialize::deserialize(deserializer)?;
+
+        let mut timestamp = time::OffsetDateTime::now_utc();
+        let expires_on = timestamp.add(time::Duration::seconds(phantom_access_token.expires_in));
+
+        Ok(MsalToken {
             access_token: phantom_access_token.access_token,
             token_type: phantom_access_token.token_type,
             expires_in: phantom_access_token.expires_in,
@@ -445,9 +485,58 @@ impl<'de> Deserialize<'de> for MsalTokenResponse {
             state: phantom_access_token.state,
             correlation_id: phantom_access_token.correlation_id,
             client_info: phantom_access_token.client_info,
-            timestamp: Some(Utc::now() + Duration::seconds(phantom_access_token.expires_in)),
+            timestamp: Some(timestamp),
+            expires_on: Some(expires_on),
             additional_fields: phantom_access_token.additional_fields,
             log_pii: false,
         })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn is_expired_test() {
+        let mut access_token = MsalToken::default();
+        access_token.with_expires_in(1);
+        std::thread::sleep(std::time::Duration::from_secs(3));
+        assert!(access_token.is_expired());
+
+        let mut access_token = MsalToken::default();
+        access_token.with_expires_in(10);
+        std::thread::sleep(std::time::Duration::from_secs(4));
+        assert!(!access_token.is_expired());
+    }
+
+    pub const ACCESS_TOKEN_INT: &str = r#"{
+        "access_token": "fasdfasdfasfdasdfasfsdf",
+        "token_type": "Bearer",
+        "expires_in": 65874,
+        "scope": null,
+        "refresh_token": null,
+        "user_id": "santa@north.pole.com",
+        "id_token": "789aasdf-asdf",
+        "state": null,
+        "timestamp": "2020-10-27T16:31:38.788098400Z"
+    }"#;
+
+    pub const ACCESS_TOKEN_STRING: &str = r#"{
+        "access_token": "fasdfasdfasfdasdfasfsdf",
+        "token_type": "Bearer",
+        "expires_in": "65874",
+        "scope": null,
+        "refresh_token": null,
+        "user_id": "helpers@north.pole.com",
+        "id_token": "789aasdf-asdf",
+        "state": null,
+        "timestamp": "2020-10-27T16:31:38.788098400Z"
+    }"#;
+
+    #[test]
+    pub fn test_deserialize() {
+        let _token: MsalToken = serde_json::from_str(ACCESS_TOKEN_INT).unwrap();
+        let _token: MsalToken = serde_json::from_str(ACCESS_TOKEN_STRING).unwrap();
     }
 }

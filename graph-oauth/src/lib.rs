@@ -27,22 +27,22 @@
 //! - [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
 //!
 //!
-//! # Example
+//! # Example ConfidentialClientApplication Authorization Code Flow
 //! ```rust
 //! use url::Url;
 //! use graph_error::AuthorizationResult;
 //! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication};
 //!
 //! pub fn authorization_url(client_id: &str) -> AuthorizationResult<Url> {
-//!     AuthorizationCodeCredential::authorization_url_builder()
-//!         .with_client_id(client_id)
+//!     let auth_url_parameters = ConfidentialClientApplication::builder(client_id)
+//!         .authorization_code_url_builder()
 //!         .with_redirect_uri("http://localhost:8000/redirect")
 //!         .with_scope(vec!["user.read"])
-//!         .url()
+//!         .build();
 //! }
 //!
 //! pub fn get_confidential_client(authorization_code: &str, client_id: &str, client_secret: &str) -> anyhow::Result<ConfidentialClientApplication> {
-//!     Ok(AuthorizationCodeCredential::builder(client_id)
+//!     Ok(ConfidentialClientApplication::builder(client_id)
 //!         .with_authorization_code(authorization_code)
 //!         .with_client_secret(client_secret)
 //!         .with_scope(vec!["user.read"])
@@ -59,19 +59,15 @@ extern crate serde;
 extern crate log;
 extern crate pretty_env_logger;
 
-mod access_token;
 mod auth;
 mod discovery;
 mod grants;
-mod id_token;
 pub mod jwt;
 mod oauth_error;
 
 pub mod identity;
-pub mod web;
 
 pub mod oauth {
-    pub use crate::access_token::MsalTokenResponse;
     pub use crate::auth::GrantSelector;
     pub use crate::auth::OAuthParameter;
     pub use crate::auth::OAuthSerializer;
@@ -80,8 +76,8 @@ pub mod oauth {
     pub use crate::discovery::well_known;
     pub use crate::grants::GrantRequest;
     pub use crate::grants::GrantType;
-    pub use crate::id_token::IdToken;
     pub use crate::identity::*;
     pub use crate::oauth_error::OAuthError;
     pub use crate::strum::IntoEnumIterator;
+    pub use graph_extensions::token::{IdToken, MsalToken};
 }

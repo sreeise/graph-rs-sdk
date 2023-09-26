@@ -1,7 +1,5 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
-pub enum TokenCacheProviderType {
+pub enum TokenStoreProvider {
     UnInitialized,
     InMemory,
-    Session,
-    Distributed,
 }

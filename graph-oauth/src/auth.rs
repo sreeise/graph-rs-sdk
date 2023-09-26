@@ -1,12 +1,11 @@
-use crate::access_token::MsalTokenResponse;
 use crate::grants::{GrantRequest, GrantType};
-use crate::id_token::IdToken;
 use crate::identity::{AsQuery, Authority, AzureCloudInstance, Prompt};
 use crate::oauth::ResponseType;
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
 use base64::Engine;
 use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult, AF};
+use graph_extensions::token::{IdToken, MsalToken};
 use ring::rand::SecureRandom;
 use std::collections::btree_map::{BTreeMap, Entry};
 use std::collections::{BTreeSet, HashMap};
@@ -133,7 +132,7 @@ impl AsRef<str> for OAuthParameter {
 /// ```
 #[derive(Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct OAuthSerializer {
-    access_token: Option<MsalTokenResponse>,
+    access_token: Option<MsalToken>,
     scopes: BTreeSet<String>,
     credentials: BTreeMap<String, String>,
 }
@@ -901,12 +900,12 @@ impl OAuthSerializer {
     /// # Example
     /// ```
     /// use graph_oauth::oauth::OAuthSerializer;
-    /// use graph_oauth::oauth::MsalTokenResponse;
+    /// use graph_oauth::oauth::MsalToken;
     /// let mut oauth = OAuthSerializer::new();
-    /// let access_token = MsalTokenResponse::default();
+    /// let access_token = MsalToken::default();
     /// oauth.access_token(access_token);
     /// ```
-    pub fn access_token(&mut self, ac: MsalTokenResponse) {
+    pub fn access_token(&mut self, ac: MsalToken) {
         if let Some(refresh_token) = ac.refresh_token.as_ref() {
             self.refresh_token(refresh_token.as_str());
         }
@@ -918,14 +917,14 @@ impl OAuthSerializer {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::MsalTokenResponse;
-    /// # let access_token = MsalTokenResponse::default();
+    /// # use graph_oauth::oauth::MsalToken;
+    /// # let access_token = MsalToken::default();
     /// # let mut oauth = OAuthSerializer::new();
     /// # oauth.access_token(access_token);
     /// let access_token = oauth.get_access_token().unwrap();
     /// println!("{:#?}", access_token);
     /// ```
-    pub fn get_access_token(&self) -> Option<MsalTokenResponse> {
+    pub fn get_access_token(&self) -> Option<MsalToken> {
         self.access_token.clone()
     }
 
@@ -936,10 +935,10 @@ impl OAuthSerializer {
     /// # Example
     /// ```
     /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::MsalTokenResponse;
+    /// # use graph_oauth::oauth::MsalToken;
     /// # let mut oauth = OAuthSerializer::new();
-    /// let mut  access_token = MsalTokenResponse::default();
-    /// access_token.set_refresh_token("refresh_token");
+    /// let mut  access_token = MsalToken::default();
+    /// access_token.with_refresh_token("refresh_token");
     /// oauth.access_token(access_token);
     ///
     /// let refresh_token = oauth.get_refresh_token().unwrap();
@@ -959,6 +958,7 @@ impl OAuthSerializer {
         }
     }
 
+    #[deprecated]
     pub fn build(&mut self) -> GrantSelector<AccessTokenGrant> {
         GrantSelector {
             oauth: self.clone(),
@@ -966,6 +966,7 @@ impl OAuthSerializer {
         }
     }
 
+    #[deprecated]
     pub fn build_async(&mut self) -> GrantSelector<AsyncAccessTokenGrant> {
         GrantSelector {
             oauth: self.clone(),
@@ -1349,6 +1350,7 @@ impl<V: ToString> Extend<(OAuthParameter, V)> for OAuthSerializer {
     }
 }
 
+#[deprecated]
 pub struct GrantSelector<T> {
     oauth: OAuthSerializer,
     t: PhantomData<T>,
@@ -1646,6 +1648,7 @@ impl GrantSelector<AsyncAccessTokenGrant> {
     }
 }
 
+#[deprecated]
 #[derive(Debug)]
 pub struct AuthorizationRequest {
     uri: String,
@@ -1662,6 +1665,7 @@ impl AuthorizationRequest {
     }
 }
 
+#[deprecated]
 #[derive(Debug)]
 pub struct AccessTokenRequest {
     uri: String,
@@ -1671,7 +1675,7 @@ pub struct AccessTokenRequest {
 
 impl AccessTokenRequest {
     /// Send the request for an access token. If successful, the Response body
-    /// should be an access token which you can convert to [MsalTokenResponse]
+    /// should be an access token which you can convert to [MsalToken]
     /// and pass back to [OAuthSerializer] to use to get refresh tokens.
     ///
     /// # Example
@@ -1741,6 +1745,7 @@ impl AccessTokenRequest {
     }
 }
 
+#[deprecated]
 #[derive(Debug)]
 pub struct AsyncAccessTokenRequest {
     uri: String,
@@ -1750,7 +1755,7 @@ pub struct AsyncAccessTokenRequest {
 
 impl AsyncAccessTokenRequest {
     /// Send the request for an access token. If successful, the Response body
-    /// should be an access token which you can convert to [MsalTokenResponse]
+    /// should be an access token which you can convert to [MsalToken]
     /// and pass back to [OAuthSerializer] to use to get refresh tokens.
     ///
     /// # Example
@@ -1821,6 +1826,7 @@ impl AsyncAccessTokenRequest {
     }
 }
 
+#[deprecated]
 #[derive(Debug)]
 pub struct ImplicitGrant {
     oauth: OAuthSerializer,
@@ -1881,6 +1887,7 @@ impl AsRef<OAuthSerializer> for ImplicitGrant {
     }
 }
 
+#[deprecated]
 pub struct DeviceCodeGrant {
     oauth: OAuthSerializer,
     grant: GrantType,
@@ -1998,6 +2005,7 @@ impl DeviceCodeGrant {
     }
 }
 
+#[deprecated]
 pub struct AsyncDeviceCodeGrant {
     oauth: OAuthSerializer,
     grant: GrantType,
@@ -2115,6 +2123,7 @@ impl AsyncDeviceCodeGrant {
     }
 }
 
+#[deprecated]
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AccessTokenGrant {
     oauth: OAuthSerializer,
@@ -2278,6 +2287,7 @@ impl AccessTokenGrant {
     }
 }
 
+#[deprecated]
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AsyncAccessTokenGrant {
     oauth: OAuthSerializer,

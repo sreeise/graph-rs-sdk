@@ -1,4 +1,4 @@
-use crate::jwt::{JsonWebToken, JwtParser};
+//use crate::jwt::{JsonWebToken, JwtParser};
 use serde::de::{Error, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
@@ -9,6 +9,10 @@ use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
 use url::form_urlencoded::parse;
 
+/// ID tokens are sent to the client application as part of an OpenID Connect flow.
+/// They can be sent alongside or instead of an access token. ID tokens are used by the
+/// client to authenticate the user. To learn more about how the Microsoft identity
+/// platform issues ID tokens, see [ID tokens in the Microsoft identity platform.](https://learn.microsoft.com/en-us/azure/active-directory/develop/id-tokens)
 #[derive(Default, Clone, Eq, PartialEq, Serialize)]
 pub struct IdToken {
     pub code: Option<String>,
@@ -37,9 +41,9 @@ impl IdToken {
         self.id_token = id_token.into();
     }
 
-    pub fn jwt(&self) -> Option<JsonWebToken> {
+    /*pub fn jwt(&self) -> Option<JsonWebToken> {
         JwtParser::parse(self.id_token.as_str()).ok()
-    }
+    }*/
 
     pub fn code(&mut self, code: &str) {
         self.code = Some(code.into());
@@ -59,22 +63,6 @@ impl IdToken {
     /// By default this does not get logged.
     pub fn enable_pii_logging(&mut self, log_pii: bool) {
         self.log_pii = log_pii;
-    }
-
-    pub fn get_id_token(&self) -> String {
-        self.id_token.clone()
-    }
-
-    pub fn get_code(&self) -> Option<String> {
-        self.code.clone()
-    }
-
-    pub fn get_state(&self) -> Option<String> {
-        self.state.clone()
-    }
-
-    pub fn get_session_state(&self) -> Option<String> {
-        self.session_state.clone()
     }
 }
 
@@ -155,10 +143,10 @@ impl<'de> Deserialize<'de> for IdToken {
                 let mut id_token = IdToken::default();
                 while let Ok(Some((key, value))) = map.next_entry::<String, String>() {
                     match key.as_bytes() {
-                        b"code" => id_token.code(value.as_ref()),
-                        b"id_token" => id_token.id_token(value.as_ref()),
-                        b"state" => id_token.state(value.as_ref()),
-                        b"session_state" => id_token.session_state(value.as_ref()),
+                        b"code" => id_token.code = Some(value),
+                        b"id_token" => id_token.id_token = value,
+                        b"state" => id_token.state = Some(value),
+                        b"session_state" => id_token.session_state = Some(value),
                         _ => {
                             id_token
                                 .additional_fields

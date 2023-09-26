@@ -1,7 +1,7 @@
 use graph_rs_sdk::error::ErrorMessage;
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    MsalTokenResponse, TokenCredentialExecutor, TokenRequest,
+    MsalToken, TokenCredentialExecutor, TokenRequest,
 };
 use graph_rs_sdk::*;
 use warp::Filter;
@@ -78,7 +78,7 @@ async fn handle_redirect(
             println!("{response:#?}");
 
             if response.status().is_success() {
-                let mut access_token: MsalTokenResponse = response.json().await.unwrap();
+                let mut access_token: MsalToken = response.json().await.unwrap();
 
                 // Enables the printing of the bearer, refresh, and id token.
                 access_token.enable_pii_logging(true);

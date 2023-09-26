@@ -4,7 +4,7 @@ use crate::identity::{
     ResponseMode,
 };
 use crate::oauth::{ProofKeyForCodeExchange, ResponseType};
-use crate::web::{InteractiveAuthenticator, InteractiveWebViewOptions};
+use graph_extensions::web::{InteractiveAuthenticator, WebViewOptions};
 
 use graph_error::{AuthorizationResult, AF};
 
@@ -73,7 +73,6 @@ impl AuthCodeAuthorizationUrlParameters {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
-                token_store: Default::default(),
             },
             response_type,
             response_mode: None,
@@ -115,7 +114,7 @@ impl AuthCodeAuthorizationUrlParameters {
 
     pub fn interactive_webview_authentication(
         &self,
-        interactive_web_view_options: Option<InteractiveWebViewOptions>,
+        interactive_web_view_options: Option<WebViewOptions>,
     ) -> anyhow::Result<AuthorizationQueryResponse> {
         let url_string = self
             .interactive_authentication(interactive_web_view_options)?
@@ -159,12 +158,12 @@ impl AuthCodeAuthorizationUrlParameters {
 
 mod web_view_authenticator {
     use crate::identity::{AuthCodeAuthorizationUrlParameters, AuthorizationUrl};
-    use crate::web::{InteractiveAuthenticator, InteractiveWebView, InteractiveWebViewOptions};
+    use graph_extensions::web::{InteractiveAuthenticator, InteractiveWebView, WebViewOptions};
 
     impl InteractiveAuthenticator for AuthCodeAuthorizationUrlParameters {
         fn interactive_authentication(
             &self,
-            interactive_web_view_options: Option<InteractiveWebViewOptions>,
+            interactive_web_view_options: Option<WebViewOptions>,
         ) -> anyhow::Result<Option<String>> {
             let uri = self.authorization_url()?;
             let redirect_uri = self.redirect_uri().cloned().unwrap();

@@ -76,7 +76,6 @@ impl OpenIdCredential {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
-                token_store: Default::default(),
             },
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
@@ -108,9 +107,10 @@ impl OpenIdCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for OpenIdCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> AuthorizationResult<Url> {
+        let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
-            .authority(azure_cloud_instance, &self.app_config.authority);
+            .authority(&azure_cloud_instance, &self.app_config.authority);
 
         if self.refresh_token.is_none() {
             let uri = self

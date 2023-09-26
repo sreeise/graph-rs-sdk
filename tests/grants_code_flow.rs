@@ -1,5 +1,5 @@
 use graph_oauth::oauth::GrantType;
-use graph_rs_sdk::oauth::{GrantRequest, MsalTokenResponse, OAuthSerializer};
+use graph_rs_sdk::oauth::{GrantRequest, MsalToken, OAuthSerializer};
 
 #[test]
 fn sign_in_code_url() {
@@ -49,12 +49,12 @@ fn access_token() {
         .authorization_url("https://www.example.com/token")
         .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
-    let mut builder = MsalTokenResponse::default();
+    let mut builder = MsalToken::default();
     builder
-        .set_token_type("token")
-        .set_bearer_token("access_token")
-        .set_expires_in(3600)
-        .set_scope("scope");
+        .with_token_type("token")
+        .with_access_token("access_token")
+        .with_expires_in(3600)
+        .with_scope(vec!["scope"]);
 
     let code_body = oauth
         .encode_uri(GrantType::CodeFlow, GrantRequest::AccessToken)
@@ -75,8 +75,8 @@ fn refresh_token() {
         .authorization_url("https://www.example.com/token")
         .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
 
-    let mut access_token = MsalTokenResponse::new("access_token", 3600, "Read.Write", "asfasf");
-    access_token.set_refresh_token("32LKLASDKJ");
+    let mut access_token = MsalToken::new("access_token", 3600, "asfasf", vec!["Read.Write"]);
+    access_token.with_refresh_token("32LKLASDKJ");
     oauth.access_token(access_token);
 
     let body = oauth
@@ -100,8 +100,8 @@ fn get_refresh_token() {
         .authorization_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
         .token_uri("https://login.microsoftonline.com/common/oauth2/v2.0/token?");
 
-    let mut access_token = MsalTokenResponse::new("access_token", 3600, "Read.Write", "asfasf");
-    access_token.set_refresh_token("32LKLASDKJ");
+    let mut access_token = MsalToken::new("Bearer", 3600, "token", vec!["User.Read"]);
+    access_token.with_refresh_token("32LKLASDKJ");
     oauth.access_token(access_token);
 
     assert_eq!("32LKLASDKJ", oauth.get_refresh_token().unwrap());

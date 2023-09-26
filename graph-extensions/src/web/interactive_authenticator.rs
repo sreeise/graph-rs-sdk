@@ -1,10 +1,9 @@
-use crate::identity::AuthorizationUrl;
-use crate::web::InteractiveWebViewOptions;
+use crate::web::WebViewOptions;
 
-pub trait InteractiveAuthenticator: AuthorizationUrl {
+pub trait InteractiveAuthenticator {
     fn interactive_authentication(
         &self,
-        interactive_web_view_options: Option<InteractiveWebViewOptions>,
+        interactive_web_view_options: Option<WebViewOptions>,
     ) -> anyhow::Result<Option<String>>;
 }
 

@@ -21,6 +21,7 @@ async-trait = "0.1.35"
 base64 = "0.21.0"
 chrono = { version = "0.4.23", features = ["serde"] }
 chrono-humanize = "0.2.2"
+dyn-clone = "1.0.14"
 hex = "0.4.3"
 http = "0.2.9"
 openssl = { version = "0.10", optional=true }
