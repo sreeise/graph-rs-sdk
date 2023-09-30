@@ -16,6 +16,6 @@ pub use graph_failure::*;
 pub use internal::*;
 
 pub type GraphResult<T> = Result<T, GraphFailure>;
-pub type AuthorizationResult<T> = Result<T, AuthorizationFailure>;
+pub type IdentityResult<T> = Result<T, AuthorizationFailure>;
 pub type AuthExecutionResult<T> = Result<T, AuthExecutionError>;
 pub type AuthTaskExecutionResult<T, R> = Result<T, AuthTaskExecutionError<R>>;

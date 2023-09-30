@@ -6,7 +6,7 @@ use crate::identity::{
 use crate::oauth::{
     ConfidentialClientApplication, PublicClientApplication, ResourceOwnerPasswordCredential,
 };
-use graph_error::AuthorizationResult;
+use graph_error::IdentityResult;
 use std::collections::HashMap;
 use std::env::VarError;
 use url::Url;
@@ -126,27 +126,25 @@ impl EnvironmentCredential {
     }
 }
 
+/*
 impl AuthorizationSerializer for EnvironmentCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
         self.credential.uri()
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         self.credential.form_urlencode()
     }
 }
+ */
 
 impl TokenCredentialExecutor for EnvironmentCredential {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         self.credential.uri()
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         self.credential.form_urlencode()
-    }
-
-    fn azure_cloud_instance(&self) -> AzureCloudInstance {
-        self.app_config().azure_cloud_instance
     }
 
     fn client_id(&self) -> &Uuid {
@@ -155,6 +153,10 @@ impl TokenCredentialExecutor for EnvironmentCredential {
 
     fn authority(&self) -> Authority {
         self.credential.authority()
+    }
+
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.app_config().azure_cloud_instance
     }
 
     fn app_config(&self) -> &AppConfig {

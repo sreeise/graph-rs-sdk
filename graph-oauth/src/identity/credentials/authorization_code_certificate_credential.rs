@@ -6,7 +6,7 @@ use crate::identity::{
     CLIENT_ASSERTION_TYPE,
 };
 use async_trait::async_trait;
-use graph_error::{AuthorizationResult, AF};
+use graph_error::{IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
@@ -61,7 +61,7 @@ impl AuthorizationCodeCertificateCredential {
         authorization_code: T,
         client_assertion: T,
         redirect_uri: Option<U>,
-    ) -> AuthorizationResult<AuthorizationCodeCertificateCredential> {
+    ) -> IdentityResult<AuthorizationCodeCertificateCredential> {
         let redirect_uri = {
             if let Some(redirect_uri) = redirect_uri {
                 redirect_uri.into_url().ok()
@@ -110,7 +110,7 @@ impl AuthorizationCodeCertificateCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
             .authority(&azure_cloud_instance, &self.authority());
@@ -122,7 +122,7 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
         Url::parse(uri.as_str()).map_err(AF::from)
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId);

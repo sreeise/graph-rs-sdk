@@ -19,7 +19,6 @@ struct TodoListsTasks {
 
 #[tokio::test]
 async fn list_users() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
     let _ = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) =
         OAuthTestClient::graph_by_rid_async(ResourceIdentity::TodoListsTasks).await

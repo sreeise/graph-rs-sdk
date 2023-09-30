@@ -4,7 +4,7 @@ use crate::identity::{
 };
 use crate::oauth::{ConfidentialClientApplication, OAuthParameter, OAuthSerializer};
 use async_trait::async_trait;
-use graph_error::{AuthorizationResult, AF};
+use graph_error::{IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
@@ -94,7 +94,7 @@ impl ClientAssertionCredentialBuilder {
 
 #[async_trait]
 impl TokenCredentialExecutor for ClientAssertionCredential {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
             .authority(&azure_cloud_instance, &self.authority());
@@ -106,7 +106,7 @@ impl TokenCredentialExecutor for ClientAssertionCredential {
         Url::parse(uri.as_str()).map_err(AF::from)
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.client_id().to_string();
         if client_id.trim().is_empty() {
             return AF::result(OAuthParameter::ClientId.alias());

@@ -6,7 +6,7 @@ use crate::identity::{
 };
 use crate::oauth::UnInitializedCredentialExecutor;
 use async_trait::async_trait;
-use graph_error::{AuthExecutionResult, AuthorizationResult, AF};
+use graph_error::{AuthExecutionResult, IdentityResult, AF};
 use graph_extensions::cache::{
     InMemoryCredentialStore, StoredToken, TokenStore, TokenStoreProvider, UnInitializedTokenStore,
 };
@@ -67,10 +67,6 @@ impl PublicClientApplication {
 
 #[async_trait]
 impl ClientApplication for PublicClientApplication {
-    fn client_application_type(&self) -> ClientApplicationType {
-        ClientApplicationType::ConfidentialClientApplication
-    }
-
     fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
         let cache_id = self.app_config().cache_id();
         if self.is_store_and_token_initialized(cache_id.as_str()) {
@@ -161,11 +157,11 @@ impl TokenStore for PublicClientApplication {
 
 #[async_trait]
 impl TokenCredentialExecutor for PublicClientApplication {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         self.credential.uri()
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         self.credential.form_urlencode()
     }
 

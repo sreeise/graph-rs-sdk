@@ -8,30 +8,50 @@ use crate::identity::{
 };
 
 use async_trait::async_trait;
-use graph_error::{AuthExecutionResult, AuthorizationResult, AF};
+use graph_error::{AuthExecutionResult, IdentityResult, AF};
 
 use crate::oauth::MsalToken;
 use graph_extensions::cache::{
-    InMemoryCredentialStore, StoredToken, TokenStore, TokenStoreProvider, UnInitializedTokenStore,
+    AutomaticTokenRefresh, InMemoryCredentialStore, StoredToken, TokenStore, TokenStoreProvider,
+    UnInitializedTokenStore,
 };
-use graph_extensions::token::{ClientApplication, ClientApplicationType};
-use http::header::ACCEPT;
-use reqwest::header::{HeaderValue, CONTENT_TYPE};
+use graph_extensions::token::ClientApplication;
 use reqwest::tls::Version;
 use reqwest::{ClientBuilder, Response};
 use std::collections::HashMap;
 use url::Url;
 use uuid::Uuid;
-use wry::http::HeaderMap;
 
 /// Clients capable of maintaining the confidentiality of their credentials
 /// (e.g., client implemented on a secure server with restricted access to the client credentials),
 /// or capable of secure client authentication using other means.
+///
+///
+/// # Build a confidential client for the authorization code grant.
+/// Use [with_authorization_code](crate::identity::ConfidentialClientApplicationBuilder::with_authorization_code) to set the authorization code received from
+/// the authorization step, see [Request an authorization code](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code)
+/// You can use the [AuthCodeAuthorizationUrlParameterBuilder](crate::identity::AuthCodeAuthorizationUrlParameterBuilder)
+/// to build the url that the user will be directed to authorize at.
+///
+/// ```rust
+/// fn main() {
+///     # use graph_oauth::identity::ConfidentialClientApplication;
+///
+///     //
+///     let client_app = ConfidentialClientApplication::builder("client-id")
+///         .with_authorization_code("access-code")
+///         .with_client_secret("client-secret")
+///         .with_scope(vec!["User.Read"])
+///         .build();
+/// }
+/// ```
 #[derive(Clone)]
 pub struct ConfidentialClientApplication {
     http_client: reqwest::Client,
     credential: Box<dyn TokenCredentialExecutor + Send>,
     token_store: Box<dyn TokenStore + Send>,
+    token_watch: AutomaticTokenRefresh<String>,
+    token_sender: tokio::sync::watch::Sender<String>,
 }
 
 impl ConfidentialClientApplication {
@@ -46,6 +66,8 @@ impl ConfidentialClientApplication {
     where
         T: TokenCredentialExecutor + Send + 'static,
     {
+        let (token_sender, token_watch) = AutomaticTokenRefresh::new(String::new());
+
         ConfidentialClientApplication {
             http_client: ClientBuilder::new()
                 .min_tls_version(Version::TLS_1_2)
@@ -54,11 +76,22 @@ impl ConfidentialClientApplication {
                 .unwrap(),
             credential: Box::new(credential),
             token_store: Box::new(UnInitializedTokenStore),
+            token_watch,
+            token_sender,
         }
     }
 
     pub fn builder(client_id: &str) -> ConfidentialClientApplicationBuilder {
         ConfidentialClientApplicationBuilder::new(client_id)
+    }
+
+    pub fn init_automatic_refresh_token(&mut self) {
+        let rx = self.token_sender.subscribe();
+        tokio::spawn(async move {
+            while rx.changed().await.is_ok() {
+                println!("received = {:?}", *rx.borrow());
+            }
+        });
     }
 
     pub fn with_in_memory_token_store(&mut self) {
@@ -68,7 +101,8 @@ impl ConfidentialClientApplication {
         ));
     }
 
-    fn openid_userinfo(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
+    /*
+        fn openid_userinfo(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
         let response = self.get_openid_config()?;
         let config: serde_json::Value = response.json()?;
         let user_info_endpoint = Url::parse(config["userinfo_endpoint"].as_str().unwrap()).unwrap();
@@ -96,14 +130,11 @@ impl ConfidentialClientApplication {
 
         Ok(response)
     }
+     */
 }
 
 #[async_trait]
 impl ClientApplication for ConfidentialClientApplication {
-    fn client_application_type(&self) -> ClientApplicationType {
-        ClientApplicationType::ConfidentialClientApplication
-    }
-
     fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
         let cache_id = self.app_config().cache_id();
         if self.is_store_and_token_initialized(cache_id.as_str()) {
@@ -194,11 +225,11 @@ impl TokenStore for ConfidentialClientApplication {
 
 #[async_trait]
 impl TokenCredentialExecutor for ConfidentialClientApplication {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         self.credential.uri()
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         self.credential.form_urlencode()
     }
 

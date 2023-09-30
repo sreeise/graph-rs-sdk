@@ -1,4 +1,5 @@
-use graph_oauth::identity::OpenIdCredential;
+use graph_error::IdentityResult;
+use graph_oauth::identity::{ConfidentialClientApplication, OpenIdCredential};
 use url::Url;
 
 // The authorization request is the initial request to sign in where the user
@@ -17,12 +18,27 @@ fn open_id_authorization_url(
     tenant: &str,
     redirect_uri: &str,
     scope: Vec<&str>,
-) -> anyhow::Result<Url> {
-    Ok(OpenIdCredential::authorization_url_builder()?
-        .with_client_id(client_id)
+) -> IdentityResult<Url> {
+    ConfidentialClientApplication::builder(client_id)
+        .openid_authorization_url_builder()
         .with_tenant(tenant)
         .with_redirect_uri(redirect_uri)?
-        .extend_scope(scope)
+        .with_scope(scope)
         .build()
-        .url()?)
+        .url()
+}
+
+// Same as above
+fn open_id_authorization_url2(
+    client_id: &str,
+    tenant: &str,
+    redirect_uri: &str,
+    scope: Vec<&str>,
+) -> IdentityResult<Url> {
+    OpenIdCredential::authorization_url_builder(client_id)
+        .with_tenant(tenant)
+        .with_redirect_uri(redirect_uri)?
+        .with_scope(scope)
+        .build()
+        .url()
 }

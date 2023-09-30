@@ -1,12 +1,12 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, OpenIdAuthorizationUrl, ProofKeyForCodeExchange,
-    TokenCredentialExecutor,
+    Authority, AzureCloudInstance, OpenIdAuthorizationUrl, TokenCredentialExecutor,
 };
 use crate::oauth::{ConfidentialClientApplication, OpenIdAuthorizationUrlBuilder};
 use async_trait::async_trait;
-use graph_error::{AuthorizationResult, AF};
+use graph_error::{IdentityResult, AF};
+use graph_extensions::crypto::{GenPkce, ProofKeyCodeExchange};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
@@ -55,7 +55,7 @@ pub struct OpenIdCredential {
     pub(crate) code_verifier: Option<String>,
     /// Used only when the client generates the pkce itself when the generate method
     /// is called.
-    pub(crate) pkce: Option<ProofKeyForCodeExchange>,
+    pub(crate) pkce: Option<ProofKeyCodeExchange>,
     serializer: OAuthSerializer,
 }
 
@@ -65,7 +65,7 @@ impl OpenIdCredential {
         client_secret: T,
         authorization_code: T,
         redirect_uri: U,
-    ) -> AuthorizationResult<OpenIdCredential> {
+    ) -> IdentityResult<OpenIdCredential> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         Ok(OpenIdCredential {
             app_config: AppConfig {
@@ -96,18 +96,18 @@ impl OpenIdCredential {
         OpenIdCredentialBuilder::new()
     }
 
-    pub fn authorization_url_builder() -> AuthorizationResult<OpenIdAuthorizationUrlBuilder> {
-        OpenIdAuthorizationUrlBuilder::new()
+    pub fn authorization_url_builder(client_id: impl AsRef<str>) -> OpenIdAuthorizationUrlBuilder {
+        OpenIdAuthorizationUrlBuilder::new_with_app_config(AppConfig::new_with_client_id(client_id))
     }
 
-    pub fn pkce(&self) -> Option<&ProofKeyForCodeExchange> {
+    pub fn pkce(&self) -> Option<&ProofKeyCodeExchange> {
         self.pkce.as_ref()
     }
 }
 
 #[async_trait]
 impl TokenCredentialExecutor for OpenIdCredential {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
             .authority(&azure_cloud_instance, &self.app_config.authority);
@@ -127,7 +127,7 @@ impl TokenCredentialExecutor for OpenIdCredential {
         }
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId.alias());
@@ -297,16 +297,13 @@ impl OpenIdCredentialBuilder {
         self
     }
 
-    pub fn with_pkce(
-        &mut self,
-        proof_key_for_code_exchange: &ProofKeyForCodeExchange,
-    ) -> &mut Self {
+    pub fn with_pkce(&mut self, proof_key_for_code_exchange: &ProofKeyCodeExchange) -> &mut Self {
         self.with_code_verifier(proof_key_for_code_exchange.code_verifier.as_str());
         self
     }
 
-    pub fn generate_pkce(&mut self) -> AuthorizationResult<&mut Self> {
-        let pkce = ProofKeyForCodeExchange::generate()?;
+    pub fn generate_pkce(&mut self) -> IdentityResult<&mut Self> {
+        let pkce = ProofKeyCodeExchange::oneshot()?;
         self.with_code_verifier(pkce.code_verifier.as_str());
         self.credential.pkce = Some(pkce);
         Ok(self)

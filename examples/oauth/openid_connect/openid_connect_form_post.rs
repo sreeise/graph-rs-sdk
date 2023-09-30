@@ -34,8 +34,7 @@ static TENANT_ID: &str = "";
 static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
 fn openid_authorization_url() -> anyhow::Result<Url> {
-    Ok(OpenIdCredential::authorization_url_builder()?
-        .with_client_id(CLIENT_ID)
+    Ok(OpenIdCredential::authorization_url_builder(CLIENT_ID)
         .with_tenant(TENANT_ID)
         //.with_default_scope()?
         .with_redirect_uri(REDIRECT_URI)?
@@ -43,7 +42,7 @@ fn openid_authorization_url() -> anyhow::Result<Url> {
         .with_response_type([ResponseType::IdToken, ResponseType::Code])
         .with_prompt(Prompt::SelectAccount)
         .with_state("1234")
-        .extend_scope(vec!["User.Read", "User.ReadWrite"])
+        .with_scope(vec!["User.Read", "User.ReadWrite"])
         .build()
         .url()?)
 }

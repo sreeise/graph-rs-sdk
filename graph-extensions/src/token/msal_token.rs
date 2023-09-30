@@ -1,12 +1,10 @@
-use chrono::{DateTime, Duration, Utc};
-use chrono_humanize::HumanTime;
 use graph_error::GraphFailure;
 use serde::{Deserialize, Deserializer};
 use serde_aux::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
-use std::ops::{Add, AddAssign};
+use std::ops::Add;
 
 use crate::token::IdToken;
 use std::str::FromStr;
@@ -106,7 +104,7 @@ impl MsalToken {
         access_token: &str,
         scope: I,
     ) -> MsalToken {
-        let mut timestamp = time::OffsetDateTime::now_utc();
+        let timestamp = time::OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(expires_in));
 
         MsalToken {
@@ -299,7 +297,7 @@ impl MsalToken {
     /// // The timestamp is in UTC.
     /// ```
     pub fn gen_timestamp(&mut self) {
-        let mut timestamp = time::OffsetDateTime::now_utc();
+        let timestamp = time::OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(self.expires_in.clone()));
         self.timestamp = Some(timestamp);
         self.expires_on = Some(expires_on);
@@ -418,11 +416,6 @@ impl fmt::Debug for MsalToken {
                 .field("state", &self.state)
                 .field("timestamp", &self.timestamp)
                 .field("expires_on", &self.expires_on)
-                .field(
-                    "expires_result",
-                    &time::OffsetDateTime::now_utc()
-                        .checked_add(time::Duration::seconds(self.expires_in.clone())),
-                )
                 .field("additional_fields", &self.additional_fields)
                 .finish()
         } else {
@@ -446,11 +439,6 @@ impl fmt::Debug for MsalToken {
                 .field("state", &self.state)
                 .field("timestamp", &self.timestamp)
                 .field("expires_on", &self.expires_on)
-                .field(
-                    "expires_result",
-                    &time::OffsetDateTime::now_utc()
-                        .checked_add(time::Duration::seconds(self.expires_in.clone())),
-                )
                 .field("additional_fields", &self.additional_fields)
                 .finish()
         }
@@ -470,7 +458,7 @@ impl<'de> Deserialize<'de> for MsalToken {
     {
         let phantom_access_token: PhantomMsalToken = Deserialize::deserialize(deserializer)?;
 
-        let mut timestamp = time::OffsetDateTime::now_utc();
+        let timestamp = time::OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(phantom_access_token.expires_in));
 
         Ok(MsalToken {
@@ -505,7 +493,7 @@ mod test {
         assert!(access_token.is_expired());
 
         let mut access_token = MsalToken::default();
-        access_token.with_expires_in(10);
+        access_token.with_expires_in(8);
         std::thread::sleep(std::time::Duration::from_secs(4));
         assert!(!access_token.is_expired());
     }

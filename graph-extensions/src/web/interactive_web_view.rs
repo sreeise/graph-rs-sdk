@@ -3,7 +3,8 @@ use std::time::Duration;
 use url::Url;
 
 use crate::web::WebViewOptions;
-use wry::application::platform::windows::EventLoopExtWindows;
+use wry::application::event_loop::EventLoopBuilder;
+use wry::application::platform::windows::EventLoopBuilderExtWindows;
 use wry::{
     application::{
         event::{Event, StartCause, WindowEvent},
@@ -66,7 +67,9 @@ impl InteractiveWebView {
         options: WebViewOptions,
         sender: std::sync::mpsc::Sender<String>,
     ) -> anyhow::Result<()> {
-        let event_loop: EventLoop<UserEvents> = EventLoop::<UserEvents>::new_any_thread();
+        let event_loop: EventLoop<UserEvents> = EventLoopBuilder::with_user_event()
+            .with_any_thread(true)
+            .build();
         let proxy = event_loop.create_proxy();
         let sender2 = sender.clone();
 

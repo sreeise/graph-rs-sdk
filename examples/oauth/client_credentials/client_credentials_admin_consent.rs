@@ -1,14 +1,16 @@
+// ADMIN CONSENT
+// This OAuth flow example requires signing in as an administrator for Azure, known as admin consent,
+// to approve your application to call Microsoft Graph Apis on behalf of a user. Admin consent
+// only has to be done once for a user. After admin consent is given, the oauth client can be
+// used to continue getting new access tokens programmatically.
+
+// OVERVIEW
 // Microsoft Client Credentials: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow
 // You can use the OAuth 2.0 client credentials grant specified in RFC 6749,
 // sometimes called two-legged OAuth, to access web-hosted resources by using the
 // identity of an application. This type of grant is commonly used for server-to-server
 // interactions that must run in the background, without immediate interaction with a user.
 // These types of applications are often referred to as daemons or service accounts.
-//
-// This OAuth flow example requires signing in as an administrator for Azure, known as admin consent,
-// to approve your application to call Microsoft Graph Apis on behalf of a user. Admin consent
-// only has to be done once for a user. After admin consent is given, the oauth client can be
-// used to continue getting new access tokens programmatically.
 
 // This example shows getting the URL for the one time admin consent required
 // for the client credentials flow.
@@ -18,7 +20,7 @@
 // used to get access tokens programmatically without any consent by a user
 // or admin. See examples/client_credentials.rs
 
-use graph_rs_sdk::error::AuthorizationResult;
+use graph_rs_sdk::error::IdentityResult;
 use graph_rs_sdk::oauth::ClientCredentialsAuthorizationUrl;
 use warp::Filter;
 
@@ -26,8 +28,8 @@ use warp::Filter;
 static CLIENT_ID: &str = "<CLIENT_ID>";
 static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
-// Paste the URL into a browser and have the admin sign in and approve the admin consent.
-fn get_admin_consent_url() -> AuthorizationResult<url::Url> {
+// Paste the URL into a browser and log in to approve the admin consent.
+fn get_admin_consent_url() -> IdentityResult<url::Url> {
     let authorization_credential = ClientCredentialsAuthorizationUrl::new(CLIENT_ID, REDIRECT_URI)?;
     authorization_credential.url()
 }
@@ -35,7 +37,7 @@ fn get_admin_consent_url() -> AuthorizationResult<url::Url> {
 // OR use the builder:
 
 // Use the builder if you want to set a specific tenant, or a state, or set a specific Authority.
-fn get_admin_consent_url_from_builder() -> AuthorizationResult<url::Url> {
+fn get_admin_consent_url_from_builder() -> IdentityResult<url::Url> {
     let authorization_credential = ClientCredentialsAuthorizationUrl::builder(CLIENT_ID)
         .with_redirect_uri(REDIRECT_URI)?
         .with_state("123")

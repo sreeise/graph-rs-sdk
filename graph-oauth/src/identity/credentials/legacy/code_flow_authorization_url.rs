@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::oauth::ResponseType;
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, IdentityResult};
 use url::form_urlencoded::Serializer;
 use url::Url;
 
@@ -46,7 +46,7 @@ impl CodeFlowAuthorizationUrl {
         CodeFlowAuthorizationUrlBuilder::new()
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> IdentityResult<Url> {
         let mut serializer = OAuthSerializer::new();
         if self.redirect_uri.trim().is_empty() {
             return AuthorizationFailure::result("redirect_uri");

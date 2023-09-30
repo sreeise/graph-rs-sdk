@@ -1,6 +1,3 @@
-use crate::oauth::well_known::WellKnown;
-use crate::oauth::{OAuthError, OAuthSerializer};
-
 static LOGIN_LIVE_HOST: &str = "https://login.live.com";
 static MICROSOFT_ONLINE_HOST: &str = "https://login.microsoftonline.com";
 static OPEN_ID_PATH: &str = ".well-known/openid-configuration";
@@ -52,130 +49,28 @@ pub struct MicrosoftSigningKeysV2 {
     pub rbac_url: String,
 }
 
-pub enum GraphDiscovery {
+pub enum SigningKeys {
     V1,
     V2,
     Tenant(String),
 }
 
-impl GraphDiscovery {
+impl SigningKeys {
     /// Get the URL for the public keys used by the Microsoft identity platform
     /// to sign security tokens.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::graph_discovery::GraphDiscovery;
-    /// let url = GraphDiscovery::V1.url();
+    /// # use graph_oauth::oauth::graph_discovery::SigningKeys;
+    /// let url = SigningKeys::V1.url();
     /// println!("{}", url);
     /// ```
     pub fn url(&self) -> String {
         match self {
-            GraphDiscovery::V1 => format!("{LOGIN_LIVE_HOST}/{OPEN_ID_PATH}"),
-            GraphDiscovery::V2 => format!("{MICROSOFT_ONLINE_HOST}/common/v2.0/{OPEN_ID_PATH}"),
-            GraphDiscovery::Tenant(tenant) => {
+            SigningKeys::V1 => format!("{LOGIN_LIVE_HOST}/{OPEN_ID_PATH}"),
+            SigningKeys::V2 => format!("{MICROSOFT_ONLINE_HOST}/common/v2.0/{OPEN_ID_PATH}"),
+            SigningKeys::Tenant(tenant) => {
                 format!("{MICROSOFT_ONLINE_HOST}/{tenant}/v2.0/{OPEN_ID_PATH}")
-            }
-        }
-    }
-
-    /// Get the public keys used by the Microsoft identity platform
-    /// to sign security tokens.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::graph_discovery::GraphDiscovery;
-    /// let keys: serde_json::Value = GraphDiscovery::V1.signing_keys().unwrap();
-    /// println!("{:#?}", keys);
-    /// ```
-    pub fn signing_keys<T>(self) -> Result<T, OAuthError>
-    where
-        for<'de> T: serde::Deserialize<'de>,
-    {
-        let t: T = WellKnown::signing_keys(self.url().as_str())?;
-        Ok(t)
-    }
-
-    /// Get the public keys used by the Microsoft identity platform
-    /// to sign security tokens.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
-    /// let keys: serde_json::Value = GraphDiscovery::V1.async_signing_keys().await.unwrap();
-    /// println!("{:#?}", keys);
-    /// ```
-    pub async fn async_signing_keys<T>(self) -> Result<T, OAuthError>
-    where
-        for<'de> T: serde::Deserialize<'de>,
-    {
-        let t: T = WellKnown::async_signing_keys(self.url().as_str()).await?;
-        Ok(t)
-    }
-
-    /// Automatically convert the public keys used by the Microsoft identity platform
-    /// to sign security tokens into an OAuth object. This will get the common urls
-    /// for authorization and access tokens and insert them into OAuth.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::graph_discovery::GraphDiscovery;
-    /// let oauth = GraphDiscovery::V1.oauth().unwrap();
-    /// println!("{:#?}", oauth);
-    /// ```
-    pub fn oauth(self) -> Result<OAuthSerializer, OAuthError> {
-        let mut oauth = OAuthSerializer::new();
-        match self {
-            GraphDiscovery::V1 => {
-                let k: MicrosoftSigningKeysV1 = self.signing_keys()?;
-                oauth
-                    .authorization_url(k.authorization_endpoint.as_str())
-                    .token_uri(k.token_endpoint.as_str())
-                    .refresh_token_url(k.token_endpoint.as_str())
-                    .logout_url(k.end_session_endpoint.as_str());
-                Ok(oauth)
-            }
-            GraphDiscovery::V2 | GraphDiscovery::Tenant(_) => {
-                let k: MicrosoftSigningKeysV2 = self.signing_keys()?;
-                oauth
-                    .authorization_url(k.authorization_endpoint.as_str())
-                    .token_uri(k.token_endpoint.as_str())
-                    .refresh_token_url(k.token_endpoint.as_str())
-                    .logout_url(k.end_session_endpoint.as_str());
-                Ok(oauth)
-            }
-        }
-    }
-
-    /// Automatically convert the public keys used by the Microsoft identity platform
-    /// to sign security tokens into an OAuth object. This will get the common urls
-    /// for authorization and access tokens and insert them into OAuth.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// # use graph_oauth::oauth::graphdiscovery::GraphDiscovery;
-    /// let oauth = GraphDiscovery::V1.async_oauth().await.unwrap();
-    /// println!("{:#?}", oauth);
-    /// ```
-    pub async fn async_oauth(self) -> Result<OAuthSerializer, OAuthError> {
-        let mut oauth = OAuthSerializer::new();
-        match self {
-            GraphDiscovery::V1 => {
-                let k: MicrosoftSigningKeysV1 = self.async_signing_keys().await?;
-                oauth
-                    .authorization_url(k.authorization_endpoint.as_str())
-                    .token_uri(k.token_endpoint.as_str())
-                    .refresh_token_url(k.token_endpoint.as_str())
-                    .logout_url(k.end_session_endpoint.as_str());
-                Ok(oauth)
-            }
-            GraphDiscovery::V2 | GraphDiscovery::Tenant(_) => {
-                let k: MicrosoftSigningKeysV2 = self.async_signing_keys().await?;
-                oauth
-                    .authorization_url(k.authorization_endpoint.as_str())
-                    .token_uri(k.token_endpoint.as_str())
-                    .refresh_token_url(k.token_endpoint.as_str())
-                    .logout_url(k.end_session_endpoint.as_str());
-                Ok(oauth)
             }
         }
     }

@@ -28,7 +28,7 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub fn new() -> AppConfig {
+    pub(crate) fn new() -> AppConfig {
         AppConfig {
             tenant_id: None,
             client_id: Uuid::default(),

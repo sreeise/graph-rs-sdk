@@ -1,13 +1,9 @@
 use crate::blocking::BlockingClient;
 use async_trait::async_trait;
 use graph_error::AuthExecutionResult;
-use graph_extensions::cache::{
-    InMemoryCredentialStore, StoredToken, TokenStore, TokenStoreProvider,
-};
-use graph_extensions::token::{ClientApplication, ClientApplicationType};
-use graph_oauth::oauth::{
-    ConfidentialClientApplication, PublicClientApplication, UnInitializedCredentialExecutor,
-};
+use graph_extensions::cache::{StoredToken, TokenStore, TokenStoreProvider};
+use graph_extensions::token::ClientApplication;
+use graph_oauth::oauth::{ConfidentialClientApplication, PublicClientApplication};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
@@ -29,33 +25,33 @@ impl TokenStore for BearerToken {
         TokenStoreProvider::InMemory
     }
 
-    fn is_stored_token_initialized(&self, id: &str) -> bool {
+    fn is_stored_token_initialized(&self, _id: &str) -> bool {
         true
     }
 
-    fn get_stored_token(&self, id: &str) -> Option<&StoredToken> {
+    fn get_stored_token(&self, _id: &str) -> Option<&StoredToken> {
         None
     }
 
-    fn update_stored_token(&mut self, id: &str, stored_token: StoredToken) -> Option<StoredToken> {
+    fn update_stored_token(
+        &mut self,
+        _id: &str,
+        _stored_token: StoredToken,
+    ) -> Option<StoredToken> {
         None
     }
 
-    fn get_bearer_token_from_store(&self, id: &str) -> Option<&String> {
+    fn get_bearer_token_from_store(&self, _id: &str) -> Option<&String> {
         Some(&self.0)
     }
 
-    fn get_refresh_token_from_store(&self, id: &str) -> Option<&String> {
+    fn get_refresh_token_from_store(&self, _id: &str) -> Option<&String> {
         None
     }
 }
 
 #[async_trait]
 impl ClientApplication for BearerToken {
-    fn client_application_type(&self) -> ClientApplicationType {
-        ClientApplicationType::PublicClientApplication
-    }
-
     fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
         Ok(self.0.clone())
     }
@@ -343,9 +339,21 @@ impl Debug for Client {
     }
 }
 
+impl From<BearerToken> for Client {
+    fn from(value: BearerToken) -> Self {
+        Client::new(value)
+    }
+}
+
+impl From<PublicClientApplication> for Client {
+    fn from(value: PublicClientApplication) -> Self {
+        Client::new(value)
+    }
+}
+
 impl From<ConfidentialClientApplication> for Client {
     fn from(value: ConfidentialClientApplication) -> Self {
-        todo!()
+        Client::new(value)
     }
 }
 
@@ -375,17 +383,19 @@ mod test {
         assert_eq!("user_agent", user_agent_header.to_str().unwrap());
     }
 
-    /*
-        #[test]
+    #[test]
+    #[should_panic]
     fn initialize_confidential_client() {
-        let client = GraphClientConfiguration::new()
+        let mut client = GraphClientConfiguration::new()
             .access_token("access_token")
             .user_agent(HeaderValue::from_static("user_agent"))
-            .build_with_client_application(ConfidentialClientApplication::builder("client-id")
-                .with_client_secret("secret")
-                .build());
+            .client_application(
+                ConfidentialClientApplication::builder("client-id")
+                    .with_client_secret("secret")
+                    .build(),
+            )
+            .build();
 
-        assert!(client.client_application.get_stored_token());
+        assert!(client.client_application.get_stored_token("").is_none());
     }
-     */
 }

@@ -1,7 +1,7 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance};
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, IdentityResult};
 use reqwest::IntoUrl;
 use url::form_urlencoded::Serializer;
 use url::Url;
@@ -18,7 +18,7 @@ impl ClientCredentialsAuthorizationUrl {
     pub fn new<T: AsRef<str>, U: IntoUrl>(
         client_id: T,
         redirect_uri: U,
-    ) -> AuthorizationResult<ClientCredentialsAuthorizationUrl> {
+    ) -> IdentityResult<ClientCredentialsAuthorizationUrl> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
 
@@ -40,14 +40,11 @@ impl ClientCredentialsAuthorizationUrl {
         ClientCredentialsAuthorizationUrlBuilder::new(client_id)
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> IdentityResult<Url> {
         self.url_with_host(&self.app_config.azure_cloud_instance)
     }
 
-    pub fn url_with_host(
-        &self,
-        azure_cloud_instance: &AzureCloudInstance,
-    ) -> AuthorizationResult<Url> {
+    pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
         let mut serializer = OAuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.trim().is_empty() || self.app_config.client_id.is_nil() {
@@ -119,18 +116,12 @@ impl ClientCredentialsAuthorizationUrlBuilder {
         }
     }
 
-    pub fn with_client_id<T: AsRef<str>>(
-        &mut self,
-        client_id: T,
-    ) -> AuthorizationResult<&mut Self> {
+    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> IdentityResult<&mut Self> {
         self.parameters.app_config.client_id = Uuid::try_parse(client_id.as_ref())?;
         Ok(self)
     }
 
-    pub fn with_redirect_uri<T: IntoUrl>(
-        &mut self,
-        redirect_uri: T,
-    ) -> AuthorizationResult<&mut Self> {
+    pub fn with_redirect_uri<T: IntoUrl>(&mut self, redirect_uri: T) -> IdentityResult<&mut Self> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
         self.parameters.app_config.redirect_uri = Some(redirect_uri);
@@ -157,7 +148,7 @@ impl ClientCredentialsAuthorizationUrlBuilder {
         self.parameters.clone()
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> IdentityResult<Url> {
         self.parameters.url()
     }
 }

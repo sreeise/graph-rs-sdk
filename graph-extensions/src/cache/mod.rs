@@ -1,11 +1,13 @@
 mod in_memory_credential_store;
 mod token_store;
 mod token_store_providers;
+mod token_watch_task;
 
 pub use in_memory_credential_store::*;
 use std::fmt::{Debug, Formatter};
 pub use token_store::*;
 pub use token_store_providers::*;
+pub use token_watch_task::*;
 
 #[derive(Clone)]
 pub struct UnInitializedTokenStore;
@@ -23,7 +25,11 @@ impl TokenStore for UnInitializedTokenStore {
         panic!("UnInitializedTokenStore does not store tokens")
     }
 
-    fn update_stored_token(&mut self, _id: &str, stored_token: StoredToken) -> Option<StoredToken> {
+    fn update_stored_token(
+        &mut self,
+        _id: &str,
+        _stored_token: StoredToken,
+    ) -> Option<StoredToken> {
         panic!("UnInitializedTokenStore does not store tokens")
     }
 

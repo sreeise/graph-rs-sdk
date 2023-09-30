@@ -1,10 +1,10 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, Crypto, Prompt, ResponseMode,
-    ResponseType,
+    AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
 };
-use graph_error::{AuthorizationFailure, AuthorizationResult, AF};
+use graph_error::{AuthorizationFailure, IdentityResult, AF};
+use graph_extensions::crypto::{secure_random_32, GenPkce, ProofKeyCodeExchange};
 use reqwest::IntoUrl;
 use std::collections::BTreeSet;
 use url::form_urlencoded::Serializer;
@@ -101,14 +101,14 @@ impl OpenIdAuthorizationUrl {
         client_id: T,
         redirect_uri: IU,
         scope: I,
-    ) -> AuthorizationResult<OpenIdAuthorizationUrl> {
+    ) -> IdentityResult<OpenIdAuthorizationUrl> {
         let mut scope_set = BTreeSet::new();
         scope_set.insert("openid".to_owned());
         scope_set.extend(scope.into_iter().map(|s| s.to_string()));
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
 
-        Ok(OpenIdAuthorizationUrl {
-            app_config: AppConfig {
+        /*
+        AppConfig {
                 tenant_id: None,
                 client_id: Uuid::try_parse(client_id.as_ref())?,
                 authority: Default::default(),
@@ -116,10 +116,17 @@ impl OpenIdAuthorizationUrl {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
-            },
+            }
+         */
+
+        let mut app_config = AppConfig::new_with_client_id(client_id);
+        app_config.redirect_uri = Some(redirect_uri.into_url().or(redirect_uri_result)?);
+
+        Ok(OpenIdAuthorizationUrl {
+            app_config,
             response_type: BTreeSet::new(),
             response_mode: None,
-            nonce: Crypto::sha256_secure_string()?.1,
+            nonce: secure_random_32()?,
             state: None,
             scope: scope_set,
             prompt: BTreeSet::new(),
@@ -134,18 +141,15 @@ impl OpenIdAuthorizationUrl {
         })
     }
 
-    pub fn builder() -> AuthorizationResult<OpenIdAuthorizationUrlBuilder> {
-        OpenIdAuthorizationUrlBuilder::new()
+    pub fn builder(client_id: impl AsRef<str>) -> IdentityResult<OpenIdAuthorizationUrlBuilder> {
+        OpenIdAuthorizationUrlBuilder::new(client_id)
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> IdentityResult<Url> {
         self.url_with_host(&AzureCloudInstance::default())
     }
 
-    pub fn url_with_host(
-        &self,
-        azure_cloud_instance: &AzureCloudInstance,
-    ) -> AuthorizationResult<Url> {
+    pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
         self.authorization_url_with_host(azure_cloud_instance)
     }
 
@@ -165,14 +169,14 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
         self.app_config.redirect_uri.as_ref()
     }
 
-    fn authorization_url(&self) -> AuthorizationResult<Url> {
+    fn authorization_url(&self) -> IdentityResult<Url> {
         self.authorization_url_with_host(&AzureCloudInstance::default())
     }
 
     fn authorization_url_with_host(
         &self,
         azure_cloud_instance: &AzureCloudInstance,
-    ) -> AuthorizationResult<Url> {
+    ) -> IdentityResult<Url> {
         let mut serializer = OAuthSerializer::new();
 
         let client_id = self.app_config.client_id.to_string();
@@ -275,16 +279,24 @@ pub struct OpenIdAuthorizationUrlBuilder {
 }
 
 impl OpenIdAuthorizationUrlBuilder {
-    pub(crate) fn new() -> AuthorizationResult<OpenIdAuthorizationUrlBuilder> {
+    pub(crate) fn new(client_id: impl AsRef<str>) -> IdentityResult<OpenIdAuthorizationUrlBuilder> {
         let mut scope = BTreeSet::new();
         scope.insert("openid".to_owned());
 
         Ok(OpenIdAuthorizationUrlBuilder {
             auth_url_parameters: OpenIdAuthorizationUrl {
-                app_config: AppConfig::default(),
+                app_config: AppConfig {
+                    tenant_id: None,
+                    client_id: Uuid::try_parse(client_id.as_ref())?,
+                    authority: Default::default(),
+                    azure_cloud_instance: Default::default(),
+                    extra_query_parameters: Default::default(),
+                    extra_header_parameters: Default::default(),
+                    redirect_uri: None,
+                },
                 response_type: BTreeSet::new(),
                 response_mode: None,
-                nonce: Crypto::sha256_secure_string()?.1,
+                nonce: secure_random_32()?,
                 state: None,
                 scope,
                 prompt: Default::default(),
@@ -300,10 +312,43 @@ impl OpenIdAuthorizationUrlBuilder {
         })
     }
 
+    pub(crate) fn new_with_app_config(app_config: AppConfig) -> OpenIdAuthorizationUrlBuilder {
+        let mut scope = BTreeSet::new();
+        scope.insert("openid".to_owned());
+
+        let nonce = match ProofKeyCodeExchange::code_verifier() {
+            Ok(secure_string) => secure_string,
+            Err(err) => {
+                error!("OpenIdAuthorizationUrlBuilder nonce: Crypto::sha256_secure_string() - internal error please report");
+                panic!("{}", err);
+            }
+        };
+
+        OpenIdAuthorizationUrlBuilder {
+            auth_url_parameters: OpenIdAuthorizationUrl {
+                app_config,
+                response_type: BTreeSet::new(),
+                response_mode: None,
+                nonce,
+                state: None,
+                scope,
+                prompt: Default::default(),
+                domain_hint: None,
+                login_hint: None,
+                response_types_supported: vec![
+                    "code".into(),
+                    "id_token".into(),
+                    "code id_token".into(),
+                    "id_token token".into(),
+                ],
+            },
+        }
+    }
+
     pub fn with_redirect_uri<T: AsRef<str>>(
         &mut self,
         redirect_uri: T,
-    ) -> anyhow::Result<&mut Self> {
+    ) -> IdentityResult<&mut Self> {
         self.auth_url_parameters.app_config.redirect_uri = Some(Url::parse(redirect_uri.as_ref())?);
         Ok(self)
     }
@@ -389,7 +434,7 @@ impl OpenIdAuthorizationUrlBuilder {
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     #[doc(hidden)]
     pub(crate) fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        self.auth_url_parameters.nonce = Crypto::sha256_secure_string()?.1;
+        self.auth_url_parameters.nonce = secure_random_32()?;
         Ok(self)
     }
 
@@ -400,17 +445,8 @@ impl OpenIdAuthorizationUrlBuilder {
 
     /// Takes an iterator of scopes to use in the request.
     /// Replaces current scopes if any were added previously.
-    /// To extend scopes use [OpenIdAuthorizationUrlBuilder::extend_scope].
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
         self.auth_url_parameters.scope = scope.into_iter().map(|s| s.to_string()).collect();
-        self
-    }
-
-    /// Extend the current list of scopes.
-    pub fn extend_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.auth_url_parameters
-            .scope
-            .extend(scope.into_iter().map(|s| s.to_string()));
         self
     }
 
@@ -453,7 +489,11 @@ impl OpenIdAuthorizationUrlBuilder {
         self.auth_url_parameters.clone()
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn nonce(&self) -> &String {
+        &self.auth_url_parameters.nonce
+    }
+
+    pub fn url(&self) -> IdentityResult<Url> {
         self.auth_url_parameters.url()
     }
 }
@@ -465,10 +505,9 @@ mod test {
     #[test]
     #[should_panic]
     fn unsupported_response_type() {
-        let _ = OpenIdAuthorizationUrl::builder()
+        let _ = OpenIdAuthorizationUrl::builder("client_id")
             .unwrap()
             .with_response_type([ResponseType::Code, ResponseType::Token])
-            .with_client_id("client_id")
             .with_scope(["scope"])
             .url()
             .unwrap();

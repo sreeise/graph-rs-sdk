@@ -1,14 +1,15 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    Authority, AuthorizationQueryResponse, AuthorizationUrl, AzureCloudInstance, Crypto, Prompt,
-    ResponseMode,
+    Authority, AuthorizationQueryResponse, AuthorizationUrl, AzureCloudInstance, Prompt,
+    ResponseMode, ResponseType,
 };
-use crate::oauth::{ProofKeyForCodeExchange, ResponseType};
+
 use graph_extensions::web::{InteractiveAuthenticator, WebViewOptions};
 
-use graph_error::{AuthorizationResult, AF};
+use graph_error::{IdentityResult, AF};
 
 use crate::identity::credentials::app_config::AppConfig;
+use graph_extensions::crypto::{secure_random_32, GenPkce, ProofKeyCodeExchange};
 use reqwest::IntoUrl;
 use std::collections::BTreeSet;
 use url::form_urlencoded::Serializer;
@@ -28,6 +29,25 @@ use uuid::Uuid;
 /// by a user to sign in to your app and access their data.
 ///
 /// Reference: https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code
+///
+/// # Build a confidential client for the authorization code grant.
+/// Use [with_authorization_code](crate::identity::ConfidentialClientApplicationBuilder::with_authorization_code) to set the authorization code received from
+/// the authorization step, see [Request an authorization code](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code)
+/// You can use the [AuthCodeAuthorizationUrlParameterBuilder](crate::identity::AuthCodeAuthorizationUrlParameterBuilder)
+/// to build the url that the user will be directed to authorize at.
+///
+/// ```rust
+/// fn main() {
+///     # use graph_oauth::identity::ConfidentialClientApplication;
+///
+///     //
+///     let client_app = ConfidentialClientApplication::builder("client-id")
+///         .with_authorization_code("access-code")
+///         .with_client_secret("client-secret")
+///         .with_scope(vec!["User.Read"])
+///         .build();
+/// }
+/// ```
 #[derive(Clone, Debug)]
 pub struct AuthCodeAuthorizationUrlParameters {
     pub(crate) app_config: AppConfig,
@@ -59,7 +79,7 @@ impl AuthCodeAuthorizationUrlParameters {
     pub fn new<T: AsRef<str>, U: IntoUrl>(
         client_id: T,
         redirect_uri: U,
-    ) -> AuthorizationResult<AuthCodeAuthorizationUrlParameters> {
+    ) -> IdentityResult<AuthCodeAuthorizationUrlParameters> {
         let mut response_type = BTreeSet::new();
         response_type.insert(ResponseType::Code);
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
@@ -91,14 +111,11 @@ impl AuthCodeAuthorizationUrlParameters {
         AuthCodeAuthorizationUrlParameterBuilder::new(client_id)
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> IdentityResult<Url> {
         self.url_with_host(&AzureCloudInstance::default())
     }
 
-    pub fn url_with_host(
-        &self,
-        azure_cloud_instance: &AzureCloudInstance,
-    ) -> AuthorizationResult<Url> {
+    pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
         self.authorization_url_with_host(azure_cloud_instance)
     }
 
@@ -197,14 +214,14 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
         self.app_config.redirect_uri.as_ref()
     }
 
-    fn authorization_url(&self) -> AuthorizationResult<Url> {
+    fn authorization_url(&self) -> IdentityResult<Url> {
         self.authorization_url_with_host(&AzureCloudInstance::default())
     }
 
     fn authorization_url_with_host(
         &self,
         azure_cloud_instance: &AzureCloudInstance,
-    ) -> AuthorizationResult<Url> {
+    ) -> IdentityResult<Url> {
         let mut serializer = OAuthSerializer::new();
 
         if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
@@ -442,8 +459,8 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     /// encoded (no padding). This sequence is hashed using SHA256 and
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     #[doc(hidden)]
-    pub(crate) fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        self.parameters.nonce = Some(Crypto::sha256_secure_string()?.1);
+    pub(crate) fn with_nonce_generated(&mut self) -> IdentityResult<&mut Self> {
+        self.parameters.nonce = Some(secure_random_32()?);
         Ok(self)
     }
 
@@ -554,13 +571,10 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self
     }
 
-    /// Sets the code_challenge and code_challenge_method using the [ProofKeyForCodeExchange]
-    /// Callers should keep the [ProofKeyForCodeExchange] and provide it to the credential
+    /// Sets the code_challenge and code_challenge_method using the [ProofKeyCodeExchange]
+    /// Callers should keep the [ProofKeyCodeExchange] and provide it to the credential
     /// builder in order to set the client verifier and request an access token.
-    pub fn with_pkce(
-        &mut self,
-        proof_key_for_code_exchange: &ProofKeyForCodeExchange,
-    ) -> &mut Self {
+    pub fn with_pkce(&mut self, proof_key_for_code_exchange: &ProofKeyCodeExchange) -> &mut Self {
         self.with_code_challenge(proof_key_for_code_exchange.code_challenge.as_str());
         self.with_code_challenge_method(proof_key_for_code_exchange.code_challenge_method.as_str());
         self
@@ -570,7 +584,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self.parameters.clone()
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> IdentityResult<Url> {
         self.parameters.url()
     }
 }

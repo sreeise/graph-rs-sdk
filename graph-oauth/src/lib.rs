@@ -30,12 +30,12 @@
 //! # Example ConfidentialClientApplication Authorization Code Flow
 //! ```rust
 //! use url::Url;
-//! use graph_error::AuthorizationResult;
+//! use graph_error::IdentityResult;
 //! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication};
 //!
-//! pub fn authorization_url(client_id: &str) -> AuthorizationResult<Url> {
+//! pub fn authorization_url(client_id: &str) -> IdentityResult<Url> {
 //!     let auth_url_parameters = ConfidentialClientApplication::builder(client_id)
-//!         .authorization_code_url_builder()
+//!         .auth_code_authorization_url_builder()
 //!         .with_redirect_uri("http://localhost:8000/redirect")
 //!         .with_scope(vec!["user.read"])
 //!         .build();
@@ -73,11 +73,12 @@ pub mod oauth {
     pub use crate::auth::OAuthSerializer;
     pub use crate::discovery::graph_discovery;
     pub use crate::discovery::jwt_keys;
-    pub use crate::discovery::well_known;
     pub use crate::grants::GrantRequest;
     pub use crate::grants::GrantType;
     pub use crate::identity::*;
     pub use crate::oauth_error::OAuthError;
     pub use crate::strum::IntoEnumIterator;
-    pub use graph_extensions::token::{IdToken, MsalToken};
+    pub use graph_extensions::{
+        crypto::GenPkce, crypto::ProofKeyCodeExchange, token::IdToken, token::MsalToken,
+    };
 }

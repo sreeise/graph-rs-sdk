@@ -1,8 +1,9 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{AzureCloudInstance, Crypto, Prompt, ResponseMode, ResponseType};
+use crate::identity::{AzureCloudInstance, Prompt, ResponseMode, ResponseType};
 
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, IdentityResult};
+use graph_extensions::crypto::{secure_random_32, GenPkce, ProofKeyCodeExchange};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
@@ -104,14 +105,11 @@ impl ImplicitCredential {
         ImplicitCredentialBuilder::new()
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> IdentityResult<Url> {
         self.url_with_host(&AzureCloudInstance::default())
     }
 
-    pub fn url_with_host(
-        &self,
-        azure_cloud_instance: &AzureCloudInstance,
-    ) -> AuthorizationResult<Url> {
+    pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
         let mut serializer = OAuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
@@ -298,8 +296,8 @@ impl ImplicitCredentialBuilder {
     /// generate a secure random 32-octet sequence that is base64 URL
     /// encoded (no padding). This sequence is hashed using SHA256 and
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
-    pub fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        self.credential.nonce = Crypto::sha256_secure_string()?.1;
+    pub fn with_nonce_generated(&mut self) -> IdentityResult<&mut Self> {
+        self.credential.nonce = secure_random_32()?;
         Ok(self)
     }
 
@@ -333,7 +331,7 @@ impl ImplicitCredentialBuilder {
         self
     }
 
-    pub fn url(&self) -> AuthorizationResult<Url> {
+    pub fn url(&self) -> IdentityResult<Url> {
         self.credential.url()
     }
 

@@ -4,7 +4,7 @@ use crate::oauth::ResponseType;
 use crate::oauth_error::OAuthError;
 use crate::strum::IntoEnumIterator;
 use base64::Engine;
-use graph_error::{AuthorizationFailure, AuthorizationResult, GraphFailure, GraphResult, AF};
+use graph_error::{AuthorizationFailure, GraphFailure, GraphResult, IdentityResult, AF};
 use graph_extensions::token::{IdToken, MsalToken};
 use ring::rand::SecureRandom;
 use std::collections::btree_map::{BTreeMap, Entry};
@@ -103,7 +103,6 @@ impl OAuthParameter {
                 | OAuthParameter::CodeVerifier
                 | OAuthParameter::CodeChallenge
                 | OAuthParameter::Password
-                | OAuthParameter::AuthorizationCode
         )
     }
 }
@@ -980,11 +979,11 @@ impl OAuthSerializer {
         self.get(c).ok_or_else(|| OAuthError::credential_error(c))
     }
 
-    pub fn ok_or(&self, oac: &OAuthParameter) -> AuthorizationResult<String> {
+    pub fn ok_or(&self, oac: &OAuthParameter) -> IdentityResult<String> {
         self.get(*oac).ok_or(AuthorizationFailure::required(oac))
     }
 
-    pub fn try_as_tuple(&self, oac: &OAuthParameter) -> AuthorizationResult<(String, String)> {
+    pub fn try_as_tuple(&self, oac: &OAuthParameter) -> IdentityResult<(String, String)> {
         if oac.eq(&OAuthParameter::Scope) {
             if self.scopes.is_empty() {
                 return Err(AuthorizationFailure::required(oac));
@@ -1020,7 +1019,7 @@ impl OAuthSerializer {
         optional_fields: Vec<OAuthParameter>,
         required_fields: Vec<OAuthParameter>,
         encoder: &mut Serializer<String>,
-    ) -> AuthorizationResult<()> {
+    ) -> IdentityResult<()> {
         for parameter in required_fields {
             if parameter.alias().eq("scope") {
                 if self.scopes.is_empty() {
@@ -1070,11 +1069,11 @@ impl OAuthSerializer {
         &mut self,
         optional_fields: Vec<OAuthParameter>,
         required_fields: Vec<OAuthParameter>,
-    ) -> AuthorizationResult<HashMap<String, String>> {
+    ) -> IdentityResult<HashMap<String, String>> {
         let mut required_map = required_fields
             .iter()
             .map(|oac| self.try_as_tuple(oac))
-            .collect::<AuthorizationResult<HashMap<String, String>>>()?;
+            .collect::<IdentityResult<HashMap<String, String>>>()?;
 
         let optional_map: HashMap<String, String> = optional_fields
             .iter()

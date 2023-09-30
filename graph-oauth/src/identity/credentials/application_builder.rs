@@ -1,7 +1,7 @@
-use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::credentials::client_assertion_credential::ClientAssertionCredentialBuilder;
 use crate::identity::{
-    application_options::ApplicationOptions, AuthCodeAuthorizationUrlParameterBuilder, Authority,
+    application_options::ApplicationOptions, credentials::app_config::AppConfig,
+    credentials::client_assertion_credential::ClientAssertionCredentialBuilder,
+    AuthCodeAuthorizationUrlParameterBuilder, Authority,
     AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
     AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
     DeviceCodeCredentialBuilder, DeviceCodePollingExecutor, EnvironmentCredential,
@@ -10,7 +10,8 @@ use crate::identity::{
 };
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
-use graph_error::{AuthorizationResult, AF};
+use crate::oauth::OpenIdAuthorizationUrlBuilder;
+use graph_error::{IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use std::env::VarError;
@@ -56,7 +57,7 @@ impl ConfidentialClientApplicationBuilder {
 
     pub fn new_with_application_options(
         application_options: ApplicationOptions,
-    ) -> AuthorizationResult<ConfidentialClientApplicationBuilder> {
+    ) -> IdentityResult<ConfidentialClientApplicationBuilder> {
         ConfidentialClientApplicationBuilder::try_from(application_options)
     }
 
@@ -110,7 +111,9 @@ impl ConfidentialClientApplicationBuilder {
         self
     }
 
-    pub fn authorization_code_url_builder(&mut self) -> AuthCodeAuthorizationUrlParameterBuilder {
+    pub fn auth_code_authorization_url_builder(
+        &mut self,
+    ) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new_with_app_config(self.app_config.clone())
     }
 
@@ -120,8 +123,8 @@ impl ConfidentialClientApplicationBuilder {
         ClientCredentialsAuthorizationUrlBuilder::new_with_app_config(self.app_config.clone())
     }
 
-    pub fn openid_authorization_url_builder(&mut self) -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new_with_app_config(self.app_config.clone())
+    pub fn openid_authorization_url_builder(&mut self) -> OpenIdAuthorizationUrlBuilder {
+        OpenIdAuthorizationUrlBuilder::new_with_app_config(self.app_config.clone())
     }
 
     #[cfg(feature = "openssl")]
@@ -253,7 +256,7 @@ impl PublicClientApplicationBuilder {
     #[allow(dead_code)]
     pub fn create_with_application_options(
         application_options: ApplicationOptions,
-    ) -> AuthorizationResult<PublicClientApplicationBuilder> {
+    ) -> IdentityResult<PublicClientApplicationBuilder> {
         PublicClientApplicationBuilder::try_from(application_options)
     }
 

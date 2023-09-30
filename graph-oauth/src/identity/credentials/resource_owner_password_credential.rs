@@ -2,7 +2,7 @@ use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use async_trait::async_trait;
-use graph_error::{AuthorizationResult, AF};
+use graph_error::{IdentityResult, AF};
 use std::collections::HashMap;
 use url::Url;
 use uuid::Uuid;
@@ -68,7 +68,7 @@ impl ResourceOwnerPasswordCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
             .authority(&azure_cloud_instance, &self.app_config.authority);
@@ -80,7 +80,7 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
         Url::parse(uri.as_str()).map_err(AF::from)
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId.alias());
@@ -186,7 +186,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
     pub fn with_authority<T: Into<Authority>>(
         &mut self,
         authority: T,
-    ) -> AuthorizationResult<&mut Self> {
+    ) -> IdentityResult<&mut Self> {
         let authority = authority.into();
         if vec![
             Authority::Common,

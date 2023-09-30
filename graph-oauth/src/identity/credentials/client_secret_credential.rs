@@ -6,7 +6,7 @@ use crate::identity::{
 };
 
 use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, IdentityResult};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
@@ -77,7 +77,7 @@ impl ClientSecretCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for ClientSecretCredential {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
             .authority(&azure_cloud_instance, &self.authority());
@@ -92,7 +92,7 @@ impl TokenCredentialExecutor for ClientSecretCredential {
         Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result(OAuthParameter::ClientId);

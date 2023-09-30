@@ -1,4 +1,4 @@
-use crate::AuthorizationResult;
+use crate::IdentityResult;
 use tokio::sync::mpsc::error::SendTimeoutError;
 
 pub type AF = AuthorizationFailure;
@@ -26,7 +26,7 @@ impl AuthorizationFailure {
         AuthorizationFailure::Unknown(value.to_string())
     }
 
-    pub fn unknown_result<T: ToString>(value: T) -> AuthorizationResult<AuthorizationFailure> {
+    pub fn unknown_result<T: ToString>(value: T) -> IdentityResult<AuthorizationFailure> {
         Err(AuthorizationFailure::Unknown(value.to_string()))
     }
 
@@ -37,7 +37,7 @@ impl AuthorizationFailure {
         }
     }
 
-    pub fn result<U>(name: impl AsRef<str>) -> AuthorizationResult<U> {
+    pub fn result<U>(name: impl AsRef<str>) -> IdentityResult<U> {
         Err(AuthorizationFailure::RequiredValue {
             name: name.as_ref().to_owned(),
             message: None,
@@ -76,7 +76,7 @@ impl AuthorizationFailure {
         Err(AuthorizationFailure::UrlParseError(url_parse_error))
     }
 
-    pub fn condition(cond: bool, name: &str, msg: &str) -> AuthorizationResult<()> {
+    pub fn condition(cond: bool, name: &str, msg: &str) -> IdentityResult<()> {
         if cond {
             AF::msg_result(name, msg)
         } else {

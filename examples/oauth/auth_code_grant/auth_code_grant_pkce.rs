@@ -1,8 +1,8 @@
 use graph_oauth::identity::ResponseType;
-use graph_rs_sdk::error::AuthorizationResult;
+use graph_rs_sdk::error::IdentityResult;
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    MsalToken, ProofKeyForCodeExchange, TokenCredentialExecutor, TokenRequest,
+    GenPkce, MsalToken, ProofKeyCodeExchange, TokenCredentialExecutor, TokenRequest,
 };
 use lazy_static::lazy_static;
 use warp::{get, Filter};
@@ -13,7 +13,7 @@ static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
 // You can also pass your own values for PKCE instead of automatic generation by
 // calling ProofKeyCodeExchange::new(code_verifier, code_challenge, code_challenge_method)
 lazy_static! {
-    static ref PKCE: ProofKeyForCodeExchange = ProofKeyForCodeExchange::generate().unwrap();
+    static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]

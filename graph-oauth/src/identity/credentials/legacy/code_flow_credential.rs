@@ -1,6 +1,6 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{Authority, AuthorizationSerializer, AzureCloudInstance};
-use graph_error::{AuthorizationFailure, AuthorizationResult};
+use graph_error::{AuthorizationFailure, IdentityResult};
 use std::collections::HashMap;
 use url::Url;
 
@@ -59,7 +59,7 @@ impl CodeFlowCredential {
 }
 
 impl AuthorizationSerializer for CodeFlowCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> AuthorizationResult<Url> {
+    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
         self.serializer
             .authority(azure_cloud_instance, &Authority::Common);
 
@@ -76,7 +76,7 @@ impl AuthorizationSerializer for CodeFlowCredential {
         }
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         if self.client_id.trim().is_empty() {
             return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }

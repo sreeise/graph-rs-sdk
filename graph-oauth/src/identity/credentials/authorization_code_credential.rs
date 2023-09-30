@@ -1,12 +1,12 @@
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication, ProofKeyForCodeExchange,
-    TokenCredentialExecutor,
+    Authority, AzureCloudInstance, ConfidentialClientApplication, TokenCredentialExecutor,
 };
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
 use async_trait::async_trait;
-use graph_error::{AuthorizationResult, AF};
+use graph_error::{IdentityResult, AF};
+use graph_extensions::crypto::ProofKeyCodeExchange;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
@@ -64,7 +64,7 @@ impl AuthorizationCodeCredential {
         client_id: T,
         client_secret: T,
         authorization_code: T,
-    ) -> AuthorizationResult<AuthorizationCodeCredential> {
+    ) -> IdentityResult<AuthorizationCodeCredential> {
         Ok(AuthorizationCodeCredential {
             app_config: AppConfig::new_with_tenant_and_client_id(tenant_id, client_id),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
@@ -82,7 +82,7 @@ impl AuthorizationCodeCredential {
         client_secret: T,
         authorization_code: T,
         redirect_uri: U,
-    ) -> AuthorizationResult<AuthorizationCodeCredential> {
+    ) -> IdentityResult<AuthorizationCodeCredential> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
 
@@ -194,10 +194,7 @@ impl AuthorizationCodeCredentialBuilder {
         self
     }
 
-    pub fn with_pkce(
-        &mut self,
-        proof_key_for_code_exchange: &ProofKeyForCodeExchange,
-    ) -> &mut Self {
+    pub fn with_pkce(&mut self, proof_key_for_code_exchange: &ProofKeyCodeExchange) -> &mut Self {
         self.with_code_verifier(proof_key_for_code_exchange.code_verifier.as_str());
         self
     }
@@ -211,7 +208,7 @@ impl From<AuthorizationCodeCredential> for AuthorizationCodeCredentialBuilder {
 
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCredential {
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
             .authority(&azure_cloud_instance, &self.authority());
@@ -223,7 +220,7 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
         Url::parse(uri.as_str()).map_err(AF::from)
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId.alias());

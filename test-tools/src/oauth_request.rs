@@ -12,6 +12,7 @@ use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
 
+use futures::TryFutureExt;
 use graph_http::api_impl::BearerToken;
 use std::sync::Mutex;
 
@@ -23,6 +24,8 @@ lazy_static! {
     pub static ref ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
     pub static ref DRIVE_ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
 }
+
+//pub const APPLICATIONS_CLIENT: Mutex<Option<(String, Graph)>> = Mutex::new(OAuthTestClient::graph_by_rid(ResourceIdentity::Applications));
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile, Default)]
 pub enum TestEnv {

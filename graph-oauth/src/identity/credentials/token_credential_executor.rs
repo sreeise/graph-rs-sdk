@@ -3,7 +3,7 @@ use crate::identity::{Authority, AzureCloudInstance};
 
 use async_trait::async_trait;
 use dyn_clone::DynClone;
-use graph_error::{AuthExecutionResult, AuthorizationResult};
+use graph_error::{AuthExecutionResult, IdentityResult};
 use http::header::ACCEPT;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
@@ -20,9 +20,9 @@ pub trait TokenCredentialExecutor: DynClone {
         true
     }
 
-    fn uri(&mut self) -> AuthorizationResult<Url>;
+    fn uri(&mut self) -> IdentityResult<Url>;
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>>;
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>>;
 
     fn client_id(&self) -> &Uuid {
         &self.app_config().client_id
@@ -50,7 +50,7 @@ pub trait TokenCredentialExecutor: DynClone {
         &self.app_config().extra_query_parameters
     }
 
-    fn openid_configuration_url(&self) -> AuthorizationResult<Url> {
+    fn openid_configuration_url(&self) -> IdentityResult<Url> {
         Ok(Url::parse(
             format!(
                 "{}/{}/v2.0/.well-known/openid-configuration",
@@ -204,11 +204,11 @@ impl TokenCredentialExecutor for UnInitializedCredentialExecutor {
         false
     }
 
-    fn uri(&mut self) -> AuthorizationResult<Url> {
+    fn uri(&mut self) -> IdentityResult<Url> {
         panic!("TokenCredentialExecutor is UnInitialized");
     }
 
-    fn form_urlencode(&mut self) -> AuthorizationResult<HashMap<String, String>> {
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         panic!("TokenCredentialExecutor is UnInitialized");
     }
 

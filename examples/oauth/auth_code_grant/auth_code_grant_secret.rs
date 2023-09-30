@@ -53,6 +53,22 @@ pub async fn start_server_main() {
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
 }
 
+/// # Use the access code to build Confidential Client Application
+///
+/// ```rust
+/// fn main() {
+///     use graph_rs_sdk::oauth::ConfidentialClientApplication;
+///
+///     // Set the access code and request an access token.
+///     // Callers should handle the Result from requesting an access token
+///     // in case of an error here.
+///     let client_app = ConfidentialClientApplication::builder("client-id")
+///         .with_authorization_code("code")
+///         .with_client_secret("client-secret")
+///         .with_scope(vec!["User.Read"])
+///         .build();
+/// }
+/// ```
 async fn handle_redirect(
     code_option: Option<AccessCode>,
 ) -> Result<Box<dyn warp::Reply>, warp::Rejection> {

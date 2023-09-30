@@ -14,7 +14,7 @@ mod openid_connect;
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, MsalToken, ProofKeyForCodeExchange, PublicClientApplication,
+    DeviceCodeCredential, GenPkce, MsalToken, ProofKeyCodeExchange, PublicClientApplication,
     TokenCredentialExecutor, TokenRequest,
 };
 
@@ -53,7 +53,7 @@ pub fn auth_code_grant_authorization() {
 // url and query needed to get an authorization code and opens the default system
 // web browser to this Url.
 fn auth_code_grant_pkce_authorization() {
-    let pkce = ProofKeyForCodeExchange::generate().unwrap();
+    let pkce = ProofKeyCodeExchange::oneshot().unwrap();
 
     let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
         .with_scope(vec![SCOPE])

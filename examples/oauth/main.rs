@@ -21,13 +21,13 @@ mod device_code;
 mod environment_credential;
 mod is_access_token_expired;
 mod openid_connect;
-mod signing_keys;
 
 use crate::is_access_token_expired::is_access_token_expired;
+use graph_extensions::crypto::GenPkce;
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, MsalToken, ProofKeyForCodeExchange, PublicClientApplication,
+    DeviceCodeCredential, MsalToken, ProofKeyCodeExchange, PublicClientApplication,
     TokenCredentialExecutor, TokenRequest,
 };
 
@@ -57,7 +57,7 @@ fn main() {
 
 // Authorization Code Grant
 async fn auth_code_grant(authorization_code: &str) {
-    let pkce = ProofKeyForCodeExchange::generate().unwrap();
+    let pkce = ProofKeyCodeExchange::oneshot().unwrap();
 
     let credential =
         AuthorizationCodeCredential::builder("CLIENT_ID", "CLIENT_SECRET", authorization_code)
