@@ -1,6 +1,7 @@
-use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
+
+use serde_json::Value;
 use url::Url;
 
 /// https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-31#section-4.2.2.1

@@ -1,26 +1,140 @@
+use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+
+use async_trait::async_trait;
+use dyn_clone::DynClone;
+use reqwest::tls::Version;
+use reqwest::{ClientBuilder, Response};
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{AuthExecutionResult, IdentityResult};
+use graph_extensions::cache::{AsBearer, AutomaticTokenRefresh, TokenCacheStore, TokenStore};
+use graph_extensions::token::ClientApplication;
+
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::credentials::application_builder::ConfidentialClientApplicationBuilder;
 use crate::identity::credentials::client_assertion_credential::ClientAssertionCredential;
 use crate::identity::{
     Authority, AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     AzureCloudInstance, ClientCertificateCredential, ClientSecretCredential, OpenIdCredential,
-    TokenCredentialExecutor, UnInitializedCredentialExecutor,
+    TokenCredentialExecutor,
 };
 
-use async_trait::async_trait;
-use graph_error::{AuthExecutionResult, IdentityResult, AF};
+pub struct ClientCache {}
 
-use crate::oauth::MsalToken;
-use graph_extensions::cache::{
-    AutomaticTokenRefresh, InMemoryCredentialStore, StoredToken, TokenStore, TokenStoreProvider,
-    UnInitializedTokenStore,
-};
-use graph_extensions::token::ClientApplication;
-use reqwest::tls::Version;
-use reqwest::{ClientBuilder, Response};
-use std::collections::HashMap;
-use url::Url;
-use uuid::Uuid;
+#[derive(Clone, Debug)]
+pub struct ConfidentialClient<Credential> {
+    credential: Credential,
+}
+
+impl<Credential: Clone + Debug + Send + TokenCredentialExecutor> ConfidentialClient<Credential> {
+    pub fn new(credential: Credential) -> ConfidentialClient<Credential> {
+        ConfidentialClient { credential }
+    }
+
+    pub fn credential(credential: Credential) -> ConfidentialClient<Credential> {
+        ConfidentialClient { credential }
+    }
+
+    pub fn builder(client_id: impl AsRef<str>) -> ConfidentialClientApplicationBuilder {
+        ConfidentialClientApplicationBuilder::new(client_id)
+    }
+}
+
+#[async_trait]
+impl<Credential: Clone + Debug + Send + TokenCacheStore> ClientApplication
+    for ConfidentialClient<Credential>
+{
+    fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
+        let token = self.credential.get_token_silent()?;
+        Ok(token.as_bearer())
+    }
+
+    async fn get_token_silent_async(&mut self) -> AuthExecutionResult<String> {
+        let token = self.credential.get_token_silent_async().await?;
+        Ok(token.as_bearer())
+    }
+}
+
+#[async_trait]
+impl<Credential: Clone + Debug + Send + TokenCredentialExecutor> TokenCredentialExecutor
+    for ConfidentialClient<Credential>
+{
+    fn uri(&mut self) -> IdentityResult<Url> {
+        self.credential.uri()
+    }
+
+    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
+        self.credential.form_urlencode()
+    }
+
+    fn client_id(&self) -> &Uuid {
+        self.credential.client_id()
+    }
+
+    fn authority(&self) -> Authority {
+        self.credential.authority()
+    }
+
+    fn azure_cloud_instance(&self) -> AzureCloudInstance {
+        self.credential.azure_cloud_instance()
+    }
+
+    fn basic_auth(&self) -> Option<(String, String)> {
+        self.credential.basic_auth()
+    }
+
+    fn app_config(&self) -> &AppConfig {
+        self.credential.app_config()
+    }
+
+    fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
+        self.credential.execute()
+    }
+
+    async fn execute_async(&mut self) -> AuthExecutionResult<Response> {
+        self.credential.execute_async().await
+    }
+}
+
+impl From<AuthorizationCodeCredential> for ConfidentialClient<AuthorizationCodeCredential> {
+    fn from(value: AuthorizationCodeCredential) -> Self {
+        ConfidentialClient::new(value)
+    }
+}
+
+impl From<AuthorizationCodeCertificateCredential>
+    for ConfidentialClient<AuthorizationCodeCertificateCredential>
+{
+    fn from(value: AuthorizationCodeCertificateCredential) -> Self {
+        ConfidentialClient::credential(value)
+    }
+}
+
+impl From<ClientSecretCredential> for ConfidentialClient<ClientSecretCredential> {
+    fn from(value: ClientSecretCredential) -> Self {
+        ConfidentialClient::credential(value)
+    }
+}
+
+impl From<ClientCertificateCredential> for ConfidentialClient<ClientCertificateCredential> {
+    fn from(value: ClientCertificateCredential) -> Self {
+        ConfidentialClient::credential(value)
+    }
+}
+
+impl From<ClientAssertionCredential> for ConfidentialClient<ClientAssertionCredential> {
+    fn from(value: ClientAssertionCredential) -> Self {
+        ConfidentialClient::credential(value)
+    }
+}
+
+impl From<OpenIdCredential> for ConfidentialClient<OpenIdCredential> {
+    fn from(value: OpenIdCredential) -> Self {
+        ConfidentialClient::credential(value)
+    }
+}
 
 /// Clients capable of maintaining the confidentiality of their credentials
 /// (e.g., client implemented on a secure server with restricted access to the client credentials),
@@ -49,9 +163,14 @@ use uuid::Uuid;
 pub struct ConfidentialClientApplication {
     http_client: reqwest::Client,
     credential: Box<dyn TokenCredentialExecutor + Send>,
-    token_store: Box<dyn TokenStore + Send>,
-    token_watch: AutomaticTokenRefresh<String>,
-    token_sender: tokio::sync::watch::Sender<String>,
+}
+
+impl Debug for ConfidentialClientApplication {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ConfidentialClientApplication")
+            .field("credential", &self.credential)
+            .finish()
+    }
 }
 
 impl ConfidentialClientApplication {
@@ -75,30 +194,11 @@ impl ConfidentialClientApplication {
                 .build()
                 .unwrap(),
             credential: Box::new(credential),
-            token_store: Box::new(UnInitializedTokenStore),
-            token_watch,
-            token_sender,
         }
     }
 
     pub fn builder(client_id: &str) -> ConfidentialClientApplicationBuilder {
         ConfidentialClientApplicationBuilder::new(client_id)
-    }
-
-    pub fn init_automatic_refresh_token(&mut self) {
-        let rx = self.token_sender.subscribe();
-        tokio::spawn(async move {
-            while rx.changed().await.is_ok() {
-                println!("received = {:?}", *rx.borrow());
-            }
-        });
-    }
-
-    pub fn with_in_memory_token_store(&mut self) {
-        self.token_store = Box::new(InMemoryCredentialStore::new(
-            self.app_config().cache_id(),
-            StoredToken::UnInitialized,
-        ));
     }
 
     /*
@@ -133,6 +233,7 @@ impl ConfidentialClientApplication {
      */
 }
 
+/*
 #[async_trait]
 impl ClientApplication for ConfidentialClientApplication {
     fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
@@ -196,7 +297,9 @@ impl ClientApplication for ConfidentialClientApplication {
         self.token_store.get_stored_token(cache_id.as_str())
     }
 }
+ */
 
+/*
 impl TokenStore for ConfidentialClientApplication {
     fn token_store_provider(&self) -> TokenStoreProvider {
         self.token_store.token_store_provider()
@@ -223,6 +326,7 @@ impl TokenStore for ConfidentialClientApplication {
     }
 }
 
+ */
 #[async_trait]
 impl TokenCredentialExecutor for ConfidentialClientApplication {
     fn uri(&mut self) -> IdentityResult<Url> {
@@ -298,16 +402,11 @@ impl From<OpenIdCredential> for ConfidentialClientApplication {
     }
 }
 
-impl From<UnInitializedCredentialExecutor> for ConfidentialClientApplication {
-    fn from(value: UnInitializedCredentialExecutor) -> Self {
-        ConfidentialClientApplication::credential(value)
-    }
-}
-
 #[cfg(test)]
 mod test {
+    use crate::identity::Authority;
+
     use super::*;
-    use crate::identity::{Authority, AzureCloudInstance};
 
     #[test]
     fn confidential_client_new() {
@@ -374,73 +473,75 @@ mod test {
         );
     }
 
-    #[test]
-    fn in_memory_token_store_init() {
-        let client_id = Uuid::new_v4();
-        let client_id_string = client_id.to_string();
-        let mut confidential_client =
-            ConfidentialClientApplication::builder(client_id_string.as_str())
-                .with_authorization_code("code")
-                .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
-                .with_scope(vec!["Read.Write", "Fall.Down"])
-                .with_redirect_uri("http://localhost:8888/redirect")
-                .unwrap()
-                .build();
+    /*
+       #[test]
+       fn in_memory_token_store_init() {
+           let client_id = Uuid::new_v4();
+           let client_id_string = client_id.to_string();
+           let mut confidential_client =
+               ConfidentialClientApplication::builder(client_id_string.as_str())
+                   .with_authorization_code("code")
+                   .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+                   .with_scope(vec!["Read.Write", "Fall.Down"])
+                   .with_redirect_uri("http://localhost:8888/redirect")
+                   .unwrap()
+                   .build();
 
-        confidential_client.token_store = Box::new(InMemoryCredentialStore::new(
-            client_id_string,
-            StoredToken::BearerToken("token".into()),
-        ));
-        assert_eq!(
-            confidential_client.get_token_silent().unwrap(),
-            "token".to_string()
-        )
-    }
+           confidential_client.token_store = Box::new(InMemoryCredentialStore::new(
+               client_id_string,
+               StoredToken::BearerToken("token".into()),
+           ));
+           assert_eq!(
+               confidential_client.get_token_silent().unwrap(),
+               "token".to_string()
+           )
+       }
 
-    #[tokio::test]
-    async fn in_memory_token_store_init_async() {
-        let client_id = Uuid::new_v4();
-        let client_id_string = client_id.to_string();
-        let mut confidential_client =
-            ConfidentialClientApplication::builder(client_id_string.as_str())
-                .with_authorization_code("code")
-                .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
-                .with_scope(vec!["Read.Write", "Fall.Down"])
-                .with_redirect_uri("http://localhost:8888/redirect")
-                .unwrap()
-                .build();
+       #[tokio::test]
+       async fn in_memory_token_store_init_async() {
+           let client_id = Uuid::new_v4();
+           let client_id_string = client_id.to_string();
+           let mut confidential_client =
+               ConfidentialClientApplication::builder(client_id_string.as_str())
+                   .with_authorization_code("code")
+                   .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+                   .with_scope(vec!["Read.Write", "Fall.Down"])
+                   .with_redirect_uri("http://localhost:8888/redirect")
+                   .unwrap()
+                   .build();
 
-        confidential_client.token_store = Box::new(InMemoryCredentialStore::new(
-            client_id_string,
-            StoredToken::BearerToken("token".into()),
-        ));
-        assert_eq!(
-            confidential_client.get_token_silent_async().await.unwrap(),
-            "token".to_string()
-        )
-    }
+           confidential_client.token_store = Box::new(InMemoryCredentialStore::new(
+               client_id_string,
+               StoredToken::BearerToken("token".into()),
+           ));
+           assert_eq!(
+               confidential_client.get_token_silent_async().await.unwrap(),
+               "token".to_string()
+           )
+       }
 
-    #[tokio::test]
-    async fn in_memory_token_store_tenant_and_client_cache_id() {
-        let client_id = Uuid::new_v4();
-        let client_id_string = client_id.to_string();
-        let mut confidential_client =
-            ConfidentialClientApplication::builder(client_id_string.as_str())
-                .with_authorization_code("code")
-                .with_tenant("tenant-id")
-                .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
-                .with_scope(vec!["Read.Write", "Fall.Down"])
-                .with_redirect_uri("http://localhost:8888/redirect")
-                .unwrap()
-                .build();
+       #[tokio::test]
+       async fn in_memory_token_store_tenant_and_client_cache_id() {
+           let client_id = Uuid::new_v4();
+           let client_id_string = client_id.to_string();
+           let mut confidential_client =
+               ConfidentialClientApplication::builder(client_id_string.as_str())
+                   .with_authorization_code("code")
+                   .with_tenant("tenant-id")
+                   .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
+                   .with_scope(vec!["Read.Write", "Fall.Down"])
+                   .with_redirect_uri("http://localhost:8888/redirect")
+                   .unwrap()
+                   .build();
 
-        confidential_client.token_store = Box::new(InMemoryCredentialStore::new(
-            format!("{},{}", "tenant-id", client_id_string),
-            StoredToken::BearerToken("token".into()),
-        ));
-        assert_eq!(
-            confidential_client.get_token_silent_async().await.unwrap(),
-            "token".to_string()
-        )
-    }
+           confidential_client.token_store = Box::new(InMemoryCredentialStore::new(
+               format!("{},{}", "tenant-id", client_id_string),
+               StoredToken::BearerToken("token".into()),
+           ));
+           assert_eq!(
+               confidential_client.get_token_silent_async().await.unwrap(),
+               "token".to_string()
+           )
+       }
+    */
 }

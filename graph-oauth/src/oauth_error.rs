@@ -1,10 +1,12 @@
-use crate::auth::OAuthParameter;
-use crate::grants::{GrantRequest, GrantType};
-use graph_error::{GraphFailure, GraphResult};
 use std::error;
 use std::error::Error;
 use std::fmt;
 use std::io::ErrorKind;
+
+use graph_error::{GraphFailure, GraphResult};
+
+use crate::auth::OAuthParameter;
+use crate::grants::{GrantRequest, GrantType};
 
 /// Error implementation for OAuth
 #[derive(Debug)]

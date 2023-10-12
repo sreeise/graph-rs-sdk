@@ -67,6 +67,7 @@ use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
 use graph_extensions::token::ClientApplication;
 use graph_http::api_impl::GraphClientConfiguration;
+use graph_oauth::identity::{ClientSecretCredential, ConfidentialClient};
 use lazy_static::lazy_static;
 use std::convert::TryFrom;
 
@@ -556,6 +557,16 @@ impl From<GraphClientConfiguration> for Graph {
     fn from(graph_client_builder: GraphClientConfiguration) -> Self {
         Graph {
             client: graph_client_builder.build(),
+            endpoint: PARSED_GRAPH_URL.clone(),
+            allowed_host_validator: AllowedHostValidator::default(),
+        }
+    }
+}
+
+impl From<ConfidentialClient<ClientSecretCredential>> for Graph {
+    fn from(value: ConfidentialClient<ClientSecretCredential>) -> Self {
+        Graph {
+            client: Client::new(value),
             endpoint: PARSED_GRAPH_URL.clone(),
             allowed_host_validator: AllowedHostValidator::default(),
         }

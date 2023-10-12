@@ -12,7 +12,6 @@ use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
 
-use futures::TryFutureExt;
 use graph_http::api_impl::BearerToken;
 use std::sync::Mutex;
 

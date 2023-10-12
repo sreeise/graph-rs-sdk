@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::hash::Hash;
+
 use url::{Host, Url};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

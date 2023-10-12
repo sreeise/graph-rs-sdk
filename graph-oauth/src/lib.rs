@@ -52,12 +52,12 @@
 //! ```
 
 #[macro_use]
-extern crate strum;
+extern crate log;
+extern crate pretty_env_logger;
 #[macro_use]
 extern crate serde;
 #[macro_use]
-extern crate log;
-extern crate pretty_env_logger;
+extern crate strum;
 
 mod auth;
 mod discovery;
@@ -68,6 +68,10 @@ mod oauth_error;
 pub mod identity;
 
 pub mod oauth {
+    pub use graph_extensions::{
+        crypto::GenPkce, crypto::ProofKeyCodeExchange, token::IdToken, token::MsalToken,
+    };
+
     pub use crate::auth::GrantSelector;
     pub use crate::auth::OAuthParameter;
     pub use crate::auth::OAuthSerializer;
@@ -78,7 +82,4 @@ pub mod oauth {
     pub use crate::identity::*;
     pub use crate::oauth_error::OAuthError;
     pub use crate::strum::IntoEnumIterator;
-    pub use graph_extensions::{
-        crypto::GenPkce, crypto::ProofKeyCodeExchange, token::IdToken, token::MsalToken,
-    };
 }

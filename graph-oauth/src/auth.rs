@@ -1,19 +1,22 @@
-use crate::grants::{GrantRequest, GrantType};
-use crate::identity::{AsQuery, Authority, AzureCloudInstance, Prompt};
-use crate::oauth::ResponseType;
-use crate::oauth_error::OAuthError;
-use crate::strum::IntoEnumIterator;
-use base64::Engine;
-use graph_error::{AuthorizationFailure, GraphFailure, GraphResult, IdentityResult, AF};
-use graph_extensions::token::{IdToken, MsalToken};
-use ring::rand::SecureRandom;
 use std::collections::btree_map::{BTreeMap, Entry};
 use std::collections::{BTreeSet, HashMap};
 use std::default::Default;
 use std::fmt;
 use std::marker::PhantomData;
+
+use base64::Engine;
+use ring::rand::SecureRandom;
 use url::form_urlencoded::Serializer;
 use url::Url;
+
+use graph_error::{AuthorizationFailure, GraphFailure, GraphResult, IdentityResult, AF};
+use graph_extensions::token::{IdToken, MsalToken};
+
+use crate::grants::{GrantRequest, GrantType};
+use crate::identity::{AsQuery, Authority, AzureCloudInstance, Prompt};
+use crate::oauth::ResponseType;
+use crate::oauth_error::OAuthError;
+use crate::strum::IntoEnumIterator;
 
 /// Fields that represent common OAuth credentials.
 #[derive(

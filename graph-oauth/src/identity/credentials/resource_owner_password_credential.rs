@@ -1,11 +1,15 @@
+use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+
+use async_trait::async_trait;
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{IdentityResult, AF};
+
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
-use async_trait::async_trait;
-use graph_error::{IdentityResult, AF};
-use std::collections::HashMap;
-use url::Url;
-use uuid::Uuid;
 
 /// Allows an application to sign in the user by directly handling their password.
 /// Not recommended. ROPC can also be done using a client secret or assertion,
@@ -27,6 +31,15 @@ pub struct ResourceOwnerPasswordCredential {
     /// Default is https://graph.microsoft.com/.default.
     pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
+}
+
+impl Debug for ResourceOwnerPasswordCredential {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ClientAssertionCredential")
+            .field("app_config", &self.app_config)
+            .field("scope", &self.scope)
+            .finish()
+    }
 }
 
 impl ResourceOwnerPasswordCredential {
@@ -52,8 +65,10 @@ impl ResourceOwnerPasswordCredential {
         username: T,
         password: T,
     ) -> ResourceOwnerPasswordCredential {
+        let mut app_config = AppConfig::new_with_tenant_and_client_id(tenant_id, client_id);
+        app_config.authority = Authority::Organizations;
         ResourceOwnerPasswordCredential {
-            app_config: AppConfig::new_with_tenant_and_client_id(tenant_id.as_ref(), client_id),
+            app_config,
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
             scope: vec![],

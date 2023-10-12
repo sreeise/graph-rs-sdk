@@ -1,15 +1,15 @@
-use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{AzureCloudInstance, Prompt, ResponseMode, ResponseType};
-
 use graph_error::{AuthorizationFailure, IdentityResult};
-use graph_extensions::crypto::{secure_random_32, GenPkce, ProofKeyCodeExchange};
+use graph_extensions::crypto::{secure_random_32, GenPkce};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
 use url::form_urlencoded::Serializer;
 use url::Url;
 use uuid::*;
+
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::{AzureCloudInstance, Prompt, ResponseMode, ResponseType};
 
 credential_builder_base!(ImplicitCredentialBuilder);
 

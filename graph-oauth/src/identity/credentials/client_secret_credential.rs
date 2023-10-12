@@ -1,16 +1,21 @@
+use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+
+use async_trait::async_trait;
+use http::{HeaderMap, HeaderName, HeaderValue};
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
+use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
+use graph_extensions::token::MsalToken;
+
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder,
+    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ConfidentialClient,
     ConfidentialClientApplication, TokenCredentialExecutor,
 };
-
-use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, IdentityResult};
-use http::{HeaderMap, HeaderName, HeaderValue};
-use std::collections::HashMap;
-use url::Url;
-use uuid::Uuid;
 
 credential_builder!(ClientSecretCredentialBuilder, ConfidentialClientApplication);
 
@@ -24,7 +29,7 @@ credential_builder!(ClientSecretCredentialBuilder, ConfidentialClientApplication
 /// without immediate interaction with a user, and is often referred to as daemons or service accounts.
 ///
 /// See [Microsoft identity platform and the OAuth 2.0 client credentials flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ClientSecretCredential {
     pub(crate) app_config: AppConfig,
     /// Required
@@ -43,6 +48,16 @@ pub struct ClientSecretCredential {
     /// Default is https://graph.microsoft.com/.default.
     pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
+    token_cache: InMemoryCredentialStore<MsalToken>,
+}
+
+impl Debug for ClientSecretCredential {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ClientSecretCredential")
+            .field("app_config", &self.app_config)
+            .field("scope", &self.scope)
+            .finish()
+    }
 }
 
 impl ClientSecretCredential {
@@ -52,6 +67,7 @@ impl ClientSecretCredential {
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
+            token_cache: InMemoryCredentialStore::new(),
         }
     }
 
@@ -65,6 +81,7 @@ impl ClientSecretCredential {
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
+            token_cache: InMemoryCredentialStore::new(),
         }
     }
 
@@ -72,6 +89,49 @@ impl ClientSecretCredential {
         client_id: T,
     ) -> ClientCredentialsAuthorizationUrlBuilder {
         ClientCredentialsAuthorizationUrlBuilder::new(client_id)
+    }
+}
+
+#[async_trait]
+impl TokenCacheStore for ClientSecretCredential {
+    type Token = MsalToken;
+
+    fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired() {
+                let response = self.execute()?;
+                let msal_token: MsalToken = response.json()?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token.clone())
+            }
+        } else {
+            let response = self.execute()?;
+            let msal_token: MsalToken = response.json()?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
+    }
+
+    async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired() {
+                let response = self.execute_async().await?;
+                let msal_token: MsalToken = response.json().await?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token.clone())
+            }
+        } else {
+            let response = self.execute_async().await?;
+            let msal_token: MsalToken = response.json().await?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
     }
 }
 
@@ -144,6 +204,7 @@ impl TokenCredentialExecutor for ClientSecretCredential {
     }
 }
 
+#[derive(Clone)]
 pub struct ClientSecretCredentialBuilder {
     credential: ClientSecretCredential,
 }
@@ -165,6 +226,7 @@ impl ClientSecretCredentialBuilder {
                 client_secret: client_secret.as_ref().to_string(),
                 scope: vec!["https://graph.microsoft.com/.default".into()],
                 serializer: Default::default(),
+                token_cache: InMemoryCredentialStore::new(),
             },
         }
     }
@@ -172,6 +234,10 @@ impl ClientSecretCredentialBuilder {
     pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
         self.credential.client_secret = client_secret.as_ref().to_owned();
         self
+    }
+
+    pub fn build_client(&self) -> ConfidentialClient<ClientSecretCredential> {
+        ConfidentialClient::new(self.credential.clone())
     }
 
     pub fn credential(&self) -> ClientSecretCredential {

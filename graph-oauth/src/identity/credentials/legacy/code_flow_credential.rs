@@ -1,8 +1,11 @@
+use std::collections::HashMap;
+
+use url::Url;
+
+use graph_error::{AuthorizationFailure, IdentityResult};
+
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{Authority, AuthorizationSerializer, AzureCloudInstance};
-use graph_error::{AuthorizationFailure, IdentityResult};
-use std::collections::HashMap;
-use url::Url;
 
 /// Legacy sign in for personal microsoft accounts to get access tokens for OneDrive
 /// Not recommended - Instead use Microsoft Identity Platform OAuth 2.0 and OpenId Connect.

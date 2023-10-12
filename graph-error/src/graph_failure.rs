@@ -1,12 +1,13 @@
 use crate::download::AsyncDownloadError;
 use crate::internal::GraphRsError;
-use crate::ErrorMessage;
+use crate::{AuthExecutionError, AuthorizationFailure, ErrorMessage};
 use reqwest::header::HeaderMap;
 use std::cell::BorrowMutError;
 use std::io;
 use std::io::ErrorKind;
 use std::str::Utf8Error;
 use std::sync::mpsc;
+use url::form_urlencoded::parse;
 
 #[derive(Debug, thiserror::Error)]
 #[allow(clippy::large_enum_variant)]
@@ -59,8 +60,9 @@ pub enum GraphFailure {
     )]
     PreFlightError {
         url: Option<reqwest::Url>,
-        headers: HeaderMap,
-        error: Box<GraphFailure>,
+        headers: Option<HeaderMap>,
+        error: Option<Box<GraphFailure>>,
+        message: String,
     },
 
     #[error("{0:#?}", message)]
@@ -106,5 +108,40 @@ impl Default for GraphFailure {
 impl From<ring::error::Unspecified> for GraphFailure {
     fn from(_: ring::error::Unspecified) -> Self {
         GraphFailure::CryptoError
+    }
+}
+
+impl From<AuthExecutionError> for GraphFailure {
+    fn from(value: AuthExecutionError) -> Self {
+        match value {
+            AuthExecutionError::AuthorizationFailure(authorizationFailure) => {
+                match authorizationFailure {
+                    AuthorizationFailure::RequiredValue { name, message } => {
+                        GraphFailure::PreFlightError {
+                            url: None,
+                            headers: None,
+                            error: None,
+                            message: format!("name: {:#?}, message: {:#?}", name, message),
+                        }
+                    }
+                    AuthorizationFailure::UrlParseError(e) => GraphFailure::UrlParseError(e),
+                    AuthorizationFailure::UuidError(uuidError) => GraphFailure::PreFlightError {
+                        url: None,
+                        headers: None,
+                        error: None,
+                        message: "Client Id is not a valid UUID".to_owned(),
+                    },
+                    AuthorizationFailure::Unknown(message) => GraphFailure::PreFlightError {
+                        url: None,
+                        headers: None,
+                        error: None,
+                        message,
+                    },
+                }
+            }
+            AuthExecutionError::RequestError(e) => GraphFailure::ReqwestError(e),
+            AuthExecutionError::SerdeError(e) => GraphFailure::SerdeError(e),
+            AuthExecutionError::HttpError(e) => GraphFailure::HttpError(e),
+        }
     }
 }

@@ -1,3 +1,13 @@
+use base64::Engine;
+use std::collections::HashMap;
+use std::env::VarError;
+
+use http::{HeaderMap, HeaderName, HeaderValue};
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{IdentityResult, AF};
+
 use crate::identity::{
     application_options::ApplicationOptions, credentials::app_config::AppConfig,
     credentials::client_assertion_credential::ClientAssertionCredentialBuilder,
@@ -5,18 +15,11 @@ use crate::identity::{
     AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
     AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
     DeviceCodeCredentialBuilder, DeviceCodePollingExecutor, EnvironmentCredential,
-    OpenIdCredentialBuilder, PublicClientApplication, ResourceOwnerPasswordCredential,
-    ResourceOwnerPasswordCredentialBuilder,
+    OpenIdCredentialBuilder, PublicClientApplication, ResourceOwnerPasswordCredentialBuilder,
 };
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
 use crate::oauth::OpenIdAuthorizationUrlBuilder;
-use graph_error::{IdentityResult, AF};
-use http::{HeaderMap, HeaderName, HeaderValue};
-use std::collections::HashMap;
-use std::env::VarError;
-use url::Url;
-use uuid::Uuid;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum AuthorityHost {
@@ -223,6 +226,18 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
             "Both represent an authority audience and cannot be set at the same time",
         )?;
 
+        let cache_id = {
+            if let Some(tenant_id) = value.tenant_id.as_ref() {
+                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
+                    "{},{}",
+                    tenant_id,
+                    value.client_id.to_string()
+                ))
+            } else {
+                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(value.client_id.to_string())
+            }
+        };
+
         Ok(ConfidentialClientApplicationBuilder {
             app_config: AppConfig {
                 tenant_id: value.tenant_id,
@@ -235,6 +250,7 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
+                cache_id,
             },
         })
     }
@@ -361,6 +377,18 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
             "TenantId and AadAuthorityAudience both represent an authority audience and cannot be set at the same time",
         )?;
 
+        let cache_id = {
+            if let Some(tenant_id) = value.tenant_id.as_ref() {
+                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
+                    "{},{}",
+                    tenant_id,
+                    value.client_id.to_string()
+                ))
+            } else {
+                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(value.client_id.to_string())
+            }
+        };
+
         Ok(PublicClientApplicationBuilder {
             app_config: AppConfig {
                 tenant_id: value.tenant_id,
@@ -373,6 +401,7 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
                 extra_query_parameters: Default::default(),
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
+                cache_id,
             },
         })
     }
@@ -380,10 +409,12 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::identity::AadAuthorityAudience;
     use http::header::AUTHORIZATION;
     use http::HeaderValue;
+
+    use crate::identity::AadAuthorityAudience;
+
+    use super::*;
 
     #[test]
     #[should_panic]

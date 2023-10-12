@@ -1,8 +1,10 @@
+mod cache_store;
 mod in_memory_credential_store;
 mod token_store;
 mod token_store_providers;
 mod token_watch_task;
 
+pub use cache_store::*;
 pub use in_memory_credential_store::*;
 use std::fmt::{Debug, Formatter};
 pub use token_store::*;

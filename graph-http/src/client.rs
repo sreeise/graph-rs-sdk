@@ -1,8 +1,9 @@
 use crate::blocking::BlockingClient;
 use async_trait::async_trait;
 use graph_error::AuthExecutionResult;
-use graph_extensions::cache::{StoredToken, TokenStore, TokenStoreProvider};
+use graph_extensions::cache::{StoredToken, TokenCacheStore, TokenStore, TokenStoreProvider};
 use graph_extensions::token::ClientApplication;
+use graph_oauth::identity::{ConfidentialClient, TokenCredentialExecutor};
 use graph_oauth::oauth::{ConfidentialClientApplication, PublicClientApplication};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
@@ -58,10 +59,6 @@ impl ClientApplication for BearerToken {
 
     async fn get_token_silent_async(&mut self) -> AuthExecutionResult<String> {
         Ok(self.0.clone())
-    }
-
-    fn get_stored_application_token(&mut self) -> Option<&StoredToken> {
-        None
     }
 }
 
@@ -136,19 +133,23 @@ impl GraphClientConfiguration {
         self
     }
 
-    pub fn confidential_client_application(
+    pub fn confidential_client_application<
+        Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
+    >(
         mut self,
-        confidential_client: ConfidentialClientApplication,
+        confidential_client: ConfidentialClient<Credential>,
     ) -> Self {
         self.config.client_application = Some(Box::new(confidential_client));
         self
     }
 
+    /*
     pub fn public_client_application(mut self, public_client: PublicClientApplication) -> Self {
         self.config.client_application = Some(Box::new(public_client));
         self
     }
 
+    */
     pub fn default_headers(mut self, headers: HeaderMap) -> GraphClientConfiguration {
         for (key, value) in headers.iter() {
             self.config.headers.insert(key, value.clone());
@@ -313,14 +314,6 @@ impl Client {
     pub fn headers(&self) -> &HeaderMap {
         &self.headers
     }
-
-    pub fn get_token(&mut self) -> Option<String> {
-        self.client_application.get_token_silent().ok()
-    }
-
-    pub fn get_token2(&mut self) -> Option<&StoredToken> {
-        self.client_application.get_stored_application_token()
-    }
 }
 
 impl Default for Client {
@@ -351,8 +344,10 @@ impl From<PublicClientApplication> for Client {
     }
 }
 
-impl From<ConfidentialClientApplication> for Client {
-    fn from(value: ConfidentialClientApplication) -> Self {
+impl<Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static>
+    From<ConfidentialClient<Credential>> for Client
+{
+    fn from(value: ConfidentialClient<Credential>) -> Self {
         Client::new(value)
     }
 }
@@ -381,21 +376,5 @@ mod test {
         assert!(client.builder.config.headers.contains_key(USER_AGENT));
         let user_agent_header = client.builder.config.headers.get(USER_AGENT).unwrap();
         assert_eq!("user_agent", user_agent_header.to_str().unwrap());
-    }
-
-    #[test]
-    #[should_panic]
-    fn initialize_confidential_client() {
-        let mut client = GraphClientConfiguration::new()
-            .access_token("access_token")
-            .user_agent(HeaderValue::from_static("user_agent"))
-            .client_application(
-                ConfidentialClientApplication::builder("client-id")
-                    .with_client_secret("secret")
-                    .build(),
-            )
-            .build();
-
-        assert!(client.client_application.get_stored_token("").is_none());
     }
 }

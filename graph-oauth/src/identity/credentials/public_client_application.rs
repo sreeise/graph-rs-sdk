@@ -1,22 +1,22 @@
+use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+
+use async_trait::async_trait;
+use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
+use reqwest::tls::Version;
+use reqwest::{ClientBuilder, Response};
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{AuthExecutionResult, IdentityResult};
+use graph_extensions::token::ClientApplication;
+
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::credentials::application_builder::PublicClientApplicationBuilder;
 use crate::identity::{
     Authority, AzureCloudInstance, DeviceCodeCredential, ResourceOwnerPasswordCredential,
     TokenCredentialExecutor,
 };
-use crate::oauth::UnInitializedCredentialExecutor;
-use async_trait::async_trait;
-use graph_error::{AuthExecutionResult, IdentityResult, AF};
-use graph_extensions::cache::{
-    InMemoryCredentialStore, StoredToken, TokenStore, TokenStoreProvider, UnInitializedTokenStore,
-};
-use graph_extensions::token::{ClientApplication, ClientApplicationType, MsalToken};
-use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
-use reqwest::tls::Version;
-use reqwest::{ClientBuilder, Response};
-use std::collections::HashMap;
-use url::Url;
-use uuid::Uuid;
 
 /// Clients incapable of maintaining the confidentiality of their credentials
 /// (e.g., clients executing on the device used by the resource owner, such as an
@@ -27,7 +27,15 @@ use uuid::Uuid;
 pub struct PublicClientApplication {
     http_client: reqwest::Client,
     credential: Box<dyn TokenCredentialExecutor + Send>,
-    token_store: Box<dyn TokenStore + Send>,
+    //token_store: Arc<RwLock<dyn TokenStore + Send>>,
+}
+
+impl Debug for PublicClientApplication {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ConfidentialClientApplication")
+            .field("credential", &self.credential)
+            .finish()
+    }
 }
 
 impl PublicClientApplication {
@@ -49,7 +57,7 @@ impl PublicClientApplication {
                 .build()
                 .unwrap(),
             credential: Box::new(credential),
-            token_store: Box::new(UnInitializedTokenStore),
+            //token_store: Arc::new(RwLock::new(UnInitializedTokenStore)),
         }
     }
 
@@ -57,17 +65,28 @@ impl PublicClientApplication {
         PublicClientApplicationBuilder::new(client_id.as_ref())
     }
 
-    pub fn with_in_memory_token_store(&mut self) {
-        self.token_store = Box::new(InMemoryCredentialStore::new(
+    /*
+     pub fn with_in_memory_token_store(&mut self) {
+        self.token_store = Arc::new(RwLock::new(InMemoryCredentialStore::new(
             self.app_config().cache_id(),
             StoredToken::UnInitialized,
-        ));
+        )));
     }
+     */
 }
 
 #[async_trait]
 impl ClientApplication for PublicClientApplication {
     fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
+        todo!()
+    }
+
+    async fn get_token_silent_async(&mut self) -> AuthExecutionResult<String> {
+        todo!()
+    }
+}
+/*
+fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
         let cache_id = self.app_config().cache_id();
         if self.is_store_and_token_initialized(cache_id.as_str()) {
             return Ok(self
@@ -127,34 +146,35 @@ impl ClientApplication for PublicClientApplication {
 
         self.token_store.get_stored_token(cache_id.as_str())
     }
-}
+ */
 
+/*
 impl TokenStore for PublicClientApplication {
     fn token_store_provider(&self) -> TokenStoreProvider {
-        self.token_store.token_store_provider()
+        self.token_store.read().unwrap().token_store_provider()
     }
 
     fn is_stored_token_initialized(&self, id: &str) -> bool {
-        self.token_store.is_stored_token_initialized(id)
+        self.token_store.read().unwrap().is_stored_token_initialized(id)
     }
 
     fn get_stored_token(&self, id: &str) -> Option<&StoredToken> {
-        self.token_store.get_stored_token(id)
+        self.token_store.read().unwrap().get_stored_token(id)
     }
 
     fn update_stored_token(&mut self, id: &str, stored_token: StoredToken) -> Option<StoredToken> {
-        self.token_store.update_stored_token(id, stored_token)
+        *self.token_store.write().unwrap().update_stored_token(id, stored_token)
     }
 
     fn get_bearer_token_from_store(&self, id: &str) -> Option<&String> {
-        self.token_store.get_bearer_token_from_store(id)
+        self.token_store.read().unwrap().get_bearer_token_from_store(id)
     }
 
     fn get_refresh_token_from_store(&self, id: &str) -> Option<&String> {
-        self.token_store.get_refresh_token_from_store(id)
+        self.token_store.read().unwrap().get_refresh_token_from_store(id)
     }
 }
-
+*/
 #[async_trait]
 impl TokenCredentialExecutor for PublicClientApplication {
     fn uri(&mut self) -> IdentityResult<Url> {
@@ -249,12 +269,6 @@ impl From<ResourceOwnerPasswordCredential> for PublicClientApplication {
 
 impl From<DeviceCodeCredential> for PublicClientApplication {
     fn from(value: DeviceCodeCredential) -> Self {
-        PublicClientApplication::credential(value)
-    }
-}
-
-impl From<UnInitializedCredentialExecutor> for PublicClientApplication {
-    fn from(value: UnInitializedCredentialExecutor) -> Self {
         PublicClientApplication::credential(value)
     }
 }

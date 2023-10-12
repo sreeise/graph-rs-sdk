@@ -1,5 +1,6 @@
-use crate::identity::credentials::as_query::AsQuery;
 use std::collections::BTreeSet;
+
+use crate::identity::credentials::as_query::AsQuery;
 
 /// Indicates the type of user interaction that is required. Valid values are login, none,
 /// consent, and select_account.

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::anyhow;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine;
@@ -8,7 +10,6 @@ use openssl::pkey::{PKey, Private};
 use openssl::rsa::Padding;
 use openssl::sign::Signer;
 use openssl::x509::{X509Ref, X509};
-use std::collections::HashMap;
 use time::OffsetDateTime;
 use uuid::Uuid;
 

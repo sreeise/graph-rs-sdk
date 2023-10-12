@@ -1,25 +1,25 @@
-use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{Authority, AzureCloudInstance};
+use std::collections::HashMap;
+use std::fmt::Debug;
 
 use async_trait::async_trait;
 use dyn_clone::DynClone;
-use graph_error::{AuthExecutionResult, IdentityResult};
 use http::header::ACCEPT;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
 use reqwest::ClientBuilder;
-use std::collections::HashMap;
+use tracing::{debug, Instrument};
 use url::Url;
 use uuid::Uuid;
+
+use graph_error::{AuthExecutionResult, IdentityResult};
+
+use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::{Authority, AzureCloudInstance};
 
 dyn_clone::clone_trait_object!(TokenCredentialExecutor);
 
 #[async_trait]
-pub trait TokenCredentialExecutor: DynClone {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
+pub trait TokenCredentialExecutor: DynClone + Debug {
     fn uri(&mut self) -> IdentityResult<Url>;
 
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>>;
@@ -144,6 +144,7 @@ pub trait TokenCredentialExecutor: DynClone {
         }
     }
 
+    #[tracing::instrument]
     async fn execute_async(&mut self) -> AuthExecutionResult<reqwest::Response> {
         let mut uri = self.uri()?;
         let form = self.form_urlencode()?;
@@ -178,49 +179,38 @@ pub trait TokenCredentialExecutor: DynClone {
 
         let basic_auth = self.basic_auth();
         if let Some((client_identifier, secret)) = basic_auth {
-            Ok(http_client
+            let request_builder = http_client
                 .post(uri)
                 .basic_auth(client_identifier, Some(secret))
                 .headers(headers)
-                .form(&form)
-                .send()
-                .await?)
+                .form(&form);
+
+            debug!(
+                "authorization request constructed; request={:#?}",
+                request_builder
+            );
+            let response = request_builder.send().await;
+            debug!("authorization response received; response={:#?}", response);
+            Ok(response?)
         } else {
-            Ok(http_client
-                .post(uri)
-                .headers(headers)
-                .form(&form)
-                .send()
-                .await?)
+            let request_builder = http_client.post(uri).headers(headers).form(&form);
+
+            debug!(
+                "authorization request constructed; request={:#?}",
+                request_builder
+            );
+            let response = request_builder.send().await;
+            debug!("authorization response received; response={:#?}", response);
+            Ok(response?)
         }
-    }
-}
-
-#[derive(Clone)]
-pub struct UnInitializedCredentialExecutor;
-
-impl TokenCredentialExecutor for UnInitializedCredentialExecutor {
-    fn is_initialized(&self) -> bool {
-        false
-    }
-
-    fn uri(&mut self) -> IdentityResult<Url> {
-        panic!("TokenCredentialExecutor is UnInitialized");
-    }
-
-    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        panic!("TokenCredentialExecutor is UnInitialized");
-    }
-
-    fn app_config(&self) -> &AppConfig {
-        panic!("TokenCredentialExecutor is UnInitialized");
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use crate::identity::credentials::application_builder::ConfidentialClientApplicationBuilder;
+
+    use super::*;
 
     #[test]
     fn open_id_configuration_url_authority_tenant_id() {

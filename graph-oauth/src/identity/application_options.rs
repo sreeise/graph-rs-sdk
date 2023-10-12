@@ -1,7 +1,8 @@
-use crate::identity::AadAuthorityAudience;
-use crate::oauth::AzureCloudInstance;
 use url::Url;
 use uuid::Uuid;
+
+use crate::identity::AadAuthorityAudience;
+use crate::oauth::AzureCloudInstance;
 
 /// Application Options typically stored as JSON file in .net applications.
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
@@ -51,8 +52,9 @@ impl ApplicationOptions {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use std::fs::File;
+
+    use super::*;
 
     #[test]
     fn application_options_from_file() {

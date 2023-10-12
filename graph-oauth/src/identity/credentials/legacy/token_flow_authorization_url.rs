@@ -1,8 +1,10 @@
-use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::oauth::ResponseType;
-use graph_error::{AuthorizationFailure, IdentityResult, AF};
 use url::form_urlencoded::Serializer;
 use url::Url;
+
+use graph_error::{AuthorizationFailure, IdentityResult, AF};
+
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::oauth::ResponseType;
 
 /// Legacy sign in for personal microsoft accounts to get access tokens for OneDrive
 /// Not recommended - Instead use Microsoft Identity Platform OAuth 2.0 and OpenId Connect.

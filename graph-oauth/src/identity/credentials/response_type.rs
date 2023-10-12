@@ -1,5 +1,6 @@
-use crate::identity::AsQuery;
 use std::collections::BTreeSet;
+
+use crate::identity::AsQuery;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ResponseType {

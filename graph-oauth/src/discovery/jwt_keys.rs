@@ -1,5 +1,6 @@
-use graph_error::GraphResult;
 use std::collections::HashMap;
+
+use graph_error::GraphResult;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Keys {

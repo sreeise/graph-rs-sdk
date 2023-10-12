@@ -1,15 +1,18 @@
-use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
-use async_trait::async_trait;
-use graph_error::{AuthorizationFailure, IdentityResult, AF};
-use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+
+use async_trait::async_trait;
+use http::{HeaderMap, HeaderName, HeaderValue};
 use url::Url;
 use uuid::Uuid;
 
+use graph_error::{AuthorizationFailure, IdentityResult, AF};
+
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
+use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
 use crate::oauth::{ClientCredentialsAuthorizationUrlBuilder, ConfidentialClientApplication};
 
 pub(crate) static CLIENT_ASSERTION_TYPE: &str =
@@ -74,6 +77,14 @@ impl ClientCertificateCredential {
     }
 }
 
+impl Debug for ClientCertificateCredential {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ClientAssertionCredential")
+            .field("app_config", &self.app_config)
+            .field("scope", &self.scope)
+            .finish()
+    }
+}
 #[async_trait]
 impl TokenCredentialExecutor for ClientCertificateCredential {
     fn uri(&mut self) -> IdentityResult<Url> {
@@ -166,6 +177,7 @@ impl TokenCredentialExecutor for ClientCertificateCredential {
     }
 }
 
+#[derive(Clone)]
 pub struct ClientCertificateCredentialBuilder {
     credential: ClientCertificateCredential,
 }

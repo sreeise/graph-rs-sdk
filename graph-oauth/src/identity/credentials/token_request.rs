@@ -1,10 +1,10 @@
-use crate::oauth::AuthorizationSerializer;
 use async_trait::async_trait;
-
-use crate::identity::AzureCloudInstance;
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use reqwest::tls::Version;
 use reqwest::ClientBuilder;
+
+use crate::identity::AzureCloudInstance;
+use crate::oauth::AuthorizationSerializer;
 
 #[async_trait]
 pub trait TokenRequest: AuthorizationSerializer {

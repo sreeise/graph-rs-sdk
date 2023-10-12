@@ -1,24 +1,25 @@
-use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
-use crate::oauth::{DeviceCode, PollDeviceCodeType, PublicClientApplication};
+use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+use std::ops::Add;
+use std::str::FromStr;
+use std::time::Duration;
+
+use http::{HeaderMap, HeaderName, HeaderValue};
+use url::Url;
+use uuid::Uuid;
 
 use graph_error::{
     AuthExecutionError, AuthExecutionResult, AuthTaskExecutionResult, AuthorizationFailure,
     IdentityResult, AF,
 };
-use http::{HeaderMap, HeaderName, HeaderValue};
-use std::collections::HashMap;
-use std::ops::Add;
-use std::str::FromStr;
-use std::time::Duration;
-
-use crate::identity::credentials::app_config::AppConfig;
-
 use graph_extensions::http::{
     AsyncResponseConverterExt, HttpResponseExt, JsonHttpResponse, ResponseConverterExt,
 };
-use url::Url;
-use uuid::Uuid;
+
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
+use crate::oauth::{DeviceCode, PollDeviceCodeType, PublicClientApplication};
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -82,6 +83,14 @@ impl DeviceCodeCredential {
     }
 }
 
+impl Debug for DeviceCodeCredential {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DeviceCodeCredential")
+            .field("app_config", &self.app_config)
+            .field("scope", &self.scope)
+            .finish()
+    }
+}
 impl TokenCredentialExecutor for DeviceCodeCredential {
     fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();

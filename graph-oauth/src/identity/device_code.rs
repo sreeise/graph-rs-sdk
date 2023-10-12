@@ -1,6 +1,7 @@
-use serde_json::Value;
 use std::collections::{BTreeSet, HashMap};
 use std::str::FromStr;
+
+use serde_json::Value;
 
 /// https://datatracker.ietf.org/doc/html/rfc8628#section-3.2
 /// The actual device code response that is received from Microsoft Graph

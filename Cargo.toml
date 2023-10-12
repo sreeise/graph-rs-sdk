@@ -42,6 +42,7 @@ graph-http = { path = "./graph-http", version = "1.1.0", default-features=false 
 graph-error = { path = "./graph-error", version = "0.2.2" }
 graph-core = { path = "./graph-core", version = "0.4.0" }
 graph-extensions = { path = "./graph-extensions", version = "0.1.0", default-features=false }
+uuid = { version = "1.4.1", features = ["v4"] }
 
 # When updating or adding new features to this or dependent crates run
 # cargo tree -e features -i graph-rs-sdk

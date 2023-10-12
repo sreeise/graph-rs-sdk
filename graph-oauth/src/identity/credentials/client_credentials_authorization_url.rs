@@ -1,11 +1,13 @@
-use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{Authority, AzureCloudInstance};
-use graph_error::{AuthorizationFailure, IdentityResult};
 use reqwest::IntoUrl;
 use url::form_urlencoded::Serializer;
 use url::Url;
 use uuid::Uuid;
+
+use graph_error::{AuthorizationFailure, IdentityResult};
+
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::{Authority, AzureCloudInstance};
 
 #[derive(Clone)]
 pub struct ClientCredentialsAuthorizationUrl {
@@ -23,15 +25,11 @@ impl ClientCredentialsAuthorizationUrl {
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
 
         Ok(ClientCredentialsAuthorizationUrl {
-            app_config: AppConfig {
-                tenant_id: None,
-                client_id: Uuid::try_parse(client_id.as_ref())?,
-                authority: Default::default(),
-                azure_cloud_instance: Default::default(),
-                extra_query_parameters: Default::default(),
-                extra_header_parameters: Default::default(),
-                redirect_uri: Some(redirect_uri),
-            },
+            app_config: AppConfig::new_init(
+                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
+                Option::<String>::None,
+                Some(redirect_uri),
+            ),
             state: None,
         })
     }
@@ -93,6 +91,7 @@ impl ClientCredentialsAuthorizationUrl {
     }
 }
 
+#[derive(Clone)]
 pub struct ClientCredentialsAuthorizationUrlBuilder {
     parameters: ClientCredentialsAuthorizationUrl,
 }

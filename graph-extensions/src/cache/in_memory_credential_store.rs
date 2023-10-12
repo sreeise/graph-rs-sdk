@@ -1,54 +1,27 @@
-use crate::cache::{StoredToken, TokenStore, TokenStoreProvider};
+use crate::cache::{AsBearer, StoredToken, TokenStore, TokenStoreProvider};
 use std::collections::HashMap;
+use std::hash::Hash;
+use std::sync::{Arc, RwLock};
 
 #[derive(Clone)]
-pub struct InMemoryCredentialStore {
-    store: HashMap<String, StoredToken>,
+pub struct InMemoryCredentialStore<Token: AsBearer + Clone> {
+    store: Arc<RwLock<HashMap<String, Token>>>,
 }
 
-impl InMemoryCredentialStore {
-    pub fn new(id: String, stored_token: StoredToken) -> InMemoryCredentialStore {
-        let mut store = HashMap::new();
-        store.insert(id, stored_token);
-
-        InMemoryCredentialStore { store }
-    }
-}
-
-impl TokenStore for InMemoryCredentialStore {
-    fn token_store_provider(&self) -> TokenStoreProvider {
-        TokenStoreProvider::InMemory
-    }
-
-    fn is_stored_token_initialized(&self, id: &str) -> bool {
-        if let Some(stored_token) = self.store.get(id) {
-            stored_token.is_initialized()
-        } else {
-            false
+impl<Token: AsBearer + Clone> InMemoryCredentialStore<Token> {
+    pub fn new() -> InMemoryCredentialStore<Token> {
+        InMemoryCredentialStore {
+            store: Default::default(),
         }
     }
 
-    fn get_stored_token(&self, id: &str) -> Option<&StoredToken> {
-        self.store.get(id)
+    pub fn store<T: Into<String>>(&mut self, cache_id: T, token: Token) {
+        let mut store = self.store.write().unwrap();
+        store.insert(cache_id.into(), token);
     }
 
-    fn update_stored_token(&mut self, id: &str, stored_token: StoredToken) -> Option<StoredToken> {
-        self.store.insert(id.to_string(), stored_token)
-    }
-
-    fn get_bearer_token_from_store(&self, id: &str) -> Option<&String> {
-        if let Some(stored_token) = self.store.get(id) {
-            stored_token.get_bearer_token()
-        } else {
-            None
-        }
-    }
-
-    fn get_refresh_token_from_store(&self, id: &str) -> Option<&String> {
-        if let Some(stored_token) = self.store.get(id) {
-            stored_token.get_refresh_token()
-        } else {
-            None
-        }
+    pub fn get(&self, cache_id: &str) -> Option<Token> {
+        let mut store = self.store.read().unwrap();
+        store.get(cache_id).cloned()
     }
 }

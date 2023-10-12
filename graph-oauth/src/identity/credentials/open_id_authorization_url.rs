@@ -1,27 +1,31 @@
+use std::collections::BTreeSet;
+use std::fmt::{Debug, Formatter};
+
+use reqwest::IntoUrl;
+use url::form_urlencoded::Serializer;
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{AuthorizationFailure, IdentityResult, AF};
+use graph_extensions::crypto::{secure_random_32, GenPkce};
+
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
 };
-use graph_error::{AuthorizationFailure, IdentityResult, AF};
-use graph_extensions::crypto::{secure_random_32, GenPkce, ProofKeyCodeExchange};
-use reqwest::IntoUrl;
-use std::collections::BTreeSet;
-use url::form_urlencoded::Serializer;
-use url::Url;
-use uuid::Uuid;
 
 /// OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional
 /// authentication protocol. You can use OIDC to enable single sign-on (SSO) between your
 /// OAuth-enabled applications by using a security token called an ID token.
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct OpenIdAuthorizationUrl {
     pub(crate) app_config: AppConfig,
-    /// Required
+    /// Required -
     /// Must include code for OpenID Connect sign-in.
     pub(crate) response_type: BTreeSet<ResponseType>,
-    /// Optional
+    /// Optional -
     /// Specifies how the identity platform should return the requested token to your app.
     ///
     /// Specifies the method that should be used to send the resulting authorization code back
@@ -48,19 +52,19 @@ pub struct OpenIdAuthorizationUrl {
     /// is the same value it sent when requesting the token. The value is typically a unique,
     /// random string.
     pub(crate) nonce: String,
-    /// Required
+    /// Required -
     /// A value included in the request that also will be returned in the token response.
     /// It can be a string of any content you want. A randomly generated unique value typically
     /// is used to prevent cross-site request forgery attacks. The state also is used to encode
     /// information about the user's state in the app before the authentication request occurred,
     /// such as the page or view the user was on.
     pub(crate) state: Option<String>,
-    /// Required - the openid scope is already included
+    /// Required - the openid scope is already included.
     /// A space-separated list of scopes. For OpenID Connect, it must include the scope openid,
     /// which translates to the Sign you in permission in the consent UI. You might also include
     /// other scopes in this request for requesting consent.
     pub(crate) scope: BTreeSet<String>,
-    /// Optional
+    /// Optional -
     /// Indicates the type of user interaction that is required. The only valid values at
     /// this time are login, none, consent, and select_account.
     ///
@@ -81,13 +85,13 @@ pub struct OpenIdAuthorizationUrl {
     /// allowing the user to pick which account they intend to sign in with, without requiring
     /// credential entry. You can't use both login_hint and select_account.
     pub(crate) prompt: BTreeSet<Prompt>,
-    /// Optional
+    /// Optional -
     /// The realm of the user in a federated directory. This skips the email-based discovery
     /// process that the user goes through on the sign-in page, for a slightly more streamlined
     /// user experience. For tenants that are federated through an on-premises directory
     /// like AD FS, this often results in a seamless sign-in because of the existing login session.
     pub(crate) domain_hint: Option<String>,
-    /// Optional
+    /// Optional -
     /// You can use this parameter to pre-fill the username and email address field of the
     /// sign-in page for the user, if you know the username ahead of time. Often, apps use
     /// this parameter during re-authentication, after already extracting the login_hint
@@ -96,40 +100,68 @@ pub struct OpenIdAuthorizationUrl {
     response_types_supported: Vec<String>,
 }
 
+impl Debug for OpenIdAuthorizationUrl {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AuthCodeAuthorizationUrlParameters")
+            .field("app_config", &self.app_config)
+            .field("scope", &self.scope)
+            .field("response_type", &self.response_type)
+            .field("response_mode", &self.response_mode)
+            .field("prompt", &self.prompt)
+            .finish()
+    }
+}
 impl OpenIdAuthorizationUrl {
     pub fn new<T: AsRef<str>, IU: IntoUrl, U: ToString, I: IntoIterator<Item = U>>(
         client_id: T,
         redirect_uri: IU,
         scope: I,
     ) -> IdentityResult<OpenIdAuthorizationUrl> {
-        let mut scope_set = BTreeSet::new();
-        scope_set.insert("openid".to_owned());
-        scope_set.extend(scope.into_iter().map(|s| s.to_string()));
+        let mut tree_set_scope = BTreeSet::new();
+        tree_set_scope.insert("openid".to_owned());
+        tree_set_scope.extend(scope.into_iter().map(|s| s.to_string()));
+
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
-
-        /*
-        AppConfig {
-                tenant_id: None,
-                client_id: Uuid::try_parse(client_id.as_ref())?,
-                authority: Default::default(),
-                azure_cloud_instance: Default::default(),
-                extra_query_parameters: Default::default(),
-                extra_header_parameters: Default::default(),
-                redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
-            }
-         */
-
         let mut app_config = AppConfig::new_with_client_id(client_id);
         app_config.redirect_uri = Some(redirect_uri.into_url().or(redirect_uri_result)?);
 
+        let mut response_type = BTreeSet::new();
+        response_type.insert(ResponseType::IdToken);
+
         Ok(OpenIdAuthorizationUrl {
             app_config,
-            response_type: BTreeSet::new(),
+            response_type,
             response_mode: None,
             nonce: secure_random_32()?,
             state: None,
-            scope: scope_set,
+            scope: tree_set_scope,
             prompt: BTreeSet::new(),
+            domain_hint: None,
+            login_hint: None,
+            response_types_supported: vec![
+                "code".into(),
+                "id_token".into(),
+                "code id_token".into(),
+                "id_token token".into(),
+            ],
+        })
+    }
+
+    fn new_with_app_config(app_config: AppConfig) -> IdentityResult<OpenIdAuthorizationUrl> {
+        let mut scope = BTreeSet::new();
+        scope.insert("openid".to_owned());
+
+        let mut response_type = BTreeSet::new();
+        response_type.insert(ResponseType::IdToken);
+
+        Ok(OpenIdAuthorizationUrl {
+            app_config,
+            response_type,
+            response_mode: None,
+            nonce: secure_random_32()?,
+            state: None,
+            scope,
+            prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
             response_types_supported: vec![
@@ -146,7 +178,7 @@ impl OpenIdAuthorizationUrl {
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
-        self.url_with_host(&AzureCloudInstance::default())
+        self.authorization_url()
     }
 
     pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
@@ -170,7 +202,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
     }
 
     fn authorization_url(&self) -> IdentityResult<Url> {
-        self.authorization_url_with_host(&AzureCloudInstance::default())
+        self.authorization_url_with_host(&self.app_config.azure_cloud_instance)
     }
 
     fn authorization_url_with_host(
@@ -275,40 +307,15 @@ impl AuthorizationUrl for OpenIdAuthorizationUrl {
 }
 
 pub struct OpenIdAuthorizationUrlBuilder {
-    auth_url_parameters: OpenIdAuthorizationUrl,
+    parameters: OpenIdAuthorizationUrl,
 }
 
 impl OpenIdAuthorizationUrlBuilder {
     pub(crate) fn new(client_id: impl AsRef<str>) -> IdentityResult<OpenIdAuthorizationUrlBuilder> {
-        let mut scope = BTreeSet::new();
-        scope.insert("openid".to_owned());
-
         Ok(OpenIdAuthorizationUrlBuilder {
-            auth_url_parameters: OpenIdAuthorizationUrl {
-                app_config: AppConfig {
-                    tenant_id: None,
-                    client_id: Uuid::try_parse(client_id.as_ref())?,
-                    authority: Default::default(),
-                    azure_cloud_instance: Default::default(),
-                    extra_query_parameters: Default::default(),
-                    extra_header_parameters: Default::default(),
-                    redirect_uri: None,
-                },
-                response_type: BTreeSet::new(),
-                response_mode: None,
-                nonce: secure_random_32()?,
-                state: None,
-                scope,
-                prompt: Default::default(),
-                domain_hint: None,
-                login_hint: None,
-                response_types_supported: vec![
-                    "code".into(),
-                    "id_token".into(),
-                    "code id_token".into(),
-                    "id_token token".into(),
-                ],
-            },
+            parameters: OpenIdAuthorizationUrl::new_with_app_config(
+                AppConfig::new_with_client_id(client_id),
+            )?,
         })
     }
 
@@ -316,32 +323,9 @@ impl OpenIdAuthorizationUrlBuilder {
         let mut scope = BTreeSet::new();
         scope.insert("openid".to_owned());
 
-        let nonce = match ProofKeyCodeExchange::code_verifier() {
-            Ok(secure_string) => secure_string,
-            Err(err) => {
-                error!("OpenIdAuthorizationUrlBuilder nonce: Crypto::sha256_secure_string() - internal error please report");
-                panic!("{}", err);
-            }
-        };
-
         OpenIdAuthorizationUrlBuilder {
-            auth_url_parameters: OpenIdAuthorizationUrl {
-                app_config,
-                response_type: BTreeSet::new(),
-                response_mode: None,
-                nonce,
-                state: None,
-                scope,
-                prompt: Default::default(),
-                domain_hint: None,
-                login_hint: None,
-                response_types_supported: vec![
-                    "code".into(),
-                    "id_token".into(),
-                    "code id_token".into(),
-                    "id_token token".into(),
-                ],
-            },
+            parameters: OpenIdAuthorizationUrl::new_with_app_config(app_config)
+                .expect("ring::crypto::Unspecified"),
         }
     }
 
@@ -349,25 +333,24 @@ impl OpenIdAuthorizationUrlBuilder {
         &mut self,
         redirect_uri: T,
     ) -> IdentityResult<&mut Self> {
-        self.auth_url_parameters.app_config.redirect_uri = Some(Url::parse(redirect_uri.as_ref())?);
+        self.parameters.app_config.redirect_uri = Some(Url::parse(redirect_uri.as_ref())?);
         Ok(self)
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.auth_url_parameters.app_config.client_id =
+        self.parameters.app_config.client_id =
             Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
         self
     }
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.auth_url_parameters.app_config.authority =
-            Authority::TenantId(tenant.as_ref().to_owned());
+        self.parameters.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
     pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.auth_url_parameters.app_config.authority = authority.into();
+        self.parameters.app_config.authority = authority.into();
         self
     }
 
@@ -385,7 +368,7 @@ impl OpenIdAuthorizationUrlBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.auth_url_parameters.response_type = BTreeSet::from_iter(response_type.into_iter());
+        self.parameters.response_type = BTreeSet::from_iter(response_type.into_iter());
         self
     }
 
@@ -398,7 +381,7 @@ impl OpenIdAuthorizationUrlBuilder {
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
     ///     Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
-        self.auth_url_parameters.response_mode = Some(response_mode);
+        self.parameters.response_mode = Some(response_mode);
         self
     }
 
@@ -413,10 +396,10 @@ impl OpenIdAuthorizationUrlBuilder {
     /// authorization code grant. If you are unsure or unclear how the nonce works then it is
     /// recommended to stay with the generated nonce as it is cryptographically secure.
     pub fn with_nonce<T: AsRef<str>>(&mut self, nonce: T) -> &mut Self {
-        if self.auth_url_parameters.nonce.is_empty() {
-            self.auth_url_parameters.nonce.push_str(nonce.as_ref());
+        if self.parameters.nonce.is_empty() {
+            self.parameters.nonce.push_str(nonce.as_ref());
         } else {
-            self.auth_url_parameters.nonce = nonce.as_ref().to_owned();
+            self.parameters.nonce = nonce.as_ref().to_owned();
         }
         self
     }
@@ -434,20 +417,32 @@ impl OpenIdAuthorizationUrlBuilder {
     /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
     #[doc(hidden)]
     pub(crate) fn with_nonce_generated(&mut self) -> anyhow::Result<&mut Self> {
-        self.auth_url_parameters.nonce = secure_random_32()?;
+        self.parameters.nonce = secure_random_32()?;
         Ok(self)
     }
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
-        self.auth_url_parameters.state = Some(state.as_ref().to_owned());
+        self.parameters.state = Some(state.as_ref().to_owned());
         self
     }
 
     /// Takes an iterator of scopes to use in the request.
     /// Replaces current scopes if any were added previously.
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.auth_url_parameters.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self.parameters.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
+    }
+
+    /// Automatically adds `profile` and `email` to the scope parameter.
+    /// The `openid` scope is already included in the request.
+    ///
+    /// If you need a refresh token then include `offline_access` as a scope.
+    /// The `offline_access` scope is not included here.
+    pub fn with_default_scope(&mut self) -> anyhow::Result<&mut Self> {
+        self.parameters
+            .scope
+            .extend(vec!["profile".to_owned(), "email".to_owned()]);
+        Ok(self)
     }
 
     /// Indicates the type of user interaction that is required. Valid values are login, none,
@@ -461,7 +456,7 @@ impl OpenIdAuthorizationUrlBuilder {
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience
     ///     listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether.
     pub fn with_prompt<I: IntoIterator<Item = Prompt>>(&mut self, prompt: I) -> &mut Self {
-        self.auth_url_parameters.prompt.extend(prompt.into_iter());
+        self.parameters.prompt.extend(prompt.into_iter());
         self
     }
 
@@ -471,7 +466,7 @@ impl OpenIdAuthorizationUrlBuilder {
     /// user experience. For tenants that are federated through an on-premises directory
     /// like AD FS, this often results in a seamless sign-in because of the existing login session.
     pub fn with_domain_hint<T: AsRef<str>>(&mut self, domain_hint: T) -> &mut Self {
-        self.auth_url_parameters.domain_hint = Some(domain_hint.as_ref().to_owned());
+        self.parameters.domain_hint = Some(domain_hint.as_ref().to_owned());
         self
     }
 
@@ -481,20 +476,16 @@ impl OpenIdAuthorizationUrlBuilder {
     /// this parameter during reauthentication, after already extracting the login_hint
     /// optional claim from an earlier sign-in.
     pub fn with_login_hint<T: AsRef<str>>(&mut self, login_hint: T) -> &mut Self {
-        self.auth_url_parameters.login_hint = Some(login_hint.as_ref().to_owned());
+        self.parameters.login_hint = Some(login_hint.as_ref().to_owned());
         self
     }
 
     pub fn build(&self) -> OpenIdAuthorizationUrl {
-        self.auth_url_parameters.clone()
-    }
-
-    pub fn nonce(&self) -> &String {
-        &self.auth_url_parameters.nonce
+        self.parameters.clone()
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
-        self.auth_url_parameters.url()
+        self.parameters.url()
     }
 }
 

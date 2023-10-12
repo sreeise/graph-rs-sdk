@@ -1,20 +1,21 @@
+use std::collections::BTreeSet;
+use std::fmt::{Debug, Formatter};
+
+use reqwest::IntoUrl;
+use url::form_urlencoded::Serializer;
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{IdentityResult, AF};
+use graph_extensions::crypto::{secure_random_32, GenPkce, ProofKeyCodeExchange};
+use graph_extensions::web::{InteractiveAuthenticator, WebViewOptions};
+
 use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     Authority, AuthorizationQueryResponse, AuthorizationUrl, AzureCloudInstance, Prompt,
     ResponseMode, ResponseType,
 };
-
-use graph_extensions::web::{InteractiveAuthenticator, WebViewOptions};
-
-use graph_error::{IdentityResult, AF};
-
-use crate::identity::credentials::app_config::AppConfig;
-use graph_extensions::crypto::{secure_random_32, GenPkce, ProofKeyCodeExchange};
-use reqwest::IntoUrl;
-use std::collections::BTreeSet;
-use url::form_urlencoded::Serializer;
-use url::Url;
-use uuid::Uuid;
 
 /// Get the authorization url required to perform the initial authorization and redirect in the
 /// authorization code flow.
@@ -48,7 +49,7 @@ use uuid::Uuid;
 ///         .build();
 /// }
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct AuthCodeAuthorizationUrlParameters {
     pub(crate) app_config: AppConfig,
     pub(crate) response_type: BTreeSet<ResponseType>,
@@ -67,12 +68,58 @@ pub struct AuthCodeAuthorizationUrlParameters {
     pub(crate) response_mode: Option<ResponseMode>,
     pub(crate) nonce: Option<String>,
     pub(crate) state: Option<String>,
+    /// Required.
+    /// A space-separated list of scopes that you want the user to consent to.
+    /// For the /authorize leg of the request, this parameter can cover multiple resources.
+    /// This value allows your app to get consent for multiple web APIs you want to call.
     pub(crate) scope: Vec<String>,
+    /// Optional
+    /// Indicates the type of user interaction that is required. The only valid values at
+    /// this time are login, none, consent, and select_account.
+    ///
+    /// The [Prompt::Login] claim forces the user to enter their credentials on that request,
+    /// which negates single sign-on.
+    ///
+    /// The [Prompt::None] parameter is the opposite, and should be paired with a login_hint to
+    /// indicate which user must be signed in. These parameters ensure that the user isn't
+    /// presented with any interactive prompt at all. If the request can't be completed silently
+    /// via single sign-on, the Microsoft identity platform returns an error. Causes include no
+    /// signed-in user, the hinted user isn't signed in, or multiple users are signed in but no
+    /// hint was provided.
+    ///
+    /// The [Prompt::Consent] claim triggers the OAuth consent dialog after the
+    /// user signs in. The dialog asks the user to grant permissions to the app.
+    ///
+    /// Finally, [Prompt::SelectAccount] shows the user an account selector, negating silent SSO but
+    /// allowing the user to pick which account they intend to sign in with, without requiring
+    /// credential entry. You can't use both login_hint and select_account.
     pub(crate) prompt: Option<Prompt>,
+    /// Optional
+    /// The realm of the user in a federated directory. This skips the email-based discovery
+    /// process that the user goes through on the sign-in page, for a slightly more streamlined
+    /// user experience. For tenants that are federated through an on-premises directory
+    /// like AD FS, this often results in a seamless sign-in because of the existing login session.
     pub(crate) domain_hint: Option<String>,
+    /// Optional
+    /// You can use this parameter to pre-fill the username and email address field of the
+    /// sign-in page for the user, if you know the username ahead of time. Often, apps use
+    /// this parameter during re-authentication, after already extracting the login_hint
+    /// optional claim from an earlier sign-in.
     pub(crate) login_hint: Option<String>,
     pub(crate) code_challenge: Option<String>,
     pub(crate) code_challenge_method: Option<String>,
+}
+
+impl Debug for AuthCodeAuthorizationUrlParameters {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AuthCodeAuthorizationUrlParameters")
+            .field("app_config", &self.app_config)
+            .field("scope", &self.scope)
+            .field("response_type", &self.response_type)
+            .field("response_mode", &self.response_mode)
+            .field("prompt", &self.prompt)
+            .finish()
+    }
 }
 
 impl AuthCodeAuthorizationUrlParameters {
@@ -84,8 +131,8 @@ impl AuthCodeAuthorizationUrlParameters {
         response_type.insert(ResponseType::Code);
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
 
-        Ok(AuthCodeAuthorizationUrlParameters {
-            app_config: AppConfig {
+        /*
+        AppConfig {
                 tenant_id: None,
                 client_id: Uuid::try_parse(client_id.as_ref())?,
                 authority: Default::default(),
@@ -94,6 +141,14 @@ impl AuthCodeAuthorizationUrlParameters {
                 extra_header_parameters: Default::default(),
                 redirect_uri: Some(redirect_uri.into_url().or(redirect_uri_result)?),
             },
+         */
+
+        Ok(AuthCodeAuthorizationUrlParameters {
+            app_config: AppConfig::new_init(
+                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
+                Option::<String>::None,
+                Some(redirect_uri.into_url().or(redirect_uri_result)?),
+            ),
             response_type,
             response_mode: None,
             nonce: None,
@@ -174,8 +229,9 @@ impl AuthCodeAuthorizationUrlParameters {
 }
 
 mod web_view_authenticator {
-    use crate::identity::{AuthCodeAuthorizationUrlParameters, AuthorizationUrl};
     use graph_extensions::web::{InteractiveAuthenticator, InteractiveWebView, WebViewOptions};
+
+    use crate::identity::{AuthCodeAuthorizationUrlParameters, AuthorizationUrl};
 
     impl InteractiveAuthenticator for AuthCodeAuthorizationUrlParameters {
         fn interactive_authentication(
@@ -469,11 +525,10 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self
     }
 
-    /// Set the required permissions for the authorization request.
-    ///
-    /// Providing a scope of `id_token` automatically adds [ResponseType::IdToken]
-    /// and generates a secure nonce value.
-    /// See [AuthCodeAuthorizationUrlParameterBuilder::with_nonce_generated]
+    /// Required.
+    /// A space-separated list of scopes that you want the user to consent to.
+    /// For the /authorize leg of the request, this parameter can cover multiple resources.
+    /// This value allows your app to get consent for multiple web APIs you want to call.
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
         self.parameters.scope.extend(
             scope
@@ -481,49 +536,16 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
                 .map(|s| s.to_string())
                 .map(|s| s.trim().to_owned()),
         );
-
-        if self.parameters.nonce.is_none()
-            && self.parameters.scope.contains(&String::from("id_token"))
-        {
-            let _ = self.with_id_token_scope();
-        }
         self
-    }
-
-    /// Automatically adds `profile` and `email` to the scope parameter.
-    ///
-    /// If you need a refresh token then include `offline_access` as a scope.
-    /// The `offline_access` scope is not included here.
-    pub fn with_default_scope(&mut self) -> anyhow::Result<&mut Self> {
-        self.parameters
-            .scope
-            .extend(vec!["profile".to_owned(), "email".to_owned()]);
-        Ok(self)
     }
 
     /// Adds the `offline_access` scope parameter which tells the authorization server
     /// to include a refresh token in the redirect uri query.
-    pub fn with_refresh_token_scope(&mut self) -> &mut Self {
+    pub fn with_offline_access(&mut self) -> &mut Self {
         self.parameters
             .scope
             .extend(vec!["offline_access".to_owned()]);
         self
-    }
-
-    /// Adds the `id_token` scope parameter which tells the authorization server
-    /// to include an id token in the redirect uri query.
-    ///
-    /// Including the `id_token` scope also adds the id_token response type
-    /// and adds the `openid` scope parameter.
-    ///
-    /// Including `id_token` also requires a nonce parameter.
-    /// This is generated automatically.
-    /// See [AuthCodeAuthorizationUrlParameterBuilder::with_nonce_generated]
-    fn with_id_token_scope(&mut self) -> anyhow::Result<&mut Self> {
-        self.with_nonce_generated()?;
-        self.parameters.response_type.extend(ResponseType::IdToken);
-        self.parameters.scope.extend(vec!["id_token".to_owned()]);
-        Ok(self)
     }
 
     /// Indicates the type of user interaction that is required. Valid values are login, none,

@@ -1,9 +1,11 @@
-use crate::identity::{Authority, AzureCloudInstance};
-use graph_extensions::cache::{TokenStore, UnInitializedTokenStore};
-use reqwest::header::HeaderMap;
+use base64::Engine;
 use std::collections::HashMap;
+
+use reqwest::header::HeaderMap;
 use url::Url;
 use uuid::Uuid;
+
+use crate::identity::{Authority, AzureCloudInstance};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct AppConfig {
@@ -25,30 +27,71 @@ pub struct AppConfig {
     /// by your app. It must exactly match one of the redirect_uris you registered in the portal,
     /// except it must be URL-encoded.
     pub(crate) redirect_uri: Option<Url>,
+    pub(crate) cache_id: String,
 }
 
 impl AppConfig {
     pub(crate) fn new() -> AppConfig {
+        let client_id = Uuid::default();
+        let cache_id =
+            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string());
+
         AppConfig {
             tenant_id: None,
-            client_id: Uuid::default(),
+            client_id,
             authority: Default::default(),
             azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,
+            cache_id,
+        }
+    }
+
+    pub(crate) fn new_init(
+        client_id: Uuid,
+        tenant: Option<impl AsRef<str>>,
+        redirect_uri: Option<Url>,
+    ) -> AppConfig {
+        let tenant_id: Option<String> = tenant.map(|value| value.as_ref().to_string());
+        let cache_id = {
+            if let Some(tenant_id) = tenant_id.as_ref() {
+                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
+                    "{},{}",
+                    tenant_id,
+                    client_id.to_string()
+                ))
+            } else {
+                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string())
+            }
+        };
+
+        AppConfig {
+            tenant_id,
+            client_id,
+            authority: Default::default(),
+            azure_cloud_instance: Default::default(),
+            extra_query_parameters: Default::default(),
+            extra_header_parameters: Default::default(),
+            redirect_uri,
+            cache_id,
         }
     }
 
     pub(crate) fn new_with_client_id(client_id: impl AsRef<str>) -> AppConfig {
+        let client_id = Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
+        let cache_id =
+            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string());
+
         AppConfig {
             tenant_id: None,
-            client_id: Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
+            client_id,
             authority: Default::default(),
             azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,
+            cache_id,
         }
     }
 
@@ -56,22 +99,35 @@ impl AppConfig {
         tenant_id: impl AsRef<str>,
         client_id: impl AsRef<str>,
     ) -> AppConfig {
+        let client_id = Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
+        let tenant_id = tenant_id.as_ref();
+        let cache_id = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
+            "{},{}",
+            tenant_id,
+            client_id.to_string()
+        ));
+
         AppConfig {
-            tenant_id: Some(tenant_id.as_ref().to_string()),
-            client_id: Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
-            authority: Authority::TenantId(tenant_id.as_ref().to_string()),
+            tenant_id: Some(tenant_id.to_string()),
+            client_id,
+            authority: Authority::TenantId(tenant_id.to_string()),
             azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             redirect_uri: None,
+            cache_id,
         }
     }
 
     pub(crate) fn cache_id(&self) -> String {
         if let Some(tenant_id) = self.tenant_id.as_ref() {
-            format!("{},{}", tenant_id, self.client_id.to_string())
+            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
+                "{},{}",
+                tenant_id,
+                self.client_id.to_string()
+            ))
         } else {
-            self.client_id.to_string()
+            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(self.client_id.to_string())
         }
     }
 }

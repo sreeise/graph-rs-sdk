@@ -1,16 +1,19 @@
+use std::collections::HashMap;
+use std::env::VarError;
+use std::fmt::{Debug, Formatter};
+
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::IdentityResult;
+
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AuthorizationSerializer, AzureCloudInstance, ClientSecretCredential,
-    TokenCredentialExecutor,
+    Authority, AzureCloudInstance, ClientSecretCredential, TokenCredentialExecutor,
 };
 use crate::oauth::{
     ConfidentialClientApplication, PublicClientApplication, ResourceOwnerPasswordCredential,
 };
-use graph_error::IdentityResult;
-use std::collections::HashMap;
-use std::env::VarError;
-use url::Url;
-use uuid::Uuid;
 
 const AZURE_TENANT_ID: &str = "AZURE_TENANT_ID";
 const AZURE_CLIENT_ID: &str = "AZURE_CLIENT_ID";
@@ -21,6 +24,12 @@ const AZURE_PASSWORD: &str = "AZURE_PASSWORD";
 #[derive(Clone)]
 pub struct EnvironmentCredential {
     pub credential: Box<dyn TokenCredentialExecutor + Send>,
+}
+
+impl Debug for EnvironmentCredential {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EnvironmentCredential").finish()
+    }
 }
 
 impl EnvironmentCredential {
@@ -164,6 +173,7 @@ impl TokenCredentialExecutor for EnvironmentCredential {
     }
 }
 
+/*
 impl From<ClientSecretCredential> for EnvironmentCredential {
     fn from(value: ClientSecretCredential) -> Self {
         EnvironmentCredential {
@@ -195,3 +205,5 @@ impl From<PublicClientApplication> for EnvironmentCredential {
         }
     }
 }
+
+ */

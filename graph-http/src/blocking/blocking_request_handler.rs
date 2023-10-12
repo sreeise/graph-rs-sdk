@@ -31,8 +31,9 @@ impl BlockingRequestHandler {
         if let Some(err) = err {
             error = Some(GraphFailure::PreFlightError {
                 url: Some(request_components.url.clone()),
-                headers: request_components.headers.clone(),
-                error: Box::new(err),
+                headers: Some(request_components.headers.clone()),
+                error: Some(Box::new(err)),
+                message: String::from("N/A"),
             });
         }
 

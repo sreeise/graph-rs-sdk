@@ -1,7 +1,10 @@
-use crate::identity::AzureCloudInstance;
-use graph_error::IdentityResult;
 use std::collections::HashMap;
+
 use url::Url;
+
+use graph_error::IdentityResult;
+
+use crate::identity::AzureCloudInstance;
 
 pub trait AuthorizationSerializer {
     fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url>;

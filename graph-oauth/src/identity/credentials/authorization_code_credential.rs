@@ -1,17 +1,21 @@
+use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+
+use async_trait::async_trait;
+use http::{HeaderMap, HeaderName, HeaderValue};
+use reqwest::IntoUrl;
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{IdentityResult, AF};
+use graph_extensions::crypto::ProofKeyCodeExchange;
+
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     Authority, AzureCloudInstance, ConfidentialClientApplication, TokenCredentialExecutor,
 };
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
-use async_trait::async_trait;
-use graph_error::{IdentityResult, AF};
-use graph_extensions::crypto::ProofKeyCodeExchange;
-use http::{HeaderMap, HeaderName, HeaderValue};
-use reqwest::IntoUrl;
-use std::collections::HashMap;
-use url::Url;
-use uuid::Uuid;
 
 credential_builder!(
     AuthorizationCodeCredentialBuilder,
@@ -58,6 +62,15 @@ pub struct AuthorizationCodeCredential {
     serializer: OAuthSerializer,
 }
 
+impl Debug for AuthorizationCodeCredential {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AuthorizationCodeCredential")
+            .field("app_config", &self.app_config)
+            .field("scope", &self.scope)
+            .finish()
+    }
+}
+
 impl AuthorizationCodeCredential {
     pub fn new<T: AsRef<str>, U: IntoUrl>(
         tenant_id: T,
@@ -86,18 +99,12 @@ impl AuthorizationCodeCredential {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
 
-        let app_config = AppConfig {
-            tenant_id: Some(tenant_id.as_ref().to_owned()),
-            client_id: Uuid::try_parse(client_id.as_ref())?,
-            authority: Default::default(),
-            azure_cloud_instance: Default::default(),
-            extra_query_parameters: Default::default(),
-            extra_header_parameters: Default::default(),
-            redirect_uri: Some(redirect_uri),
-        };
-
         Ok(AuthorizationCodeCredential {
-            app_config,
+            app_config: AppConfig::new_init(
+                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
+                Some(tenant_id.as_ref().to_owned()),
+                Some(redirect_uri),
+            ),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_secret: client_secret.as_ref().to_owned(),

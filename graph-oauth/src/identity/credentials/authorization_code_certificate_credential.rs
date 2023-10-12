@@ -1,3 +1,14 @@
+use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+
+use async_trait::async_trait;
+use http::{HeaderMap, HeaderName, HeaderValue};
+use reqwest::IntoUrl;
+use url::Url;
+use uuid::Uuid;
+
+use graph_error::{IdentityResult, AF};
+
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
@@ -5,14 +16,6 @@ use crate::identity::{
     AzureCloudInstance, ConfidentialClientApplication, TokenCredentialExecutor,
     CLIENT_ASSERTION_TYPE,
 };
-use async_trait::async_trait;
-use graph_error::{IdentityResult, AF};
-use http::{HeaderMap, HeaderName, HeaderValue};
-use reqwest::IntoUrl;
-use std::collections::HashMap;
-use url::Url;
-use uuid::Uuid;
-
 #[cfg(feature = "openssl")]
 use crate::oauth::X509Certificate;
 
@@ -27,7 +30,7 @@ credential_builder!(
 /// identity platform) back to your application. For example, a web browser, desktop, or mobile
 /// application operated by a user to sign in to your app and access their data.
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct AuthorizationCodeCertificateCredential {
     pub(crate) app_config: AppConfig,
     /// The authorization code obtained from a call to authorize. The code should be obtained with all required scopes.
@@ -55,6 +58,14 @@ pub struct AuthorizationCodeCertificateCredential {
     serializer: OAuthSerializer,
 }
 
+impl Debug for AuthorizationCodeCertificateCredential {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AuthorizationCodeCertificateCredential")
+            .field("app_config", &self.app_config)
+            .field("scope", &self.scope)
+            .finish()
+    }
+}
 impl AuthorizationCodeCertificateCredential {
     pub fn new<T: AsRef<str>, U: IntoUrl>(
         client_id: T,
@@ -70,18 +81,12 @@ impl AuthorizationCodeCertificateCredential {
             }
         };
 
-        let app_config = AppConfig {
-            client_id: Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
-            tenant_id: None,
-            authority: Default::default(),
-            azure_cloud_instance: Default::default(),
-            extra_query_parameters: Default::default(),
-            extra_header_parameters: Default::default(),
-            redirect_uri,
-        };
-
         Ok(AuthorizationCodeCertificateCredential {
-            app_config,
+            app_config: AppConfig::new_init(
+                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
+                Option::<String>::None,
+                redirect_uri,
+            ),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             code_verifier: None,
