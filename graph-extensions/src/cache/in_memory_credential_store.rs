@@ -1,9 +1,8 @@
-use crate::cache::{AsBearer, StoredToken, TokenStore, TokenStoreProvider};
+use crate::cache::AsBearer;
 use std::collections::HashMap;
-use std::hash::Hash;
 use std::sync::{Arc, RwLock};
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct InMemoryCredentialStore<Token: AsBearer + Clone> {
     store: Arc<RwLock<HashMap<String, Token>>>,
 }
@@ -21,7 +20,7 @@ impl<Token: AsBearer + Clone> InMemoryCredentialStore<Token> {
     }
 
     pub fn get(&self, cache_id: &str) -> Option<Token> {
-        let mut store = self.store.read().unwrap();
+        let store = self.store.read().unwrap();
         store.get(cache_id).cloned()
     }
 }

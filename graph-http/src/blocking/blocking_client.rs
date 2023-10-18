@@ -1,4 +1,5 @@
 use crate::internal::GraphClientConfiguration;
+use graph_extensions::token::ClientApplication;
 use reqwest::header::HeaderMap;
 use std::env::VarError;
 use std::ffi::OsStr;
@@ -6,8 +7,8 @@ use std::fmt::{Debug, Formatter};
 
 #[derive(Clone)]
 pub struct BlockingClient {
-    pub(crate) access_token: String,
     pub(crate) inner: reqwest::blocking::Client,
+    pub(crate) client_application: Box<dyn ClientApplication>,
     pub(crate) headers: HeaderMap,
 }
 

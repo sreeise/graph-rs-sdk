@@ -4,7 +4,7 @@ use serde_aux::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 use crate::token::IdToken;
 use std::str::FromStr;
@@ -24,7 +24,7 @@ where
 
 // Used to set timestamp based on expires in
 // which can only be done after deserialization.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct PhantomMsalToken {
     access_token: String,
     token_type: String,
@@ -152,7 +152,7 @@ impl MsalToken {
     pub fn with_expires_in(&mut self, expires_in: i64) -> &mut Self {
         self.expires_in = expires_in;
         let timestamp = time::OffsetDateTime::now_utc();
-        self.expires_on = Some(timestamp.add(time::Duration::seconds(self.expires_in.clone())));
+        self.expires_on = Some(timestamp.add(time::Duration::seconds(self.expires_in)));
         self.timestamp = Some(timestamp);
         self
     }
@@ -294,20 +294,16 @@ impl MsalToken {
     /// access_token.expires_in = 86999;
     /// access_token.gen_timestamp();
     /// println!("{:#?}", access_token.timestamp);
-    /// // The timestamp is in UTC.
     /// ```
     pub fn gen_timestamp(&mut self) {
         let timestamp = time::OffsetDateTime::now_utc();
-        let expires_on = timestamp.add(time::Duration::seconds(self.expires_in.clone()));
+        let expires_on = timestamp.add(time::Duration::seconds(self.expires_in));
         self.timestamp = Some(timestamp);
         self.expires_on = Some(expires_on);
     }
 
-    /// Check whether the access token is expired. Uses the expires_in
-    /// field to check time elapsed since token was first deserialized.
-    /// This is done using a Utc timestamp set when the [MsalToken] is
-    /// deserialized from the api response
-    ///
+    /// Check whether the access token is expired. Checks if expires_on timestamp
+    /// is less than UTC now timestamp.
     ///
     /// # Example
     /// ```
@@ -319,6 +315,25 @@ impl MsalToken {
     pub fn is_expired(&self) -> bool {
         if let Some(expires_on) = self.expires_on.as_ref() {
             expires_on.lt(&OffsetDateTime::now_utc())
+        } else {
+            false
+        }
+    }
+
+    /// Check whether the access token is expired sub duration.
+    /// This is useful in scenarios where you want to eagerly refresh
+    /// the access token before it expires to prevent a failed request.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_extensions::token::MsalToken;
+    ///
+    /// let mut access_token = MsalToken::default();
+    /// println!("{:#?}", access_token.is_expired_sub(time::Duration::minutes(5)));
+    /// ```
+    pub fn is_expired_sub(&self, duration: time::Duration) -> bool {
+        if let Some(expires_on) = self.expires_on.as_ref() {
+            expires_on.sub(duration).lt(&OffsetDateTime::now_utc())
         } else {
             false
         }
@@ -488,8 +503,8 @@ mod test {
     #[test]
     fn is_expired_test() {
         let mut access_token = MsalToken::default();
-        access_token.with_expires_in(1);
-        std::thread::sleep(std::time::Duration::from_secs(3));
+        access_token.with_expires_in(5);
+        std::thread::sleep(std::time::Duration::from_secs(6));
         assert!(access_token.is_expired());
 
         let mut access_token = MsalToken::default();

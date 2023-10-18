@@ -12,16 +12,14 @@ use graph_error::{IdentityResult, AF};
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters, Authority,
-    AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, TokenCredentialExecutor,
+    AuthCodeAuthorizationUrlParameterBuilder, Authority, AzureCloudInstance,
+    ConfidentialClientApplication, ForceTokenRefresh, TokenCredentialExecutor,
     CLIENT_ASSERTION_TYPE,
 };
-#[cfg(feature = "openssl")]
-use crate::oauth::X509Certificate;
 
 credential_builder!(
-    AuthorizationCodeCertificateCredentialBuilder,
-    ConfidentialClientApplication<AuthorizationCodeCertificateCredential>
+    AuthorizationCodeAssertionCredentialBuilder,
+    ConfidentialClientApplication<AuthorizationCodeAssertionCredential>
 );
 
 /// The OAuth 2.0 authorization code grant type, or auth code flow, enables a client application
@@ -31,7 +29,7 @@ credential_builder!(
 /// application operated by a user to sign in to your app and access their data.
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
 #[derive(Clone)]
-pub struct AuthorizationCodeCertificateCredential {
+pub struct AuthorizationCodeAssertionCredential {
     pub(crate) app_config: AppConfig,
     /// The authorization code obtained from a call to authorize. The code should be obtained with all required scopes.
     pub(crate) authorization_code: Option<String>,
@@ -58,21 +56,21 @@ pub struct AuthorizationCodeCertificateCredential {
     serializer: OAuthSerializer,
 }
 
-impl Debug for AuthorizationCodeCertificateCredential {
+impl Debug for AuthorizationCodeAssertionCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("AuthorizationCodeCertificateCredential")
+        f.debug_struct("AuthorizationCodeAssertionCredential")
             .field("app_config", &self.app_config)
             .field("scope", &self.scope)
             .finish()
     }
 }
-impl AuthorizationCodeCertificateCredential {
+impl AuthorizationCodeAssertionCredential {
     pub fn new<T: AsRef<str>, U: IntoUrl>(
         client_id: T,
         authorization_code: T,
         client_assertion: T,
         redirect_uri: Option<U>,
-    ) -> IdentityResult<AuthorizationCodeCertificateCredential> {
+    ) -> IdentityResult<AuthorizationCodeAssertionCredential> {
         let redirect_uri = {
             if let Some(redirect_uri) = redirect_uri {
                 redirect_uri.into_url().ok()
@@ -81,7 +79,7 @@ impl AuthorizationCodeCertificateCredential {
             }
         };
 
-        Ok(AuthorizationCodeCertificateCredential {
+        Ok(AuthorizationCodeAssertionCredential {
             app_config: AppConfig::new_init(
                 Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
                 Option::<String>::None,
@@ -97,16 +95,12 @@ impl AuthorizationCodeCertificateCredential {
         })
     }
 
-    #[cfg(feature = "openssl")]
     pub fn builder(
-        client_id: impl AsRef<str>,
         authorization_code: impl AsRef<str>,
-        x509: &X509Certificate,
-    ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
-        AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
-            AppConfig::new_with_client_id(client_id),
+    ) -> AuthorizationCodeAssertionCredentialBuilder {
+        AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
+            Default::default(),
             authorization_code,
-            x509,
         )
     }
 
@@ -118,7 +112,7 @@ impl AuthorizationCodeCertificateCredential {
 }
 
 #[async_trait]
-impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
+impl TokenCredentialExecutor for AuthorizationCodeAssertionCredential {
     fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();
         self.serializer
@@ -234,16 +228,19 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
 }
 
 #[derive(Clone)]
-pub struct AuthorizationCodeCertificateCredentialBuilder {
-    credential: AuthorizationCodeCertificateCredential,
+pub struct AuthorizationCodeAssertionCredentialBuilder {
+    credential: AuthorizationCodeAssertionCredential,
 }
 
-impl AuthorizationCodeCertificateCredentialBuilder {
-    fn new() -> AuthorizationCodeCertificateCredentialBuilder {
+impl AuthorizationCodeAssertionCredentialBuilder {
+    pub(crate) fn new_with_auth_code(
+        app_config: AppConfig,
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeAssertionCredentialBuilder {
         Self {
-            credential: AuthorizationCodeCertificateCredential {
-                app_config: Default::default(),
-                authorization_code: None,
+            credential: AuthorizationCodeAssertionCredential {
+                app_config,
+                authorization_code: Some(authorization_code.as_ref().to_owned()),
                 refresh_token: None,
                 code_verifier: None,
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
@@ -254,27 +251,23 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         }
     }
 
-    #[cfg(feature = "openssl")]
-    pub(crate) fn new_with_auth_code_and_x509(
+    pub(crate) fn new_with_auth_code_and_assertion(
         app_config: AppConfig,
         authorization_code: impl AsRef<str>,
-        x509: &X509Certificate,
-    ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
-        let mut builder = Self {
-            credential: AuthorizationCodeCertificateCredential {
+        assertion: impl AsRef<str>,
+    ) -> AuthorizationCodeAssertionCredentialBuilder {
+        Self {
+            credential: AuthorizationCodeAssertionCredential {
                 app_config,
                 authorization_code: Some(authorization_code.as_ref().to_owned()),
                 refresh_token: None,
                 code_verifier: None,
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
-                client_assertion: String::new(),
+                client_assertion: assertion.as_ref().to_owned(),
                 scope: vec![],
                 serializer: OAuthSerializer::new(),
             },
-        };
-
-        builder.with_x509(x509)?;
-        Ok(builder)
+        }
     }
 
     pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
@@ -298,21 +291,6 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         self
     }
 
-    #[cfg(feature = "openssl")]
-    pub fn with_x509(
-        &mut self,
-        certificate_assertion: &X509Certificate,
-    ) -> IdentityResult<&mut Self> {
-        if let Some(tenant_id) = self.credential.authority().tenant_id() {
-            self.with_client_assertion(
-                certificate_assertion.sign_with_tenant(Some(tenant_id.clone()))?,
-            );
-        } else {
-            self.with_client_assertion(certificate_assertion.sign_with_tenant(None)?);
-        }
-        Ok(self)
-    }
-
     pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
         self.credential.client_assertion = client_assertion.as_ref().to_owned();
         self
@@ -326,33 +304,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         self
     }
 
-    pub fn credential(self) -> AuthorizationCodeCertificateCredential {
+    pub fn credential(self) -> AuthorizationCodeAssertionCredential {
         self.credential
-    }
-}
-
-impl From<AuthCodeAuthorizationUrlParameters> for AuthorizationCodeCertificateCredentialBuilder {
-    fn from(value: AuthCodeAuthorizationUrlParameters) -> Self {
-        let mut builder = AuthorizationCodeCertificateCredentialBuilder::new();
-        builder.credential.app_config = value.app_config;
-        builder.with_scope(value.scope);
-
-        builder
-    }
-}
-
-impl From<AuthorizationCodeCertificateCredential>
-    for AuthorizationCodeCertificateCredentialBuilder
-{
-    fn from(credential: AuthorizationCodeCertificateCredential) -> Self {
-        AuthorizationCodeCertificateCredentialBuilder { credential }
-    }
-}
-
-impl From<AuthorizationCodeCertificateCredentialBuilder>
-    for AuthorizationCodeCertificateCredential
-{
-    fn from(builder: AuthorizationCodeCertificateCredentialBuilder) -> Self {
-        builder.credential
     }
 }

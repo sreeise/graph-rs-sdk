@@ -22,10 +22,8 @@ use std::collections::BTreeSet;
 // 2. Implicit grant flow for v2.0: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow
 //
 // To better understand OAuth V2.0 and the implicit flow see: https://tools.ietf.org/html/rfc6749#section-1.3.2
-use graph_rs_sdk::oauth::{
-    ImplicitCredential, Prompt, ResponseMode, ResponseType, TokenCredentialExecutor,
-};
-
+use graph_rs_sdk::oauth::legacy::ImplicitCredential;
+use graph_rs_sdk::oauth::{Prompt, ResponseMode, ResponseType, TokenCredentialExecutor};
 fn oauth_implicit_flow() {
     let authorizer = ImplicitCredential::builder()
         .with_client_id("<YOUR_CLIENT_ID>")

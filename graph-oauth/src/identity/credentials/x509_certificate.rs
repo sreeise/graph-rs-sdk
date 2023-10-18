@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use anyhow::anyhow;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine;
+use graph_error::{IdentityResult, AF};
 use openssl::error::ErrorStack;
 use openssl::hash::MessageDigest;
 use openssl::pkcs12::{ParsedPkcs12_2, Pkcs12};
@@ -13,25 +13,25 @@ use openssl::x509::{X509Ref, X509};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
-fn encode_cert(cert: &X509) -> anyhow::Result<String> {
+fn encode_cert(cert: &X509) -> IdentityResult<String> {
     Ok(format!(
         "\"{}\"",
-        URL_SAFE_NO_PAD.encode(cert.to_pem().map_err(|err| anyhow!(err.to_string()))?)
+        URL_SAFE_NO_PAD.encode(cert.to_pem().map_err(|err| AF::x509(err.to_string()))?)
     ))
 }
 
-fn encode_cert_ref(cert: &X509Ref) -> anyhow::Result<String> {
+fn encode_cert_ref(cert: &X509Ref) -> IdentityResult<String> {
     Ok(format!(
         "\"{}\"",
-        URL_SAFE_NO_PAD.encode(cert.to_pem().map_err(|err| anyhow!(err.to_string()))?)
+        URL_SAFE_NO_PAD.encode(cert.to_pem().map_err(|err| AF::x509(err.to_string()))?)
     ))
 }
 
 #[allow(unused)]
-fn thumbprint(cert: &X509) -> anyhow::Result<String> {
+fn thumbprint(cert: &X509) -> IdentityResult<String> {
     let digest_bytes = cert
         .digest(MessageDigest::sha1())
-        .map_err(|err| anyhow!(err.to_string()))?;
+        .map_err(|err| AF::x509(err.to_string()))?;
     Ok(URL_SAFE_NO_PAD.encode(digest_bytes))
 }
 
@@ -91,16 +91,22 @@ impl X509Certificate {
         client_id: T,
         pass: T,
         certificate: X509,
-    ) -> anyhow::Result<Self> {
+    ) -> IdentityResult<Self> {
         let der = encode_cert(&certificate)?;
-        let parsed_pkcs12 =
-            Pkcs12::from_der(&URL_SAFE_NO_PAD.decode(der)?)?.parse2(pass.as_ref())?;
+        let parsed_pkcs12 = Pkcs12::from_der(
+            &URL_SAFE_NO_PAD
+                .decode(der)
+                .map_err(|err| AF::x509(err.to_string()))?,
+        )
+        .map_err(|err| AF::x509(err.to_string()))?
+        .parse2(pass.as_ref())
+        .map_err(|err| AF::x509(err.to_string()))?;
 
-        let _ = parsed_pkcs12.cert.as_ref().ok_or(anyhow::Error::msg(
+        let _ = parsed_pkcs12.cert.as_ref().ok_or(AF::x509(
             "No certificate found after parsing Pkcs12 using pass",
         ))?;
 
-        let private_key = parsed_pkcs12.pkey.as_ref().ok_or(anyhow::Error::msg(
+        let private_key = parsed_pkcs12.pkey.as_ref().ok_or(AF::x509(
             "No private key found after parsing Pkcs12 using pass",
         ))?;
 
@@ -122,16 +128,22 @@ impl X509Certificate {
         tenant_id: T,
         pass: T,
         certificate: X509,
-    ) -> anyhow::Result<Self> {
+    ) -> IdentityResult<Self> {
         let der = encode_cert(&certificate)?;
-        let parsed_pkcs12 =
-            Pkcs12::from_der(&URL_SAFE_NO_PAD.decode(der)?)?.parse2(pass.as_ref())?;
+        let parsed_pkcs12 = Pkcs12::from_der(
+            &URL_SAFE_NO_PAD
+                .decode(der)
+                .map_err(|err| AF::x509(err.to_string()))?,
+        )
+        .map_err(|err| AF::x509(err.to_string()))?
+        .parse2(pass.as_ref())
+        .map_err(|err| AF::x509(err.to_string()))?;
 
-        let _ = parsed_pkcs12.cert.as_ref().ok_or(anyhow::Error::msg(
+        let _ = parsed_pkcs12.cert.as_ref().ok_or(AF::x509(
             "No certificate found after parsing Pkcs12 using pass",
         ))?;
 
-        let private_key = parsed_pkcs12.pkey.as_ref().ok_or(anyhow::Error::msg(
+        let private_key = parsed_pkcs12.pkey.as_ref().ok_or(AF::x509(
             "No private key found after parsing Pkcs12 using pass",
         ))?;
 
@@ -189,11 +201,11 @@ impl X509Certificate {
     }
 
     /// Base64 Url encoded (No Pad) SHA-1 thumbprint of the X.509 certificate's DER encoding.
-    pub fn get_thumbprint(&self) -> anyhow::Result<String> {
+    pub fn get_thumbprint(&self) -> IdentityResult<String> {
         let digest_bytes = self
             .certificate
             .digest(MessageDigest::sha1())
-            .map_err(|err| anyhow!(err.to_string()))?;
+            .map_err(|err| AF::x509(err.to_string()))?;
         Ok(URL_SAFE_NO_PAD.encode(digest_bytes))
     }
 
@@ -215,13 +227,13 @@ impl X509Certificate {
         self.uuid = value;
     }
 
-    fn x5c(&self) -> anyhow::Result<String> {
-        let parsed_pkcs12 = self.parsed_pkcs12.as_ref().ok_or(anyhow!(
-            "No certificate found after parsing Pkcs12 using pass"
+    fn x5c(&self) -> IdentityResult<String> {
+        let parsed_pkcs12 = self.parsed_pkcs12.as_ref().ok_or(AF::x509(
+            "No certificate found after parsing Pkcs12 using pass",
         ))?;
 
-        let certificate = parsed_pkcs12.cert.as_ref().ok_or(anyhow!(
-            "No certificate found after parsing Pkcs12 using pass"
+        let certificate = parsed_pkcs12.cert.as_ref().ok_or(AF::x509(
+            "No certificate found after parsing Pkcs12 using pass",
         ))?;
 
         let sig = encode_cert(certificate)?;
@@ -230,9 +242,11 @@ impl X509Certificate {
             let chain = stack
                 .into_iter()
                 .map(encode_cert_ref)
-                .collect::<anyhow::Result<Vec<String>>>()
+                .collect::<IdentityResult<Vec<String>>>()
                 .map_err(|err| {
-                    anyhow!("Unable to encode certificates in certificate chain - error {err}")
+                    AF::x509(format!(
+                        "Unable to encode certificates in certificate chain - error {err}"
+                    ))
                 })?
                 .join(",");
 
@@ -242,7 +256,7 @@ impl X509Certificate {
         }
     }
 
-    fn get_header(&self) -> anyhow::Result<HashMap<String, String>> {
+    fn get_header(&self) -> IdentityResult<HashMap<String, String>> {
         let mut header = HashMap::new();
         header.insert("x5t".to_owned(), self.get_thumbprint()?);
         header.insert("alg".to_owned(), "RS256".to_owned());
@@ -256,7 +270,7 @@ impl X509Certificate {
         Ok(header)
     }
 
-    fn get_claims(&self, tenant_id: Option<String>) -> anyhow::Result<HashMap<String, String>> {
+    fn get_claims(&self, tenant_id: Option<String>) -> IdentityResult<HashMap<String, String>> {
         if let Some(claims) = self.claims.as_ref() {
             if !self.extend_claims {
                 return Ok(claims.clone());
@@ -295,7 +309,7 @@ impl X509Certificate {
     }
 
     /// JWT Header and Payload in the format header.payload
-    fn base64_token(&self, tenant_id: Option<String>) -> anyhow::Result<String> {
+    fn base64_token(&self, tenant_id: Option<String>) -> IdentityResult<String> {
         let header = self.get_header()?;
         let header = serde_json::to_string(&header)?;
         let header_base64 = URL_SAFE_NO_PAD.encode(header.as_bytes());
@@ -326,13 +340,22 @@ impl X509Certificate {
            Ok(signed_client_assertion)
     */
 
-    pub fn sign(&self) -> anyhow::Result<String> {
+    pub fn sign(&self) -> IdentityResult<String> {
         let token = self.base64_token(self.tenant_id.clone())?;
 
-        let mut signer = Signer::new(MessageDigest::sha256(), &self.pkey)?;
-        signer.set_rsa_padding(Padding::PKCS1)?;
-        signer.update(token.as_str().as_bytes())?;
-        let signature = URL_SAFE_NO_PAD.encode(signer.sign_to_vec()?);
+        let mut signer = Signer::new(MessageDigest::sha256(), &self.pkey)
+            .map_err(|err| AF::x509(err.to_string()))?;
+        signer
+            .set_rsa_padding(Padding::PKCS1)
+            .map_err(|err| AF::x509(err.to_string()))?;
+        signer
+            .update(token.as_str().as_bytes())
+            .map_err(|err| AF::x509(err.to_string()))?;
+        let signature = URL_SAFE_NO_PAD.encode(
+            signer
+                .sign_to_vec()
+                .map_err(|err| AF::x509(err.to_string()))?,
+        );
 
         Ok(format!("{token}.{signature}"))
     }
@@ -341,13 +364,22 @@ impl X509Certificate {
     ///
     /// The signature is a Base64 Url encoded (No Pad) JWT Header and Payload signed with the private key using SHA_256
     /// and RSA padding PKCS1
-    pub fn sign_with_tenant(&self, tenant_id: Option<String>) -> anyhow::Result<String> {
+    pub fn sign_with_tenant(&self, tenant_id: Option<String>) -> IdentityResult<String> {
         let token = self.base64_token(tenant_id)?;
 
-        let mut signer = Signer::new(MessageDigest::sha256(), &self.pkey)?;
-        signer.set_rsa_padding(Padding::PKCS1)?;
-        signer.update(token.as_str().as_bytes())?;
-        let signature = URL_SAFE_NO_PAD.encode(signer.sign_to_vec()?);
+        let mut signer = Signer::new(MessageDigest::sha256(), &self.pkey)
+            .map_err(|err| AF::x509(err.to_string()))?;
+        signer
+            .set_rsa_padding(Padding::PKCS1)
+            .map_err(|err| AF::x509(err.to_string()))?;
+        signer
+            .update(token.as_str().as_bytes())
+            .map_err(|err| AF::x509(err.to_string()))?;
+        let signature = URL_SAFE_NO_PAD.encode(
+            signer
+                .sign_to_vec()
+                .map_err(|err| AF::x509(err.to_string()))?,
+        );
 
         Ok(format!("{token}.{signature}"))
     }

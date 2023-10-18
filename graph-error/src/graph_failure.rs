@@ -7,7 +7,6 @@ use std::io;
 use std::io::ErrorKind;
 use std::str::Utf8Error;
 use std::sync::mpsc;
-use url::form_urlencoded::parse;
 
 #[derive(Debug, thiserror::Error)]
 #[allow(clippy::large_enum_variant)]
@@ -114,8 +113,8 @@ impl From<ring::error::Unspecified> for GraphFailure {
 impl From<AuthExecutionError> for GraphFailure {
     fn from(value: AuthExecutionError) -> Self {
         match value {
-            AuthExecutionError::AuthorizationFailure(authorizationFailure) => {
-                match authorizationFailure {
+            AuthExecutionError::AuthorizationFailure(authorization_failure) => {
+                match authorization_failure {
                     AuthorizationFailure::RequiredValue { name, message } => {
                         GraphFailure::PreFlightError {
                             url: None,
@@ -125,7 +124,7 @@ impl From<AuthExecutionError> for GraphFailure {
                         }
                     }
                     AuthorizationFailure::UrlParseError(e) => GraphFailure::UrlParseError(e),
-                    AuthorizationFailure::UuidError(uuidError) => GraphFailure::PreFlightError {
+                    AuthorizationFailure::UuidError(_uuid_error) => GraphFailure::PreFlightError {
                         url: None,
                         headers: None,
                         error: None,
@@ -137,6 +136,15 @@ impl From<AuthExecutionError> for GraphFailure {
                         error: None,
                         message,
                     },
+                    AuthorizationFailure::X509Error(message) => GraphFailure::PreFlightError {
+                        url: None,
+                        headers: None,
+                        error: None,
+                        message,
+                    },
+                    AuthorizationFailure::SerdeJsonError(serde_json_error) => {
+                        GraphFailure::SerdeError(serde_json_error)
+                    }
                 }
             }
             AuthExecutionError::RequestError(e) => GraphFailure::ReqwestError(e),

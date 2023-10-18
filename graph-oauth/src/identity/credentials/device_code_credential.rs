@@ -18,12 +18,17 @@ use graph_extensions::http::{
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
-use crate::oauth::{DeviceCode, PollDeviceCodeType, PublicClientApplication};
+use crate::identity::{
+    Authority, AzureCloudInstance, DeviceCode, ForceTokenRefresh, PollDeviceCodeType,
+    PublicClientApplication, TokenCredentialExecutor,
+};
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
-credential_builder!(DeviceCodeCredentialBuilder, PublicClientApplication);
+credential_builder!(
+    DeviceCodeCredentialBuilder,
+    PublicClientApplication<DeviceCodeCredential>
+);
 
 /// Allows users to sign in to input-constrained devices such as a smart TV, IoT device,
 /// or a printer. To enable this flow, the device has the user visit a webpage in a browser on
@@ -373,7 +378,7 @@ impl DeviceCodePollingExecutor {
         let mut interval = Duration::from_secs(device_code_response.interval);
         credential.with_device_code(device_code);
 
-        let _ = tokio::spawn(async move {
+        tokio::spawn(async move {
             let mut should_slow_down = false;
 
             loop {
@@ -425,7 +430,7 @@ impl DeviceCodePollingExecutor {
                     }
                 }
             }
-            return Ok::<(), anyhow::Error>(());
+            Ok::<(), anyhow::Error>(())
         });
 
         Ok(receiver)

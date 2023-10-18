@@ -8,7 +8,7 @@ pub struct AutomaticTokenRefresh<T> {
 
 impl<T: Clone + Debug + Send + Sync> AutomaticTokenRefresh<T> {
     pub fn new(init: T) -> (Sender<T>, AutomaticTokenRefresh<T>) {
-        let (tx, mut rx) = channel(init);
+        let (tx, rx) = channel(init);
 
         (tx, AutomaticTokenRefresh { rx })
     }

@@ -66,7 +66,7 @@ async fn create_task(user_id: &str, list_id: &str) -> GraphResult<()> {
         .todo()
         .list(list_id)
         .tasks()
-        .create_tasks(&task)
+        .create_tasks(task)
         .send()
         .await?;
 
@@ -99,7 +99,7 @@ async fn create_task_using_me(list_id: &str) -> GraphResult<()> {
         .todo()
         .list(list_id)
         .tasks()
-        .create_tasks(&task)
+        .create_tasks(task)
         .send()
         .await?;
 

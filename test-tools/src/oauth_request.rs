@@ -3,8 +3,8 @@
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_rs_sdk::oauth::{
-    ConfidentialClientApplication, MsalToken, ResourceOwnerPasswordCredential,
-    TokenCredentialExecutor,
+    ClientSecretCredential, ConfidentialClientApplication, MsalToken,
+    ResourceOwnerPasswordCredential, TokenCredentialExecutor,
 };
 use graph_rs_sdk::Graph;
 use std::collections::{BTreeMap, HashMap};
@@ -124,7 +124,7 @@ impl OAuthTestCredentials {
         }
     }
 
-    fn client_credentials(self) -> ConfidentialClientApplication {
+    fn client_credentials(self) -> ConfidentialClientApplication<ClientSecretCredential> {
         ConfidentialClientApplication::builder(self.client_id.as_str())
             .with_client_secret(self.client_secret.as_str())
             .with_tenant(self.tenant.as_str())
@@ -178,7 +178,7 @@ impl OAuthTestClient {
     pub fn get_client_credentials(
         &self,
         creds: OAuthTestCredentials,
-    ) -> ConfidentialClientApplication {
+    ) -> ConfidentialClientApplication<ClientSecretCredential> {
         creds.client_credentials()
     }
 
@@ -214,8 +214,11 @@ impl OAuthTestClient {
 
     pub fn request_access_token(&self) -> Option<(String, MsalToken)> {
         if Environment::is_local() || Environment::is_travis() {
-            let map: OAuthTestClientMap = OAuthTestClientMap::from_file("./env.json").unwrap();
-            self.get_access_token(map.get(self).unwrap())
+            let map = AppRegistrationMap::from_file("./app_registrations.json").unwrap();
+            let test_client_map = OAuthTestClientMap {
+                clients: map.get_default_client_credentials().clients,
+            };
+            self.get_access_token(test_client_map.get(self).unwrap())
         } else if Environment::is_appveyor() {
             self.get_access_token(OAuthTestCredentials::new_env())
         } else if Environment::is_github() {
@@ -229,8 +232,12 @@ impl OAuthTestClient {
 
     pub async fn request_access_token_async(&self) -> Option<(String, MsalToken)> {
         if Environment::is_local() || Environment::is_travis() {
-            let map: OAuthTestClientMap = OAuthTestClientMap::from_file("./env.json").unwrap();
-            self.get_access_token_async(map.get(self).unwrap()).await
+            let map = AppRegistrationMap::from_file("./app_registrations.json").unwrap();
+            let test_client_map = OAuthTestClientMap {
+                clients: map.get_default_client_credentials().clients,
+            };
+            self.get_access_token_async(test_client_map.get(self).unwrap())
+                .await
         } else if Environment::is_appveyor() {
             self.get_access_token_async(OAuthTestCredentials::new_env())
                 .await
@@ -269,11 +276,23 @@ impl OAuthTestClient {
 
     pub fn client_credentials_by_rid(
         resource_identity: ResourceIdentity,
-    ) -> Option<ConfidentialClientApplication> {
+    ) -> Option<ConfidentialClientApplication<ClientSecretCredential>> {
         let app_registration = OAuthTestClient::get_app_registration()?;
         let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
         Some(test_client.get_client_credentials(credentials))
+    }
+
+    pub fn client_secret_credential_default() -> Option<ClientSecretCredential> {
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let app_registration_client = app_registration.get_default_client_credentials();
+        let test_client = app_registration_client
+            .clients
+            .get(&OAuthTestClient::ClientCredentials)
+            .cloned()
+            .unwrap();
+        let confidential_client = test_client.client_credentials();
+        Some(confidential_client.into_inner())
     }
 
     pub async fn graph_by_rid_async(
@@ -418,6 +437,8 @@ impl AppRegistrationClient {
 pub trait GetAppRegistration {
     fn get_by_resource_identity(&self, value: ResourceIdentity) -> Option<AppRegistrationClient>;
     fn get_by_str(&self, value: &str) -> Option<AppRegistrationClient>;
+
+    fn get_default_client_credentials(&self) -> AppRegistrationClient;
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
@@ -442,5 +463,14 @@ impl GetAppRegistration for AppRegistrationMap {
 
     fn get_by_str(&self, value: &str) -> Option<AppRegistrationClient> {
         self.apps.get(value).cloned()
+    }
+
+    fn get_default_client_credentials(&self) -> AppRegistrationClient {
+        let app_registration = self
+            .apps
+            .get("graph-rs-default-client-credentials")
+            .cloned()
+            .unwrap();
+        app_registration
     }
 }

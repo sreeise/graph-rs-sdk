@@ -67,7 +67,7 @@ use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_error::GraphFailure;
 use graph_extensions::token::ClientApplication;
 use graph_http::api_impl::GraphClientConfiguration;
-use graph_oauth::identity::{ClientSecretCredential, ConfidentialClient};
+use graph_oauth::identity::{ClientSecretCredential, ConfidentialClientApplication};
 use lazy_static::lazy_static;
 use std::convert::TryFrom;
 
@@ -563,8 +563,8 @@ impl From<GraphClientConfiguration> for Graph {
     }
 }
 
-impl From<ConfidentialClient<ClientSecretCredential>> for Graph {
-    fn from(value: ConfidentialClient<ClientSecretCredential>) -> Self {
+impl From<ConfidentialClientApplication<ClientSecretCredential>> for Graph {
+    fn from(value: ConfidentialClientApplication<ClientSecretCredential>) -> Self {
         Graph {
             client: Client::new(value),
             endpoint: PARSED_GRAPH_URL.clone(),

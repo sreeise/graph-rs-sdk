@@ -11,13 +11,16 @@ use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
 use graph_extensions::token::MsalToken;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ConfidentialClient,
-    ConfidentialClientApplication, TokenCredentialExecutor,
+    credentials::app_config::AppConfig, Authority, AzureCloudInstance,
+    ClientCredentialsAuthorizationUrlBuilder, ConfidentialClientApplication, ForceTokenRefresh,
+    TokenCredentialExecutor,
 };
 
-credential_builder!(ClientSecretCredentialBuilder, ConfidentialClientApplication);
+credential_builder!(
+    ClientSecretCredentialBuilder,
+    ConfidentialClientApplication<ClientSecretCredential>
+);
 
 /// Client Credentials flow using a client secret.
 ///
@@ -99,13 +102,13 @@ impl TokenCacheStore for ClientSecretCredential {
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
-            if token.is_expired() {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
                 let response = self.execute()?;
                 let msal_token: MsalToken = response.json()?;
                 self.token_cache.store(cache_id, msal_token.clone());
                 Ok(msal_token)
             } else {
-                Ok(token.clone())
+                Ok(token)
             }
         } else {
             let response = self.execute()?;
@@ -115,20 +118,24 @@ impl TokenCacheStore for ClientSecretCredential {
         }
     }
 
+    #[tracing::instrument]
     async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
-            if token.is_expired() {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
                 let response = self.execute_async().await?;
                 let msal_token: MsalToken = response.json().await?;
+                tracing::debug!("tokenResponse={:#?}", &msal_token);
                 self.token_cache.store(cache_id, msal_token.clone());
                 Ok(msal_token)
             } else {
+                tracing::debug!("tokenResponse={:#?}", &token);
                 Ok(token.clone())
             }
         } else {
             let response = self.execute_async().await?;
             let msal_token: MsalToken = response.json().await?;
+            tracing::debug!("tokenResponse={:#?}", &msal_token);
             self.token_cache.store(cache_id, msal_token.clone());
             Ok(msal_token)
         }
@@ -236,8 +243,8 @@ impl ClientSecretCredentialBuilder {
         self
     }
 
-    pub fn build_client(&self) -> ConfidentialClient<ClientSecretCredential> {
-        ConfidentialClient::new(self.credential.clone())
+    pub fn build_client(&self) -> ConfidentialClientApplication<ClientSecretCredential> {
+        ConfidentialClientApplication::credential(self.credential.clone())
     }
 
     pub fn credential(&self) -> ClientSecretCredential {

@@ -45,7 +45,7 @@ impl RequestHandler {
         }
 
         RequestHandler {
-            inner: inner.clone(),
+            inner,
             request_components,
             error,
             body,

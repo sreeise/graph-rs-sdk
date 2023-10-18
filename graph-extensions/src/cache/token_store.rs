@@ -17,11 +17,8 @@ impl StoredToken {
     }
 
     pub fn enable_pii_logging(&mut self) {
-        match self {
-            StoredToken::MsalToken(token) => {
-                token.enable_pii_logging(true);
-            }
-            _ => {}
+        if let StoredToken::MsalToken(token) = self {
+            token.enable_pii_logging(true);
         }
     }
 

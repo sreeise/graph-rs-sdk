@@ -6,6 +6,7 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::identity::{Authority, AzureCloudInstance};
+use crate::oauth::ForceTokenRefresh;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct AppConfig {
@@ -18,7 +19,11 @@ pub struct AppConfig {
     /// The Application (client) ID that the Azure portal - App registrations page assigned
     /// to your app
     pub(crate) client_id: Uuid,
+    /// Specifies which Microsoft accounts can be used for sign-in with a given application.
+    /// See https://aka.ms/msal-net-application-configuration
     pub(crate) authority: Authority,
+    /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
+    /// Maps to the instance url string.
     pub(crate) azure_cloud_instance: AzureCloudInstance,
     pub(crate) extra_query_parameters: HashMap<String, String>,
     pub(crate) extra_header_parameters: HeaderMap,
@@ -27,7 +32,9 @@ pub struct AppConfig {
     /// by your app. It must exactly match one of the redirect_uris you registered in the portal,
     /// except it must be URL-encoded.
     pub(crate) redirect_uri: Option<Url>,
+    /// Cache id used in a token cache store.
     pub(crate) cache_id: String,
+    pub(crate) force_token_refresh: ForceTokenRefresh,
 }
 
 impl AppConfig {
@@ -45,6 +52,7 @@ impl AppConfig {
             extra_header_parameters: Default::default(),
             redirect_uri: None,
             cache_id,
+            force_token_refresh: Default::default(),
         }
     }
 
@@ -75,6 +83,7 @@ impl AppConfig {
             extra_header_parameters: Default::default(),
             redirect_uri,
             cache_id,
+            force_token_refresh: Default::default(),
         }
     }
 
@@ -92,6 +101,7 @@ impl AppConfig {
             extra_header_parameters: Default::default(),
             redirect_uri: None,
             cache_id,
+            force_token_refresh: Default::default(),
         }
     }
 
@@ -116,18 +126,7 @@ impl AppConfig {
             extra_header_parameters: Default::default(),
             redirect_uri: None,
             cache_id,
-        }
-    }
-
-    pub(crate) fn cache_id(&self) -> String {
-        if let Some(tenant_id) = self.tenant_id.as_ref() {
-            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
-                "{},{}",
-                tenant_id,
-                self.client_id.to_string()
-            ))
-        } else {
-            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(self.client_id.to_string())
+            force_token_refresh: Default::default(),
         }
     }
 }

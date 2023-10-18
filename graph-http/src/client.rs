@@ -1,10 +1,11 @@
 use crate::blocking::BlockingClient;
 use async_trait::async_trait;
 use graph_error::AuthExecutionResult;
-use graph_extensions::cache::{StoredToken, TokenCacheStore, TokenStore, TokenStoreProvider};
+use graph_extensions::cache::TokenCacheStore;
 use graph_extensions::token::ClientApplication;
-use graph_oauth::identity::{ConfidentialClient, TokenCredentialExecutor};
-use graph_oauth::oauth::{ConfidentialClientApplication, PublicClientApplication};
+use graph_oauth::identity::{
+    ConfidentialClientApplication, PublicClientApplication, TokenCredentialExecutor,
+};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
@@ -20,36 +21,6 @@ fn user_agent_header_from_env() -> Option<HeaderValue> {
 
 #[derive(Clone)]
 pub struct BearerToken(pub String);
-
-impl TokenStore for BearerToken {
-    fn token_store_provider(&self) -> TokenStoreProvider {
-        TokenStoreProvider::InMemory
-    }
-
-    fn is_stored_token_initialized(&self, _id: &str) -> bool {
-        true
-    }
-
-    fn get_stored_token(&self, _id: &str) -> Option<&StoredToken> {
-        None
-    }
-
-    fn update_stored_token(
-        &mut self,
-        _id: &str,
-        _stored_token: StoredToken,
-    ) -> Option<StoredToken> {
-        None
-    }
-
-    fn get_bearer_token_from_store(&self, _id: &str) -> Option<&String> {
-        Some(&self.0)
-    }
-
-    fn get_refresh_token_from_store(&self, _id: &str) -> Option<&String> {
-        None
-    }
-}
 
 #[async_trait]
 impl ClientApplication for BearerToken {
@@ -137,7 +108,7 @@ impl GraphClientConfiguration {
         Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
     >(
         mut self,
-        confidential_client: ConfidentialClient<Credential>,
+        confidential_client: ConfidentialClientApplication<Credential>,
     ) -> Self {
         self.config.client_application = Some(Box::new(confidential_client));
         self
@@ -264,10 +235,18 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
-        BlockingClient {
-            access_token: Default::default(),
-            inner: builder.build().unwrap(),
-            headers,
+        if let Some(client_application) = self.config.client_application {
+            BlockingClient {
+                client_application,
+                inner: builder.build().unwrap(),
+                headers,
+            }
+        } else {
+            BlockingClient {
+                client_application: Box::new(BearerToken(Default::default())),
+                inner: builder.build().unwrap(),
+                headers,
+            }
         }
     }
 }
@@ -338,16 +317,18 @@ impl From<BearerToken> for Client {
     }
 }
 
-impl From<PublicClientApplication> for Client {
-    fn from(value: PublicClientApplication) -> Self {
+impl<Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static>
+    From<PublicClientApplication<Credential>> for Client
+{
+    fn from(value: PublicClientApplication<Credential>) -> Self {
         Client::new(value)
     }
 }
 
 impl<Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static>
-    From<ConfidentialClient<Credential>> for Client
+    From<ConfidentialClientApplication<Credential>> for Client
 {
-    fn from(value: ConfidentialClient<Credential>) -> Self {
+    fn from(value: ConfidentialClientApplication<Credential>) -> Self {
         Client::new(value)
     }
 }
@@ -355,7 +336,6 @@ impl<Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'sta
 #[cfg(test)]
 mod test {
     use super::*;
-    use graph_oauth::oauth::ConfidentialClientApplication;
 
     #[test]
     fn compile_time_user_agent_header() {

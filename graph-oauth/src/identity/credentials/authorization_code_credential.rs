@@ -7,19 +7,22 @@ use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
-use graph_error::{IdentityResult, AF};
+use graph_error::{AuthExecutionError, IdentityResult, AF};
+use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
 use graph_extensions::crypto::ProofKeyCodeExchange;
+use graph_extensions::token::MsalToken;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication, TokenCredentialExecutor,
+    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh,
+    TokenCredentialExecutor,
 };
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
 
 credential_builder!(
     AuthorizationCodeCredentialBuilder,
-    ConfidentialClientApplication
+    ConfidentialClientApplication<AuthorizationCodeCredential>
 );
 
 /// The OAuth 2.0 authorization code grant type, or auth code flow, enables a client application
@@ -60,6 +63,7 @@ pub struct AuthorizationCodeCredential {
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
     pub(crate) code_verifier: Option<String>,
     serializer: OAuthSerializer,
+    token_cache: InMemoryCredentialStore<MsalToken>,
 }
 
 impl Debug for AuthorizationCodeCredential {
@@ -68,6 +72,63 @@ impl Debug for AuthorizationCodeCredential {
             .field("app_config", &self.app_config)
             .field("scope", &self.scope)
             .finish()
+    }
+}
+
+#[async_trait]
+impl TokenCacheStore for AuthorizationCodeCredential {
+    type Token = MsalToken;
+
+    fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+
+        match self.app_config.force_token_refresh {
+            ForceTokenRefresh::Never => {
+                if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+                    if token.is_expired_sub(time::Duration::minutes(5)) {
+                        let response = self.execute()?;
+                        let msal_token: MsalToken = response.json()?;
+                        self.token_cache.store(cache_id, msal_token.clone());
+                        Ok(msal_token)
+                    } else {
+                        Ok(token)
+                    }
+                } else {
+                    let response = self.execute()?;
+                    let msal_token: MsalToken = response.json()?;
+                    self.token_cache.store(cache_id, msal_token.clone());
+                    Ok(msal_token)
+                }
+            }
+            ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                let response = self.execute()?;
+                let msal_token: MsalToken = response.json()?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
+                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                }
+                Ok(msal_token)
+            }
+        }
+    }
+
+    async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute_async().await?;
+                let msal_token: MsalToken = response.json().await?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token.clone())
+            }
+        } else {
+            let response = self.execute_async().await?;
+            let msal_token: MsalToken = response.json().await?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
     }
 }
 
@@ -86,6 +147,7 @@ impl AuthorizationCodeCredential {
             scope: vec![],
             code_verifier: None,
             serializer: OAuthSerializer::new(),
+            token_cache: Default::default(),
         })
     }
 
@@ -111,6 +173,7 @@ impl AuthorizationCodeCredential {
             scope: vec![],
             code_verifier: None,
             serializer: OAuthSerializer::new(),
+            token_cache: Default::default(),
         })
     }
 
@@ -153,6 +216,7 @@ impl AuthorizationCodeCredentialBuilder {
                 scope: vec![],
                 code_verifier: None,
                 serializer: OAuthSerializer::new(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -170,6 +234,7 @@ impl AuthorizationCodeCredentialBuilder {
                 scope: vec![],
                 code_verifier: None,
                 serializer: OAuthSerializer::new(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -241,6 +306,25 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
             .client_id(client_id.as_str())
             .client_secret(self.client_secret.as_str())
             .extend_scopes(self.scope.clone());
+
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if let Some(refresh_token) = token.refresh_token.as_ref() {
+                self.serializer
+                    .grant_type("refresh_token")
+                    .refresh_token(refresh_token.as_ref());
+
+                return self.serializer.as_credential_map(
+                    vec![OAuthParameter::Scope],
+                    vec![
+                        OAuthParameter::ClientId,
+                        OAuthParameter::ClientSecret,
+                        OAuthParameter::RefreshToken,
+                        OAuthParameter::GrantType,
+                    ],
+                );
+            }
+        }
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {

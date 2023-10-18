@@ -88,6 +88,14 @@ macro_rules! credential_builder_base {
                     .extend(header_parameters);
                 self
             }
+
+            pub fn force_token_refresh(
+                &mut self,
+                force_token_refresh: ForceTokenRefresh,
+            ) -> &mut Self {
+                self.credential.app_config.force_token_refresh = force_token_refresh;
+                self
+            }
         }
     };
 }

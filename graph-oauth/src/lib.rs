@@ -51,7 +51,6 @@
 //! }
 //! ```
 
-#[macro_use]
 extern crate log;
 extern crate pretty_env_logger;
 #[macro_use]
@@ -72,13 +71,10 @@ pub mod oauth {
         crypto::GenPkce, crypto::ProofKeyCodeExchange, token::IdToken, token::MsalToken,
     };
 
-    pub use crate::auth::GrantSelector;
     pub use crate::auth::OAuthParameter;
     pub use crate::auth::OAuthSerializer;
     pub use crate::discovery::graph_discovery;
     pub use crate::discovery::jwt_keys;
-    pub use crate::grants::GrantRequest;
-    pub use crate::grants::GrantType;
     pub use crate::identity::*;
     pub use crate::oauth_error::OAuthError;
     pub use crate::strum::IntoEnumIterator;

@@ -19,6 +19,12 @@ pub enum AuthorizationFailure {
 
     #[error("{0:#?}")]
     Unknown(String),
+
+    #[error("{0:#?}")]
+    X509Error(String),
+
+    #[error("{0:#?}")]
+    SerdeJsonError(#[from] serde_json::Error),
 }
 
 impl AuthorizationFailure {
@@ -82,6 +88,14 @@ impl AuthorizationFailure {
         } else {
             Ok(())
         }
+    }
+
+    pub fn x509(message: impl ToString) -> AuthorizationFailure {
+        AuthorizationFailure::X509Error(message.to_string())
+    }
+
+    pub fn x509_result<T>(message: impl ToString) -> Result<T, AuthorizationFailure> {
+        Err(AuthorizationFailure::X509Error(message.to_string()))
     }
 }
 

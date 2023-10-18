@@ -45,7 +45,6 @@ async fn mail_folder_list_messages() {
 
             assert!(response.status().is_success());
             let body: serde_json::Value = response.json().await.unwrap();
-            dbg!(&body);
             let messages = body["value"].as_array().unwrap();
             assert_eq!(messages.len(), 2);
         }

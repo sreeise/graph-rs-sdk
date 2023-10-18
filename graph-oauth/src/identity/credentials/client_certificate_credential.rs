@@ -6,21 +6,25 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use url::Url;
 use uuid::Uuid;
 
-use graph_error::{AuthorizationFailure, IdentityResult, AF};
+use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult, AF};
+use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
+use graph_extensions::token::MsalToken;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
-use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
-use crate::oauth::{ClientCredentialsAuthorizationUrlBuilder, ConfidentialClientApplication};
+use crate::identity::{
+    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder,
+    ConfidentialClientApplication, ForceTokenRefresh, TokenCredentialExecutor,
+};
 
 pub(crate) static CLIENT_ASSERTION_TYPE: &str =
     "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
 
 credential_builder!(
     ClientCertificateCredentialBuilder,
-    ConfidentialClientApplication
+    ConfidentialClientApplication<ClientCertificateCredential>
 );
 
 /// https://learn.microsoft.com/en-us/azure/active-directory/develop/active-directory-certificate-credentials
@@ -37,6 +41,7 @@ pub struct ClientCertificateCredential {
     pub(crate) client_assertion: String,
     pub(crate) refresh_token: Option<String>,
     serializer: OAuthSerializer,
+    token_cache: InMemoryCredentialStore<MsalToken>,
 }
 
 impl ClientCertificateCredential {
@@ -48,6 +53,7 @@ impl ClientCertificateCredential {
             client_assertion: client_assertion.as_ref().to_owned(),
             refresh_token: None,
             serializer: Default::default(),
+            token_cache: Default::default(),
         }
     }
 
@@ -85,6 +91,50 @@ impl Debug for ClientCertificateCredential {
             .finish()
     }
 }
+
+#[async_trait]
+impl TokenCacheStore for ClientCertificateCredential {
+    type Token = MsalToken;
+
+    fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute()?;
+                let msal_token: MsalToken = response.json()?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token)
+            }
+        } else {
+            let response = self.execute()?;
+            let msal_token: MsalToken = response.json()?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
+    }
+
+    async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute_async().await?;
+                let msal_token: MsalToken = response.json().await?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token.clone())
+            }
+        } else {
+            let response = self.execute_async().await?;
+            let msal_token: MsalToken = response.json().await?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
+    }
+}
+
 #[async_trait]
 impl TokenCredentialExecutor for ClientCertificateCredential {
     fn uri(&mut self) -> IdentityResult<Url> {
@@ -192,6 +242,7 @@ impl ClientCertificateCredentialBuilder {
                 client_assertion: String::new(),
                 refresh_token: None,
                 serializer: OAuthSerializer::new(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -209,6 +260,7 @@ impl ClientCertificateCredentialBuilder {
                 client_assertion: String::new(),
                 refresh_token: None,
                 serializer: OAuthSerializer::new(),
+                token_cache: Default::default(),
             },
         };
         credential_builder.with_certificate(x509)?;

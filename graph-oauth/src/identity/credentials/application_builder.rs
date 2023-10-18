@@ -1,25 +1,23 @@
-use base64::Engine;
-use std::collections::HashMap;
-use std::env::VarError;
-
-use http::{HeaderMap, HeaderName, HeaderValue};
-use url::Url;
-use uuid::Uuid;
-
-use graph_error::{IdentityResult, AF};
-
 use crate::identity::{
     application_options::ApplicationOptions, credentials::app_config::AppConfig,
     credentials::client_assertion_credential::ClientAssertionCredentialBuilder,
     AuthCodeAuthorizationUrlParameterBuilder, Authority,
-    AuthorizationCodeCertificateCredentialBuilder, AuthorizationCodeCredentialBuilder,
-    AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
+    AuthorizationCodeAssertionCredentialBuilder, AuthorizationCodeCertificateCredentialBuilder,
+    AuthorizationCodeCredentialBuilder, AzureCloudInstance,
+    ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
     DeviceCodeCredentialBuilder, DeviceCodePollingExecutor, EnvironmentCredential,
     OpenIdCredentialBuilder, PublicClientApplication, ResourceOwnerPasswordCredentialBuilder,
 };
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
-use crate::oauth::OpenIdAuthorizationUrlBuilder;
+use crate::oauth::{OpenIdAuthorizationUrlBuilder, ResourceOwnerPasswordCredential};
+use base64::Engine;
+use graph_error::{IdentityResult, AF};
+use http::{HeaderMap, HeaderName, HeaderValue};
+use std::collections::HashMap;
+use std::env::VarError;
+use url::Url;
+use uuid::Uuid;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum AuthorityHost {
@@ -166,8 +164,8 @@ impl ConfidentialClientApplicationBuilder {
         self,
         authorization_code: impl AsRef<str>,
         assertion: impl AsRef<str>,
-    ) -> AuthorizationCodeCertificateCredentialBuilder {
-        AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_assertion(
+    ) -> AuthorizationCodeAssertionCredentialBuilder {
+        AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code_and_assertion(
             self.into(),
             authorization_code,
             assertion,
@@ -179,7 +177,7 @@ impl ConfidentialClientApplicationBuilder {
         self,
         authorization_code: impl AsRef<str>,
         x509: &X509Certificate,
-    ) -> anyhow::Result<AuthorizationCodeCertificateCredentialBuilder> {
+    ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
         AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
             self.into(),
             authorization_code,
@@ -251,6 +249,7 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
                 cache_id,
+                force_token_refresh: Default::default(),
             },
         })
     }
@@ -263,7 +262,7 @@ pub struct PublicClientApplicationBuilder {
 
 impl PublicClientApplicationBuilder {
     #[allow(dead_code)]
-    pub fn new(client_id: &str) -> PublicClientApplicationBuilder {
+    pub fn new(client_id: impl AsRef<str>) -> PublicClientApplicationBuilder {
         PublicClientApplicationBuilder {
             app_config: AppConfig::new_with_client_id(client_id),
         }
@@ -352,7 +351,8 @@ impl PublicClientApplicationBuilder {
         )
     }
 
-    pub fn with_username_password_from_environment() -> Result<PublicClientApplication, VarError> {
+    pub fn with_username_password_from_environment(
+    ) -> Result<PublicClientApplication<ResourceOwnerPasswordCredential>, VarError> {
         EnvironmentCredential::resource_owner_password_credential()
     }
 }
@@ -402,6 +402,7 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
                 extra_header_parameters: Default::default(),
                 redirect_uri: None,
                 cache_id,
+                force_token_refresh: Default::default(),
             },
         })
     }

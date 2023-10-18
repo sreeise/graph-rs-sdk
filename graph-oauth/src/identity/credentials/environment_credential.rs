@@ -33,22 +33,24 @@ impl Debug for EnvironmentCredential {
 }
 
 impl EnvironmentCredential {
-    pub fn resource_owner_password_credential() -> Result<PublicClientApplication, VarError> {
+    pub fn resource_owner_password_credential(
+    ) -> Result<PublicClientApplication<ResourceOwnerPasswordCredential>, VarError> {
         match EnvironmentCredential::try_username_password_compile_time_env() {
             Ok(credential) => Ok(credential),
             Err(_) => EnvironmentCredential::try_username_password_runtime_env(),
         }
     }
 
-    pub fn client_secret_credential() -> Result<ConfidentialClientApplication, VarError> {
+    pub fn client_secret_credential(
+    ) -> Result<ConfidentialClientApplication<ClientSecretCredential>, VarError> {
         match EnvironmentCredential::try_azure_client_secret_compile_time_env() {
             Ok(credential) => Ok(credential),
             Err(_) => EnvironmentCredential::try_azure_client_secret_runtime_env(),
         }
     }
 
-    fn try_azure_client_secret_compile_time_env() -> Result<ConfidentialClientApplication, VarError>
-    {
+    fn try_azure_client_secret_compile_time_env(
+    ) -> Result<ConfidentialClientApplication<ClientSecretCredential>, VarError> {
         let tenant_id = option_env!("AZURE_TENANT_ID");
         let azure_client_id = option_env!("AZURE_CLIENT_ID").ok_or(VarError::NotPresent)?;
         let azure_client_secret = option_env!("AZURE_CLIENT_SECRET").ok_or(VarError::NotPresent)?;
@@ -59,7 +61,8 @@ impl EnvironmentCredential {
         )
     }
 
-    fn try_azure_client_secret_runtime_env() -> Result<ConfidentialClientApplication, VarError> {
+    fn try_azure_client_secret_runtime_env(
+    ) -> Result<ConfidentialClientApplication<ClientSecretCredential>, VarError> {
         let tenant_id = std::env::var(AZURE_TENANT_ID).ok();
         let azure_client_id = std::env::var(AZURE_CLIENT_ID)?;
         let azure_client_secret = std::env::var(AZURE_CLIENT_SECRET)?;
@@ -70,22 +73,23 @@ impl EnvironmentCredential {
         tenant_id: Option<String>,
         azure_client_id: String,
         azure_client_secret: String,
-    ) -> Result<ConfidentialClientApplication, VarError> {
+    ) -> Result<ConfidentialClientApplication<ClientSecretCredential>, VarError> {
         match tenant_id {
-            Some(tenant_id) => Ok(ConfidentialClientApplication::new(
+            Some(tenant_id) => Ok(ConfidentialClientApplication::credential(
                 ClientSecretCredential::new_with_tenant(
                     tenant_id,
                     azure_client_id,
                     azure_client_secret,
                 ),
             )),
-            None => Ok(ConfidentialClientApplication::new(
+            None => Ok(ConfidentialClientApplication::credential(
                 ClientSecretCredential::new(azure_client_id, azure_client_secret),
             )),
         }
     }
 
-    fn try_username_password_compile_time_env() -> Result<PublicClientApplication, VarError> {
+    fn try_username_password_compile_time_env(
+    ) -> Result<PublicClientApplication<ResourceOwnerPasswordCredential>, VarError> {
         let tenant_id = option_env!("AZURE_TENANT_ID");
         let azure_client_id = option_env!("AZURE_CLIENT_ID").ok_or(VarError::NotPresent)?;
         let azure_username = option_env!("AZURE_USERNAME").ok_or(VarError::NotPresent)?;
@@ -98,7 +102,8 @@ impl EnvironmentCredential {
         ))
     }
 
-    fn try_username_password_runtime_env() -> Result<PublicClientApplication, VarError> {
+    fn try_username_password_runtime_env(
+    ) -> Result<PublicClientApplication<ResourceOwnerPasswordCredential>, VarError> {
         let tenant_id = std::env::var(AZURE_TENANT_ID).ok();
         let azure_client_id = std::env::var(AZURE_CLIENT_ID)?;
         let azure_username = std::env::var(AZURE_USERNAME)?;
@@ -116,7 +121,7 @@ impl EnvironmentCredential {
         azure_client_id: String,
         azure_username: String,
         azure_password: String,
-    ) -> PublicClientApplication {
+    ) -> PublicClientApplication<ResourceOwnerPasswordCredential> {
         match tenant_id {
             Some(tenant_id) => {
                 PublicClientApplication::new(ResourceOwnerPasswordCredential::new_with_tenant(

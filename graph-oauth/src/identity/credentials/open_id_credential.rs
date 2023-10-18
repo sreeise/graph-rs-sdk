@@ -13,11 +13,14 @@ use graph_extensions::crypto::{GenPkce, ProofKeyCodeExchange};
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, OpenIdAuthorizationUrl, TokenCredentialExecutor,
+    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh,
+    OpenIdAuthorizationUrl, OpenIdAuthorizationUrlBuilder, TokenCredentialExecutor,
 };
-use crate::oauth::{ConfidentialClientApplication, OpenIdAuthorizationUrlBuilder};
 
-credential_builder!(OpenIdCredentialBuilder, ConfidentialClientApplication);
+credential_builder!(
+    OpenIdCredentialBuilder,
+    ConfidentialClientApplication<OpenIdCredential>
+);
 
 /// OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional
 /// authentication protocol. You can use OIDC to enable single sign-on (SSO) between your
@@ -62,7 +65,6 @@ pub struct OpenIdCredential {
     pub(crate) pkce: Option<ProofKeyCodeExchange>,
     serializer: OAuthSerializer,
 }
-
 impl Debug for OpenIdCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("OpenIdCredential")
