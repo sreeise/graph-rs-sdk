@@ -1,49 +1,22 @@
 use crate::identity::{
     application_options::ApplicationOptions, credentials::app_config::AppConfig,
-    credentials::client_assertion_credential::ClientAssertionCredentialBuilder,
     AuthCodeAuthorizationUrlParameterBuilder, Authority,
     AuthorizationCodeAssertionCredentialBuilder, AuthorizationCodeCertificateCredentialBuilder,
-    AuthorizationCodeCredentialBuilder, AzureCloudInstance,
+    AuthorizationCodeCredentialBuilder, ClientAssertionCredentialBuilder,
     ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
     DeviceCodeCredentialBuilder, DeviceCodePollingExecutor, EnvironmentCredential,
-    OpenIdCredentialBuilder, PublicClientApplication, ResourceOwnerPasswordCredentialBuilder,
+    OpenIdAuthorizationUrlBuilder, OpenIdCredentialBuilder, PublicClientApplication,
+    ResourceOwnerPasswordCredential, ResourceOwnerPasswordCredentialBuilder,
 };
-#[cfg(feature = "openssl")]
-use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
-use crate::oauth::{OpenIdAuthorizationUrlBuilder, ResourceOwnerPasswordCredential};
 use base64::Engine;
 use graph_error::{IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use std::env::VarError;
-use url::Url;
 use uuid::Uuid;
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum AuthorityHost {
-    /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
-    /// Maps to the instance url string.
-    AzureCloudInstance(AzureCloudInstance),
-    Uri(Url),
-}
-
-impl From<AzureCloudInstance> for AuthorityHost {
-    fn from(value: AzureCloudInstance) -> Self {
-        AuthorityHost::AzureCloudInstance(value)
-    }
-}
-
-impl From<Url> for AuthorityHost {
-    fn from(value: Url) -> Self {
-        AuthorityHost::Uri(value)
-    }
-}
-
-impl Default for AuthorityHost {
-    fn default() -> Self {
-        AuthorityHost::AzureCloudInstance(AzureCloudInstance::default())
-    }
-}
+#[cfg(feature = "openssl")]
+use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
 
 pub struct ConfidentialClientApplicationBuilder {
     pub(crate) app_config: AppConfig,
@@ -118,7 +91,7 @@ impl ConfidentialClientApplicationBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new_with_app_config(self.app_config.clone())
     }
 
-    pub fn client_credentials_auth_url_builder(
+    pub fn client_credentials_authorization_url_builder(
         &mut self,
     ) -> ClientCredentialsAuthorizationUrlBuilder {
         ClientCredentialsAuthorizationUrlBuilder::new_with_app_config(self.app_config.clone())

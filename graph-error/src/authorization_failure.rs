@@ -120,3 +120,15 @@ pub enum AuthTaskExecutionError<R> {
     #[error("{0:#?}")]
     JoinError(#[from] tokio::task::JoinError),
 }
+
+#[derive(Debug, thiserror::Error)]
+pub enum WebViewExecutionError {
+    #[error("TimedOut")]
+    TimedOut,
+    #[error("InvalidNavigation")]
+    InvalidNavigation,
+    #[error("InvalidRedirectUri")]
+    InvalidRedirectUri,
+    #[error("WindowCloseRequested")]
+    WindowCloseRequested,
+}

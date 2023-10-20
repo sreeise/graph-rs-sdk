@@ -8,13 +8,19 @@ use uuid::Uuid;
 
 use graph_error::{IdentityResult, AF};
 use graph_extensions::crypto::{secure_random_32, ProofKeyCodeExchange};
-use graph_extensions::web::{InteractiveAuthenticator, WebViewOptions};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AuthorizationQueryResponse, AuthorizationUrl, AzureCloudInstance, Prompt,
-    ResponseMode, ResponseType,
+    Authority, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
+};
+
+#[cfg(feature = "interactive-auth")]
+use crate::identity::AuthorizationQueryResponse;
+
+#[cfg(feature = "interactive-auth")]
+use crate::web::{
+    InteractiveAuthEvent, InteractiveAuthenticator, WebViewOptions, WindowCloseReason,
 };
 
 /// Get the authorization url required to perform the initial authorization and redirect in the
@@ -175,60 +181,67 @@ impl AuthCodeAuthorizationUrlParameters {
         self.nonce.as_ref()
     }
 
+    #[cfg(feature = "interactive-auth")]
     pub fn interactive_webview_authentication(
         &self,
         interactive_web_view_options: Option<WebViewOptions>,
     ) -> anyhow::Result<AuthorizationQueryResponse> {
-        let url_string = self
-            .interactive_authentication(interactive_web_view_options)?
-            .ok_or(anyhow::Error::msg(
-                "Unable to get url from redirect in web view".to_string(),
-            ))?;
-        dbg!(&url_string);
-        /*
-
-
-        if let Ok(url) = Url::parse(url_string.as_str()) {
-            dbg!(&url);
-
-            if let Some(query) = url.query() {
-                let response_query: AuthResponseQuery = serde_urlencoded::from_str(query)?;
-            }
-
+        let receiver = self.interactive_authentication(interactive_web_view_options)?;
+        let mut iter = receiver.try_iter();
+        let mut next = iter.next();
+        while next.is_none() {
+            next = iter.next();
         }
 
-        let query: HashMap<String, String> =  url.query_pairs().map(|(key, value)| (key.to_string(), value.to_string()))
-                        .collect();
+        return match next {
+            None => unreachable!(),
+            Some(auth_event) => {
+                match auth_event {
+                    InteractiveAuthEvent::InvalidRedirectUri(reason) => {
+                        Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
+                    }
+                    InteractiveAuthEvent::TimedOut(duration) => {
+                        Err(anyhow::anyhow!("Webview timed out while waiting on redirect to valid redirect uri with timeout duration of {duration:#?}"))
+                    }
+                    InteractiveAuthEvent::ReachedRedirectUri(uri) => {
+                        let url_str = uri.as_str();
+                        let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
+                            "query | fragment",
+                            &format!("No query or fragment returned on redirect uri: {url_str}"),
+                        ))?;
 
-                    let code = query.get("code");
-                    let id_token = query.get("id_token");
-                    let access_token = query.get("access_token");
-                    let state = query.get("state");
-                    let nonce = query.get("nonce");
-                    dbg!(&code, &id_token, &access_token, &state, &nonce);
-         */
-
-        let url = Url::parse(&url_string)?;
-        let query = url.query().or(url.fragment()).ok_or(AF::msg_err(
-            "query | fragment",
-            &format!("No query or fragment returned on redirect, url: {url}"),
-        ))?;
-
-        let response_query: AuthorizationQueryResponse = serde_urlencoded::from_str(query)?;
-        Ok(response_query)
+                        let response_query: AuthorizationQueryResponse = serde_urlencoded::from_str(query)?;
+                        Ok(response_query)
+                    }
+                    InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
+                        match window_close_reason {
+                            WindowCloseReason::CloseRequested => {
+                                Err(anyhow::anyhow!("CloseRequested"))
+                            }
+                            WindowCloseReason::InvalidWindowNavigation => {
+                                Err(anyhow::anyhow!("InvalidWindowNavigation"))
+                            }
+                        }
+                    }
+                }
+            }
+        };
     }
 }
 
+#[cfg(feature = "interactive-auth")]
 mod web_view_authenticator {
-    use graph_extensions::web::{InteractiveAuthenticator, InteractiveWebView, WebViewOptions};
-
     use crate::identity::{AuthCodeAuthorizationUrlParameters, AuthorizationUrl};
+    use crate::web::{
+        InteractiveAuthEvent, InteractiveAuthenticator, InteractiveWebView, WebViewOptions,
+    };
+    use graph_error::IdentityResult;
 
     impl InteractiveAuthenticator for AuthCodeAuthorizationUrlParameters {
         fn interactive_authentication(
             &self,
             interactive_web_view_options: Option<WebViewOptions>,
-        ) -> anyhow::Result<Option<String>> {
+        ) -> IdentityResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
             let uri = self.authorization_url()?;
             let redirect_uri = self.redirect_uri().cloned().unwrap();
             let web_view_options = interactive_web_view_options.unwrap_or_default();
@@ -238,20 +251,14 @@ mod web_view_authenticator {
             std::thread::spawn(move || {
                 InteractiveWebView::interactive_authentication(
                     uri,
-                    redirect_uri,
+                    vec![redirect_uri],
                     web_view_options,
                     sender,
                 )
                 .unwrap();
             });
 
-            let mut iter = receiver.try_iter();
-            let mut next = iter.next();
-            while next.is_none() {
-                next = iter.next();
-            }
-
-            Ok(next)
+            Ok(receiver)
         }
     }
 }

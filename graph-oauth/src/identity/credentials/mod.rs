@@ -4,6 +4,7 @@ pub use auth_code_authorization_url::*;
 pub use authorization_code_assertion_credential::*;
 pub use authorization_code_certificate_credential::*;
 pub use authorization_code_credential::*;
+pub use client_assertion_credential::*;
 pub use client_builder_impl::*;
 pub use client_certificate_credential::*;
 pub use client_credentials_authorization_url::*;

@@ -6,4 +6,5 @@ extern crate strum;
 #[macro_use]
 extern crate serde;
 
+pub mod http;
 pub mod resource;

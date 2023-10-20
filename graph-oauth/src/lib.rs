@@ -51,8 +51,6 @@
 //! }
 //! ```
 
-extern crate log;
-extern crate pretty_env_logger;
 #[macro_use]
 extern crate serde;
 #[macro_use]
@@ -65,6 +63,13 @@ pub mod jwt;
 mod oauth_error;
 
 pub mod identity;
+
+#[cfg(feature = "interactive-auth")]
+pub(crate) mod web;
+
+pub(crate) mod internal {
+    pub use graph_core::http::*;
+}
 
 pub mod oauth {
     pub use graph_extensions::{
