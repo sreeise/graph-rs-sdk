@@ -64,7 +64,6 @@ fn get_file_content(
 
 #[test]
 fn upload_reqwest_body() {
-    std::env::set_var("GRAPH_TEST_ENV", "true");
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph() {
         let local_file = "./test_files/test_upload_file_bytes.txt";
         let file_name = ":/test_upload_file_bytes.txt:";

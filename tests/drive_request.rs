@@ -61,7 +61,7 @@ async fn drive_check_in_out() {
 
             let response = result.unwrap();
             assert!(response.status().is_success());
-            std::thread::sleep(Duration::from_secs(2));
+            tokio::time::sleep(Duration::from_secs(2)).await;
 
             let response = client
                 .drive(id.as_str())
@@ -78,34 +78,51 @@ async fn drive_check_in_out() {
     }
 }
 
+async fn update_item_by_path(
+    drive_id: &str,
+    path: &str,
+    item: &serde_json::Value,
+    client: &Graph,
+) -> GraphResult<reqwest::Response> {
+    client
+        .drive(drive_id)
+        .item_by_path(path)
+        .update_items(item)
+        .send()
+        .await
+}
+
 #[tokio::test]
 async fn drive_update() {
     if Environment::is_local() {
         let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-            let req = client
-                .drive(id.as_str())
-                .item_by_path(":/update_test_document.docx:")
-                .update_items(&serde_json::json!({
+            let req = update_item_by_path(
+                id.as_str(),
+                ":/update_test_document.docx:",
+                &serde_json::json!({
                     "name": "update_test.docx"
-                }))
-                .send()
-                .await;
+                }),
+                &client,
+            )
+            .await;
 
             if let Ok(response) = req {
                 assert!(response.status().is_success());
                 let body: serde_json::Value = response.json().await.unwrap();
                 assert_eq!(body["name"].as_str(), Some("update_test.docx"));
-                thread::sleep(Duration::from_secs(2));
 
-                let req = client
-                    .drive(id.as_str())
-                    .item_by_path(":/update_test.docx:")
-                    .update_items(&serde_json::json!({
+                tokio::time::sleep(Duration::from_secs(2)).await;
+
+                let req = update_item_by_path(
+                    id.as_str(),
+                    ":/update_test.docx:",
+                    &serde_json::json!({
                         "name": "update_test_document.docx"
-                    }))
-                    .send()
-                    .await;
+                    }),
+                    &client,
+                )
+                .await;
 
                 if let Ok(response) = req {
                     assert!(response.status().is_success());
@@ -208,7 +225,7 @@ async fn drive_upload_item() {
             file.write_all("Test Update File".as_bytes()).unwrap();
             file.sync_all().unwrap();
 
-            thread::sleep(Duration::from_secs(2));
+            tokio::time::sleep(Duration::from_secs(2)).await;
 
             let update_res =
                 update_file(id.as_str(), onedrive_file_path, local_file, &client).await;
@@ -223,7 +240,7 @@ async fn drive_upload_item() {
                 panic!("Request Error. Method: update item. Error: {err:#?}");
             }
 
-            thread::sleep(Duration::from_secs(2));
+            tokio::time::sleep(Duration::from_secs(2)).await;
 
             let delete_res = delete_file(id.as_str(), item_id, &client).await;
 

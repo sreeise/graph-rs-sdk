@@ -177,7 +177,7 @@ async fn test_upload_session() {
             .unwrap();
         assert!(response.status().is_success());
 
-        thread::sleep(Duration::from_secs(2));
+        tokio::time::sleep(Duration::from_secs(2)).await;
 
         // Channel Upload Session
         let channel_item_id =

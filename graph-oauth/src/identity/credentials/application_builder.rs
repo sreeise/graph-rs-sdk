@@ -3,7 +3,7 @@ use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, Authority,
     AuthorizationCodeAssertionCredentialBuilder, AuthorizationCodeCertificateCredentialBuilder,
     AuthorizationCodeCredentialBuilder, ClientAssertionCredentialBuilder,
-    ClientCredentialsAuthorizationUrlBuilder, ClientSecretCredentialBuilder,
+    ClientCredentialsAuthorizationUrlParameterBuilder, ClientSecretCredentialBuilder,
     DeviceCodeCredentialBuilder, DeviceCodePollingExecutor, EnvironmentCredential,
     OpenIdAuthorizationUrlBuilder, OpenIdCredentialBuilder, PublicClientApplication,
     ResourceOwnerPasswordCredential, ResourceOwnerPasswordCredentialBuilder,
@@ -93,8 +93,10 @@ impl ConfidentialClientApplicationBuilder {
 
     pub fn client_credentials_authorization_url_builder(
         &mut self,
-    ) -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new_with_app_config(self.app_config.clone())
+    ) -> ClientCredentialsAuthorizationUrlParameterBuilder {
+        ClientCredentialsAuthorizationUrlParameterBuilder::new_with_app_config(
+            self.app_config.clone(),
+        )
     }
 
     pub fn openid_authorization_url_builder(&mut self) -> OpenIdAuthorizationUrlBuilder {

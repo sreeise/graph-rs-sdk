@@ -1,26 +1,8 @@
-//! # Setup
-//!
-//! You will first need to setup an application in the azure portal.
-//!
-//! Microsoft Identity Platform: https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-vs-authorization
-#![allow(dead_code, unused, unused_imports)]
-
-#[macro_use]
-extern crate serde;
-
-mod auth_code_grant;
-mod client_credentials;
-mod legacy;
-mod openid_connect;
-
 use graph_rs_sdk::oauth::{
-    AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
-    ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, GenPkce, MsalToken, ProofKeyCodeExchange, PublicClientApplication,
+    AuthorizationCodeCredential, ClientCertificateCredential, ClientSecretCredential,
+    ConfidentialClientApplication, DeviceCodeCredential, GenPkce, MsalToken, ProofKeyCodeExchange,
     TokenCredentialExecutor, TokenRequest,
 };
-
-fn main() {}
 
 static CLIENT_ID: &str = "<CLIENT_ID>";
 static CLIENT_SECRET: &str = "<CLIENT_SECRET>";

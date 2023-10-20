@@ -15,7 +15,7 @@ use crate::identity::credentials::app_config::AppConfig;
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
 use crate::identity::{
-    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlBuilder,
+    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlParameterBuilder,
     ConfidentialClientApplication, ForceTokenRefresh, TokenCredentialExecutor,
 };
 
@@ -78,8 +78,8 @@ impl ClientCertificateCredential {
 
     pub fn authorization_url_builder<T: AsRef<str>>(
         client_id: T,
-    ) -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new(client_id)
+    ) -> ClientCredentialsAuthorizationUrlParameterBuilder {
+        ClientCredentialsAuthorizationUrlParameterBuilder::new(client_id)
     }
 }
 

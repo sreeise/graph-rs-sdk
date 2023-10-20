@@ -6,25 +6,24 @@ use uuid::Uuid;
 use graph_error::{AuthorizationFailure, IdentityResult};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{Authority, AzureCloudInstance};
+use crate::identity::{credentials::app_config::AppConfig, Authority, AzureCloudInstance};
 
 #[derive(Clone)]
-pub struct ClientCredentialsAuthorizationUrl {
+pub struct ClientCredentialsAuthorizationUrlParameters {
     /// The client (application) ID of the service principal
     pub(crate) app_config: AppConfig,
     pub(crate) state: Option<String>,
 }
 
-impl ClientCredentialsAuthorizationUrl {
+impl ClientCredentialsAuthorizationUrlParameters {
     pub fn new<T: AsRef<str>, U: IntoUrl>(
         client_id: T,
         redirect_uri: U,
-    ) -> IdentityResult<ClientCredentialsAuthorizationUrl> {
+    ) -> IdentityResult<ClientCredentialsAuthorizationUrlParameters> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
 
-        Ok(ClientCredentialsAuthorizationUrl {
+        Ok(ClientCredentialsAuthorizationUrlParameters {
             app_config: AppConfig::new_init(
                 Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
                 Option::<String>::None,
@@ -34,8 +33,10 @@ impl ClientCredentialsAuthorizationUrl {
         })
     }
 
-    pub fn builder<T: AsRef<str>>(client_id: T) -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new(client_id)
+    pub fn builder<T: AsRef<str>>(
+        client_id: T,
+    ) -> ClientCredentialsAuthorizationUrlParameterBuilder {
+        ClientCredentialsAuthorizationUrlParameterBuilder::new(client_id)
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
@@ -92,14 +93,14 @@ impl ClientCredentialsAuthorizationUrl {
 }
 
 #[derive(Clone)]
-pub struct ClientCredentialsAuthorizationUrlBuilder {
-    parameters: ClientCredentialsAuthorizationUrl,
+pub struct ClientCredentialsAuthorizationUrlParameterBuilder {
+    parameters: ClientCredentialsAuthorizationUrlParameters,
 }
 
-impl ClientCredentialsAuthorizationUrlBuilder {
+impl ClientCredentialsAuthorizationUrlParameterBuilder {
     pub fn new<T: AsRef<str>>(client_id: T) -> Self {
         Self {
-            parameters: ClientCredentialsAuthorizationUrl {
+            parameters: ClientCredentialsAuthorizationUrlParameters {
                 app_config: AppConfig::new_with_client_id(client_id),
                 state: None,
             },
@@ -108,7 +109,7 @@ impl ClientCredentialsAuthorizationUrlBuilder {
 
     pub fn new_with_app_config(app_config: AppConfig) -> Self {
         Self {
-            parameters: ClientCredentialsAuthorizationUrl {
+            parameters: ClientCredentialsAuthorizationUrlParameters {
                 app_config,
                 state: None,
             },
@@ -143,7 +144,7 @@ impl ClientCredentialsAuthorizationUrlBuilder {
         self
     }
 
-    pub fn build(&self) -> ClientCredentialsAuthorizationUrl {
+    pub fn build(&self) -> ClientCredentialsAuthorizationUrlParameters {
         self.parameters.clone()
     }
 

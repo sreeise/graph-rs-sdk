@@ -13,8 +13,8 @@ use graph_extensions::token::MsalToken;
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     credentials::app_config::AppConfig, Authority, AzureCloudInstance,
-    ClientCredentialsAuthorizationUrlBuilder, ConfidentialClientApplication, ForceTokenRefresh,
-    TokenCredentialExecutor,
+    ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication,
+    ForceTokenRefresh, TokenCredentialExecutor,
 };
 
 credential_builder!(
@@ -90,8 +90,8 @@ impl ClientSecretCredential {
 
     pub fn authorization_url_builder<T: AsRef<str>>(
         client_id: T,
-    ) -> ClientCredentialsAuthorizationUrlBuilder {
-        ClientCredentialsAuthorizationUrlBuilder::new(client_id)
+    ) -> ClientCredentialsAuthorizationUrlParameterBuilder {
+        ClientCredentialsAuthorizationUrlParameterBuilder::new(client_id)
     }
 }
 

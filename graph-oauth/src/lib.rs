@@ -34,14 +34,14 @@
 //! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication};
 //!
 //! pub fn authorization_url(client_id: &str) -> IdentityResult<Url> {
-//!     let auth_url_parameters = ConfidentialClientApplication::builder(client_id)
+//!     ConfidentialClientApplication::builder(client_id)
 //!         .auth_code_authorization_url_builder()
 //!         .with_redirect_uri("http://localhost:8000/redirect")
 //!         .with_scope(vec!["user.read"])
-//!         .build();
+//!         .url()
 //! }
 //!
-//! pub fn get_confidential_client(authorization_code: &str, client_id: &str, client_secret: &str) -> anyhow::Result<ConfidentialClientApplication> {
+//! pub fn get_confidential_client(authorization_code: &str, client_id: &str, client_secret: &str) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCredential>> {
 //!     Ok(ConfidentialClientApplication::builder(client_id)
 //!         .with_authorization_code(authorization_code)
 //!         .with_client_secret(client_secret)

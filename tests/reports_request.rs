@@ -57,7 +57,8 @@ async fn get_office_365_user_counts_reports_text() {
                 .await
                 .unwrap();
 
-            assert!(response.status().is_success());
+            let status = response.status();
+            assert!(status.is_success());
             let text = response.text().await.unwrap();
             assert!(!text.is_empty());
         }
