@@ -80,7 +80,7 @@ async fn list_get_notebooks_and_sections() {
 
 #[tokio::test]
 async fn create_delete_page_from_file() {
-    if Environment::is_appveyor() || Environment::is_local() {
+    if Environment::is_appveyor() || Environment::is_github() {
         return;
     }
 
@@ -120,7 +120,7 @@ async fn create_delete_page_from_file() {
 
 #[tokio::test]
 async fn download_page() {
-    if Environment::is_appveyor() || Environment::is_local() {
+    if Environment::is_appveyor() || Environment::is_github() {
         return;
     }
 
