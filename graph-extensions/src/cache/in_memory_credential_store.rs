@@ -3,24 +3,27 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
 #[derive(Clone, Default)]
-pub struct InMemoryCredentialStore<Token: AsBearer + Clone> {
+pub struct InMemoryTokenStore<Token: AsBearer + Clone> {
     store: Arc<RwLock<HashMap<String, Token>>>,
 }
 
-impl<Token: AsBearer + Clone> InMemoryCredentialStore<Token> {
-    pub fn new() -> InMemoryCredentialStore<Token> {
-        InMemoryCredentialStore {
+impl<Token: AsBearer + Clone> InMemoryTokenStore<Token> {
+    pub fn new() -> InMemoryTokenStore<Token> {
+        InMemoryTokenStore {
             store: Default::default(),
         }
     }
 
     pub fn store<T: Into<String>>(&mut self, cache_id: T, token: Token) {
-        let mut store = self.store.write().unwrap();
-        store.insert(cache_id.into(), token);
+        let mut write_lock = self.store.write().unwrap();
+        write_lock.insert(cache_id.into(), token);
+        drop(write_lock);
     }
 
     pub fn get(&self, cache_id: &str) -> Option<Token> {
-        let store = self.store.read().unwrap();
-        store.get(cache_id).cloned()
+        let read_lock = self.store.read().unwrap();
+        let token = read_lock.get(cache_id).cloned();
+        drop(read_lock);
+        token
     }
 }

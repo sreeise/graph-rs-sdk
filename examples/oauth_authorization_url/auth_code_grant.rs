@@ -1,6 +1,6 @@
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCredential, ClientCertificateCredential, ClientSecretCredential,
-    ConfidentialClientApplication, DeviceCodeCredential, GenPkce, MsalToken, ProofKeyCodeExchange,
+    ConfidentialClientApplication, DeviceCodeCredential, GenPkce, ProofKeyCodeExchange, Token,
     TokenCredentialExecutor, TokenRequest,
 };
 

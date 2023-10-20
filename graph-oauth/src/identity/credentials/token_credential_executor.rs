@@ -3,10 +3,8 @@ use std::fmt::Debug;
 
 use async_trait::async_trait;
 use dyn_clone::DynClone;
-use http::header::ACCEPT;
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::header::HeaderMap;
 use reqwest::tls::Version;
-use reqwest::ClientBuilder;
 use tracing::debug;
 use url::Url;
 use uuid::Uuid;
@@ -14,7 +12,7 @@ use uuid::Uuid;
 use graph_error::{AuthExecutionResult, IdentityResult};
 
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::AuthorizationRequest;
+use crate::identity::AuthorizationRequestParts;
 use crate::identity::{Authority, AzureCloudInstance};
 
 dyn_clone::clone_trait_object!(TokenCredentialExecutor);
@@ -25,18 +23,90 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
 
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>>;
 
-    fn authorization_request_parts(&mut self) -> IdentityResult<AuthorizationRequest> {
+    fn authorization_request_parts(&mut self) -> IdentityResult<AuthorizationRequestParts> {
         let uri = self.uri()?;
         let form = self.form_urlencode()?;
         let basic_auth = self.basic_auth();
         let extra_headers = self.extra_header_parameters();
         let extra_query_params = self.extra_query_parameters();
 
-        let mut auth_request = AuthorizationRequest::new(uri, form, basic_auth);
+        let mut auth_request = AuthorizationRequestParts::new(uri, form, basic_auth);
         auth_request.with_extra_headers(extra_headers);
         auth_request.with_extra_query_parameters(extra_query_params);
 
         Ok(auth_request)
+    }
+
+    #[tracing::instrument]
+    fn build(&mut self) -> AuthExecutionResult<reqwest::blocking::RequestBuilder> {
+        let http_client = reqwest::blocking::ClientBuilder::new()
+            .min_tls_version(Version::TLS_1_2)
+            .https_only(true)
+            .build()?;
+
+        let auth_request = self.authorization_request_parts()?;
+        let basic_auth = auth_request.basic_auth;
+
+        if let Some((client_identifier, secret)) = basic_auth {
+            let request_builder = http_client
+                .post(auth_request.uri)
+                .basic_auth(client_identifier, Some(secret))
+                .headers(auth_request.headers)
+                .form(&auth_request.form_urlencoded);
+
+            debug!(
+                "authorization request constructed; request={:#?}",
+                request_builder
+            );
+            Ok(request_builder)
+        } else {
+            let request_builder = http_client
+                .post(auth_request.uri)
+                .headers(auth_request.headers)
+                .form(&auth_request.form_urlencoded);
+
+            debug!(
+                "authorization request constructed; request={:#?}",
+                request_builder
+            );
+            Ok(request_builder)
+        }
+    }
+
+    #[tracing::instrument]
+    fn build_async(&mut self) -> AuthExecutionResult<reqwest::RequestBuilder> {
+        let http_client = reqwest::ClientBuilder::new()
+            .min_tls_version(Version::TLS_1_2)
+            .https_only(true)
+            .build()?;
+
+        let auth_request = self.authorization_request_parts()?;
+        let basic_auth = auth_request.basic_auth;
+
+        if let Some((client_identifier, secret)) = basic_auth {
+            let request_builder = http_client
+                .post(auth_request.uri)
+                .basic_auth(client_identifier, Some(secret))
+                .headers(auth_request.headers)
+                .form(&auth_request.form_urlencoded);
+
+            debug!(
+                "authorization request constructed; request={:#?}",
+                request_builder
+            );
+            Ok(request_builder)
+        } else {
+            let request_builder = http_client
+                .post(auth_request.uri)
+                .headers(auth_request.headers)
+                .form(&auth_request.form_urlencoded);
+
+            debug!(
+                "authorization request constructed; request={:#?}",
+                request_builder
+            );
+            Ok(request_builder)
+        }
     }
 
     fn client_id(&self) -> &Uuid {
@@ -65,6 +135,24 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
         &self.app_config().extra_query_parameters
     }
 
+    #[tracing::instrument]
+    fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
+        let request_builder = self.build()?;
+        let response = request_builder.send()?;
+        debug!("authorization response received; response={:#?}", response);
+        Ok(response)
+    }
+
+    #[tracing::instrument]
+    async fn execute_async(&mut self) -> AuthExecutionResult<reqwest::Response> {
+        let request_builder = self.build_async()?;
+        let response = request_builder.send().await?;
+        debug!("authorization response received; response={:#?}", response);
+        Ok(response)
+    }
+}
+
+/*
     fn openid_configuration_url(&self) -> IdentityResult<Url> {
         Ok(Url::parse(
             format!(
@@ -114,72 +202,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
         Ok(response)
     }
 
-    fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let http_client = reqwest::blocking::ClientBuilder::new()
-            .min_tls_version(Version::TLS_1_2)
-            .https_only(true)
-            .build()?;
-
-        let auth_request = self.authorization_request_parts()?;
-        let basic_auth = auth_request.basic_auth;
-        if let Some((client_identifier, secret)) = basic_auth {
-            Ok(http_client
-                .post(auth_request.uri)
-                .basic_auth(client_identifier, Some(secret))
-                .headers(auth_request.headers)
-                .form(&auth_request.form_urlencoded)
-                .send()?)
-        } else {
-            Ok(http_client
-                .post(auth_request.uri)
-                .form(&auth_request.form_urlencoded)
-                .send()?)
-        }
-    }
-
-    #[tracing::instrument]
-    async fn execute_async(&mut self) -> AuthExecutionResult<reqwest::Response> {
-        //let mut uri = self.uri()?;
-        // let form = self.form_urlencode()?;
-        let http_client = ClientBuilder::new()
-            .min_tls_version(Version::TLS_1_2)
-            .https_only(true)
-            .build()?;
-
-        let auth_request = self.authorization_request_parts()?;
-        let basic_auth = auth_request.basic_auth;
-        if let Some((client_identifier, secret)) = basic_auth {
-            let request_builder = http_client
-                .post(auth_request.uri)
-                .basic_auth(client_identifier, Some(secret))
-                .headers(auth_request.headers)
-                .form(&auth_request.form_urlencoded);
-
-            debug!(
-                "authorization request constructed; request={:#?}",
-                request_builder
-            );
-            let response = request_builder.send().await;
-            debug!("authorization response received; response={:#?}", response);
-            Ok(response?)
-        } else {
-            let request_builder = http_client
-                .post(auth_request.uri)
-                .headers(auth_request.headers)
-                .form(&auth_request.form_urlencoded);
-
-            debug!(
-                "authorization request constructed; request={:#?}",
-                request_builder
-            );
-            let response = request_builder.send().await;
-            debug!("authorization response received; response={:#?}", response);
-            Ok(response?)
-        }
-    }
-}
-
-#[cfg(test)]
+    #[cfg(test)]
 mod test {
     use super::*;
     use crate::identity::credentials::application_builder::ConfidentialClientApplicationBuilder;
@@ -211,3 +234,5 @@ mod test {
         )
     }
 }
+
+ */

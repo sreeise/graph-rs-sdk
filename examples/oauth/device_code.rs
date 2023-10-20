@@ -1,8 +1,7 @@
-use graph_oauth::identity::{
-    DeviceCodeCredential, PublicClientApplication, TokenCredentialExecutor,
+use graph_rs_sdk::oauth::{
+    DeviceCodeCredential, DeviceCodeCredentialBuilder, PublicClientApplication, Token,
+    TokenCredentialExecutor,
 };
-use graph_oauth::oauth::DeviceCodeCredentialBuilder;
-use graph_rs_sdk::oauth::{MsalToken, OAuthSerializer};
 use graph_rs_sdk::GraphResult;
 use std::time::Duration;
 use warp::hyper::body::HttpBody;
@@ -39,7 +38,7 @@ fn get_token(device_code: &str) {
     let response = public_client.execute().unwrap();
     println!("{:#?}", response);
 
-    let body: MsalToken = response.json().unwrap();
+    let body: Token = response.json().unwrap();
 
     println!("{:#?}", body);
 }

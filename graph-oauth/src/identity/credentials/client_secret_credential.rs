@@ -7,13 +7,13 @@ use url::Url;
 use uuid::Uuid;
 
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
-use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
+use graph_extensions::cache::{InMemoryTokenStore, TokenCacheStore};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     credentials::app_config::AppConfig, Authority, AzureCloudInstance,
     ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication,
-    ForceTokenRefresh, MsalToken, TokenCredentialExecutor,
+    ForceTokenRefresh, Token, TokenCredentialExecutor,
 };
 
 credential_builder!(
@@ -50,7 +50,7 @@ pub struct ClientSecretCredential {
     /// Default is https://graph.microsoft.com/.default.
     pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
-    token_cache: InMemoryCredentialStore<MsalToken>,
+    token_cache: InMemoryTokenStore<Token>,
 }
 
 impl Debug for ClientSecretCredential {
@@ -69,7 +69,7 @@ impl ClientSecretCredential {
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
-            token_cache: InMemoryCredentialStore::new(),
+            token_cache: InMemoryTokenStore::new(),
         }
     }
 
@@ -83,7 +83,7 @@ impl ClientSecretCredential {
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
-            token_cache: InMemoryCredentialStore::new(),
+            token_cache: InMemoryTokenStore::new(),
         }
     }
 
@@ -96,14 +96,14 @@ impl ClientSecretCredential {
 
 #[async_trait]
 impl TokenCacheStore for ClientSecretCredential {
-    type Token = MsalToken;
+    type Token = Token;
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
                 let response = self.execute()?;
-                let msal_token: MsalToken = response.json()?;
+                let msal_token: Token = response.json()?;
                 self.token_cache.store(cache_id, msal_token.clone());
                 Ok(msal_token)
             } else {
@@ -111,7 +111,7 @@ impl TokenCacheStore for ClientSecretCredential {
             }
         } else {
             let response = self.execute()?;
-            let msal_token: MsalToken = response.json()?;
+            let msal_token: Token = response.json()?;
             self.token_cache.store(cache_id, msal_token.clone());
             Ok(msal_token)
         }
@@ -123,7 +123,7 @@ impl TokenCacheStore for ClientSecretCredential {
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
                 let response = self.execute_async().await?;
-                let msal_token: MsalToken = response.json().await?;
+                let msal_token: Token = response.json().await?;
                 tracing::debug!("tokenResponse={:#?}", &msal_token);
                 self.token_cache.store(cache_id, msal_token.clone());
                 Ok(msal_token)
@@ -133,7 +133,7 @@ impl TokenCacheStore for ClientSecretCredential {
             }
         } else {
             let response = self.execute_async().await?;
-            let msal_token: MsalToken = response.json().await?;
+            let msal_token: Token = response.json().await?;
             tracing::debug!("tokenResponse={:#?}", &msal_token);
             self.token_cache.store(cache_id, msal_token.clone());
             Ok(msal_token)
@@ -232,7 +232,7 @@ impl ClientSecretCredentialBuilder {
                 client_secret: client_secret.as_ref().to_string(),
                 scope: vec!["https://graph.microsoft.com/.default".into()],
                 serializer: Default::default(),
-                token_cache: InMemoryCredentialStore::new(),
+                token_cache: InMemoryTokenStore::new(),
             },
         }
     }

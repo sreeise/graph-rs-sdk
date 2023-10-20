@@ -27,7 +27,7 @@ use graph_extensions::crypto::GenPkce;
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, MsalToken, ProofKeyCodeExchange, PublicClientApplication,
+    DeviceCodeCredential, ProofKeyCodeExchange, PublicClientApplication, Token,
     TokenCredentialExecutor, TokenRequest,
 };
 
@@ -71,7 +71,7 @@ async fn auth_code_grant(authorization_code: &str) {
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
-    let access_token: MsalToken = response.json().await.unwrap();
+    let access_token: Token = response.json().await.unwrap();
     println!("{:#?}", access_token.access_token);
 }
 
@@ -84,6 +84,6 @@ async fn client_credentials() {
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
-    let access_token: MsalToken = response.json().await.unwrap();
+    let access_token: Token = response.json().await.unwrap();
     println!("{:#?}", access_token.access_token);
 }

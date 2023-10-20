@@ -44,7 +44,7 @@ use crate::identity_governance::IdentityGovernanceApiClient;
 use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdApiClient};
 use crate::invitations::InvitationsApiClient;
 use crate::me::MeApiClient;
-use crate::oauth::{AllowedHostValidator, HostValidator, MsalToken};
+use crate::oauth::{AllowedHostValidator, HostValidator, Token};
 use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
 };
@@ -534,8 +534,8 @@ impl From<String> for Graph {
     }
 }
 
-impl From<&MsalToken> for Graph {
-    fn from(token: &MsalToken) -> Self {
+impl From<&Token> for Graph {
+    fn from(token: &Token) -> Self {
         Graph::from_client_app(BearerTokenCredential::new(token.access_token.clone()))
     }
 }

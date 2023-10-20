@@ -10,7 +10,7 @@
 // only has to be done once for a user. After admin consent is given, the oauth client can be
 // used to continue getting new access tokens programmatically.
 use graph_rs_sdk::oauth::{
-    ClientSecretCredential, ConfidentialClientApplication, MsalToken, TokenCredentialExecutor,
+    ClientSecretCredential, ConfidentialClientApplication, Token, TokenCredentialExecutor,
     TokenRequest,
 };
 
@@ -22,12 +22,16 @@ pub use client_credentials_admin_consent::*;
 // flow after admin consent has been granted. If you have not granted admin consent, see
 // examples/client_credentials_admin_consent.rs for more info.
 
-// The client_id and client_secret must be changed before running this example.
+// Replace client id, client secret, and tenant id with your own values.
 static CLIENT_ID: &str = "<CLIENT_ID>";
 static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
+static TENANT_ID: &str = "<TENANT_ID>";
 
 pub async fn get_token_silent() {
-    let client_secret_credential = ClientSecretCredential::new(CLIENT_ID, CLIENT_SECRET);
+    let client_secret_credential = ConfidentialClientApplication::builder(CLIENT_ID)
+        .with_client_secret(CLIENT_SECRET)
+        .with_tenant(TENANT_ID)
+        .build();
     let mut confidential_client_application =
         ConfidentialClientApplication::from(client_secret_credential);
 
@@ -37,7 +41,7 @@ pub async fn get_token_silent() {
         .unwrap();
     println!("{response:#?}");
 
-    let body: MsalToken = response.json().await.unwrap();
+    let body: Token = response.json().await.unwrap();
 }
 
 pub async fn get_token_silent2() {
@@ -48,5 +52,5 @@ pub async fn get_token_silent2() {
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
-    let body: MsalToken = response.json().await.unwrap();
+    let body: Token = response.json().await.unwrap();
 }

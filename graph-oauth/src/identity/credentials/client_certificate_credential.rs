@@ -7,7 +7,7 @@ use url::Url;
 use uuid::Uuid;
 
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult, AF};
-use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
+use graph_extensions::cache::{InMemoryTokenStore, TokenCacheStore};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
@@ -15,7 +15,7 @@ use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::X509Certificate;
 use crate::identity::{
     Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlParameterBuilder,
-    ConfidentialClientApplication, ForceTokenRefresh, MsalToken, TokenCredentialExecutor,
+    ConfidentialClientApplication, ForceTokenRefresh, Token, TokenCredentialExecutor,
 };
 
 pub(crate) static CLIENT_ASSERTION_TYPE: &str =
@@ -40,7 +40,7 @@ pub struct ClientCertificateCredential {
     pub(crate) client_assertion: String,
     pub(crate) refresh_token: Option<String>,
     serializer: OAuthSerializer,
-    token_cache: InMemoryCredentialStore<MsalToken>,
+    token_cache: InMemoryTokenStore<Token>,
 }
 
 impl ClientCertificateCredential {
@@ -93,14 +93,14 @@ impl Debug for ClientCertificateCredential {
 
 #[async_trait]
 impl TokenCacheStore for ClientCertificateCredential {
-    type Token = MsalToken;
+    type Token = Token;
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
                 let response = self.execute()?;
-                let msal_token: MsalToken = response.json()?;
+                let msal_token: Token = response.json()?;
                 self.token_cache.store(cache_id, msal_token.clone());
                 Ok(msal_token)
             } else {
@@ -108,7 +108,7 @@ impl TokenCacheStore for ClientCertificateCredential {
             }
         } else {
             let response = self.execute()?;
-            let msal_token: MsalToken = response.json()?;
+            let msal_token: Token = response.json()?;
             self.token_cache.store(cache_id, msal_token.clone());
             Ok(msal_token)
         }
@@ -119,7 +119,7 @@ impl TokenCacheStore for ClientCertificateCredential {
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
                 let response = self.execute_async().await?;
-                let msal_token: MsalToken = response.json().await?;
+                let msal_token: Token = response.json().await?;
                 self.token_cache.store(cache_id, msal_token.clone());
                 Ok(msal_token)
             } else {
@@ -127,7 +127,7 @@ impl TokenCacheStore for ClientCertificateCredential {
             }
         } else {
             let response = self.execute_async().await?;
-            let msal_token: MsalToken = response.json().await?;
+            let msal_token: Token = response.json().await?;
             self.token_cache.store(cache_id, msal_token.clone());
             Ok(msal_token)
         }

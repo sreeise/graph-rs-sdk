@@ -58,7 +58,7 @@ struct PhantomMsalToken {
 /// # use graph_extensions::token::MsalToken;
 /// let token_response = MsalToken::new("Bearer", 3600, "ASODFIUJ34KJ;LADSK", vec!["User.Read"]);
 /// ```
-/// The [MsalToken::jwt] method attempts to parse the access token as a JWT.
+/// The [Token::jwt] method attempts to parse the access token as a JWT.
 /// Tokens returned for personal microsoft accounts that use legacy MSA
 /// are encrypted and cannot be parsed. This bearer token may still be
 /// valid but the jwt() method will return None.
@@ -66,7 +66,7 @@ struct PhantomMsalToken {
 /// [Microsoft identity platform access tokens](https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens)
 /// ```
 #[derive(Clone, Eq, PartialEq, Serialize)]
-pub struct MsalToken {
+pub struct Token {
     pub access_token: String,
     pub token_type: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -98,17 +98,17 @@ pub struct MsalToken {
     log_pii: bool,
 }
 
-impl MsalToken {
+impl Token {
     pub fn new<T: ToString, I: IntoIterator<Item = T>>(
         token_type: &str,
         expires_in: i64,
         access_token: &str,
         scope: I,
-    ) -> MsalToken {
+    ) -> Token {
         let timestamp = time::OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(expires_in));
 
-        MsalToken {
+        Token {
             token_type: token_type.into(),
             ext_expires_in: None,
             expires_in,
@@ -232,9 +232,9 @@ impl MsalToken {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::{MsalToken, IdToken};
+    /// # use graph_oauth::identity::{Token, IdToken};
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.with_id_token(IdToken::new("id_token", "code", "state", "session_state"));
     /// ```
     pub fn with_id_token(&mut self, id_token: IdToken) {
@@ -262,7 +262,7 @@ impl MsalToken {
 
     /// Enable or disable logging of personally identifiable information such
     /// as logging the id_token. This is disabled by default. When log_pii is enabled
-    /// passing [MsalToken] to logging or print functions will log both the bearer
+    /// passing [Token] to logging or print functions will log both the bearer
     /// access token value, the refresh token value if any, and the id token value.
     /// By default these do not get logged.
     pub fn enable_pii_logging(&mut self, log_pii: bool) {
@@ -283,7 +283,7 @@ impl MsalToken {
     /// from when the token was first retrieved.
     ///
     /// This will reset the the timestamp from Utc Now + expires_in. This means
-    /// that if calling [MsalToken::gen_timestamp] will only be reliable if done
+    /// that if calling [Token::gen_timestamp] will only be reliable if done
     /// when the access token is first retrieved.
     ///
     ///
@@ -357,9 +357,9 @@ impl MsalToken {
     }
 }
 
-impl Default for MsalToken {
+impl Default for Token {
     fn default() -> Self {
-        MsalToken {
+        Token {
             token_type: String::new(),
             expires_in: 0,
             ext_expires_in: None,
@@ -381,19 +381,19 @@ impl Default for MsalToken {
     }
 }
 
-impl ToString for MsalToken {
+impl ToString for Token {
     fn to_string(&self) -> String {
         self.access_token.to_string()
     }
 }
 
-impl AsBearer for MsalToken {
+impl AsBearer for Token {
     fn as_bearer(&self) -> String {
         self.access_token.to_string()
     }
 }
 
-impl TryFrom<&str> for MsalToken {
+impl TryFrom<&str> for Token {
     type Error = GraphFailure;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -401,35 +401,35 @@ impl TryFrom<&str> for MsalToken {
     }
 }
 
-impl TryFrom<reqwest::blocking::RequestBuilder> for MsalToken {
+impl TryFrom<reqwest::blocking::RequestBuilder> for Token {
     type Error = GraphFailure;
 
     fn try_from(value: reqwest::blocking::RequestBuilder) -> Result<Self, Self::Error> {
         let response = value.send()?;
-        MsalToken::try_from(response)
+        Token::try_from(response)
     }
 }
 
-impl TryFrom<Result<reqwest::blocking::Response, reqwest::Error>> for MsalToken {
+impl TryFrom<Result<reqwest::blocking::Response, reqwest::Error>> for Token {
     type Error = GraphFailure;
 
     fn try_from(
         value: Result<reqwest::blocking::Response, reqwest::Error>,
     ) -> Result<Self, Self::Error> {
         let response = value?;
-        MsalToken::try_from(response)
+        Token::try_from(response)
     }
 }
 
-impl TryFrom<reqwest::blocking::Response> for MsalToken {
+impl TryFrom<reqwest::blocking::Response> for Token {
     type Error = GraphFailure;
 
     fn try_from(value: reqwest::blocking::Response) -> Result<Self, Self::Error> {
-        Ok(value.json::<MsalToken>()?)
+        Ok(value.json::<Token>()?)
     }
 }
 
-impl fmt::Debug for MsalToken {
+impl fmt::Debug for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.log_pii {
             f.debug_struct("MsalAccessToken")
@@ -472,13 +472,13 @@ impl fmt::Debug for MsalToken {
     }
 }
 
-impl AsRef<str> for MsalToken {
+impl AsRef<str> for Token {
     fn as_ref(&self) -> &str {
         self.access_token.as_str()
     }
 }
 
-impl<'de> Deserialize<'de> for MsalToken {
+impl<'de> Deserialize<'de> for Token {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -488,7 +488,7 @@ impl<'de> Deserialize<'de> for MsalToken {
         let timestamp = OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(phantom_access_token.expires_in));
 
-        Ok(MsalToken {
+        Ok(Token {
             access_token: phantom_access_token.access_token,
             token_type: phantom_access_token.token_type,
             expires_in: phantom_access_token.expires_in,
@@ -514,12 +514,12 @@ mod test {
 
     #[test]
     fn is_expired_test() {
-        let mut access_token = MsalToken::default();
+        let mut access_token = Token::default();
         access_token.with_expires_in(5);
         std::thread::sleep(std::time::Duration::from_secs(6));
         assert!(access_token.is_expired());
 
-        let mut access_token = MsalToken::default();
+        let mut access_token = Token::default();
         access_token.with_expires_in(8);
         std::thread::sleep(std::time::Duration::from_secs(4));
         assert!(!access_token.is_expired());
@@ -551,7 +551,7 @@ mod test {
 
     #[test]
     pub fn test_deserialize() {
-        let _token: MsalToken = serde_json::from_str(ACCESS_TOKEN_INT).unwrap();
-        let _token: MsalToken = serde_json::from_str(ACCESS_TOKEN_STRING).unwrap();
+        let _token: Token = serde_json::from_str(ACCESS_TOKEN_INT).unwrap();
+        let _token: Token = serde_json::from_str(ACCESS_TOKEN_STRING).unwrap();
     }
 }

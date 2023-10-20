@@ -4,7 +4,7 @@
 extern crate serde;
 
 use graph_rs_sdk::oauth::{
-    AuthorizationCodeCertificateCredential, ConfidentialClientApplication, MsalToken, PKey,
+    AuthorizationCodeCertificateCredential, ConfidentialClientApplication, PKey, Token,
     TokenCredentialExecutor, X509Certificate, X509,
 };
 use std::fs::File;
@@ -118,7 +118,7 @@ async fn handle_redirect(
             println!("{response:#?}");
 
             if response.status().is_success() {
-                let mut msal_token: MsalToken = response.json().await.unwrap();
+                let mut msal_token: Token = response.json().await.unwrap();
                 msal_token.enable_pii_logging(true);
 
                 // If all went well here we can print out the Access Token.

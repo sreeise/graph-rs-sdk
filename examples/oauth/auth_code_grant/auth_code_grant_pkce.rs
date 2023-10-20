@@ -2,7 +2,7 @@ use graph_oauth::identity::ResponseType;
 use graph_rs_sdk::error::IdentityResult;
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    GenPkce, MsalToken, ProofKeyCodeExchange, TokenCredentialExecutor, TokenRequest,
+    GenPkce, ProofKeyCodeExchange, Token, TokenCredentialExecutor, TokenRequest,
 };
 use lazy_static::lazy_static;
 use warp::{get, Filter};
@@ -68,7 +68,7 @@ async fn handle_redirect(
             println!("{response:#?}");
 
             if response.status().is_success() {
-                let access_token: MsalToken = response.json().await.unwrap();
+                let access_token: Token = response.json().await.unwrap();
 
                 // If all went well here we can print out the OAuth config with the Access Token.
                 println!("AccessToken: {:#?}", access_token.access_token);

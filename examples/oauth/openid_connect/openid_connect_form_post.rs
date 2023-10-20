@@ -3,7 +3,7 @@ use graph_oauth::identity::{
     TokenRequest,
 };
 use graph_oauth::oauth::{OpenIdAuthorizationUrl, OpenIdCredential};
-use graph_rs_sdk::oauth::{IdToken, MsalToken, OAuthSerializer};
+use graph_rs_sdk::oauth::{IdToken, OAuthSerializer, Token};
 use tracing_subscriber::fmt::format::FmtSpan;
 use url::Url;
 
@@ -64,7 +64,7 @@ async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, 
     let mut response = confidential_client.execute_async().await.unwrap();
 
     if response.status().is_success() {
-        let mut access_token: MsalToken = response.json().await.unwrap();
+        let mut access_token: Token = response.json().await.unwrap();
         access_token.enable_pii_logging(true);
 
         println!("\n{:#?}\n", access_token);

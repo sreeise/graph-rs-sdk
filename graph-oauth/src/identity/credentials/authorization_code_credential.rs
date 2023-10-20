@@ -7,14 +7,14 @@ use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
-use graph_error::{AuthExecutionError, IdentityResult, AF};
-use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
+use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
+use graph_extensions::cache::{InMemoryTokenStore, TokenCacheStore};
 use graph_extensions::crypto::ProofKeyCodeExchange;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, MsalToken,
+    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, Token,
     TokenCredentialExecutor,
 };
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
@@ -62,7 +62,7 @@ pub struct AuthorizationCodeCredential {
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
     pub(crate) code_verifier: Option<String>,
     serializer: OAuthSerializer,
-    token_cache: InMemoryCredentialStore<MsalToken>,
+    token_cache: InMemoryTokenStore<Token>,
 }
 
 impl Debug for AuthorizationCodeCredential {
@@ -74,59 +74,115 @@ impl Debug for AuthorizationCodeCredential {
     }
 }
 
+impl AuthorizationCodeCredential {
+    fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
+        let response = self.execute()?;
+        let new_token: Token = response.json()?;
+        self.token_cache.store(cache_id, new_token.clone());
+
+        if new_token.refresh_token.is_some() {
+            self.refresh_token = new_token.refresh_token.clone();
+        }
+
+        Ok(new_token)
+    }
+
+    async fn execute_cached_token_refresh_async(
+        &mut self,
+        cache_id: String,
+    ) -> AuthExecutionResult<Token> {
+        let response = self.execute_async().await?;
+        let new_token: Token = response.json().await?;
+
+        if new_token.refresh_token.is_some() {
+            self.refresh_token = new_token.refresh_token.clone();
+        }
+
+        self.token_cache.store(cache_id, new_token.clone());
+        Ok(new_token)
+    }
+}
+
 #[async_trait]
 impl TokenCacheStore for AuthorizationCodeCredential {
-    type Token = MsalToken;
+    type Token = Token;
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
 
         match self.app_config.force_token_refresh {
             ForceTokenRefresh::Never => {
+                // Attempt to bypass a read on the token store by using previous
+                // refresh token stored outside of RwLock
+                if self.refresh_token.is_some() {
+                    match self.execute_cached_token_refresh(cache_id.clone()) {
+                        Ok(token) => return Ok(token),
+                        Err(_) => {}
+                    }
+                }
+
                 if let Some(token) = self.token_cache.get(cache_id.as_str()) {
                     if token.is_expired_sub(time::Duration::minutes(5)) {
-                        let response = self.execute()?;
-                        let msal_token: MsalToken = response.json()?;
-                        self.token_cache.store(cache_id, msal_token.clone());
-                        Ok(msal_token)
+                        if let Some(refresh_token) = token.refresh_token.as_ref() {
+                            self.refresh_token = Some(refresh_token.to_owned());
+                        }
+
+                        self.execute_cached_token_refresh(cache_id)
                     } else {
-                        Ok(token)
+                        Ok(token.clone())
                     }
                 } else {
-                    let response = self.execute()?;
-                    let msal_token: MsalToken = response.json()?;
-                    self.token_cache.store(cache_id, msal_token.clone());
-                    Ok(msal_token)
+                    self.execute_cached_token_refresh(cache_id)
                 }
             }
             ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
-                let response = self.execute()?;
-                let msal_token: MsalToken = response.json()?;
-                self.token_cache.store(cache_id, msal_token.clone());
+                let token_result = self.execute_cached_token_refresh(cache_id);
                 if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
                     self.app_config.force_token_refresh = ForceTokenRefresh::Never;
                 }
-                Ok(msal_token)
+                token_result
             }
         }
     }
 
     async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
-        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
-            if token.is_expired_sub(time::Duration::minutes(5)) {
-                let response = self.execute_async().await?;
-                let msal_token: MsalToken = response.json().await?;
-                self.token_cache.store(cache_id, msal_token.clone());
-                Ok(msal_token)
-            } else {
-                Ok(token.clone())
+
+        match self.app_config.force_token_refresh {
+            ForceTokenRefresh::Never => {
+                // Attempt to bypass a read on the token store by using previous
+                // refresh token stored outside of RwLock
+                if self.refresh_token.is_some() {
+                    match self
+                        .execute_cached_token_refresh_async(cache_id.clone())
+                        .await
+                    {
+                        Ok(token) => return Ok(token),
+                        Err(_) => {}
+                    }
+                }
+
+                if let Some(old_token) = self.token_cache.get(cache_id.as_str()) {
+                    if old_token.is_expired_sub(time::Duration::minutes(5)) {
+                        if let Some(refresh_token) = old_token.refresh_token.as_ref() {
+                            self.refresh_token = Some(refresh_token.to_owned());
+                        }
+
+                        self.execute_cached_token_refresh_async(cache_id).await
+                    } else {
+                        Ok(old_token.clone())
+                    }
+                } else {
+                    self.execute_cached_token_refresh_async(cache_id).await
+                }
             }
-        } else {
-            let response = self.execute_async().await?;
-            let msal_token: MsalToken = response.json().await?;
-            self.token_cache.store(cache_id, msal_token.clone());
-            Ok(msal_token)
+            ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                let token_result = self.execute_cached_token_refresh_async(cache_id).await;
+                if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
+                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                }
+                token_result
+            }
         }
     }
 }
@@ -325,7 +381,12 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
             }
         }
 
-        if let Some(refresh_token) = self.refresh_token.as_ref() {
+        let should_attempt_refresh = self.refresh_token.is_some()
+            && self.app_config.force_token_refresh != ForceTokenRefresh::Once
+            && self.app_config.force_token_refresh != ForceTokenRefresh::Always;
+
+        if should_attempt_refresh {
+            let refresh_token = self.refresh_token.clone().unwrap_or_default();
             if refresh_token.trim().is_empty() {
                 return AF::msg_result(OAuthParameter::RefreshToken, "Refresh token is empty");
             }
@@ -469,5 +530,18 @@ mod test {
 
         let map = credential.form_urlencode().unwrap();
         assert_eq!(map.get("client_id"), Some(&uuid_value))
+    }
+
+    #[test]
+    fn should_force_refresh_test() {
+        let mut credential_builder =
+            AuthorizationCodeCredential::builder(uuid_value.clone(), "secret".to_string(), "code");
+        let mut credential = credential_builder
+            .with_redirect_uri("https://localhost")
+            .unwrap()
+            .with_client_secret("client_secret")
+            .with_scope(vec!["scope"])
+            .with_tenant("tenant_id")
+            .build();
     }
 }

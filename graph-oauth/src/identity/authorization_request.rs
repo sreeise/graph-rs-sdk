@@ -3,25 +3,25 @@ use http::{HeaderMap, HeaderValue};
 use std::collections::HashMap;
 use url::Url;
 
-pub struct AuthorizationRequest {
+pub struct AuthorizationRequestParts {
     pub(crate) uri: Url,
     pub(crate) form_urlencoded: HashMap<String, String>,
     pub(crate) basic_auth: Option<(String, String)>,
     pub(crate) headers: HeaderMap,
 }
 
-impl AuthorizationRequest {
+impl AuthorizationRequestParts {
     pub fn new(
         uri: Url,
         form_urlencoded: HashMap<String, String>,
         basic_auth: Option<(String, String)>,
-    ) -> AuthorizationRequest {
+    ) -> AuthorizationRequestParts {
         let mut headers = HeaderMap::new();
         headers.insert(
             CONTENT_TYPE,
             HeaderValue::from_static("application/x-www-form-urlencoded"),
         );
-        AuthorizationRequest {
+        AuthorizationRequestParts {
             uri,
             form_urlencoded,
             basic_auth,
