@@ -8,13 +8,12 @@ use uuid::Uuid;
 
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
 use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
-use graph_extensions::token::MsalToken;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     credentials::app_config::AppConfig, Authority, AzureCloudInstance,
     ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication,
-    ForceTokenRefresh, TokenCredentialExecutor,
+    ForceTokenRefresh, MsalToken, TokenCredentialExecutor,
 };
 
 credential_builder!(

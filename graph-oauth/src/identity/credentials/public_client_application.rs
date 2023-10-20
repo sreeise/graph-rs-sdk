@@ -5,9 +5,9 @@ use crate::identity::{
     TokenCredentialExecutor,
 };
 use async_trait::async_trait;
+use graph_core::identity::ClientApplication;
 use graph_error::{AuthExecutionResult, IdentityResult};
 use graph_extensions::cache::{AsBearer, TokenCacheStore};
-use graph_extensions::token::ClientApplication;
 use reqwest::Response;
 use std::collections::HashMap;
 use std::fmt::Debug;

@@ -1,10 +1,9 @@
 use crate::blocking::BlockingClient;
-use async_trait::async_trait;
-use graph_error::AuthExecutionResult;
+use graph_core::identity::ClientApplication;
 use graph_extensions::cache::TokenCacheStore;
-use graph_extensions::token::ClientApplication;
 use graph_oauth::identity::{
-    ConfidentialClientApplication, PublicClientApplication, TokenCredentialExecutor,
+    BearerTokenCredential, ConfidentialClientApplication, PublicClientApplication,
+    TokenCredentialExecutor,
 };
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
@@ -17,20 +16,6 @@ use std::time::Duration;
 fn user_agent_header_from_env() -> Option<HeaderValue> {
     let header = std::option_env!("GRAPH_CLIENT_USER_AGENT")?;
     HeaderValue::from_str(header).ok()
-}
-
-#[derive(Clone)]
-pub struct BearerToken(pub String);
-
-#[async_trait]
-impl ClientApplication for BearerToken {
-    fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
-        Ok(self.0.clone())
-    }
-
-    async fn get_token_silent_async(&mut self) -> AuthExecutionResult<String> {
-        Ok(self.0.clone())
-    }
 }
 
 #[derive(Clone)]
@@ -95,7 +80,9 @@ impl GraphClientConfiguration {
     }
 
     pub fn access_token<AT: ToString>(mut self, access_token: AT) -> GraphClientConfiguration {
-        self.config.client_application = Some(Box::new(BearerToken(access_token.to_string())));
+        self.config.client_application = Some(Box::new(BearerTokenCredential::new(
+            access_token.to_string(),
+        )));
         self
     }
 
@@ -114,13 +101,16 @@ impl GraphClientConfiguration {
         self
     }
 
-    /*
-    pub fn public_client_application(mut self, public_client: PublicClientApplication) -> Self {
+    pub fn public_client_application<
+        Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
+    >(
+        mut self,
+        public_client: PublicClientApplication<Credential>,
+    ) -> Self {
         self.config.client_application = Some(Box::new(public_client));
         self
     }
 
-    */
     pub fn default_headers(mut self, headers: HeaderMap) -> GraphClientConfiguration {
         for (key, value) in headers.iter() {
             self.config.headers.insert(key, value.clone());
@@ -209,7 +199,7 @@ impl GraphClientConfiguration {
             }
         } else {
             Client {
-                client_application: Box::new(BearerToken(Default::default())),
+                client_application: Box::new(BearerTokenCredential::new(String::default())),
                 inner: builder.build().unwrap(),
                 headers,
                 builder: config,
@@ -243,7 +233,7 @@ impl GraphClientConfiguration {
             }
         } else {
             BlockingClient {
-                client_application: Box::new(BearerToken(Default::default())),
+                client_application: Box::new(BearerTokenCredential::new(String::default())),
                 inner: builder.build().unwrap(),
                 headers,
             }
@@ -311,8 +301,8 @@ impl Debug for Client {
     }
 }
 
-impl From<BearerToken> for Client {
-    fn from(value: BearerToken) -> Self {
+impl From<BearerTokenCredential> for Client {
+    fn from(value: BearerTokenCredential) -> Self {
         Client::new(value)
     }
 }

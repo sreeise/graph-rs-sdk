@@ -6,7 +6,7 @@ use graph_rs_sdk::{
 };
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::thread;
+
 use std::time::Duration;
 use test_tools::oauth_request::DRIVE_ASYNC_THROTTLE_MUTEX;
 use test_tools::oauth_request::{Environment, OAuthTestClient};

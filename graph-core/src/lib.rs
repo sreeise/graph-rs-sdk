@@ -7,4 +7,5 @@ extern crate strum;
 extern crate serde;
 
 pub mod http;
+pub mod identity;
 pub mod resource;

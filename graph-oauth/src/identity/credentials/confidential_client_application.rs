@@ -7,9 +7,9 @@ use reqwest::Response;
 use url::Url;
 use uuid::Uuid;
 
+use graph_core::identity::ClientApplication;
 use graph_error::{AuthExecutionResult, IdentityResult};
 use graph_extensions::cache::{AsBearer, TokenCacheStore};
-use graph_extensions::token::ClientApplication;
 
 use crate::identity::{
     credentials::app_config::AppConfig,

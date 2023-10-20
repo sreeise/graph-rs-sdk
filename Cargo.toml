@@ -58,6 +58,7 @@ brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli", "graph-ex
 deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate", "graph-extensions/deflate"]
 trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns", "graph-extensions/trust-dns"]
 openssl = ["graph-oauth/openssl"]
+interactive-auth = ["graph-oauth/interactive-auth"]
 
 [dev-dependencies]
 bytes = { version = "1.4.0" }

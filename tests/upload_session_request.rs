@@ -3,7 +3,7 @@ use graph_error::{GraphFailure, GraphResult};
 use graph_http::api_impl::UploadSession;
 use graph_http::traits::ResponseExt;
 use graph_rs_sdk::Graph;
-use std::thread;
+
 use std::time::Duration;
 use test_tools::oauth_request::{OAuthTestClient, DRIVE_ASYNC_THROTTLE_MUTEX};
 

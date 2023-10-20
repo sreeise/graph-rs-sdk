@@ -8,7 +8,6 @@ use uuid::Uuid;
 
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult, AF};
 use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
-use graph_extensions::token::MsalToken;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
@@ -16,7 +15,7 @@ use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::X509Certificate;
 use crate::identity::{
     Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlParameterBuilder,
-    ConfidentialClientApplication, ForceTokenRefresh, TokenCredentialExecutor,
+    ConfidentialClientApplication, ForceTokenRefresh, MsalToken, TokenCredentialExecutor,
 };
 
 pub(crate) static CLIENT_ASSERTION_TYPE: &str =

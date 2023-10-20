@@ -9,7 +9,6 @@ use url::form_urlencoded::Serializer;
 use url::Url;
 
 use graph_error::{AuthorizationFailure, GraphFailure, GraphResult, IdentityResult, AF};
-use graph_extensions::token::{IdToken, MsalToken};
 
 use crate::identity::{AsQuery, Authority, AzureCloudInstance, Prompt};
 use crate::oauth::ResponseType;
@@ -132,7 +131,6 @@ impl AsRef<str> for OAuthParameter {
 /// ```
 #[derive(Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct OAuthSerializer {
-    access_token: Option<MsalToken>,
     scopes: BTreeSet<String>,
     credentials: BTreeMap<String, String>,
 }
@@ -148,7 +146,6 @@ impl OAuthSerializer {
     /// ```
     pub fn new() -> OAuthSerializer {
         OAuthSerializer {
-            access_token: None,
             scopes: BTreeSet::new(),
             credentials: BTreeMap::new(),
         }
@@ -507,27 +504,6 @@ impl OAuthSerializer {
 
     pub fn prompts(&mut self, value: &[Prompt]) -> &mut OAuthSerializer {
         self.insert(OAuthParameter::Prompt, value.to_vec().as_query())
-    }
-
-    /// Set id token for open id.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::{OAuthSerializer, IdToken};
-    /// # let mut oauth = OAuthSerializer::new();
-    /// oauth.id_token(IdToken::new("1345", "code", "state", "session_state"));
-    /// ```
-    pub fn id_token(&mut self, value: IdToken) -> &mut OAuthSerializer {
-        if let Some(code) = value.code {
-            self.authorization_code(code.as_str());
-        }
-        if let Some(state) = value.state {
-            let _ = self.entry_with(OAuthParameter::State, state.as_str());
-        }
-        if let Some(session_state) = value.session_state {
-            self.session_state(session_state.as_str());
-        }
-        self.insert(OAuthParameter::IdToken, value.id_token.as_str())
     }
 
     /// Set the session state.
@@ -894,69 +870,6 @@ impl OAuthSerializer {
     pub fn clear_scopes(&mut self) {
         self.scopes.clear();
     }
-
-    /// Set the access token.
-    ///
-    /// # Example
-    /// ```
-    /// use graph_oauth::oauth::OAuthSerializer;
-    /// use graph_oauth::oauth::MsalToken;
-    /// let mut oauth = OAuthSerializer::new();
-    /// let access_token = MsalToken::default();
-    /// oauth.access_token(access_token);
-    /// ```
-    pub fn access_token(&mut self, ac: MsalToken) {
-        if let Some(refresh_token) = ac.refresh_token.as_ref() {
-            self.refresh_token(refresh_token.as_str());
-        }
-        self.access_token.replace(ac);
-    }
-
-    /// Get the access token.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::MsalToken;
-    /// # let access_token = MsalToken::default();
-    /// # let mut oauth = OAuthSerializer::new();
-    /// # oauth.access_token(access_token);
-    /// let access_token = oauth.get_access_token().unwrap();
-    /// println!("{:#?}", access_token);
-    /// ```
-    pub fn get_access_token(&self) -> Option<MsalToken> {
-        self.access_token.clone()
-    }
-
-    /// Get the refrsh token. This method returns the current refresh
-    /// token stored in OAuth and does not make a request for a refresh
-    /// token.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::MsalToken;
-    /// # let mut oauth = OAuthSerializer::new();
-    /// let mut  access_token = MsalToken::default();
-    /// access_token.with_refresh_token("refresh_token");
-    /// oauth.access_token(access_token);
-    ///
-    /// let refresh_token = oauth.get_refresh_token().unwrap();
-    /// println!("{:#?}", refresh_token);
-    /// ```
-    pub fn get_refresh_token(&self) -> GraphResult<String> {
-        if let Some(refresh_token) = self.get(OAuthParameter::RefreshToken) {
-            return Ok(refresh_token);
-        }
-
-        match self.get_access_token() {
-            Some(token) => match token.refresh_token {
-                Some(t) => Ok(t),
-                None => OAuthError::error_from::<String>(OAuthParameter::RefreshToken),
-            },
-            None => OAuthError::error_from::<String>(OAuthParameter::RefreshToken),
-        }
-    }
 }
 
 impl OAuthSerializer {
@@ -1035,13 +948,7 @@ impl OAuthSerializer {
     pub fn params(&mut self, pairs: Vec<OAuthParameter>) -> GraphResult<HashMap<String, String>> {
         let mut map: HashMap<String, String> = HashMap::new();
         for oac in pairs.iter() {
-            if oac.eq(&OAuthParameter::RefreshToken) {
-                if let Some(val) = self.get(*oac) {
-                    map.insert(oac.to_string(), val);
-                } else {
-                    map.insert("refresh_token".into(), self.get_refresh_token()?);
-                }
-            } else if oac.alias().eq("scope") && !self.scopes.is_empty() {
+            if oac.alias().eq("scope") && !self.scopes.is_empty() {
                 map.insert("scope".into(), self.join_scopes(" "));
             } else if let Some(val) = self.get(*oac) {
                 map.insert(oac.to_string(), val);

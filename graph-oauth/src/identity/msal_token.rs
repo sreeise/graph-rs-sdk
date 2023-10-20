@@ -6,7 +6,8 @@ use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Add, Sub};
 
-use crate::token::IdToken;
+use crate::identity::IdToken;
+use graph_extensions::cache::AsBearer;
 use std::str::FromStr;
 use time::OffsetDateTime;
 
@@ -372,12 +373,23 @@ impl Default for MsalToken {
             client_info: None,
             timestamp: Some(time::OffsetDateTime::now_utc()),
             expires_on: Some(
-                time::OffsetDateTime::from_unix_timestamp(0)
-                    .unwrap_or(time::OffsetDateTime::UNIX_EPOCH),
+                OffsetDateTime::from_unix_timestamp(0).unwrap_or(time::OffsetDateTime::UNIX_EPOCH),
             ),
             additional_fields: Default::default(),
             log_pii: false,
         }
+    }
+}
+
+impl ToString for MsalToken {
+    fn to_string(&self) -> String {
+        self.access_token.to_string()
+    }
+}
+
+impl AsBearer for MsalToken {
+    fn as_bearer(&self) -> String {
+        self.access_token.to_string()
     }
 }
 
@@ -473,7 +485,7 @@ impl<'de> Deserialize<'de> for MsalToken {
     {
         let phantom_access_token: PhantomMsalToken = Deserialize::deserialize(deserializer)?;
 
-        let timestamp = time::OffsetDateTime::now_utc();
+        let timestamp = OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(phantom_access_token.expires_in));
 
         Ok(MsalToken {

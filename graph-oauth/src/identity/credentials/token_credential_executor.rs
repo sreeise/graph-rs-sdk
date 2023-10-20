@@ -137,34 +137,6 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
         }
     }
 
-    /*
-    let mut headers = HeaderMap::new();
-        headers.insert(
-            CONTENT_TYPE,
-            HeaderValue::from_static("application/x-www-form-urlencoded"),
-        );
-
-        let extra_headers = self.extra_header_parameters();
-        if !extra_headers.is_empty() {
-            if extra_headers.contains_key(ACCEPT) {
-                panic!("extra header parameters cannot contain header key ACCEPT")
-            }
-
-            for (header_name, header_value) in extra_headers.iter() {
-                headers.insert(header_name, header_value.clone());
-            }
-        }
-
-        let extra_query_params = self.extra_query_parameters();
-        if !extra_query_params.is_empty() {
-            for (key, value) in extra_query_params.iter() {
-                uri.query_pairs_mut()
-                    .append_pair(key.as_ref(), value.as_ref());
-            }
-        }
-
-     */
-
     #[tracing::instrument]
     async fn execute_async(&mut self) -> AuthExecutionResult<reqwest::Response> {
         //let mut uri = self.uri()?;
@@ -209,9 +181,8 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
 
 #[cfg(test)]
 mod test {
-    use crate::identity::credentials::application_builder::ConfidentialClientApplicationBuilder;
-
     use super::*;
+    use crate::identity::credentials::application_builder::ConfidentialClientApplicationBuilder;
 
     #[test]
     fn open_id_configuration_url_authority_tenant_id() {

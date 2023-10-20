@@ -1,5 +1,5 @@
 use crate::internal::GraphClientConfiguration;
-use graph_extensions::token::ClientApplication;
+use graph_core::identity::ClientApplication;
 use reqwest::header::HeaderMap;
 use std::env::VarError;
 use std::ffi::OsStr;

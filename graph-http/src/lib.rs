@@ -40,5 +40,6 @@ pub mod api_impl {
     pub use crate::resource_identifier::{ResourceConfig, ResourceIdentifier};
     pub use crate::traits::{ApiClientImpl, BodyExt, ODataQuery};
     pub use crate::upload_session::UploadSession;
+    pub use graph_core::identity::ClientApplication;
     pub use graph_error::{GraphFailure, GraphResult};
 }

@@ -10,12 +10,11 @@ use uuid::Uuid;
 use graph_error::{AuthExecutionError, IdentityResult, AF};
 use graph_extensions::cache::{InMemoryCredentialStore, TokenCacheStore};
 use graph_extensions::crypto::ProofKeyCodeExchange;
-use graph_extensions::token::MsalToken;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh,
+    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, MsalToken,
     TokenCredentialExecutor,
 };
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;

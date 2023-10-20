@@ -72,9 +72,7 @@ pub(crate) mod internal {
 }
 
 pub mod oauth {
-    pub use graph_extensions::{
-        crypto::GenPkce, crypto::ProofKeyCodeExchange, token::IdToken, token::MsalToken,
-    };
+    pub use graph_extensions::{crypto::GenPkce, crypto::ProofKeyCodeExchange};
 
     pub use crate::auth::OAuthParameter;
     pub use crate::auth::OAuthSerializer;
