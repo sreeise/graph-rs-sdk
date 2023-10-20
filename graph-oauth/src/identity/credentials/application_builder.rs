@@ -385,8 +385,9 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
 mod test {
     use http::header::AUTHORIZATION;
     use http::HeaderValue;
+    use url::Url;
 
-    use crate::identity::AadAuthorityAudience;
+    use crate::identity::{AadAuthorityAudience, AzureCloudInstance};
 
     use super::*;
 
