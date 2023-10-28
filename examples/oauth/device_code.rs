@@ -1,8 +1,10 @@
+use graph_oauth::oauth::ClientSecretCredential;
 use graph_rs_sdk::oauth::{
     DeviceCodeCredential, DeviceCodeCredentialBuilder, PublicClientApplication, Token,
     TokenCredentialExecutor,
 };
 use graph_rs_sdk::GraphResult;
+use graph_rs_sdk::{oauth::ConfidentialClientApplication, Graph};
 use std::time::Duration;
 use warp::hyper::body::HttpBody;
 
@@ -15,7 +17,8 @@ static TENANT: &str = "<TENANT>";
 
 // Poll the device code endpoint to get the code and a url that the user must
 // go to in order to enter the code. Polling will continue until either the user
-// has entered the and an access token is returned or an error happens.
+// has entered the code. Once a successful code has been entered the next time the
+// device code endpoint is polled an access token is returned.
 fn poll_device_code() {
     let mut device_executor = PublicClientApplication::builder(CLIENT_ID)
         .with_device_code_authorization_executor()

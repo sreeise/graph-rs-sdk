@@ -2,7 +2,7 @@ use graph_oauth::identity::{
     ConfidentialClientApplication, Prompt, ResponseMode, ResponseType, TokenCredentialExecutor,
     TokenRequest,
 };
-use graph_oauth::oauth::{OpenIdAuthorizationUrl, OpenIdCredential};
+use graph_oauth::oauth::{OpenIdAuthorizationUrlParameters, OpenIdCredential};
 use graph_rs_sdk::oauth::{IdToken, OAuthSerializer, Token};
 use tracing_subscriber::fmt::format::FmtSpan;
 use url::Url;

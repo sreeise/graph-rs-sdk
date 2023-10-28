@@ -1,7 +1,7 @@
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCredential, ClientCertificateCredential, ClientSecretCredential,
     ConfidentialClientApplication, DeviceCodeCredential, GenPkce, ProofKeyCodeExchange, Token,
-    TokenCredentialExecutor, TokenRequest,
+    TokenCredentialExecutor,
 };
 
 static CLIENT_ID: &str = "<CLIENT_ID>";

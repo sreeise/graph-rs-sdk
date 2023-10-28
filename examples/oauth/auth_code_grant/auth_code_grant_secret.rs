@@ -81,31 +81,27 @@ async fn handle_redirect(
             // Callers should handle the Result from requesting an access token
             // in case of an error here.
             let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
-                .with_authorization_code(authorization_code)
+                .with_auth_code(authorization_code)
                 .with_client_secret(CLIENT_SECRET)
                 .with_scope(vec![SCOPE])
                 .with_redirect_uri(REDIRECT_URI)
                 .unwrap()
                 .build();
 
-            let response = confidential_client.execute_async().await.unwrap();
-            println!("{response:#?}");
+            let client = Graph::from(confidential_client);
+            let result = client.users().list_user().send().await;
 
-            if response.status().is_success() {
-                let mut access_token: Token = response.json().await.unwrap();
+            match result {
+                Ok(response) => {
+                    println!("{response:#?}");
 
-                // Enables the printing of the bearer, refresh, and id token.
-                access_token.enable_pii_logging(true);
-                println!("{:#?}", access_token);
-
-                // This will print the actual access token to the console.
-            } else {
-                // See if Microsoft Graph returned an error in the Response body
-                let result: reqwest::Result<ErrorMessage> = response.json().await;
-
-                match result {
-                    Ok(error_message) => println!("{error_message:#?}"),
-                    Err(err) => println!("Error on deserialization:\n{err:#?}"),
+                    let status = response.status();
+                    let body: serde_json::Value = response.json().await.unwrap();
+                    println!("Status: {status:#?}");
+                    println!("Body: {body:#?}");
+                }
+                Err(err) => {
+                    println!("{err:#?}");
                 }
             }
 
@@ -117,3 +113,33 @@ async fn handle_redirect(
         None => Err(warp::reject()),
     }
 }
+/*
+           let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
+               .with_auth_code(authorization_code)
+               .with_client_secret(CLIENT_SECRET)
+               .with_scope(vec![SCOPE])
+               .with_redirect_uri(REDIRECT_URI)
+               .unwrap()
+               .build();
+
+           let response = confidential_client.execute_async().await.unwrap();
+           println!("{response:#?}");
+
+           if response.status().is_success() {
+               let mut access_token: Token = response.json().await.unwrap();
+
+               // Enables the printing of the bearer, refresh, and id token.
+               access_token.enable_pii_logging(true);
+               println!("{:#?}", access_token);
+
+               // This will print the actual access token to the console.
+           } else {
+               // See if Microsoft Graph returned an error in the Response body
+               let result: reqwest::Result<ErrorMessage> = response.json().await;
+
+               match result {
+                   Ok(error_message) => println!("{error_message:#?}"),
+                   Err(err) => println!("Error on deserialization:\n{err:#?}"),
+               }
+           }
+*/

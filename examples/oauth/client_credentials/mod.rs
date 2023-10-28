@@ -9,14 +9,14 @@
 // to approve your application to call Microsoft Graph Apis on behalf of a user. Admin consent
 // only has to be done once for a user. After admin consent is given, the oauth client can be
 // used to continue getting new access tokens programmatically.
-use graph_rs_sdk::oauth::{
-    ClientSecretCredential, ConfidentialClientApplication, Token, TokenCredentialExecutor,
-    TokenRequest,
-};
 
 mod client_credentials_admin_consent;
 
 pub use client_credentials_admin_consent::*;
+use graph_rs_sdk::{
+    oauth::ClientSecretCredential, oauth::ConfidentialClientApplication,
+    oauth::TokenCredentialExecutor, Graph,
+};
 
 // This example shows programmatically getting an access token using the client credentials
 // flow after admin consent has been granted. If you have not granted admin consent, see
@@ -27,26 +27,20 @@ static CLIENT_ID: &str = "<CLIENT_ID>";
 static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
 static TENANT_ID: &str = "<TENANT_ID>";
 
-pub async fn get_token_silent() {
-    let client_secret_credential = ConfidentialClientApplication::builder(CLIENT_ID)
+pub async fn get_graph_client() -> Graph {
+    let mut confidential_client_application = ConfidentialClientApplication::builder(CLIENT_ID)
         .with_client_secret(CLIENT_SECRET)
         .with_tenant(TENANT_ID)
         .build();
-    let mut confidential_client_application =
-        ConfidentialClientApplication::from(client_secret_credential);
 
-    let response = confidential_client_application
-        .execute_async()
-        .await
-        .unwrap();
-    println!("{response:#?}");
-
-    let body: Token = response.json().await.unwrap();
+    Graph::from(confidential_client_application)
 }
 
-pub async fn get_token_silent2() {
+/*
+pub async fn get_token_silent() {
     let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
         .with_client_secret(CLIENT_SECRET)
+        .with_tenant(TENANT_ID)
         .build();
 
     let response = confidential_client.execute_async().await.unwrap();
@@ -54,3 +48,5 @@ pub async fn get_token_silent2() {
 
     let body: Token = response.json().await.unwrap();
 }
+
+ */

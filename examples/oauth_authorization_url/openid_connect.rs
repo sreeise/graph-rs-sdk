@@ -20,7 +20,7 @@ fn open_id_authorization_url(
     scope: Vec<&str>,
 ) -> IdentityResult<Url> {
     ConfidentialClientApplication::builder(client_id)
-        .openid_authorization_url_builder()
+        .openid_url_builder()
         .with_tenant(tenant)
         .with_redirect_uri(redirect_uri)?
         .with_scope(scope)
