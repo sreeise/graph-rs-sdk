@@ -16,9 +16,9 @@ pub struct ClientCredentialsAuthorizationUrlParameters {
 }
 
 impl ClientCredentialsAuthorizationUrlParameters {
-    pub fn new<T: AsRef<str>, U: IntoUrl>(
-        client_id: T,
-        redirect_uri: U,
+    pub fn new(
+        client_id: impl AsRef<str>,
+        redirect_uri: impl IntoUrl,
     ) -> IdentityResult<ClientCredentialsAuthorizationUrlParameters> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
@@ -64,31 +64,13 @@ impl ClientCredentialsAuthorizationUrlParameters {
             serializer.state(state.as_ref());
         }
 
-        serializer.authority_admin_consent(azure_cloud_instance, &self.app_config.authority);
-
-        let mut encoder = Serializer::new(String::new());
-        serializer.form_encode_credentials(
-            vec![
-                OAuthParameter::ClientId,
-                OAuthParameter::RedirectUri,
-                OAuthParameter::State,
-            ],
-            &mut encoder,
-        );
-
-        let mut url = Url::parse(
-            serializer
-                .get(OAuthParameter::AuthorizationUrl)
-                .ok_or(AuthorizationFailure::required(
-                    OAuthParameter::AuthorizationUrl.alias(),
-                ))?
-                .as_str(),
-        )
-        .or(AuthorizationFailure::result(
-            OAuthParameter::AuthorizationUrl.alias(),
-        ))?;
-        url.set_query(Some(encoder.finish().as_str()));
-        Ok(url)
+        let mut uri = azure_cloud_instance.admin_consent_uri(&self.app_config.authority)?;
+        let query = serializer.encode_query(
+            vec![OAuthParameter::State],
+            vec![OAuthParameter::ClientId, OAuthParameter::RedirectUri],
+        )?;
+        uri.set_query(Some(query.as_str()));
+        Ok(uri)
     }
 }
 
@@ -107,7 +89,7 @@ impl ClientCredentialsAuthorizationUrlParameterBuilder {
         }
     }
 
-    pub fn new_with_app_config(app_config: AppConfig) -> Self {
+    pub(crate) fn new_with_app_config(app_config: AppConfig) -> Self {
         Self {
             parameters: ClientCredentialsAuthorizationUrlParameters {
                 app_config,

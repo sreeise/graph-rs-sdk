@@ -1,4 +1,4 @@
-use url::Url;
+use url::{ParseError, Url};
 
 /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
 /// Maps to the instance url string.
@@ -6,8 +6,6 @@ use url::Url;
     Copy, Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize,
 )]
 pub enum AzureCloudInstance {
-    // Custom Value communicating that the AzureCloudInstance.
-    //Custom(String),
     /// Microsoft Azure public cloud. Maps to https://login.microsoftonline.com
     #[default]
     AzurePublic,
@@ -45,6 +43,38 @@ impl TryFrom<AzureCloudInstance> for Url {
 }
 
 impl AzureCloudInstance {
+    pub fn auth_uri(&self, authority: &Authority) -> Result<Url, ParseError> {
+        Url::parse(&format!(
+            "{}/{}/oauth2/v2.0/authorize",
+            self.as_ref(),
+            authority.as_ref()
+        ))
+    }
+
+    pub fn token_uri(&self, authority: &Authority) -> Result<Url, ParseError> {
+        Url::parse(&format!(
+            "{}/{}/oauth2/v2.0/token",
+            self.as_ref(),
+            authority.as_ref()
+        ))
+    }
+
+    pub fn admin_consent_uri(&self, authority: &Authority) -> Result<Url, ParseError> {
+        Url::parse(&format!(
+            "{}/{}/adminconsent",
+            self.as_ref(),
+            authority.as_ref()
+        ))
+    }
+
+    pub fn device_code_uri(&self, authority: &Authority) -> Result<Url, ParseError> {
+        Url::parse(&format!(
+            "{}/{}/oauth2/v2.0/devicecode",
+            self.as_ref(),
+            authority.as_ref()
+        ))
+    }
+
     pub fn default_microsoft_graph_scope(&self) -> &'static str {
         "https://graph.microsoft.com/.default"
     }

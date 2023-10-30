@@ -56,8 +56,7 @@ impl TokenFlowAuthorizationUrl {
             .legacy_authority()
             .response_type(self.response_type.clone());
 
-        let mut encoder = Serializer::new(String::new());
-        serializer.encode_query(
+        let query = serializer.encode_query(
             vec![],
             vec![
                 OAuthParameter::ClientId,
@@ -65,12 +64,11 @@ impl TokenFlowAuthorizationUrl {
                 OAuthParameter::Scope,
                 OAuthParameter::ResponseType,
             ],
-            &mut encoder,
         )?;
 
         if let Some(authorization_url) = serializer.get(OAuthParameter::AuthorizationUrl) {
             let mut url = Url::parse(authorization_url.as_str())?;
-            url.set_query(Some(encoder.finish().as_str()));
+            url.set_query(Some(query.as_str()));
             Ok(url)
         } else {
             AF::msg_internal_result("authorization_url")

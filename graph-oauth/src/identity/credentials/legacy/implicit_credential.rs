@@ -188,8 +188,7 @@ impl ImplicitCredential {
             serializer.login_hint(login_hint.as_str());
         }
 
-        let mut encoder = Serializer::new(String::new());
-        serializer.encode_query(
+        let query = serializer.encode_query(
             vec![
                 OAuthParameter::RedirectUri,
                 OAuthParameter::ResponseMode,
@@ -204,12 +203,11 @@ impl ImplicitCredential {
                 OAuthParameter::Scope,
                 OAuthParameter::Nonce,
             ],
-            &mut encoder,
         )?;
 
         if let Some(authorization_url) = serializer.get(OAuthParameter::AuthorizationUrl) {
             let mut url = Url::parse(authorization_url.as_str())?;
-            url.set_query(Some(encoder.finish().as_str()));
+            url.set_query(Some(query.as_str()));
             Ok(url)
         } else {
             AuthorizationFailure::msg_result("authorization_url", "Internal Error")

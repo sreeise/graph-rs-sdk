@@ -827,33 +827,33 @@ impl OAuthSerializer {
         &mut self,
         optional_fields: Vec<OAuthParameter>,
         required_fields: Vec<OAuthParameter>,
-        encoder: &mut Serializer<String>,
-    ) -> IdentityResult<()> {
+    ) -> IdentityResult<String> {
+        let mut serializer = Serializer::new(String::new());
         for parameter in required_fields {
             if parameter.alias().eq("scope") {
                 if self.scopes.is_empty() {
-                    return AuthorizationFailure::result::<()>(parameter.alias());
+                    return AuthorizationFailure::result::<String>(parameter.alias());
                 } else {
-                    encoder.append_pair("scope", self.join_scopes(" ").as_str());
+                    serializer.append_pair("scope", self.join_scopes(" ").as_str());
                 }
             } else {
                 let value = self
                     .get(parameter)
                     .ok_or(AuthorizationFailure::required(parameter))?;
 
-                encoder.append_pair(parameter.alias(), value.as_str());
+                serializer.append_pair(parameter.alias(), value.as_str());
             }
         }
 
         for parameter in optional_fields {
             if parameter.alias().eq("scope") && !self.scopes.is_empty() {
-                encoder.append_pair("scope", self.join_scopes(" ").as_str());
+                serializer.append_pair("scope", self.join_scopes(" ").as_str());
             } else if let Some(val) = self.get(parameter) {
-                encoder.append_pair(parameter.alias(), val.as_str());
+                serializer.append_pair(parameter.alias(), val.as_str());
             }
         }
 
-        Ok(())
+        Ok(serializer.finish())
     }
 
     pub fn params(&mut self, pairs: Vec<OAuthParameter>) -> GraphResult<HashMap<String, String>> {

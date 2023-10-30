@@ -84,7 +84,7 @@ impl ClientCertificateCredential {
 
 impl Debug for ClientCertificateCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ClientAssertionCredential")
+        f.debug_struct("ClientCertificateCredential")
             .field("app_config", &self.app_config)
             .field("scope", &self.scope)
             .finish()

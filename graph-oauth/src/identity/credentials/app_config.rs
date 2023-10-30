@@ -102,10 +102,15 @@ impl AppConfig {
             }
         };
 
+        let authority = tenant_id
+            .clone()
+            .map(|tenant| Authority::TenantId(tenant))
+            .unwrap_or_default();
+
         AppConfig {
             tenant_id,
             client_id,
-            authority: Default::default(),
+            authority,
             azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),

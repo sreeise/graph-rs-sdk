@@ -372,7 +372,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
         }
 
         let mut encoder = Serializer::new(String::new());
-        serializer.encode_query(
+        let query = serializer.encode_query(
             vec![
                 OAuthParameter::ResponseMode,
                 OAuthParameter::State,
@@ -389,15 +389,11 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
                 OAuthParameter::RedirectUri,
                 OAuthParameter::Scope,
             ],
-            &mut encoder,
         )?;
 
-        let authorization_url = serializer
-            .get(OAuthParameter::AuthorizationUrl)
-            .ok_or(AF::msg_internal_err("authorization_url"))?;
-        let mut url = Url::parse(authorization_url.as_str())?;
-        url.set_query(Some(encoder.finish().as_str()));
-        Ok(url)
+        let mut uri = azure_cloud_instance.auth_uri(&self.app_config.authority)?;
+        uri.set_query(Some(query.as_str()));
+        Ok(uri)
     }
 }
 

@@ -1029,6 +1029,7 @@ The following flows from the Microsoft Identity Platform are supported:
 - [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
 - [Device Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
 - [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+- [Client Credentials With Certificate](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate)
 - [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
 
 You can use the url builders for those flows that require an authorization code using a redirect after sign in you can use 
@@ -1093,17 +1094,13 @@ use graph_rs_sdk::{
   oauth::ConfidentialClientApplication, Graph
 };
 
-static CLIENT_ID: &str = "<CLIENT_ID>";
-static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
-static TENANT_ID: &str = "<TENANT_ID>";
-
-pub async fn get_graph_client() -> Graph {
-  let mut confidential_client_application = ConfidentialClientApplication::builder(CLIENT_ID)
-          .with_client_secret(CLIENT_SECRET)
-          .with_tenant(TENANT_ID)
+pub async fn get_graph_client(tenant: &str, client_id: &str, client_secret: &str) -> Graph {
+  let mut confidential_client_application = ConfidentialClientApplication::builder(client_id)
+          .with_client_secret(client_secret)
+          .with_tenant(tenant)
           .build();
 
-  Graph::from(confidential_client_application)
+  Graph::from(&confidential_client_application)
 }
 ```
 
@@ -1121,18 +1118,15 @@ Tokens will still be automatically refreshed as this flow does not require using
 a new access token.
 
 ```rust
-async fn authenticate() {
+async fn authenticate(client_id: &str, tenant: &str, redirect_uri: &str) {
   let scope = vec!["offline_access"];
-  let mut credential_builder = ConfidentialClientApplication::builder(CLIENT_ID)
+  let mut credential_builder = ConfidentialClientApplication::builder(client_id)
           .auth_code_url_builder()
-          .interactive_authentication(None) // Open web view for interactive authentication sign in
-          .unwrap();
+          .with_tenant(tenant)
+          .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
+          .with_redirect_uri(redirect_uri)
+          .url();
   // ... add any other parameters you need
-
-  let confidential_client = credential_builder.with_client_secret(CLIENT_SECRET)
-          .build();
-  
-  let client = Graph::from(&confidential_client);
 }
 ```
 
