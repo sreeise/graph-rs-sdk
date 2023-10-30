@@ -5,7 +5,6 @@ use async_trait::async_trait;
 use dyn_clone::DynClone;
 use reqwest::header::HeaderMap;
 use reqwest::tls::Version;
-use tracing::debug;
 use url::Url;
 use uuid::Uuid;
 
@@ -54,9 +53,8 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .headers(auth_request.headers)
                 .form(&auth_request.form_urlencoded);
 
-            debug!(
-                "authorization request constructed; request={:#?}",
-                request_builder
+            tracing::debug!(
+                "authorization request constructed; request_builder={request_builder:#?}"
             );
             Ok(request_builder)
         } else {
@@ -65,9 +63,8 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .headers(auth_request.headers)
                 .form(&auth_request.form_urlencoded);
 
-            debug!(
-                "authorization request constructed; request={:#?}",
-                request_builder
+            tracing::debug!(
+                "authorization request constructed; request_builder={request_builder:#?}"
             );
             Ok(request_builder)
         }
@@ -90,9 +87,8 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .headers(auth_request.headers)
                 .form(&auth_request.form_urlencoded);
 
-            debug!(
-                "authorization request constructed; request={:#?}",
-                request_builder
+            tracing::debug!(
+                "authorization request constructed; request_builder={request_builder:#?}"
             );
             Ok(request_builder)
         } else {
@@ -101,9 +97,8 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .headers(auth_request.headers)
                 .form(&auth_request.form_urlencoded);
 
-            debug!(
-                "authorization request constructed; request={:#?}",
-                request_builder
+            tracing::debug!(
+                "authorization request constructed; request_builder={request_builder:#?}"
             );
             Ok(request_builder)
         }
@@ -139,7 +134,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
     fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
         let request_builder = self.build()?;
         let response = request_builder.send()?;
-        debug!("authorization response received; response={:#?}", response);
+        tracing::debug!("authorization response received; response={response:#?}");
         Ok(response)
     }
 
@@ -147,92 +142,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
     async fn execute_async(&mut self) -> AuthExecutionResult<reqwest::Response> {
         let request_builder = self.build_async()?;
         let response = request_builder.send().await?;
-        debug!("authorization response received; response={:#?}", response);
+        tracing::debug!("authorization response received; response={response:#?}");
         Ok(response)
     }
 }
-
-/*
-    fn openid_configuration_url(&self) -> IdentityResult<Url> {
-        Ok(Url::parse(
-            format!(
-                "{}/{}/v2.0/.well-known/openid-configuration",
-                self.azure_cloud_instance().as_ref(),
-                self.authority().as_ref()
-            )
-            .as_str(),
-        )?)
-    }
-
-    fn get_openid_config(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let open_id_url = self.openid_configuration_url()?;
-        let http_client = reqwest::blocking::ClientBuilder::new()
-            .min_tls_version(Version::TLS_1_2)
-            .https_only(true)
-            .build()?;
-        let mut headers = HeaderMap::new();
-        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
-
-        let response = http_client
-            .get(open_id_url)
-            .headers(headers)
-            .send()
-            .expect("Error on header");
-
-        Ok(response)
-    }
-
-    async fn get_openid_config_async(&mut self) -> AuthExecutionResult<reqwest::Response> {
-        let open_id_config_url = self.openid_configuration_url()?;
-        let http_client = ClientBuilder::new()
-            .min_tls_version(Version::TLS_1_2)
-            .https_only(true)
-            .build()?;
-        let mut headers = HeaderMap::new();
-        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
-
-        let response = http_client
-            .get(open_id_config_url)
-            .headers(headers)
-            .send()
-            .await?;
-
-        println!("{:#?}", response);
-
-        Ok(response)
-    }
-
-    #[cfg(test)]
-mod test {
-    use super::*;
-    use crate::identity::credentials::application_builder::ConfidentialClientApplicationBuilder;
-
-    #[test]
-    fn open_id_configuration_url_authority_tenant_id() {
-        let open_id = ConfidentialClientApplicationBuilder::new("client-id")
-            .with_openid("auth-code", "client-secret")
-            .with_tenant("tenant-id")
-            .build();
-
-        let url = open_id.openid_configuration_url().unwrap();
-        assert_eq!(
-            "https://login.microsoftonline.com/tenant-id/v2.0/.well-known/openid-configuration",
-            url.as_str()
-        )
-    }
-
-    #[test]
-    fn open_id_configuration_url_authority_common() {
-        let open_id = ConfidentialClientApplicationBuilder::new("client-id")
-            .with_openid("auth-code", "client-secret")
-            .build();
-
-        let url = open_id.openid_configuration_url().unwrap();
-        assert_eq!(
-            "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
-            url.as_str()
-        )
-    }
-}
-
- */

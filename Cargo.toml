@@ -26,7 +26,6 @@ members = [
     "graph-codegen",
     "graph-http",
     "graph-core",
-    "graph-extensions"
 ]
 
 [dependencies]
@@ -36,13 +35,12 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 url = "2"
 lazy_static = "1.4.0"
+uuid = { version = "1.4.1", features = ["v4"] }
 
 graph-oauth = { path = "./graph-oauth", version = "1.0.2", default-features=false }
 graph-http = { path = "./graph-http", version = "1.1.0", default-features=false }
 graph-error = { path = "./graph-error", version = "0.2.2" }
-graph-core = { path = "./graph-core", version = "0.4.0" }
-graph-extensions = { path = "./graph-extensions", version = "0.1.0", default-features=false }
-uuid = { version = "1.4.1", features = ["v4"] }
+graph-core = { path = "./graph-core", version = "0.4.0", default-features=false }
 
 # When updating or adding new features to this or dependent crates run
 # cargo tree -e features -i graph-rs-sdk
@@ -52,13 +50,13 @@ uuid = { version = "1.4.1", features = ["v4"] }
 
 [features]
 default = ["native-tls"]
-native-tls = ["reqwest/native-tls", "graph-http/native-tls", "graph-oauth/native-tls", "graph-extensions/native-tls"]
-rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls-tls", "graph-extensions/rustls-tls"]
-brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli", "graph-extensions/brotli"]
-deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate", "graph-extensions/deflate"]
-trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns", "graph-extensions/trust-dns"]
+native-tls = ["reqwest/native-tls", "graph-http/native-tls", "graph-oauth/native-tls", "graph-core/native-tls"]
+rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls-tls", "graph-core/rustls-tls"]
+brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli", "graph-core/brotli"]
+deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate", "graph-core/deflate"]
+trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns", "graph-core/trust-dns"]
 openssl = ["graph-oauth/openssl"]
-interactive-auth = ["graph-oauth/interactive-auth"]
+# interactive-auth = ["graph-oauth/interactive-auth"]
 
 [dev-dependencies]
 bytes = { version = "1.4.0" }

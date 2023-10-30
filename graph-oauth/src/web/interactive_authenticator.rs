@@ -9,13 +9,13 @@ pub trait InteractiveAuthenticator {
     ) -> IdentityResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>>;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum WindowCloseReason {
     CloseRequested,
     InvalidWindowNavigation,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum InteractiveAuthEvent {
     InvalidRedirectUri(String),
     TimedOut(std::time::Duration),

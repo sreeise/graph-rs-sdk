@@ -4,7 +4,7 @@ use crate::identity::{
     AuthorizationCodeAssertionCredentialBuilder, AuthorizationCodeCredentialBuilder,
     ClientAssertionCredentialBuilder, ClientCredentialsAuthorizationUrlParameterBuilder,
     ClientSecretCredentialBuilder, DeviceCodeCredentialBuilder, DeviceCodePollingExecutor,
-    EnvironmentCredential, OpenIdAuthorizationUrlBuilder, OpenIdCredentialBuilder,
+    EnvironmentCredential, OpenIdAuthorizationUrlParameterBuilder, OpenIdCredentialBuilder,
     PublicClientApplication, ResourceOwnerPasswordCredential,
     ResourceOwnerPasswordCredentialBuilder,
 };
@@ -16,7 +16,10 @@ use std::env::VarError;
 use uuid::Uuid;
 
 #[cfg(feature = "openssl")]
-use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
+use crate::identity::{
+    AuthorizationCodeCertificateCredentialBuilder, ClientCertificateCredentialBuilder,
+    X509Certificate,
+};
 
 pub struct ConfidentialClientApplicationBuilder {
     pub(crate) app_config: AppConfig,
@@ -85,13 +88,13 @@ impl ConfidentialClientApplicationBuilder {
         self
     }
 
-    pub fn auth_code_authorization_url_builder(
-        &mut self,
-    ) -> AuthCodeAuthorizationUrlParameterBuilder {
+    /// Auth Code Authorization Url Builder
+    pub fn auth_code_url_builder(&mut self) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new_with_app_config(self.app_config.clone())
     }
 
-    pub fn client_credentials_authorization_url_builder(
+    /// Client Credentials Authorization Url Builder
+    pub fn client_credential_url_builder(
         &mut self,
     ) -> ClientCredentialsAuthorizationUrlParameterBuilder {
         ClientCredentialsAuthorizationUrlParameterBuilder::new_with_app_config(
@@ -99,10 +102,12 @@ impl ConfidentialClientApplicationBuilder {
         )
     }
 
-    pub fn openid_authorization_url_builder(&mut self) -> OpenIdAuthorizationUrlBuilder {
-        OpenIdAuthorizationUrlBuilder::new_with_app_config(self.app_config.clone())
+    /// OpenId Authorization Url Builder
+    pub fn openid_url_builder(&mut self) -> OpenIdAuthorizationUrlParameterBuilder {
+        OpenIdAuthorizationUrlParameterBuilder::new_with_app_config(self.app_config.clone())
     }
 
+    /// Client Credentials Using X509 Certificate
     #[cfg(feature = "openssl")]
     pub fn with_client_x509_certificate(
         self,
@@ -111,6 +116,7 @@ impl ConfidentialClientApplicationBuilder {
         ClientCertificateCredentialBuilder::new_with_certificate(certificate, self.app_config)
     }
 
+    /// Client Credentials Using Client Secret.
     pub fn with_client_secret(
         self,
         client_secret: impl AsRef<str>,
@@ -118,6 +124,7 @@ impl ConfidentialClientApplicationBuilder {
         ClientSecretCredentialBuilder::new_with_client_secret(client_secret, self.app_config)
     }
 
+    /// Client Credentials Using Assertion.
     pub fn with_client_assertion(
         self,
         signed_assertion: impl AsRef<str>,
@@ -128,14 +135,16 @@ impl ConfidentialClientApplicationBuilder {
         )
     }
 
-    pub fn with_authorization_code(
+    /// Client Credentials Authorization Url Builder
+    pub fn with_auth_code(
         self,
         authorization_code: impl AsRef<str>,
     ) -> AuthorizationCodeCredentialBuilder {
         AuthorizationCodeCredentialBuilder::new_with_auth_code(self.into(), authorization_code)
     }
 
-    pub fn with_authorization_code_assertion(
+    /// Auth Code Using Assertion
+    pub fn with_auth_code_assertion(
         self,
         authorization_code: impl AsRef<str>,
         assertion: impl AsRef<str>,
@@ -147,6 +156,7 @@ impl ConfidentialClientApplicationBuilder {
         )
     }
 
+    /// Auth Code Using X509 Certificate
     #[cfg(feature = "openssl")]
     pub fn with_authorization_code_x509_certificate(
         self,
@@ -160,6 +170,9 @@ impl ConfidentialClientApplicationBuilder {
         )
     }
 
+    //#[cfg(feature = "interactive-auth")]
+
+    /// Auth Code Using OpenId.
     pub fn with_openid(
         self,
         authorization_code: impl AsRef<str>,
@@ -225,6 +238,7 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
                 redirect_uri: None,
                 cache_id,
                 force_token_refresh: Default::default(),
+                log_pii: Default::default(),
             },
         })
     }
@@ -378,6 +392,7 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
                 redirect_uri: None,
                 cache_id,
                 force_token_refresh: Default::default(),
+                log_pii: Default::default(),
             },
         })
     }

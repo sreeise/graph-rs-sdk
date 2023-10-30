@@ -8,8 +8,15 @@
 
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
-The crate also provides an oauth and openid connect client for get getting access tokens
-and now supports interactive authentication use web view.
+Features:
+
+- Microsoft Graph V1 and Beta API Client
+  - Paging using Streaming, Channels, or Iterators. 
+  - Upload Sessions, OData Queries, and File Downloads
+- Microsoft Graph Identity Platform OAuth2 and OpenId Connect Client 
+  - Auth Code, Client Credentials, Device Code, OpenId, X509 Certificates, PKCE
+  - Interactive Authentication
+  - Automatic Token Refresh
 
 ```toml
 graph-rs-sdk = "1.1.1"
@@ -36,19 +43,6 @@ use futures::StreamExt;
 use graph_rs_sdk::*;
 ```
 
-Contributing and Wiki:
-- [Contributions](https://github.com/sreeise/graph-rs-sdk/wiki/Contributing)
-- [Wiki](https://github.com/sreeise/graph-rs-sdk/wiki)
-
-### Feature requests or Bug reports.
-
-For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
-
-The [Discussions](https://github.com/sreeise/graph-rs-sdk/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs-sdk/discussions)
-is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
-an issue first. Features can be requested through issues or discussions. Either way works.
-Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
-
 ## Table Of Contents
 
 * [Usage](#usage)
@@ -65,7 +59,9 @@ Other than that feel free to ask questions, provide tips to others, and talk abo
     * [Channels](#channels)
   * [API Usage](#api-usage)
   * [Id vs Non-Id methods](#id-vs-non-id-methods-such-as-useruser-id-vs-users)
-  * [Information about the project itself (contributor section coming soon)](#for-those-interested-in-the-code-itself-contributor-section-coming-soon)
+  * [Contributing](#contributing)
+  * [Wiki](#wiki)
+  * [Feature Requests for Bug Reports](#feature-requests-or-bug-reports)
 
 ### What APIs are available
 
@@ -76,17 +72,6 @@ config but in general most of them are implemented.
 # Usage
 
 For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs-sdk/tree/master/examples)
-
-### Authentication and Authorization (In Active Development)
-
-The crate is undergoing major development in order to support all or most scenarios in the Microsoft Identity Platform
-where its possible to do so. Another goal is to make the authentication/authorization impl much easier to use
-by providing easy to use clients that follow similar designs to other sdks for the Identity Platform.
-
-This includes token caches, automatic refresh of tokens, interactive web view authentication, and much more. 
-The development is well underway - as of right now no merge has gone into master but changes will be there soon
-and they will almost certainly be unstable in some respects while we continue to work on this. However, the crate
-on crates.io is currently only updated on stable version releases.
 
 ### Async and Blocking Client
 
@@ -998,6 +983,10 @@ async fn get_user() -> GraphResult<()> {
 
 ## OAuth - Getting Access Tokens
 
+The crate is undergoing major development in order to support all or most scenarios in the 
+Microsoft Identity Platform where its possible to do so. The master branch on GitHub may have some
+unstable features. Any version that is not a pre-release version of the crate is considered stable.
+
 Use application builders to store your auth configuration and have the client
 handle the access token requests for you.
 
@@ -1204,3 +1193,23 @@ async fn authenticate() {
     println!("{body:#?}");
 }
 ```
+
+
+## Contributing
+
+See the [Contributions](https://github.com/sreeise/graph-rs-sdk/wiki/Contributing) guide on GitHub
+
+
+## Wiki:
+
+See the [GitHub Wiki](https://github.com/sreeise/graph-rs-sdk/wiki)
+
+
+## Feature requests or Bug reports
+
+For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
+
+The [Discussions](https://github.com/sreeise/graph-rs-sdk/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs-sdk/discussions)
+is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
+an issue first. Features can be requested through issues or discussions. Either way works.
+Other than that feel free to ask questions, provide tips to others, and talk about the project in general.

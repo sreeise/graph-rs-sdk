@@ -3,10 +3,9 @@ use std::error::Error;
 use std::fmt;
 use std::io::ErrorKind;
 
-use graph_error::{GraphFailure, GraphResult};
+use graph_error::GraphFailure;
 
 use crate::auth::OAuthParameter;
-use crate::grants::{GrantRequest, GrantType};
 
 /// Error implementation for OAuth
 #[derive(Debug)]
@@ -27,27 +26,11 @@ impl OAuthError {
     pub fn invalid(msg: &str) -> GraphFailure {
         OAuthError::error_kind(ErrorKind::InvalidData, msg)
     }
-
-    pub fn error_from<T>(c: OAuthParameter) -> Result<T, GraphFailure> {
-        Err(OAuthError::credential_error(c))
-    }
-
     pub fn credential_error(c: OAuthParameter) -> GraphFailure {
         GraphFailure::error_kind(
             ErrorKind::NotFound,
             format!("MISSING OR INVALID: {c:#?}").as_str(),
         )
-    }
-
-    pub fn grant_error<T>(
-        grant: GrantType,
-        grant_request: GrantRequest,
-        msg: &str,
-    ) -> GraphResult<T> {
-        let error_str = format!(
-			"There was an error for the grant: {grant:#?} when executing a request for: {grant_request:#?}\nError: {msg:#?}",
-		);
-        OAuthError::invalid_data(error_str.as_str())
     }
 }
 

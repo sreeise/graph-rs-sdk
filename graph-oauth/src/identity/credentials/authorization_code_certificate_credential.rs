@@ -7,14 +7,15 @@ use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
-use graph_error::{IdentityResult, AF};
+use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_error::{AuthExecutionError, IdentityResult, AF};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters, Authority,
-    AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, TokenCredentialExecutor,
-    CLIENT_ASSERTION_TYPE,
+    AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, Token,
+    TokenCredentialExecutor, CLIENT_ASSERTION_TYPE,
 };
 #[cfg(feature = "openssl")]
 use crate::oauth::X509Certificate;
@@ -56,6 +57,7 @@ pub struct AuthorizationCodeCertificateCredential {
     /// consent to various resources, if an access token is requested.
     pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
+    token_cache: InMemoryCacheStore<Token>,
 }
 
 impl Debug for AuthorizationCodeCertificateCredential {
@@ -94,6 +96,7 @@ impl AuthorizationCodeCertificateCredential {
             client_assertion: client_assertion.as_ref().to_owned(),
             scope: vec![],
             serializer: OAuthSerializer::new(),
+            token_cache: Default::default(),
         })
     }
 
@@ -117,6 +120,48 @@ impl AuthorizationCodeCertificateCredential {
     }
 }
 
+#[async_trait]
+impl TokenCache for AuthorizationCodeCertificateCredential {
+    type Token = Token;
+
+    fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute()?;
+                let msal_token: Token = response.json()?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token)
+            }
+        } else {
+            let response = self.execute()?;
+            let msal_token: Token = response.json()?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
+    }
+
+    async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute_async().await?;
+                let msal_token: Token = response.json().await?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token.clone())
+            }
+        } else {
+            let response = self.execute_async().await?;
+            let msal_token: Token = response.json().await?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
+    }
+}
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
     fn uri(&mut self) -> IdentityResult<Url> {
@@ -239,21 +284,6 @@ pub struct AuthorizationCodeCertificateCredentialBuilder {
 }
 
 impl AuthorizationCodeCertificateCredentialBuilder {
-    fn new() -> AuthorizationCodeCertificateCredentialBuilder {
-        Self {
-            credential: AuthorizationCodeCertificateCredential {
-                app_config: Default::default(),
-                authorization_code: None,
-                refresh_token: None,
-                code_verifier: None,
-                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
-                client_assertion: String::new(),
-                scope: vec![],
-                serializer: OAuthSerializer::new(),
-            },
-        }
-    }
-
     #[cfg(feature = "openssl")]
     pub(crate) fn new_with_auth_code_and_x509(
         app_config: AppConfig,
@@ -270,6 +300,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
                 client_assertion: String::new(),
                 scope: vec![],
                 serializer: OAuthSerializer::new(),
+                token_cache: Default::default(),
             },
         };
 
@@ -328,16 +359,6 @@ impl AuthorizationCodeCertificateCredentialBuilder {
 
     pub fn credential(self) -> AuthorizationCodeCertificateCredential {
         self.credential
-    }
-}
-
-impl From<AuthCodeAuthorizationUrlParameters> for AuthorizationCodeCertificateCredentialBuilder {
-    fn from(value: AuthCodeAuthorizationUrlParameters) -> Self {
-        let mut builder = AuthorizationCodeCertificateCredentialBuilder::new();
-        builder.credential.app_config = value.app_config;
-        builder.with_scope(value.scope);
-
-        builder
     }
 }
 

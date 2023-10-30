@@ -2,20 +2,22 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
 use async_trait::async_trait;
+use graph_core::cache::{InMemoryCacheStore, TokenCache};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
-use graph_error::{IdentityResult, AF};
-use graph_extensions::crypto::{GenPkce, ProofKeyCodeExchange};
+use graph_core::crypto::{GenPkce, ProofKeyCodeExchange};
+use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh,
-    OpenIdAuthorizationUrl, OpenIdAuthorizationUrlBuilder, TokenCredentialExecutor,
+    OpenIdAuthorizationUrlParameterBuilder, OpenIdAuthorizationUrlParameters, Token,
+    TokenCredentialExecutor,
 };
+use crate::internal::{OAuthParameter, OAuthSerializer};
 
 credential_builder!(
     OpenIdCredentialBuilder,
@@ -64,6 +66,7 @@ pub struct OpenIdCredential {
     /// is called.
     pub(crate) pkce: Option<ProofKeyCodeExchange>,
     serializer: OAuthSerializer,
+    token_cache: InMemoryCacheStore<Token>,
 }
 impl Debug for OpenIdCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -94,7 +97,8 @@ impl OpenIdCredential {
             scope: vec!["openid".to_owned()],
             code_verifier: None,
             pkce: None,
-            serializer: OAuthSerializer::new(),
+            serializer: Default::default(),
+            token_cache: Default::default(),
         })
     }
 
@@ -107,12 +111,127 @@ impl OpenIdCredential {
         OpenIdCredentialBuilder::new()
     }
 
-    pub fn authorization_url_builder(client_id: impl AsRef<str>) -> OpenIdAuthorizationUrlBuilder {
-        OpenIdAuthorizationUrlBuilder::new_with_app_config(AppConfig::new_with_client_id(client_id))
+    pub fn authorization_url_builder(
+        client_id: impl AsRef<str>,
+    ) -> OpenIdAuthorizationUrlParameterBuilder {
+        OpenIdAuthorizationUrlParameterBuilder::new_with_app_config(AppConfig::new_with_client_id(
+            client_id,
+        ))
     }
 
     pub fn pkce(&self) -> Option<&ProofKeyCodeExchange> {
         self.pkce.as_ref()
+    }
+
+    fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
+        let response = self.execute()?;
+        let new_token: Token = response.json()?;
+        self.token_cache.store(cache_id, new_token.clone());
+
+        if new_token.refresh_token.is_some() {
+            self.refresh_token = new_token.refresh_token.clone();
+        }
+
+        Ok(new_token)
+    }
+
+    async fn execute_cached_token_refresh_async(
+        &mut self,
+        cache_id: String,
+    ) -> AuthExecutionResult<Token> {
+        let response = self.execute_async().await?;
+        let new_token: Token = response.json().await?;
+
+        if new_token.refresh_token.is_some() {
+            self.refresh_token = new_token.refresh_token.clone();
+        }
+
+        self.token_cache.store(cache_id, new_token.clone());
+        Ok(new_token)
+    }
+}
+
+#[async_trait]
+impl TokenCache for OpenIdCredential {
+    type Token = Token;
+
+    fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+
+        match self.app_config.force_token_refresh {
+            ForceTokenRefresh::Never => {
+                // Attempt to bypass a read on the token store by using previous
+                // refresh token stored outside of RwLock
+                if self.refresh_token.is_some() {
+                    match self.execute_cached_token_refresh(cache_id.clone()) {
+                        Ok(token) => return Ok(token),
+                        Err(_) => {}
+                    }
+                }
+
+                if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+                    if token.is_expired_sub(time::Duration::minutes(5)) {
+                        if let Some(refresh_token) = token.refresh_token.as_ref() {
+                            self.refresh_token = Some(refresh_token.to_owned());
+                        }
+
+                        self.execute_cached_token_refresh(cache_id)
+                    } else {
+                        Ok(token.clone())
+                    }
+                } else {
+                    self.execute_cached_token_refresh(cache_id)
+                }
+            }
+            ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                let token_result = self.execute_cached_token_refresh(cache_id);
+                if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
+                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                }
+                token_result
+            }
+        }
+    }
+
+    async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+
+        match self.app_config.force_token_refresh {
+            ForceTokenRefresh::Never => {
+                // Attempt to bypass a read on the token store by using previous
+                // refresh token stored outside of RwLock
+                if self.refresh_token.is_some() {
+                    match self
+                        .execute_cached_token_refresh_async(cache_id.clone())
+                        .await
+                    {
+                        Ok(token) => return Ok(token),
+                        Err(_) => {}
+                    }
+                }
+
+                if let Some(old_token) = self.token_cache.get(cache_id.as_str()) {
+                    if old_token.is_expired_sub(time::Duration::minutes(5)) {
+                        if let Some(refresh_token) = old_token.refresh_token.as_ref() {
+                            self.refresh_token = Some(refresh_token.to_owned());
+                        }
+
+                        self.execute_cached_token_refresh_async(cache_id).await
+                    } else {
+                        Ok(old_token.clone())
+                    }
+                } else {
+                    self.execute_cached_token_refresh_async(cache_id).await
+                }
+            }
+            ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                let token_result = self.execute_cached_token_refresh_async(cache_id).await;
+                if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
+                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                }
+                token_result
+            }
+        }
     }
 }
 
@@ -248,7 +367,8 @@ impl OpenIdCredentialBuilder {
                 scope: vec!["openid".to_owned()],
                 code_verifier: None,
                 pkce: None,
-                serializer: OAuthSerializer::new(),
+                serializer: Default::default(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -268,6 +388,7 @@ impl OpenIdCredentialBuilder {
                 code_verifier: None,
                 pkce: None,
                 serializer: Default::default(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -318,8 +439,8 @@ impl OpenIdCredentialBuilder {
     }
 }
 
-impl From<OpenIdAuthorizationUrl> for OpenIdCredentialBuilder {
-    fn from(value: OpenIdAuthorizationUrl) -> Self {
+impl From<OpenIdAuthorizationUrlParameters> for OpenIdCredentialBuilder {
+    fn from(value: OpenIdAuthorizationUrlParameters) -> Self {
         let mut builder = OpenIdCredentialBuilder::new();
         builder.credential.app_config = value.app_config;
         builder.with_scope(value.scope);

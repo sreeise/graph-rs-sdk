@@ -13,10 +13,8 @@
 mod client_credentials_admin_consent;
 
 pub use client_credentials_admin_consent::*;
-use graph_rs_sdk::{
-    oauth::ClientSecretCredential, oauth::ConfidentialClientApplication,
-    oauth::TokenCredentialExecutor, Graph,
-};
+
+use graph_rs_sdk::{oauth::ConfidentialClientApplication, Graph};
 
 // This example shows programmatically getting an access token using the client credentials
 // flow after admin consent has been granted. If you have not granted admin consent, see
@@ -33,20 +31,5 @@ pub async fn get_graph_client() -> Graph {
         .with_tenant(TENANT_ID)
         .build();
 
-    Graph::from(confidential_client_application)
+    Graph::from(&confidential_client_application)
 }
-
-/*
-pub async fn get_token_silent() {
-    let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
-        .with_client_secret(CLIENT_SECRET)
-        .with_tenant(TENANT_ID)
-        .build();
-
-    let response = confidential_client.execute_async().await.unwrap();
-    println!("{response:#?}");
-
-    let body: Token = response.json().await.unwrap();
-}
-
- */

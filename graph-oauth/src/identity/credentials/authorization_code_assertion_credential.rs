@@ -7,13 +7,14 @@ use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
-use graph_error::{IdentityResult, AF};
+use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_error::{AuthExecutionError, IdentityResult, AF};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, Authority, AzureCloudInstance,
-    ConfidentialClientApplication, ForceTokenRefresh, TokenCredentialExecutor,
+    ConfidentialClientApplication, ForceTokenRefresh, Token, TokenCredentialExecutor,
     CLIENT_ASSERTION_TYPE,
 };
 
@@ -54,6 +55,7 @@ pub struct AuthorizationCodeAssertionCredential {
     /// consent to various resources, if an access token is requested.
     pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
+    token_cache: InMemoryCacheStore<Token>,
 }
 
 impl Debug for AuthorizationCodeAssertionCredential {
@@ -92,6 +94,7 @@ impl AuthorizationCodeAssertionCredential {
             client_assertion: client_assertion.as_ref().to_owned(),
             scope: vec![],
             serializer: OAuthSerializer::new(),
+            token_cache: Default::default(),
         })
     }
 
@@ -108,6 +111,49 @@ impl AuthorizationCodeAssertionCredential {
         client_id: T,
     ) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new(client_id)
+    }
+}
+
+#[async_trait]
+impl TokenCache for AuthorizationCodeAssertionCredential {
+    type Token = Token;
+
+    fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute()?;
+                let msal_token: Token = response.json()?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token)
+            }
+        } else {
+            let response = self.execute()?;
+            let msal_token: Token = response.json()?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
+    }
+
+    async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute_async().await?;
+                let msal_token: Token = response.json().await?;
+                self.token_cache.store(cache_id, msal_token.clone());
+                Ok(msal_token)
+            } else {
+                Ok(token.clone())
+            }
+        } else {
+            let response = self.execute_async().await?;
+            let msal_token: Token = response.json().await?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
     }
 }
 
@@ -247,6 +293,7 @@ impl AuthorizationCodeAssertionCredentialBuilder {
                 client_assertion: String::new(),
                 scope: vec![],
                 serializer: OAuthSerializer::new(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -266,6 +313,7 @@ impl AuthorizationCodeAssertionCredentialBuilder {
                 client_assertion: assertion.as_ref().to_owned(),
                 scope: vec![],
                 serializer: OAuthSerializer::new(),
+                token_cache: Default::default(),
             },
         }
     }

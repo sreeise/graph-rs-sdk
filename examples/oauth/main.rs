@@ -20,20 +20,16 @@ mod client_credentials;
 mod device_code;
 mod environment_credential;
 mod is_access_token_expired;
-mod openid_connect;
+mod openid;
 
-use crate::is_access_token_expired::is_access_token_expired;
-use graph_extensions::crypto::GenPkce;
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
-    DeviceCodeCredential, ProofKeyCodeExchange, PublicClientApplication, Token,
+    DeviceCodeCredential, GenPkce, ProofKeyCodeExchange, PublicClientApplication, Token,
     TokenCredentialExecutor, TokenRequest,
 };
 
-fn main() {
-    is_access_token_expired();
-}
+fn main() {}
 
 /*
    // Some examples of what you can use for authentication and getting access tokens. There are

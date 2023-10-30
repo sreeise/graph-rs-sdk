@@ -53,6 +53,7 @@ pub enum AuthorizationQueryError {
 pub struct AuthorizationQueryResponse {
     pub code: Option<String>,
     pub id_token: Option<String>,
+    pub expires_in: Option<String>,
     pub access_token: Option<String>,
     pub state: Option<String>,
     pub nonce: Option<String>,
@@ -63,6 +64,17 @@ pub struct AuthorizationQueryResponse {
     pub additional_fields: HashMap<String, Value>,
     #[serde(skip)]
     log_pii: bool,
+}
+
+impl AuthorizationQueryResponse {
+    /// Enable or disable logging of personally identifiable information such
+    /// as logging the id_token. This is disabled by default. When log_pii is enabled
+    /// passing [AuthorizationQueryResponse] to logging or print functions will log both the bearer
+    /// access token value of amy and the id token value.
+    /// By default these do not get logged.
+    pub fn enable_pii_logging(&mut self, log_pii: bool) {
+        self.log_pii = log_pii;
+    }
 }
 
 impl Debug for AuthorizationQueryResponse {
@@ -77,7 +89,7 @@ impl Debug for AuthorizationQueryResponse {
                 .field("error", &self.error)
                 .field("error_description", &self.error_description)
                 .field("error_uri", &self.error_uri)
-                .field("additional_fields(serde flatten)", &self.additional_fields)
+                .field("additional_fields", &self.additional_fields)
                 .finish()
         } else {
             f.debug_struct("AuthQueryResponse")
@@ -89,7 +101,7 @@ impl Debug for AuthorizationQueryResponse {
                 .field("error", &self.error)
                 .field("error_description", &self.error_description)
                 .field("error_uri", &self.error_uri)
-                .field("additional_fields(serde flatten)", &self.additional_fields)
+                .field("additional_fields", &self.additional_fields)
                 .finish()
         }
     }

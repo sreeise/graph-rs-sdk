@@ -4,7 +4,6 @@ use std::default::Default;
 use std::fmt;
 
 use base64::Engine;
-use ring::rand::SecureRandom;
 use url::form_urlencoded::Serializer;
 use url::Url;
 
@@ -46,8 +45,6 @@ pub enum OAuthParameter {
     CodeVerifier,
     CodeChallenge,
     CodeChallengeMethod,
-    PostLogoutRedirectURI,
-    LogoutURL,
     AdminConsent,
     Username,
     Password,
@@ -83,8 +80,6 @@ impl OAuthParameter {
             OAuthParameter::CodeVerifier => "code_verifier",
             OAuthParameter::CodeChallenge => "code_challenge",
             OAuthParameter::CodeChallengeMethod => "code_challenge_method",
-            OAuthParameter::LogoutURL => "logout_url",
-            OAuthParameter::PostLogoutRedirectURI => "post_logout_redirect_uri",
             OAuthParameter::AdminConsent => "admin_consent",
             OAuthParameter::Username => "username",
             OAuthParameter::Password => "password",
@@ -126,13 +121,14 @@ impl AsRef<str> for OAuthParameter {
 ///
 /// # Example
 /// ```
-/// use graph_oauth::oauth::OAuthSerializer;
+/// use graph_oauth::extensions::OAuthSerializer;
 /// let oauth = OAuthSerializer::new();
 /// ```
 #[derive(Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct OAuthSerializer {
     scopes: BTreeSet<String>,
-    credentials: BTreeMap<String, String>,
+    parameters: BTreeMap<String, String>,
+    log_pii: bool,
 }
 
 impl OAuthSerializer {
@@ -140,14 +136,15 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// use graph_oauth::oauth::OAuthSerializer;
+    /// use graph_oauth::extensions::OAuthSerializer;
     ///
     /// let mut oauth = OAuthSerializer::new();
     /// ```
     pub fn new() -> OAuthSerializer {
         OAuthSerializer {
             scopes: BTreeSet::new(),
-            credentials: BTreeMap::new(),
+            parameters: BTreeMap::new(),
+            log_pii: false,
         }
     }
 
@@ -158,8 +155,8 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthParameter;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.insert(OAuthParameter::AuthorizationUrl, "https://example.com");
     /// assert!(oauth.contains(OAuthParameter::AuthorizationUrl));
@@ -168,10 +165,7 @@ impl OAuthSerializer {
     pub fn insert<V: ToString>(&mut self, oac: OAuthParameter, value: V) -> &mut OAuthSerializer {
         let v = value.to_string();
         match oac {
-            OAuthParameter::PostLogoutRedirectURI
-            | OAuthParameter::TokenUrl
-            | OAuthParameter::AuthorizationUrl
-            | OAuthParameter::LogoutURL => {
+            OAuthParameter::TokenUrl | OAuthParameter::AuthorizationUrl => {
                 Url::parse(v.as_ref())
                     .map_err(|_| AF::msg_internal_err("authorization_url | refresh_token_url"))
                     .unwrap();
@@ -179,7 +173,7 @@ impl OAuthSerializer {
             _ => {}
         }
 
-        self.credentials.insert(oac.to_string(), v);
+        self.parameters.insert(oac.to_string(), v);
         self
     }
 
@@ -189,8 +183,8 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthParameter;
     /// # let mut oauth = OAuthSerializer::new();
     /// let entry = oauth.entry_with(OAuthParameter::AuthorizationUrl, "https://example.com");
     /// assert_eq!(entry, "https://example.com")
@@ -198,10 +192,7 @@ impl OAuthSerializer {
     pub fn entry_with<V: ToString>(&mut self, oac: OAuthParameter, value: V) -> &mut String {
         let v = value.to_string();
         match oac {
-            OAuthParameter::PostLogoutRedirectURI
-            | OAuthParameter::TokenUrl
-            | OAuthParameter::AuthorizationUrl
-            | OAuthParameter::LogoutURL => {
+            OAuthParameter::TokenUrl | OAuthParameter::AuthorizationUrl => {
                 Url::parse(v.as_ref())
                     .map_err(|_| AF::msg_internal_err("authorization_url | refresh_token_url"))
                     .unwrap();
@@ -209,7 +200,7 @@ impl OAuthSerializer {
             _ => {}
         }
 
-        self.credentials
+        self.parameters
             .entry(oac.alias().to_string())
             .or_insert_with(|| v)
     }
@@ -220,28 +211,28 @@ impl OAuthSerializer {
     ///
     /// [`entry`]: BTreeMap::entry
     pub fn entry<V: ToString>(&mut self, oac: OAuthParameter) -> Entry<String, String> {
-        self.credentials.entry(oac.alias().to_string())
+        self.parameters.entry(oac.alias().to_string())
     }
 
     /// Get a previously set credential.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthParameter;
     /// # let mut oauth = OAuthSerializer::new();
     /// let a = oauth.get(OAuthParameter::AuthorizationUrl);
     /// ```
     pub fn get(&self, oac: OAuthParameter) -> Option<String> {
-        self.credentials.get(oac.alias()).cloned()
+        self.parameters.get(oac.alias()).cloned()
     }
 
     /// Check if an OAuth credential has already been set.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthParameter;
     /// # let mut oauth = OAuthSerializer::new();
     /// println!("{:#?}", oauth.contains(OAuthParameter::Nonce));
     /// ```
@@ -249,19 +240,19 @@ impl OAuthSerializer {
         if t == OAuthParameter::Scope {
             return !self.scopes.is_empty();
         }
-        self.credentials.contains_key(t.alias())
+        self.parameters.contains_key(t.alias())
     }
 
     pub fn contains_key(&self, key: &str) -> bool {
-        self.credentials.contains_key(key)
+        self.parameters.contains_key(key)
     }
 
     /// Remove a field from OAuth.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthParameter;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_id("client_id");
     ///
@@ -271,7 +262,7 @@ impl OAuthSerializer {
     /// assert_eq!(oauth.contains(OAuthParameter::ClientId), false);
     /// ```
     pub fn remove(&mut self, oac: OAuthParameter) -> &mut OAuthSerializer {
-        self.credentials.remove(oac.alias());
+        self.parameters.remove(oac.alias());
         self
     }
 
@@ -279,8 +270,8 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthParameter;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_id("client_id");
     /// ```
@@ -292,8 +283,8 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # use graph_oauth::oauth::OAuthParameter;
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthParameter;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.state("1234");
     /// ```
@@ -305,7 +296,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_secret("client_secret");
     /// ```
@@ -317,7 +308,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.authorization_url("https://example.com/authorize");
     /// ```
@@ -329,7 +320,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.token_uri("https://example.com/token");
     /// ```
@@ -341,7 +332,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.refresh_token_url("https://example.com/token");
     /// ```
@@ -353,8 +344,8 @@ impl OAuthSerializer {
     /// for OAuth based on a tenant id.
     ///
     /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// ```rust
+    /// # use crate::graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.tenant_id("tenant_id");
     /// ```
@@ -370,7 +361,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.tenant_id("tenant_id");
     /// ```
@@ -425,7 +416,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.redirect_uri("https://localhost:8888/redirect");
     /// ```
@@ -437,9 +428,9 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # let mut oauth = OAuthSerializer::new();
-    /// oauth.authorization_code("LDSF[POK43");
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # let mut serializer = OAuthSerializer::new();
+    /// serializer.authorization_code("LDSF[POK43");
     /// ```
     pub fn authorization_code(&mut self, value: &str) -> &mut OAuthSerializer {
         self.insert(OAuthParameter::AuthorizationCode, value)
@@ -449,9 +440,9 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # let mut oauth = OAuthSerializer::new();
-    /// oauth.response_mode("query");
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # let mut serializer = OAuthSerializer::new();
+    /// serializer.response_mode("query");
     /// ```
     pub fn response_mode(&mut self, value: &str) -> &mut OAuthSerializer {
         self.insert(OAuthParameter::ResponseMode, value)
@@ -461,7 +452,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.response_type("token");
     /// ```
@@ -480,7 +471,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     ///
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.nonce("1234");
@@ -493,7 +484,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     ///
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.prompt("login");
@@ -510,7 +501,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.session_state("session-state");
     /// ```
@@ -522,7 +513,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.grant_type("token");
     /// ```
@@ -534,7 +525,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.resource("resource");
     /// ```
@@ -546,7 +537,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.code_verifier("code_verifier");
     /// ```
@@ -558,7 +549,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.domain_hint("domain_hint");
     /// ```
@@ -570,7 +561,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.code_challenge("code_challenge");
     /// ```
@@ -582,7 +573,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.code_challenge_method("code_challenge_method");
     /// ```
@@ -590,67 +581,11 @@ impl OAuthSerializer {
         self.insert(OAuthParameter::CodeChallengeMethod, value)
     }
 
-    /// Generate a code challenge and code verifier for the
-    /// authorization code grant flow using proof key for
-    /// code exchange (PKCE) and SHA256.
-    ///
-    /// This method automatically sets the code_verifier,
-    /// code_challenge, and code_challenge_method fields.
-    ///
-    /// For authorization, the code_challenge_method parameter in the request body
-    /// is automatically set to 'S256'.
-    ///
-    /// Internally this method uses the Rust ring cyrpto library to
-    /// generate a secure random 32-octet sequence that is base64 URL
-    /// encoded (no padding). This sequence is hashed using SHA256 and
-    /// base64 URL encoded (no padding) resulting in a 43-octet URL safe string.
-    ///
-    ///
-    /// For more info on PKCE and entropy see: <https://tools.ietf.org/html/rfc7519#section-7.2>
-    ///
-    /// # Example
-    /// ```
-    /// # use base64::Engine;
-    /// use graph_oauth::oauth::OAuthSerializer;
-    /// use graph_oauth::oauth::OAuthParameter;
-    ///
-    /// let mut oauth = OAuthSerializer::new();
-    /// oauth.generate_sha256_challenge_and_verifier().unwrap();
-    ///
-    /// # assert!(oauth.contains(OAuthParameter::CodeChallenge));
-    /// # assert!(oauth.contains(OAuthParameter::CodeVerifier));
-    /// # assert!(oauth.contains(OAuthParameter::CodeChallengeMethod));
-    /// println!("Code Challenge: {:#?}", oauth.get(OAuthParameter::CodeChallenge));
-    /// println!("Code Verifier: {:#?}", oauth.get(OAuthParameter::CodeVerifier));
-    /// println!("Code Challenge Method: {:#?}", oauth.get(OAuthParameter::CodeChallengeMethod));
-    ///
-    /// # let challenge = oauth.get(OAuthParameter::CodeChallenge).unwrap();
-    /// # let mut context = ring::digest::Context::new(&ring::digest::SHA256);
-    /// # context.update(oauth.get(OAuthParameter::CodeVerifier).unwrap().as_bytes());
-    /// # let verifier = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(context.finish().as_ref());
-    /// # assert_eq!(challenge, verifier);
-    /// ```
-    pub fn generate_sha256_challenge_and_verifier(&mut self) -> Result<(), GraphFailure> {
-        let mut buf = [0; 32];
-        let rng = ring::rand::SystemRandom::new();
-        rng.fill(&mut buf)?;
-        let verifier = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(buf);
-        let mut context = ring::digest::Context::new(&ring::digest::SHA256);
-        context.update(verifier.as_bytes());
-        let code_challenge =
-            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(context.finish().as_ref());
-
-        self.code_verifier(&verifier);
-        self.code_challenge(&code_challenge);
-        self.code_challenge_method("S256");
-        Ok(())
-    }
-
     /// Set the login hint.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.login_hint("login_hint");
     /// ```
@@ -662,7 +597,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_assertion("client_assertion");
     /// ```
@@ -674,7 +609,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.client_assertion_type("client_assertion_type");
     /// ```
@@ -682,35 +617,11 @@ impl OAuthSerializer {
         self.insert(OAuthParameter::ClientAssertionType, value)
     }
 
-    /// Set the url to send a post request that will log out the user.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # let mut oauth = OAuthSerializer::new();
-    /// oauth.logout_url("https://example.com/logout?");
-    /// ```
-    pub fn logout_url(&mut self, value: &str) -> &mut OAuthSerializer {
-        self.insert(OAuthParameter::LogoutURL, value)
-    }
-
     /// Set the redirect uri that user will be redirected to after logging out.
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
-    /// # let mut oauth = OAuthSerializer::new();
-    /// oauth.post_logout_redirect_uri("http://localhost:8080");
-    /// ```
-    pub fn post_logout_redirect_uri(&mut self, value: &str) -> &mut OAuthSerializer {
-        self.insert(OAuthParameter::PostLogoutRedirectURI, value)
-    }
-
-    /// Set the redirect uri that user will be redirected to after logging out.
-    ///
-    /// # Example
-    /// ```
-    /// # use graph_oauth::oauth::{OAuthSerializer, OAuthParameter};
+    /// # use graph_oauth::extensions::{OAuthSerializer, OAuthParameter};
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.username("user");
     /// assert!(oauth.contains(OAuthParameter::Username))
@@ -723,7 +634,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{OAuthSerializer, OAuthParameter};
+    /// # use graph_oauth::extensions::{OAuthSerializer, OAuthParameter};
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.password("user");
     /// assert!(oauth.contains(OAuthParameter::Password))
@@ -740,7 +651,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{OAuthSerializer, OAuthParameter};
+    /// # use graph_oauth::extensions::{OAuthSerializer, OAuthParameter};
     /// # let mut oauth = OAuthSerializer::new();
     /// oauth.device_code("device_code");
     /// assert!(oauth.contains(OAuthParameter::DeviceCode))
@@ -753,7 +664,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     ///
     /// oauth.add_scope("Sites.Read")
@@ -770,7 +681,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// let mut oauth = OAuthSerializer::new();
     /// oauth.add_scope("Files.Read");
     /// oauth.add_scope("Files.ReadWrite");
@@ -787,7 +698,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     ///
     /// // the scopes take a separator just like Vec join.
@@ -806,7 +717,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # use std::collections::HashSet;
     /// # let mut oauth = OAuthSerializer::new();
     ///
@@ -824,7 +735,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     ///
     /// oauth.add_scope("Files.Read");
@@ -842,7 +753,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     ///
     /// oauth.add_scope("scope");
@@ -858,7 +769,7 @@ impl OAuthSerializer {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::OAuthSerializer;
+    /// # use graph_oauth::extensions::OAuthSerializer;
     /// # let mut oauth = OAuthSerializer::new();
     ///
     /// oauth.add_scope("Files.Read").add_scope("Files.ReadWrite");
@@ -981,7 +892,7 @@ impl OAuthSerializer {
 ///
 /// # Example
 /// ```
-/// # use graph_oauth::oauth::{OAuthSerializer, OAuthParameter};
+/// # use graph_oauth::extensions::{OAuthSerializer, OAuthParameter};
 /// # use std::collections::HashMap;
 /// # let mut oauth = OAuthSerializer::new();
 /// let mut map: HashMap<OAuthParameter, &str> = HashMap::new();
@@ -1003,8 +914,10 @@ impl<V: ToString> Extend<(OAuthParameter, V)> for OAuthSerializer {
 impl fmt::Debug for OAuthSerializer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut map_debug: BTreeMap<&str, &str> = BTreeMap::new();
-        for (key, value) in self.credentials.iter() {
-            if let Some(oac) = OAuthParameter::iter()
+        for (key, value) in self.parameters.iter() {
+            if self.log_pii {
+                map_debug.insert(key.as_str(), value.as_str());
+            } else if let Some(oac) = OAuthParameter::iter()
                 .find(|oac| oac.alias().eq(key.as_str()) && oac.is_debug_redacted())
             {
                 map_debug.insert(oac.alias(), "[REDACTED]");
@@ -1013,10 +926,164 @@ impl fmt::Debug for OAuthSerializer {
             }
         }
 
-        f.debug_struct("AccessToken")
-            .field("access_token", &"[REDACTED]".to_string())
+        f.debug_struct("OAuthSerializer")
             .field("credentials", &map_debug)
             .field("scopes", &self.scopes)
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn oauth_parameters_from_credential() {
+        // Doesn't matter the flow here as this is for testing
+        // that the credentials are entered/retrieved correctly.
+        let mut oauth = OAuthSerializer::new();
+        oauth
+            .client_id("client_id")
+            .client_secret("client_secret")
+            .authorization_url("https://example.com/authorize?")
+            .token_uri("https://example.com/token?")
+            .refresh_token_url("https://example.com/token?")
+            .redirect_uri("https://example.com/redirect?")
+            .authorization_code("ADSLFJL4L3")
+            .response_mode("response_mode")
+            .response_type("response_type")
+            .state("state")
+            .grant_type("grant_type")
+            .nonce("nonce")
+            .prompt("login")
+            .session_state("session_state")
+            .client_assertion("client_assertion")
+            .client_assertion_type("client_assertion_type")
+            .code_verifier("code_verifier")
+            .login_hint("login_hint")
+            .domain_hint("domain_hint")
+            .resource("resource");
+
+        OAuthParameter::iter().for_each(|credential| {
+            if oauth.contains(credential) {
+                match credential {
+                    OAuthParameter::ClientId => {
+                        assert_eq!(oauth.get(credential), Some("client_id".into()))
+                    }
+                    OAuthParameter::ClientSecret => {
+                        assert_eq!(oauth.get(credential), Some("client_secret".into()))
+                    }
+                    OAuthParameter::AuthorizationUrl => assert_eq!(
+                        oauth.get(credential),
+                        Some("https://example.com/authorize?".into())
+                    ),
+                    OAuthParameter::TokenUrl => assert_eq!(
+                        oauth.get(credential),
+                        Some("https://example.com/token?".into())
+                    ),
+                    OAuthParameter::RefreshTokenUrl => assert_eq!(
+                        oauth.get(credential),
+                        Some("https://example.com/token?".into())
+                    ),
+                    OAuthParameter::RedirectUri => assert_eq!(
+                        oauth.get(credential),
+                        Some("https://example.com/redirect?".into())
+                    ),
+                    OAuthParameter::AuthorizationCode => {
+                        assert_eq!(oauth.get(credential), Some("ADSLFJL4L3".into()))
+                    }
+                    OAuthParameter::ResponseMode => {
+                        assert_eq!(oauth.get(credential), Some("response_mode".into()))
+                    }
+                    OAuthParameter::ResponseType => {
+                        assert_eq!(oauth.get(credential), Some("response_type".into()))
+                    }
+                    OAuthParameter::State => {
+                        assert_eq!(oauth.get(credential), Some("state".into()))
+                    }
+                    OAuthParameter::GrantType => {
+                        assert_eq!(oauth.get(credential), Some("grant_type".into()))
+                    }
+                    OAuthParameter::Nonce => {
+                        assert_eq!(oauth.get(credential), Some("nonce".into()))
+                    }
+                    OAuthParameter::Prompt => {
+                        assert_eq!(oauth.get(credential), Some("login".into()))
+                    }
+                    OAuthParameter::SessionState => {
+                        assert_eq!(oauth.get(credential), Some("session_state".into()))
+                    }
+                    OAuthParameter::ClientAssertion => {
+                        assert_eq!(oauth.get(credential), Some("client_assertion".into()))
+                    }
+                    OAuthParameter::ClientAssertionType => {
+                        assert_eq!(oauth.get(credential), Some("client_assertion_type".into()))
+                    }
+                    OAuthParameter::CodeVerifier => {
+                        assert_eq!(oauth.get(credential), Some("code_verifier".into()))
+                    }
+                    OAuthParameter::Resource => {
+                        assert_eq!(oauth.get(credential), Some("resource".into()))
+                    }
+                    _ => {}
+                }
+            }
+        });
+    }
+
+    #[test]
+    fn remove_credential() {
+        // Doesn't matter the flow here as this is for testing
+        // that the credentials are entered/retrieved correctly.
+        let mut oauth = OAuthSerializer::new();
+        oauth
+            .client_id("bb301aaa-1201-4259-a230923fds32")
+            .redirect_uri("http://localhost:8888/redirect")
+            .client_secret("CLDIE3F")
+            .authorization_url("https://www.example.com/authorize?")
+            .refresh_token_url("https://www.example.com/token?")
+            .authorization_code("ALDSKFJLKERLKJALSDKJF2209LAKJGFL");
+        assert!(oauth.get(OAuthParameter::ClientId).is_some());
+        oauth.remove(OAuthParameter::ClientId);
+        assert!(oauth.get(OAuthParameter::ClientId).is_none());
+        oauth.client_id("client_id");
+        assert!(oauth.get(OAuthParameter::ClientId).is_some());
+
+        assert!(oauth.get(OAuthParameter::RedirectUri).is_some());
+        oauth.remove(OAuthParameter::RedirectUri);
+        assert!(oauth.get(OAuthParameter::RedirectUri).is_none());
+    }
+
+    #[test]
+    fn setters() {
+        // Doesn't matter the flow here as this is for testing
+        // that the credentials are entered/retrieved correctly.
+        let mut oauth = OAuthSerializer::new();
+        oauth
+            .client_id("client_id")
+            .client_secret("client_secret")
+            .authorization_url("https://example.com/authorize")
+            .refresh_token_url("https://example.com/token")
+            .token_uri("https://example.com/token")
+            .redirect_uri("https://example.com/redirect")
+            .authorization_code("access_code");
+
+        let test_setter = |c: OAuthParameter, s: &str| {
+            let result = oauth.get(c);
+            assert!(result.is_some());
+            assert!(result.is_some());
+            assert_eq!(result.unwrap(), s);
+        };
+
+        test_setter(OAuthParameter::ClientId, "client_id");
+        test_setter(OAuthParameter::ClientSecret, "client_secret");
+        test_setter(
+            OAuthParameter::AuthorizationUrl,
+            "https://example.com/authorize",
+        );
+        test_setter(OAuthParameter::RefreshTokenUrl, "https://example.com/token");
+        test_setter(OAuthParameter::TokenUrl, "https://example.com/token");
+        test_setter(OAuthParameter::RedirectUri, "https://example.com/redirect");
+        test_setter(OAuthParameter::AuthorizationCode, "access_code");
     }
 }

@@ -8,12 +8,12 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use url::Url;
 use uuid::Uuid;
 
+use graph_core::http::{
+    AsyncResponseConverterExt, HttpResponseExt, JsonHttpResponse, ResponseConverterExt,
+};
 use graph_error::{
     AuthExecutionError, AuthExecutionResult, AuthTaskExecutionResult, AuthorizationFailure,
     IdentityResult, AF,
-};
-use graph_extensions::http::{
-    AsyncResponseConverterExt, HttpResponseExt, JsonHttpResponse, ResponseConverterExt,
 };
 
 use crate::auth::{OAuthParameter, OAuthSerializer};

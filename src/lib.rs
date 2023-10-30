@@ -242,12 +242,12 @@ pub use graph_http::api_impl::{GraphClientConfiguration, ODataQuery};
 
 /// Reexport of graph-oauth crate.
 pub mod oauth {
-    pub use graph_oauth::jwt;
+    pub use graph_core::identity::ClientApplication;
     pub use graph_oauth::oauth::*;
 }
 
 pub mod http {
-    pub use graph_extensions::http::{HttpResponseBuilderExt, HttpResponseExt};
+    pub use graph_core::http::{HttpResponseBuilderExt, HttpResponseExt};
     pub use graph_http::api_impl::{BodyRead, FileConfig, UploadSession};
     pub use graph_http::traits::{
         AsyncIterator, ODataDeltaLink, ODataDownloadLink, ODataMetadataLink, ODataNextLink,

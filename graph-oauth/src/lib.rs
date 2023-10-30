@@ -35,7 +35,7 @@
 //!
 //! pub fn authorization_url(client_id: &str) -> IdentityResult<Url> {
 //!     ConfidentialClientApplication::builder(client_id)
-//!         .auth_code_authorization_url_builder()
+//!         .auth_code_url_builder()
 //!         .with_redirect_uri("http://localhost:8000/redirect")
 //!         .with_scope(vec!["user.read"])
 //!         .url()
@@ -43,7 +43,7 @@
 //!
 //! pub fn get_confidential_client(authorization_code: &str, client_id: &str, client_secret: &str) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCredential>> {
 //!     Ok(ConfidentialClientApplication::builder(client_id)
-//!         .with_authorization_code(authorization_code)
+//!         .with_auth_code(authorization_code)
 //!         .with_client_secret(client_secret)
 //!         .with_scope(vec!["user.read"])
 //!         .with_redirect_uri("http://localhost:8000/redirect")?
@@ -56,29 +56,32 @@ extern crate serde;
 #[macro_use]
 extern crate strum;
 
-mod auth;
+pub(crate) mod auth;
 mod discovery;
-mod grants;
 pub mod jwt;
 mod oauth_error;
 
-pub mod identity;
+pub(crate) mod identity;
 
-#[cfg(feature = "interactive-auth")]
+//#[cfg(feature = "interactive-auth")]
 pub(crate) mod web;
 
 pub(crate) mod internal {
+    pub use crate::auth::*;
     pub use graph_core::http::*;
 }
 
-pub mod oauth {
-    pub use graph_extensions::{crypto::GenPkce, crypto::ProofKeyCodeExchange};
+pub mod extensions {
+    pub use crate::auth::*;
+}
 
-    pub use crate::auth::OAuthParameter;
-    pub use crate::auth::OAuthSerializer;
-    pub use crate::discovery::graph_discovery;
-    pub use crate::discovery::jwt_keys;
+pub mod oauth {
+    pub use graph_core::{crypto::GenPkce, crypto::ProofKeyCodeExchange};
+
     pub use crate::identity::*;
-    pub use crate::oauth_error::OAuthError;
-    pub use crate::strum::IntoEnumIterator;
+
+    //#[cfg(feature = "interactive-auth")]
+    pub mod web {
+        pub use crate::web::*;
+    }
 }

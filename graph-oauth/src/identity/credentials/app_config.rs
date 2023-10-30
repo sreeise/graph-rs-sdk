@@ -1,5 +1,6 @@
 use base64::Engine;
 use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
 
 use reqwest::header::HeaderMap;
 use url::Url;
@@ -8,7 +9,7 @@ use uuid::Uuid;
 use crate::identity::{Authority, AzureCloudInstance};
 use crate::oauth::ForceTokenRefresh;
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub struct AppConfig {
     /// The directory tenant that you want to request permission from.
     /// This can be in GUID or friendly name format.
@@ -35,6 +36,32 @@ pub struct AppConfig {
     /// Cache id used in a token cache store.
     pub(crate) cache_id: String,
     pub(crate) force_token_refresh: ForceTokenRefresh,
+    pub(crate) log_pii: bool,
+}
+
+impl Debug for AppConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if self.log_pii {
+            f.debug_struct("AppConfig")
+                .field("tenant_id", &self.tenant_id)
+                .field("client_id", &self.client_id)
+                .field("authority", &self.authority)
+                .field("azure_cloud_instance", &self.azure_cloud_instance)
+                .field("extra_query_parameters", &self.extra_query_parameters)
+                .field("extra_header_parameters", &self.extra_header_parameters)
+                .field("force_token_refresh", &self.force_token_refresh)
+                .finish()
+        } else {
+            f.debug_struct("AppConfig")
+                .field("tenant_id", &self.tenant_id)
+                .field("client_id", &self.client_id)
+                .field("authority", &self.authority)
+                .field("azure_cloud_instance", &self.azure_cloud_instance)
+                .field("extra_query_parameters", &self.extra_query_parameters)
+                .field("force_token_refresh", &self.force_token_refresh)
+                .finish()
+        }
+    }
 }
 
 impl AppConfig {
@@ -53,6 +80,7 @@ impl AppConfig {
             redirect_uri: None,
             cache_id,
             force_token_refresh: Default::default(),
+            log_pii: Default::default(),
         }
     }
 
@@ -84,6 +112,7 @@ impl AppConfig {
             redirect_uri,
             cache_id,
             force_token_refresh: Default::default(),
+            log_pii: Default::default(),
         }
     }
 
@@ -102,6 +131,7 @@ impl AppConfig {
             redirect_uri: None,
             cache_id,
             force_token_refresh: Default::default(),
+            log_pii: Default::default(),
         }
     }
 
@@ -127,6 +157,11 @@ impl AppConfig {
             redirect_uri: None,
             cache_id,
             force_token_refresh: Default::default(),
+            log_pii: Default::default(),
         }
+    }
+
+    pub fn log_pii(&mut self, log_pii: bool) {
+        self.log_pii = log_pii;
     }
 }

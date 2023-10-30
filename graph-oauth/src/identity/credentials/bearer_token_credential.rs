@@ -1,7 +1,8 @@
 use async_trait::async_trait;
+use graph_core::cache::AsBearer;
 use graph_core::identity::ClientApplication;
 use graph_error::AuthExecutionResult;
-use graph_extensions::cache::AsBearer;
+use std::borrow::Cow;
 
 #[derive(Clone)]
 pub struct BearerTokenCredential(String);
@@ -18,7 +19,7 @@ impl BearerTokenCredential {
 
 impl ToString for BearerTokenCredential {
     fn to_string(&self) -> String {
-        self.0.clone()
+        self.0.to_string()
     }
 }
 

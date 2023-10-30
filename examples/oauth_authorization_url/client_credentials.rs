@@ -1,3 +1,4 @@
+use graph_oauth::oauth::ClientSecretCredential;
 use graph_rs_sdk::{error::IdentityResult, oauth::ClientCredentialsAuthorizationUrlParameters};
 
 // The client_id must be changed before running this example.
@@ -13,7 +14,7 @@ fn get_admin_consent_url() -> IdentityResult<url::Url> {
 
 // Use the builder if you want to set a specific tenant, or a state, or set a specific Authority.
 fn get_admin_consent_url_from_builder() -> IdentityResult<url::Url> {
-    let url_builder = ClientCredentialsAuthorizationUrlParameters::builder(CLIENT_ID)
+    let url_builder = ClientSecretCredential::authorization_url_builder(CLIENT_ID)
         .with_redirect_uri(REDIRECT_URI)?
         .with_state("123")
         .with_tenant("tenant_id")

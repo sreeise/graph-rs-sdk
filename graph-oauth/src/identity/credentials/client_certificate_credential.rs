@@ -6,8 +6,8 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use url::Url;
 use uuid::Uuid;
 
+use graph_core::cache::{InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult, AF};
-use graph_extensions::cache::{InMemoryTokenStore, TokenCacheStore};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
@@ -40,7 +40,7 @@ pub struct ClientCertificateCredential {
     pub(crate) client_assertion: String,
     pub(crate) refresh_token: Option<String>,
     serializer: OAuthSerializer,
-    token_cache: InMemoryTokenStore<Token>,
+    token_cache: InMemoryCacheStore<Token>,
 }
 
 impl ClientCertificateCredential {
@@ -92,7 +92,7 @@ impl Debug for ClientCertificateCredential {
 }
 
 #[async_trait]
-impl TokenCacheStore for ClientCertificateCredential {
+impl TokenCache for ClientCertificateCredential {
     type Token = Token;
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {

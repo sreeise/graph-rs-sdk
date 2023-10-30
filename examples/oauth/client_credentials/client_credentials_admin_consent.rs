@@ -21,28 +21,25 @@
 // or admin. See examples/client_credentials.rs
 
 use graph_rs_sdk::error::IdentityResult;
-use graph_rs_sdk::oauth::ClientCredentialsAuthorizationUrlParameters;
+use graph_rs_sdk::oauth::ConfidentialClientApplication;
 use warp::Filter;
 
 // The client_id must be changed before running this example.
 static CLIENT_ID: &str = "<CLIENT_ID>";
-static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
-// Paste the URL into a browser and log in to approve the admin consent.
-fn get_admin_consent_url() -> IdentityResult<url::Url> {
-    let authorization_credential =
-        ClientCredentialsAuthorizationUrlParameters::new(CLIENT_ID, REDIRECT_URI)?;
-    authorization_credential.url()
-}
+static TENANT_ID: &str = "<TENANT_ID>";
+
+static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
 // OR use the builder:
 
 // Use the builder if you want to set a specific tenant, or a state, or set a specific Authority.
-fn get_admin_consent_url_from_builder() -> IdentityResult<url::Url> {
-    let url_builder = ClientCredentialsAuthorizationUrlParameters::builder(CLIENT_ID)
+fn get_admin_consent_url() -> IdentityResult<url::Url> {
+    let url_builder = ConfidentialClientApplication::builder(CLIENT_ID)
+        .client_credential_url_builder()
         .with_redirect_uri(REDIRECT_URI)?
         .with_state("123")
-        .with_tenant("tenant_id")
+        .with_tenant(TENANT_ID)
         .build();
     url_builder.url()
 }

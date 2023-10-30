@@ -24,15 +24,12 @@ tokio = { version = "1.27.0", features = ["full"] }
 url = { version = "2", features = ["serde"] }
 
 graph-error = { path = "../graph-error"  }
-graph-core = { path = "../graph-core" }
-graph-extensions = { path = "../graph-extensions" }
-graph-oauth = { path = "../graph-oauth", version = "1.0.2", default-features=false }
+graph-core = { path = "../graph-core", default-features = false }
 
 [features]
 default = ["native-tls"]
-native-tls = ["reqwest/native-tls"]
-rustls-tls = ["reqwest/rustls-tls"]
-brotli = ["reqwest/brotli"]
-deflate = ["reqwest/deflate"]
-trust-dns = ["reqwest/trust-dns"]
-openssl = ["graph-oauth/openssl"]
+native-tls = ["reqwest/native-tls", "graph-core/native-tls"]
+rustls-tls = ["reqwest/rustls-tls", "graph-core/rustls-tls"]
+brotli = ["reqwest/brotli", "graph-core/brotli"]
+deflate = ["reqwest/deflate", "graph-core/deflate"]
+trust-dns = ["reqwest/trust-dns", "graph-core/trust-dns"]

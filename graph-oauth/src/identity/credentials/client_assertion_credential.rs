@@ -6,15 +6,15 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use url::Url;
 use uuid::Uuid;
 
+use crate::auth::{OAuthParameter, OAuthSerializer};
+use graph_core::cache::{InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, IdentityResult, AF};
-use graph_extensions::cache::{InMemoryTokenStore, TokenCacheStore};
 
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ForceTokenRefresh, Token, TokenCredentialExecutor,
-    CLIENT_ASSERTION_TYPE,
+    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, Token,
+    TokenCredentialExecutor, CLIENT_ASSERTION_TYPE,
 };
-use crate::oauth::{ConfidentialClientApplication, OAuthParameter, OAuthSerializer};
 
 credential_builder!(
     ClientAssertionCredentialBuilder,
@@ -33,7 +33,7 @@ pub struct ClientAssertionCredential {
     pub(crate) client_assertion: String,
     pub(crate) refresh_token: Option<String>,
     serializer: OAuthSerializer,
-    token_cache: InMemoryTokenStore<Token>,
+    token_cache: InMemoryCacheStore<Token>,
 }
 
 impl ClientAssertionCredential {
@@ -64,7 +64,7 @@ impl Debug for ClientAssertionCredential {
 }
 
 #[async_trait]
-impl TokenCacheStore for ClientAssertionCredential {
+impl TokenCache for ClientAssertionCredential {
     type Token = Token;
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {

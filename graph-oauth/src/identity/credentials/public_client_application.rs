@@ -5,9 +5,9 @@ use crate::identity::{
     TokenCredentialExecutor,
 };
 use async_trait::async_trait;
+use graph_core::cache::{AsBearer, TokenCache};
 use graph_core::identity::ClientApplication;
 use graph_error::{AuthExecutionResult, IdentityResult};
-use graph_extensions::cache::{AsBearer, TokenCacheStore};
 use reqwest::Response;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -30,7 +30,7 @@ impl PublicClientApplication<()> {
     }
 }
 
-impl<Credential: Clone + Debug + Send + TokenCredentialExecutor>
+impl<Credential: Clone + Debug + Send + Sync + TokenCredentialExecutor>
     PublicClientApplication<Credential>
 {
     pub(crate) fn new(credential: Credential) -> PublicClientApplication<Credential> {
@@ -43,7 +43,7 @@ impl<Credential: Clone + Debug + Send + TokenCredentialExecutor>
 }
 
 #[async_trait]
-impl<Credential: Clone + Debug + Send + TokenCacheStore> ClientApplication
+impl<Credential: Clone + Debug + Send + Sync + TokenCache> ClientApplication
     for PublicClientApplication<Credential>
 {
     fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
@@ -58,7 +58,7 @@ impl<Credential: Clone + Debug + Send + TokenCacheStore> ClientApplication
 }
 
 #[async_trait]
-impl<Credential: Clone + Debug + Send + TokenCredentialExecutor> TokenCredentialExecutor
+impl<Credential: Clone + Debug + Send + Sync + TokenCredentialExecutor> TokenCredentialExecutor
     for PublicClientApplication<Credential>
 {
     fn uri(&mut self) -> IdentityResult<Url> {

@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Add, Sub};
 
-use crate::identity::IdToken;
-use graph_extensions::cache::AsBearer;
+use crate::identity::{AuthorizationQueryResponse, IdToken};
+use graph_core::cache::AsBearer;
 use std::str::FromStr;
 use time::OffsetDateTime;
 
@@ -26,7 +26,7 @@ where
 // Used to set timestamp based on expires in
 // which can only be done after deserialization.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct PhantomMsalToken {
+struct PhantomToken {
     access_token: String,
     token_type: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -55,8 +55,8 @@ struct PhantomMsalToken {
 /// Create a new AccessToken.
 /// # Example
 /// ```
-/// # use graph_extensions::token::MsalToken;
-/// let token_response = MsalToken::new("Bearer", 3600, "ASODFIUJ34KJ;LADSK", vec!["User.Read"]);
+/// # use graph_oauth::oauth::Token;
+/// let token_response = Token::new("Bearer", 3600, "ASODFIUJ34KJ;LADSK", vec!["User.Read"]);
 /// ```
 /// The [Token::jwt] method attempts to parse the access token as a JWT.
 /// Tokens returned for personal microsoft accounts that use legacy MSA
@@ -131,9 +131,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.with_token_type("Bearer");
     /// ```
     pub fn with_token_type(&mut self, s: &str) -> &mut Self {
@@ -145,9 +145,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.with_expires_in(3600);
     /// ```
     pub fn with_expires_in(&mut self, expires_in: i64) -> &mut Self {
@@ -162,9 +162,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.with_scope(vec!["User.Read"]);
     /// ```
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
@@ -176,9 +176,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.with_access_token("ASODFIUJ34KJ;LADSK");
     /// ```
     pub fn with_access_token(&mut self, s: &str) -> &mut Self {
@@ -190,9 +190,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.with_refresh_token("#ASOD323U5342");
     /// ```
     pub fn with_refresh_token(&mut self, s: &str) -> &mut Self {
@@ -204,9 +204,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.with_user_id("user_id");
     /// ```
     pub fn with_user_id(&mut self, s: &str) -> &mut Self {
@@ -218,9 +218,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::{MsalToken, IdToken};
+    /// # use graph_oauth::oauth::{Token, IdToken};
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.set_id_token("id_token");
     /// ```
     pub fn set_id_token(&mut self, s: &str) -> &mut Self {
@@ -232,7 +232,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::identity::{Token, IdToken};
+    /// # use graph_oauth::oauth::{Token, IdToken};
     ///
     /// let mut access_token = Token::default();
     /// access_token.with_id_token(IdToken::new("id_token", "code", "state", "session_state"));
@@ -249,10 +249,10 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
-    /// # use graph_extensions::token::IdToken;
+    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::oauth::IdToken;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.with_state("state");
     /// ```
     pub fn with_state(&mut self, s: &str) -> &mut Self {
@@ -289,9 +289,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// access_token.expires_in = 86999;
     /// access_token.gen_timestamp();
     /// println!("{:#?}", access_token.timestamp);
@@ -308,9 +308,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// println!("{:#?}", access_token.is_expired());
     /// ```
     pub fn is_expired(&self) -> bool {
@@ -327,9 +327,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// println!("{:#?}", access_token.is_expired_sub(time::Duration::minutes(5)));
     /// ```
     pub fn is_expired_sub(&self, duration: time::Duration) -> bool {
@@ -347,9 +347,9 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_extensions::token::MsalToken;
+    /// # use graph_oauth::oauth::Token;
     ///
-    /// let mut access_token = MsalToken::default();
+    /// let mut access_token = Token::default();
     /// println!("{:#?}", access_token.elapsed());
     /// ```
     pub fn elapsed(&self) -> Option<time::Duration> {
@@ -375,6 +375,28 @@ impl Default for Token {
             expires_on: Some(
                 OffsetDateTime::from_unix_timestamp(0).unwrap_or(time::OffsetDateTime::UNIX_EPOCH),
             ),
+            additional_fields: Default::default(),
+            log_pii: false,
+        }
+    }
+}
+
+impl From<AuthorizationQueryResponse> for Token {
+    fn from(value: AuthorizationQueryResponse) -> Self {
+        Token {
+            access_token: value.access_token.unwrap_or_default(),
+            token_type: "Bearer".to_string(),
+            expires_in: 3600,
+            ext_expires_in: None,
+            scope: vec![],
+            refresh_token: None,
+            user_id: None,
+            id_token: value.id_token,
+            state: None,
+            correlation_id: None,
+            client_info: None,
+            timestamp: None,
+            expires_on: None,
             additional_fields: Default::default(),
             log_pii: false,
         }
@@ -483,7 +505,7 @@ impl<'de> Deserialize<'de> for Token {
     where
         D: Deserializer<'de>,
     {
-        let phantom_access_token: PhantomMsalToken = Deserialize::deserialize(deserializer)?;
+        let phantom_access_token: PhantomToken = Deserialize::deserialize(deserializer)?;
 
         let timestamp = OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(phantom_access_token.expires_in));

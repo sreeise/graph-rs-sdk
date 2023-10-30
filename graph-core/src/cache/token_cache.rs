@@ -18,7 +18,7 @@ impl AsBearer for &str {
 }
 
 #[async_trait]
-pub trait TokenCacheStore {
+pub trait TokenCache {
     type Token: AsBearer;
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError>;

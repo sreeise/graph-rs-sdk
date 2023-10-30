@@ -7,17 +7,21 @@ use reqwest::Response;
 use url::Url;
 use uuid::Uuid;
 
+use graph_core::cache::{AsBearer, TokenCache};
 use graph_core::identity::ClientApplication;
-use graph_error::{AuthExecutionResult, IdentityResult};
-use graph_extensions::cache::{AsBearer, TokenCacheStore};
+use graph_error::{AuthExecutionResult, GraphResult, IdentityResult, AF};
 
 use crate::identity::{
     credentials::app_config::AppConfig,
     credentials::application_builder::ConfidentialClientApplicationBuilder,
     credentials::client_assertion_credential::ClientAssertionCredential, Authority,
     AuthorizationCodeAssertionCredential, AuthorizationCodeCertificateCredential,
-    AuthorizationCodeCredential, AzureCloudInstance, ClientCertificateCredential,
-    ClientSecretCredential, OpenIdCredential, TokenCredentialExecutor,
+    AuthorizationCodeCredential, AuthorizationQueryResponse, AzureCloudInstance,
+    ClientCertificateCredential, ClientSecretCredential, OpenIdCredential, TokenCredentialExecutor,
+};
+use crate::oauth::{AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters};
+use crate::web::{
+    InteractiveAuthEvent, InteractiveAuthenticator, WebViewOptions, WindowCloseReason,
 };
 
 /// Clients capable of maintaining the confidentiality of their credentials
@@ -26,7 +30,7 @@ use crate::identity::{
 ///
 ///
 /// # Build a confidential client for the authorization code grant.
-/// Use [with_authorization_code](crate::identity::ConfidentialClientApplicationBuilder::with_authorization_code) to set the authorization code received from
+/// Use [with_authorization_code](crate::identity::ConfidentialClientApplicationBuilder::with_auth_code) to set the authorization code received from
 /// the authorization step, see [Request an authorization code](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code)
 /// You can use the [AuthCodeAuthorizationUrlParameterBuilder](crate::identity::AuthCodeAuthorizationUrlParameterBuilder)
 /// to build the url that the user will be directed to authorize at.
@@ -43,7 +47,25 @@ impl ConfidentialClientApplication<()> {
     }
 }
 
-impl<Credential: Clone + Debug + Send + TokenCredentialExecutor>
+impl ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters> {
+    pub fn parameter_builder(
+        credential: AuthCodeAuthorizationUrlParameters,
+    ) -> ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters> {
+        ConfidentialClientApplication { credential }
+    }
+
+    pub async fn interactive_auth(
+        &self,
+        options: Option<WebViewOptions>,
+    ) -> anyhow::Result<AuthorizationQueryResponse> {
+        let result = self
+            .credential
+            .interactive_webview_authentication(options)?;
+        Ok(result)
+    }
+}
+
+impl<Credential: Clone + Debug + Send + Sync + TokenCredentialExecutor>
     ConfidentialClientApplication<Credential>
 {
     pub(crate) fn new(credential: Credential) -> ConfidentialClientApplication<Credential> {
@@ -60,7 +82,7 @@ impl<Credential: Clone + Debug + Send + TokenCredentialExecutor>
 }
 
 #[async_trait]
-impl<Credential: Clone + Debug + Send + TokenCacheStore> ClientApplication
+impl<Credential: Clone + Debug + Send + Sync + TokenCache> ClientApplication
     for ConfidentialClientApplication<Credential>
 {
     fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
@@ -75,7 +97,7 @@ impl<Credential: Clone + Debug + Send + TokenCacheStore> ClientApplication
 }
 
 #[async_trait]
-impl<Credential: Clone + Debug + Send + TokenCredentialExecutor> TokenCredentialExecutor
+impl<Credential: Clone + Debug + Send + Sync + TokenCredentialExecutor> TokenCredentialExecutor
     for ConfidentialClientApplication<Credential>
 {
     fn uri(&mut self) -> IdentityResult<Url> {
@@ -165,6 +187,64 @@ impl From<OpenIdCredential> for ConfidentialClientApplication<OpenIdCredential> 
     }
 }
 
+impl From<AuthCodeAuthorizationUrlParameters>
+    for ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters>
+{
+    fn from(value: AuthCodeAuthorizationUrlParameters) -> Self {
+        ConfidentialClientApplication::parameter_builder(value)
+    }
+}
+
+impl ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters> {
+    pub fn interactive_webview_authentication(
+        &self,
+        interactive_web_view_options: Option<WebViewOptions>,
+    ) -> anyhow::Result<AuthorizationQueryResponse> {
+        let receiver = self
+            .credential
+            .interactive_authentication(interactive_web_view_options)?;
+        let mut iter = receiver.try_iter();
+        let mut next = iter.next();
+        while next.is_none() {
+            next = iter.next();
+        }
+
+        return match next {
+            None => Err(anyhow::anyhow!("Unknown")),
+            Some(auth_event) => {
+                match auth_event {
+                    InteractiveAuthEvent::InvalidRedirectUri(reason) => {
+                        Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
+                    }
+                    InteractiveAuthEvent::TimedOut(duration) => {
+                        Err(anyhow::anyhow!("Webview timed out while waiting on redirect to valid redirect uri with timeout duration of {duration:#?}"))
+                    }
+                    InteractiveAuthEvent::ReachedRedirectUri(uri) => {
+                        let url_str = uri.as_str();
+                        let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
+                            "query | fragment",
+                            &format!("No query or fragment returned on redirect uri: {url_str}"),
+                        ))?;
+
+                        let response_query: AuthorizationQueryResponse = serde_urlencoded::from_str(query)?;
+                        Ok(response_query)
+                    }
+                    InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
+                        match window_close_reason {
+                            WindowCloseReason::CloseRequested => {
+                                Err(anyhow::anyhow!("CloseRequested"))
+                            }
+                            WindowCloseReason::InvalidWindowNavigation => {
+                                Err(anyhow::anyhow!("InvalidWindowNavigation"))
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::identity::Authority;
@@ -177,7 +257,7 @@ mod test {
         let client_id_string = client_id.to_string();
         let mut confidential_client =
             ConfidentialClientApplication::builder(client_id_string.as_str())
-                .with_authorization_code("code")
+                .with_auth_code("code")
                 .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
                 .with_scope(vec!["Read.Write"])
                 .with_redirect_uri("http://localhost:8888/redirect")
@@ -198,7 +278,7 @@ mod test {
         let client_id_string = client_id.to_string();
         let mut confidential_client =
             ConfidentialClientApplication::builder(client_id_string.as_str())
-                .with_authorization_code("code")
+                .with_auth_code("code")
                 .with_tenant("tenant")
                 .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
                 .with_scope(vec!["Read.Write"])
@@ -220,7 +300,7 @@ mod test {
         let client_id_string = client_id.to_string();
         let mut confidential_client =
             ConfidentialClientApplication::builder(client_id_string.as_str())
-                .with_authorization_code("code")
+                .with_auth_code("code")
                 .with_authority(Authority::Consumers)
                 .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
                 .with_scope(vec!["Read.Write", "Fall.Down"])

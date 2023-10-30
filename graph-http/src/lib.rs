@@ -28,7 +28,7 @@ pub(crate) mod internal {
     pub use crate::traits::*;
     pub use crate::upload_session::*;
     pub use crate::url::*;
-    pub use graph_extensions::http::*;
+    pub use graph_core::http::*;
 }
 
 pub mod api_impl {

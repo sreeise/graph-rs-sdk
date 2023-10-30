@@ -1,9 +1,7 @@
-use graph_oauth::identity::{
-    ConfidentialClientApplication, Prompt, ResponseMode, ResponseType, TokenCredentialExecutor,
-    TokenRequest,
+use graph_rs_sdk::oauth::{
+    ConfidentialClientApplication, IdToken, OpenIdCredential, Prompt, ResponseMode, ResponseType,
+    Token, TokenCredentialExecutor,
 };
-use graph_oauth::oauth::{OpenIdAuthorizationUrlParameters, OpenIdCredential};
-use graph_rs_sdk::oauth::{IdToken, OAuthSerializer, Token};
 use tracing_subscriber::fmt::format::FmtSpan;
 use url::Url;
 
@@ -23,9 +21,6 @@ use url::Url;
 /// OAuth-enabled applications by using a security token called an ID token.
 use warp::Filter;
 
-// Use the form post response mode when listening on a server instead
-// of the URL query because the the query does not get sent to servers.
-
 // The client id and client secret must be changed before running this example.
 static CLIENT_ID: &str = "";
 static CLIENT_SECRET: &str = "";
@@ -33,6 +28,8 @@ static TENANT_ID: &str = "";
 
 static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
+// Use the form post response mode when listening on a server instead
+// of the URL query because the the query does not get sent to servers.
 fn openid_authorization_url() -> anyhow::Result<Url> {
     Ok(OpenIdCredential::authorization_url_builder(CLIENT_ID)
         .with_tenant(TENANT_ID)
@@ -67,7 +64,7 @@ async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, 
         let mut access_token: Token = response.json().await.unwrap();
         access_token.enable_pii_logging(true);
 
-        println!("\n{:#?}\n", access_token);
+        println!("\n{access_token:#?}\n");
     } else {
         // See if Microsoft Graph returned an error in the Response body
         let result: reqwest::Result<serde_json::Value> = response.json().await;

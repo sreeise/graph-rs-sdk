@@ -1,10 +1,10 @@
-use graph_oauth::identity::ResponseType;
 use graph_rs_sdk::error::IdentityResult;
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    GenPkce, ProofKeyCodeExchange, Token, TokenCredentialExecutor, TokenRequest,
+    GenPkce, ProofKeyCodeExchange, ResponseType, Token, TokenCredentialExecutor, TokenRequest,
 };
 use lazy_static::lazy_static;
+use url::Url;
 use warp::{get, Filter};
 
 static CLIENT_ID: &str = "<CLIENT_ID>";
@@ -16,11 +16,6 @@ lazy_static! {
     static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
 }
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-pub struct AccessCode {
-    code: String,
-}
-
 // This example shows how to use a code_challenge and code_verifier
 // to perform the authorization code grant flow with proof key for
 // code exchange (PKCE).
@@ -28,86 +23,32 @@ pub struct AccessCode {
 // For more info see: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
 // And the PKCE RFC: https://tools.ietf.org/html/rfc7636
 
-// Open the default system web browser to the sign in url for authorization.
-// This method uses AuthorizationCodeAuthorizationUrl to build the sign in
-// url and query needed to get an authorization code and opens the default system
-// web browser to this Url.
-fn authorization_sign_in() {
-    let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
-        .with_scope(vec!["user.read"])
-        .with_redirect_uri("http://localhost:8000/redirect")
+/// This is the first step in the flow. Build a url that you can use to send an end user
+/// to in order to sign in. Then wait for the redirect after sign in to the redirect url
+/// you specified in your app. To see a server example listening for the redirect see
+/// [Auth Code Grant PKCE Server Example](https://github.com/sreeise/graph-rs-sdk/examples/oauth/auth_code_grant/auth_code_grant_pkce.rs)
+fn authorization_sign_in_url(client_id: &str, redirect_uri: &str, scope: Vec<String>) -> Url {
+    AuthorizationCodeCredential::authorization_url_builder(client_id)
+        .with_scope(scope)
+        .with_redirect_uri(redirect_uri)
         .with_pkce(&PKCE)
         .url()
-        .unwrap();
-
-    webbrowser::open(url.as_str()).unwrap();
+        .unwrap()
 }
 
-// When the authorization code comes in on the redirect from sign in, call the get_credential
-// method passing in the authorization code. The AuthorizationCodeCredential can be passed
-// to a confidential client application in order to exchange the authorization code
-// for an access token.
-async fn handle_redirect(
-    code_option: Option<AccessCode>,
-) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
-    match code_option {
-        Some(access_code) => {
-            // Print out the code for debugging purposes.
-            println!("{:#?}", access_code.code);
-
-            let authorization_code = access_code.code;
-            let mut confidential_client =
-                AuthorizationCodeCredential::builder(CLIENT_ID, CLIENT_SECRET, authorization_code)
-                    .with_redirect_uri("http://localhost:8000/redirect")
-                    .unwrap()
-                    .with_pkce(&PKCE)
-                    .build();
-
-            // Returns reqwest::Response
-            let response = confidential_client.execute_async().await.unwrap();
-            println!("{response:#?}");
-
-            if response.status().is_success() {
-                let access_token: Token = response.json().await.unwrap();
-
-                // If all went well here we can print out the OAuth config with the Access Token.
-                println!("AccessToken: {:#?}", access_token.access_token);
-            } else {
-                // See if Microsoft Graph returned an error in the Response body
-                let result: reqwest::Result<serde_json::Value> = response.json().await;
-                println!("{result:#?}");
-                return Ok(Box::new("Error Logging In! You can close your browser."));
-            }
-
-            // Generic login page response.
-            Ok(Box::new(
-                "Successfully Logged In! You can close your browser.",
-            ))
-        }
-        None => Err(warp::reject()),
-    }
-}
-
-/// # Example
-/// ```
-/// use graph_rs_sdk::*:
-///
-/// #[tokio::main]
-/// async fn main() {
-///   start_server_main().await;
-/// }
-/// ```
-pub async fn start_server_main() {
-    let query = warp::query::<AccessCode>()
-        .map(Some)
-        .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
-
-    let routes = warp::get()
-        .and(warp::path("redirect"))
-        .and(query)
-        .and_then(handle_redirect);
-
-    authorization_sign_in();
-
-    warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
+fn build_confidential_client(
+    authorization_code: &str,
+    client_id: &str,
+    client_secret: &str,
+    redirect_uri: &str,
+    scope: Vec<String>,
+) -> ConfidentialClientApplication<AuthorizationCodeCredential> {
+    ConfidentialClientApplication::builder(client_id)
+        .with_auth_code(authorization_code)
+        .with_client_secret(client_secret)
+        .with_scope(scope)
+        .with_redirect_uri(redirect_uri)
+        .unwrap()
+        .with_pkce(&PKCE)
+        .build()
 }

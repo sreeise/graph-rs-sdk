@@ -12,6 +12,7 @@ use crate::authentication_method_configurations::{
 };
 use crate::authentication_methods_policy::AuthenticationMethodsPolicyApiClient;
 
+use crate::api_default_imports::GraphClientConfiguration;
 use crate::batch::BatchApiClient;
 use crate::branding::BrandingApiClient;
 use crate::certificate_based_auth_configuration::{
@@ -45,6 +46,11 @@ use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdA
 use crate::invitations::InvitationsApiClient;
 use crate::me::MeApiClient;
 use crate::oauth::{AllowedHostValidator, HostValidator, Token};
+use crate::oauth::{
+    AuthorizationCodeAssertionCredential, AuthorizationCodeCertificateCredential,
+    AuthorizationCodeCredential, BearerTokenCredential, ClientAssertionCredential,
+    ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
+};
 use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
 };
@@ -64,9 +70,7 @@ use crate::teams_templates::{TeamsTemplatesApiClient, TeamsTemplatesIdApiClient}
 use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
-use graph_http::api_impl::GraphClientConfiguration;
-use graph_oauth::identity::{ClientSecretCredential, ConfidentialClientApplication};
-use graph_oauth::oauth::BearerTokenCredential;
+use graph_oauth::oauth::OpenIdCredential;
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -85,7 +89,7 @@ pub struct Graph {
 impl Graph {
     pub fn new<AT: ToString>(access_token: AT) -> Graph {
         Graph {
-            client: Client::new(BearerTokenCredential::new(access_token.to_string())),
+            client: Client::new(BearerTokenCredential::from(access_token.to_string())),
             endpoint: PARSED_GRAPH_URL.clone(),
             allowed_host_validator: AllowedHostValidator::default(),
         }
@@ -524,19 +528,19 @@ impl Graph {
 
 impl From<&str> for Graph {
     fn from(token: &str) -> Self {
-        Graph::from_client_app(BearerTokenCredential::new(token))
+        Graph::from_client_app(BearerTokenCredential::from(token.to_string()))
     }
 }
 
 impl From<String> for Graph {
     fn from(token: String) -> Self {
-        Graph::from_client_app(BearerTokenCredential::new(token))
+        Graph::from_client_app(BearerTokenCredential::from(token))
     }
 }
 
 impl From<&Token> for Graph {
     fn from(token: &Token) -> Self {
-        Graph::from_client_app(BearerTokenCredential::new(token.access_token.clone()))
+        Graph::from_client_app(BearerTokenCredential::from(token.access_token.clone()))
     }
 }
 
@@ -550,13 +554,45 @@ impl From<GraphClientConfiguration> for Graph {
     }
 }
 
-impl From<ConfidentialClientApplication<ClientSecretCredential>> for Graph {
-    fn from(value: ConfidentialClientApplication<ClientSecretCredential>) -> Self {
-        Graph {
-            client: Client::new(value),
-            endpoint: PARSED_GRAPH_URL.clone(),
-            allowed_host_validator: AllowedHostValidator::default(),
-        }
+impl From<&ConfidentialClientApplication<AuthorizationCodeCredential>> for Graph {
+    fn from(value: &ConfidentialClientApplication<AuthorizationCodeCredential>) -> Self {
+        Graph::from_client_app(value.clone())
+    }
+}
+
+impl From<&ConfidentialClientApplication<AuthorizationCodeAssertionCredential>> for Graph {
+    fn from(value: &ConfidentialClientApplication<AuthorizationCodeAssertionCredential>) -> Self {
+        Graph::from_client_app(value.clone())
+    }
+}
+
+impl From<&ConfidentialClientApplication<AuthorizationCodeCertificateCredential>> for Graph {
+    fn from(value: &ConfidentialClientApplication<AuthorizationCodeCertificateCredential>) -> Self {
+        Graph::from_client_app(value.clone())
+    }
+}
+
+impl From<&ConfidentialClientApplication<ClientSecretCredential>> for Graph {
+    fn from(value: &ConfidentialClientApplication<ClientSecretCredential>) -> Self {
+        Graph::from_client_app(value.clone())
+    }
+}
+
+impl From<&ConfidentialClientApplication<ClientCertificateCredential>> for Graph {
+    fn from(value: &ConfidentialClientApplication<ClientCertificateCredential>) -> Self {
+        Graph::from_client_app(value.clone())
+    }
+}
+
+impl From<&ConfidentialClientApplication<ClientAssertionCredential>> for Graph {
+    fn from(value: &ConfidentialClientApplication<ClientAssertionCredential>) -> Self {
+        Graph::from_client_app(value.clone())
+    }
+}
+
+impl From<&ConfidentialClientApplication<OpenIdCredential>> for Graph {
+    fn from(value: &ConfidentialClientApplication<OpenIdCredential>) -> Self {
+        Graph::from_client_app(value.clone())
     }
 }
 

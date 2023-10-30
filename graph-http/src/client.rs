@@ -1,10 +1,5 @@
 use crate::blocking::BlockingClient;
 use graph_core::identity::ClientApplication;
-use graph_extensions::cache::TokenCacheStore;
-use graph_oauth::identity::{
-    BearerTokenCredential, ConfidentialClientApplication, PublicClientApplication,
-    TokenCredentialExecutor,
-};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
@@ -80,9 +75,7 @@ impl GraphClientConfiguration {
     }
 
     pub fn access_token<AT: ToString>(mut self, access_token: AT) -> GraphClientConfiguration {
-        self.config.client_application = Some(Box::new(BearerTokenCredential::new(
-            access_token.to_string(),
-        )));
+        self.config.client_application = Some(Box::new(access_token.to_string()));
         self
     }
 
@@ -91,25 +84,27 @@ impl GraphClientConfiguration {
         self
     }
 
-    pub fn confidential_client_application<
-        Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
-    >(
-        mut self,
-        confidential_client: ConfidentialClientApplication<Credential>,
-    ) -> Self {
-        self.config.client_application = Some(Box::new(confidential_client));
-        self
-    }
+    /*
+       pub fn confidential_client_application<
+           Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
+       >(
+           mut self,
+           confidential_client: ConfidentialClientApplication<Credential>,
+       ) -> Self {
+           self.config.client_application = Some(Box::new(confidential_client));
+           self
+       }
 
-    pub fn public_client_application<
-        Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
-    >(
-        mut self,
-        public_client: PublicClientApplication<Credential>,
-    ) -> Self {
-        self.config.client_application = Some(Box::new(public_client));
-        self
-    }
+       pub fn public_client_application<
+           Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
+       >(
+           mut self,
+           public_client: PublicClientApplication<Credential>,
+       ) -> Self {
+           self.config.client_application = Some(Box::new(public_client));
+           self
+       }
+    */
 
     pub fn default_headers(mut self, headers: HeaderMap) -> GraphClientConfiguration {
         for (key, value) in headers.iter() {
@@ -199,7 +194,7 @@ impl GraphClientConfiguration {
             }
         } else {
             Client {
-                client_application: Box::new(BearerTokenCredential::new(String::default())),
+                client_application: Box::new(String::default()),
                 inner: builder.build().unwrap(),
                 headers,
                 builder: config,
@@ -233,7 +228,7 @@ impl GraphClientConfiguration {
             }
         } else {
             BlockingClient {
-                client_application: Box::new(BearerTokenCredential::new(String::default())),
+                client_application: Box::new(String::default()),
                 inner: builder.build().unwrap(),
                 headers,
             }
@@ -301,6 +296,7 @@ impl Debug for Client {
     }
 }
 
+/*
 impl From<BearerTokenCredential> for Client {
     fn from(value: BearerTokenCredential) -> Self {
         Client::new(value)
@@ -322,6 +318,7 @@ impl<Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'sta
         Client::new(value)
     }
 }
+ */
 
 #[cfg(test)]
 mod test {

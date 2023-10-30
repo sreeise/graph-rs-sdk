@@ -39,6 +39,11 @@ macro_rules! credential_builder_base {
                 self
             }
 
+            pub fn with_default_scope(&mut self) -> &mut Self {
+                self.credential.scope = vec!["https://graph.microsoft.com/.default".to_string()];
+                self
+            }
+
             /// Extends the query parameters of both the default query params and user defined params.
             /// Does not overwrite default params.
             pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
@@ -88,14 +93,6 @@ macro_rules! credential_builder_base {
                     .extend(header_parameters);
                 self
             }
-
-            pub fn force_token_refresh(
-                &mut self,
-                force_token_refresh: ForceTokenRefresh,
-            ) -> &mut Self {
-                self.credential.app_config.force_token_refresh = force_token_refresh;
-                self
-            }
         }
     };
 }
@@ -107,6 +104,14 @@ macro_rules! credential_builder {
         impl $name {
             pub fn build(&self) -> $client {
                 <$client>::new(self.credential.clone())
+            }
+
+            pub fn force_token_refresh(
+                &mut self,
+                force_token_refresh: ForceTokenRefresh,
+            ) -> &mut Self {
+                self.credential.app_config.force_token_refresh = force_token_refresh;
+                self
             }
         }
     };

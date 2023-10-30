@@ -1,5 +1,5 @@
+use graph_core::crypto::secure_random_32;
 use graph_error::{AuthorizationFailure, IdentityResult};
-use graph_extensions::crypto::secure_random_32;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
@@ -335,7 +335,7 @@ impl ImplicitCredentialBuilder {
         self.credential.url()
     }
 
-    pub fn build_credential(&self) -> ImplicitCredential {
+    pub fn build(&self) -> ImplicitCredential {
         self.credential.clone()
     }
 }
@@ -358,7 +358,7 @@ mod test {
             .with_nonce("678910")
             .with_prompt(Prompt::None)
             .with_login_hint("myuser@mycompany.com")
-            .build_credential();
+            .build();
 
         let url_result = authorizer.url();
         assert!(url_result.is_ok());
@@ -375,7 +375,7 @@ mod test {
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
-            .build_credential();
+            .build();
 
         let url_result = authorizer.url();
         assert!(url_result.is_ok());
@@ -394,7 +394,7 @@ mod test {
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
-            .build_credential();
+            .build();
 
         let url_result = authorizer.url();
         assert!(url_result.is_ok());
@@ -413,7 +413,7 @@ mod test {
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
-            .build_credential();
+            .build();
 
         let url_result = authorizer.url();
         assert!(url_result.is_ok());
@@ -436,7 +436,7 @@ mod test {
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
-            .build_credential();
+            .build();
 
         let url_result = authorizer.url();
         assert!(url_result.is_ok());
@@ -455,7 +455,7 @@ mod test {
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
-            .build_credential();
+            .build();
 
         let url_result = authorizer.url();
         assert!(url_result.is_ok());
@@ -474,7 +474,7 @@ mod test {
             .unwrap()
             .with_scope(["User.Read"])
             .with_nonce("678910")
-            .build_credential();
+            .build();
 
         let url_result = authorizer.url();
         assert!(url_result.is_ok());
@@ -493,7 +493,7 @@ mod test {
             .with_redirect_uri("https://example.com/myapp")
             .unwrap()
             .with_nonce("678910")
-            .build_credential();
+            .build();
 
         let _ = authorizer.url().unwrap();
     }

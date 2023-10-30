@@ -13,7 +13,7 @@ pub use authorization_serializer::*;
 pub use credentials::*;
 pub use device_code::*;
 pub use id_token::*;
-pub use msal_token::*;
+pub use token::*;
 pub use token_validator::*;
 
 mod allowed_host_validator;
@@ -26,5 +26,5 @@ mod credentials;
 mod device_code;
 
 mod id_token;
-mod msal_token;
+mod token;
 mod token_validator;

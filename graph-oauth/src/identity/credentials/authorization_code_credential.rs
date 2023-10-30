@@ -7,9 +7,9 @@ use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
+use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_core::crypto::ProofKeyCodeExchange;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
-use graph_extensions::cache::{InMemoryTokenStore, TokenCacheStore};
-use graph_extensions::crypto::ProofKeyCodeExchange;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
@@ -62,7 +62,7 @@ pub struct AuthorizationCodeCredential {
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
     pub(crate) code_verifier: Option<String>,
     serializer: OAuthSerializer,
-    token_cache: InMemoryTokenStore<Token>,
+    token_cache: InMemoryCacheStore<Token>,
 }
 
 impl Debug for AuthorizationCodeCredential {
@@ -75,6 +75,26 @@ impl Debug for AuthorizationCodeCredential {
 }
 
 impl AuthorizationCodeCredential {
+    pub(crate) fn from_token_and_app_config(
+        app_config: AppConfig,
+        token: Token,
+    ) -> AuthorizationCodeCredential {
+        let cache_id = app_config.cache_id.clone();
+        let mut token_cache = InMemoryCacheStore::new();
+        token_cache.store(cache_id, token);
+
+        AuthorizationCodeCredential {
+            app_config,
+            authorization_code: None,
+            refresh_token: None,
+            client_secret: "".to_string(),
+            scope: vec![],
+            code_verifier: None,
+            serializer: Default::default(),
+            token_cache,
+        }
+    }
+
     fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
         let response = self.execute()?;
         let new_token: Token = response.json()?;
@@ -104,7 +124,7 @@ impl AuthorizationCodeCredential {
 }
 
 #[async_trait]
-impl TokenCacheStore for AuthorizationCodeCredential {
+impl TokenCache for AuthorizationCodeCredential {
     type Token = Token;
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
@@ -291,6 +311,15 @@ impl AuthorizationCodeCredentialBuilder {
                 serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
+        }
+    }
+
+    pub(crate) fn new_with_token(
+        app_config: AppConfig,
+        token: Token,
+    ) -> AuthorizationCodeCredentialBuilder {
+        Self {
+            credential: AuthorizationCodeCredential::from_token_and_app_config(app_config, token),
         }
     }
 
@@ -534,6 +563,7 @@ mod test {
 
     #[test]
     fn should_force_refresh_test() {
+        let uuid_value = Uuid::new_v4().to_string();
         let mut credential_builder =
             AuthorizationCodeCredential::builder(uuid_value.clone(), "secret".to_string(), "code");
         let mut credential = credential_builder

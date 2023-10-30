@@ -1,27 +1,32 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 use std::fmt::{Debug, Formatter};
 
+use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use url::form_urlencoded::Serializer;
 use url::Url;
 use uuid::Uuid;
 
+use graph_core::crypto::{secure_random_32, ProofKeyCodeExchange};
 use graph_error::{IdentityResult, AF};
-use graph_extensions::crypto::{secure_random_32, ProofKeyCodeExchange};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
+    Authority, AuthorizationCodeCredentialBuilder, AuthorizationUrl, AzureCloudInstance,
+    ConfidentialClientApplication, Prompt, ResponseMode, ResponseType,
 };
 
-#[cfg(feature = "interactive-auth")]
+//#[cfg(feature = "interactive-auth")]
 use crate::identity::AuthorizationQueryResponse;
+use crate::oauth::Token;
 
-#[cfg(feature = "interactive-auth")]
+//#[cfg(feature = "interactive-auth")]
 use crate::web::{
     InteractiveAuthEvent, InteractiveAuthenticator, WebViewOptions, WindowCloseReason,
 };
+
+credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 
 /// Get the authorization url required to perform the initial authorization and redirect in the
 /// authorization code flow.
@@ -38,7 +43,7 @@ use crate::web::{
 /// Reference: https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code
 ///
 /// # Build a confidential client for the authorization code grant.
-/// Use [with_authorization_code](crate::identity::ConfidentialClientApplicationBuilder::with_authorization_code) to set the authorization code received from
+/// Use [with_authorization_code](crate::identity::ConfidentialClientApplicationBuilder::with_auth_code) to set the authorization code received from
 /// the authorization step, see [Request an authorization code](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code)
 /// You can use the [AuthCodeAuthorizationUrlParameterBuilder](crate::identity::AuthCodeAuthorizationUrlParameterBuilder)
 /// to build the url that the user will be directed to authorize at.
@@ -47,7 +52,7 @@ use crate::web::{
 /// # use graph_oauth::identity::ConfidentialClientApplication;///
 ///
 /// let client_app = ConfidentialClientApplication::builder("client-id")
-///     .with_authorization_code("access-code")
+///     .auth_code_url_builder()
 ///     .with_client_secret("client-secret")
 ///     .with_scope(vec!["User.Read"])
 ///     .build();
@@ -181,7 +186,7 @@ impl AuthCodeAuthorizationUrlParameters {
         self.nonce.as_ref()
     }
 
-    #[cfg(feature = "interactive-auth")]
+    //#[cfg(feature = "interactive-auth")]
     pub fn interactive_webview_authentication(
         &self,
         interactive_web_view_options: Option<WebViewOptions>,
@@ -194,7 +199,7 @@ impl AuthCodeAuthorizationUrlParameters {
         }
 
         return match next {
-            None => unreachable!(),
+            None => Err(anyhow::anyhow!("Unknown")),
             Some(auth_event) => {
                 match auth_event {
                     InteractiveAuthEvent::InvalidRedirectUri(reason) => {
@@ -229,8 +234,8 @@ impl AuthCodeAuthorizationUrlParameters {
     }
 }
 
-#[cfg(feature = "interactive-auth")]
-mod web_view_authenticator {
+// #[cfg(feature = "interactive-auth")]
+pub(crate) mod web_view_authenticator {
     use crate::identity::{AuthCodeAuthorizationUrlParameters, AuthorizationUrl};
     use crate::web::{
         InteractiveAuthEvent, InteractiveAuthenticator, InteractiveWebView, WebViewOptions,
@@ -398,7 +403,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
 
 #[derive(Clone)]
 pub struct AuthCodeAuthorizationUrlParameterBuilder {
-    parameters: AuthCodeAuthorizationUrlParameters,
+    credential: AuthCodeAuthorizationUrlParameters,
 }
 
 impl AuthCodeAuthorizationUrlParameterBuilder {
@@ -406,7 +411,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         let mut response_type = BTreeSet::new();
         response_type.insert(ResponseType::Code);
         AuthCodeAuthorizationUrlParameterBuilder {
-            parameters: AuthCodeAuthorizationUrlParameters {
+            credential: AuthCodeAuthorizationUrlParameters {
                 app_config: AppConfig::new_with_client_id(client_id.as_ref()),
                 response_mode: None,
                 response_type,
@@ -428,7 +433,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         let mut response_type = BTreeSet::new();
         response_type.insert(ResponseType::Code);
         AuthCodeAuthorizationUrlParameterBuilder {
-            parameters: AuthCodeAuthorizationUrlParameters {
+            credential: AuthCodeAuthorizationUrlParameters {
                 app_config,
                 response_mode: None,
                 response_type,
@@ -445,10 +450,11 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     }
 
     pub fn with_redirect_uri<U: IntoUrl>(&mut self, redirect_uri: U) -> &mut Self {
-        self.parameters.app_config.redirect_uri = Some(redirect_uri.into_url().unwrap());
+        self.credential.app_config.redirect_uri = Some(redirect_uri.into_url().unwrap());
         self
     }
 
+    /*
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
         self.parameters.app_config.client_id =
             Uuid::try_parse(client_id.as_ref()).expect("Invalid Client Id - Must be a Uuid ");
@@ -457,7 +463,9 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.parameters.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
+        let tenant_id = tenant.as_ref();
+        self.parameters.app_config.tenant_id = Some(tenant_id.to_owned());
+        self.parameters.app_config.authority = Authority::TenantId(tenant_id.to_owned());
         self
     }
 
@@ -465,6 +473,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self.parameters.app_config.authority = authority.into();
         self
     }
+     */
 
     /// Default is code. Must include code for the authorization code flow.
     /// Can also include id_token or token if using the hybrid flow.
@@ -472,7 +481,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.parameters
+        self.credential
             .response_type
             .extend(response_type.into_iter());
         self
@@ -490,7 +499,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
     ///     Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
-        self.parameters.response_mode = Some(response_mode);
+        self.credential.response_mode = Some(response_mode);
         self
     }
 
@@ -502,33 +511,19 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     /// Setting the nonce will override the nonce that is automatically generated by the
     /// credential client.
     pub fn with_nonce<T: AsRef<str>>(&mut self, nonce: T) -> &mut Self {
-        self.parameters.nonce = Some(nonce.as_ref().to_owned());
+        self.credential.nonce = Some(nonce.as_ref().to_owned());
         self
     }
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
-        self.parameters.state = Some(state.as_ref().to_owned());
-        self
-    }
-
-    /// Required.
-    /// A space-separated list of scopes that you want the user to consent to.
-    /// For the /authorize leg of the request, this parameter can cover multiple resources.
-    /// This value allows your app to get consent for multiple web APIs you want to call.
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.parameters.scope.extend(
-            scope
-                .into_iter()
-                .map(|s| s.to_string())
-                .map(|s| s.trim().to_owned()),
-        );
+        self.credential.state = Some(state.as_ref().to_owned());
         self
     }
 
     /// Adds the `offline_access` scope parameter which tells the authorization server
     /// to include a refresh token in the redirect uri query.
     pub fn with_offline_access(&mut self) -> &mut Self {
-        self.parameters
+        self.credential
             .scope
             .extend(vec!["offline_access".to_owned()]);
         self
@@ -545,24 +540,24 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience
     ///     listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether.
     pub fn with_prompt(&mut self, prompt: Prompt) -> &mut Self {
-        self.parameters.prompt = Some(prompt);
+        self.credential.prompt = Some(prompt);
         self
     }
 
     pub fn with_domain_hint<T: AsRef<str>>(&mut self, domain_hint: T) -> &mut Self {
-        self.parameters.domain_hint = Some(domain_hint.as_ref().to_owned());
+        self.credential.domain_hint = Some(domain_hint.as_ref().to_owned());
         self
     }
 
     pub fn with_login_hint<T: AsRef<str>>(&mut self, login_hint: T) -> &mut Self {
-        self.parameters.login_hint = Some(login_hint.as_ref().to_owned());
+        self.credential.login_hint = Some(login_hint.as_ref().to_owned());
         self
     }
 
     /// Used to secure authorization code grants by using Proof Key for Code Exchange (PKCE).
     /// Required if code_challenge_method is included.
     pub fn with_code_challenge<T: AsRef<str>>(&mut self, code_challenge: T) -> &mut Self {
-        self.parameters.code_challenge = Some(code_challenge.as_ref().to_owned());
+        self.credential.code_challenge = Some(code_challenge.as_ref().to_owned());
         self
     }
 
@@ -575,7 +570,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         &mut self,
         code_challenge_method: T,
     ) -> &mut Self {
-        self.parameters.code_challenge_method = Some(code_challenge_method.as_ref().to_owned());
+        self.credential.code_challenge_method = Some(code_challenge_method.as_ref().to_owned());
         self
     }
 
@@ -588,12 +583,36 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self
     }
 
+    pub fn interactive_authentication(
+        &self,
+        options: Option<WebViewOptions>,
+    ) -> anyhow::Result<AuthorizationCodeCredentialBuilder> {
+        let query_response = self
+            .credential
+            .interactive_webview_authentication(options)?;
+        if let Some(authorization_code) = query_response.code.as_ref() {
+            Ok(AuthorizationCodeCredentialBuilder::new_with_auth_code(
+                self.credential.app_config.clone(),
+                authorization_code,
+            ))
+        } else {
+            Ok(AuthorizationCodeCredentialBuilder::new_with_token(
+                self.credential.app_config.clone(),
+                Token::from(query_response),
+            ))
+        }
+    }
+
     pub fn build(&self) -> AuthCodeAuthorizationUrlParameters {
-        self.parameters.clone()
+        self.credential.clone()
+    }
+
+    pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
+        self.credential.url_with_host(azure_cloud_instance)
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
-        self.parameters.url()
+        self.credential.url()
     }
 }
 
@@ -614,12 +633,11 @@ mod test {
 
     #[test]
     fn url_with_host() {
-        let authorizer = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
+        let url_result = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
             .with_scope(["read", "write"])
-            .build();
+            .url_with_host(&AzureCloudInstance::AzureGermany);
 
-        let url_result = authorizer.url_with_host(&AzureCloudInstance::AzureGermany);
         assert!(url_result.is_ok());
     }
 

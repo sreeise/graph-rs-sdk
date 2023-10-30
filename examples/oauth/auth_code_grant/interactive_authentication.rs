@@ -44,7 +44,9 @@ fn run_interactive_auth() -> ConfidentialClientApplication<AuthorizationCodeCred
         .interactive_authentication(None)
         .unwrap();
 
-    confidential_client_builder.with_client_secret(CLIENT_SECRET).build()
+    confidential_client_builder
+        .with_client_secret(CLIENT_SECRET)
+        .build()
 }
 
 async fn authenticate() {

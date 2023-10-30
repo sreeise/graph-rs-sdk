@@ -6,8 +6,8 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use url::Url;
 use uuid::Uuid;
 
+use graph_core::cache::{InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
-use graph_extensions::cache::{InMemoryTokenStore, TokenCacheStore};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
@@ -50,7 +50,7 @@ pub struct ClientSecretCredential {
     /// Default is https://graph.microsoft.com/.default.
     pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
-    token_cache: InMemoryTokenStore<Token>,
+    token_cache: InMemoryCacheStore<Token>,
 }
 
 impl Debug for ClientSecretCredential {
@@ -69,7 +69,7 @@ impl ClientSecretCredential {
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
-            token_cache: InMemoryTokenStore::new(),
+            token_cache: InMemoryCacheStore::new(),
         }
     }
 
@@ -83,7 +83,7 @@ impl ClientSecretCredential {
             client_secret: client_secret.as_ref().to_owned(),
             scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
-            token_cache: InMemoryTokenStore::new(),
+            token_cache: InMemoryCacheStore::new(),
         }
     }
 
@@ -95,7 +95,7 @@ impl ClientSecretCredential {
 }
 
 #[async_trait]
-impl TokenCacheStore for ClientSecretCredential {
+impl TokenCache for ClientSecretCredential {
     type Token = Token;
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
@@ -232,7 +232,7 @@ impl ClientSecretCredentialBuilder {
                 client_secret: client_secret.as_ref().to_string(),
                 scope: vec!["https://graph.microsoft.com/.default".into()],
                 serializer: Default::default(),
-                token_cache: InMemoryTokenStore::new(),
+                token_cache: InMemoryCacheStore::new(),
             },
         }
     }

@@ -24,6 +24,7 @@ use std::collections::BTreeSet;
 // To better understand OAuth V2.0 and the implicit flow see: https://tools.ietf.org/html/rfc6749#section-1.3.2
 use graph_rs_sdk::oauth::legacy::ImplicitCredential;
 use graph_rs_sdk::oauth::{Prompt, ResponseMode, ResponseType, TokenCredentialExecutor};
+
 fn oauth_implicit_flow() {
     let authorizer = ImplicitCredential::builder()
         .with_client_id("<YOUR_CLIENT_ID>")
@@ -34,23 +35,22 @@ fn oauth_implicit_flow() {
         .unwrap()
         .with_scope(["User.Read"])
         .with_nonce("678910")
-        .build_credential();
+        .build();
 
     let url = authorizer.url().unwrap();
-
-    // webbrowser crate in dev dependencies will open to default browser in the system.
 
     // Opens the default browser to the Microsoft login page.
     // After logging in the page will redirect and the Url
     // will have the access token in either the query or
     // the fragment of the Uri.
+    // webbrowser crate in dev dependencies will open to default browser in the system.
     webbrowser::open(url.as_str()).unwrap();
 }
 
 fn multi_response_types() {
     let _ = ImplicitCredential::builder()
         .with_response_type(vec![ResponseType::Token, ResponseType::IdToken])
-        .build_credential();
+        .build();
 
     // Or
 
@@ -59,5 +59,5 @@ fn multi_response_types() {
             "token".to_string(),
             "id_token".to_string(),
         ])))
-        .build_credential();
+        .build();
 }
