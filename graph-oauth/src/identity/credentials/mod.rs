@@ -23,8 +23,6 @@ pub use resource_owner_password_credential::*;
 pub use response_mode::*;
 pub use response_type::*;
 pub use token_credential_executor::*;
-pub use token_credential_options::*;
-pub use token_request::*;
 #[cfg(feature = "openssl")]
 pub use x509_certificate::*;
 
@@ -58,8 +56,6 @@ mod resource_owner_password_credential;
 mod response_mode;
 mod response_type;
 mod token_credential_executor;
-mod token_credential_options;
-mod token_request;
 
 #[cfg(feature = "openssl")]
 mod x509_certificate;

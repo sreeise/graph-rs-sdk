@@ -57,7 +57,6 @@ extern crate serde;
 extern crate strum;
 
 pub(crate) mod auth;
-mod discovery;
 pub mod jwt;
 mod oauth_error;
 

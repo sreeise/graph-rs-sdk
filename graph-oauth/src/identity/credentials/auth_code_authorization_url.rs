@@ -3,6 +3,7 @@ use std::fmt::{Debug, Formatter};
 
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
+use time::{Duration, Instant};
 use url::form_urlencoded::Serializer;
 use url::Url;
 use uuid::Uuid;
@@ -194,6 +195,7 @@ impl AuthCodeAuthorizationUrlParameters {
         let receiver = self.interactive_authentication(interactive_web_view_options)?;
         let mut iter = receiver.try_iter();
         let mut next = iter.next();
+
         while next.is_none() {
             next = iter.next();
         }
@@ -247,7 +249,10 @@ pub(crate) mod web_view_authenticator {
             &self,
             interactive_web_view_options: Option<WebViewOptions>,
         ) -> IdentityResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
-            let uri = self.authorization_url()?;
+            let uri = self
+                .app_config
+                .azure_cloud_instance
+                .auth_uri(&self.app_config.authority)?;
             let redirect_uri = self.redirect_uri().cloned().unwrap();
             let web_view_options = interactive_web_view_options.unwrap_or_default();
             let _timeout = web_view_options.timeout;
@@ -371,7 +376,6 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
             serializer.code_challenge_method(code_challenge_method.as_str());
         }
 
-        let mut encoder = Serializer::new(String::new());
         let query = serializer.encode_query(
             vec![
                 OAuthParameter::ResponseMode,
@@ -449,27 +453,6 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self.credential.app_config.redirect_uri = Some(redirect_uri.into_url().unwrap());
         self
     }
-
-    /*
-    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.parameters.app_config.client_id =
-            Uuid::try_parse(client_id.as_ref()).expect("Invalid Client Id - Must be a Uuid ");
-        self
-    }
-
-    /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
-    pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        let tenant_id = tenant.as_ref();
-        self.parameters.app_config.tenant_id = Some(tenant_id.to_owned());
-        self.parameters.app_config.authority = Authority::TenantId(tenant_id.to_owned());
-        self
-    }
-
-    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.parameters.app_config.authority = authority.into();
-        self
-    }
-     */
 
     /// Default is code. Must include code for the authorization code flow.
     /// Can also include id_token or token if using the hybrid flow.

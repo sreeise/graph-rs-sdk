@@ -1,7 +1,4 @@
-use anyhow::Context;
-use std::sync::mpsc::SendError;
-use std::time::{Duration, Instant};
-use tracing::instrument::WithSubscriber;
+use std::time::Duration;
 use url::Url;
 
 use crate::web::{InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
@@ -162,7 +159,7 @@ impl InteractiveWebView {
             .build()?;
 
         event_loop.run(move |event, _, control_flow| {
-            *control_flow = ControlFlow::Wait;
+            *control_flow = ControlFlow::WaitUntil(options.timeout);
 
             match event {
                 Event::NewEvents(StartCause::Init) => tracing::debug!(target: "interactive_webview", "Webview runtime started"),

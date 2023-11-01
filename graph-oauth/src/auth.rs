@@ -3,7 +3,6 @@ use std::collections::{BTreeSet, HashMap};
 use std::default::Default;
 use std::fmt;
 
-use base64::Engine;
 use url::form_urlencoded::Serializer;
 use url::Url;
 

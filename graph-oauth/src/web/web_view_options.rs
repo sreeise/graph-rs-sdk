@@ -1,4 +1,5 @@
-use std::time::Duration;
+use std::ops::Add;
+use std::time::{Duration, Instant};
 
 pub use wry::application::window::Theme;
 
@@ -13,7 +14,7 @@ pub struct WebViewOptions {
     /// This assumes that you have http://localhost or http://localhost:port
     /// for each port registered in your ADF application registration.
     pub ports: Vec<usize>,
-    pub timeout: Duration,
+    pub timeout: Instant,
     pub clear_browsing_data: bool,
 }
 
@@ -42,8 +43,8 @@ impl WebViewOptions {
         self
     }
 
-    pub fn with_timeout(mut self, duration: Duration) -> Self {
-        self.timeout = duration;
+    pub fn with_timeout(mut self, instant: Instant) -> Self {
+        self.timeout = instant;
         self
     }
 
@@ -61,7 +62,7 @@ impl Default for WebViewOptions {
             theme: None,
             ports: vec![],
             // 10 Minutes default timeout
-            timeout: Duration::from_secs(10 * 60),
+            timeout: Instant::now().add(Duration::from_secs(10 * 60)),
             clear_browsing_data: false,
         }
     }

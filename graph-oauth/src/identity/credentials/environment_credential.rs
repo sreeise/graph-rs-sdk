@@ -140,18 +140,6 @@ impl EnvironmentCredential {
     }
 }
 
-/*
-impl AuthorizationSerializer for EnvironmentCredential {
-    fn uri(&mut self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
-        self.credential.uri()
-    }
-
-    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        self.credential.form_urlencode()
-    }
-}
- */
-
 impl TokenCredentialExecutor for EnvironmentCredential {
     fn uri(&mut self) -> IdentityResult<Url> {
         self.credential.uri()

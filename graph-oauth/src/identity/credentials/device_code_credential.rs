@@ -1,9 +1,11 @@
+use async_trait::async_trait;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use std::ops::Add;
 use std::str::FromStr;
 use std::time::Duration;
 
+use graph_core::cache::{InMemoryCacheStore, TokenCache};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use url::Url;
 use uuid::Uuid;
@@ -19,9 +21,12 @@ use graph_error::{
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, DeviceCode, ForceTokenRefresh, PollDeviceCodeType,
-    PublicClientApplication, TokenCredentialExecutor,
+    Authority, AuthorizationQueryResponse, AzureCloudInstance, DeviceCode, ForceTokenRefresh,
+    PollDeviceCodeType, PublicClientApplication, TokenCredentialExecutor,
 };
+use crate::oauth::Token;
+use crate::web::{InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
+use crate::web::{InteractiveAuthenticator, InteractiveWebView};
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -54,6 +59,7 @@ pub struct DeviceCodeCredential {
     /// the token for during token redemption.
     pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
+    token_cache: InMemoryCacheStore<Token>,
 }
 
 impl DeviceCodeCredential {
@@ -68,17 +74,16 @@ impl DeviceCodeCredential {
             device_code: Some(device_code.as_ref().to_owned()),
             scope: scope.into_iter().map(|s| s.to_string()).collect(),
             serializer: Default::default(),
+            token_cache: Default::default(),
         }
     }
 
     pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) -> &mut Self {
-        self.device_code = None;
         self.refresh_token = Some(refresh_token.as_ref().to_owned());
         self
     }
 
     pub fn with_device_code<T: AsRef<str>>(&mut self, device_code: T) -> &mut Self {
-        self.refresh_token = None;
         self.device_code = Some(device_code.as_ref().to_owned());
         self
     }
@@ -96,6 +101,50 @@ impl Debug for DeviceCodeCredential {
             .finish()
     }
 }
+
+#[async_trait]
+impl TokenCache for DeviceCodeCredential {
+    type Token = Token;
+
+    fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute()?;
+                let new_token: Token = response.json()?;
+                self.token_cache.store(cache_id, new_token.clone());
+                Ok(new_token)
+            } else {
+                Ok(token)
+            }
+        } else {
+            let response = self.execute()?;
+            let new_token: Token = response.json()?;
+            self.token_cache.store(cache_id, new_token.clone());
+            Ok(new_token)
+        }
+    }
+
+    async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                let response = self.execute_async().await?;
+                let new_token: Token = response.json().await?;
+                self.token_cache.store(cache_id, new_token.clone());
+                Ok(new_token)
+            } else {
+                Ok(token.clone())
+            }
+        } else {
+            let response = self.execute_async().await?;
+            let msal_token: Token = response.json().await?;
+            self.token_cache.store(cache_id, msal_token.clone());
+            Ok(msal_token)
+        }
+    }
+}
+
 impl TokenCredentialExecutor for DeviceCodeCredential {
     fn uri(&mut self) -> IdentityResult<Url> {
         let azure_cloud_instance = self.azure_cloud_instance();
@@ -208,6 +257,7 @@ impl DeviceCodeCredentialBuilder {
                 device_code: None,
                 scope: vec![],
                 serializer: Default::default(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -223,6 +273,7 @@ impl DeviceCodeCredentialBuilder {
                 device_code: Some(device_code.as_ref().to_owned()),
                 scope: vec![],
                 serializer: Default::default(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -255,6 +306,7 @@ impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
                 device_code: Some(value.device_code.clone()),
                 scope: vec![],
                 serializer: Default::default(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -273,6 +325,7 @@ impl DeviceCodePollingExecutor {
                 device_code: None,
                 scope: vec![],
                 serializer: Default::default(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -280,6 +333,53 @@ impl DeviceCodePollingExecutor {
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
         self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
+    }
+
+    pub fn interactive_webview_authentication(
+        &self,
+        options: Option<WebViewOptions>,
+    ) -> anyhow::Result<AuthorizationQueryResponse> {
+        let receiver = self.credential.interactive_authentication(options)?;
+        let mut iter = receiver.try_iter();
+        let mut next = iter.next();
+
+        while next.is_none() {
+            next = iter.next();
+        }
+
+        return match next {
+            None => Err(anyhow::anyhow!("Unknown")),
+            Some(auth_event) => {
+                match auth_event {
+                    InteractiveAuthEvent::InvalidRedirectUri(reason) => {
+                        Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
+                    }
+                    InteractiveAuthEvent::TimedOut(duration) => {
+                        Err(anyhow::anyhow!("Webview timed out while waiting on redirect to valid redirect uri with timeout duration of {duration:#?}"))
+                    }
+                    InteractiveAuthEvent::ReachedRedirectUri(uri) => {
+                        let url_str = uri.as_str();
+                        let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
+                            "query | fragment",
+                            &format!("No query or fragment returned on redirect uri: {url_str}"),
+                        ))?;
+
+                        let response_query: AuthorizationQueryResponse = serde_urlencoded::from_str(query)?;
+                        Ok(response_query)
+                    }
+                    InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
+                        match window_close_reason {
+                            WindowCloseReason::CloseRequested => {
+                                Err(anyhow::anyhow!("CloseRequested"))
+                            }
+                            WindowCloseReason::InvalidWindowNavigation => {
+                                Err(anyhow::anyhow!("InvalidWindowNavigation"))
+                            }
+                        }
+                    }
+                }
+            }
+        };
     }
 
     pub fn poll(&mut self) -> AuthExecutionResult<std::sync::mpsc::Receiver<JsonHttpResponse>> {
@@ -434,6 +534,42 @@ impl DeviceCodePollingExecutor {
         });
 
         Ok(receiver)
+    }
+}
+
+// #[cfg(feature = "interactive-auth")]
+pub(crate) mod web_view_authenticator {
+    use crate::oauth::DeviceCodeCredential;
+    use crate::web::{
+        InteractiveAuthEvent, InteractiveAuthenticator, InteractiveWebView, WebViewOptions,
+    };
+    use graph_error::IdentityResult;
+
+    impl InteractiveAuthenticator for DeviceCodeCredential {
+        fn interactive_authentication(
+            &self,
+            interactive_web_view_options: Option<WebViewOptions>,
+        ) -> IdentityResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
+            let uri = self
+                .app_config
+                .azure_cloud_instance
+                .auth_uri(&self.app_config.authority)?;
+            let redirect_uri = self.app_config.redirect_uri.clone().unwrap();
+            let web_view_options = interactive_web_view_options.unwrap_or_default();
+            let (sender, receiver) = std::sync::mpsc::channel();
+
+            std::thread::spawn(move || {
+                InteractiveWebView::interactive_authentication(
+                    uri,
+                    vec![redirect_uri],
+                    web_view_options,
+                    sender,
+                )
+                .unwrap();
+            });
+
+            Ok(receiver)
+        }
     }
 }
 
