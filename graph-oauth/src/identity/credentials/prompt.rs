@@ -16,15 +16,12 @@ use crate::identity::credentials::as_query::AsQuery;
 pub enum Prompt {
     #[default]
     None,
-    /// The user will be prompted for credentials by the service. It is achieved
-    /// by sending <prompt=login to the Azure AD service.
+    /// The user will be prompted for credentials by the service.
     Login,
-    /// The user will be prompted to consent even if consent was granted before. It is achieved
-    /// by sending prompt=consent to Azure AD.
+    /// The user will be prompted to consent even if consent was granted before.
     Consent,
-    /// AcquireToken will send prompt=select_account to Azure AD's authorize endpoint
-    /// which would present to the user a list of accounts from which one can be selected for
-    /// authentication.
+    /// The user will be prompted with a list of accounts from which one can be selected
+    /// for authentication.
     SelectAccount,
     /// Use only for federated users. Provides same functionality as prompt=none
     /// for managed users.

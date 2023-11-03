@@ -17,7 +17,7 @@ use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
     DeviceCodeCredential, GenPkce, ProofKeyCodeExchange, PublicClientApplication, Token,
-    TokenCredentialExecutor, TokenRequest,
+    TokenCredentialExecutor,
 };
 
 fn main() {}

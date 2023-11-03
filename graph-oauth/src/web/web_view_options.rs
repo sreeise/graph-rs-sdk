@@ -39,7 +39,7 @@ impl WebViewOptions {
     }
 
     pub fn with_ports(mut self, ports: &[usize]) -> Self {
-        self.ports = ports.into_iter().cloned().collect();
+        self.ports = ports.to_vec();
         self
     }
 
@@ -48,7 +48,7 @@ impl WebViewOptions {
         self
     }
 
-    pub fn with_clear_browsing_data_on_window_close(mut self, clear_browsing_data: bool) -> Self {
+    pub fn with_clear_browsing_data(mut self, clear_browsing_data: bool) -> Self {
         self.clear_browsing_data = clear_browsing_data;
         self
     }

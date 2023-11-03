@@ -1,7 +1,7 @@
 use graph_rs_sdk::error::IdentityResult;
 use graph_rs_sdk::oauth::{
     AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    GenPkce, ProofKeyCodeExchange, ResponseType, Token, TokenCredentialExecutor, TokenRequest,
+    GenPkce, ProofKeyCodeExchange, ResponseType, Token, TokenCredentialExecutor,
 };
 use lazy_static::lazy_static;
 use url::Url;

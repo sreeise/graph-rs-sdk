@@ -3,8 +3,7 @@ use std::fmt::{Debug, Formatter};
 
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
-use time::{Duration, Instant};
-use url::form_urlencoded::Serializer;
+
 use url::Url;
 use uuid::Uuid;
 
@@ -14,8 +13,8 @@ use graph_error::{IdentityResult, AF};
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AuthorizationCodeCredentialBuilder, AuthorizationUrl, AzureCloudInstance,
-    ConfidentialClientApplication, Prompt, ResponseMode, ResponseType,
+    AuthorizationCodeCredentialBuilder, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode,
+    ResponseType,
 };
 
 //#[cfg(feature = "interactive-auth")]
@@ -202,36 +201,34 @@ impl AuthCodeAuthorizationUrlParameters {
 
         return match next {
             None => Err(anyhow::anyhow!("Unknown")),
-            Some(auth_event) => {
-                match auth_event {
-                    InteractiveAuthEvent::InvalidRedirectUri(reason) => {
-                        Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
-                    }
-                    InteractiveAuthEvent::TimedOut(duration) => {
-                        Err(anyhow::anyhow!("Webview timed out while waiting on redirect to valid redirect uri with timeout duration of {duration:#?}"))
-                    }
-                    InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                        let url_str = uri.as_str();
-                        let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
-                            "query | fragment",
-                            &format!("No query or fragment returned on redirect uri: {url_str}"),
-                        ))?;
+            Some(auth_event) => match auth_event {
+                InteractiveAuthEvent::InvalidRedirectUri(reason) => {
+                    Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
+                }
+                InteractiveAuthEvent::ReachedRedirectUri(uri) => {
+                    let url_str = uri.as_str();
+                    let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
+                        "query | fragment",
+                        &format!("No query or fragment returned on redirect uri: {url_str}"),
+                    ))?;
 
-                        let response_query: AuthorizationQueryResponse = serde_urlencoded::from_str(query)?;
-                        Ok(response_query)
-                    }
-                    InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
-                        match window_close_reason {
-                            WindowCloseReason::CloseRequested => {
-                                Err(anyhow::anyhow!("CloseRequested"))
-                            }
-                            WindowCloseReason::InvalidWindowNavigation => {
-                                Err(anyhow::anyhow!("InvalidWindowNavigation"))
-                            }
+                    let response_query: AuthorizationQueryResponse =
+                        serde_urlencoded::from_str(query)?;
+                    Ok(response_query)
+                }
+                InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
+                    match window_close_reason {
+                        WindowCloseReason::CloseRequested => Err(anyhow::anyhow!("CloseRequested")),
+                        WindowCloseReason::InvalidWindowNavigation => {
+                            Err(anyhow::anyhow!("InvalidWindowNavigation"))
                         }
+                        WindowCloseReason::TimedOut {
+                            start: _,
+                            requested_resume: _,
+                        } => Err(anyhow::anyhow!("TimedOut")),
                     }
                 }
-            }
+            },
         };
     }
 }
@@ -249,10 +246,7 @@ pub(crate) mod web_view_authenticator {
             &self,
             interactive_web_view_options: Option<WebViewOptions>,
         ) -> IdentityResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
-            let uri = self
-                .app_config
-                .azure_cloud_instance
-                .auth_uri(&self.app_config.authority)?;
+            let uri = self.url()?;
             let redirect_uri = self.redirect_uri().cloned().unwrap();
             let web_view_options = interactive_web_view_options.unwrap_or_default();
             let _timeout = web_view_options.timeout;

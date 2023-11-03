@@ -1,5 +1,5 @@
 use reqwest::IntoUrl;
-use url::form_urlencoded::Serializer;
+
 use url::Url;
 use uuid::Uuid;
 

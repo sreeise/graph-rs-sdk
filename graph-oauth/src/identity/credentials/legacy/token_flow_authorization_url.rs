@@ -1,4 +1,3 @@
-use url::form_urlencoded::Serializer;
 use url::Url;
 
 use graph_error::{AuthorizationFailure, IdentityResult, AF};

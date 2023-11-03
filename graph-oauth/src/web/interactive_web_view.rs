@@ -140,7 +140,7 @@ impl InteractiveWebView {
                             .unwrap_or_default();
                         // Wait time to avoid deadlock where window closes before
                         // the channel has received the redirect uri.
-                        std::thread::sleep(Duration::from_secs(1));
+
                         let _ = proxy.send_event(UserEvents::ReachedRedirectUri(url));
                         return true;
                     }
@@ -151,7 +151,7 @@ impl InteractiveWebView {
 
                     is_valid_host
                 } else {
-                    tracing::trace!(target: "interactive_webview", "Unable to navigate WebView - Option<Url> was None");
+                    tracing::debug!(target: "interactive_webview", "Unable to navigate WebView - Option<Url> was None");
                     let _ = proxy.send_event(UserEvents::CloseWindow);
                     false
                 }
@@ -163,17 +163,45 @@ impl InteractiveWebView {
 
             match event {
                 Event::NewEvents(StartCause::Init) => tracing::debug!(target: "interactive_webview", "Webview runtime started"),
+                Event::NewEvents(StartCause::ResumeTimeReached { start, requested_resume, .. }) => {
+                    sender.send(InteractiveAuthEvent::ClosingWindow(WindowCloseReason::TimedOut {
+                        start, requested_resume
+                    })).unwrap_or_default();
+                    tracing::debug!(target: "interactive_webview", "Timeout reached - closing window");
+
+                    if options.clear_browsing_data {
+                        let _ = webview.clear_all_browsing_data();
+                    }
+
+                    // Wait time to avoid deadlock where window closes before receiver gets the event
+                    std::thread::sleep(Duration::from_millis(500));
+                    *control_flow = ControlFlow::Exit
+                }
                 Event::UserEvent(UserEvents::CloseWindow) | Event::WindowEvent {
                     event: WindowEvent::CloseRequested,
                     ..
                 } => {
                     sender.send(InteractiveAuthEvent::ClosingWindow(WindowCloseReason::CloseRequested)).unwrap_or_default();
                     tracing::trace!(target: "interactive_webview", "Window closing before reaching redirect uri");
+
+                    if options.clear_browsing_data {
+                        let _ = webview.clear_all_browsing_data();
+                    }
+
+                    // Wait time to avoid deadlock where window closes before receiver gets the event
+                    std::thread::sleep(Duration::from_millis(500));
                     *control_flow = ControlFlow::Exit
                 }
                 Event::UserEvent(UserEvents::ReachedRedirectUri(uri)) => {
-                    tracing::trace!(target: "interactive_webview", "Matched on redirect uri: {uri:#?}");
-                    tracing::trace!(target: "interactive_webview", "Closing window");
+                    tracing::trace!(target: "interactive_webview", "Matched on redirect uri: {uri:#?} - Closing window");
+
+                    if options.clear_browsing_data {
+                        let _ = webview.clear_all_browsing_data();
+                    }
+
+                    // Wait time to avoid deadlock where window closes before
+                    // the channel has received the redirect uri.
+                    std::thread::sleep(Duration::from_millis(500));
                     *control_flow = ControlFlow::Exit
                 }
                 Event::UserEvent(UserEvents::InvalidNavigationAttempt(uri_option)) => {
@@ -182,12 +210,11 @@ impl InteractiveWebView {
                         tracing::error!(target: "interactive_webview", "Closing window due to attempted navigation to invalid host with uri: {uri_option:#?}");
                         sender.send(InteractiveAuthEvent::ClosingWindow(WindowCloseReason::InvalidWindowNavigation)).unwrap_or_default();
 
-                        // Clear browsing data in the event of invalid navigation as we don't
-                        // know if there is a security issue.
-                        let _ = webview.clear_all_browsing_data();
+                        if options.clear_browsing_data {
+                            let _ = webview.clear_all_browsing_data();
+                        }
 
-                        // Wait time to avoid deadlock where window closes before
-                        // the channel has received last event.
+                        // Wait time to avoid deadlock where window closes before receiver gets the event
                         std::thread::sleep(Duration::from_secs(1));
 
                         *control_flow = ControlFlow::Exit;

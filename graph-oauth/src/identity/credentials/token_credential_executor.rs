@@ -18,11 +18,13 @@ dyn_clone::clone_trait_object!(TokenCredentialExecutor);
 
 #[async_trait]
 pub trait TokenCredentialExecutor: DynClone + Debug {
-    fn uri(&mut self) -> IdentityResult<Url>;
+    fn uri(&mut self) -> IdentityResult<Url> {
+        Ok(self.azure_cloud_instance().token_uri(&self.authority())?)
+    }
 
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>>;
 
-    fn authorization_request_parts(&mut self) -> IdentityResult<AuthorizationRequestParts> {
+    fn request_parts(&mut self) -> IdentityResult<AuthorizationRequestParts> {
         let uri = self.uri()?;
         let form = self.form_urlencode()?;
         let basic_auth = self.basic_auth();
@@ -43,7 +45,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
             .https_only(true)
             .build()?;
 
-        let auth_request = self.authorization_request_parts()?;
+        let auth_request = self.request_parts()?;
         let basic_auth = auth_request.basic_auth;
 
         if let Some((client_identifier, secret)) = basic_auth {
@@ -77,7 +79,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
             .https_only(true)
             .build()?;
 
-        let auth_request = self.authorization_request_parts()?;
+        let auth_request = self.request_parts()?;
         let basic_auth = auth_request.basic_auth;
 
         if let Some((client_identifier, secret)) = basic_auth {

@@ -1,15 +1,11 @@
-use std::collections::HashMap;
-use std::fmt::{Debug, Formatter};
-
-use async_trait::async_trait;
-use url::Url;
-use uuid::Uuid;
-
-use graph_error::{IdentityResult, AF};
-
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
+use async_trait::async_trait;
+use graph_error::{IdentityResult, AF};
+use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
+use uuid::Uuid;
 
 /// Allows an application to sign in the user by directly handling their password.
 /// Not recommended. ROPC can also be done using a client secret or assertion,
@@ -83,18 +79,6 @@ impl ResourceOwnerPasswordCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
-    fn uri(&mut self) -> IdentityResult<Url> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        self.serializer
-            .authority(&azure_cloud_instance, &self.app_config.authority);
-
-        let uri = self
-            .serializer
-            .get(OAuthParameter::TokenUrl)
-            .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
-        Url::parse(uri.as_str()).map_err(AF::from)
-    }
-
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {

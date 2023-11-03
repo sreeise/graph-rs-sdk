@@ -194,7 +194,7 @@ impl GraphClientConfiguration {
             }
         } else {
             Client {
-                client_application: Box::new(String::default()),
+                client_application: Box::<String>::default(),
                 inner: builder.build().unwrap(),
                 headers,
                 builder: config,
@@ -228,7 +228,7 @@ impl GraphClientConfiguration {
             }
         } else {
             BlockingClient {
-                client_application: Box::new(String::default()),
+                client_application: Box::<String>::default(),
                 inner: builder.build().unwrap(),
                 headers,
             }

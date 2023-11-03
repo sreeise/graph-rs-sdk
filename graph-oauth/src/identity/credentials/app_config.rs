@@ -2,12 +2,13 @@ use base64::Engine;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
+use graph_error::AF;
 use reqwest::header::HeaderMap;
 use url::Url;
 use uuid::Uuid;
 
 use crate::identity::{Authority, AzureCloudInstance};
-use crate::oauth::ForceTokenRefresh;
+use crate::oauth::{ApplicationOptions, ForceTokenRefresh};
 
 #[derive(Clone, Default, PartialEq)]
 pub struct AppConfig {
@@ -39,6 +40,30 @@ pub struct AppConfig {
     pub(crate) log_pii: bool,
 }
 
+impl TryFrom<ApplicationOptions> for AppConfig {
+    type Error = AF;
+
+    fn try_from(value: ApplicationOptions) -> Result<Self, Self::Error> {
+        let client_id = Uuid::try_parse(&value.client_id.to_string()).unwrap_or_default();
+        let cache_id = AppConfig::generate_cache_id(client_id, value.tenant_id.as_ref());
+        Ok(AppConfig {
+            tenant_id: value.tenant_id,
+            client_id: Uuid::try_parse(&value.client_id.to_string())?,
+            authority: value
+                .aad_authority_audience
+                .map(Authority::from)
+                .unwrap_or_default(),
+            azure_cloud_instance: value.azure_cloud_instance.unwrap_or_default(),
+            extra_query_parameters: Default::default(),
+            extra_header_parameters: Default::default(),
+            redirect_uri: None,
+            cache_id,
+            force_token_refresh: Default::default(),
+            log_pii: false,
+        })
+    }
+}
+
 impl Debug for AppConfig {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.log_pii {
@@ -65,46 +90,28 @@ impl Debug for AppConfig {
 }
 
 impl AppConfig {
-    pub(crate) fn new() -> AppConfig {
-        let client_id = Uuid::default();
-        let cache_id =
-            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string());
-
-        AppConfig {
-            tenant_id: None,
-            client_id,
-            authority: Default::default(),
-            azure_cloud_instance: Default::default(),
-            extra_query_parameters: Default::default(),
-            extra_header_parameters: Default::default(),
-            redirect_uri: None,
-            cache_id,
-            force_token_refresh: Default::default(),
-            log_pii: Default::default(),
+    fn generate_cache_id(client_id: Uuid, tenant_id: Option<&String>) -> String {
+        if let Some(tenant_id) = tenant_id.as_ref() {
+            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
+                "{},{}",
+                tenant_id,
+                client_id.to_string()
+            ))
+        } else {
+            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string())
         }
     }
-
     pub(crate) fn new_init(
         client_id: Uuid,
         tenant: Option<impl AsRef<str>>,
         redirect_uri: Option<Url>,
     ) -> AppConfig {
         let tenant_id: Option<String> = tenant.map(|value| value.as_ref().to_string());
-        let cache_id = {
-            if let Some(tenant_id) = tenant_id.as_ref() {
-                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
-                    "{},{}",
-                    tenant_id,
-                    client_id.to_string()
-                ))
-            } else {
-                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string())
-            }
-        };
+        let cache_id = AppConfig::generate_cache_id(client_id, tenant_id.as_ref());
 
         let authority = tenant_id
             .clone()
-            .map(|tenant| Authority::TenantId(tenant))
+            .map(Authority::TenantId)
             .unwrap_or_default();
 
         AppConfig {
@@ -123,8 +130,7 @@ impl AppConfig {
 
     pub(crate) fn new_with_client_id(client_id: impl AsRef<str>) -> AppConfig {
         let client_id = Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
-        let cache_id =
-            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string());
+        let cache_id = AppConfig::generate_cache_id(client_id, None);
 
         AppConfig {
             tenant_id: None,

@@ -10,7 +10,7 @@
 //! azure portal.
 //!
 //! Microsoft Identity Platform: https://docs.microsoft.com/en-us/azure/active-directory/develop/authentication-vs-authorization
-#![allow(dead_code, unused, unused_imports)]
+#![allow(dead_code, unused, unused_imports, clippy::module_inception)]
 
 #[macro_use]
 extern crate serde;
@@ -19,6 +19,7 @@ mod auth_code_grant;
 mod client_credentials;
 mod device_code;
 mod environment_credential;
+mod getting_tokens_manually;
 mod is_access_token_expired;
 mod openid;
 
@@ -26,60 +27,36 @@ use graph_rs_sdk::oauth::{
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential,
     ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
     DeviceCodeCredential, GenPkce, ProofKeyCodeExchange, PublicClientApplication, Token,
-    TokenCredentialExecutor, TokenRequest,
+    TokenCredentialExecutor,
 };
+use graph_rs_sdk::Graph;
 
 fn main() {}
 
-/*
-   // Some examples of what you can use for authentication and getting access tokens. There are
-   // more ways to perform oauth authorization.
-
-   // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
-   auth_code_grant::start_server_main().await;
-   auth_code_grant_pkce::start_server_main().await;
-
-   // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow
-   client_credentials_admin_consent::start_server_main().await;
-
-   // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
-   device_code::device_code();
-
-   // https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
-   open_id_connect::start_server_main().await;
-*/
-
-// Quick Examples
-
 // Authorization Code Grant
-async fn auth_code_grant(authorization_code: &str) {
-    let pkce = ProofKeyCodeExchange::oneshot().unwrap();
-
-    let credential =
-        AuthorizationCodeCredential::builder("CLIENT_ID", "CLIENT_SECRET", authorization_code)
-            .with_redirect_uri("http://localhost:8000/redirect")
+async fn auth_code_grant(
+    authorization_code: &str,
+    client_id: &str,
+    client_secret: &str,
+    scope: Vec<String>,
+    redirect_uri: &str,
+) {
+    let mut confidential_client =
+        AuthorizationCodeCredential::builder(client_id, client_secret, authorization_code)
+            .with_scope(scope)
+            .with_redirect_uri(redirect_uri)
             .unwrap()
-            .with_pkce(&pkce)
             .build();
 
-    let mut confidential_client = credential;
-
-    let response = confidential_client.execute_async().await.unwrap();
-    println!("{response:#?}");
-
-    let access_token: Token = response.json().await.unwrap();
-    println!("{:#?}", access_token.access_token);
+    let _graph_client = Graph::from(&confidential_client);
 }
 
 // Client Credentials Grant
 async fn client_credentials() {
     let mut confidential_client = ConfidentialClientApplication::builder("CLIENT_ID")
         .with_client_secret("CLIENT_SECRET")
+        .with_tenant("TENANT_ID")
         .build();
 
-    let response = confidential_client.execute_async().await.unwrap();
-    println!("{response:#?}");
-
-    let access_token: Token = response.json().await.unwrap();
-    println!("{:#?}", access_token.access_token);
+    let _graph_client = Graph::from(&confidential_client);
 }

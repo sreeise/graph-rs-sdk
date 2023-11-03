@@ -75,6 +75,7 @@ impl AzureCloudInstance {
         ))
     }
 
+    /*
     pub fn default_microsoft_graph_scope(&self) -> &'static str {
         "https://graph.microsoft.com/.default"
     }
@@ -89,6 +90,7 @@ impl AzureCloudInstance {
             }
         }
     }
+    */
 }
 
 /// Specifies which Microsoft accounts can be used for sign-in with a given application.

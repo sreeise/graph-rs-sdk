@@ -25,8 +25,8 @@ use crate::identity::{
     PollDeviceCodeType, PublicClientApplication, TokenCredentialExecutor,
 };
 use crate::oauth::Token;
+use crate::web::InteractiveAuthenticator;
 use crate::web::{InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
-use crate::web::{InteractiveAuthenticator, InteractiveWebView};
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -91,6 +91,33 @@ impl DeviceCodeCredential {
     pub fn builder(client_id: impl AsRef<str>) -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder::new(client_id.as_ref())
     }
+
+    fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
+        let response = self.execute()?;
+        let new_token: Token = response.json()?;
+        self.token_cache.store(cache_id, new_token.clone());
+
+        if new_token.refresh_token.is_some() {
+            self.refresh_token = new_token.refresh_token.clone();
+        }
+
+        Ok(new_token)
+    }
+
+    async fn execute_cached_token_refresh_async(
+        &mut self,
+        cache_id: String,
+    ) -> AuthExecutionResult<Token> {
+        let response = self.execute_async().await?;
+        let new_token: Token = response.json().await?;
+
+        if new_token.refresh_token.is_some() {
+            self.refresh_token = new_token.refresh_token.clone();
+        }
+
+        self.token_cache.store(cache_id, new_token.clone());
+        Ok(new_token)
+    }
 }
 
 impl Debug for DeviceCodeCredential {
@@ -108,39 +135,78 @@ impl TokenCache for DeviceCodeCredential {
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
-        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
-            if token.is_expired_sub(time::Duration::minutes(5)) {
-                let response = self.execute()?;
-                let new_token: Token = response.json()?;
-                self.token_cache.store(cache_id, new_token.clone());
-                Ok(new_token)
-            } else {
-                Ok(token)
+
+        match self.app_config.force_token_refresh {
+            ForceTokenRefresh::Never => {
+                // Attempt to bypass a read on the token store by using previous
+                // refresh token stored outside of RwLock
+                if self.refresh_token.is_some() {
+                    if let Ok(token) = self.execute_cached_token_refresh(cache_id.clone()) {
+                        return Ok(token);
+                    }
+                }
+
+                if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+                    if token.is_expired_sub(time::Duration::minutes(5)) {
+                        if let Some(refresh_token) = token.refresh_token.as_ref() {
+                            self.refresh_token = Some(refresh_token.to_owned());
+                        }
+
+                        self.execute_cached_token_refresh(cache_id)
+                    } else {
+                        Ok(token)
+                    }
+                } else {
+                    self.execute_cached_token_refresh(cache_id)
+                }
             }
-        } else {
-            let response = self.execute()?;
-            let new_token: Token = response.json()?;
-            self.token_cache.store(cache_id, new_token.clone());
-            Ok(new_token)
+            ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                let token_result = self.execute_cached_token_refresh(cache_id);
+                if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
+                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                }
+                token_result
+            }
         }
     }
 
     async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
-        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
-            if token.is_expired_sub(time::Duration::minutes(5)) {
-                let response = self.execute_async().await?;
-                let new_token: Token = response.json().await?;
-                self.token_cache.store(cache_id, new_token.clone());
-                Ok(new_token)
-            } else {
-                Ok(token.clone())
+
+        match self.app_config.force_token_refresh {
+            ForceTokenRefresh::Never => {
+                // Attempt to bypass a read on the token store by using previous
+                // refresh token stored outside of RwLock
+                if self.refresh_token.is_some() {
+                    if let Ok(token) = self
+                        .execute_cached_token_refresh_async(cache_id.clone())
+                        .await
+                    {
+                        return Ok(token);
+                    }
+                }
+
+                if let Some(old_token) = self.token_cache.get(cache_id.as_str()) {
+                    if old_token.is_expired_sub(time::Duration::minutes(5)) {
+                        if let Some(refresh_token) = old_token.refresh_token.as_ref() {
+                            self.refresh_token = Some(refresh_token.to_owned());
+                        }
+
+                        self.execute_cached_token_refresh_async(cache_id).await
+                    } else {
+                        Ok(old_token.clone())
+                    }
+                } else {
+                    self.execute_cached_token_refresh_async(cache_id).await
+                }
             }
-        } else {
-            let response = self.execute_async().await?;
-            let msal_token: Token = response.json().await?;
-            self.token_cache.store(cache_id, msal_token.clone());
-            Ok(msal_token)
+            ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                let token_result = self.execute_cached_token_refresh_async(cache_id).await;
+                if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
+                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                }
+                token_result
+            }
         }
     }
 }
@@ -152,17 +218,9 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
             .authority_device_code(&azure_cloud_instance, &self.authority());
 
         if self.device_code.is_none() && self.refresh_token.is_none() {
-            let uri = self
-                .serializer
-                .get(OAuthParameter::AuthorizationUrl)
-                .ok_or(AF::msg_internal_err("authorization_url"))?;
-            Url::parse(uri.as_str()).map_err(|_err| AF::msg_internal_err("authorization_url"))
+            Ok(self.azure_cloud_instance().auth_uri(&self.authority())?)
         } else {
-            let uri = self
-                .serializer
-                .get(OAuthParameter::TokenUrl)
-                .ok_or(AF::msg_internal_err("token_url"))?;
-            Url::parse(uri.as_str()).map_err(|_err| AF::msg_internal_err("token_url"))
+            Ok(self.azure_cloud_instance().token_uri(&self.authority())?)
         }
     }
 
@@ -289,14 +347,9 @@ impl DeviceCodeCredentialBuilder {
         self.credential.refresh_token = Some(refresh_token.as_ref().to_owned());
         self
     }
-
-    /*
-     pub fn build(&self) -> PublicClientApplication {
-        PublicClientApplication::from(self.credential.clone())
-    }
-     */
 }
 
+/*
 impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
     fn from(value: &DeviceCode) -> Self {
         DeviceCodeCredentialBuilder {
@@ -311,6 +364,7 @@ impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
         }
     }
 }
+ */
 
 pub struct DeviceCodePollingExecutor {
     credential: DeviceCodeCredential,
@@ -349,36 +403,34 @@ impl DeviceCodePollingExecutor {
 
         return match next {
             None => Err(anyhow::anyhow!("Unknown")),
-            Some(auth_event) => {
-                match auth_event {
-                    InteractiveAuthEvent::InvalidRedirectUri(reason) => {
-                        Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
-                    }
-                    InteractiveAuthEvent::TimedOut(duration) => {
-                        Err(anyhow::anyhow!("Webview timed out while waiting on redirect to valid redirect uri with timeout duration of {duration:#?}"))
-                    }
-                    InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                        let url_str = uri.as_str();
-                        let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
-                            "query | fragment",
-                            &format!("No query or fragment returned on redirect uri: {url_str}"),
-                        ))?;
+            Some(auth_event) => match auth_event {
+                InteractiveAuthEvent::InvalidRedirectUri(reason) => {
+                    Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
+                }
+                InteractiveAuthEvent::ReachedRedirectUri(uri) => {
+                    let url_str = uri.as_str();
+                    let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
+                        "query | fragment",
+                        &format!("No query or fragment returned on redirect uri: {url_str}"),
+                    ))?;
 
-                        let response_query: AuthorizationQueryResponse = serde_urlencoded::from_str(query)?;
-                        Ok(response_query)
-                    }
-                    InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
-                        match window_close_reason {
-                            WindowCloseReason::CloseRequested => {
-                                Err(anyhow::anyhow!("CloseRequested"))
-                            }
-                            WindowCloseReason::InvalidWindowNavigation => {
-                                Err(anyhow::anyhow!("InvalidWindowNavigation"))
-                            }
+                    let response_query: AuthorizationQueryResponse =
+                        serde_urlencoded::from_str(query)?;
+                    Ok(response_query)
+                }
+                InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
+                    match window_close_reason {
+                        WindowCloseReason::CloseRequested => Err(anyhow::anyhow!("CloseRequested")),
+                        WindowCloseReason::InvalidWindowNavigation => {
+                            Err(anyhow::anyhow!("InvalidWindowNavigation"))
                         }
+                        WindowCloseReason::TimedOut {
+                            start: _,
+                            requested_resume: _,
+                        } => Err(anyhow::anyhow!("TimedOut")),
                     }
                 }
-            }
+            },
         };
     }
 

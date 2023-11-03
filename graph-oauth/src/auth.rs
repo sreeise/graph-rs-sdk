@@ -6,7 +6,7 @@ use std::fmt;
 use url::form_urlencoded::Serializer;
 use url::Url;
 
-use graph_error::{AuthorizationFailure, GraphFailure, GraphResult, IdentityResult, AF};
+use graph_error::{AuthorizationFailure, GraphResult, IdentityResult, AF};
 
 use crate::identity::{AsQuery, Authority, AzureCloudInstance, Prompt};
 use crate::oauth::ResponseType;

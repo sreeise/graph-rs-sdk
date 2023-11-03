@@ -1,5 +1,6 @@
 use crate::web::WebViewOptions;
 use graph_error::IdentityResult;
+use std::time::Instant;
 use url::Url;
 
 pub trait InteractiveAuthenticator {
@@ -13,12 +14,15 @@ pub trait InteractiveAuthenticator {
 pub enum WindowCloseReason {
     CloseRequested,
     InvalidWindowNavigation,
+    TimedOut {
+        start: Instant,
+        requested_resume: Instant,
+    },
 }
 
 #[derive(Clone, Debug)]
 pub enum InteractiveAuthEvent {
     InvalidRedirectUri(String),
-    TimedOut(std::time::Duration),
     ReachedRedirectUri(Url),
     ClosingWindow(WindowCloseReason),
 }

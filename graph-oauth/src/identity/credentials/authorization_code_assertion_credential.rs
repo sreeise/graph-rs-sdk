@@ -4,11 +4,11 @@ use std::fmt::{Debug, Formatter};
 use async_trait::async_trait;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
-use url::Url;
+
 use uuid::Uuid;
 
 use graph_core::cache::{InMemoryCacheStore, TokenCache};
-use graph_error::{AuthExecutionError, IdentityResult, AF};
+use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
@@ -23,6 +23,8 @@ credential_builder!(
     ConfidentialClientApplication<AuthorizationCodeAssertionCredential>
 );
 
+/// Authorization Code Using An Assertion
+///
 /// The OAuth 2.0 authorization code grant type, or auth code flow, enables a client application
 /// to obtain authorized access to protected resources like web APIs. The auth code flow requires
 /// a user-agent that supports redirection from the authorization server (the Microsoft
@@ -99,10 +101,15 @@ impl AuthorizationCodeAssertionCredential {
     }
 
     pub fn builder(
+        client_id: impl AsRef<str>,
         authorization_code: impl AsRef<str>,
     ) -> AuthorizationCodeAssertionCredentialBuilder {
         AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
-            Default::default(),
+            AppConfig::new_init(
+                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
+                Option::<String>::None,
+                None,
+            ),
             authorization_code,
         )
     }
@@ -112,6 +119,33 @@ impl AuthorizationCodeAssertionCredential {
     ) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new(client_id)
     }
+
+    fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
+        let response = self.execute()?;
+        let new_token: Token = response.json()?;
+        self.token_cache.store(cache_id, new_token.clone());
+
+        if new_token.refresh_token.is_some() {
+            self.refresh_token = new_token.refresh_token.clone();
+        }
+
+        Ok(new_token)
+    }
+
+    async fn execute_cached_token_refresh_async(
+        &mut self,
+        cache_id: String,
+    ) -> AuthExecutionResult<Token> {
+        let response = self.execute_async().await?;
+        let new_token: Token = response.json().await?;
+
+        if new_token.refresh_token.is_some() {
+            self.refresh_token = new_token.refresh_token.clone();
+        }
+
+        self.token_cache.store(cache_id, new_token.clone());
+        Ok(new_token)
+    }
 }
 
 #[async_trait]
@@ -120,57 +154,84 @@ impl TokenCache for AuthorizationCodeAssertionCredential {
 
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
-        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
-            if token.is_expired_sub(time::Duration::minutes(5)) {
-                let response = self.execute()?;
-                let msal_token: Token = response.json()?;
-                self.token_cache.store(cache_id, msal_token.clone());
-                Ok(msal_token)
-            } else {
-                Ok(token)
+
+        match self.app_config.force_token_refresh {
+            ForceTokenRefresh::Never => {
+                // Attempt to bypass a read on the token store by using previous
+                // refresh token stored outside of RwLock
+                if self.refresh_token.is_some() {
+                    if let Ok(token) = self.execute_cached_token_refresh(cache_id.clone()) {
+                        return Ok(token);
+                    }
+                }
+
+                if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+                    if token.is_expired_sub(time::Duration::minutes(5)) {
+                        if let Some(refresh_token) = token.refresh_token.as_ref() {
+                            self.refresh_token = Some(refresh_token.to_owned());
+                        }
+
+                        self.execute_cached_token_refresh(cache_id)
+                    } else {
+                        Ok(token)
+                    }
+                } else {
+                    self.execute_cached_token_refresh(cache_id)
+                }
             }
-        } else {
-            let response = self.execute()?;
-            let msal_token: Token = response.json()?;
-            self.token_cache.store(cache_id, msal_token.clone());
-            Ok(msal_token)
+            ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                let token_result = self.execute_cached_token_refresh(cache_id);
+                if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
+                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                }
+                token_result
+            }
         }
     }
 
     async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
-        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
-            if token.is_expired_sub(time::Duration::minutes(5)) {
-                let response = self.execute_async().await?;
-                let msal_token: Token = response.json().await?;
-                self.token_cache.store(cache_id, msal_token.clone());
-                Ok(msal_token)
-            } else {
-                Ok(token.clone())
+
+        match self.app_config.force_token_refresh {
+            ForceTokenRefresh::Never => {
+                // Attempt to bypass a read on the token store by using previous
+                // refresh token stored outside of RwLock
+                if self.refresh_token.is_some() {
+                    if let Ok(token) = self
+                        .execute_cached_token_refresh_async(cache_id.clone())
+                        .await
+                    {
+                        return Ok(token);
+                    }
+                }
+
+                if let Some(old_token) = self.token_cache.get(cache_id.as_str()) {
+                    if old_token.is_expired_sub(time::Duration::minutes(5)) {
+                        if let Some(refresh_token) = old_token.refresh_token.as_ref() {
+                            self.refresh_token = Some(refresh_token.to_owned());
+                        }
+
+                        self.execute_cached_token_refresh_async(cache_id).await
+                    } else {
+                        Ok(old_token.clone())
+                    }
+                } else {
+                    self.execute_cached_token_refresh_async(cache_id).await
+                }
             }
-        } else {
-            let response = self.execute_async().await?;
-            let msal_token: Token = response.json().await?;
-            self.token_cache.store(cache_id, msal_token.clone());
-            Ok(msal_token)
+            ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                let token_result = self.execute_cached_token_refresh_async(cache_id).await;
+                if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
+                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                }
+                token_result
+            }
         }
     }
 }
 
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeAssertionCredential {
-    fn uri(&mut self) -> IdentityResult<Url> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        self.serializer
-            .authority(&azure_cloud_instance, &self.authority());
-
-        let uri = self
-            .serializer
-            .get(OAuthParameter::TokenUrl)
-            .ok_or(AF::msg_internal_err("token_url"))?;
-        Url::parse(uri.as_str()).map_err(AF::from)
-    }
-
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {

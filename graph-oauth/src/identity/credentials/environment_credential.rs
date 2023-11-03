@@ -1,18 +1,9 @@
-use std::collections::HashMap;
 use std::env::VarError;
 use std::fmt::{Debug, Formatter};
 
-use url::Url;
-use uuid::Uuid;
-
-use graph_error::IdentityResult;
-
-use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ClientSecretCredential, TokenCredentialExecutor,
-};
-use crate::oauth::{
-    ConfidentialClientApplication, PublicClientApplication, ResourceOwnerPasswordCredential,
+    ClientSecretCredential, ConfidentialClientApplication, PublicClientApplication,
+    ResourceOwnerPasswordCredential,
 };
 
 const AZURE_TENANT_ID: &str = "AZURE_TENANT_ID";
@@ -22,9 +13,7 @@ const AZURE_USERNAME: &str = "AZURE_USERNAME";
 const AZURE_PASSWORD: &str = "AZURE_PASSWORD";
 
 #[derive(Clone)]
-pub struct EnvironmentCredential {
-    pub credential: Box<dyn TokenCredentialExecutor + Send>,
-}
+pub struct EnvironmentCredential;
 
 impl Debug for EnvironmentCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -139,64 +128,3 @@ impl EnvironmentCredential {
         }
     }
 }
-
-impl TokenCredentialExecutor for EnvironmentCredential {
-    fn uri(&mut self) -> IdentityResult<Url> {
-        self.credential.uri()
-    }
-
-    fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        self.credential.form_urlencode()
-    }
-
-    fn client_id(&self) -> &Uuid {
-        self.credential.client_id()
-    }
-
-    fn authority(&self) -> Authority {
-        self.credential.authority()
-    }
-
-    fn azure_cloud_instance(&self) -> AzureCloudInstance {
-        self.app_config().azure_cloud_instance
-    }
-
-    fn app_config(&self) -> &AppConfig {
-        self.credential.app_config()
-    }
-}
-
-/*
-impl From<ClientSecretCredential> for EnvironmentCredential {
-    fn from(value: ClientSecretCredential) -> Self {
-        EnvironmentCredential {
-            credential: Box::new(value),
-        }
-    }
-}
-
-impl From<ResourceOwnerPasswordCredential> for EnvironmentCredential {
-    fn from(value: ResourceOwnerPasswordCredential) -> Self {
-        EnvironmentCredential {
-            credential: Box::new(value),
-        }
-    }
-}
-
-impl From<ConfidentialClientApplication> for EnvironmentCredential {
-    fn from(value: ConfidentialClientApplication) -> Self {
-        EnvironmentCredential {
-            credential: Box::new(value),
-        }
-    }
-}
-
-impl From<PublicClientApplication> for EnvironmentCredential {
-    fn from(value: PublicClientApplication) -> Self {
-        EnvironmentCredential {
-            credential: Box::new(value),
-        }
-    }
-}
-
- */

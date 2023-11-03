@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 use graph_core::cache::{AsBearer, TokenCache};
 use graph_core::identity::ClientApplication;
-use graph_error::{AuthExecutionResult, GraphResult, IdentityResult, AF};
+use graph_error::{AuthExecutionResult, IdentityResult, AF};
 
 use crate::identity::{
     credentials::app_config::AppConfig,
@@ -19,7 +19,7 @@ use crate::identity::{
     AuthorizationCodeCredential, AuthorizationQueryResponse, AzureCloudInstance,
     ClientCertificateCredential, ClientSecretCredential, OpenIdCredential, TokenCredentialExecutor,
 };
-use crate::oauth::{AuthCodeAuthorizationUrlParameterBuilder, AuthCodeAuthorizationUrlParameters};
+use crate::oauth::AuthCodeAuthorizationUrlParameters;
 use crate::web::{
     InteractiveAuthEvent, InteractiveAuthenticator, WebViewOptions, WindowCloseReason,
 };
@@ -211,36 +211,34 @@ impl ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters> {
 
         return match next {
             None => Err(anyhow::anyhow!("Unknown")),
-            Some(auth_event) => {
-                match auth_event {
-                    InteractiveAuthEvent::InvalidRedirectUri(reason) => {
-                        Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
-                    }
-                    InteractiveAuthEvent::TimedOut(duration) => {
-                        Err(anyhow::anyhow!("Webview timed out while waiting on redirect to valid redirect uri with timeout duration of {duration:#?}"))
-                    }
-                    InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                        let url_str = uri.as_str();
-                        let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
-                            "query | fragment",
-                            &format!("No query or fragment returned on redirect uri: {url_str}"),
-                        ))?;
+            Some(auth_event) => match auth_event {
+                InteractiveAuthEvent::InvalidRedirectUri(reason) => {
+                    Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
+                }
+                InteractiveAuthEvent::ReachedRedirectUri(uri) => {
+                    let url_str = uri.as_str();
+                    let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
+                        "query | fragment",
+                        &format!("No query or fragment returned on redirect uri: {url_str}"),
+                    ))?;
 
-                        let response_query: AuthorizationQueryResponse = serde_urlencoded::from_str(query)?;
-                        Ok(response_query)
-                    }
-                    InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
-                        match window_close_reason {
-                            WindowCloseReason::CloseRequested => {
-                                Err(anyhow::anyhow!("CloseRequested"))
-                            }
-                            WindowCloseReason::InvalidWindowNavigation => {
-                                Err(anyhow::anyhow!("InvalidWindowNavigation"))
-                            }
+                    let response_query: AuthorizationQueryResponse =
+                        serde_urlencoded::from_str(query)?;
+                    Ok(response_query)
+                }
+                InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
+                    match window_close_reason {
+                        WindowCloseReason::CloseRequested => Err(anyhow::anyhow!("CloseRequested")),
+                        WindowCloseReason::InvalidWindowNavigation => {
+                            Err(anyhow::anyhow!("InvalidWindowNavigation"))
                         }
+                        WindowCloseReason::TimedOut {
+                            start: _,
+                            requested_resume: _,
+                        } => Err(anyhow::anyhow!("TimedOut")),
                     }
                 }
-            }
+            },
         };
     }
 }

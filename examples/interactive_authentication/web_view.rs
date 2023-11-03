@@ -2,6 +2,8 @@ use graph_rs_sdk::oauth::{
     web::Theme, web::WebViewOptions, AuthorizationCodeCredential, TokenCredentialExecutor,
 };
 use graph_rs_sdk::Graph;
+use std::ops::Add;
+use std::time::{Duration, Instant};
 
 static CLIENT_ID: &str = "CLIENT_ID";
 static CLIENT_SECRET: &str = "CLIENT_SECRET";
@@ -57,19 +59,4 @@ async fn authenticate() {
     println!("{response:#?}");
     let body: serde_json::Value = response.json().await.unwrap();
     println!("{body:#?}");
-}
-
-async fn customize_webview() {
-    let mut credential_builder = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
-        .with_tenant(TENANT_ID)
-        .with_scope(vec!["user.read"])
-        .with_offline_access() // Adds offline_access as a scope which is needed to get a refresh token.
-        .with_redirect_uri(REDIRECT_URI)
-        .interactive_authentication(Some(
-            WebViewOptions::builder()
-                .with_window_title("Sign In")
-                .with_theme(Theme::Dark)
-                .with_close_window_on_invalid_navigation(true),
-        ))
-        .unwrap();
 }

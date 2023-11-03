@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 
 use async_trait::async_trait;
 use http::{HeaderMap, HeaderName, HeaderValue};
-use url::Url;
+
 use uuid::Uuid;
 
 use graph_core::cache::{InMemoryCacheStore, TokenCache};
@@ -143,21 +143,6 @@ impl TokenCache for ClientSecretCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for ClientSecretCredential {
-    fn uri(&mut self) -> IdentityResult<Url> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        self.serializer
-            .authority(&azure_cloud_instance, &self.authority());
-
-        let uri =
-            self.serializer
-                .get(OAuthParameter::TokenUrl)
-                .ok_or(AuthorizationFailure::msg_err(
-                    "token_url for access and refresh tokens missing",
-                    "Internal Error",
-                ))?;
-        Url::parse(uri.as_str()).map_err(AuthorizationFailure::from)
-    }
-
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {

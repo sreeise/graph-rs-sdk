@@ -19,6 +19,27 @@ use url::Url;
 
 // See examples/oauth/openid for a full example.
 
+// Use the form post response mode when listening on a server instead
+// of the URL query because the the query does not get sent to servers.
+fn openid_authorization_url3(
+    client_id: &str,
+    tenant: &str,
+    redirect_uri: &str,
+    state: &str,
+    scope: Vec<&str>,
+) -> IdentityResult<Url> {
+    OpenIdCredential::authorization_url_builder(client_id)
+        .with_tenant(tenant)
+        //.with_default_scope()?
+        .with_redirect_uri(redirect_uri)?
+        .with_response_mode(ResponseMode::FormPost)
+        .with_response_type([ResponseType::IdToken, ResponseType::Code])
+        .with_prompt(Prompt::SelectAccount)
+        .with_state(state)
+        .with_scope(scope)
+        .build()
+        .url()
+}
 fn open_id_authorization_url(
     client_id: &str,
     tenant: &str,
@@ -47,26 +68,4 @@ fn open_id_authorization_url2(
         .with_scope(scope)
         .build()
         .url()
-}
-
-// Use the form post response mode when listening on a server instead
-// of the URL query because the the query does not get sent to servers.
-fn openid_authorization_url3(
-    client_id: &str,
-    tenant: &str,
-    redirect_uri: &str,
-    state: &str,
-    scope: Vec<&str>,
-) -> IdentityResult<Url> {
-    Ok(OpenIdCredential::authorization_url_builder(client_id)
-        .with_tenant(tenant)
-        //.with_default_scope()?
-        .with_redirect_uri(redirect_uri)?
-        .with_response_mode(ResponseMode::FormPost)
-        .with_response_type([ResponseType::IdToken, ResponseType::Code])
-        .with_prompt(Prompt::SelectAccount)
-        .with_state(state)
-        .with_scope(scope)
-        .build()
-        .url()?)
 }

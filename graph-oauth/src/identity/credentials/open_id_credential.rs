@@ -107,8 +107,8 @@ impl OpenIdCredential {
         self.refresh_token = Some(refresh_token.as_ref().to_owned());
     }
 
-    pub fn builder() -> OpenIdCredentialBuilder {
-        OpenIdCredentialBuilder::new()
+    pub fn builder(client_id: impl TryInto<Uuid>) -> OpenIdCredentialBuilder {
+        OpenIdCredentialBuilder::new(client_id)
     }
 
     pub fn authorization_url_builder(
@@ -163,9 +163,8 @@ impl TokenCache for OpenIdCredential {
                 // Attempt to bypass a read on the token store by using previous
                 // refresh token stored outside of RwLock
                 if self.refresh_token.is_some() {
-                    match self.execute_cached_token_refresh(cache_id.clone()) {
-                        Ok(token) => return Ok(token),
-                        Err(_) => {}
+                    if let Ok(token) = self.execute_cached_token_refresh(cache_id.clone()) {
+                        return Ok(token);
                     }
                 }
 
@@ -177,7 +176,7 @@ impl TokenCache for OpenIdCredential {
 
                         self.execute_cached_token_refresh(cache_id)
                     } else {
-                        Ok(token.clone())
+                        Ok(token)
                     }
                 } else {
                     self.execute_cached_token_refresh(cache_id)
@@ -201,12 +200,11 @@ impl TokenCache for OpenIdCredential {
                 // Attempt to bypass a read on the token store by using previous
                 // refresh token stored outside of RwLock
                 if self.refresh_token.is_some() {
-                    match self
+                    if let Ok(token) = self
                         .execute_cached_token_refresh_async(cache_id.clone())
                         .await
                     {
-                        Ok(token) => return Ok(token),
-                        Err(_) => {}
+                        return Ok(token);
                     }
                 }
 
@@ -237,18 +235,6 @@ impl TokenCache for OpenIdCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for OpenIdCredential {
-    fn uri(&mut self) -> IdentityResult<Url> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        self.serializer
-            .authority(&azure_cloud_instance, &self.app_config.authority);
-
-        let uri = self
-            .serializer
-            .get(OAuthParameter::TokenUrl)
-            .ok_or(AF::msg_internal_err("access_token_url"))?;
-        Url::parse(uri.as_str()).map_err(AF::from)
-    }
-
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
@@ -354,10 +340,27 @@ pub struct OpenIdCredentialBuilder {
 }
 
 impl OpenIdCredentialBuilder {
-    fn new() -> OpenIdCredentialBuilder {
-        let redirect_url = Url::parse("http://localhost").expect("Internal Error - please report");
-        let mut app_config = AppConfig::new();
-        app_config.redirect_uri = Some(redirect_url);
+    fn new(client_id: impl TryInto<Uuid>) -> OpenIdCredentialBuilder {
+        Self {
+            credential: OpenIdCredential {
+                app_config: AppConfig::new_init(
+                    client_id.try_into().unwrap_or_default(),
+                    Option::<String>::None,
+                    Some(Url::parse("http://localhost").expect("Internal Error - please report")),
+                ),
+                authorization_code: None,
+                refresh_token: None,
+                client_secret: String::new(),
+                scope: vec!["openid".to_owned()],
+                code_verifier: None,
+                pkce: None,
+                serializer: Default::default(),
+                token_cache: Default::default(),
+            },
+        }
+    }
+
+    fn new_with_app_config(app_config: AppConfig) -> OpenIdCredentialBuilder {
         Self {
             credential: OpenIdCredential {
                 app_config,
@@ -441,8 +444,7 @@ impl OpenIdCredentialBuilder {
 
 impl From<OpenIdAuthorizationUrlParameters> for OpenIdCredentialBuilder {
     fn from(value: OpenIdAuthorizationUrlParameters) -> Self {
-        let mut builder = OpenIdCredentialBuilder::new();
-        builder.credential.app_config = value.app_config;
+        let mut builder = OpenIdCredentialBuilder::new_with_app_config(value.app_config);
         builder.with_scope(value.scope);
 
         builder
@@ -461,7 +463,7 @@ mod test {
 
     #[test]
     fn with_tenant_id_common() {
-        let credential = OpenIdCredential::builder()
+        let credential = OpenIdCredential::builder(Uuid::new_v4())
             .with_authority(Authority::TenantId("common".into()))
             .build();
 
@@ -470,7 +472,7 @@ mod test {
 
     #[test]
     fn with_tenant_id_adfs() {
-        let credential = OpenIdCredential::builder()
+        let credential = OpenIdCredential::builder(Uuid::new_v4())
             .with_authority(Authority::AzureDirectoryFederatedServices)
             .build();
 

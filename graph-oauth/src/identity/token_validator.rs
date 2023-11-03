@@ -8,7 +8,8 @@ impl TokenValidator {
         TokenValidator::default()
     }
 
-    pub fn with_application_id(&mut self, aud: impl AsRef<str>) -> &mut Self {
+    // Validate the audience
+    pub fn with_aud(&mut self, aud: impl AsRef<str>) -> &mut Self {
         self.application_id = Some(aud.as_ref().to_owned());
         self
     }

@@ -3,11 +3,11 @@ use std::fmt::{Debug, Formatter};
 
 use async_trait::async_trait;
 use http::{HeaderMap, HeaderName, HeaderValue};
-use url::Url;
+
 use uuid::Uuid;
 
 use graph_core::cache::{InMemoryCacheStore, TokenCache};
-use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult, AF};
+use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
@@ -26,19 +26,48 @@ credential_builder!(
     ConfidentialClientApplication<ClientCertificateCredential>
 );
 
-/// https://learn.microsoft.com/en-us/azure/active-directory/develop/active-directory-certificate-credentials
+/// Client Credentials Using A Certificate
+///
+/// The OAuth 2.0 client credentials grant flow permits a web service (confidential client) to use
+/// its own credentials, instead of impersonating a user, to authenticate when calling another
+/// web service. The grant specified in RFC 6749, sometimes called two-legged OAuth, can be used
+/// to access web-hosted resources by using the identity of an application. This type is commonly
+/// used for server-to-server interactions that must run in the background, without immediate
+/// interaction with a user, and is often referred to as daemons or service accounts.
+/// For more information on the flow see
+/// [Token Request With a Certificate](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate)
+///
+/// The SDK handles certificates and creating the assertion automatically using the
+/// openssl crate. This is significantly easier than having to format the assertion from
+/// the certificate yourself. If you need to use your own assertion see
+/// [ClientAssertionCredential](crate::identity::ClientAssertionCredential)
 #[derive(Clone)]
 #[allow(dead_code)]
 pub struct ClientCertificateCredential {
     pub(crate) app_config: AppConfig,
-    /// The value passed for the scope parameter in this request should be the resource
-    /// identifier (application ID URI) of the resource you want, affixed with the .default
-    /// suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
-    /// Default is https://graph.microsoft.com/.default.
+    /// The value passed for the scope parameter in this request should be the resource identifier
+    /// (application ID URI) of the resource you want, affixed with the .default suffix.
+    /// All scopes included must be for a single resource. Including scopes for multiple
+    /// resources will result in an error.
+    ///
+    /// For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
+    /// This value tells the Microsoft identity platform that of all the direct application
+    /// permissions you have configured for your app, the endpoint should issue a token for the
+    /// ones associated with the resource you want to use. To learn more about the /.default scope,
+    /// see the [consent documentation](https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview#the-default-scope).
     pub(crate) scope: Vec<String>,
+    /// The value must be set to urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+    /// This value is automatically set by the SDK.
     pub(crate) client_assertion_type: String,
+    /// An assertion (a JSON web token) that you need to create and sign with the certificate
+    /// you registered as credentials for your application. Read about
+    /// [certificate credentials](https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials)
+    /// to learn how to register your certificate and the format of the assertion.
+    ///
+    /// The SDK handles certificates and creating the assertion automatically using the
+    /// openssl crate. This is significantly easier than having to format the assertion from
+    /// the certificate yourself.
     pub(crate) client_assertion: String,
-    pub(crate) refresh_token: Option<String>,
     serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
@@ -50,7 +79,6 @@ impl ClientCertificateCredential {
             scope: vec!["https://graph.microsoft.com/.default".into()],
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
-            refresh_token: None,
             serializer: Default::default(),
             token_cache: Default::default(),
         }
@@ -64,11 +92,6 @@ impl ClientCertificateCredential {
         let mut builder = ClientCertificateCredentialBuilder::new(client_id.as_ref());
         builder.with_certificate(x509)?;
         Ok(builder.credential)
-    }
-
-    pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) -> &mut Self {
-        self.refresh_token = Some(refresh_token.as_ref().to_owned());
-        self
     }
 
     pub fn builder<T: AsRef<str>>(client_id: T) -> ClientCertificateCredentialBuilder {
@@ -136,18 +159,6 @@ impl TokenCache for ClientCertificateCredential {
 
 #[async_trait]
 impl TokenCredentialExecutor for ClientCertificateCredential {
-    fn uri(&mut self) -> IdentityResult<Url> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        self.serializer
-            .authority(&azure_cloud_instance, &self.authority());
-
-        let uri = self
-            .serializer
-            .get(OAuthParameter::TokenUrl)
-            .ok_or(AF::msg_err("token_url", "Internal Error"))?;
-        Url::parse(uri.as_str()).map_err(AF::from)
-    }
-
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
@@ -165,48 +176,23 @@ impl TokenCredentialExecutor for ClientCertificateCredential {
         self.serializer
             .client_id(client_id.as_str())
             .client_assertion(self.client_assertion.as_str())
-            .client_assertion_type(self.client_assertion_type.as_str());
+            .client_assertion_type(self.client_assertion_type.as_str())
+            .grant_type("client_credentials");
 
         if self.scope.is_empty() {
             self.serializer
                 .add_scope("https://graph.microsoft.com/.default");
         }
 
-        return if let Some(refresh_token) = self.refresh_token.as_ref() {
-            if refresh_token.trim().is_empty() {
-                return AuthorizationFailure::msg_result(
-                    OAuthParameter::RefreshToken.alias(),
-                    "refresh_token is set but is empty",
-                );
-            }
-
-            self.serializer
-                .refresh_token(refresh_token.as_ref())
-                .grant_type("refresh_token");
-
-            self.serializer.as_credential_map(
-                vec![OAuthParameter::Scope],
-                vec![
-                    OAuthParameter::ClientId,
-                    OAuthParameter::GrantType,
-                    OAuthParameter::ClientAssertion,
-                    OAuthParameter::ClientAssertionType,
-                    OAuthParameter::RefreshToken,
-                ],
-            )
-        } else {
-            self.serializer.grant_type("client_credentials");
-
-            self.serializer.as_credential_map(
-                vec![OAuthParameter::Scope],
-                vec![
-                    OAuthParameter::ClientId,
-                    OAuthParameter::GrantType,
-                    OAuthParameter::ClientAssertion,
-                    OAuthParameter::ClientAssertionType,
-                ],
-            )
-        };
+        self.serializer.as_credential_map(
+            vec![OAuthParameter::Scope],
+            vec![
+                OAuthParameter::ClientId,
+                OAuthParameter::GrantType,
+                OAuthParameter::ClientAssertion,
+                OAuthParameter::ClientAssertionType,
+            ],
+        )
     }
 
     fn client_id(&self) -> &Uuid {
@@ -238,8 +224,7 @@ impl ClientCertificateCredentialBuilder {
                 app_config: AppConfig::new_with_client_id(client_id.as_ref()),
                 scope: vec!["https://graph.microsoft.com/.default".into()],
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
-                client_assertion: String::new(),
-                refresh_token: None,
+                client_assertion: Default::default(),
                 serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
@@ -256,8 +241,7 @@ impl ClientCertificateCredentialBuilder {
                 app_config,
                 scope: vec!["https://graph.microsoft.com/.default".into()],
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
-                client_assertion: String::new(),
-                refresh_token: None,
+                client_assertion: Default::default(),
                 serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
@@ -278,11 +262,6 @@ impl ClientCertificateCredentialBuilder {
 
     pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
         self.credential.client_assertion = client_assertion.as_ref().to_owned();
-        self
-    }
-
-    pub fn with_refresh_token<T: AsRef<str>>(&mut self, refresh_token: T) -> &mut Self {
-        self.credential.refresh_token = Some(refresh_token.as_ref().to_owned());
         self
     }
 

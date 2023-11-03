@@ -135,9 +135,8 @@ impl TokenCache for AuthorizationCodeCredential {
                 // Attempt to bypass a read on the token store by using previous
                 // refresh token stored outside of RwLock
                 if self.refresh_token.is_some() {
-                    match self.execute_cached_token_refresh(cache_id.clone()) {
-                        Ok(token) => return Ok(token),
-                        Err(_) => {}
+                    if let Ok(token) = self.execute_cached_token_refresh(cache_id.clone()) {
+                        return Ok(token);
                     }
                 }
 
@@ -149,7 +148,7 @@ impl TokenCache for AuthorizationCodeCredential {
 
                         self.execute_cached_token_refresh(cache_id)
                     } else {
-                        Ok(token.clone())
+                        Ok(token)
                     }
                 } else {
                     self.execute_cached_token_refresh(cache_id)
@@ -173,12 +172,11 @@ impl TokenCache for AuthorizationCodeCredential {
                 // Attempt to bypass a read on the token store by using previous
                 // refresh token stored outside of RwLock
                 if self.refresh_token.is_some() {
-                    match self
+                    if let Ok(token) = self
                         .execute_cached_token_refresh_async(cache_id.clone())
                         .await
                     {
-                        Ok(token) => return Ok(token),
-                        Err(_) => {}
+                        return Ok(token);
                     }
                 }
 
@@ -364,18 +362,6 @@ impl From<AuthorizationCodeCredential> for AuthorizationCodeCredentialBuilder {
 
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCredential {
-    fn uri(&mut self) -> IdentityResult<Url> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        self.serializer
-            .authority(&azure_cloud_instance, &self.authority());
-
-        let uri = self
-            .serializer
-            .get(OAuthParameter::TokenUrl)
-            .ok_or(AF::msg_err("access_token_url", "Internal Error"))?;
-        Url::parse(uri.as_str()).map_err(AF::from)
-    }
-
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
@@ -565,8 +551,8 @@ mod test {
     fn should_force_refresh_test() {
         let uuid_value = Uuid::new_v4().to_string();
         let mut credential_builder =
-            AuthorizationCodeCredential::builder(uuid_value.clone(), "secret".to_string(), "code");
-        let mut credential = credential_builder
+            AuthorizationCodeCredential::builder(uuid_value, "secret".to_string(), "code");
+        let _credential = credential_builder
             .with_redirect_uri("https://localhost")
             .unwrap()
             .with_client_secret("client_secret")

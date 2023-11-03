@@ -25,4 +25,11 @@ impl<Value: Clone> InMemoryCacheStore<Value> {
         drop(read_lock);
         token
     }
+
+    pub fn evict(&self, cache_id: &str) -> Option<Value> {
+        let mut write_lock = self.store.write().unwrap();
+        let token = write_lock.remove(cache_id);
+        drop(write_lock);
+        token
+    }
 }
