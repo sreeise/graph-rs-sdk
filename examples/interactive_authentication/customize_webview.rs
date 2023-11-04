@@ -16,6 +16,6 @@ async fn customize_webview(tenant_id: &str, client_id: &str, scope: Vec<&str>, r
         .with_scope(scope)
         .with_offline_access() // Adds offline_access as a scope which is needed to get a refresh token.
         .with_redirect_uri(redirect_uri)
-        .interactive_authentication(Some(get_webview_options()))
+        .with_interactive_authentication(Some(get_webview_options()))
         .unwrap();
 }

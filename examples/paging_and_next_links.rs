@@ -5,6 +5,8 @@ use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
+// See examples/paging for more examples.
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct User {
     pub(crate) id: Option<String>,

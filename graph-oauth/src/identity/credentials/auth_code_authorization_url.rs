@@ -49,12 +49,15 @@ credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 /// to build the url that the user will be directed to authorize at.
 ///
 /// ```rust
-/// # use graph_oauth::identity::ConfidentialClientApplication;///
+/// # use graph_oauth::oauth::{ConfidentialClientApplication, Prompt};
 ///
 /// let client_app = ConfidentialClientApplication::builder("client-id")
 ///     .auth_code_url_builder()
-///     .with_client_secret("client-secret")
+///     .with_tenant("tenant-id")
+///     .with_prompt(Prompt::Login)
+///     .with_state("1234")
 ///     .with_scope(vec!["User.Read"])
+///     .with_redirect_uri("http://localhost:8000")
 ///     .build();
 ///
 /// ```
@@ -249,7 +252,6 @@ pub(crate) mod web_view_authenticator {
             let uri = self.url()?;
             let redirect_uri = self.redirect_uri().cloned().unwrap();
             let web_view_options = interactive_web_view_options.unwrap_or_default();
-            let _timeout = web_view_options.timeout;
             let (sender, receiver) = std::sync::mpsc::channel();
 
             std::thread::spawn(move || {
@@ -556,7 +558,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self
     }
 
-    pub fn interactive_authentication(
+    pub fn with_interactive_authentication(
         &self,
         options: Option<WebViewOptions>,
     ) -> anyhow::Result<AuthorizationCodeCredentialBuilder> {

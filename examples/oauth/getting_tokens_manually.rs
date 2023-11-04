@@ -1,3 +1,4 @@
+use graph_core::identity::ClientApplication;
 use graph_rs_sdk::oauth::{
     AuthorizationCodeCredential, ConfidentialClientApplication, Token, TokenCredentialExecutor,
 };
@@ -20,19 +21,36 @@ async fn auth_code_grant(
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
-    let access_token: Token = response.json().await.unwrap();
-    println!("{:#?}", access_token.access_token);
+    let token: Token = response.json().await.unwrap();
+    println!("{:#?}", token.access_token);
 }
 
 // Client Credentials Grant
 async fn client_credentials() {
     let mut confidential_client = ConfidentialClientApplication::builder("CLIENT_ID")
         .with_client_secret("CLIENT_SECRET")
+        .with_tenant("TENANT_ID")
         .build();
 
     let response = confidential_client.execute_async().await.unwrap();
     println!("{response:#?}");
 
-    let access_token: Token = response.json().await.unwrap();
-    println!("{:#?}", access_token.access_token);
+    let token: Token = response.json().await.unwrap();
+    println!("{:#?}", token.access_token);
+}
+
+// Use get_token_silent and get_token_silent_async to have the
+// credential client check the in memory token cache before making
+// an http request to get a new token.
+
+// The execute and execute_async methods do not store or retrieve any
+// tokens from the cache.
+async fn using_token_cache() {
+    let mut confidential_client = ConfidentialClientApplication::builder("CLIENT_ID")
+        .with_client_secret("CLIENT_SECRET")
+        .with_tenant("TENANT_ID")
+        .build();
+
+    let access_token = confidential_client.get_token_silent_async().await.unwrap();
+    println!("{access_token:#?}");
 }

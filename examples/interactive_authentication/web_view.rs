@@ -47,7 +47,7 @@ async fn authenticate() {
         .with_scope(vec!["user.read"])
         .with_offline_access() // Adds offline_access as a scope which is needed to get a refresh token.
         .with_redirect_uri(REDIRECT_URI)
-        .interactive_authentication(None)
+        .with_interactive_authentication(None)
         .unwrap();
 
     let mut confidential_client = credential_builder.with_client_secret(CLIENT_SECRET).build();

@@ -10,26 +10,7 @@
 // only has to be done once for a user. After admin consent is given, the oauth client can be
 // used to continue getting new access tokens programmatically.
 
-mod client_credentials_admin_consent;
-
-pub use client_credentials_admin_consent::*;
+mod client_credentials_secret;
+mod server_examples;
 
 use graph_rs_sdk::{oauth::ConfidentialClientApplication, Graph};
-
-// This example shows programmatically getting an access token using the client credentials
-// flow after admin consent has been granted. If you have not granted admin consent, see
-// examples/client_credentials_admin_consent.rs for more info.
-
-// Replace client id, client secret, and tenant id with your own values.
-static CLIENT_ID: &str = "<CLIENT_ID>";
-static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
-static TENANT_ID: &str = "<TENANT_ID>";
-
-pub async fn get_graph_client() -> Graph {
-    let mut confidential_client_application = ConfidentialClientApplication::builder(CLIENT_ID)
-        .with_client_secret(CLIENT_SECRET)
-        .with_tenant(TENANT_ID)
-        .build();
-
-    Graph::from(&confidential_client_application)
-}
