@@ -340,6 +340,10 @@ impl ResourceSettings {
 							ApiClientLink::StructId("list", "DrivesListApiClient"),
 							ApiClientLink::StructId("items", "DrivesItemsApiClient"),
 							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
+                            ApiClientLink::Struct("workbook", "WorkbookApiClient"),
+                            ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
+                            ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
+                            ApiClientLink::Struct("worksheets_used_range", "WorksheetsUsedRangeApiClient"), 
 						])
 					],
 				},
@@ -1952,8 +1956,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.filter_path(vec!["items", "list"])
 			.children(map_write_config(vec![
 				ResourceIdentity::DrivesList, ResourceIdentity::DrivesItems, ResourceIdentity::DrivesListContentTypes,
-				ResourceIdentity::Workbook, ResourceIdentity::WorkbookTables, ResourceIdentity::Worksheets,
-				ResourceIdentity::WorksheetTableColumns
+				ResourceIdentity::Workbook, ResourceIdentity::Worksheets, ResourceIdentity::WorksheetsUsedRange,
 			]))
 			.build()
 			.unwrap(),
@@ -1973,21 +1976,16 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.unwrap(),
 		ResourceIdentity::Workbook => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}")
-			.filter_path(vec!["worksheets", "functions", "tables"])
-			.build()
-			.unwrap(),
-		ResourceIdentity::WorkbookTables => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
-			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook")
-			.filter_path(vec!["columns"])
+			.filter_path(vec!["worksheets", "tables", "functions", "names", "comments"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::Worksheets => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook")
-			.filter_path(vec!["tables", "operations", "names", "functions", "comments"])
+			.filter_path(vec!["usedRange","tables", "charts", "names", "pivotTables"])
 			.build()
 			.unwrap(),
-		ResourceIdentity::WorksheetTableColumns => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
-			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tables/{workbookTable-id}")
+		ResourceIdentity::WorksheetsUsedRange => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}")
 			.build()
 			.unwrap(),
 
