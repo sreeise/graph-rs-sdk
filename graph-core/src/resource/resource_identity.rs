@@ -243,7 +243,10 @@ pub enum ResourceIdentity {
     VppTokens,
     WindowsAutopilotDeviceIdentities,
     WindowsInformationProtectionPolicies,
-    Workbooks,
+    Workbook,
+    WorkbookTables,
+    Worksheets,
+    WorksheetTableColumns,
 }
 
 impl ToString for ResourceIdentity {
@@ -357,6 +360,9 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::TermStoreSetsParentGroup => "parentGroup".into(),
             ResourceIdentity::TermStoreSetsRelations => "relations".into(),
             ResourceIdentity::TermStoreSetsTerms => "terms".into(),
+            ResourceIdentity::WorksheetCharts => "charts".into(),
+            ResourceIdentity::WorkbookTables => "tables".into(),
+            ResourceIdentity::WorksheetTableColumns => "columns".into(),
             ResourceIdentity::Custom => "".into(),
 
             _ => self.as_ref().to_camel_case(),
@@ -478,7 +484,6 @@ pub enum TopLevelResource {
     TeamsTemplates,
     Teamwork,
     Users,
-    Workbooks,
 }
 
 impl ToString for TopLevelResource {

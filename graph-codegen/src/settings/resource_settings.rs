@@ -1950,7 +1950,11 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 
 		ResourceIdentity::Drives => WriteConfiguration::builder(resource_identity)
 			.filter_path(vec!["items", "list"])
-			.children(map_write_config(vec![ResourceIdentity::DrivesList, ResourceIdentity::DrivesItems, ResourceIdentity::DrivesListContentTypes]))
+			.children(map_write_config(vec![
+				ResourceIdentity::DrivesList, ResourceIdentity::DrivesItems, ResourceIdentity::DrivesListContentTypes,
+				ResourceIdentity::Workbook, ResourceIdentity::WorkbookTables, ResourceIdentity::Worksheets,
+				ResourceIdentity::WorksheetTableColumns
+			]))
 			.build()
 			.unwrap(),
 		ResourceIdentity::DrivesList => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
@@ -1967,6 +1971,26 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.filter_path(vec!["workbook", "getActivitiesByInterval()"])
 			.build()
 			.unwrap(),
+		ResourceIdentity::Workbook => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}")
+			.filter_path(vec!["worksheets", "functions", "tables"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorkbookTables => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook")
+			.filter_path(vec!["columns"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::Worksheets => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook")
+			.filter_path(vec!["tables", "operations", "names", "functions", "comments"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorksheetTableColumns => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/tables/{workbookTable-id}")
+			.build()
+			.unwrap(),
+
 
 
 		// Service Principals
