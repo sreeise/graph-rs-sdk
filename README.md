@@ -1154,8 +1154,7 @@ fn run_interactive_auth() -> ConfidentialClientApplication<AuthorizationCodeCred
   let mut confidential_client_builder = ConfidentialClientApplication::builder(CLIENT_ID)
           .auth_code_url_builder()
           .with_tenant(TENANT_ID)
-          .with_scope(vec!["user.read"])
-          .with_offline_access() // Adds offline_access as a scope which is needed to get a refresh token.
+          .with_scope(vec!["user.read", "offline_access"]) // Adds offline_access as a scope which is needed to get a refresh token.
           .with_redirect_uri(REDIRECT_URI)
           .interactive_authentication(None)
           .unwrap();

@@ -7,7 +7,7 @@ use reqwest::IntoUrl;
 
 use uuid::Uuid;
 
-use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
@@ -84,11 +84,9 @@ impl AuthorizationCodeCertificateCredential {
         };
 
         Ok(AuthorizationCodeCertificateCredential {
-            app_config: AppConfig::new_init(
-                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
-                Option::<String>::None,
-                redirect_uri,
-            ),
+            app_config: AppConfig::builder(client_id.as_ref())
+                .redirect_uri_option(redirect_uri)
+                .build(),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             code_verifier: None,
@@ -107,7 +105,7 @@ impl AuthorizationCodeCertificateCredential {
         x509: &X509Certificate,
     ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
         AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
-            AppConfig::new_with_client_id(client_id),
+            AppConfig::new(client_id.as_ref()),
             authorization_code,
             x509,
         )

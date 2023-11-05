@@ -1,5 +1,5 @@
 use crate::web::WebViewOptions;
-use graph_error::IdentityResult;
+use graph_error::WebViewResult;
 use std::time::Instant;
 use url::Url;
 
@@ -7,7 +7,7 @@ pub trait InteractiveAuthenticator {
     fn interactive_authentication(
         &self,
         interactive_web_view_options: Option<WebViewOptions>,
-    ) -> IdentityResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>>;
+    ) -> WebViewResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>>;
 }
 
 #[derive(Clone, Debug)]

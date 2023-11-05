@@ -6,7 +6,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 
 use uuid::Uuid;
 
-use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
@@ -44,11 +44,6 @@ pub struct ClientSecretCredential {
     /// specification. The Basic auth pattern of instead providing credentials in the Authorization
     /// header, per RFC 6749 is also supported.
     pub(crate) client_secret: String,
-    /// The value passed for the scope parameter in this request should be the resource
-    /// identifier (application ID URI) of the resource you want, affixed with the .default
-    /// suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
-    /// Default is https://graph.microsoft.com/.default.
-    pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
@@ -57,31 +52,36 @@ impl Debug for ClientSecretCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ClientSecretCredential")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .finish()
     }
 }
 
 impl ClientSecretCredential {
-    pub fn new<T: AsRef<str>>(client_id: T, client_secret: T) -> ClientSecretCredential {
+    pub fn new(
+        client_id: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
+    ) -> ClientSecretCredential {
         ClientSecretCredential {
-            app_config: AppConfig::new_with_client_id(client_id),
+            app_config: AppConfig::builder(client_id.as_ref())
+                .scope(vec!["https://graph.microsoft.com/.default"])
+                .build(),
             client_secret: client_secret.as_ref().to_owned(),
-            scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
             token_cache: InMemoryCacheStore::new(),
         }
     }
 
-    pub fn new_with_tenant<T: AsRef<str>>(
-        tenant_id: T,
-        client_id: T,
-        client_secret: T,
+    pub fn new_with_tenant(
+        tenant_id: impl AsRef<str>,
+        client_id: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
     ) -> ClientSecretCredential {
         ClientSecretCredential {
-            app_config: AppConfig::new_with_tenant_and_client_id(tenant_id, client_id),
+            app_config: AppConfig::builder(client_id.as_ref())
+                .tenant(tenant_id.as_ref())
+                .scope(vec!["https://graph.microsoft.com/.default"])
+                .build(),
             client_secret: client_secret.as_ref().to_owned(),
-            scope: vec!["https://graph.microsoft.com/.default".into()],
             serializer: OAuthSerializer::new(),
             token_cache: InMemoryCacheStore::new(),
         }
@@ -156,14 +156,8 @@ impl TokenCredentialExecutor for ClientSecretCredential {
         self.serializer
             .client_id(client_id.as_str())
             .client_secret(self.client_secret.as_str())
-            .grant_type("client_credentials");
-
-        if self.scope.is_empty() {
-            self.serializer
-                .extend_scopes(vec!["https://graph.microsoft.com/.default".to_owned()]);
-        } else {
-            self.serializer.extend_scopes(&self.scope);
-        }
+            .grant_type("client_credentials")
+            .set_scope(self.app_config.scope.clone());
 
         // Don't include ClientId and Client Secret in the fields for form url encode because
         // Client Id and Client Secret are already included as basic auth.
@@ -201,7 +195,7 @@ pub struct ClientSecretCredentialBuilder {
 }
 
 impl ClientSecretCredentialBuilder {
-    pub fn new<T: AsRef<str>>(client_id: T, client_secret: T) -> Self {
+    pub fn new(client_id: impl AsRef<str>, client_secret: impl AsRef<str>) -> Self {
         ClientSecretCredentialBuilder {
             credential: ClientSecretCredential::new(client_id, client_secret),
         }
@@ -209,13 +203,15 @@ impl ClientSecretCredentialBuilder {
 
     pub(crate) fn new_with_client_secret(
         client_secret: impl AsRef<str>,
-        app_config: AppConfig,
+        mut app_config: AppConfig,
     ) -> ClientSecretCredentialBuilder {
+        app_config
+            .scope
+            .insert("https://graph.microsoft.com/.default".into());
         Self {
             credential: ClientSecretCredential {
                 app_config,
                 client_secret: client_secret.as_ref().to_string(),
-                scope: vec!["https://graph.microsoft.com/.default".into()],
                 serializer: Default::default(),
                 token_cache: InMemoryCacheStore::new(),
             },

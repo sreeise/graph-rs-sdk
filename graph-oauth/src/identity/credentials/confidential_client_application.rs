@@ -47,24 +47,6 @@ impl ConfidentialClientApplication<()> {
     }
 }
 
-impl ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters> {
-    pub fn parameter_builder(
-        credential: AuthCodeAuthorizationUrlParameters,
-    ) -> ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters> {
-        ConfidentialClientApplication { credential }
-    }
-
-    pub async fn interactive_auth(
-        &self,
-        options: Option<WebViewOptions>,
-    ) -> anyhow::Result<AuthorizationQueryResponse> {
-        let result = self
-            .credential
-            .interactive_webview_authentication(options)?;
-        Ok(result)
-    }
-}
-
 impl<Credential: Clone + Debug + Send + Sync + TokenCredentialExecutor>
     ConfidentialClientApplication<Credential>
 {
@@ -184,62 +166,6 @@ impl From<ClientAssertionCredential> for ConfidentialClientApplication<ClientAss
 impl From<OpenIdCredential> for ConfidentialClientApplication<OpenIdCredential> {
     fn from(value: OpenIdCredential) -> Self {
         ConfidentialClientApplication::credential(value)
-    }
-}
-
-impl From<AuthCodeAuthorizationUrlParameters>
-    for ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters>
-{
-    fn from(value: AuthCodeAuthorizationUrlParameters) -> Self {
-        ConfidentialClientApplication::parameter_builder(value)
-    }
-}
-
-impl ConfidentialClientApplication<AuthCodeAuthorizationUrlParameters> {
-    pub fn interactive_webview_authentication(
-        &self,
-        interactive_web_view_options: Option<WebViewOptions>,
-    ) -> anyhow::Result<AuthorizationQueryResponse> {
-        let receiver = self
-            .credential
-            .interactive_authentication(interactive_web_view_options)?;
-        let mut iter = receiver.try_iter();
-        let mut next = iter.next();
-        while next.is_none() {
-            next = iter.next();
-        }
-
-        return match next {
-            None => Err(anyhow::anyhow!("Unknown")),
-            Some(auth_event) => match auth_event {
-                InteractiveAuthEvent::InvalidRedirectUri(reason) => {
-                    Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
-                }
-                InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                    let url_str = uri.as_str();
-                    let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
-                        "query | fragment",
-                        &format!("No query or fragment returned on redirect uri: {url_str}"),
-                    ))?;
-
-                    let response_query: AuthorizationQueryResponse =
-                        serde_urlencoded::from_str(query)?;
-                    Ok(response_query)
-                }
-                InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
-                    match window_close_reason {
-                        WindowCloseReason::CloseRequested => Err(anyhow::anyhow!("CloseRequested")),
-                        WindowCloseReason::InvalidWindowNavigation => {
-                            Err(anyhow::anyhow!("InvalidWindowNavigation"))
-                        }
-                        WindowCloseReason::TimedOut {
-                            start: _,
-                            requested_resume: _,
-                        } => Err(anyhow::anyhow!("TimedOut")),
-                    }
-                }
-            },
-        };
     }
 }
 

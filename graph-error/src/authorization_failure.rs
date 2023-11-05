@@ -3,6 +3,8 @@ use tokio::sync::mpsc::error::SendTimeoutError;
 
 pub type AF = AuthorizationFailure;
 
+/// Errors typically from missing or invalid configuration using one of the
+/// identity platform clients such as AuthorizationCodeCredential.
 #[derive(Debug, thiserror::Error)]
 pub enum AuthorizationFailure {
     #[error("Required value missing:\n{0:#?}", name)]
@@ -99,6 +101,9 @@ impl AuthorizationFailure {
     }
 }
 
+/// Error either from missing or invalid configuration using one of the
+/// identity platform clients or an error from the result of executing
+/// an http request using the identity platform clients.
 #[derive(Debug, thiserror::Error)]
 pub enum AuthExecutionError {
     #[error("{0:#?}")]
@@ -119,16 +124,4 @@ pub enum AuthTaskExecutionError<R> {
     SendTimeoutErrorAsync(#[from] SendTimeoutError<R>),
     #[error("{0:#?}")]
     JoinError(#[from] tokio::task::JoinError),
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum WebViewExecutionError {
-    #[error("TimedOut")]
-    TimedOut,
-    #[error("InvalidNavigation")]
-    InvalidNavigation,
-    #[error("InvalidRedirectUri")]
-    InvalidRedirectUri,
-    #[error("WindowCloseRequested")]
-    WindowCloseRequested,
 }

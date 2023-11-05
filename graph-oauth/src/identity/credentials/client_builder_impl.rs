@@ -31,19 +31,6 @@ macro_rules! credential_builder_base {
                 self
             }
 
-            pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(
-                &mut self,
-                scope: I,
-            ) -> &mut Self {
-                self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
-                self
-            }
-
-            pub fn with_default_scope(&mut self) -> &mut Self {
-                self.credential.scope = vec!["https://graph.microsoft.com/.default".to_string()];
-                self
-            }
-
             /// Extends the query parameters of both the default query params and user defined params.
             /// Does not overwrite default params.
             pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
@@ -91,6 +78,15 @@ macro_rules! credential_builder_base {
                     .app_config
                     .extra_header_parameters
                     .extend(header_parameters);
+                self
+            }
+
+            pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(
+                &mut self,
+                scope: I,
+            ) -> &mut Self {
+                self.credential.app_config.scope =
+                    scope.into_iter().map(|s| s.to_string()).collect();
                 self
             }
         }

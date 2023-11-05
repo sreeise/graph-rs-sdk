@@ -10,6 +10,9 @@
 //! Graph API. There may be some requests and/or API not yet included in this project but in general most of them are
 //! implemented.
 //!
+//! For any APIs missing you can make a feature request on GitHub or you can create a PR
+//! to add the APIs. Contributions welcome.
+//!
 //! ## Feature requests or Bug reports.
 //!
 //! For bug reports please file an issue on [GitHub](https://github.com/sreeise/graph-rs-sdk)
@@ -21,9 +24,6 @@
 //! than that feel free to ask questions, provide tips to others, and talk about the project in general.
 //!
 //! ## Use
-//! The client is async by default and it is recommended to use
-//! tokio as the runtime. Tokio is what is used internally and what the project
-//! is tested with.
 //!
 //! ```rust,ignore
 //! use graph_rs_sdk::*;
@@ -149,7 +149,7 @@
 //!
 //! - For more information and examples please see the repository on
 //! [GitHub](https://github.com/sreeise/graph-rs-sdk)
-//! - If you run into issues related to graph-rs specifically please
+//! - If you run into issues related to graph-rs-sdk specifically please
 //! file an issue on [GitHub](https://github.com/sreeise/graph-rs-sdk)
 //!
 //! # OAuth

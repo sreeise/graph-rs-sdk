@@ -26,8 +26,8 @@ use graph_rs_sdk::oauth::legacy::ImplicitCredential;
 use graph_rs_sdk::oauth::{Prompt, ResponseMode, ResponseType, TokenCredentialExecutor};
 
 fn oauth_implicit_flow() {
-    let authorizer = ImplicitCredential::builder()
-        .with_client_id("<YOUR_CLIENT_ID>")
+    let authorizer = ImplicitCredential::builder("<YOUR_CLIENT_ID>")
+        .unwrap()
         .with_prompt(Prompt::Login)
         .with_response_type(ResponseType::Token)
         .with_response_mode(ResponseMode::Fragment)
@@ -48,13 +48,15 @@ fn oauth_implicit_flow() {
 }
 
 fn multi_response_types() {
-    let _ = ImplicitCredential::builder()
+    let _ = ImplicitCredential::builder("<YOUR_CLIENT_ID>")
+        .unwrap()
         .with_response_type(vec![ResponseType::Token, ResponseType::IdToken])
         .build();
 
     // Or
 
-    let _ = ImplicitCredential::builder()
+    let _ = ImplicitCredential::builder("<YOUR_CLIENT_ID>")
+        .unwrap()
         .with_response_type(ResponseType::StringSet(BTreeSet::from_iter(vec![
             "token".to_string(),
             "id_token".to_string(),

@@ -28,7 +28,7 @@ pub struct ConfidentialClientApplicationBuilder {
 impl ConfidentialClientApplicationBuilder {
     pub fn new(client_id: impl AsRef<str>) -> Self {
         ConfidentialClientApplicationBuilder {
-            app_config: AppConfig::new_with_client_id(client_id),
+            app_config: AppConfig::new(client_id.as_ref()),
         }
     }
 
@@ -212,34 +212,8 @@ impl TryFrom<ApplicationOptions> for ConfidentialClientApplicationBuilder {
             "Both represent an authority audience and cannot be set at the same time",
         )?;
 
-        let cache_id = {
-            if let Some(tenant_id) = value.tenant_id.as_ref() {
-                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
-                    "{},{}",
-                    tenant_id,
-                    value.client_id.to_string()
-                ))
-            } else {
-                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(value.client_id.to_string())
-            }
-        };
-
         Ok(ConfidentialClientApplicationBuilder {
-            app_config: AppConfig {
-                tenant_id: value.tenant_id,
-                client_id: Uuid::try_parse(&value.client_id.to_string()).unwrap_or_default(),
-                authority: value
-                    .aad_authority_audience
-                    .map(Authority::from)
-                    .unwrap_or_default(),
-                azure_cloud_instance: value.azure_cloud_instance.unwrap_or_default(),
-                extra_query_parameters: Default::default(),
-                extra_header_parameters: Default::default(),
-                redirect_uri: None,
-                cache_id,
-                force_token_refresh: Default::default(),
-                log_pii: Default::default(),
-            },
+            app_config: AppConfig::try_from(value)?,
         })
     }
 }
@@ -253,7 +227,7 @@ impl PublicClientApplicationBuilder {
     #[allow(dead_code)]
     pub fn new(client_id: impl AsRef<str>) -> PublicClientApplicationBuilder {
         PublicClientApplicationBuilder {
-            app_config: AppConfig::new_with_client_id(client_id),
+            app_config: AppConfig::new(client_id.as_ref()),
         }
     }
 
@@ -314,7 +288,7 @@ impl PublicClientApplicationBuilder {
         self
     }
 
-    pub fn with_device_code_authorization_executor(self) -> DeviceCodePollingExecutor {
+    pub fn with_device_code_polling_executor(self) -> DeviceCodePollingExecutor {
         DeviceCodePollingExecutor::new_with_app_config(self.app_config)
     }
 
@@ -366,34 +340,8 @@ impl TryFrom<ApplicationOptions> for PublicClientApplicationBuilder {
             "TenantId and AadAuthorityAudience both represent an authority audience and cannot be set at the same time",
         )?;
 
-        let cache_id = {
-            if let Some(tenant_id) = value.tenant_id.as_ref() {
-                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
-                    "{},{}",
-                    tenant_id,
-                    value.client_id.to_string()
-                ))
-            } else {
-                base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(value.client_id.to_string())
-            }
-        };
-
         Ok(PublicClientApplicationBuilder {
-            app_config: AppConfig {
-                tenant_id: value.tenant_id,
-                client_id: value.client_id,
-                authority: value
-                    .aad_authority_audience
-                    .map(Authority::from)
-                    .unwrap_or_default(),
-                azure_cloud_instance: value.azure_cloud_instance.unwrap_or_default(),
-                extra_query_parameters: Default::default(),
-                extra_header_parameters: Default::default(),
-                redirect_uri: None,
-                cache_id,
-                force_token_refresh: Default::default(),
-                log_pii: Default::default(),
-            },
+            app_config: AppConfig::try_from(value)?,
         })
     }
 }

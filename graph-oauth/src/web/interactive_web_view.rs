@@ -2,6 +2,7 @@ use std::time::Duration;
 use url::Url;
 
 use crate::web::{InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
+use graph_error::{WebViewExecutionError, WebViewResult};
 use wry::application::event_loop::EventLoopBuilder;
 use wry::application::platform::windows::EventLoopBuilderExtWindows;
 use wry::{
@@ -32,11 +33,11 @@ impl WebViewValidHosts {
         start_uri: Url,
         redirect_uris: Vec<Url>,
         ports: Vec<usize>,
-    ) -> anyhow::Result<WebViewValidHosts> {
+    ) -> WebViewResult<WebViewValidHosts> {
         if start_uri.host().is_none() || redirect_uris.iter().any(|uri| uri.host().is_none()) {
-            return Err(anyhow::Error::msg(
-                "authorization url and redirect uri must have valid uri host",
-            ));
+            return Err(WebViewExecutionError::InvalidStartUri {
+                reason: "Authorization url and redirect uri must have valid uri hosts".to_owned(),
+            });
         }
 
         let is_local_host = redirect_uris
@@ -44,9 +45,9 @@ impl WebViewValidHosts {
             .any(|uri| uri.as_str().eq("http://localhost"));
 
         if is_local_host && ports.is_empty() {
-            return Err(anyhow::anyhow!(
-                "Redirect uri is http://localhost but not ports were specified".to_string()
-            ));
+            return Err(WebViewExecutionError::InvalidStartUri {
+                reason: "Redirect uri is http://localhost but not ports were specified".to_string(),
+            });
         }
 
         Ok(WebViewValidHosts {

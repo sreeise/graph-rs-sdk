@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
 use async_trait::async_trait;
-use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use url::Url;
@@ -11,7 +11,7 @@ use uuid::Uuid;
 use graph_core::crypto::{GenPkce, ProofKeyCodeExchange};
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
-use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::credentials::app_config::{AppConfig, AppConfigBuilder};
 use crate::identity::{
     Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh,
     OpenIdAuthorizationUrlParameterBuilder, OpenIdAuthorizationUrlParameters, Token,
@@ -50,14 +50,6 @@ pub struct OpenIdCredential {
     /// specification. The Basic auth pattern of instead providing credentials in the Authorization
     /// header, per RFC 6749 is also supported.
     pub(crate) client_secret: String,
-    /// The same redirect_uri value that was used to acquire the authorization_code.
-    // pub(crate) redirect_uri: Url,
-    /// A space-separated list of scopes. The scopes must all be from a single resource,
-    /// along with OIDC scopes (profile, openid, email). For more information, see Permissions
-    /// and consent in the Microsoft identity platform. This parameter is a Microsoft extension
-    /// to the authorization code flow, intended to allow apps to declare the resource they want
-    /// the token for during token redemption.
-    pub(crate) scope: Vec<String>,
     /// The same code_verifier that was used to obtain the authorization_code.
     /// Required if PKCE was used in the authorization code grant request. For more information,
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
@@ -72,7 +64,6 @@ impl Debug for OpenIdCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("OpenIdCredential")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .finish()
     }
 }
@@ -86,15 +77,13 @@ impl OpenIdCredential {
     ) -> IdentityResult<OpenIdCredential> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         Ok(OpenIdCredential {
-            app_config: AppConfig::new_init(
-                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
-                Option::<String>::None,
-                Some(redirect_uri.into_url().or(redirect_uri_result)?),
-            ),
+            app_config: AppConfigBuilder::new(client_id.as_ref())
+                .redirect_uri(redirect_uri.into_url().or(redirect_uri_result)?)
+                .scope(vec!["openid"])
+                .build(),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_secret: client_secret.as_ref().to_owned(),
-            scope: vec!["openid".to_owned()],
             code_verifier: None,
             pkce: None,
             serializer: Default::default(),
@@ -114,8 +103,8 @@ impl OpenIdCredential {
     pub fn authorization_url_builder(
         client_id: impl AsRef<str>,
     ) -> OpenIdAuthorizationUrlParameterBuilder {
-        OpenIdAuthorizationUrlParameterBuilder::new_with_app_config(AppConfig::new_with_client_id(
-            client_id,
+        OpenIdAuthorizationUrlParameterBuilder::new_with_app_config(AppConfig::new(
+            client_id.as_ref(),
         ))
     }
 
@@ -248,7 +237,7 @@ impl TokenCredentialExecutor for OpenIdCredential {
         self.serializer
             .client_id(client_id.as_str())
             .client_secret(self.client_secret.as_str())
-            .extend_scopes(self.scope.clone());
+            .set_scope(self.app_config.scope.clone());
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
@@ -283,6 +272,9 @@ impl TokenCredentialExecutor for OpenIdCredential {
             self.serializer
                 .authorization_code(authorization_code.as_ref())
                 .grant_type("authorization_code");
+
+            // Authorization codes can only be used once. Remove it from the configuration.
+            self.authorization_code = None;
 
             if let Some(code_verifier) = self.code_verifier.as_ref() {
                 self.serializer.code_verifier(code_verifier.as_str());
@@ -343,11 +335,11 @@ impl OpenIdCredentialBuilder {
     fn new(client_id: impl TryInto<Uuid>) -> OpenIdCredentialBuilder {
         Self {
             credential: OpenIdCredential {
-                app_config: AppConfig::new_init(
-                    client_id.try_into().unwrap_or_default(),
-                    Option::<String>::None,
-                    Some(Url::parse("http://localhost").expect("Internal Error - please report")),
-                ),
+                app_config: AppConfig::builder(client_id)
+                    .redirect_uri(
+                        Url::parse("http://localhost").expect("Internal Error - please report"),
+                    )
+                    .build(),
                 authorization_code: None,
                 refresh_token: None,
                 client_secret: String::new(),
@@ -444,10 +436,7 @@ impl OpenIdCredentialBuilder {
 
 impl From<OpenIdAuthorizationUrlParameters> for OpenIdCredentialBuilder {
     fn from(value: OpenIdAuthorizationUrlParameters) -> Self {
-        let mut builder = OpenIdCredentialBuilder::new_with_app_config(value.app_config);
-        builder.with_scope(value.scope);
-
-        builder
+        OpenIdCredentialBuilder::new_with_app_config(value.app_config)
     }
 }
 

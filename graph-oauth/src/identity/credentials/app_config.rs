@@ -1,5 +1,5 @@
 use base64::Engine;
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 use std::fmt::{Debug, Formatter};
 
 use graph_error::AF;
@@ -29,6 +29,31 @@ pub struct AppConfig {
     pub(crate) azure_cloud_instance: AzureCloudInstance,
     pub(crate) extra_query_parameters: HashMap<String, String>,
     pub(crate) extra_header_parameters: HeaderMap,
+    /// Required -
+    /// A space-separated list of scopes. You might also include
+    /// other scopes in this request for requesting consent.
+    ///
+    /// For OpenID Connect, it must include the scope openid, which translates to the Sign you in
+    /// permission in the consent UI. Openid scope is already included for [OpenIdCredential](crate::identity::OpenIdCredential)
+    /// and for [OpenIdAuthorizationUrlParameters](crate::identity::OpenIdAuthorizationUrlParameters)
+    ///
+    /// For Client Credentials, The value passed for the scope parameter in this request should
+    /// be the resource identifier (application ID URI) of the resource you want, affixed with
+    /// the .default suffix. All scopes included must be for a single resource.
+    /// Including scopes for multiple resources will result in an error.
+    ///
+    /// For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
+    /// This value tells the Microsoft identity platform that of all the direct application
+    /// permissions you have configured for your app, the endpoint should issue a token for the
+    /// ones associated with the resource you want to use. To learn more about the /.default scope,
+    /// see the [consent documentation](https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview#the-default-scope).
+    ///
+    /// This https://graph.microsoft.com/.default scope is automatically set for
+    /// [ClientCredentialsAuthorizationUrlParameters](crate::identity::ClientCredentialsAuthorizationUrlParameters),
+    /// [ClientSecretCredential](crate::identity::ClientSecretCredential),
+    /// [ClientCertificateCredential](crate::identity::ClientCertificateCredential),
+    /// and [ClientAssertionCredential](crate::identity::ClientAssertionCredential).
+    pub(crate) scope: BTreeSet<String>,
     /// Optional -  Some flows may require the redirect URI
     /// The redirect_uri of your app, where authentication responses can be sent and received
     /// by your app. It must exactly match one of the redirect_uris you registered in the portal,
@@ -56,6 +81,7 @@ impl TryFrom<ApplicationOptions> for AppConfig {
             azure_cloud_instance: value.azure_cloud_instance.unwrap_or_default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
+            scope: Default::default(),
             redirect_uri: None,
             cache_id,
             force_token_refresh: Default::default(),
@@ -74,6 +100,7 @@ impl Debug for AppConfig {
                 .field("azure_cloud_instance", &self.azure_cloud_instance)
                 .field("extra_query_parameters", &self.extra_query_parameters)
                 .field("extra_header_parameters", &self.extra_header_parameters)
+                .field("scope", &self.scope)
                 .field("force_token_refresh", &self.force_token_refresh)
                 .finish()
         } else {
@@ -83,6 +110,7 @@ impl Debug for AppConfig {
                 .field("authority", &self.authority)
                 .field("azure_cloud_instance", &self.azure_cloud_instance)
                 .field("extra_query_parameters", &self.extra_query_parameters)
+                .field("scope", &self.scope)
                 .field("force_token_refresh", &self.force_token_refresh)
                 .finish()
         }
@@ -101,35 +129,13 @@ impl AppConfig {
             base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string())
         }
     }
-    pub(crate) fn new_init(
-        client_id: Uuid,
-        tenant: Option<impl AsRef<str>>,
-        redirect_uri: Option<Url>,
-    ) -> AppConfig {
-        let tenant_id: Option<String> = tenant.map(|value| value.as_ref().to_string());
-        let cache_id = AppConfig::generate_cache_id(client_id, tenant_id.as_ref());
 
-        let authority = tenant_id
-            .clone()
-            .map(Authority::TenantId)
-            .unwrap_or_default();
-
-        AppConfig {
-            tenant_id,
-            client_id,
-            authority,
-            azure_cloud_instance: Default::default(),
-            extra_query_parameters: Default::default(),
-            extra_header_parameters: Default::default(),
-            redirect_uri,
-            cache_id,
-            force_token_refresh: Default::default(),
-            log_pii: Default::default(),
-        }
+    pub(crate) fn builder(client_id: impl TryInto<Uuid>) -> AppConfigBuilder {
+        AppConfigBuilder::new(client_id)
     }
 
-    pub(crate) fn new_with_client_id(client_id: impl AsRef<str>) -> AppConfig {
-        let client_id = Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
+    pub(crate) fn new(client_id: impl TryInto<Uuid>) -> AppConfig {
+        let client_id = client_id.try_into().unwrap_or_default();
         let cache_id = AppConfig::generate_cache_id(client_id, None);
 
         AppConfig {
@@ -139,32 +145,7 @@ impl AppConfig {
             azure_cloud_instance: Default::default(),
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
-            redirect_uri: None,
-            cache_id,
-            force_token_refresh: Default::default(),
-            log_pii: Default::default(),
-        }
-    }
-
-    pub(crate) fn new_with_tenant_and_client_id(
-        tenant_id: impl AsRef<str>,
-        client_id: impl AsRef<str>,
-    ) -> AppConfig {
-        let client_id = Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
-        let tenant_id = tenant_id.as_ref();
-        let cache_id = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
-            "{},{}",
-            tenant_id,
-            client_id.to_string()
-        ));
-
-        AppConfig {
-            tenant_id: Some(tenant_id.to_string()),
-            client_id,
-            authority: Authority::TenantId(tenant_id.to_string()),
-            azure_cloud_instance: Default::default(),
-            extra_query_parameters: Default::default(),
-            extra_header_parameters: Default::default(),
+            scope: Default::default(),
             redirect_uri: None,
             cache_id,
             force_token_refresh: Default::default(),
@@ -174,5 +155,48 @@ impl AppConfig {
 
     pub fn log_pii(&mut self, log_pii: bool) {
         self.log_pii = log_pii;
+    }
+}
+
+#[derive(Clone, Default, PartialEq)]
+pub struct AppConfigBuilder {
+    app_config: AppConfig,
+}
+
+impl AppConfigBuilder {
+    pub fn new(client_id: impl TryInto<Uuid>) -> AppConfigBuilder {
+        AppConfigBuilder {
+            app_config: AppConfig::new(client_id),
+        }
+    }
+
+    pub fn tenant(mut self, tenant: impl Into<String>) -> Self {
+        let tenant_id = tenant.into();
+        self.app_config.tenant_id = Some(tenant_id.clone());
+        self.authority(Authority::TenantId(tenant_id))
+    }
+
+    pub fn redirect_uri(mut self, redirect_uri: Url) -> Self {
+        self.app_config.redirect_uri = Some(redirect_uri);
+        self
+    }
+
+    pub fn redirect_uri_option(mut self, redirect_uri: Option<Url>) -> Self {
+        self.app_config.redirect_uri = redirect_uri;
+        self
+    }
+
+    pub fn authority(mut self, authority: Authority) -> Self {
+        self.app_config.authority = authority;
+        self
+    }
+
+    pub fn scope<T: ToString, I: IntoIterator<Item = T>>(mut self, scope: I) -> Self {
+        self.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self
+    }
+
+    pub fn build(self) -> AppConfig {
+        self.app_config
     }
 }

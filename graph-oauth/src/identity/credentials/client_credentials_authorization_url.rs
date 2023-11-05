@@ -24,11 +24,9 @@ impl ClientCredentialsAuthorizationUrlParameters {
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
 
         Ok(ClientCredentialsAuthorizationUrlParameters {
-            app_config: AppConfig::new_init(
-                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
-                Option::<String>::None,
-                Some(redirect_uri),
-            ),
+            app_config: AppConfig::builder(client_id.as_ref())
+                .redirect_uri(redirect_uri)
+                .build(),
             state: None,
         })
     }
@@ -80,10 +78,10 @@ pub struct ClientCredentialsAuthorizationUrlParameterBuilder {
 }
 
 impl ClientCredentialsAuthorizationUrlParameterBuilder {
-    pub fn new<T: AsRef<str>>(client_id: T) -> Self {
+    pub fn new(client_id: impl AsRef<str>) -> Self {
         Self {
             parameters: ClientCredentialsAuthorizationUrlParameters {
-                app_config: AppConfig::new_with_client_id(client_id),
+                app_config: AppConfig::new(client_id.as_ref()),
                 state: None,
             },
         }

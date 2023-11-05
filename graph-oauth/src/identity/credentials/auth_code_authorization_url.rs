@@ -8,7 +8,7 @@ use url::Url;
 use uuid::Uuid;
 
 use graph_core::crypto::{secure_random_32, ProofKeyCodeExchange};
-use graph_error::{IdentityResult, AF};
+use graph_error::{IdentityResult, WebViewExecutionError, WebViewResult, AF};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
@@ -85,11 +85,6 @@ pub struct AuthCodeAuthorizationUrlParameters {
     /// The nonce is automatically generated unless set by the caller.
     pub(crate) nonce: Option<String>,
     pub(crate) state: Option<String>,
-    /// Required.
-    /// A space-separated list of scopes that you want the user to consent to.
-    /// For the /authorize leg of the request, this parameter can cover multiple resources.
-    /// This value allows your app to get consent for multiple web APIs you want to call.
-    pub(crate) scope: Vec<String>,
     /// Optional
     /// Indicates the type of user interaction that is required. The only valid values at
     /// this time are login, none, consent, and select_account.
@@ -131,7 +126,6 @@ impl Debug for AuthCodeAuthorizationUrlParameters {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AuthCodeAuthorizationUrlParameters")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .field("response_type", &self.response_type)
             .field("response_mode", &self.response_mode)
             .field("prompt", &self.prompt)
@@ -149,16 +143,13 @@ impl AuthCodeAuthorizationUrlParameters {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
 
         Ok(AuthCodeAuthorizationUrlParameters {
-            app_config: AppConfig::new_init(
-                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
-                Option::<String>::None,
-                Some(redirect_uri.into_url().or(redirect_uri_result)?),
-            ),
+            app_config: AppConfig::builder(client_id.as_ref())
+                .redirect_uri(redirect_uri.into_url().or(redirect_uri_result)?)
+                .build(),
             response_type,
             response_mode: None,
             nonce: None,
             state: None,
-            scope: vec![],
             prompt: None,
             domain_hint: None,
             login_hint: None,
@@ -193,7 +184,7 @@ impl AuthCodeAuthorizationUrlParameters {
     pub fn interactive_webview_authentication(
         &self,
         interactive_web_view_options: Option<WebViewOptions>,
-    ) -> anyhow::Result<AuthorizationQueryResponse> {
+    ) -> WebViewResult<AuthorizationQueryResponse> {
         let receiver = self.interactive_authentication(interactive_web_view_options)?;
         let mut iter = receiver.try_iter();
         let mut next = iter.next();
@@ -203,17 +194,15 @@ impl AuthCodeAuthorizationUrlParameters {
         }
 
         return match next {
-            None => Err(anyhow::anyhow!("Unknown")),
+            None => unreachable!(),
             Some(auth_event) => match auth_event {
                 InteractiveAuthEvent::InvalidRedirectUri(reason) => {
-                    Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
+                    Err(WebViewExecutionError::InvalidRedirectUri(reason))
                 }
                 InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                    let url_str = uri.as_str();
-                    let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
-                        "query | fragment",
-                        &format!("No query or fragment returned on redirect uri: {url_str}"),
-                    ))?;
+                    let query = uri.query().or(uri.fragment()).ok_or(
+                        WebViewExecutionError::RedirectUriMissingQueryOrFragment(uri.to_string()),
+                    )?;
 
                     let response_query: AuthorizationQueryResponse =
                         serde_urlencoded::from_str(query)?;
@@ -221,14 +210,16 @@ impl AuthCodeAuthorizationUrlParameters {
                 }
                 InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
                     match window_close_reason {
-                        WindowCloseReason::CloseRequested => Err(anyhow::anyhow!("CloseRequested")),
+                        WindowCloseReason::CloseRequested => {
+                            Err(WebViewExecutionError::WindowClosedRequested)
+                        }
                         WindowCloseReason::InvalidWindowNavigation => {
-                            Err(anyhow::anyhow!("InvalidWindowNavigation"))
+                            Err(WebViewExecutionError::WindowClosedOnInvalidNavigation)
                         }
                         WindowCloseReason::TimedOut {
                             start: _,
                             requested_resume: _,
-                        } => Err(anyhow::anyhow!("TimedOut")),
+                        } => Err(WebViewExecutionError::WindowClosedOnTimeoutReached),
                     }
                 }
             },
@@ -242,13 +233,13 @@ pub(crate) mod web_view_authenticator {
     use crate::web::{
         InteractiveAuthEvent, InteractiveAuthenticator, InteractiveWebView, WebViewOptions,
     };
-    use graph_error::IdentityResult;
+    use graph_error::WebViewResult;
 
     impl InteractiveAuthenticator for AuthCodeAuthorizationUrlParameters {
         fn interactive_authentication(
             &self,
             interactive_web_view_options: Option<WebViewOptions>,
-        ) -> IdentityResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
+        ) -> WebViewResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
             let uri = self.url()?;
             let redirect_uri = self.redirect_uri().cloned().unwrap();
             let web_view_options = interactive_web_view_options.unwrap_or_default();
@@ -297,20 +288,13 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
             return AF::result("client_id");
         }
 
-        if self.scope.is_empty() {
+        if self.app_config.scope.is_empty() {
             return AF::result("scope");
-        }
-
-        if self.scope.contains(&String::from("openid")) {
-            return AF::msg_result(
-                "openid",
-                "Scope openid is not valid for authorization code - instead use OpenIdCredential",
-            );
         }
 
         serializer
             .client_id(client_id.as_str())
-            .extend_scopes(self.scope.clone())
+            .set_scope(self.app_config.scope.clone())
             .authority(azure_cloud_instance, &self.app_config.authority);
 
         let response_types: Vec<String> =
@@ -408,12 +392,11 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         response_type.insert(ResponseType::Code);
         AuthCodeAuthorizationUrlParameterBuilder {
             credential: AuthCodeAuthorizationUrlParameters {
-                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
+                app_config: AppConfig::new(client_id.as_ref()),
                 response_mode: None,
                 response_type,
                 nonce: None,
                 state: None,
-                scope: vec![],
                 prompt: None,
                 domain_hint: None,
                 login_hint: None,
@@ -435,7 +418,6 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
                 response_type,
                 nonce: None,
                 state: None,
-                scope: vec![],
                 prompt: None,
                 domain_hint: None,
                 login_hint: None,
@@ -492,15 +474,6 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
         self.credential.state = Some(state.as_ref().to_owned());
-        self
-    }
-
-    /// Adds the `offline_access` scope parameter which tells the authorization server
-    /// to include a refresh token in the redirect uri query.
-    pub fn with_offline_access(&mut self) -> &mut Self {
-        self.credential
-            .scope
-            .extend(vec!["offline_access".to_owned()]);
         self
     }
 
@@ -561,7 +534,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     pub fn with_interactive_authentication(
         &self,
         options: Option<WebViewOptions>,
-    ) -> anyhow::Result<AuthorizationCodeCredentialBuilder> {
+    ) -> WebViewResult<AuthorizationCodeCredentialBuilder> {
         let query_response = self
             .credential
             .interactive_webview_authentication(options)?;

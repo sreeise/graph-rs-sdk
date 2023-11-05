@@ -6,7 +6,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 
 use uuid::Uuid;
 
-use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
@@ -45,17 +45,6 @@ credential_builder!(
 #[allow(dead_code)]
 pub struct ClientCertificateCredential {
     pub(crate) app_config: AppConfig,
-    /// The value passed for the scope parameter in this request should be the resource identifier
-    /// (application ID URI) of the resource you want, affixed with the .default suffix.
-    /// All scopes included must be for a single resource. Including scopes for multiple
-    /// resources will result in an error.
-    ///
-    /// For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
-    /// This value tells the Microsoft identity platform that of all the direct application
-    /// permissions you have configured for your app, the endpoint should issue a token for the
-    /// ones associated with the resource you want to use. To learn more about the /.default scope,
-    /// see the [consent documentation](https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview#the-default-scope).
-    pub(crate) scope: Vec<String>,
     /// The value must be set to urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
     /// This value is automatically set by the SDK.
     pub(crate) client_assertion_type: String,
@@ -75,8 +64,9 @@ pub struct ClientCertificateCredential {
 impl ClientCertificateCredential {
     pub fn new<T: AsRef<str>>(client_id: T, client_assertion: T) -> ClientCertificateCredential {
         ClientCertificateCredential {
-            app_config: AppConfig::new_with_client_id(client_id),
-            scope: vec!["https://graph.microsoft.com/.default".into()],
+            app_config: AppConfig::builder(client_id.as_ref())
+                .scope(vec!["https://graph.microsoft.com/.default"])
+                .build(),
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
             serializer: Default::default(),
@@ -109,7 +99,6 @@ impl Debug for ClientCertificateCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ClientCertificateCredential")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .finish()
     }
 }
@@ -177,12 +166,8 @@ impl TokenCredentialExecutor for ClientCertificateCredential {
             .client_id(client_id.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
-            .grant_type("client_credentials");
-
-        if self.scope.is_empty() {
-            self.serializer
-                .add_scope("https://graph.microsoft.com/.default");
-        }
+            .grant_type("client_credentials")
+            .set_scope(self.app_config.scope.clone());
 
         self.serializer.as_credential_map(
             vec![OAuthParameter::Scope],
@@ -221,8 +206,9 @@ impl ClientCertificateCredentialBuilder {
     fn new<T: AsRef<str>>(client_id: T) -> ClientCertificateCredentialBuilder {
         ClientCertificateCredentialBuilder {
             credential: ClientCertificateCredential {
-                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
-                scope: vec!["https://graph.microsoft.com/.default".into()],
+                app_config: AppConfig::builder(client_id.as_ref())
+                    .scope(vec!["https://graph.microsoft.com/.default"])
+                    .build(),
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: Default::default(),
                 serializer: OAuthSerializer::new(),
@@ -234,12 +220,14 @@ impl ClientCertificateCredentialBuilder {
     #[cfg(feature = "openssl")]
     pub(crate) fn new_with_certificate(
         x509: &X509Certificate,
-        app_config: AppConfig,
+        mut app_config: AppConfig,
     ) -> anyhow::Result<ClientCertificateCredentialBuilder> {
+        app_config
+            .scope
+            .insert("https://graph.microsoft.com/.default".into());
         let mut credential_builder = ClientCertificateCredentialBuilder {
             credential: ClientCertificateCredential {
                 app_config,
-                scope: vec!["https://graph.microsoft.com/.default".into()],
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: Default::default(),
                 serializer: OAuthSerializer::new(),

@@ -5,7 +5,7 @@ use std::ops::Add;
 use std::str::FromStr;
 use std::time::Duration;
 
-use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use url::Url;
 use uuid::Uuid;
@@ -15,7 +15,7 @@ use graph_core::http::{
 };
 use graph_error::{
     AuthExecutionError, AuthExecutionResult, AuthTaskExecutionResult, AuthorizationFailure,
-    IdentityResult, AF,
+    IdentityResult, WebViewExecutionError, WebViewResult, AF,
 };
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
@@ -52,27 +52,20 @@ pub struct DeviceCodeCredential {
     /// A device_code is a long string used to verify the session between the client and the authorization server.
     /// The client uses this parameter to request the access token from the authorization server.
     pub(crate) device_code: Option<String>,
-    /// A space-separated list of scopes. The scopes must all be from a single resource,
-    /// along with OIDC scopes (profile, openid, email). For more information, see Permissions
-    /// and consent in the Microsoft identity platform. This parameter is a Microsoft extension
-    /// to the authorization code flow, intended to allow apps to declare the resource they want
-    /// the token for during token redemption.
-    pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
 
 impl DeviceCodeCredential {
-    pub fn new<T: AsRef<str>, U: ToString, I: IntoIterator<Item = U>>(
-        client_id: T,
-        device_code: T,
+    pub fn new<U: ToString, I: IntoIterator<Item = U>>(
+        client_id: impl AsRef<str>,
+        device_code: impl AsRef<str>,
         scope: I,
     ) -> DeviceCodeCredential {
         DeviceCodeCredential {
-            app_config: AppConfig::new_with_client_id(client_id),
+            app_config: AppConfig::builder(client_id.as_ref()).scope(scope).build(),
             refresh_token: None,
             device_code: Some(device_code.as_ref().to_owned()),
-            scope: scope.into_iter().map(|s| s.to_string()).collect(),
             serializer: Default::default(),
             token_cache: Default::default(),
         }
@@ -124,7 +117,6 @@ impl Debug for DeviceCodeCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("DeviceCodeCredential")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .finish()
     }
 }
@@ -232,7 +224,7 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
 
         self.serializer
             .client_id(client_id.as_str())
-            .extend_scopes(self.scope.clone());
+            .set_scope(self.app_config.scope.clone());
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
@@ -307,21 +299,20 @@ pub struct DeviceCodeCredentialBuilder {
 }
 
 impl DeviceCodeCredentialBuilder {
-    fn new<T: AsRef<str>>(client_id: T) -> DeviceCodeCredentialBuilder {
+    fn new(client_id: impl AsRef<str>) -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder {
             credential: DeviceCodeCredential {
-                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
+                app_config: AppConfig::new(client_id.as_ref()),
                 refresh_token: None,
                 device_code: None,
-                scope: vec![],
                 serializer: Default::default(),
                 token_cache: Default::default(),
             },
         }
     }
 
-    pub(crate) fn new_with_device_code<T: AsRef<str>>(
-        device_code: T,
+    pub(crate) fn new_with_device_code(
+        device_code: impl AsRef<str>,
         app_config: AppConfig,
     ) -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder {
@@ -329,7 +320,6 @@ impl DeviceCodeCredentialBuilder {
                 app_config,
                 refresh_token: None,
                 device_code: Some(device_code.as_ref().to_owned()),
-                scope: vec![],
                 serializer: Default::default(),
                 token_cache: Default::default(),
             },
@@ -377,7 +367,6 @@ impl DeviceCodePollingExecutor {
                 app_config,
                 refresh_token: None,
                 device_code: None,
-                scope: vec![],
                 serializer: Default::default(),
                 token_cache: Default::default(),
             },
@@ -385,14 +374,14 @@ impl DeviceCodePollingExecutor {
     }
 
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self.credential.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
     pub fn interactive_webview_authentication(
         &self,
         options: Option<WebViewOptions>,
-    ) -> anyhow::Result<AuthorizationQueryResponse> {
+    ) -> WebViewResult<AuthorizationQueryResponse> {
         let receiver = self.credential.interactive_authentication(options)?;
         let mut iter = receiver.try_iter();
         let mut next = iter.next();
@@ -402,17 +391,15 @@ impl DeviceCodePollingExecutor {
         }
 
         return match next {
-            None => Err(anyhow::anyhow!("Unknown")),
+            None => unreachable!(),
             Some(auth_event) => match auth_event {
                 InteractiveAuthEvent::InvalidRedirectUri(reason) => {
-                    Err(anyhow::anyhow!("Invalid Redirect Uri - {reason}"))
+                    Err(WebViewExecutionError::InvalidRedirectUri(reason))
                 }
                 InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                    let url_str = uri.as_str();
-                    let query = uri.query().or(uri.fragment()).ok_or(AF::msg_err(
-                        "query | fragment",
-                        &format!("No query or fragment returned on redirect uri: {url_str}"),
-                    ))?;
+                    let query = uri.query().or(uri.fragment()).ok_or(
+                        WebViewExecutionError::RedirectUriMissingQueryOrFragment(uri.to_string()),
+                    )?;
 
                     let response_query: AuthorizationQueryResponse =
                         serde_urlencoded::from_str(query)?;
@@ -420,14 +407,16 @@ impl DeviceCodePollingExecutor {
                 }
                 InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
                     match window_close_reason {
-                        WindowCloseReason::CloseRequested => Err(anyhow::anyhow!("CloseRequested")),
+                        WindowCloseReason::CloseRequested => {
+                            Err(WebViewExecutionError::WindowClosedRequested)
+                        }
                         WindowCloseReason::InvalidWindowNavigation => {
-                            Err(anyhow::anyhow!("InvalidWindowNavigation"))
+                            Err(WebViewExecutionError::WindowClosedOnInvalidNavigation)
                         }
                         WindowCloseReason::TimedOut {
                             start: _,
                             requested_resume: _,
-                        } => Err(anyhow::anyhow!("TimedOut")),
+                        } => Err(WebViewExecutionError::WindowClosedOnTimeoutReached),
                     }
                 }
             },
@@ -595,17 +584,18 @@ pub(crate) mod web_view_authenticator {
     use crate::web::{
         InteractiveAuthEvent, InteractiveAuthenticator, InteractiveWebView, WebViewOptions,
     };
-    use graph_error::IdentityResult;
+    use graph_error::WebViewResult;
 
     impl InteractiveAuthenticator for DeviceCodeCredential {
         fn interactive_authentication(
             &self,
             interactive_web_view_options: Option<WebViewOptions>,
-        ) -> IdentityResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
+        ) -> WebViewResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
             let uri = self
                 .app_config
                 .azure_cloud_instance
-                .auth_uri(&self.app_config.authority)?;
+                .auth_uri(&self.app_config.authority)
+                .expect("Internal Error Please Report");
             let redirect_uri = self.app_config.redirect_uri.clone().unwrap();
             let web_view_options = interactive_web_view_options.unwrap_or_default();
             let (sender, receiver) = std::sync::mpsc::channel();

@@ -31,13 +31,6 @@ pub struct ImplicitCredential {
     /// also contain code in place of token to provide an authorization code, for use in the
     /// authorization code flow. This id_token+code response is sometimes called the hybrid flow.
     pub(crate) response_type: Vec<ResponseType>,
-    /// Required
-    /// A space-separated list of scopes. For OpenID Connect (id_tokens), it must include the
-    /// scope openid, which translates to the "Sign you in" permission in the consent UI.
-    /// Optionally you may also want to include the email and profile scopes for gaining access
-    /// to additional user data. You may also include other scopes in this request for requesting
-    /// consent to various resources, if an access token is requested.
-    pub(crate) scope: Vec<String>,
     /// Optional
     /// Specifies the method that should be used to send the resulting token back to your app.
     /// Defaults to query for just an access token, but fragment if the request includes an id_token.
@@ -83,26 +76,24 @@ pub struct ImplicitCredential {
 }
 
 impl ImplicitCredential {
-    pub fn new<T: AsRef<str>, U: ToString, I: IntoIterator<Item = U>>(
-        client_id: T,
-        nonce: T,
+    pub fn new<U: ToString, I: IntoIterator<Item = U>>(
+        client_id: impl AsRef<str>,
         scope: I,
-    ) -> ImplicitCredential {
-        ImplicitCredential {
-            app_config: AppConfig::new_with_client_id(client_id),
+    ) -> IdentityResult<ImplicitCredential> {
+        Ok(ImplicitCredential {
+            app_config: AppConfig::builder(client_id.as_ref()).scope(scope).build(),
             response_type: vec![ResponseType::Token],
-            scope: scope.into_iter().map(|s| s.to_string()).collect(),
             response_mode: ResponseMode::Query,
             state: None,
-            nonce: nonce.as_ref().to_owned(),
+            nonce: secure_random_32()?,
             prompt: None,
             login_hint: None,
             domain_hint: None,
-        }
+        })
     }
 
-    pub fn builder() -> ImplicitCredentialBuilder {
-        ImplicitCredentialBuilder::new()
+    pub fn builder(client_id: impl AsRef<str>) -> IdentityResult<ImplicitCredentialBuilder> {
+        ImplicitCredentialBuilder::new(client_id)
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
@@ -123,7 +114,7 @@ impl ImplicitCredential {
         serializer
             .client_id(client_id.as_str())
             .nonce(self.nonce.as_str())
-            .extend_scopes(self.scope.clone())
+            .set_scope(self.app_config.scope.clone())
             .authority(azure_cloud_instance, &self.app_config.authority);
 
         let response_types: Vec<String> =
@@ -157,7 +148,7 @@ impl ImplicitCredential {
         }
 
         // https://learn.microsoft.com/en-us/azure/active-directory/develop/scopes-oidc
-        if self.scope.is_empty() {
+        if self.app_config.scope.is_empty() {
             if self.response_type.contains(&ResponseType::IdToken) {
                 serializer.add_scope("openid");
             } else {
@@ -220,27 +211,20 @@ pub struct ImplicitCredentialBuilder {
     credential: ImplicitCredential,
 }
 
-impl Default for ImplicitCredentialBuilder {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl ImplicitCredentialBuilder {
-    pub fn new() -> ImplicitCredentialBuilder {
-        ImplicitCredentialBuilder {
+    pub fn new(client_id: impl AsRef<str>) -> IdentityResult<ImplicitCredentialBuilder> {
+        Ok(ImplicitCredentialBuilder {
             credential: ImplicitCredential {
-                app_config: Default::default(),
+                app_config: AppConfig::new(client_id.as_ref()),
                 response_type: vec![ResponseType::Code],
-                scope: vec![],
                 response_mode: ResponseMode::Query,
                 state: None,
-                nonce: String::new(),
+                nonce: secure_random_32()?,
                 prompt: None,
                 login_hint: None,
                 domain_hint: None,
             },
-        }
+        })
     }
 
     pub fn with_redirect_uri<U: IntoUrl>(&mut self, redirect_uri: U) -> anyhow::Result<&mut Self> {
@@ -344,9 +328,9 @@ mod test {
 
     #[test]
     fn serialize_uri() {
-        let mut authorizer = ImplicitCredential::builder();
+        let mut authorizer =
+            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
-            .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::Token])
             .with_redirect_uri("https://localhost/myapp")
             .unwrap()
@@ -364,9 +348,9 @@ mod test {
 
     #[test]
     fn set_open_id_fragment() {
-        let mut authorizer = ImplicitCredential::builder();
+        let mut authorizer =
+            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
-            .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken])
             .with_response_mode(ResponseMode::Fragment)
             .with_redirect_uri("https://localhost:8080/myapp")
@@ -384,9 +368,9 @@ mod test {
 
     #[test]
     fn set_open_id_fragment2() {
-        let mut authorizer = ImplicitCredential::builder();
+        let mut authorizer =
+            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
-            .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_mode(ResponseMode::Fragment)
             .with_redirect_uri("https://localhost:8080/myapp")
             .unwrap()
@@ -403,9 +387,9 @@ mod test {
 
     #[test]
     fn response_type_join() {
-        let mut authorizer = ImplicitCredential::builder();
+        let mut authorizer =
+            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
-            .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Token])
             .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
@@ -422,9 +406,9 @@ mod test {
 
     #[test]
     fn response_type_join_string() {
-        let mut authorizer = ImplicitCredential::builder();
+        let mut authorizer =
+            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
-            .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(ResponseType::StringSet(
                 vec!["id_token".to_owned(), "token".to_owned()]
                     .into_iter()
@@ -445,9 +429,9 @@ mod test {
 
     #[test]
     fn response_type_into_iter() {
-        let mut authorizer = ImplicitCredential::builder();
+        let mut authorizer =
+            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
-            .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(ResponseType::IdToken)
             .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
@@ -464,9 +448,9 @@ mod test {
 
     #[test]
     fn response_type_into_iter2() {
-        let mut authorizer = ImplicitCredential::builder();
+        let mut authorizer =
+            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
-            .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Token])
             .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
@@ -484,9 +468,9 @@ mod test {
     #[test]
     #[should_panic]
     fn missing_scope_panic() {
-        let mut authorizer = ImplicitCredential::builder();
+        let mut authorizer =
+            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
-            .with_client_id("6731de76-14a6-49ae-97bc-6eba6914391e")
             .with_response_type(vec![ResponseType::Token])
             .with_redirect_uri("https://example.com/myapp")
             .unwrap()
@@ -498,14 +482,13 @@ mod test {
 
     #[test]
     fn generate_nonce() {
-        let url = ImplicitCredential::builder()
+        let url = ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e")
+            .unwrap()
             .with_redirect_uri("http://localhost:8080")
             .unwrap()
             .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
-            .with_nonce_generated()
-            .unwrap()
             .url()
             .unwrap();
 

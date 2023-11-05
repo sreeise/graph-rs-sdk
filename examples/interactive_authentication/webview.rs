@@ -44,8 +44,7 @@ async fn authenticate() {
 
     let mut credential_builder = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
         .with_tenant(TENANT_ID)
-        .with_scope(vec!["user.read"])
-        .with_offline_access() // Adds offline_access as a scope which is needed to get a refresh token.
+        .with_scope(vec!["user.read", "offline_access"]) // Adds offline_access as a scope which is needed to get a refresh token.
         .with_redirect_uri(REDIRECT_URI)
         .with_interactive_authentication(None)
         .unwrap();

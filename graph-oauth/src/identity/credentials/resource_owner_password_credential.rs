@@ -12,6 +12,10 @@ use uuid::Uuid;
 /// however this client implementation does not offer this use case. This is the
 /// same as all MSAL clients.
 /// https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.3
+///
+/// The Microsoft identity platform only supports the ROPC grant within Microsoft Entra tenants,
+/// not personal accounts. This means that you must use a tenant-specific endpoint
+/// (https://login.microsoftonline.com/{TenantId_or_Name}) or the organizations endpoint.
 #[derive(Clone)]
 pub struct ResourceOwnerPasswordCredential {
     pub(crate) app_config: AppConfig,
@@ -21,11 +25,6 @@ pub struct ResourceOwnerPasswordCredential {
     /// Required
     /// The user's password.
     pub(crate) password: String,
-    /// The value passed for the scope parameter in this request should be the resource
-    /// identifier (application ID URI) of the resource you want, affixed with the .default
-    /// suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
-    /// Default is https://graph.microsoft.com/.default.
-    pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
 }
 
@@ -33,41 +32,38 @@ impl Debug for ResourceOwnerPasswordCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ClientAssertionCredential")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .finish()
     }
 }
 
 impl ResourceOwnerPasswordCredential {
-    pub fn new<T: AsRef<str>>(
-        client_id: T,
-        username: T,
-        password: T,
+    pub fn new(
+        client_id: impl AsRef<str>,
+        username: impl AsRef<str>,
+        password: impl AsRef<str>,
     ) -> ResourceOwnerPasswordCredential {
-        let mut app_config = AppConfig::new_with_client_id(client_id.as_ref());
-        app_config.authority = Authority::Organizations;
         ResourceOwnerPasswordCredential {
-            app_config,
+            app_config: AppConfig::builder(client_id.as_ref())
+                .authority(Authority::Organizations)
+                .build(),
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
-            scope: vec![],
             serializer: Default::default(),
         }
     }
 
-    pub fn new_with_tenant<T: AsRef<str>>(
-        tenant_id: T,
-        client_id: T,
-        username: T,
-        password: T,
+    pub fn new_with_tenant(
+        tenant_id: impl AsRef<str>,
+        client_id: impl AsRef<str>,
+        username: impl AsRef<str>,
+        password: impl AsRef<str>,
     ) -> ResourceOwnerPasswordCredential {
-        let mut app_config = AppConfig::new_with_tenant_and_client_id(tenant_id, client_id);
-        app_config.authority = Authority::Organizations;
         ResourceOwnerPasswordCredential {
-            app_config,
+            app_config: AppConfig::builder(client_id.as_ref())
+                .tenant(tenant_id.as_ref())
+                .build(),
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
-            scope: vec![],
             serializer: Default::default(),
         }
     }
@@ -96,7 +92,7 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
         self.serializer
             .client_id(client_id.as_str())
             .grant_type("password")
-            .extend_scopes(self.scope.iter());
+            .set_scope(self.app_config.scope.clone());
 
         self.serializer.as_credential_map(
             vec![OAuthParameter::Scope],
@@ -127,21 +123,20 @@ pub struct ResourceOwnerPasswordCredentialBuilder {
 }
 
 impl ResourceOwnerPasswordCredentialBuilder {
-    fn new<T: AsRef<str>>(client_id: T) -> ResourceOwnerPasswordCredentialBuilder {
+    fn new(client_id: impl AsRef<str>) -> ResourceOwnerPasswordCredentialBuilder {
         ResourceOwnerPasswordCredentialBuilder {
             credential: ResourceOwnerPasswordCredential {
-                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
+                app_config: AppConfig::new(client_id.as_ref()),
                 username: String::new(),
                 password: String::new(),
-                scope: vec![],
                 serializer: Default::default(),
             },
         }
     }
 
-    pub(crate) fn new_with_username_password<T: AsRef<str>>(
-        username: T,
-        password: T,
+    pub(crate) fn new_with_username_password(
+        username: impl AsRef<str>,
+        password: impl AsRef<str>,
         app_config: AppConfig,
     ) -> ResourceOwnerPasswordCredentialBuilder {
         ResourceOwnerPasswordCredentialBuilder {
@@ -149,7 +144,6 @@ impl ResourceOwnerPasswordCredentialBuilder {
                 app_config,
                 username: username.as_ref().to_owned(),
                 password: password.as_ref().to_owned(),
-                scope: vec![],
                 serializer: Default::default(),
             },
         }
@@ -179,6 +173,11 @@ impl ResourceOwnerPasswordCredentialBuilder {
         self
     }
 
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.credential.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self
+    }
+
     /// The grant type isn't supported on the /common or /consumers authentication contexts.
     /// Use /organizations or a tenant ID instead.
     /// Authority defaults to /organizations if no tenant id or authority is given.
@@ -202,12 +201,6 @@ impl ResourceOwnerPasswordCredentialBuilder {
 
         self.credential.app_config.authority = authority;
         Ok(self)
-    }
-
-    /// Defaults to "https://graph.microsoft.com/.default"
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.credential.scope = scope.into_iter().map(|s| s.to_string()).collect();
-        self
     }
 
     pub fn build(&self) -> ResourceOwnerPasswordCredential {

@@ -18,20 +18,11 @@
 //! - [Client Credentials - Client Certificate](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate)
 //! - [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
 //!
-//! #### Microsoft OneDrive and SharePoint
-//!
-//! Can only be used with personal Microsoft accounts. Not recommended - use the Microsoft
-//! Identity Platform if at all possible.
-//!
-//! - [Token Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#token-flow)
-//! - [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
-//!
-//!
 //! # Example ConfidentialClientApplication Authorization Code Flow
 //! ```rust
 //! use url::Url;
 //! use graph_error::IdentityResult;
-//! use graph_oauth::identity::{AuthorizationCodeCredential, ConfidentialClientApplication};
+//! use graph_oauth::oauth::{AuthorizationCodeCredential, ConfidentialClientApplication};
 //!
 //! pub fn authorization_url(client_id: &str) -> IdentityResult<Url> {
 //!     ConfidentialClientApplication::builder(client_id)

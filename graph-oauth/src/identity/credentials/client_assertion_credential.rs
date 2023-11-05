@@ -7,7 +7,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use uuid::Uuid;
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::AppConfig;
@@ -39,17 +39,6 @@ credential_builder!(
 #[derive(Clone)]
 pub struct ClientAssertionCredential {
     pub(crate) app_config: AppConfig,
-    /// The value passed for the scope parameter in this request should be the resource identifier
-    /// (application ID URI) of the resource you want, affixed with the .default suffix.
-    /// All scopes included must be for a single resource. Including scopes for multiple
-    /// resources will result in an error.
-    ///
-    /// For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
-    /// This value tells the Microsoft identity platform that of all the direct application
-    /// permissions you have configured for your app, the endpoint should issue a token for the
-    /// ones associated with the resource you want to use. To learn more about the /.default scope,
-    /// see the [consent documentation](https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview#the-default-scope).
-    pub(crate) scope: Vec<String>,
     /// The value must be set to urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
     /// This is automatically set by the SDK.
     pub(crate) client_assertion_type: String,
@@ -70,8 +59,10 @@ impl ClientAssertionCredential {
         client_id: impl AsRef<str>,
     ) -> ClientAssertionCredential {
         ClientAssertionCredential {
-            app_config: AppConfig::new_with_tenant_and_client_id(tenant_id, client_id),
-            scope: vec!["https://graph.microsoft.com/.default".into()],
+            app_config: AppConfig::builder(client_id.as_ref())
+                .tenant(tenant_id.as_ref())
+                .scope(vec!["https://graph.microsoft.com/.default"])
+                .build(),
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: assertion.as_ref().to_string(),
             serializer: Default::default(),
@@ -84,7 +75,6 @@ impl Debug for ClientAssertionCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ClientAssertionCredential")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .finish()
     }
 }
@@ -144,12 +134,9 @@ impl ClientAssertionCredentialBuilder {
     ) -> ClientAssertionCredentialBuilder {
         ClientAssertionCredentialBuilder {
             credential: ClientAssertionCredential {
-                app_config: AppConfig::new_init(
-                    Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
-                    Option::<String>::None,
-                    None,
-                ),
-                scope: vec!["https://graph.microsoft.com/.default".into()],
+                app_config: AppConfig::builder(client_id.as_ref())
+                    .scope(vec!["https://graph.microsoft.com/.default"])
+                    .build(),
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
                 client_assertion: signed_assertion.as_ref().to_owned(),
                 serializer: Default::default(),
@@ -160,12 +147,14 @@ impl ClientAssertionCredentialBuilder {
 
     pub(crate) fn new_with_signed_assertion(
         signed_assertion: String,
-        app_config: AppConfig,
+        mut app_config: AppConfig,
     ) -> ClientAssertionCredentialBuilder {
+        app_config
+            .scope
+            .insert("https://graph.microsoft.com/.default".to_string());
         ClientAssertionCredentialBuilder {
             credential: ClientAssertionCredential {
                 app_config,
-                scope: vec!["https://graph.microsoft.com/.default".into()],
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
                 client_assertion: signed_assertion,
                 serializer: Default::default(),
@@ -199,14 +188,9 @@ impl TokenCredentialExecutor for ClientAssertionCredential {
         self.serializer
             .client_id(client_id.as_str())
             .client_assertion(self.client_assertion.as_str())
-            .client_assertion_type(self.client_assertion_type.as_str());
-
-        if self.scope.is_empty() {
-            self.serializer
-                .add_scope("https://graph.microsoft.com/.default");
-        }
-
-        self.serializer.grant_type("client_credentials");
+            .client_assertion_type(self.client_assertion_type.as_str())
+            .set_scope(self.app_config.scope.clone())
+            .grant_type("client_credentials");
 
         self.serializer.as_credential_map(
             vec![OAuthParameter::Scope],

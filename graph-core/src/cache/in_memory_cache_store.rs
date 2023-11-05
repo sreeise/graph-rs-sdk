@@ -1,3 +1,4 @@
+use crate::cache::cache_store::CacheStore;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
@@ -12,21 +13,23 @@ impl<Value: Clone> InMemoryCacheStore<Value> {
             store: Default::default(),
         }
     }
+}
 
-    pub fn store<T: Into<String>>(&mut self, cache_id: T, token: Value) {
+impl<Value: Clone> CacheStore<Value> for InMemoryCacheStore<Value> {
+    fn store<T: Into<String>>(&mut self, cache_id: T, token: Value) {
         let mut write_lock = self.store.write().unwrap();
         write_lock.insert(cache_id.into(), token);
         drop(write_lock);
     }
 
-    pub fn get(&self, cache_id: &str) -> Option<Value> {
+    fn get(&self, cache_id: &str) -> Option<Value> {
         let read_lock = self.store.read().unwrap();
         let token = read_lock.get(cache_id).cloned();
         drop(read_lock);
         token
     }
 
-    pub fn evict(&self, cache_id: &str) -> Option<Value> {
+    fn evict(&self, cache_id: &str) -> Option<Value> {
         let mut write_lock = self.store.write().unwrap();
         let token = write_lock.remove(cache_id);
         drop(write_lock);

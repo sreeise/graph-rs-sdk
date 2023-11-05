@@ -712,6 +712,24 @@ impl OAuthSerializer {
             .join(sep)
     }
 
+    /// Set scope. Overriding all previous scope values.
+    ///
+    /// # Example
+    /// ```
+    /// # use graph_oauth::extensions::OAuthSerializer;
+    /// # use std::collections::HashSet;
+    /// # let mut oauth = OAuthSerializer::new();
+    ///
+    /// let scopes = vec!["Files.Read", "Files.ReadWrite"];
+    /// oauth.extend_scopes(&scopes);
+    ///
+    /// assert_eq!(oauth.join_scopes(" "), "Files.Read Files.ReadWrite");
+    /// ```
+    pub fn set_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, iter: I) -> &mut Self {
+        self.scopes = iter.into_iter().map(|s| s.to_string()).collect();
+        self
+    }
+
     /// Extend scopes.
     ///
     /// # Example

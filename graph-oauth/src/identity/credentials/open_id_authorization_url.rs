@@ -15,6 +15,8 @@ use crate::identity::{
     AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
 };
 
+const RESPONSE_TYPES_SUPPORTED: &[&str] = &["code", "id_token", "code id_token", "id_token token"];
+
 /// OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional
 /// authentication protocol. You can use OIDC to enable single sign-on (SSO) between your
 /// OAuth-enabled applications by using a security token called an ID token.
@@ -65,11 +67,6 @@ pub struct OpenIdAuthorizationUrlParameters {
     /// information about the user's state in the app before the authentication request occurred,
     /// such as the page or view the user was on.
     pub(crate) state: Option<String>,
-    /// Required - the openid scope is already included.
-    /// A space-separated list of scopes. For OpenID Connect, it must include the scope openid,
-    /// which translates to the Sign you in permission in the consent UI. You might also include
-    /// other scopes in this request for requesting consent.
-    pub(crate) scope: BTreeSet<String>,
     /// Optional -
     /// Indicates the type of user interaction that is required. The only valid values at
     /// this time are login, none, consent, and select_account.
@@ -103,14 +100,12 @@ pub struct OpenIdAuthorizationUrlParameters {
     /// this parameter during re-authentication, after already extracting the login_hint
     /// optional claim from an earlier sign-in.
     pub(crate) login_hint: Option<String>,
-    response_types_supported: Vec<String>,
 }
 
 impl Debug for OpenIdAuthorizationUrlParameters {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("AuthCodeAuthorizationUrlParameters")
+        f.debug_struct("OpenIdAuthorizationUrlParameters")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .field("response_type", &self.response_type)
             .field("response_mode", &self.response_mode)
             .field("prompt", &self.prompt)
@@ -123,42 +118,33 @@ impl OpenIdAuthorizationUrlParameters {
         redirect_uri: IU,
         scope: I,
     ) -> IdentityResult<OpenIdAuthorizationUrlParameters> {
-        let mut tree_set_scope = BTreeSet::new();
-        tree_set_scope.insert("openid".to_owned());
-        tree_set_scope.extend(scope.into_iter().map(|s| s.to_string()));
+        let mut scope_set = BTreeSet::new();
+        scope_set.insert("openid".to_owned());
+        scope_set.extend(scope.into_iter().map(|s| s.to_string()));
 
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
-        let mut app_config = AppConfig::new_with_client_id(client_id);
-        app_config.redirect_uri = Some(redirect_uri.into_url().or(redirect_uri_result)?);
 
         let mut response_type = BTreeSet::new();
         response_type.insert(ResponseType::IdToken);
 
         Ok(OpenIdAuthorizationUrlParameters {
-            app_config,
+            app_config: AppConfig::builder(client_id.as_ref())
+                .scope(scope_set)
+                .redirect_uri(redirect_uri.into_url().or(redirect_uri_result)?)
+                .build(),
             response_type,
             response_mode: None,
             nonce: secure_random_32()?,
             state: None,
-            scope: tree_set_scope,
-            prompt: BTreeSet::new(),
+            prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
-            response_types_supported: vec![
-                "code".into(),
-                "id_token".into(),
-                "code id_token".into(),
-                "id_token token".into(),
-            ],
         })
     }
 
     fn new_with_app_config(
         app_config: AppConfig,
     ) -> IdentityResult<OpenIdAuthorizationUrlParameters> {
-        let mut scope = BTreeSet::new();
-        scope.insert("openid".to_owned());
-
         let mut response_type = BTreeSet::new();
         response_type.insert(ResponseType::IdToken);
 
@@ -168,16 +154,9 @@ impl OpenIdAuthorizationUrlParameters {
             response_mode: None,
             nonce: secure_random_32()?,
             state: None,
-            scope,
             prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
-            response_types_supported: vec![
-                "code".into(),
-                "id_token".into(),
-                "code id_token".into(),
-                "id_token token".into(),
-            ],
         })
     }
 
@@ -226,7 +205,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
             return AuthorizationFailure::result("client_id");
         }
 
-        if self.scope.is_empty() {
+        if self.app_config.scope.is_empty() {
             return AuthorizationFailure::result("scope");
         }
 
@@ -239,7 +218,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
 
         serializer
             .client_id(client_id.as_str())
-            .extend_scopes(self.scope.clone())
+            .set_scope(self.app_config.scope.clone())
             .nonce(self.nonce.as_str())
             .authority(azure_cloud_instance, &self.app_config.authority);
 
@@ -247,12 +226,12 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
             serializer.response_type("code");
         } else {
             let response_types = self.response_type.as_query();
-            if !self.response_types_supported.contains(&response_types) {
+            if !RESPONSE_TYPES_SUPPORTED.contains(&response_types.as_str()) {
                 return AuthorizationFailure::msg_result(
                     "response_type",
                     format!(
                         "response_type is not supported - supported response types are: {}",
-                        self.response_types_supported
+                        RESPONSE_TYPES_SUPPORTED
                             .iter()
                             .map(|s| format!("`{}`", s))
                             .collect::<Vec<String>>()
@@ -324,7 +303,9 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     ) -> IdentityResult<OpenIdAuthorizationUrlParameterBuilder> {
         Ok(OpenIdAuthorizationUrlParameterBuilder {
             parameters: OpenIdAuthorizationUrlParameters::new_with_app_config(
-                AppConfig::new_with_client_id(client_id),
+                AppConfig::builder(client_id.as_ref())
+                    .scope(vec!["openid"])
+                    .build(),
             )?,
         })
     }
@@ -332,9 +313,6 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     pub(crate) fn new_with_app_config(
         app_config: AppConfig,
     ) -> OpenIdAuthorizationUrlParameterBuilder {
-        let mut scope = BTreeSet::new();
-        scope.insert("openid".to_owned());
-
         OpenIdAuthorizationUrlParameterBuilder {
             parameters: OpenIdAuthorizationUrlParameters::new_with_app_config(app_config)
                 .expect("ring::crypto::Unspecified"),
@@ -424,20 +402,23 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// Takes an iterator of scopes to use in the request.
     /// Replaces current scopes if any were added previously.
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.parameters.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        if self.parameters.app_config.scope.contains("offline_access") {
+            self.parameters.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+            self.with_offline_access();
+        } else {
+            self.parameters.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        }
         self
     }
 
-    /// Automatically adds `profile` and `email` to the scope parameter.
-    /// The `openid` scope is already included in the request.
-    ///
-    /// If you need a refresh token then include `offline_access` as a scope.
-    /// The `offline_access` scope is not included here.
-    pub fn with_default_scope(&mut self) -> anyhow::Result<&mut Self> {
+    /// Adds the `offline_access` scope parameter which tells the authorization server
+    /// to include a refresh token in the response.
+    pub fn with_offline_access(&mut self) -> &mut Self {
         self.parameters
+            .app_config
             .scope
-            .extend(vec!["profile".to_owned(), "email".to_owned()]);
-        Ok(self)
+            .extend(vec!["offline_access".to_owned()]);
+        self
     }
 
     /// Indicates the type of user interaction that is required. Valid values are login, none,
@@ -490,10 +471,21 @@ mod test {
 
     #[test]
     #[should_panic]
-    fn unsupported_response_type() {
+    fn code_token_unsupported_response_type() {
         let _ = OpenIdAuthorizationUrlParameters::builder("client_id")
             .unwrap()
             .with_response_type([ResponseType::Code, ResponseType::Token])
+            .with_scope(["scope"])
+            .url()
+            .unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn id_token_token_unsupported_response_type() {
+        let _ = OpenIdAuthorizationUrlParameters::builder("client_id")
+            .unwrap()
+            .with_response_type([ResponseType::Token])
             .with_scope(["scope"])
             .url()
             .unwrap();

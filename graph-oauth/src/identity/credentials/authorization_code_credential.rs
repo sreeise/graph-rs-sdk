@@ -7,12 +7,12 @@ use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
-use graph_core::cache::{InMemoryCacheStore, TokenCache};
+use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_core::crypto::ProofKeyCodeExchange;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::credentials::app_config::AppConfig;
+use crate::identity::credentials::app_config::{AppConfig, AppConfigBuilder};
 use crate::identity::{
     Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, Token,
     TokenCredentialExecutor,
@@ -51,12 +51,6 @@ pub struct AuthorizationCodeCredential {
     /// specification. The Basic auth pattern of instead providing credentials in the Authorization
     /// header, per RFC 6749 is also supported.
     pub(crate) client_secret: String,
-    /// A space-separated list of scopes. The scopes must all be from a single resource,
-    /// along with OIDC scopes (profile, openid, email). For more information, see Permissions
-    /// and consent in the Microsoft identity platform. This parameter is a Microsoft extension
-    /// to the authorization code flow, intended to allow apps to declare the resource they want
-    /// the token for during token redemption.
-    pub(crate) scope: Vec<String>,
     /// The same code_verifier that was used to obtain the authorization_code.
     /// Required if PKCE was used in the authorization code grant request. For more information,
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
@@ -69,7 +63,6 @@ impl Debug for AuthorizationCodeCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AuthorizationCodeCredential")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .finish()
     }
 }
@@ -88,7 +81,6 @@ impl AuthorizationCodeCredential {
             authorization_code: None,
             refresh_token: None,
             client_secret: "".to_string(),
-            scope: vec![],
             code_verifier: None,
             serializer: Default::default(),
             token_cache,
@@ -206,44 +198,43 @@ impl TokenCache for AuthorizationCodeCredential {
 }
 
 impl AuthorizationCodeCredential {
-    pub fn new<T: AsRef<str>, U: IntoUrl>(
-        tenant_id: T,
-        client_id: T,
-        client_secret: T,
-        authorization_code: T,
+    pub fn new(
+        tenant_id: impl AsRef<str>,
+        client_id: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
+        authorization_code: impl AsRef<str>,
     ) -> IdentityResult<AuthorizationCodeCredential> {
         Ok(AuthorizationCodeCredential {
-            app_config: AppConfig::new_with_tenant_and_client_id(tenant_id, client_id),
+            app_config: AppConfig::builder(client_id.as_ref())
+                .tenant(tenant_id.as_ref())
+                .build(),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_secret: client_secret.as_ref().to_owned(),
-            scope: vec![],
             code_verifier: None,
             serializer: OAuthSerializer::new(),
             token_cache: Default::default(),
         })
     }
 
-    pub fn new_with_redirect_uri<T: AsRef<str>, U: IntoUrl>(
-        tenant_id: T,
-        client_id: T,
-        client_secret: T,
-        authorization_code: T,
-        redirect_uri: U,
+    pub fn new_with_redirect_uri(
+        tenant_id: impl AsRef<str>,
+        client_id: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
+        authorization_code: impl AsRef<str>,
+        redirect_uri: impl IntoUrl,
     ) -> IdentityResult<AuthorizationCodeCredential> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
 
         Ok(AuthorizationCodeCredential {
-            app_config: AppConfig::new_init(
-                Uuid::try_parse(client_id.as_ref()).unwrap_or_default(),
-                Some(tenant_id.as_ref().to_owned()),
-                Some(redirect_uri),
-            ),
+            app_config: AppConfigBuilder::new(client_id.as_ref())
+                .tenant(tenant_id.as_ref())
+                .redirect_uri(redirect_uri)
+                .build(),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
             refresh_token: None,
             client_secret: client_secret.as_ref().to_owned(),
-            scope: vec![],
             code_verifier: None,
             serializer: OAuthSerializer::new(),
             token_cache: Default::default(),
@@ -282,11 +273,10 @@ impl AuthorizationCodeCredentialBuilder {
     ) -> AuthorizationCodeCredentialBuilder {
         Self {
             credential: AuthorizationCodeCredential {
-                app_config: AppConfig::new_with_client_id(client_id.as_ref()),
+                app_config: AppConfig::new(client_id.as_ref()),
                 authorization_code: Some(authorization_code.as_ref().to_owned()),
                 refresh_token: None,
                 client_secret: client_secret.as_ref().to_owned(),
-                scope: vec![],
                 code_verifier: None,
                 serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
@@ -304,7 +294,6 @@ impl AuthorizationCodeCredentialBuilder {
                 authorization_code: Some(authorization_code.as_ref().to_owned()),
                 refresh_token: None,
                 client_secret: String::new(),
-                scope: vec![],
                 code_verifier: None,
                 serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
@@ -375,7 +364,7 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
         self.serializer
             .client_id(client_id.as_str())
             .client_secret(self.client_secret.as_str())
-            .extend_scopes(self.scope.clone());
+            .set_scope(self.app_config.scope.clone());
 
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
