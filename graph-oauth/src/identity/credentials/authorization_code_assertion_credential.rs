@@ -49,13 +49,6 @@ pub struct AuthorizationCodeAssertionCredential {
     /// you registered as credentials for your application. Read about certificate credentials
     /// to learn how to register your certificate and the format of the assertion.
     pub(crate) client_assertion: String,
-    /// Required
-    /// A space-separated list of scopes. For OpenID Connect (id_tokens), it must include the
-    /// scope openid, which translates to the "Sign you in" permission in the consent UI.
-    /// Optionally you may also want to include the email and profile scopes for gaining access
-    /// to additional user data. You may also include other scopes in this request for requesting
-    /// consent to various resources, if an access token is requested.
-    pub(crate) scope: Vec<String>,
     serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
@@ -64,7 +57,6 @@ impl Debug for AuthorizationCodeAssertionCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AuthorizationCodeAssertionCredential")
             .field("app_config", &self.app_config)
-            .field("scope", &self.scope)
             .finish()
     }
 }
@@ -92,7 +84,6 @@ impl AuthorizationCodeAssertionCredential {
             code_verifier: None,
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
-            scope: vec![],
             serializer: OAuthSerializer::new(),
             token_cache: Default::default(),
         })
@@ -244,7 +235,7 @@ impl TokenCredentialExecutor for AuthorizationCodeAssertionCredential {
             .client_id(client_id.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
-            .extend_scopes(self.scope.clone());
+            .set_scope(self.app_config.scope.clone());
 
         if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
             self.serializer.redirect_uri(redirect_uri.as_str());
@@ -346,7 +337,6 @@ impl AuthorizationCodeAssertionCredentialBuilder {
                 code_verifier: None,
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: String::new(),
-                scope: vec![],
                 serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
@@ -366,7 +356,6 @@ impl AuthorizationCodeAssertionCredentialBuilder {
                 code_verifier: None,
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: assertion.as_ref().to_owned(),
-                scope: vec![],
                 serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },

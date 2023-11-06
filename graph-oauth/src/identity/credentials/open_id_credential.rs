@@ -339,11 +339,11 @@ impl OpenIdCredentialBuilder {
                     .redirect_uri(
                         Url::parse("http://localhost").expect("Internal Error - please report"),
                     )
+                    .scope(vec!["openid"])
                     .build(),
                 authorization_code: None,
                 refresh_token: None,
                 client_secret: String::new(),
-                scope: vec!["openid".to_owned()],
                 code_verifier: None,
                 pkce: None,
                 serializer: Default::default(),
@@ -352,14 +352,14 @@ impl OpenIdCredentialBuilder {
         }
     }
 
-    fn new_with_app_config(app_config: AppConfig) -> OpenIdCredentialBuilder {
+    fn new_with_app_config(mut app_config: AppConfig) -> OpenIdCredentialBuilder {
+        app_config.scope.insert("openid".to_string());
         Self {
             credential: OpenIdCredential {
                 app_config,
                 authorization_code: None,
                 refresh_token: None,
                 client_secret: String::new(),
-                scope: vec!["openid".to_owned()],
                 code_verifier: None,
                 pkce: None,
                 serializer: Default::default(),
@@ -371,15 +371,15 @@ impl OpenIdCredentialBuilder {
     pub(crate) fn new_with_auth_code_and_secret(
         authorization_code: impl AsRef<str>,
         client_secret: impl AsRef<str>,
-        app_config: AppConfig,
+        mut app_config: AppConfig,
     ) -> OpenIdCredentialBuilder {
+        app_config.scope.insert("openid".to_string());
         OpenIdCredentialBuilder {
             credential: OpenIdCredential {
                 app_config,
                 authorization_code: Some(authorization_code.as_ref().to_owned()),
                 refresh_token: None,
                 client_secret: client_secret.as_ref().to_owned(),
-                scope: vec![],
                 code_verifier: None,
                 pkce: None,
                 serializer: Default::default(),

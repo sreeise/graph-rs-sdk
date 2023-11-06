@@ -208,7 +208,7 @@ impl AuthCodeAuthorizationUrlParameters {
                         serde_urlencoded::from_str(query)?;
                     Ok(response_query)
                 }
-                InteractiveAuthEvent::ClosingWindow(window_close_reason) => {
+                InteractiveAuthEvent::WindowClosed(window_close_reason) => {
                     match window_close_reason {
                         WindowCloseReason::CloseRequested => {
                             Err(WebViewExecutionError::WindowClosedRequested)

@@ -1,6 +1,7 @@
 use std::time::Duration;
 use url::Url;
 
+use crate::oauth::InteractiveDeviceCodeEvent;
 use crate::web::{InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
 use graph_error::{WebViewExecutionError, WebViewResult};
 use wry::application::event_loop::EventLoopBuilder;
@@ -116,7 +117,7 @@ impl InteractiveWebView {
         let sender2 = sender.clone();
 
         let window = WindowBuilder::new()
-            .with_title("Sign In")
+            .with_title(options.window_title)
             .with_closable(true)
             .with_content_protection(true)
             .with_minimizable(true)
@@ -160,12 +161,16 @@ impl InteractiveWebView {
             .build()?;
 
         event_loop.run(move |event, _, control_flow| {
-            *control_flow = ControlFlow::WaitUntil(options.timeout);
+            if let Some(timeout) = options.timeout.as_ref() {
+                *control_flow = ControlFlow::WaitUntil(timeout.clone());
+            } else {
+                *control_flow = ControlFlow::Wait;
+            }
 
             match event {
                 Event::NewEvents(StartCause::Init) => tracing::debug!(target: "interactive_webview", "Webview runtime started"),
                 Event::NewEvents(StartCause::ResumeTimeReached { start, requested_resume, .. }) => {
-                    sender.send(InteractiveAuthEvent::ClosingWindow(WindowCloseReason::TimedOut {
+                    sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::TimedOut {
                         start, requested_resume
                     })).unwrap_or_default();
                     tracing::debug!(target: "interactive_webview", "Timeout reached - closing window");
@@ -182,7 +187,7 @@ impl InteractiveWebView {
                     event: WindowEvent::CloseRequested,
                     ..
                 } => {
-                    sender.send(InteractiveAuthEvent::ClosingWindow(WindowCloseReason::CloseRequested)).unwrap_or_default();
+                    sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::CloseRequested)).unwrap_or_default();
                     tracing::trace!(target: "interactive_webview", "Window closing before reaching redirect uri");
 
                     if options.clear_browsing_data {
@@ -209,7 +214,119 @@ impl InteractiveWebView {
                     tracing::error!(target: "interactive_webview", "WebView attempted to navigate to invalid host with uri: {uri_option:#?}");
                     if options.close_window_on_invalid_uri_navigation {
                         tracing::error!(target: "interactive_webview", "Closing window due to attempted navigation to invalid host with uri: {uri_option:#?}");
-                        sender.send(InteractiveAuthEvent::ClosingWindow(WindowCloseReason::InvalidWindowNavigation)).unwrap_or_default();
+                        sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::InvalidWindowNavigation)).unwrap_or_default();
+
+                        if options.clear_browsing_data {
+                            let _ = webview.clear_all_browsing_data();
+                        }
+
+                        // Wait time to avoid deadlock where window closes before receiver gets the event
+                        std::thread::sleep(Duration::from_secs(1));
+
+                        *control_flow = ControlFlow::Exit;
+                    }
+                }
+                _ => (),
+            }
+        });
+    }
+
+    #[tracing::instrument]
+    pub fn device_code_interactive_authentication(
+        uri: Url,
+        options: WebViewOptions,
+        sender: std::sync::mpsc::Sender<InteractiveDeviceCodeEvent>,
+    ) -> anyhow::Result<()> {
+        tracing::trace!(target: "interactive_webview", "Constructing WebView Window and EventLoop");
+        //let validator = WebViewValidHosts::new(uri.clone(), redirect_uris, options.ports)?;
+        let event_loop: EventLoop<UserEvents> = EventLoopBuilder::with_user_event()
+            .with_any_thread(true)
+            .build();
+        let proxy = event_loop.create_proxy();
+        let sender2 = sender.clone();
+
+        let window = WindowBuilder::new()
+            .with_title(options.window_title)
+            .with_closable(true)
+            .with_content_protection(true)
+            .with_minimizable(true)
+            .with_maximizable(true)
+            .with_focused(true)
+            .with_resizable(true)
+            .with_theme(options.theme)
+            .build(&event_loop)?;
+
+        let webview = WebViewBuilder::new(window)?
+            .with_url(uri.as_ref())?
+            // Disables file drop
+            .with_file_drop_handler(|_, _| true)
+            .with_navigation_handler(move |uri| {
+                if let Ok(url) = Url::parse(uri.as_str()) {
+                    sender2
+                        .send(InteractiveDeviceCodeEvent::InteractiveAuthEvent(
+                            InteractiveAuthEvent::ReachedRedirectUri(url.clone()),
+                        ))
+                        .unwrap_or_default();
+                }
+                true
+            })
+            .build()?;
+
+        event_loop.run(move |event, _, control_flow| {
+            if let Some(timeout) = options.timeout.as_ref() {
+                *control_flow = ControlFlow::WaitUntil(timeout.clone());
+            } else {
+                *control_flow = ControlFlow::Wait;
+            }
+
+            match event {
+                Event::NewEvents(StartCause::Init) => tracing::debug!(target: "interactive_webview", "Webview runtime started"),
+                Event::NewEvents(StartCause::ResumeTimeReached { start, requested_resume, .. }) => {
+                    sender.send(InteractiveDeviceCodeEvent::InteractiveAuthEvent(InteractiveAuthEvent::WindowClosed(WindowCloseReason::TimedOut {
+                        start, requested_resume
+                    }))).unwrap_or_default();
+                    tracing::debug!(target: "interactive_webview", "Timeout reached - closing window");
+
+                    if options.clear_browsing_data {
+                        let _ = webview.clear_all_browsing_data();
+                    }
+
+                    // Wait time to avoid deadlock where window closes before receiver gets the event
+                    std::thread::sleep(Duration::from_millis(500));
+                    *control_flow = ControlFlow::Exit
+                }
+                Event::UserEvent(UserEvents::CloseWindow) | Event::WindowEvent {
+                    event: WindowEvent::CloseRequested,
+                    ..
+                } => {
+                    sender.send(InteractiveDeviceCodeEvent::InteractiveAuthEvent(InteractiveAuthEvent::WindowClosed(WindowCloseReason::CloseRequested))).unwrap_or_default();
+                    tracing::trace!(target: "interactive_webview", "Window closing before reaching redirect uri");
+
+                    if options.clear_browsing_data {
+                        let _ = webview.clear_all_browsing_data();
+                    }
+
+                    // Wait time to avoid deadlock where window closes before receiver gets the event
+                    std::thread::sleep(Duration::from_millis(500));
+                    *control_flow = ControlFlow::Exit
+                }
+                Event::UserEvent(UserEvents::ReachedRedirectUri(uri)) => {
+                    tracing::trace!(target: "interactive_webview", "Matched on redirect uri: {uri:#?} - Closing window");
+
+                    if options.clear_browsing_data {
+                        let _ = webview.clear_all_browsing_data();
+                    }
+
+                    // Wait time to avoid deadlock where window closes before
+                    // the channel has received the redirect uri.
+                    std::thread::sleep(Duration::from_millis(500));
+                    *control_flow = ControlFlow::Exit
+                }
+                Event::UserEvent(UserEvents::InvalidNavigationAttempt(uri_option)) => {
+                    tracing::error!(target: "interactive_webview", "WebView attempted to navigate to invalid host with uri: {uri_option:#?}");
+                    if options.close_window_on_invalid_uri_navigation {
+                        tracing::error!(target: "interactive_webview", "Closing window due to attempted navigation to invalid host with uri: {uri_option:#?}");
+                        sender.send(InteractiveDeviceCodeEvent::InteractiveAuthEvent(InteractiveAuthEvent::WindowClosed(WindowCloseReason::InvalidWindowNavigation))).unwrap_or_default();
 
                         if options.clear_browsing_data {
                             let _ = webview.clear_all_browsing_data();

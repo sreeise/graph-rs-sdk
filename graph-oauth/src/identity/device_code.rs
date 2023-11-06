@@ -1,6 +1,10 @@
 use std::collections::{BTreeSet, HashMap};
 use std::str::FromStr;
 
+use crate::identity::PublicClientApplication;
+use crate::oauth::DeviceCodeCredential;
+use crate::web::InteractiveAuthEvent;
+use graph_core::http::JsonHttpResponse;
 use serde_json::Value;
 
 /// https://datatracker.ietf.org/doc/html/rfc8628#section-3.2
@@ -53,7 +57,7 @@ fn default_interval() -> u64 {
 /// Response types used when polling for a device code
 /// https://datatracker.ietf.org/doc/html/rfc8628#section-3.5
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum PollDeviceCodeType {
+pub enum PollDeviceCodeEvent {
     /// The user hasn't finished authenticating, but hasn't canceled the flow.
     /// Repeat the request after at least interval seconds.
     AuthorizationPending,
@@ -81,18 +85,39 @@ pub enum PollDeviceCodeType {
     SlowDown,
 }
 
-impl FromStr for PollDeviceCodeType {
+impl FromStr for PollDeviceCodeEvent {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "authorization_pending" => Ok(PollDeviceCodeType::AuthorizationPending),
-            "authorization_declined" => Ok(PollDeviceCodeType::AuthorizationDeclined),
-            "bad_verification_code" => Ok(PollDeviceCodeType::BadVerificationCode),
-            "expired_token" => Ok(PollDeviceCodeType::ExpiredToken),
-            "access_denied" => Ok(PollDeviceCodeType::AccessDenied),
-            "slow_down" => Ok(PollDeviceCodeType::SlowDown),
+            "authorization_pending" => Ok(PollDeviceCodeEvent::AuthorizationPending),
+            "authorization_declined" => Ok(PollDeviceCodeEvent::AuthorizationDeclined),
+            "bad_verification_code" => Ok(PollDeviceCodeEvent::BadVerificationCode),
+            "expired_token" => Ok(PollDeviceCodeEvent::ExpiredToken),
+            "access_denied" => Ok(PollDeviceCodeEvent::AccessDenied),
+            "slow_down" => Ok(PollDeviceCodeEvent::SlowDown),
             _ => Err(()),
         }
     }
+}
+
+#[derive(Debug)]
+pub enum InteractiveDeviceCodeEvent {
+    BeginAuth {
+        response: JsonHttpResponse,
+        device_code: Option<DeviceCode>,
+    },
+    FailedAuth {
+        response: JsonHttpResponse,
+        device_code: Option<DeviceCode>,
+    },
+    PollDeviceCode {
+        poll_device_code_event: PollDeviceCodeEvent,
+        response: JsonHttpResponse,
+    },
+    InteractiveAuthEvent(InteractiveAuthEvent),
+    SuccessfulAuthEvent {
+        response: JsonHttpResponse,
+        public_application: PublicClientApplication<DeviceCodeCredential>,
+    },
 }

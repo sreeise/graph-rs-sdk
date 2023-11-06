@@ -24,5 +24,5 @@ pub enum WindowCloseReason {
 pub enum InteractiveAuthEvent {
     InvalidRedirectUri(String),
     ReachedRedirectUri(Url),
-    ClosingWindow(WindowCloseReason),
+    WindowClosed(WindowCloseReason),
 }

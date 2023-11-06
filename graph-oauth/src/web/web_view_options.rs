@@ -24,7 +24,7 @@ pub struct WebViewOptions {
     /// when that timeout is reached. For instance, if your app is waiting on the
     /// user to log in and the user has not logged in after 20 minutes you may
     /// want to assume the user is idle in some way and close out of the webview window.
-    pub timeout: Instant,
+    pub timeout: Option<Instant>,
     /// The webview can store the cookies that were set after sign in so that on the next
     /// sign in the user is automatically logged in through SSO. Or you can clear the browsing
     /// data, cookies in this case, after sign in when the webview window closes.
@@ -69,7 +69,7 @@ impl WebViewOptions {
     /// user to log in and the user has not logged in after 20 minutes you may
     /// want to assume the user is idle in some way and close out of the webview window.
     pub fn with_timeout(mut self, instant: Instant) -> Self {
-        self.timeout = instant;
+        self.timeout = Some(instant);
         self
     }
 
@@ -90,7 +90,7 @@ impl Default for WebViewOptions {
             theme: None,
             ports: vec![],
             // 10 Minutes default timeout
-            timeout: Instant::now().add(Duration::from_secs(10 * 60)),
+            timeout: None,
             clear_browsing_data: false,
         }
     }

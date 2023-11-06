@@ -3,7 +3,23 @@
 Interactive Authentication uses a webview to perform sign in and handle the redirect
 uri making it easy for you to integrate the sdk into your application.
 
-The sdk uses the wry crate internally to provide a webview.
+Interactive Authentication uses a webview provided by the Wry crate https://github.com/tauri-apps/wry
+See the wry documentation for platform specific installation. Linux and macOS require
+installation of platform specific dependencies. These are not included by default.
+
+This example executes the Authorization Code OAuth flow and handles
+sign in/redirect using WebView as well as authorization and token retrieval.
+
+The WebView window will load on the sign in page for Microsoft Graph
+Log in with a user and upon redirect the will close the window automatically.
+The credential_builder will store the authorization code returned on the
+redirect url after logging in and then build a `ConfidentialClient<AuthorizationCodeCredential>`
+
+The `ConfidentialClient<AuthorizationCodeCredential>` handles authorization to get an access token
+on the first request made using the Graph client. The token is stored in an in memory cache
+and subsequent calls will use this token. If a refresh token is included, which you can get
+by requesting the offline_access scope, then the confidential client will take care of refreshing
+the token.
 
 ### Example
 
