@@ -2,14 +2,12 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use std::ops::Add;
-use std::process::exit;
 use std::str::FromStr;
-use std::sync::mpsc::Receiver;
-use std::thread;
 use std::time::Duration;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use http::{HeaderMap, HeaderName, HeaderValue};
+use tracing::error;
 use url::Url;
 use uuid::Uuid;
 
@@ -18,18 +16,30 @@ use graph_core::http::{
 };
 use graph_error::{
     AuthExecutionError, AuthExecutionResult, AuthTaskExecutionResult, AuthorizationFailure,
-    DeviceCodeWebViewResult, IdentityResult, WebViewExecutionError, WebViewResult, AF,
+    IdentityResult,
 };
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AuthorizationQueryResponse, AzureCloudInstance, DeviceCode, ForceTokenRefresh,
-    PollDeviceCodeEvent, PublicClientApplication, TokenCredentialExecutor,
+    Authority, AzureCloudInstance, DeviceAuthorizationResponse, ForceTokenRefresh,
+    PollDeviceCodeEvent, PublicClientApplication, Token, TokenCredentialExecutor,
 };
-use crate::oauth::{InteractiveDeviceCodeEvent, Token};
-use crate::web::{InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
-use crate::web::{InteractiveAuthenticator, InteractiveWebView};
+
+#[cfg(feature = "interactive-auth")]
+use crate::oauth::InteractiveDeviceCodeEvent;
+
+#[cfg(feature = "interactive-auth")]
+use graph_error::WebViewResult;
+
+#[cfg(feature = "interactive-auth")]
+use crate::web::{IInteractiveWebView, InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
+
+#[cfg(feature = "interactive-auth")]
+use std::sync::mpsc::{Receiver, Sender};
+
+#[cfg(feature = "interactive-auth")]
+use std::thread;
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -38,11 +48,13 @@ credential_builder!(
     PublicClientApplication<DeviceCodeCredential>
 );
 
-/// Allows users to sign in to input-constrained devices such as a smart TV, IoT device,
-/// or a printer. To enable this flow, the device has the user visit a webpage in a browser on
-/// another device to sign in. Once the user signs in, the device is able to get access tokens
-/// and refresh tokens as needed.
-/// https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code
+/// The device authorization grant: allows users to sign in to input-constrained devices
+/// such as a smart TV, IoT device, or a printer. To enable this flow, the device has the
+/// user visit a webpage in a browser on another device to sign in. Once the user signs in,
+/// the device is able to get access tokens and refresh tokens as needed.
+///
+/// For more info on the protocol supported by the Microsoft Identity Platform see the
+/// [Microsoft identity platform and the OAuth 2.0 device authorization grant flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
 #[derive(Clone)]
 pub struct DeviceCodeCredential {
     pub(crate) app_config: AppConfig,
@@ -208,10 +220,6 @@ impl TokenCache for DeviceCodeCredential {
 
 impl TokenCredentialExecutor for DeviceCodeCredential {
     fn uri(&mut self) -> IdentityResult<Url> {
-        let azure_cloud_instance = self.azure_cloud_instance();
-        self.serializer
-            .authority_device_code(&azure_cloud_instance, &self.authority());
-
         if self.device_code.is_none() && self.refresh_token.is_none() {
             Ok(self
                 .azure_cloud_instance()
@@ -344,23 +352,16 @@ impl DeviceCodeCredentialBuilder {
     }
 }
 
-/*
-impl From<&DeviceCode> for DeviceCodeCredentialBuilder {
-    fn from(value: &DeviceCode) -> Self {
-        DeviceCodeCredentialBuilder {
-            credential: DeviceCodeCredential {
-                app_config: AppConfig::new(),
-                refresh_token: None,
-                device_code: Some(value.device_code.clone()),
-                scope: vec![],
-                serializer: Default::default(),
-                token_cache: Default::default(),
-            },
-        }
-    }
+#[cfg(feature = "interactive-auth")]
+#[derive(Debug)]
+pub enum DeviceCodeInteractiveEvent {
+    DeviceAuthorization(DeviceAuthorizationResponse),
+    Failed(JsonHttpResponse),
+    WindowClosed(WindowCloseReason),
+    Success(PublicClientApplication<DeviceCodeCredential>),
 }
- */
 
+#[derive(Debug)]
 pub struct DeviceCodePollingExecutor {
     credential: DeviceCodeCredential,
 }
@@ -378,257 +379,14 @@ impl DeviceCodePollingExecutor {
         }
     }
 
-    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(mut self, scope: I) -> Self {
         self.credential.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
-    pub fn with_tenant(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
+    pub fn with_tenant(mut self, tenant_id: impl AsRef<str>) -> Self {
         self.credential.app_config.tenant_id = Some(tenant_id.as_ref().to_owned());
         self
-    }
-
-    pub fn interactive_webview_auth(&mut self, options: Option<WebViewOptions>) {
-        let executor_result = self.interactive_webview_authentication(options);
-        if let Ok(mut executor) = executor_result {
-            while let interactive_device_code_event = executor.recv().unwrap() {
-                match interactive_device_code_event {
-                    InteractiveDeviceCodeEvent::BeginAuth {
-                        response,
-                        device_code,
-                    } => {
-                        println!("{:#?}", response);
-                        println!("{:#?}", device_code);
-                    }
-                    InteractiveDeviceCodeEvent::FailedAuth {
-                        response,
-                        device_code,
-                    } => {
-                        println!("{:#?}", response);
-                        println!("{:#?}", device_code);
-                    }
-                    InteractiveDeviceCodeEvent::PollDeviceCode {
-                        poll_device_code_event,
-                        response,
-                    } => {
-                        println!("{:#?}", response);
-                        println!("{:#?}", poll_device_code_event);
-                    }
-                    InteractiveDeviceCodeEvent::InteractiveAuthEvent(auth_event) => {
-                        match auth_event {
-                            InteractiveAuthEvent::InvalidRedirectUri(_) => {}
-                            InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                                println!("{:#?}", uri);
-                            }
-                            InteractiveAuthEvent::WindowClosed(window_closed) => {
-                                match window_closed {
-                                    WindowCloseReason::CloseRequested => {
-                                        println!("close requested");
-                                    }
-                                    WindowCloseReason::InvalidWindowNavigation => {
-                                        println!("invalid navigation");
-                                    }
-                                    WindowCloseReason::TimedOut {
-                                        requested_resume,
-                                        start,
-                                    } => {
-                                        println!("Timed Out");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    InteractiveDeviceCodeEvent::SuccessfulAuthEvent {
-                        response,
-                        public_application,
-                    } => {
-                        println!("{:#?}", response);
-                        let json = response.json().unwrap();
-                        let token: Token = serde_json::from_value(json).unwrap();
-                        println!("{:#?}", token);
-                    }
-                }
-            }
-        } else if let Err(err) = executor_result {
-            println!("{err:#?}");
-        }
-    }
-
-    pub fn interactive_webview_authentication(
-        &mut self,
-        options: Option<WebViewOptions>,
-    ) -> DeviceCodeWebViewResult<Receiver<InteractiveDeviceCodeEvent>> {
-        let (sender, receiver) = std::sync::mpsc::channel();
-
-        let mut credential = self.credential.clone();
-        let response = credential.execute()?;
-
-        let http_response = response.into_http_response()?;
-
-        if !http_response.status().is_success() {
-            sender
-                .send(InteractiveDeviceCodeEvent::FailedAuth {
-                    response: http_response,
-                    device_code: None,
-                })
-                .unwrap();
-            return Ok(receiver);
-        }
-
-        if let Some(json) = http_response.json() {
-            let device_code_response: DeviceCode =
-                serde_json::from_value(json).map_err(AuthExecutionError::from)?;
-
-            if device_code_response.error.is_some() {
-                sender
-                    .send(InteractiveDeviceCodeEvent::FailedAuth {
-                        response: http_response,
-                        device_code: Some(device_code_response),
-                    })
-                    .unwrap();
-                return Ok(receiver);
-            } else {
-                sender
-                    .send(InteractiveDeviceCodeEvent::BeginAuth {
-                        response: http_response,
-                        device_code: Some(device_code_response.clone()),
-                    })
-                    .unwrap();
-            }
-
-            let device_code = device_code_response.device_code;
-            let interval = Duration::from_secs(device_code_response.interval);
-            credential.with_device_code(device_code);
-
-            let sender2 = sender.clone();
-            let _ = std::thread::spawn(move || {
-                let mut should_slow_down = false;
-
-                loop {
-                    // Wait the amount of seconds that interval is.
-                    if should_slow_down {
-                        should_slow_down = false;
-                        std::thread::sleep(interval.add(Duration::from_secs(5)));
-                    } else {
-                        std::thread::sleep(interval);
-                    }
-
-                    let response = credential.execute().unwrap();
-                    let http_response = response.into_http_response()?;
-                    let status = http_response.status();
-
-                    if status.is_success() {
-                        let json = http_response.json().unwrap();
-                        let token: Token = serde_json::from_value(json)?;
-                        let cache_id = credential.app_config.cache_id.clone();
-                        credential.token_cache.store(cache_id, token);
-                        sender2.send(InteractiveDeviceCodeEvent::SuccessfulAuthEvent {
-                            response: http_response,
-                            public_application: PublicClientApplication::from(credential),
-                        })?;
-                        break;
-                    } else {
-                        let json = http_response.json().unwrap();
-                        let option_error = json["error"].as_str().map(|value| value.to_owned());
-
-                        if let Some(error) = option_error {
-                            match PollDeviceCodeEvent::from_str(error.as_str()) {
-                                Ok(poll_device_code_type) => match poll_device_code_type {
-                                    PollDeviceCodeEvent::AuthorizationPending => {
-                                        sender2.send(
-                                            InteractiveDeviceCodeEvent::PollDeviceCode {
-                                                response: http_response,
-                                                poll_device_code_event:
-                                                    PollDeviceCodeEvent::AuthorizationPending,
-                                            },
-                                        )?;
-                                        continue;
-                                    }
-                                    PollDeviceCodeEvent::AuthorizationDeclined => {
-                                        sender2.send(
-                                            InteractiveDeviceCodeEvent::PollDeviceCode {
-                                                response: http_response,
-                                                poll_device_code_event:
-                                                    PollDeviceCodeEvent::AuthorizationDeclined,
-                                            },
-                                        )?;
-                                        break;
-                                    }
-                                    PollDeviceCodeEvent::BadVerificationCode => {
-                                        sender2.send(
-                                            InteractiveDeviceCodeEvent::PollDeviceCode {
-                                                response: http_response,
-                                                poll_device_code_event:
-                                                    PollDeviceCodeEvent::BadVerificationCode,
-                                            },
-                                        )?;
-                                        continue;
-                                    }
-                                    PollDeviceCodeEvent::ExpiredToken => {
-                                        sender2.send(
-                                            InteractiveDeviceCodeEvent::PollDeviceCode {
-                                                response: http_response,
-                                                poll_device_code_event:
-                                                    PollDeviceCodeEvent::ExpiredToken,
-                                            },
-                                        )?;
-                                        break;
-                                    }
-                                    PollDeviceCodeEvent::AccessDenied => {
-                                        sender2.send(
-                                            InteractiveDeviceCodeEvent::PollDeviceCode {
-                                                response: http_response,
-                                                poll_device_code_event:
-                                                    PollDeviceCodeEvent::AccessDenied,
-                                            },
-                                        )?;
-                                        break;
-                                    }
-                                    PollDeviceCodeEvent::SlowDown => {
-                                        sender2.send(
-                                            InteractiveDeviceCodeEvent::PollDeviceCode {
-                                                response: http_response,
-                                                poll_device_code_event:
-                                                    PollDeviceCodeEvent::SlowDown,
-                                            },
-                                        )?;
-
-                                        should_slow_down = true;
-                                        continue;
-                                    }
-                                },
-                                Err(_) => break,
-                            }
-                        } else {
-                            // Body should have error or we should bail.
-                            break;
-                        }
-                    }
-                }
-                Ok::<(), anyhow::Error>(())
-            });
-
-            // Spawn thread for webview
-            let sender3 = sender.clone();
-            std::thread::spawn(move || {
-                InteractiveWebView::device_code_interactive_authentication(
-                    Url::parse(device_code_response.verification_uri.as_str()).unwrap(),
-                    options.unwrap_or_default(),
-                    sender3,
-                )
-                .unwrap();
-            });
-        } else {
-            sender
-                .send(InteractiveDeviceCodeEvent::FailedAuth {
-                    response: http_response,
-                    device_code: None,
-                })
-                .unwrap();
-            return Ok(receiver);
-        }
-
-        Ok(receiver)
     }
 
     pub fn poll(&mut self) -> AuthExecutionResult<std::sync::mpsc::Receiver<JsonHttpResponse>> {
@@ -639,7 +397,7 @@ impl DeviceCodePollingExecutor {
 
         let http_response = response.into_http_response()?;
         let json = http_response.json().unwrap();
-        let device_code_response: DeviceCode = serde_json::from_value(json)?;
+        let device_code_response: DeviceAuthorizationResponse = serde_json::from_value(json)?;
 
         sender.send(http_response).unwrap();
 
@@ -684,7 +442,13 @@ impl DeviceCodePollingExecutor {
                                     continue;
                                 }
                             },
-                            Err(_) => break,
+                            Err(_) => {
+                                error!(
+                                    target = "device_code_polling_executor",
+                                    "Invalid PollDeviceCodeEvent"
+                                );
+                                break;
+                            }
                         }
                     } else {
                         // Body should have error or we should bail.
@@ -716,7 +480,7 @@ impl DeviceCodePollingExecutor {
 
         let http_response = response.into_http_response_async().await?;
         let json = http_response.json().unwrap();
-        let device_code_response: DeviceCode =
+        let device_code_response: DeviceAuthorizationResponse =
             serde_json::from_value(json).map_err(AuthExecutionError::from)?;
 
         sender
@@ -784,42 +548,245 @@ impl DeviceCodePollingExecutor {
 
         Ok(receiver)
     }
+
+    #[cfg(feature = "interactive-auth")]
+    pub fn execute_interactive_authentication(
+        &mut self,
+    ) -> AuthExecutionResult<DeviceCodeInteractiveAuth> {
+        let response = self.credential.execute()?;
+        let device_authorization_response: DeviceAuthorizationResponse = response.json()?;
+        Ok(DeviceCodeInteractiveAuth {
+            credential: self.credential.clone(),
+            device_authorization_response,
+        })
+    }
 }
 
-// #[cfg(feature = "interactive-auth")]
-pub(crate) mod web_view_authenticator {
-    use crate::oauth::DeviceCodeCredential;
-    use crate::web::{
-        InteractiveAuthEvent, InteractiveAuthenticator, InteractiveWebView, WebViewOptions,
-    };
-    use graph_error::WebViewResult;
-    use url::Url;
+#[cfg(feature = "interactive-auth")]
+#[derive(Debug)]
+pub struct DeviceCodeInteractiveAuth {
+    credential: DeviceCodeCredential,
+    pub device_authorization_response: DeviceAuthorizationResponse,
+}
 
-    impl InteractiveAuthenticator for DeviceCodeCredential {
-        fn interactive_authentication(
-            &self,
-            interactive_web_view_options: Option<WebViewOptions>,
-        ) -> WebViewResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
-            let uri = self
-                .app_config
-                .azure_cloud_instance
-                .auth_uri(&self.app_config.authority)
-                .expect("Internal Error Please Report");
-            let web_view_options = interactive_web_view_options.unwrap_or_default();
-            let (sender, receiver) = std::sync::mpsc::channel();
-
-            std::thread::spawn(move || {
-                InteractiveWebView::interactive_authentication(
-                    uri,
-                    vec![Url::parse("http://localhost:8080").unwrap()],
-                    web_view_options,
-                    sender,
-                )
-                .unwrap();
-            });
-
-            Ok(receiver)
+#[cfg(feature = "interactive-auth")]
+impl DeviceCodeInteractiveAuth {
+    pub(crate) fn new(
+        credential: DeviceCodeCredential,
+        device_authorization_response: DeviceAuthorizationResponse,
+    ) -> DeviceCodeInteractiveAuth {
+        DeviceCodeInteractiveAuth {
+            credential,
+            device_authorization_response,
         }
+    }
+
+    pub fn begin(
+        &mut self,
+        options: Option<WebViewOptions>,
+    ) -> WebViewResult<Receiver<DeviceCodeInteractiveEvent>> {
+        let executor = self.interactive_webview_authentication(options)?;
+        let (sender, receiver) = std::sync::mpsc::channel();
+
+        std::thread::spawn(move || {
+            DeviceCodePollingExecutor::execute_interactive_loop(sender, executor);
+        });
+
+        Ok(receiver)
+    }
+
+    #[tracing::instrument]
+    fn execute_interactive_loop(
+        sender: Sender<DeviceCodeInteractiveEvent>,
+        executor: Receiver<InteractiveDeviceCodeEvent>,
+    ) {
+        loop {
+            match executor.recv() {
+                Ok(interactive_device_code_event) => match interactive_device_code_event {
+                    InteractiveDeviceCodeEvent::PollDeviceCode {
+                        poll_device_code_event,
+                        response,
+                    } => {
+                        let res = response.json().unwrap_or_default().to_string();
+                        tracing::debug!(target: "device_code_polling_executor", poll_device_code = poll_device_code_event.as_str(), http_response = res);
+
+                        match poll_device_code_event {
+                            PollDeviceCodeEvent::AuthorizationPending
+                            | PollDeviceCodeEvent::SlowDown => continue,
+                            PollDeviceCodeEvent::AuthorizationDeclined
+                            | PollDeviceCodeEvent::BadVerificationCode
+                            | PollDeviceCodeEvent::ExpiredToken
+                            | PollDeviceCodeEvent::AccessDenied => {
+                                sender
+                                    .send(DeviceCodeInteractiveEvent::Failed(response))
+                                    .unwrap_or_default();
+                                break;
+                            }
+                        }
+                    }
+                    InteractiveDeviceCodeEvent::WindowClosed(window_closed) => {
+                        sender
+                            .send(DeviceCodeInteractiveEvent::WindowClosed(window_closed))
+                            .unwrap_or_default();
+                        break;
+                    }
+                    InteractiveDeviceCodeEvent::SuccessfulAuthEvent {
+                        response,
+                        public_application,
+                    } => {
+                        tracing::debug!(target: "device_code_polling_executor", "PublicApplication: {public_application:#?}");
+                        sender
+                            .send(DeviceCodeInteractiveEvent::Success(public_application))
+                            .unwrap_or_default();
+                    }
+                    _ => {}
+                },
+                Err(err) => panic!("{}", err),
+            }
+        }
+    }
+
+    #[tracing::instrument]
+    pub fn interactive_webview_authentication(
+        &mut self,
+        options: Option<WebViewOptions>,
+    ) -> WebViewResult<Receiver<InteractiveDeviceCodeEvent>> {
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let mut credential = self.credential.clone();
+        let device_authorization_response = self.device_authorization_response.clone();
+
+        // Spawn thread for webview
+        let sender3 = sender.clone();
+        std::thread::spawn(move || {
+            let url = {
+                if let Some(url_complete) = device_authorization_response
+                    .verification_uri_complete
+                    .as_ref()
+                {
+                    Url::parse(url_complete).unwrap()
+                } else {
+                    Url::parse(device_authorization_response.verification_uri.as_str()).unwrap()
+                }
+            };
+
+            InteractiveWebView::device_code_interactive_authentication(
+                url,
+                options.unwrap_or_default(),
+                sender3,
+            )
+            .unwrap();
+        });
+
+        let device_code = device_authorization_response.device_code;
+        let interval = Duration::from_secs(device_authorization_response.interval);
+        credential.with_device_code(device_code);
+
+        let sender2 = sender.clone();
+        std::thread::spawn(move || {
+            let mut should_slow_down = false;
+
+            loop {
+                // Wait the amount of seconds that interval is.
+                if should_slow_down {
+                    should_slow_down = false;
+                    std::thread::sleep(interval.add(Duration::from_secs(5)));
+                } else {
+                    std::thread::sleep(interval);
+                }
+
+                let response = credential.execute().unwrap();
+                tracing::debug!(target: "device_code_polling_executor", "{response:#?}");
+                let http_response = response.into_http_response()?;
+                let status = http_response.status();
+
+                if status.is_success() {
+                    let json = http_response.json().unwrap();
+                    let token: Token = serde_json::from_value(json)?;
+                    let cache_id = credential.app_config.cache_id.clone();
+                    credential.token_cache.store(cache_id, token);
+                    sender2.send(InteractiveDeviceCodeEvent::SuccessfulAuthEvent {
+                        response: http_response,
+                        public_application: PublicClientApplication::from(credential),
+                    })?;
+                    break;
+                } else {
+                    let json = http_response.json().unwrap();
+                    let option_error = json["error"].as_str().map(|value| value.to_owned());
+
+                    if let Some(error) = option_error {
+                        match PollDeviceCodeEvent::from_str(error.as_str()) {
+                            Ok(poll_device_code_type) => match poll_device_code_type {
+                                PollDeviceCodeEvent::AuthorizationPending => {
+                                    sender2.send(InteractiveDeviceCodeEvent::PollDeviceCode {
+                                        response: http_response,
+                                        poll_device_code_event:
+                                            PollDeviceCodeEvent::AuthorizationPending,
+                                    })?;
+                                    continue;
+                                }
+                                PollDeviceCodeEvent::AuthorizationDeclined => {
+                                    sender2.send(InteractiveDeviceCodeEvent::PollDeviceCode {
+                                        response: http_response,
+                                        poll_device_code_event:
+                                            PollDeviceCodeEvent::AuthorizationDeclined,
+                                    })?;
+                                    break;
+                                }
+                                PollDeviceCodeEvent::BadVerificationCode => {
+                                    sender2.send(InteractiveDeviceCodeEvent::PollDeviceCode {
+                                        response: http_response,
+                                        poll_device_code_event:
+                                            PollDeviceCodeEvent::BadVerificationCode,
+                                    })?;
+                                    continue;
+                                }
+                                PollDeviceCodeEvent::ExpiredToken => {
+                                    sender2.send(InteractiveDeviceCodeEvent::PollDeviceCode {
+                                        response: http_response,
+                                        poll_device_code_event: PollDeviceCodeEvent::ExpiredToken,
+                                    })?;
+                                    break;
+                                }
+                                PollDeviceCodeEvent::AccessDenied => {
+                                    sender2.send(InteractiveDeviceCodeEvent::PollDeviceCode {
+                                        response: http_response,
+                                        poll_device_code_event: PollDeviceCodeEvent::AccessDenied,
+                                    })?;
+                                    break;
+                                }
+                                PollDeviceCodeEvent::SlowDown => {
+                                    sender2.send(InteractiveDeviceCodeEvent::PollDeviceCode {
+                                        response: http_response,
+                                        poll_device_code_event: PollDeviceCodeEvent::SlowDown,
+                                    })?;
+
+                                    should_slow_down = true;
+                                    continue;
+                                }
+                            },
+                            Err(err) => {
+                                tracing::trace!(target: "device_code_polling_executor", "Error occurred while polling device code: {err:#?}");
+                                sender2.send(InteractiveDeviceCodeEvent::PollDeviceCode {
+                                    response: http_response,
+                                    poll_device_code_event: PollDeviceCodeEvent::AccessDenied,
+                                })?;
+                                break;
+                            }
+                        }
+                    } else {
+                        sender2.send(InteractiveDeviceCodeEvent::PollDeviceCode {
+                            response: http_response,
+                            poll_device_code_event: PollDeviceCodeEvent::AccessDenied,
+                        })?;
+                        // Body should have error or we should bail.
+                        break;
+                    }
+                }
+            }
+            Ok::<(), anyhow::Error>(())
+        });
+
+        Ok(receiver)
     }
 }
 

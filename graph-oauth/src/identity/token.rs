@@ -52,6 +52,8 @@ struct PhantomToken {
 /// Resources validate access tokens to grant access to a client application.
 /// For more information, see [Access tokens in the Microsoft Identity Platform](https://learn.microsoft.com/en-us/azure/active-directory/develop/access-tokens)
 ///
+/// For more info from the specification see [Successful Response](https://www.rfc-editor.org/rfc/rfc6749.html#section-5.1)
+///
 /// Create a new AccessToken.
 /// # Example
 /// ```
@@ -67,6 +69,15 @@ struct PhantomToken {
 /// ```
 #[derive(Clone, Eq, PartialEq, Serialize)]
 pub struct Token {
+    /// Access tokens are credentials used to access protected resources.  An
+    /// access token is a string representing an authorization issued to the
+    /// client.  The string is usually opaque to the client.  Tokens
+    /// represent specific scopes and durations of access, granted by the
+    /// resource owner, and enforced by the resource server and authorization
+    /// server.
+    ///
+    /// See [Access Token](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.4) in
+    /// the specification
     pub access_token: String,
     pub token_type: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -77,6 +88,17 @@ pub struct Token {
     #[serde(deserialize_with = "deserialize_scope")]
     pub scope: Vec<String>,
 
+    /// Refresh tokens are credentials used to obtain access tokens. Refresh tokens are issued
+    /// to the client by the authorization server and are used to obtain a new access token
+    /// when the current access token becomes invalid or expires, or to obtain additional
+    /// access tokens with identical or narrower scope (access tokens may have a shorter
+    /// lifetime and fewer permissions than authorized by the resource owner).
+    /// Issuing a refresh token is optional at the discretion of the authorization server.
+    /// If the authorization server issues a refresh token, it is included when issuing an
+    /// access token
+    ///
+    /// See [Refresh Token](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.5) in the specification
+    ///
     /// Because access tokens are valid for only a short period of time,
     /// authorization servers sometimes issue a refresh token at the same
     /// time the access token is issued. The client application can then

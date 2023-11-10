@@ -68,25 +68,6 @@ impl Debug for AuthorizationCodeCredential {
 }
 
 impl AuthorizationCodeCredential {
-    pub(crate) fn from_token_and_app_config(
-        app_config: AppConfig,
-        token: Token,
-    ) -> AuthorizationCodeCredential {
-        let cache_id = app_config.cache_id.clone();
-        let mut token_cache = InMemoryCacheStore::new();
-        token_cache.store(cache_id, token);
-
-        AuthorizationCodeCredential {
-            app_config,
-            authorization_code: None,
-            refresh_token: None,
-            client_secret: "".to_string(),
-            code_verifier: None,
-            serializer: Default::default(),
-            token_cache,
-        }
-    }
-
     fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
         let response = self.execute()?;
         let new_token: Token = response.json()?;
@@ -298,15 +279,6 @@ impl AuthorizationCodeCredentialBuilder {
                 serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
-        }
-    }
-
-    pub(crate) fn new_with_token(
-        app_config: AppConfig,
-        token: Token,
-    ) -> AuthorizationCodeCredentialBuilder {
-        Self {
-            credential: AuthorizationCodeCredential::from_token_and_app_config(app_config, token),
         }
     }
 

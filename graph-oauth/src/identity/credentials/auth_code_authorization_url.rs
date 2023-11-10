@@ -8,20 +8,21 @@ use url::Url;
 use uuid::Uuid;
 
 use graph_core::crypto::{secure_random_32, ProofKeyCodeExchange};
-use graph_error::{IdentityResult, WebViewExecutionError, WebViewResult, AF};
+use graph_error::{IdentityResult, AF};
 
 use crate::auth::{OAuthParameter, OAuthSerializer};
-use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    AuthorizationCodeCredentialBuilder, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode,
+    credentials::app_config::AppConfig, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode,
     ResponseType,
 };
 
-//#[cfg(feature = "interactive-auth")]
-use crate::identity::AuthorizationQueryResponse;
-use crate::oauth::Token;
+#[cfg(feature = "interactive-auth")]
+use graph_error::WebViewResult;
 
-//#[cfg(feature = "interactive-auth")]
+#[cfg(feature = "interactive-auth")]
+use crate::identity::{AuthorizationCodeCredentialBuilder, AuthorizationQueryResponse, Token};
+
+#[cfg(feature = "interactive-auth")]
 use crate::web::{
     InteractiveAuthEvent, InteractiveAuthenticator, WebViewOptions, WindowCloseReason,
 };
@@ -180,7 +181,7 @@ impl AuthCodeAuthorizationUrlParameters {
         self.nonce.as_ref()
     }
 
-    //#[cfg(feature = "interactive-auth")]
+    #[cfg(feature = "interactive-auth")]
     pub fn interactive_webview_authentication(
         &self,
         interactive_web_view_options: Option<WebViewOptions>,
@@ -227,7 +228,7 @@ impl AuthCodeAuthorizationUrlParameters {
     }
 }
 
-// #[cfg(feature = "interactive-auth")]
+#[cfg(feature = "interactive-auth")]
 pub(crate) mod web_view_authenticator {
     use crate::identity::{AuthCodeAuthorizationUrlParameters, AuthorizationUrl};
     use crate::web::{
@@ -531,6 +532,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self
     }
 
+    #[cfg(feature = "interactive-auth")]
     pub fn with_interactive_authentication(
         &self,
         options: Option<WebViewOptions>,

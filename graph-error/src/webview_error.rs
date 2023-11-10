@@ -1,5 +1,5 @@
-use crate::{AuthExecutionError, AuthorizationFailure};
-use url::ParseError;
+use crate::{AuthExecutionError, AuthorizationFailure, ErrorMessage};
+use std::sync::mpsc::RecvError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum WebViewExecutionError {
@@ -31,11 +31,17 @@ pub enum WebViewExecutionError {
     /// the query or fragment of the url to a AuthorizationQueryResponse
     #[error("{0:#?}")]
     SerdeError(#[from] serde::de::value::Error),
+
+    #[error("{0:#?}")]
+    RecvError(#[from] RecvError),
     /// Error from building out the parameters necessary for authorization
     /// this most likely came from an invalid parameter or missing parameter
     /// passed to the client used for building the url.
     #[error("{0:#?}")]
     AuthorizationError(#[from] AuthorizationFailure),
+    /// Error that happens calling the http request.
+    #[error("{0:#?}")]
+    AuthExecutionError(#[from] AuthExecutionError),
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -76,4 +82,6 @@ pub enum WebViewDeviceCodeExecutionError {
     /// Error that happens calling the http request.
     #[error("{0:#?}")]
     AuthExecutionError(#[from] AuthExecutionError),
+    #[error("{0:#?}")]
+    DeviceCodeAuthFailed(http::Response<Result<serde_json::Value, ErrorMessage>>),
 }

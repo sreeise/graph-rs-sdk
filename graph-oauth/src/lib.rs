@@ -53,7 +53,7 @@ mod oauth_error;
 
 pub(crate) mod identity;
 
-//#[cfg(feature = "interactive-auth")]
+#[cfg(feature = "interactive-auth")]
 pub(crate) mod web;
 
 pub(crate) mod internal {
@@ -70,7 +70,7 @@ pub mod oauth {
 
     pub use crate::identity::*;
 
-    //#[cfg(feature = "interactive-auth")]
+    #[cfg(feature = "interactive-auth")]
     pub mod web {
         pub use crate::web::*;
     }

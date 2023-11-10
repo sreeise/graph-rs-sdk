@@ -1,5 +1,4 @@
-use std::ops::Add;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 pub use wry::application::window::Theme;
 

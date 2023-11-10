@@ -8,12 +8,10 @@ use crate::identity::{
     PublicClientApplication, ResourceOwnerPasswordCredential,
     ResourceOwnerPasswordCredentialBuilder,
 };
-use base64::Engine;
 use graph_error::{IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use std::env::VarError;
-use uuid::Uuid;
 
 #[cfg(feature = "openssl")]
 use crate::identity::{
@@ -288,19 +286,13 @@ impl PublicClientApplicationBuilder {
         self
     }
 
-    pub fn with_device_code_polling_executor(self) -> DeviceCodePollingExecutor {
+    pub fn with_device_code_executor(self) -> DeviceCodePollingExecutor {
         DeviceCodePollingExecutor::new_with_app_config(self.app_config)
     }
 
     pub fn with_device_code(self, device_code: impl AsRef<str>) -> DeviceCodeCredentialBuilder {
         DeviceCodeCredentialBuilder::new_with_device_code(device_code.as_ref(), self.app_config)
     }
-
-    /*
-    pub fn interactive_authentication(self) -> DeviceCodeCredentialBuilder {
-
-    }
-     */
 
     pub fn with_username_password(
         self,

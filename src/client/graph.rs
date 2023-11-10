@@ -70,7 +70,7 @@ use crate::teams_templates::{TeamsTemplatesApiClient, TeamsTemplatesIdApiClient}
 use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
-use graph_oauth::oauth::OpenIdCredential;
+use graph_oauth::oauth::{DeviceCodeCredential, OpenIdCredential, PublicClientApplication};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -592,6 +592,12 @@ impl From<&ConfidentialClientApplication<ClientAssertionCredential>> for Graph {
 
 impl From<&ConfidentialClientApplication<OpenIdCredential>> for Graph {
     fn from(value: &ConfidentialClientApplication<OpenIdCredential>) -> Self {
+        Graph::from_client_app(value.clone())
+    }
+}
+
+impl From<&PublicClientApplication<DeviceCodeCredential>> for Graph {
+    fn from(value: &PublicClientApplication<DeviceCodeCredential>) -> Self {
         Graph::from_client_app(value.clone())
     }
 }

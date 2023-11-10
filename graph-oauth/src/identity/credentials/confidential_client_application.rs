@@ -9,32 +9,28 @@ use uuid::Uuid;
 
 use graph_core::cache::{AsBearer, TokenCache};
 use graph_core::identity::ClientApplication;
-use graph_error::{AuthExecutionResult, IdentityResult, AF};
+use graph_error::{AuthExecutionResult, IdentityResult};
 
 use crate::identity::{
     credentials::app_config::AppConfig,
     credentials::application_builder::ConfidentialClientApplicationBuilder,
     credentials::client_assertion_credential::ClientAssertionCredential, Authority,
     AuthorizationCodeAssertionCredential, AuthorizationCodeCertificateCredential,
-    AuthorizationCodeCredential, AuthorizationQueryResponse, AzureCloudInstance,
-    ClientCertificateCredential, ClientSecretCredential, OpenIdCredential, TokenCredentialExecutor,
-};
-use crate::oauth::AuthCodeAuthorizationUrlParameters;
-use crate::web::{
-    InteractiveAuthEvent, InteractiveAuthenticator, WebViewOptions, WindowCloseReason,
+    AuthorizationCodeCredential, AzureCloudInstance, ClientCertificateCredential,
+    ClientSecretCredential, OpenIdCredential, TokenCredentialExecutor,
 };
 
 /// Clients capable of maintaining the confidentiality of their credentials
 /// (e.g., client implemented on a secure server with restricted access to the client credentials),
 /// or capable of secure client authentication using other means.
 ///
+/// See [Client Types](https://datatracker.ietf.org/doc/html/rfc6749#section-2.1) in the specification.
 ///
 /// # Build a confidential client for the authorization code grant.
 /// Use [with_authorization_code](crate::identity::ConfidentialClientApplicationBuilder::with_auth_code) to set the authorization code received from
 /// the authorization step, see [Request an authorization code](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code)
 /// You can use the [AuthCodeAuthorizationUrlParameterBuilder](crate::identity::AuthCodeAuthorizationUrlParameterBuilder)
 /// to build the url that the user will be directed to authorize at.
-///
 /// ```rust
 #[derive(Clone, Debug)]
 pub struct ConfidentialClientApplication<Credential> {

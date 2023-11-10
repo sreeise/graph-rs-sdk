@@ -1,15 +1,24 @@
 use std::collections::{BTreeSet, HashMap};
+use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
-use crate::identity::PublicClientApplication;
-use crate::oauth::DeviceCodeCredential;
-use crate::web::InteractiveAuthEvent;
-use graph_core::http::JsonHttpResponse;
 use serde_json::Value;
 
-/// https://datatracker.ietf.org/doc/html/rfc8628#section-3.2
-/// The actual device code response that is received from Microsoft Graph
-/// looks similar to the following:
+#[cfg(feature = "interactive-auth")]
+use crate::web::{InteractiveAuthEvent, WindowCloseReason};
+
+#[cfg(feature = "interactive-auth")]
+use crate::identity::{DeviceCodeCredential, PublicClientApplication};
+
+/// The Device Authorization Response: the authorization server generates a unique device
+/// verification code and an end-user code that are valid for a limited time and includes
+/// them in the HTTP response body using the "application/json" format [RFC8259] with a
+/// 200 (OK) status code
+///
+/// The actual [device code response](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code#device-authorization-response)
+/// that is received from Microsoft Graph does not include the verification_uri_complete field
+/// that the [specification](https://datatracker.ietf.org/doc/html/rfc8628#section-3.2)
+/// The device code response from Microsoft Graph looks like similar to the following:
 ///
 /// ```json
 /// {
@@ -22,7 +31,7 @@ use serde_json::Value;
 /// }
 /// ```
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct DeviceCode {
+pub struct DeviceAuthorizationResponse {
     ///  A long string used to verify the session between the client and the authorization server.
     /// The client uses this parameter to request the access token from the authorization server.
     pub device_code: String,
@@ -36,16 +45,18 @@ pub struct DeviceCode {
     pub interval: u64,
     ///  User friendly text response that can be used for display purpose.
     pub message: String,
+    /// A short string shown to the user that's used to identify the session on a secondary device.
     pub user_code: String,
     /// Verification URL where the user must navigate to authenticate using the device code
     /// and credentials.
     pub verification_uri: String,
     /// The verification_uri_complete response field is not included or supported
-    /// by Microsoft at this time.
+    /// by Microsoft at this time. It is included here because it is part of the
+    /// [standard](https://datatracker.ietf.org/doc/html/rfc8628) and in the case
+    /// that Microsoft decides to include it.
     pub verification_uri_complete: Option<String>,
     /// List of the scopes that would be held by token.
     pub scopes: Option<BTreeSet<String>>,
-    pub error: Option<String>,
     #[serde(flatten)]
     pub additional_fields: HashMap<String, Value>,
 }
@@ -54,9 +65,26 @@ fn default_interval() -> u64 {
     5
 }
 
+impl Display for DeviceAuthorizationResponse {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}, {}, {}, {}, {}, {}, {:#?}, {:#?}",
+            self.device_code,
+            self.expires_in,
+            self.interval,
+            self.message,
+            self.user_code,
+            self.verification_uri,
+            self.verification_uri_complete,
+            self.scopes
+        )
+    }
+}
+
 /// Response types used when polling for a device code
 /// https://datatracker.ietf.org/doc/html/rfc8628#section-3.5
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum PollDeviceCodeEvent {
     /// The user hasn't finished authenticating, but hasn't canceled the flow.
     /// Repeat the request after at least interval seconds.
@@ -85,6 +113,19 @@ pub enum PollDeviceCodeEvent {
     SlowDown,
 }
 
+impl PollDeviceCodeEvent {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            PollDeviceCodeEvent::AuthorizationPending => "authorization_pending",
+            PollDeviceCodeEvent::AuthorizationDeclined => "authorization_declined",
+            PollDeviceCodeEvent::BadVerificationCode => "bad_verification_code",
+            PollDeviceCodeEvent::ExpiredToken => "expired_token",
+            PollDeviceCodeEvent::AccessDenied => "access_denied",
+            PollDeviceCodeEvent::SlowDown => "slow_down",
+        }
+    }
+}
+
 impl FromStr for PollDeviceCodeEvent {
     type Err = ();
 
@@ -101,21 +142,30 @@ impl FromStr for PollDeviceCodeEvent {
     }
 }
 
+impl AsRef<str> for PollDeviceCodeEvent {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl Display for PollDeviceCodeEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+#[cfg(feature = "interactive-auth")]
 #[derive(Debug)]
 pub enum InteractiveDeviceCodeEvent {
-    BeginAuth {
+    DeviceAuthorizationResponse {
         response: JsonHttpResponse,
-        device_code: Option<DeviceCode>,
-    },
-    FailedAuth {
-        response: JsonHttpResponse,
-        device_code: Option<DeviceCode>,
+        device_authorization_response: Option<DeviceAuthorizationResponse>,
     },
     PollDeviceCode {
         poll_device_code_event: PollDeviceCodeEvent,
         response: JsonHttpResponse,
     },
-    InteractiveAuthEvent(InteractiveAuthEvent),
+    WindowClosed(WindowCloseReason),
     SuccessfulAuthEvent {
         response: JsonHttpResponse,
         public_application: PublicClientApplication<DeviceCodeCredential>,

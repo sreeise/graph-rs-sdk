@@ -21,8 +21,9 @@ static TENANT: &str = "<TENANT>";
 // device code endpoint is polled an access token is returned.
 fn poll_device_code() {
     let mut device_executor = PublicClientApplication::builder(CLIENT_ID)
-        .with_device_code_polling_executor()
+        .with_device_code_executor()
         .with_scope(vec!["User.Read"])
+        .with_tenant(TENANT)
         .poll()
         .unwrap();
 
