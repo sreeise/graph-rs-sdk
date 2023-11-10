@@ -343,6 +343,7 @@ mod test {
     use http::header::AUTHORIZATION;
     use http::HeaderValue;
     use url::Url;
+    use uuid::Uuid;
 
     use crate::identity::{AadAuthorityAudience, AzureCloudInstance};
 

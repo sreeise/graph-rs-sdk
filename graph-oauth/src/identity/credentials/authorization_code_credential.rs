@@ -265,6 +265,27 @@ impl AuthorizationCodeCredentialBuilder {
         }
     }
 
+    pub(crate) fn new_with_token(
+        app_config: AppConfig,
+        token: Token,
+    ) -> AuthorizationCodeCredentialBuilder {
+        let cache_id = app_config.cache_id.clone();
+        let mut token_cache = InMemoryCacheStore::new();
+        token_cache.store(cache_id, token);
+
+        Self {
+            credential: AuthorizationCodeCredential {
+                app_config,
+                authorization_code: None,
+                refresh_token: None,
+                client_secret: String::new(),
+                code_verifier: None,
+                serializer: OAuthSerializer::new(),
+                token_cache,
+            },
+        }
+    }
+
     pub(crate) fn new_with_auth_code(
         app_config: AppConfig,
         authorization_code: impl AsRef<str>,

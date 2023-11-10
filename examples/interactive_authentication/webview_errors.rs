@@ -39,6 +39,8 @@ async fn customize_webview(tenant_id: &str, client_id: &str, scope: Vec<&str>, r
             // This most likely came from an invalid parameter or missing parameter
             // passed to the client used for building the url. See graph_rs_sdk::oauth::AuthCodeAuthorizationUrlParameters
             WebViewExecutionError::AuthorizationError(authorization_failure) => {}
+            WebViewExecutionError::RecvError(_) => {}
+            WebViewExecutionError::AuthExecutionError(_) => {}
         }
     }
 }

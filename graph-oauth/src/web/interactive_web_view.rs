@@ -162,7 +162,7 @@ impl InteractiveWebView {
 
         event_loop.run(move |event, _, control_flow| {
             if let Some(timeout) = options.timeout.as_ref() {
-                *control_flow = ControlFlow::WaitUntil(timeout.clone());
+                *control_flow = ControlFlow::WaitUntil(*timeout);
             } else {
                 *control_flow = ControlFlow::Wait;
             }
@@ -267,7 +267,7 @@ impl InteractiveWebView {
 
         event_loop.run(move |event, _, control_flow| {
             if let Some(timeout) = options.timeout.as_ref() {
-                *control_flow = ControlFlow::WaitUntil(timeout.clone());
+                *control_flow = ControlFlow::WaitUntil(*timeout);
             } else {
                 *control_flow = ControlFlow::Wait;
             }

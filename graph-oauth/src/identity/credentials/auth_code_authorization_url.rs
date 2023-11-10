@@ -17,7 +17,7 @@ use crate::identity::{
 };
 
 #[cfg(feature = "interactive-auth")]
-use graph_error::WebViewResult;
+use graph_error::{WebViewExecutionError, WebViewResult};
 
 #[cfg(feature = "interactive-auth")]
 use crate::identity::{AuthorizationCodeCredentialBuilder, AuthorizationQueryResponse, Token};
@@ -194,7 +194,7 @@ impl AuthCodeAuthorizationUrlParameters {
             next = iter.next();
         }
 
-        return match next {
+        match next {
             None => unreachable!(),
             Some(auth_event) => match auth_event {
                 InteractiveAuthEvent::InvalidRedirectUri(reason) => {
@@ -224,7 +224,7 @@ impl AuthCodeAuthorizationUrlParameters {
                     }
                 }
             },
-        };
+        }
     }
 }
 

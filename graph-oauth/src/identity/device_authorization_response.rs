@@ -5,7 +5,10 @@ use std::str::FromStr;
 use serde_json::Value;
 
 #[cfg(feature = "interactive-auth")]
-use crate::web::{InteractiveAuthEvent, WindowCloseReason};
+use graph_core::http::JsonHttpResponse;
+
+#[cfg(feature = "interactive-auth")]
+use crate::web::WindowCloseReason;
 
 #[cfg(feature = "interactive-auth")]
 use crate::identity::{DeviceCodeCredential, PublicClientApplication};

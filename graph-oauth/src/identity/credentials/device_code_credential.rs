@@ -33,13 +33,10 @@ use crate::oauth::InteractiveDeviceCodeEvent;
 use graph_error::WebViewResult;
 
 #[cfg(feature = "interactive-auth")]
-use crate::web::{IInteractiveWebView, InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
+use crate::web::{InteractiveWebView, WebViewOptions, WindowCloseReason};
 
 #[cfg(feature = "interactive-auth")]
 use std::sync::mpsc::{Receiver, Sender};
-
-#[cfg(feature = "interactive-auth")]
-use std::thread;
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -569,6 +566,7 @@ pub struct DeviceCodeInteractiveAuth {
     pub device_authorization_response: DeviceAuthorizationResponse,
 }
 
+#[allow(dead_code)]
 #[cfg(feature = "interactive-auth")]
 impl DeviceCodeInteractiveAuth {
     pub(crate) fn new(
@@ -589,7 +587,7 @@ impl DeviceCodeInteractiveAuth {
         let (sender, receiver) = std::sync::mpsc::channel();
 
         std::thread::spawn(move || {
-            DeviceCodePollingExecutor::execute_interactive_loop(sender, executor);
+            DeviceCodeInteractiveAuth::execute_interactive_loop(sender, executor);
         });
 
         Ok(receiver)
@@ -631,7 +629,7 @@ impl DeviceCodeInteractiveAuth {
                         break;
                     }
                     InteractiveDeviceCodeEvent::SuccessfulAuthEvent {
-                        response,
+                        response: _,
                         public_application,
                     } => {
                         tracing::debug!(target: "device_code_polling_executor", "PublicApplication: {public_application:#?}");
@@ -681,7 +679,7 @@ impl DeviceCodeInteractiveAuth {
         let interval = Duration::from_secs(device_authorization_response.interval);
         credential.with_device_code(device_code);
 
-        let sender2 = sender.clone();
+        let sender2 = sender;
         std::thread::spawn(move || {
             let mut should_slow_down = false;
 
