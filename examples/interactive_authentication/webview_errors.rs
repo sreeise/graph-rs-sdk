@@ -1,8 +1,6 @@
-use anyhow::Error;
-use graph_error::WebViewExecutionError;
-use graph_oauth::oauth::AuthorizationCodeCredential;
+use graph_rs_sdk::{error::WebViewExecutionError, oauth::AuthorizationCodeCredential};
 
-async fn customize_webview(tenant_id: &str, client_id: &str, scope: Vec<&str>, redirect_uri: &str) {
+async fn interactive_auth(tenant_id: &str, client_id: &str, scope: Vec<&str>, redirect_uri: &str) {
     let mut credential_builder_result =
         AuthorizationCodeCredential::authorization_url_builder(client_id)
             .with_tenant(tenant_id)
@@ -14,17 +12,11 @@ async fn customize_webview(tenant_id: &str, client_id: &str, scope: Vec<&str>, r
         // ...
     } else if let Err(err) = credential_builder_result {
         match err {
+            // WebView Window Closed Before Sign In and Redirect.
+            WebViewExecutionError::WindowClosed(reason) => {}
             // Issues with the redirect uri such as specifying localhost
             // but not providing a port in the WebViewOptions.
             WebViewExecutionError::InvalidRedirectUri(uri) => {}
-            // The user closed the webview window without logging in.
-            WebViewExecutionError::WindowClosedRequested => {}
-            // The user navigated to a url that was not the login url
-            // or a redirect url specified. Requires that WebViewOptions
-            // has the enforcement of invalid navigation enabled.
-            WebViewExecutionError::WindowClosedOnInvalidNavigation => {}
-            // The webview exited because of a timeout defined in the WebViewOptions.
-            WebViewExecutionError::WindowClosedOnTimeoutReached => {}
             // The host or domain provided or set for login is invalid.
             // This could be an internal error and most likely will never happen.
             WebViewExecutionError::InvalidStartUri { reason } => {}

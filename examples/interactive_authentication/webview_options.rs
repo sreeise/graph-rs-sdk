@@ -1,4 +1,5 @@
 use graph_rs_sdk::oauth::{web::Theme, web::WebViewOptions, AuthorizationCodeCredential};
+use std::collections::HashSet;
 use std::ops::Add;
 use std::time::{Duration, Instant};
 
@@ -6,15 +7,9 @@ fn get_webview_options() -> WebViewOptions {
     WebViewOptions::builder()
         // Give the window a title. The default is "Sign In"
         .with_window_title("Sign In")
-        // OS specific theme. Does not work on all operating systems.
+        // OS specific theme. Windows only.
         // See wry crate for more info.
         .with_theme(Theme::Dark)
-        // Close the webview window whenever there is a navigation by the webview or user
-        // to a url that is not one of the redirect urls or the login url.
-        // For instance, if this is considered a security issue and the user should
-        // not be able to navigate to another url.
-        // Either way, the url bar does not show regardless.
-        .with_close_window_on_invalid_navigation(true)
         // Add a timeout that will close the window and return an error
         // when that timeout is reached. For instance, if your app is waiting on the
         // user to log in and the user has not logged in after 20 minutes you may
@@ -27,7 +22,7 @@ fn get_webview_options() -> WebViewOptions {
         // Provide a list of ports to use for interactive authentication.
         // This assumes that you have http://localhost or http://localhost:port
         // for each port registered in your ADF application registration.
-        .with_ports(&[8000])
+        .with_ports(HashSet::from([8000]))
 }
 
 async fn customize_webview(tenant_id: &str, client_id: &str, scope: Vec<&str>, redirect_uri: &str) {

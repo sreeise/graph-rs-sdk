@@ -1,8 +1,9 @@
+use std::collections::HashSet;
 use std::time::Duration;
 use url::Url;
 
 use crate::oauth::InteractiveDeviceCodeEvent;
-use crate::web::{InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
+use crate::web::{HostOptions, InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
 use graph_error::{WebViewExecutionError, WebViewResult};
 use wry::application::event_loop::EventLoopBuilder;
 use wry::application::platform::windows::EventLoopBuilderExtWindows;
@@ -19,22 +20,21 @@ use wry::{
 pub enum UserEvents {
     CloseWindow,
     ReachedRedirectUri(Url),
-    InvalidNavigationAttempt(Option<Url>),
 }
 
-struct WebViewValidHosts {
+pub(crate) struct WebViewHostValidator {
     start_uri: Url,
     redirect_uris: Vec<Url>,
-    ports: Vec<usize>,
+    ports: HashSet<usize>,
     is_local_host: bool,
 }
 
-impl WebViewValidHosts {
-    fn new(
+impl WebViewHostValidator {
+    pub fn new(
         start_uri: Url,
         redirect_uris: Vec<Url>,
-        ports: Vec<usize>,
-    ) -> WebViewResult<WebViewValidHosts> {
+        ports: HashSet<usize>,
+    ) -> WebViewResult<WebViewHostValidator> {
         if start_uri.host().is_none() || redirect_uris.iter().any(|uri| uri.host().is_none()) {
             return Err(WebViewExecutionError::InvalidStartUri {
                 reason: "Authorization url and redirect uri must have valid uri hosts".to_owned(),
@@ -51,7 +51,7 @@ impl WebViewValidHosts {
             });
         }
 
-        Ok(WebViewValidHosts {
+        Ok(WebViewHostValidator {
             start_uri,
             redirect_uris,
             ports,
@@ -59,7 +59,7 @@ impl WebViewValidHosts {
         })
     }
 
-    fn is_valid_uri(&self, url: &Url) -> bool {
+    pub fn is_valid_uri(&self, url: &Url) -> bool {
         if let Some(host) = url.host() {
             if self.is_local_host && !self.ports.is_empty() {
                 let hosts: Vec<url::Host> = self
@@ -87,7 +87,7 @@ impl WebViewValidHosts {
         }
     }
 
-    fn is_redirect_host(&self, url: &Url) -> bool {
+    pub fn is_redirect_host(&self, url: &Url) -> bool {
         if let Some(host) = url.host() {
             self.redirect_uris
                 .iter()
@@ -95,6 +95,14 @@ impl WebViewValidHosts {
         } else {
             false
         }
+    }
+}
+
+impl TryFrom<HostOptions> for WebViewHostValidator {
+    type Error = WebViewExecutionError;
+
+    fn try_from(value: HostOptions) -> Result<Self, Self::Error> {
+        WebViewHostValidator::new(value.start_uri, value.redirect_uris, value.ports)
     }
 }
 
@@ -109,7 +117,7 @@ impl InteractiveWebView {
         sender: std::sync::mpsc::Sender<InteractiveAuthEvent>,
     ) -> anyhow::Result<()> {
         tracing::trace!(target: "interactive_webview", "Constructing WebView Window and EventLoop");
-        let validator = WebViewValidHosts::new(uri.clone(), redirect_uris, options.ports)?;
+        let validator = WebViewHostValidator::new(uri.clone(), redirect_uris, options.ports)?;
         let event_loop: EventLoop<UserEvents> = EventLoopBuilder::with_user_event()
             .with_any_thread(true)
             .build();
@@ -145,10 +153,6 @@ impl InteractiveWebView {
 
                         let _ = proxy.send_event(UserEvents::ReachedRedirectUri(url));
                         return true;
-                    }
-
-                    if !is_valid_host {
-                        let _ = proxy.send_event(UserEvents::InvalidNavigationAttempt(Some(url)));
                     }
 
                     is_valid_host
@@ -209,22 +213,6 @@ impl InteractiveWebView {
                     // the channel has received the redirect uri.
                     std::thread::sleep(Duration::from_millis(500));
                     *control_flow = ControlFlow::Exit
-                }
-                Event::UserEvent(UserEvents::InvalidNavigationAttempt(uri_option)) => {
-                    tracing::error!(target: "interactive_webview", "WebView attempted to navigate to invalid host with uri: {uri_option:#?}");
-                    if options.close_window_on_invalid_uri_navigation {
-                        tracing::error!(target: "interactive_webview", "Closing window due to attempted navigation to invalid host with uri: {uri_option:#?}");
-                        sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::InvalidWindowNavigation)).unwrap_or_default();
-
-                        if options.clear_browsing_data {
-                            let _ = webview.clear_all_browsing_data();
-                        }
-
-                        // Wait time to avoid deadlock where window closes before receiver gets the event
-                        std::thread::sleep(Duration::from_secs(1));
-
-                        *control_flow = ControlFlow::Exit;
-                    }
                 }
                 _ => (),
             }
