@@ -25,7 +25,7 @@ async fn main() {
 }
 
 async fn paging() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let deque = client
         .users()

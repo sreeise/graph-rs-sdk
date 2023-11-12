@@ -33,7 +33,7 @@ async fn auth_code_grant_secret(
         .unwrap()
         .build();
 
-    let graph_client = Graph::from(&confidential_client);
+    let graph_client = GraphClient::from(&confidential_client);
 
     let _response = graph_client.users().list_user().send().await;
 }

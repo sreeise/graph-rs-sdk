@@ -10,12 +10,12 @@
 // Delegate (Personal microsoft accounts) are not supported in the Graph API.
 
 use graph_error::GraphResult;
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::GraphClient;
 
 static USER_ID: &str = "USER_ID";
 
 async fn list_users() -> GraphResult<()> {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     let response = client.users().list_user().send().await?;
 
@@ -28,7 +28,7 @@ async fn list_users() -> GraphResult<()> {
 }
 
 async fn get_user() -> GraphResult<()> {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     let response = client.user(USER_ID).get_user().send().await?;
     println!("{response:#?}");
@@ -40,7 +40,7 @@ async fn get_user() -> GraphResult<()> {
 }
 
 async fn create_user() {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     // Create a password profile. Change the password below
     // to one that meets the Microsoft password requirements.
@@ -70,7 +70,7 @@ async fn create_user() {
 // need to be updated. Properties that are left alone
 // will stay the same.
 async fn update_user() {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     let user = serde_json::json!({
         "business_phones": ["888-888-8888"]
@@ -87,7 +87,7 @@ async fn update_user() {
 }
 
 async fn delete_user() {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     let response = client.user(USER_ID).delete_user().send().await.unwrap();
 

@@ -5,7 +5,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static GROUP_LIFECYCLE_POLICY_ID: &str = "GROUP_LIFECYCLE_POLICY_ID";
 
 pub async fn list_group_lifecycle_policies() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policies()
@@ -24,7 +24,7 @@ pub async fn list_group_lifecycle_policies() -> GraphResult<()> {
 static GROUP_ID: &str = "<GROUP_ID>";
 
 pub async fn list_group_lifecycle_policies_as_group() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .group(GROUP_ID)
@@ -42,7 +42,7 @@ pub async fn list_group_lifecycle_policies_as_group() -> GraphResult<()> {
 }
 
 pub async fn get_group_lifecycle_policies() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
@@ -59,7 +59,7 @@ pub async fn get_group_lifecycle_policies() -> GraphResult<()> {
 }
 
 pub async fn create_group_lifecycle_policies() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policies()
@@ -77,7 +77,7 @@ pub async fn create_group_lifecycle_policies() -> GraphResult<()> {
 }
 
 pub async fn update_group_lifecycle_policies() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
@@ -95,7 +95,7 @@ pub async fn update_group_lifecycle_policies() -> GraphResult<()> {
 }
 
 pub async fn add_group() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)
@@ -114,7 +114,7 @@ pub async fn add_group() -> GraphResult<()> {
 }
 
 pub async fn remove_group() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .group_lifecycle_policy(GROUP_LIFECYCLE_POLICY_ID)

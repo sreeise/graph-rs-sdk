@@ -12,7 +12,7 @@ static USER_ID: &str = "USER_ID";
 
 #[tokio::main]
 async fn main() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let user = serde_json::json!({
         "business_phones": ["888-888-8888"]
@@ -34,7 +34,7 @@ async fn main() -> GraphResult<()> {
 }
 
 async fn list_users() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .custom(Method::GET, None)

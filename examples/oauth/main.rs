@@ -29,7 +29,7 @@ use graph_rs_sdk::oauth::{
     DeviceCodeCredential, GenPkce, ProofKeyCodeExchange, PublicClientApplication, Token,
     TokenCredentialExecutor,
 };
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::GraphClient;
 
 fn main() {}
 
@@ -48,7 +48,7 @@ async fn auth_code_grant(
             .unwrap()
             .build();
 
-    let _graph_client = Graph::from(&confidential_client);
+    let _graph_client = GraphClient::from(&confidential_client);
 }
 
 // Client Credentials Grant
@@ -58,5 +58,5 @@ async fn client_credentials() {
         .with_tenant("TENANT_ID")
         .build();
 
-    let _graph_client = Graph::from(&confidential_client);
+    let _graph_client = GraphClient::from(&confidential_client);
 }

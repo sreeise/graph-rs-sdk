@@ -52,7 +52,7 @@ async fn authenticate() {
 
     let mut confidential_client = credential_builder.with_client_secret(CLIENT_SECRET).build();
 
-    let client = Graph::from(&confidential_client);
+    let client = GraphClient::from(&confidential_client);
 
     let response = client.user(USER_ID).get_user().send().await.unwrap();
 

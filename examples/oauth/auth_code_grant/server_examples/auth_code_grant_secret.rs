@@ -37,7 +37,7 @@ fn get_graph_client(authorization_code: &str) -> Graph {
         .with_redirect_uri(REDIRECT_URI)
         .unwrap()
         .build();
-    Graph::from(&confidential_client)
+    GraphClient::from(&confidential_client)
 }
 
 /// # Example

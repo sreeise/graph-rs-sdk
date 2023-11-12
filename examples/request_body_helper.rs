@@ -20,7 +20,7 @@ body parameter for those api methods that need one.
  */
 
 use graph_rs_sdk::http::BodyRead;
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::GraphClient;
 use std::fs::File;
 
 fn main() {}
@@ -35,7 +35,7 @@ fn main() {}
 fn use_reqwest_blocking_body() {
     let body = reqwest::blocking::Body::from(String::new());
 
-    let client = Graph::new("token");
+    let client = GraphClient::new("token");
     client
         .user("id")
         .get_mail_tips(body)
@@ -47,7 +47,7 @@ fn use_reqwest_blocking_body() {
 async fn use_reqwest_async_body() {
     let body = reqwest::Body::from(String::new());
 
-    let client = Graph::new("token");
+    let client = GraphClient::new("token");
     client.user("id").get_mail_tips(body).send().await.unwrap();
 }
 

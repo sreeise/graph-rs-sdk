@@ -79,24 +79,27 @@ lazy_static! {
         Url::parse(GRAPH_URL_BETA).expect("Unable to set beta endpoint");
 }
 
+// For backwards compatibility.
+pub type Graph = GraphClient;
+
 #[derive(Debug, Clone)]
-pub struct Graph {
+pub struct GraphClient {
     client: Client,
     endpoint: Url,
     allowed_host_validator: AllowedHostValidator,
 }
 
-impl Graph {
-    pub fn new<AT: ToString>(access_token: AT) -> Graph {
-        Graph {
+impl GraphClient {
+    pub fn new<AT: ToString>(access_token: AT) -> GraphClient {
+        GraphClient {
             client: Client::new(BearerTokenCredential::from(access_token.to_string())),
             endpoint: PARSED_GRAPH_URL.clone(),
             allowed_host_validator: AllowedHostValidator::default(),
         }
     }
 
-    pub fn from_client_app<CA: ClientApplication + 'static>(client_app: CA) -> Graph {
-        Graph {
+    pub fn from_client_app<CA: ClientApplication + 'static>(client_app: CA) -> GraphClient {
+        GraphClient {
             client: Client::new(client_app),
             endpoint: PARSED_GRAPH_URL.clone(),
             allowed_host_validator: AllowedHostValidator::default(),
@@ -526,27 +529,27 @@ impl Graph {
     }
 }
 
-impl From<&str> for Graph {
+impl From<&str> for GraphClient {
     fn from(token: &str) -> Self {
-        Graph::from_client_app(BearerTokenCredential::from(token.to_string()))
+        GraphClient::from_client_app(BearerTokenCredential::from(token.to_string()))
     }
 }
 
-impl From<String> for Graph {
+impl From<String> for GraphClient {
     fn from(token: String) -> Self {
-        Graph::from_client_app(BearerTokenCredential::from(token))
+        GraphClient::from_client_app(BearerTokenCredential::from(token))
     }
 }
 
-impl From<&Token> for Graph {
+impl From<&Token> for GraphClient {
     fn from(token: &Token) -> Self {
-        Graph::from_client_app(BearerTokenCredential::from(token.access_token.clone()))
+        GraphClient::from_client_app(BearerTokenCredential::from(token.access_token.clone()))
     }
 }
 
-impl From<GraphClientConfiguration> for Graph {
+impl From<GraphClientConfiguration> for GraphClient {
     fn from(graph_client_builder: GraphClientConfiguration) -> Self {
-        Graph {
+        GraphClient {
             client: graph_client_builder.build(),
             endpoint: PARSED_GRAPH_URL.clone(),
             allowed_host_validator: AllowedHostValidator::default(),
@@ -554,51 +557,51 @@ impl From<GraphClientConfiguration> for Graph {
     }
 }
 
-impl From<&ConfidentialClientApplication<AuthorizationCodeCredential>> for Graph {
+impl From<&ConfidentialClientApplication<AuthorizationCodeCredential>> for GraphClient {
     fn from(value: &ConfidentialClientApplication<AuthorizationCodeCredential>) -> Self {
-        Graph::from_client_app(value.clone())
+        GraphClient::from_client_app(value.clone())
     }
 }
 
-impl From<&ConfidentialClientApplication<AuthorizationCodeAssertionCredential>> for Graph {
+impl From<&ConfidentialClientApplication<AuthorizationCodeAssertionCredential>> for GraphClient {
     fn from(value: &ConfidentialClientApplication<AuthorizationCodeAssertionCredential>) -> Self {
-        Graph::from_client_app(value.clone())
+        GraphClient::from_client_app(value.clone())
     }
 }
 
-impl From<&ConfidentialClientApplication<AuthorizationCodeCertificateCredential>> for Graph {
+impl From<&ConfidentialClientApplication<AuthorizationCodeCertificateCredential>> for GraphClient {
     fn from(value: &ConfidentialClientApplication<AuthorizationCodeCertificateCredential>) -> Self {
-        Graph::from_client_app(value.clone())
+        GraphClient::from_client_app(value.clone())
     }
 }
 
-impl From<&ConfidentialClientApplication<ClientSecretCredential>> for Graph {
+impl From<&ConfidentialClientApplication<ClientSecretCredential>> for GraphClient {
     fn from(value: &ConfidentialClientApplication<ClientSecretCredential>) -> Self {
-        Graph::from_client_app(value.clone())
+        GraphClient::from_client_app(value.clone())
     }
 }
 
-impl From<&ConfidentialClientApplication<ClientCertificateCredential>> for Graph {
+impl From<&ConfidentialClientApplication<ClientCertificateCredential>> for GraphClient {
     fn from(value: &ConfidentialClientApplication<ClientCertificateCredential>) -> Self {
-        Graph::from_client_app(value.clone())
+        GraphClient::from_client_app(value.clone())
     }
 }
 
-impl From<&ConfidentialClientApplication<ClientAssertionCredential>> for Graph {
+impl From<&ConfidentialClientApplication<ClientAssertionCredential>> for GraphClient {
     fn from(value: &ConfidentialClientApplication<ClientAssertionCredential>) -> Self {
-        Graph::from_client_app(value.clone())
+        GraphClient::from_client_app(value.clone())
     }
 }
 
-impl From<&ConfidentialClientApplication<OpenIdCredential>> for Graph {
+impl From<&ConfidentialClientApplication<OpenIdCredential>> for GraphClient {
     fn from(value: &ConfidentialClientApplication<OpenIdCredential>) -> Self {
-        Graph::from_client_app(value.clone())
+        GraphClient::from_client_app(value.clone())
     }
 }
 
-impl From<&PublicClientApplication<DeviceCodeCredential>> for Graph {
+impl From<&PublicClientApplication<DeviceCodeCredential>> for GraphClient {
     fn from(value: &PublicClientApplication<DeviceCodeCredential>) -> Self {
-        Graph::from_client_app(value.clone())
+        GraphClient::from_client_app(value.clone())
     }
 }
 
@@ -609,56 +612,56 @@ mod test {
     #[test]
     #[should_panic]
     fn try_invalid_host() {
-        let mut client = Graph::new("token");
+        let mut client = GraphClient::new("token");
         client.custom_endpoint("https://example.org");
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_scheme() {
-        let mut client = Graph::new("token");
+        let mut client = GraphClient::new("token");
         client.custom_endpoint("http://example.org");
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_query() {
-        let mut client = Graph::new("token");
+        let mut client = GraphClient::new("token");
         client.custom_endpoint("https://example.org?user=name");
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_path() {
-        let mut client = Graph::new("token");
+        let mut client = GraphClient::new("token");
         client.custom_endpoint("https://example.org/v1");
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_host2() {
-        let mut client = Graph::new("token");
+        let mut client = GraphClient::new("token");
         client.use_endpoint("https://example.org");
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_scheme2() {
-        let mut client = Graph::new("token");
+        let mut client = GraphClient::new("token");
         client.use_endpoint("http://example.org");
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_query2() {
-        let mut client = Graph::new("token");
+        let mut client = GraphClient::new("token");
         client.use_endpoint("https://example.org?user=name");
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_path2() {
-        let mut client = Graph::new("token");
+        let mut client = GraphClient::new("token");
         client.use_endpoint("https://example.org/v1");
     }
 

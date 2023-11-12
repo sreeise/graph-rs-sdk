@@ -1,5 +1,5 @@
 #![allow(dead_code, unused, unused_imports, clippy::module_inception)]
-use graph_rs_sdk::{header::HeaderMap, header::HeaderValue, Graph, GraphClientConfiguration};
+use graph_rs_sdk::{header::HeaderMap, header::HeaderValue, GraphClient, GraphClientConfiguration};
 use http::header::ACCEPT;
 use http::HeaderName;
 use std::time::Duration;
@@ -12,13 +12,13 @@ fn main() {
         .timeout(Duration::from_secs(30))
         .default_headers(HeaderMap::default());
 
-    let _ = Graph::from(client_config);
+    let _ = GraphClient::from(client_config);
 }
 
 // Custom headers
 
 async fn per_request_headers() {
-    let client = Graph::new("token");
+    let client = GraphClient::new("token");
 
     let _result = client
         .users()

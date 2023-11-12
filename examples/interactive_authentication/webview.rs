@@ -1,7 +1,7 @@
 use graph_rs_sdk::oauth::{
     web::Theme, web::WebViewOptions, AuthorizationCodeCredential, TokenCredentialExecutor,
 };
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::GraphClient;
 use std::ops::Add;
 use std::time::{Duration, Instant};
 
@@ -51,7 +51,7 @@ async fn authenticate() {
 
     let mut confidential_client = credential_builder.with_client_secret(CLIENT_SECRET).build();
 
-    let client = Graph::from(&confidential_client);
+    let client = GraphClient::from(&confidential_client);
 
     let response = client.user(USER_ID).get_user().send().await.unwrap();
 

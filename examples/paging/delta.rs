@@ -4,7 +4,7 @@ use graph_rs_sdk::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 pub async fn channel_delta() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let mut receiver = client
         .users()
         .delta()
@@ -27,7 +27,7 @@ pub async fn channel_delta() -> GraphResult<()> {
 static DELTA_TOKEN: &str = "DELTA_TOKEN";
 
 pub async fn channel_delta_token() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let mut receiver = client
         .users()
         .delta()
@@ -48,7 +48,7 @@ pub async fn channel_delta_token() -> GraphResult<()> {
 }
 
 pub async fn stream_delta() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let mut stream = client
         .users()
         .delta()

@@ -1,5 +1,5 @@
 use graph_rs_sdk::oauth::{ConfidentialClientApplication, IdToken};
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::GraphClient;
 
 // OpenIdCredential will automatically include the openid scope
 fn get_graph_client(
@@ -9,7 +9,7 @@ fn get_graph_client(
     redirect_uri: &str,
     scope: Vec<&str>,
     id_token: IdToken,
-) -> Graph {
+) -> GraphClient {
     let mut confidential_client = ConfidentialClientApplication::builder(client_id)
         .with_openid(id_token.code.unwrap(), client_secret)
         .with_tenant(tenant_id)
@@ -18,5 +18,5 @@ fn get_graph_client(
         .with_scope(scope)
         .build();
 
-    Graph::from(&confidential_client)
+    GraphClient::from(&confidential_client)
 }

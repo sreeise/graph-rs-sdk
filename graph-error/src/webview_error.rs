@@ -3,21 +3,12 @@ use std::sync::mpsc::RecvError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum WebViewExecutionError {
+    #[error("WindowClosed: {0:#?}")]
+    WindowClosed(String),
     // Issues with the redirect uri such as specifying localhost
     // but not providing a port in the WebViewOptions.
     #[error("InvalidRedirectUri: {0:#?}")]
     InvalidRedirectUri(String),
-    /// The user closed the webview window without logging in.
-    #[error("WindowClosedRequested")]
-    WindowClosedRequested,
-    /// The user navigated to a url that was not the login url
-    /// or a redirect url specified. Requires that WebViewOptions
-    /// has the enforcement of invalid navigation enabled.
-    #[error("WindowClosedOnInvalidNavigation")]
-    WindowClosedOnInvalidNavigation,
-    /// The webview exited because of a timeout defined in the WebViewOptions.
-    #[error("WindowClosedOnTimeoutReached")]
-    WindowClosedOnTimeoutReached,
     /// The host or domain provided or set for login is invalid.
     /// This could be an internal error and most likely will never happen.
     #[error("InvalidStartUri: {reason:#?}")]

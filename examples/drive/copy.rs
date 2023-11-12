@@ -14,7 +14,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static ITEM_ID: &str = "ITEM_ID";
 
 pub async fn copy_item() {
-    let graph = Graph::new(ACCESS_TOKEN);
+    let graph = GraphClient::new(ACCESS_TOKEN);
 
     // The DriveItem copy request uses a ItemReference (parent reference) which contains
     // the metadata for the drive id and path specifying where the new copy should be placed.

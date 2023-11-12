@@ -13,7 +13,7 @@ static CHILD_FOLDER_ID_1: &str = "CHILD_FOLDER_ID1";
 static CHILD_FOLDER_ID_2: &str = "CHILD_FOLDER_ID1";
 
 pub async fn get_child_folders_attachment() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -35,7 +35,7 @@ pub async fn get_child_folders_attachment() {
 // You can keep calling the child_folder("id") method
 // until you get to the child folder you want.
 pub async fn get_child_folders_attachment_content() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()

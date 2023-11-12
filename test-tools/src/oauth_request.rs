@@ -225,7 +225,7 @@ impl OAuthTestClient {
 
     pub fn request_access_token(&self) -> Option<(String, Token)> {
         if Environment::is_local() || Environment::is_travis() {
-            let map = AppRegistrationMap::from_file("./app_registrations.json").unwrap();
+            let map = OAuthTestClient::get_app_registration()?;
             let test_client_map = OAuthTestClientMap {
                 clients: map.get_default_client_credentials().clients,
             };
@@ -233,9 +233,11 @@ impl OAuthTestClient {
         } else if Environment::is_appveyor() {
             self.get_access_token(OAuthTestCredentials::new_env())
         } else if Environment::is_github() {
-            let map: OAuthTestClientMap =
-                serde_json::from_str(&env::var("TEST_CREDENTIALS").unwrap()).unwrap();
-            self.get_access_token(map.get(self).unwrap())
+            let map = OAuthTestClient::get_app_registration()?;
+            let test_client_map = OAuthTestClientMap {
+                clients: map.get_default_client_credentials().clients,
+            };
+            self.get_access_token(test_client_map.get(self).unwrap())
         } else {
             None
         }
@@ -243,15 +245,17 @@ impl OAuthTestClient {
 
     pub fn request_access_token_credential(&self) -> Option<(String, impl ClientApplication)> {
         if Environment::is_local() || Environment::is_travis() {
-            let map = AppRegistrationMap::from_file("./app_registrations.json").unwrap();
+            let map = OAuthTestClient::get_app_registration()?;
             let test_client_map = OAuthTestClientMap {
                 clients: map.get_default_client_credentials().clients,
             };
             self.get_credential(test_client_map.get(self).unwrap())
         } else if Environment::is_github() {
-            let map: OAuthTestClientMap =
-                serde_json::from_str(&env::var("TEST_CREDENTIALS").unwrap()).unwrap();
-            self.get_credential(map.get(self).unwrap())
+            let map = OAuthTestClient::get_app_registration()?;
+            let test_client_map = OAuthTestClientMap {
+                clients: map.get_default_client_credentials().clients,
+            };
+            self.get_credential(test_client_map.get(self).unwrap())
         } else {
             None
         }
@@ -259,7 +263,7 @@ impl OAuthTestClient {
 
     pub async fn request_access_token_async(&self) -> Option<(String, Token)> {
         if Environment::is_local() || Environment::is_travis() {
-            let map = AppRegistrationMap::from_file("./app_registrations.json").unwrap();
+            let map = OAuthTestClient::get_app_registration()?;
             let test_client_map = OAuthTestClientMap {
                 clients: map.get_default_client_credentials().clients,
             };
@@ -269,9 +273,12 @@ impl OAuthTestClient {
             self.get_access_token_async(OAuthTestCredentials::new_env())
                 .await
         } else if Environment::is_github() {
-            let map: OAuthTestClientMap =
-                serde_json::from_str(&env::var("TEST_CREDENTIALS").unwrap()).unwrap();
-            self.get_access_token_async(map.get(self).unwrap()).await
+            let map = OAuthTestClient::get_app_registration()?;
+            let test_client_map = OAuthTestClientMap {
+                clients: map.get_default_client_credentials().clients,
+            };
+            self.get_access_token_async(test_client_map.get(self).unwrap())
+                .await
         } else {
             None
         }

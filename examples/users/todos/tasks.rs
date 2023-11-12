@@ -1,6 +1,6 @@
 use futures::StreamExt;
 use graph_rs_sdk::error::GraphResult;
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::GraphClient;
 use std::collections::VecDeque;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -23,7 +23,7 @@ pub struct TodoListTaskCollection {
 }
 
 async fn list_tasks(user_id: &str, list_id: &str) -> GraphResult<()> {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     let mut stream = client
         .user(user_id)
@@ -46,7 +46,7 @@ async fn list_tasks(user_id: &str, list_id: &str) -> GraphResult<()> {
 }
 
 async fn create_task(user_id: &str, list_id: &str) -> GraphResult<()> {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     let task = &serde_json::json!(
     {
@@ -79,7 +79,7 @@ async fn create_task(user_id: &str, list_id: &str) -> GraphResult<()> {
 }
 
 async fn create_task_using_me(list_id: &str) -> GraphResult<()> {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     let task = &serde_json::json!(
     {
