@@ -730,6 +730,24 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				GeneratedMacroType::FnName("get_application_count")
 			)
 		],
+        ResourceIdentity::Worksheets => vec![
+            MethodMacroModifier::fn_name_and_path(
+                "workbook_worksheet", "/worksheets/{{RID}}/range()",
+                GeneratedMacroType::FnName("get_range_object")
+            ),
+            MethodMacroModifier::fn_name_and_path(
+                "workbook_worksheet", "/worksheets/{{RID}}/range(address='{{id}}')",
+                GeneratedMacroType::FnName("get_range_object_by_address")
+            ),
+            MethodMacroModifier::fn_name_and_path(
+                "workbook_worksheet", "/worksheets/{{RID}}/usedRange()",
+                GeneratedMacroType::FnName("get_used_range_object")
+            ),
+            MethodMacroModifier::fn_name_and_path(
+                "workbook_worksheet", "/worksheets/{{RID}}/usedRange(valuesOnly={{id}})",
+                GeneratedMacroType::FnName("get_used_range_object_with_values_only")
+            )
+        ],
 		_ => vec![],
 	}
 }

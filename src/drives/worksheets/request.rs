@@ -16,7 +16,7 @@ impl WorksheetsApiClient {
         body: true
     );
     get!(
-        doc: "List worksheets",
+        doc: "List WorksheetCollection",
         name: list_worksheets,
         path: "/worksheets"
     );
@@ -85,13 +85,24 @@ impl WorksheetsIdApiClient {
     );
     get!(
         doc: "Invoke function range",
-        name: workbook_worksheet,
+        name: get_range_object,
         path: "/worksheets/{{RID}}/range()"
     );
     get!(
         doc: "Invoke function range",
-        name: workbook_worksheet,
+        name: get_range_object_by_address,
         path: "/worksheets/{{RID}}/range(address='{{id}}')",
         params: address
+    );
+    get!(
+        doc: "Invoke function usedRange",
+        name: get_used_range_object,
+        path: "/worksheets/{{RID}}/usedRange()"
+    );
+    get!(
+        doc: "Invoke function usedRange",
+        name: get_used_range_object_with_values_only,
+        path: "/worksheets/{{RID}}/usedRange(valuesOnly={{id}})",
+        params: values_only
     );
 }

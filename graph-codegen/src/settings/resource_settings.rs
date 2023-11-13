@@ -341,9 +341,7 @@ impl ResourceSettings {
 							ApiClientLink::StructId("items", "DrivesItemsApiClient"),
 							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
                             ApiClientLink::Struct("workbook", "WorkbookApiClient"),
-                            ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
                             ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
-                            ApiClientLink::Struct("worksheets_used_range", "WorksheetsUsedRangeApiClient"), 
 						])
 					],
 				},
@@ -1956,7 +1954,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.filter_path(vec!["items", "list"])
 			.children(map_write_config(vec![
 				ResourceIdentity::DrivesList, ResourceIdentity::DrivesItems, ResourceIdentity::DrivesListContentTypes,
-				ResourceIdentity::Workbook, ResourceIdentity::Worksheets, ResourceIdentity::WorksheetsUsedRange,
+				ResourceIdentity::Workbook, ResourceIdentity::Worksheets,
 			]))
 			.build()
 			.unwrap(),
@@ -1981,14 +1979,9 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.unwrap(),
 		ResourceIdentity::Worksheets => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook")
-			.filter_path(vec!["usedRange","tables", "charts", "names", "pivotTables"])
+			.filter_path(vec!["tables", "charts", "names", "pivotTables"])
 			.build()
 			.unwrap(),
-		ResourceIdentity::WorksheetsUsedRange => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
-			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}")
-			.build()
-			.unwrap(),
-
 
 
 		// Service Principals

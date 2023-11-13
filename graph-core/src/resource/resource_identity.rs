@@ -245,7 +245,6 @@ pub enum ResourceIdentity {
     WindowsInformationProtectionPolicies,
     Workbook,
     Worksheets,
-    WorksheetsUsedRange,
 }
 
 impl ToString for ResourceIdentity {
@@ -359,7 +358,6 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::TermStoreSetsParentGroup => "parentGroup".into(),
             ResourceIdentity::TermStoreSetsRelations => "relations".into(),
             ResourceIdentity::TermStoreSetsTerms => "terms".into(),
-            ResourceIdentity::WorksheetsUsedRange => "usedRange".into(),
             ResourceIdentity::Custom => "".into(),
 
             _ => self.as_ref().to_camel_case(),
