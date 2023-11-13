@@ -333,7 +333,7 @@ impl ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
 					imports: vec![
-						"crate::drives::{DrivesListApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient}"
+						"crate::drives::{DrivesListApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient, WorkbookApiClient, WorksheetsApiClient, WorksheetsIdApiClient}"
 					],
 					api_client_links: vec![
 						ApiClientLinkSettings(Some("DrivesIdApiClient"), vec![
@@ -341,6 +341,7 @@ impl ResourceSettings {
 							ApiClientLink::StructId("items", "DrivesItemsApiClient"),
 							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
                             ApiClientLink::Struct("workbook", "WorkbookApiClient"),
+                            ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
                             ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
 						])
 					],
