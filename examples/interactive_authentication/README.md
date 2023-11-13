@@ -66,8 +66,8 @@ async fn authenticate() {
 
 ### WebView Options
 
-You can customize several aspects of the webview including security mechanisms
-or setting an OS theme.
+You can customize several aspects of the webview and how the webview is used to perform interactive auth
+using `WebViewOptions`.
 
 ```rust
 use graph_rs_sdk::oauth::{web::Theme, web::WebViewOptions, AuthorizationCodeCredential};
@@ -81,12 +81,6 @@ fn get_webview_options() -> WebViewOptions {
         // OS specific theme. Does not work on all operating systems.
         // See wry crate for more info.
         .with_theme(Theme::Dark)
-        // Close the webview window whenever there is a navigation by the webview or user
-        // to a url that is not one of the redirect urls or the login url. 
-        // For instance, if this is considered a security issue and the user should
-        // not be able to navigate to another url. 
-        // Either way, the url bar does not show regardless.
-        .with_close_window_on_invalid_navigation(true)
         // Add a timeout that will close the window and return an error
         // when that timeout is reached. For instance, if your app is waiting on the
         // user to log in and the user has not logged in after 20 minutes you may

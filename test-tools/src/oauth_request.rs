@@ -224,7 +224,7 @@ impl OAuthTestClient {
     }
 
     pub fn request_access_token(&self) -> Option<(String, Token)> {
-        if Environment::is_local() || Environment::is_travis() {
+        if Environment::is_local() || Environment::is_travis() || Environment::is_github() {
             let map = OAuthTestClient::get_app_registration()?;
             let test_client_map = OAuthTestClientMap {
                 clients: map.get_default_client_credentials().clients,
@@ -232,25 +232,13 @@ impl OAuthTestClient {
             self.get_access_token(test_client_map.get(self).unwrap())
         } else if Environment::is_appveyor() {
             self.get_access_token(OAuthTestCredentials::new_env())
-        } else if Environment::is_github() {
-            let map = OAuthTestClient::get_app_registration()?;
-            let test_client_map = OAuthTestClientMap {
-                clients: map.get_default_client_credentials().clients,
-            };
-            self.get_access_token(test_client_map.get(self).unwrap())
         } else {
             None
         }
     }
 
     pub fn request_access_token_credential(&self) -> Option<(String, impl ClientApplication)> {
-        if Environment::is_local() || Environment::is_travis() {
-            let map = OAuthTestClient::get_app_registration()?;
-            let test_client_map = OAuthTestClientMap {
-                clients: map.get_default_client_credentials().clients,
-            };
-            self.get_credential(test_client_map.get(self).unwrap())
-        } else if Environment::is_github() {
+        if Environment::is_local() || Environment::is_travis() || Environment::is_github() {
             let map = OAuthTestClient::get_app_registration()?;
             let test_client_map = OAuthTestClientMap {
                 clients: map.get_default_client_credentials().clients,
@@ -262,7 +250,7 @@ impl OAuthTestClient {
     }
 
     pub async fn request_access_token_async(&self) -> Option<(String, Token)> {
-        if Environment::is_local() || Environment::is_travis() {
+        if Environment::is_local() || Environment::is_travis() || Environment::is_github() {
             let map = OAuthTestClient::get_app_registration()?;
             let test_client_map = OAuthTestClientMap {
                 clients: map.get_default_client_credentials().clients,
@@ -271,13 +259,6 @@ impl OAuthTestClient {
                 .await
         } else if Environment::is_appveyor() {
             self.get_access_token_async(OAuthTestCredentials::new_env())
-                .await
-        } else if Environment::is_github() {
-            let map = OAuthTestClient::get_app_registration()?;
-            let test_client_map = OAuthTestClientMap {
-                clients: map.get_default_client_credentials().clients,
-            };
-            self.get_access_token_async(test_client_map.get(self).unwrap())
                 .await
         } else {
             None

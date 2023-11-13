@@ -4,6 +4,7 @@ use url::Url;
 
 pub use wry::application::window::Theme;
 
+#[derive(Debug)]
 pub struct HostOptions {
     pub(crate) start_uri: Url,
     pub(crate) redirect_uris: Vec<Url>,

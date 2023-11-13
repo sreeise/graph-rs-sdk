@@ -24,5 +24,6 @@ env.toml
 env.json
 env.yaml
 app_registrations.json
+app_registrations2.json
 
 graph-codegen/src/parsed_metadata/**

@@ -84,28 +84,6 @@ impl GraphClientConfiguration {
         self
     }
 
-    /*
-       pub fn confidential_client_application<
-           Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
-       >(
-           mut self,
-           confidential_client: ConfidentialClientApplication<Credential>,
-       ) -> Self {
-           self.config.client_application = Some(Box::new(confidential_client));
-           self
-       }
-
-       pub fn public_client_application<
-           Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static,
-       >(
-           mut self,
-           public_client: PublicClientApplication<Credential>,
-       ) -> Self {
-           self.config.client_application = Some(Box::new(public_client));
-           self
-       }
-    */
-
     pub fn default_headers(mut self, headers: HeaderMap) -> GraphClientConfiguration {
         for (key, value) in headers.iter() {
             self.config.headers.insert(key, value.clone());
@@ -295,30 +273,6 @@ impl Debug for Client {
             .finish()
     }
 }
-
-/*
-impl From<BearerTokenCredential> for Client {
-    fn from(value: BearerTokenCredential) -> Self {
-        Client::new(value)
-    }
-}
-
-impl<Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static>
-    From<PublicClientApplication<Credential>> for Client
-{
-    fn from(value: PublicClientApplication<Credential>) -> Self {
-        Client::new(value)
-    }
-}
-
-impl<Credential: Clone + Send + TokenCredentialExecutor + TokenCacheStore + 'static>
-    From<ConfidentialClientApplication<Credential>> for Client
-{
-    fn from(value: ConfidentialClientApplication<Credential>) -> Self {
-        Client::new(value)
-    }
-}
- */
 
 #[cfg(test)]
 mod test {

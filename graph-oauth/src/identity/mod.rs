@@ -4,7 +4,7 @@ mod authority;
 mod authorization_query_response;
 mod authorization_request_parts;
 mod authorization_response;
-mod authorization_serializer;
+mod authorization_url;
 mod credentials;
 mod device_authorization_response;
 
@@ -24,7 +24,7 @@ pub use authority::*;
 pub use authorization_query_response::*;
 pub use authorization_request_parts::*;
 pub use authorization_response::*;
-pub use authorization_serializer::*;
+pub use authorization_url::*;
 pub use credentials::*;
 pub use device_authorization_response::*;
 pub use id_token::*;

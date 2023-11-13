@@ -26,11 +26,12 @@ impl BlockingRequestHandler {
 
         let mut error = None;
         if let Some(err) = err {
+            let message = err.to_string();
             error = Some(GraphFailure::PreFlightError {
                 url: Some(request_components.url.clone()),
                 headers: Some(request_components.headers.clone()),
                 error: Some(Box::new(err)),
-                message: String::from("N/A"),
+                message,
             });
         }
 

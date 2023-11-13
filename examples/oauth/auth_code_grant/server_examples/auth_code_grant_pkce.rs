@@ -52,7 +52,7 @@ async fn handle_redirect(
     match code_option {
         Some(access_code) => {
             // Print out the code for debugging purposes.
-            println!("{:#?}", access_code.code);
+            debug!("{:#?}", access_code.code);
 
             let authorization_code = access_code.code;
             let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
@@ -65,17 +65,17 @@ async fn handle_redirect(
 
             // Returns reqwest::Response
             let response = confidential_client.execute_async().await.unwrap();
-            println!("{response:#?}");
+            debug!("{response:#?}");
 
             if response.status().is_success() {
                 let access_token: Token = response.json().await.unwrap();
 
                 // If all went well here we can print out the OAuth config with the Access Token.
-                println!("AccessToken: {:#?}", access_token.access_token);
+                debug!("AccessToken: {:#?}", access_token.access_token);
             } else {
                 // See if Microsoft Graph returned an error in the Response body
                 let result: reqwest::Result<serde_json::Value> = response.json().await;
-                println!("{result:#?}");
+                debug!("{result:#?}");
                 return Ok(Box::new("Error Logging In! You can close your browser."));
             }
 
@@ -98,6 +98,9 @@ async fn handle_redirect(
 /// }
 /// ```
 pub async fn start_server_main() {
+    std::env::set_var("RUST_LOG", "debug");
+    pretty_env_logger::init();
+
     let query = warp::query::<AccessCode>()
         .map(Some)
         .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });

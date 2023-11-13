@@ -14,6 +14,8 @@
 
 #[macro_use]
 extern crate serde;
+#[macro_use]
+extern crate log;
 
 mod auth_code_grant;
 mod client_credentials;

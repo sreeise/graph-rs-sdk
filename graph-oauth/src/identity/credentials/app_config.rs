@@ -82,7 +82,11 @@ impl TryFrom<ApplicationOptions> for AppConfig {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             scope: Default::default(),
-            redirect_uri: None,
+            redirect_uri: Some(
+                Url::parse("http://localhost")
+                    .map_err(|_| AF::msg_internal_err("redirect_uri"))
+                    .unwrap(),
+            ),
             cache_id,
             force_token_refresh: Default::default(),
             log_pii: false,
@@ -146,7 +150,11 @@ impl AppConfig {
             extra_query_parameters: Default::default(),
             extra_header_parameters: Default::default(),
             scope: Default::default(),
-            redirect_uri: None,
+            redirect_uri: Some(
+                Url::parse("http://localhost")
+                    .map_err(|_| AF::msg_internal_err("redirect_uri"))
+                    .unwrap(),
+            ),
             cache_id,
             force_token_refresh: Default::default(),
             log_pii: Default::default(),
@@ -196,7 +204,14 @@ impl AppConfigBuilder {
         self
     }
 
-    pub fn build(self) -> AppConfig {
+    pub fn build(mut self) -> AppConfig {
+        if self.app_config.redirect_uri.is_none() {
+            self.app_config.redirect_uri = Some(
+                Url::parse("http://localhost")
+                    .map_err(|_| AF::msg_internal_err("redirect_uri"))
+                    .unwrap(),
+            );
+        }
         self.app_config
     }
 }

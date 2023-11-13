@@ -50,6 +50,9 @@ fn get_graph_client(authorization_code: &str) -> Graph {
 /// }
 /// ```
 pub async fn start_server_main() {
+    std::env::set_var("RUST_LOG", "debug");
+    pretty_env_logger::init();
+
     let query = warp::query::<AccessCode>()
         .map(Some)
         .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
@@ -84,7 +87,7 @@ async fn handle_redirect(
     match code_option {
         Some(access_code) => {
             // Print out the code for debugging purposes.
-            println!("{access_code:#?}");
+            debug!("{access_code:#?}");
 
             let authorization_code = access_code.code;
             let client = get_graph_client(authorization_code.as_str());
@@ -92,15 +95,15 @@ async fn handle_redirect(
 
             match result {
                 Ok(response) => {
-                    println!("{response:#?}");
+                    debug!("{response:#?}");
 
                     let status = response.status();
                     let body: serde_json::Value = response.json().await.unwrap();
-                    println!("Status: {status:#?}");
-                    println!("Body: {body:#?}");
+                    debug!("Status: {status:#?}");
+                    debug!("Body: {body:#?}");
                 }
                 Err(err) => {
-                    println!("{err:#?}");
+                    debug!("{err:#?}");
                 }
             }
 

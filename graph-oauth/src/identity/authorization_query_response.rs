@@ -1,10 +1,14 @@
 use std::collections::HashMap;
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 
 use serde_json::Value;
 use url::Url;
 
+/// The specification defines theres errors here:
 /// https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-31#section-4.2.2.1
+///
+/// Microsoft has additional errors listed here:
+/// https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#error-codes-for-authorization-endpoint-errors
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum AuthorizationQueryError {
     /// The request is missing a required parameter, includes an
@@ -47,6 +51,37 @@ pub enum AuthorizationQueryError {
     /// to the client via a HTTP redirect.)
     #[serde(alias = "temporarily_unavailable", alias = "TemporarilyUnavailable")]
     TemporarilyUnavailable,
+
+    /// The target resource is invalid because it doesn't exist, Microsoft Entra ID can't find it,
+    /// or it's not correctly configured.
+    ///
+    /// The client requested silent authentication (prompt=none), but a single user couldn't be
+    /// found. This error may mean there are multiple users active in the session, or no users.
+    /// This error takes into account the tenant chosen. For example, if there are two Microsoft
+    /// Entra accounts active and one Microsoft account, and consumers is chosen, silent
+    /// authentication works.
+    #[serde(alias = "invalid_resource", alias = "InvalidResource")]
+    InvalidResource,
+
+    /// Too many or no users found.
+    /// The client requested silent authentication (prompt=none), but a single user couldn't be
+    /// found. This error may mean there are multiple users active in the session, or no users.
+    /// This error takes into account the tenant chosen. For example, if there are two Microsoft
+    /// Entra accounts active and one Microsoft account, and consumers is chosen, silent
+    /// authentication works.
+    #[serde(alias = "login_required", alias = "LoginRequired")]
+    LoginRequired,
+
+    /// The request requires user interaction.
+    /// Another authentication step or consent is required. Retry the request without prompt=none.
+    #[serde(alias = "interaction_required", alias = "InteractionRequired")]
+    InteractionRequired,
+}
+
+impl Display for AuthorizationQueryError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:#?}")
+    }
 }
 
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -56,6 +91,7 @@ pub struct AuthorizationQueryResponse {
     pub expires_in: Option<String>,
     pub access_token: Option<String>,
     pub state: Option<String>,
+    pub session_state: Option<String>,
     pub nonce: Option<String>,
     pub error: Option<AuthorizationQueryError>,
     pub error_description: Option<String>,
@@ -74,6 +110,10 @@ impl AuthorizationQueryResponse {
     /// By default these do not get logged.
     pub fn enable_pii_logging(&mut self, log_pii: bool) {
         self.log_pii = log_pii;
+    }
+
+    pub fn is_err(&self) -> bool {
+        self.error.is_some()
     }
 }
 

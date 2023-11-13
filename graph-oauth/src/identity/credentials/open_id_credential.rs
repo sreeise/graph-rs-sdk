@@ -368,6 +368,26 @@ impl OpenIdCredentialBuilder {
         }
     }
 
+    #[cfg(feature = "interactive-auth")]
+    pub(crate) fn new_with_auth_code(
+        mut app_config: AppConfig,
+        authorization_code: impl AsRef<str>,
+    ) -> OpenIdCredentialBuilder {
+        app_config.scope.insert("openid".to_string());
+        OpenIdCredentialBuilder {
+            credential: OpenIdCredential {
+                app_config,
+                authorization_code: Some(authorization_code.as_ref().to_owned()),
+                refresh_token: None,
+                client_secret: Default::default(),
+                code_verifier: None,
+                pkce: None,
+                serializer: Default::default(),
+                token_cache: Default::default(),
+            },
+        }
+    }
+
     pub(crate) fn new_with_auth_code_and_secret(
         authorization_code: impl AsRef<str>,
         client_secret: impl AsRef<str>,
@@ -384,6 +404,26 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
+            },
+        }
+    }
+
+    #[cfg(feature = "interactive-auth")]
+    pub(crate) fn new_with_token(app_config: AppConfig, token: Token) -> OpenIdCredentialBuilder {
+        let cache_id = app_config.cache_id.clone();
+        let mut token_cache = InMemoryCacheStore::new();
+        token_cache.store(cache_id, token);
+
+        Self {
+            credential: OpenIdCredential {
+                app_config,
+                authorization_code: None,
+                refresh_token: None,
+                client_secret: Default::default(),
+                code_verifier: None,
+                pkce: None,
+                serializer: Default::default(),
+                token_cache,
             },
         }
     }

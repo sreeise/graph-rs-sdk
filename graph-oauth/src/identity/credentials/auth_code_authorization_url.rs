@@ -1,6 +1,5 @@
 use std::collections::{BTreeSet, HashMap};
 use std::fmt::{Debug, Formatter};
-use std::sync::mpsc::Receiver;
 
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
@@ -18,7 +17,7 @@ use crate::identity::{
 };
 
 #[cfg(feature = "interactive-auth")]
-use graph_error::{WebViewExecutionError, WebViewResult};
+use graph_error::{AuthExecutionError, WebViewError, WebViewResult};
 
 #[cfg(feature = "interactive-auth")]
 use crate::identity::{AuthorizationCodeCredentialBuilder, AuthorizationQueryResponse, Token};
@@ -26,7 +25,7 @@ use crate::identity::{AuthorizationCodeCredentialBuilder, AuthorizationQueryResp
 #[cfg(feature = "interactive-auth")]
 use crate::web::{
     HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,
-    WebViewOptions, WindowCloseReason,
+    WebViewOptions,
 };
 
 #[cfg(feature = "interactive-auth")]
@@ -34,8 +33,6 @@ use wry::{
     application::{event_loop::EventLoopProxy, window::Window},
     webview::{WebView, WebViewBuilder},
 };
-
-use crate::oauth::{AuthorizationCodeCredential, ConfidentialClientApplication};
 
 credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 
@@ -192,17 +189,27 @@ impl AuthCodeAuthorizationUrlParameters {
     }
 
     #[cfg(feature = "interactive-auth")]
+    #[tracing::instrument]
     pub fn interactive_webview_authentication(
         &self,
         interactive_web_view_options: Option<WebViewOptions>,
     ) -> WebViewResult<AuthorizationQueryResponse> {
-        let uri = self.url()?;
+        let uri = self
+            .url()
+            .map_err(|err| Box::new(AuthExecutionError::from(err)))?;
         let redirect_uri = self.redirect_uri().cloned().unwrap();
         let web_view_options = interactive_web_view_options.unwrap_or_default();
         let (sender, receiver) = std::sync::mpsc::channel();
 
-        self.interactive_auth(uri, vec![redirect_uri], web_view_options, sender)
+        std::thread::spawn(move || {
+            AuthCodeAuthorizationUrlParameters::interactive_auth(
+                uri,
+                vec![redirect_uri],
+                web_view_options,
+                sender,
+            )
             .unwrap();
+        });
         let mut iter = receiver.try_iter();
         let mut next = iter.next();
 
@@ -214,106 +221,52 @@ impl AuthCodeAuthorizationUrlParameters {
             None => unreachable!(),
             Some(auth_event) => match auth_event {
                 InteractiveAuthEvent::InvalidRedirectUri(reason) => {
-                    Err(WebViewExecutionError::InvalidRedirectUri(reason))
+                    Err(WebViewError::InvalidUri(reason))
                 }
                 InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                    let query = uri.query().or(uri.fragment()).ok_or(
-                        WebViewExecutionError::RedirectUriMissingQueryOrFragment(uri.to_string()),
-                    )?;
+                    let query = uri
+                        .query()
+                        .or(uri.fragment())
+                        .ok_or(WebViewError::InvalidUri(format!(
+                            "uri missing query or fragment: {}",
+                            uri.to_string()
+                        )))?;
 
                     let response_query: AuthorizationQueryResponse =
-                        serde_urlencoded::from_str(query)?;
+                        serde_urlencoded::from_str(query)
+                            .map_err(|err| WebViewError::InvalidUri(err.to_string()))?;
+
+                    if response_query.is_err() {
+                        tracing::debug!(target: "graph_rs_sdk::interactive_auth", "error in authorization query or fragment from redirect uri");
+                        return Err(WebViewError::AuthorizationQuery {
+                            error: response_query
+                                .error
+                                .map(|query_error| query_error.to_string())
+                                .unwrap_or_default(),
+                            error_description: response_query.error_description.unwrap_or_default(),
+                            error_uri: response_query.error_uri.map(|uri| uri.to_string()),
+                        });
+                    }
+
+                    tracing::debug!(target: "graph_rs_sdk::interactive_auth", "parsed authorization query or fragment from redirect uri");
 
                     Ok(response_query)
                 }
-                InteractiveAuthEvent::WindowClosed(window_close_reason) => Err(
-                    WebViewExecutionError::WindowClosed(window_close_reason.to_string()),
-                ),
-            },
-        }
-    }
-
-    #[cfg(feature = "interactive-auth")]
-    pub fn interactive_authentication(
-        &self,
-        interactive_web_view_options: Option<WebViewOptions>,
-    ) -> WebViewResult<Receiver<AuthCodeInteractiveEvent>> {
-        let uri = self.url()?;
-        let redirect_uri = self.redirect_uri().cloned().unwrap();
-        let web_view_options = interactive_web_view_options.unwrap_or_default();
-        let (sender, receiver) = std::sync::mpsc::channel();
-
-        self.interactive_auth(uri, vec![redirect_uri], web_view_options, sender)
-            .unwrap();
-        let mut iter = receiver.try_iter();
-        let mut next = iter.next();
-
-        while next.is_none() {
-            next = iter.next();
-        }
-
-        let (event_sender, event_receiver) = std::sync::mpsc::channel();
-
-        match next {
-            None => unreachable!(),
-            Some(auth_event) => match auth_event {
-                InteractiveAuthEvent::InvalidRedirectUri(reason) => {
-                    return Err(WebViewExecutionError::InvalidRedirectUri(reason));
-                }
-                InteractiveAuthEvent::ReachedRedirectUri(uri) => {
-                    let query = uri.query().or(uri.fragment()).ok_or(
-                        WebViewExecutionError::RedirectUriMissingQueryOrFragment(uri.to_string()),
-                    )?;
-
-                    let response_query: AuthorizationQueryResponse =
-                        serde_urlencoded::from_str(query)?;
-
-                    event_sender
-                        .send(AuthCodeInteractiveEvent::AuthorizationQuery(Box::new(
-                            response_query.clone(),
-                        )))
-                        .unwrap_or_default();
-
-                    if let Some(code) = response_query.code.as_ref() {
-                        let credential = AuthorizationCodeCredentialBuilder::new_with_auth_code(
-                            self.app_config.clone(),
-                            code,
-                        )
-                        .build();
-                        event_sender
-                            .send(AuthCodeInteractiveEvent::Success(credential))
-                            .unwrap_or_default();
-                    }
-                }
                 InteractiveAuthEvent::WindowClosed(window_close_reason) => {
-                    event_sender
-                        .send(AuthCodeInteractiveEvent::WindowClosed(window_close_reason))
-                        .unwrap_or_default();
+                    Err(WebViewError::WindowClosed(window_close_reason.to_string()))
                 }
             },
         }
-
-        Ok(event_receiver)
     }
-}
-
-#[cfg(feature = "interactive-auth")]
-#[derive(Debug)]
-pub enum AuthCodeInteractiveEvent {
-    AuthorizationQuery(Box<AuthorizationQueryResponse>),
-    WindowClosed(WindowCloseReason),
-    Success(ConfidentialClientApplication<AuthorizationCodeCredential>),
 }
 
 #[cfg(feature = "interactive-auth")]
 impl InteractiveAuth for AuthCodeAuthorizationUrlParameters {
+    #[tracing::instrument]
     fn webview(
-        &self,
         host_options: HostOptions,
-        _options: WebViewOptions,
         window: Window,
         proxy: EventLoopProxy<UserEvents>,
-        sender: std::sync::mpsc::Sender<InteractiveAuthEvent>,
     ) -> anyhow::Result<WebView> {
         let start_uri = host_options.start_uri.clone();
         let validator = WebViewHostValidator::try_from(host_options)?;
@@ -327,57 +280,21 @@ impl InteractiveAuth for AuthCodeAuthorizationUrlParameters {
                     let is_redirect = validator.is_redirect_host(&url);
 
                     if is_redirect {
-                        sender
-                            .send(InteractiveAuthEvent::ReachedRedirectUri(url.clone()))
-                            .unwrap_or_default();
-                        // Wait time to avoid deadlock where window closes before
-                        // the channel has received the redirect uri.
-
-                        let _ = proxy.send_event(UserEvents::ReachedRedirectUri(url));
+                        proxy.send_event(UserEvents::ReachedRedirectUri(url))
+                            .unwrap();
+                        proxy.send_event(UserEvents::InternalCloseWindow)
+                            .unwrap();
                         return true;
                     }
 
                     is_valid_host
                 } else {
-                    tracing::debug!(target: "interactive_webview", "Unable to navigate WebView - Option<Url> was None");
-                    let _ = proxy.send_event(UserEvents::CloseWindow);
+                    tracing::debug!(target: "graph_rs_sdk::interactive_auth", "unable to navigate webview - url is none");
+                    proxy.send_event(UserEvents::CloseWindow).unwrap();
                     false
                 }
             })
             .build()?)
-    }
-}
-
-#[cfg(feature = "interactive-auth")]
-pub(crate) mod web_view_authenticator {
-    use crate::identity::{AuthCodeAuthorizationUrlParameters, AuthorizationUrl};
-    use crate::web::{
-        InteractiveAuthEvent, InteractiveAuthenticator, InteractiveWebView, WebViewOptions,
-    };
-    use graph_error::WebViewResult;
-
-    impl InteractiveAuthenticator for AuthCodeAuthorizationUrlParameters {
-        fn interactive_authentication(
-            &self,
-            interactive_web_view_options: Option<WebViewOptions>,
-        ) -> WebViewResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>> {
-            let uri = self.url()?;
-            let redirect_uri = self.redirect_uri().cloned().unwrap();
-            let web_view_options = interactive_web_view_options.unwrap_or_default();
-            let (sender, receiver) = std::sync::mpsc::channel();
-
-            std::thread::spawn(move || {
-                InteractiveWebView::interactive_authentication(
-                    uri,
-                    vec![redirect_uri],
-                    web_view_options,
-                    sender,
-                )
-                .unwrap();
-            });
-
-            Ok(receiver)
-        }
     }
 }
 
@@ -656,19 +573,28 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     pub fn with_interactive_authentication(
         &self,
         options: Option<WebViewOptions>,
-    ) -> WebViewResult<AuthorizationCodeCredentialBuilder> {
+    ) -> WebViewResult<(
+        AuthorizationQueryResponse,
+        AuthorizationCodeCredentialBuilder,
+    )> {
         let query_response = self
             .credential
             .interactive_webview_authentication(options)?;
         if let Some(authorization_code) = query_response.code.as_ref() {
-            Ok(AuthorizationCodeCredentialBuilder::new_with_auth_code(
-                self.credential.app_config.clone(),
-                authorization_code,
+            Ok((
+                query_response.clone(),
+                AuthorizationCodeCredentialBuilder::new_with_auth_code(
+                    self.credential.app_config.clone(),
+                    authorization_code,
+                ),
             ))
         } else {
-            Ok(AuthorizationCodeCredentialBuilder::new_with_token(
-                self.credential.app_config.clone(),
-                Token::from(query_response),
+            Ok((
+                query_response.clone(),
+                AuthorizationCodeCredentialBuilder::new_with_token(
+                    self.credential.app_config.clone(),
+                    Token::from(query_response),
+                ),
             ))
         }
     }

@@ -265,6 +265,7 @@ impl AuthorizationCodeCredentialBuilder {
         }
     }
 
+    #[cfg(feature = "interactive-auth")]
     pub(crate) fn new_with_token(
         app_config: AppConfig,
         token: Token,

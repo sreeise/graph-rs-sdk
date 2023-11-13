@@ -6,9 +6,11 @@ use std::time::{Duration, Instant};
 use url::Url;
 use wry::application::event::{Event, StartCause, WindowEvent};
 use wry::application::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
-use wry::application::platform::windows::EventLoopBuilderExtWindows;
 use wry::application::window::{Window, WindowBuilder};
 use wry::webview::WebView;
+
+#[cfg(target_family = "windows")]
+use wry::application::platform::windows::EventLoopBuilderExtWindows;
 
 pub trait InteractiveAuthenticator {
     fn interactive_authentication(
@@ -22,17 +24,13 @@ where
     Self: Debug,
 {
     fn webview(
-        &self,
         host_options: HostOptions,
-        options: WebViewOptions,
         window: Window,
         proxy: EventLoopProxy<UserEvents>,
-        sender: Sender<InteractiveAuthEvent>,
     ) -> anyhow::Result<WebView>;
 
     #[tracing::instrument]
     fn interactive_auth(
-        &self,
         start_url: Url,
         redirect_uris: Vec<Url>,
         options: WebViewOptions,
@@ -41,15 +39,8 @@ where
         let event_loop: EventLoop<UserEvents> = Self::event_loop();
         let proxy = event_loop.create_proxy();
         let window = Self::window_builder(&options).build(&event_loop).unwrap();
-
-        let webview_options = options.clone();
-        let webview = self.webview(
-            HostOptions::new(start_url, redirect_uris, options.ports.clone()),
-            webview_options,
-            window,
-            proxy,
-            sender.clone(),
-        )?;
+        let host_options = HostOptions::new(start_url, redirect_uris, options.ports.clone());
+        let webview = Self::webview(host_options, window, proxy)?;
 
         event_loop.run(move |event, _, control_flow| {
             if let Some(timeout) = options.timeout.as_ref() {
@@ -59,7 +50,7 @@ where
             }
 
             match event {
-                Event::NewEvents(StartCause::Init) => tracing::debug!(target: "interactive_webview", "Webview runtime started"),
+                Event::NewEvents(StartCause::Init) => tracing::trace!(target: "interactive_webview", "Webview runtime started"),
                 Event::NewEvents(StartCause::ResumeTimeReached { start, requested_resume, .. }) => {
                     sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::TimedOut {
                         start, requested_resume
@@ -79,7 +70,7 @@ where
                     ..
                 } => {
                     sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::CloseRequested)).unwrap_or_default();
-                    tracing::trace!(target: "interactive_webview", "Window closing before reaching redirect uri");
+                    tracing::trace!(target: "interactive_webview", "Window close requested by user");
 
                     if options.clear_browsing_data {
                         let _ = webview.clear_all_browsing_data();
@@ -90,8 +81,12 @@ where
                     *control_flow = ControlFlow::Exit
                 }
                 Event::UserEvent(UserEvents::ReachedRedirectUri(uri)) => {
-                    tracing::trace!(target: "interactive_webview", "Matched on redirect uri: {uri:#?} - Closing window");
-
+                    tracing::trace!(target: "interactive_webview", "Matched on redirect uri: {uri}");
+                    sender.send(InteractiveAuthEvent::ReachedRedirectUri(uri))
+                        .unwrap_or_default();
+                }
+                Event::UserEvent(UserEvents::InternalCloseWindow) => {
+                    tracing::trace!(target: "interactive_webview", "Closing window");
                     if options.clear_browsing_data {
                         let _ = webview.clear_all_browsing_data();
                     }
@@ -106,6 +101,7 @@ where
         });
     }
 
+    #[cfg(target_family = "windows")]
     fn window_builder(options: &WebViewOptions) -> WindowBuilder {
         WindowBuilder::new()
             .with_title(options.window_title.clone())
@@ -116,6 +112,18 @@ where
             .with_focused(true)
             .with_resizable(true)
             .with_theme(options.theme)
+    }
+
+    #[cfg(target_family = "unix")]
+    fn window_builder(options: &WebViewOptions) -> WindowBuilder {
+        WindowBuilder::new()
+            .with_title(options.window_title.clone())
+            .with_closable(true)
+            .with_content_protection(true)
+            .with_minimizable(true)
+            .with_maximizable(true)
+            .with_focused(true)
+            .with_resizable(true)
     }
 
     #[cfg(target_family = "windows")]

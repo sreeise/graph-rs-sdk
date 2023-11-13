@@ -2,7 +2,6 @@ use graph_rs_sdk::oauth::{
     ConfidentialClientApplication, IdToken, OpenIdCredential, Prompt, ResponseMode, ResponseType,
     Token, TokenCredentialExecutor,
 };
-use tracing_subscriber::fmt::format::FmtSpan;
 use url::Url;
 
 /// # Example
@@ -86,21 +85,8 @@ async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, 
 /// }
 /// ```
 pub async fn start_server_main() {
-    let filter =
-        std::env::var("RUST_LOG").unwrap_or_else(|_| "tracing=debug,warp=debug".to_owned());
-
-    // Configure the default `tracing` subscriber.
-    // The `fmt` subscriber from the `tracing-subscriber` crate logs `tracing`
-    // events to stdout. Other subscribers are available for integrating with
-    // distributed tracing systems such as OpenTelemetry.
-    tracing_subscriber::fmt()
-        .with_span_events(FmtSpan::FULL)
-        // Use the filter we built above to determine which traces to record.
-        .with_env_filter(filter)
-        // Record an event when each span closes. This can be used to time our
-        // routes' durations!
-        .with_span_events(FmtSpan::CLOSE)
-        .init();
+    std::env::set_var("RUST_LOG", "debug");
+    pretty_env_logger::init();
 
     let routes = warp::post()
         .and(warp::path("redirect"))

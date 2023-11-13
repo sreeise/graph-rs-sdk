@@ -4,7 +4,7 @@ use url::Url;
 
 use crate::oauth::InteractiveDeviceCodeEvent;
 use crate::web::{HostOptions, InteractiveAuthEvent, WebViewOptions, WindowCloseReason};
-use graph_error::{WebViewExecutionError, WebViewResult};
+use graph_error::{WebViewError, WebViewResult};
 use wry::application::event_loop::EventLoopBuilder;
 use wry::application::platform::windows::EventLoopBuilderExtWindows;
 use wry::{
@@ -19,6 +19,7 @@ use wry::{
 #[derive(Debug, Clone)]
 pub enum UserEvents {
     CloseWindow,
+    InternalCloseWindow,
     ReachedRedirectUri(Url),
 }
 
@@ -36,9 +37,9 @@ impl WebViewHostValidator {
         ports: HashSet<usize>,
     ) -> WebViewResult<WebViewHostValidator> {
         if start_uri.host().is_none() || redirect_uris.iter().any(|uri| uri.host().is_none()) {
-            return Err(WebViewExecutionError::InvalidStartUri {
-                reason: "Authorization url and redirect uri must have valid uri hosts".to_owned(),
-            });
+            return Err(WebViewError::InvalidUri(
+                "Authorization url and redirect uri must have valid uri hosts".into(),
+            ));
         }
 
         let is_local_host = redirect_uris
@@ -46,9 +47,9 @@ impl WebViewHostValidator {
             .any(|uri| uri.as_str().eq("http://localhost"));
 
         if is_local_host && ports.is_empty() {
-            return Err(WebViewExecutionError::InvalidStartUri {
-                reason: "Redirect uri is http://localhost but not ports were specified".to_string(),
-            });
+            return Err(WebViewError::InvalidUri(
+                "Redirect uri is http://localhost but not ports were specified".into(),
+            ));
         }
 
         Ok(WebViewHostValidator {
@@ -99,7 +100,7 @@ impl WebViewHostValidator {
 }
 
 impl TryFrom<HostOptions> for WebViewHostValidator {
-    type Error = WebViewExecutionError;
+    type Error = WebViewError;
 
     fn try_from(value: HostOptions) -> Result<Self, Self::Error> {
         WebViewHostValidator::new(value.start_uri, value.redirect_uris, value.ports)
@@ -203,6 +204,18 @@ impl InteractiveWebView {
                     *control_flow = ControlFlow::Exit
                 }
                 Event::UserEvent(UserEvents::ReachedRedirectUri(uri)) => {
+                    tracing::trace!(target: "interactive_webview", "Matched on redirect uri: {uri:#?} - Closing window");
+
+                    if options.clear_browsing_data {
+                        let _ = webview.clear_all_browsing_data();
+                    }
+
+                    // Wait time to avoid deadlock where window closes before
+                    // the channel has received the redirect uri.
+                    std::thread::sleep(Duration::from_millis(500));
+                    *control_flow = ControlFlow::Exit
+                }
+                Event::UserEvent(UserEvents::InternalCloseWindow) => {
                     tracing::trace!(target: "interactive_webview", "Matched on redirect uri: {uri:#?} - Closing window");
 
                     if options.clear_browsing_data {

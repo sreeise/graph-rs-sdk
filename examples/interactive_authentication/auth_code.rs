@@ -1,9 +1,4 @@
-use graph_rs_sdk::oauth::{
-    web::Theme, web::WebViewOptions, AuthorizationCodeCredential, TokenCredentialExecutor,
-};
-use graph_rs_sdk::GraphClient;
-use std::ops::Add;
-use std::time::{Duration, Instant};
+use graph_rs_sdk::{oauth::AuthorizationCodeCredential, GraphClient};
 
 static CLIENT_ID: &str = "CLIENT_ID";
 static CLIENT_SECRET: &str = "CLIENT_SECRET";
@@ -34,20 +29,18 @@ static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 // by requesting the offline_access scope, then the confidential client will take care of refreshing
 // the token.
 async fn authenticate() {
-    // Create a tracing subscriber to log debug/trace events coming from
-    // authorization http calls and the Graph client.
-    tracing_subscriber::fmt()
-        .pretty()
-        .with_thread_names(true)
-        .with_max_level(tracing::Level::TRACE)
-        .init();
+    std::env::set_var("RUST_LOG", "debug");
+    pretty_env_logger::init();
 
-    let mut credential_builder = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
-        .with_tenant(TENANT_ID)
-        .with_scope(vec!["user.read", "offline_access"]) // Adds offline_access as a scope which is needed to get a refresh token.
-        .with_redirect_uri(REDIRECT_URI)
-        .with_interactive_authentication(None)
-        .unwrap();
+    let (authorization_query_response, mut credential_builder) =
+        AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
+            .with_tenant(TENANT_ID)
+            .with_scope(vec!["user.read", "offline_access"]) // Adds offline_access as a scope which is needed to get a refresh token.
+            .with_redirect_uri(REDIRECT_URI)
+            .with_interactive_authentication(None)
+            .unwrap();
+
+    debug!("{authorization_query_response:#?}");
 
     let mut confidential_client = credential_builder.with_client_secret(CLIENT_SECRET).build();
 
@@ -55,7 +48,7 @@ async fn authenticate() {
 
     let response = client.user(USER_ID).get_user().send().await.unwrap();
 
-    println!("{response:#?}");
+    debug!("{response:#?}");
     let body: serde_json::Value = response.json().await.unwrap();
-    println!("{body:#?}");
+    debug!("{body:#?}");
 }

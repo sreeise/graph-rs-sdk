@@ -39,7 +39,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
     }
 
     #[tracing::instrument]
-    fn build(&mut self) -> AuthExecutionResult<reqwest::blocking::RequestBuilder> {
+    fn build_request(&mut self) -> AuthExecutionResult<reqwest::blocking::RequestBuilder> {
         let http_client = reqwest::blocking::ClientBuilder::new()
             .min_tls_version(Version::TLS_1_2)
             .https_only(true)
@@ -56,7 +56,8 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .form(&auth_request.form_urlencoded);
 
             tracing::debug!(
-                "authorization request constructed; request_builder={request_builder:#?}"
+                 target: "graph_rs_sdk::token_credential_executor",
+                "authorization request constructed"
             );
             Ok(request_builder)
         } else {
@@ -66,14 +67,15 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .form(&auth_request.form_urlencoded);
 
             tracing::debug!(
-                "authorization request constructed; request_builder={request_builder:#?}"
+                 target: "graph_rs_sdk::token_credential_executor",
+                "authorization request constructed"
             );
             Ok(request_builder)
         }
     }
 
     #[tracing::instrument]
-    fn build_async(&mut self) -> AuthExecutionResult<reqwest::RequestBuilder> {
+    fn build_request_async(&mut self) -> AuthExecutionResult<reqwest::RequestBuilder> {
         let http_client = reqwest::ClientBuilder::new()
             .min_tls_version(Version::TLS_1_2)
             .https_only(true)
@@ -90,7 +92,8 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .form(&auth_request.form_urlencoded);
 
             tracing::debug!(
-                "authorization request constructed; request_builder={request_builder:#?}"
+                target: "graph_rs_sdk::token_credential_executor",
+                "authorization request constructed"
             );
             Ok(request_builder)
         } else {
@@ -100,7 +103,8 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .form(&auth_request.form_urlencoded);
 
             tracing::debug!(
-                "authorization request constructed; request_builder={request_builder:#?}"
+                target: "graph_rs_sdk::token_credential_executor",
+                "authorization request constructed"
             );
             Ok(request_builder)
         }
@@ -134,17 +138,19 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
 
     #[tracing::instrument]
     fn execute(&mut self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let request_builder = self.build()?;
+        let request_builder = self.build_request()?;
         let response = request_builder.send()?;
-        tracing::debug!("authorization response received; response={response:#?}");
+        let status = response.status();
+        tracing::debug!(target: "graph_rs_sdk::token_credential_executor", "authorization response received; status={status:#?}");
         Ok(response)
     }
 
     #[tracing::instrument]
     async fn execute_async(&mut self) -> AuthExecutionResult<reqwest::Response> {
-        let request_builder = self.build_async()?;
+        let request_builder = self.build_request_async()?;
         let response = request_builder.send().await?;
-        tracing::debug!("authorization response received; response={response:#?}");
+        let status = response.status();
+        tracing::debug!(target: "graph_rs_sdk::token_credential_executor", "authorization response received; status={status:#?}");
         Ok(response)
     }
 }

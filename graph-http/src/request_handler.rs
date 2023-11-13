@@ -36,11 +36,12 @@ impl RequestHandler {
 
         let mut error = None;
         if let Some(err) = err {
+            let message = err.to_string();
             error = Some(GraphFailure::PreFlightError {
                 url: Some(request_components.url.clone()),
                 headers: Some(request_components.headers.clone()),
                 error: Some(Box::new(err)),
-                message: String::from("N/A"),
+                message,
             });
         }
 
@@ -293,16 +294,37 @@ impl Paging {
     ///
     /// # Example
     /// ```rust,ignore
-    /// let mut stream = client
-    ///     .users()
-    ///     .delta()
-    ///     .paging()
-    ///     .stream::<serde_json::Value>()
-    ///     .unwrap();
+    /// #[derive(Debug, Serialize, Deserialize)]
+    /// pub struct User {
+    ///     pub(crate) id: Option<String>,
+    ///     #[serde(rename = "userPrincipalName")]
+    ///     user_principal_name: Option<String>,
+    /// }
     ///
-    ///  while let Some(result) = stream.next().await {
-    ///     println!("{result:#?}");
-    ///  }
+    /// #[derive(Debug, Serialize, Deserialize)]
+    /// pub struct Users {
+    ///     pub value: Vec<User>,
+    /// }
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> GraphResult<()> {
+    ///     let client = GraphClient::new("ACCESS_TOKEN");
+    ///
+    ///     let deque = client
+    ///         .users()
+    ///         .list_user()
+    ///         .select(&["id", "userPrincipalName"])
+    ///         .paging()
+    ///         .json::<Users>()
+    ///         .await?;
+    ///
+    ///     for response in deque.iter() {
+    ///         let users = response.into_body()?;
+    ///         println!("{users:#?}");
+    ///     }
+    ///     Ok(())
+    /// }
+    ///
     /// ```
     pub async fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<PagingResponse<T>>> {
         if let Some(err) = self.0.error {
@@ -434,7 +456,7 @@ impl Paging {
     ///     .list_user()
     ///     .top("5")
     ///     .paging()
-    ///     .channel::<serde_json::Value>()
+    ///     .channel_timeout::<serde_json::Value>(Duration::from_secs(60))
     ///     .await?;
     ///
     ///  while let Some(result) = receiver.recv().await {
@@ -477,7 +499,7 @@ impl Paging {
     ///     .list_user()
     ///     .top("5")
     ///     .paging()
-    ///     .channel::<serde_json::Value>()
+    ///     .channel_buffer_timeout::<serde_json::Value>(100, Duration::from_secs(60))
     ///     .await?;
     ///
     ///  while let Some(result) = receiver.recv().await {

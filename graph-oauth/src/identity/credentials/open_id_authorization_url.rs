@@ -15,6 +15,24 @@ use crate::identity::{
     AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
 };
 
+#[cfg(feature = "interactive-auth")]
+use graph_error::{AuthExecutionError, WebViewError, WebViewResult};
+
+#[cfg(feature = "interactive-auth")]
+use crate::identity::{AuthorizationQueryResponse, OpenIdCredentialBuilder, Token};
+
+#[cfg(feature = "interactive-auth")]
+use crate::web::{
+    HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,
+    WebViewOptions,
+};
+
+#[cfg(feature = "interactive-auth")]
+use wry::{
+    application::{event_loop::EventLoopProxy, window::Window},
+    webview::{WebView, WebViewBuilder},
+};
+
 const RESPONSE_TYPES_SUPPORTED: &[&str] = &["code", "id_token", "code id_token", "id_token token"];
 
 /// OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional
@@ -112,6 +130,7 @@ impl Debug for OpenIdAuthorizationUrlParameters {
             .finish()
     }
 }
+
 impl OpenIdAuthorizationUrlParameters {
     pub fn new<T: AsRef<str>, IU: IntoUrl, U: ToString, I: IntoIterator<Item = U>>(
         client_id: T,
@@ -183,6 +202,77 @@ impl OpenIdAuthorizationUrlParameters {
     pub fn nonce(&mut self) -> &String {
         &self.nonce
     }
+
+    #[cfg(feature = "interactive-auth")]
+    #[tracing::instrument]
+    pub fn interactive_webview_authentication(
+        &self,
+        interactive_web_view_options: Option<WebViewOptions>,
+    ) -> WebViewResult<AuthorizationQueryResponse> {
+        let uri = self
+            .url()
+            .map_err(|err| Box::new(AuthExecutionError::from(err)))?;
+        let redirect_uri = self.redirect_uri().cloned().unwrap();
+        let web_view_options = interactive_web_view_options.unwrap_or_default();
+        let (sender, receiver) = std::sync::mpsc::channel();
+
+        std::thread::spawn(move || {
+            OpenIdAuthorizationUrlParameters::interactive_auth(
+                uri,
+                vec![redirect_uri],
+                web_view_options,
+                sender,
+            )
+            .unwrap();
+        });
+        let mut iter = receiver.try_iter();
+        let mut next = iter.next();
+
+        while next.is_none() {
+            next = iter.next();
+        }
+
+        match next {
+            None => unreachable!(),
+            Some(auth_event) => match auth_event {
+                InteractiveAuthEvent::InvalidRedirectUri(reason) => {
+                    Err(WebViewError::InvalidUri(reason))
+                }
+                InteractiveAuthEvent::ReachedRedirectUri(uri) => {
+                    let query = uri
+                        .query()
+                        .or(uri.fragment())
+                        .ok_or(WebViewError::InvalidUri(format!(
+                            "uri missing query or fragment: {}",
+                            uri.to_string()
+                        )))?;
+
+                    let response_query: AuthorizationQueryResponse =
+                        serde_urlencoded::from_str(query)
+                            .map_err(|err| WebViewError::InvalidUri(err.to_string()))?;
+
+                    if response_query.is_err() {
+                        tracing::debug!(target: "graph_rs_sdk::interactive_auth", "error in authorization query or fragment from redirect uri");
+                        return Err(WebViewError::AuthorizationQuery {
+                            error: response_query
+                                .error
+                                .map(|query_error| query_error.to_string())
+                                .unwrap_or_default(),
+                            error_description: response_query.error_description.unwrap_or_default(),
+                            error_uri: response_query.error_uri.map(|uri| uri.to_string()),
+                        });
+                    }
+
+                    tracing::debug!(target: "graph_rs_sdk::interactive_auth", "parsed authorization query or fragment from redirect uri");
+
+                    Ok(response_query)
+                }
+                InteractiveAuthEvent::WindowClosed(window_close_reason) => {
+                    Err(WebViewError::WindowClosed(window_close_reason.to_string()))
+                }
+            },
+        }
+    }
 }
 
 impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
@@ -205,10 +295,6 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
             return AuthorizationFailure::result("client_id");
         }
 
-        if self.app_config.scope.is_empty() {
-            return AuthorizationFailure::result("scope");
-        }
-
         if self.nonce.is_empty() {
             return AuthorizationFailure::msg_result(
                 "nonce",
@@ -216,9 +302,16 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
             );
         }
 
+        if self.app_config.scope.is_empty() || !self.app_config.scope.contains("openid") {
+            let mut scope = self.app_config.scope.clone();
+            scope.insert("openid".into());
+            serializer.set_scope(scope);
+        } else {
+            serializer.set_scope(self.app_config.scope.clone());
+        }
+
         serializer
             .client_id(client_id.as_str())
-            .set_scope(self.app_config.scope.clone())
             .nonce(self.nonce.as_str())
             .authority(azure_cloud_instance, &self.app_config.authority);
 
@@ -293,8 +386,46 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
     }
 }
 
+#[cfg(feature = "interactive-auth")]
+impl InteractiveAuth for OpenIdAuthorizationUrlParameters {
+    #[tracing::instrument]
+    fn webview(
+        host_options: HostOptions,
+        window: Window,
+        proxy: EventLoopProxy<UserEvents>,
+    ) -> anyhow::Result<WebView> {
+        let start_uri = host_options.start_uri.clone();
+        let validator = WebViewHostValidator::try_from(host_options)?;
+        Ok(WebViewBuilder::new(window)?
+            .with_url(start_uri.as_ref())?
+            // Disables file drop
+            .with_file_drop_handler(|_, _| true)
+            .with_navigation_handler(move |uri| {
+                if let Ok(url) = Url::parse(uri.as_str()) {
+                    let is_valid_host = validator.is_valid_uri(&url);
+                    let is_redirect = validator.is_redirect_host(&url);
+
+                    if is_redirect {
+                        proxy.send_event(UserEvents::ReachedRedirectUri(url))
+                            .unwrap();
+                        proxy.send_event(UserEvents::InternalCloseWindow)
+                            .unwrap();
+                        return true;
+                    }
+
+                    is_valid_host
+                } else {
+                    tracing::debug!(target: "graph_rs_sdk::interactive_auth", "unable to navigate webview - url is none");
+                    proxy.send_event(UserEvents::CloseWindow).unwrap();
+                    false
+                }
+            })
+            .build()?)
+    }
+}
+
 pub struct OpenIdAuthorizationUrlParameterBuilder {
-    parameters: OpenIdAuthorizationUrlParameters,
+    credential: OpenIdAuthorizationUrlParameters,
 }
 
 impl OpenIdAuthorizationUrlParameterBuilder {
@@ -302,7 +433,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         client_id: impl AsRef<str>,
     ) -> IdentityResult<OpenIdAuthorizationUrlParameterBuilder> {
         Ok(OpenIdAuthorizationUrlParameterBuilder {
-            parameters: OpenIdAuthorizationUrlParameters::new_with_app_config(
+            credential: OpenIdAuthorizationUrlParameters::new_with_app_config(
                 AppConfig::builder(client_id.as_ref())
                     .scope(vec!["openid"])
                     .build(),
@@ -311,10 +442,11 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     }
 
     pub(crate) fn new_with_app_config(
-        app_config: AppConfig,
+        mut app_config: AppConfig,
     ) -> OpenIdAuthorizationUrlParameterBuilder {
+        app_config.scope.insert("openid".into());
         OpenIdAuthorizationUrlParameterBuilder {
-            parameters: OpenIdAuthorizationUrlParameters::new_with_app_config(app_config)
+            credential: OpenIdAuthorizationUrlParameters::new_with_app_config(app_config)
                 .expect("ring::crypto::Unspecified"),
         }
     }
@@ -323,24 +455,24 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         &mut self,
         redirect_uri: T,
     ) -> IdentityResult<&mut Self> {
-        self.parameters.app_config.redirect_uri = Some(Url::parse(redirect_uri.as_ref())?);
+        self.credential.app_config.redirect_uri = Some(Url::parse(redirect_uri.as_ref())?);
         Ok(self)
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.parameters.app_config.client_id =
+        self.credential.app_config.client_id =
             Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
         self
     }
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.parameters.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
+        self.credential.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
     pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.parameters.app_config.authority = authority.into();
+        self.credential.app_config.authority = authority.into();
         self
     }
 
@@ -358,7 +490,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.parameters.response_type = BTreeSet::from_iter(response_type.into_iter());
+        self.credential.response_type = BTreeSet::from_iter(response_type.into_iter());
         self
     }
 
@@ -371,7 +503,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
     ///     Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
-        self.parameters.response_mode = Some(response_mode);
+        self.credential.response_mode = Some(response_mode);
         self
     }
 
@@ -386,27 +518,27 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// authorization code grant. If you are unsure or unclear how the nonce works then it is
     /// recommended to stay with the generated nonce as it is cryptographically secure.
     pub fn with_nonce<T: AsRef<str>>(&mut self, nonce: T) -> &mut Self {
-        if self.parameters.nonce.is_empty() {
-            self.parameters.nonce.push_str(nonce.as_ref());
+        if self.credential.nonce.is_empty() {
+            self.credential.nonce.push_str(nonce.as_ref());
         } else {
-            self.parameters.nonce = nonce.as_ref().to_owned();
+            self.credential.nonce = nonce.as_ref().to_owned();
         }
         self
     }
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
-        self.parameters.state = Some(state.as_ref().to_owned());
+        self.credential.state = Some(state.as_ref().to_owned());
         self
     }
 
     /// Takes an iterator of scopes to use in the request.
     /// Replaces current scopes if any were added previously.
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        if self.parameters.app_config.scope.contains("offline_access") {
-            self.parameters.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        if self.credential.app_config.scope.contains("offline_access") {
+            self.credential.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
             self.with_offline_access();
         } else {
-            self.parameters.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+            self.credential.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
         }
         self
     }
@@ -414,7 +546,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// Adds the `offline_access` scope parameter which tells the authorization server
     /// to include a refresh token in the response.
     pub fn with_offline_access(&mut self) -> &mut Self {
-        self.parameters
+        self.credential
             .app_config
             .scope
             .extend(vec!["offline_access".to_owned()]);
@@ -432,7 +564,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience
     ///     listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether.
     pub fn with_prompt<I: IntoIterator<Item = Prompt>>(&mut self, prompt: I) -> &mut Self {
-        self.parameters.prompt.extend(prompt.into_iter());
+        self.credential.prompt.extend(prompt.into_iter());
         self
     }
 
@@ -442,7 +574,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// user experience. For tenants that are federated through an on-premises directory
     /// like AD FS, this often results in a seamless sign-in because of the existing login session.
     pub fn with_domain_hint<T: AsRef<str>>(&mut self, domain_hint: T) -> &mut Self {
-        self.parameters.domain_hint = Some(domain_hint.as_ref().to_owned());
+        self.credential.domain_hint = Some(domain_hint.as_ref().to_owned());
         self
     }
 
@@ -452,16 +584,43 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// this parameter during reauthentication, after already extracting the login_hint
     /// optional claim from an earlier sign-in.
     pub fn with_login_hint<T: AsRef<str>>(&mut self, login_hint: T) -> &mut Self {
-        self.parameters.login_hint = Some(login_hint.as_ref().to_owned());
+        self.credential.login_hint = Some(login_hint.as_ref().to_owned());
         self
     }
 
+    #[cfg(feature = "interactive-auth")]
+    pub fn with_interactive_authentication(
+        &self,
+        options: Option<WebViewOptions>,
+    ) -> WebViewResult<(AuthorizationQueryResponse, OpenIdCredentialBuilder)> {
+        let query_response = self
+            .credential
+            .interactive_webview_authentication(options)?;
+        if let Some(authorization_code) = query_response.code.as_ref() {
+            Ok((
+                query_response.clone(),
+                OpenIdCredentialBuilder::new_with_auth_code(
+                    self.credential.app_config.clone(),
+                    authorization_code,
+                ),
+            ))
+        } else {
+            Ok((
+                query_response.clone(),
+                OpenIdCredentialBuilder::new_with_token(
+                    self.credential.app_config.clone(),
+                    Token::from(query_response.clone()),
+                ),
+            ))
+        }
+    }
+
     pub fn build(&self) -> OpenIdAuthorizationUrlParameters {
-        self.parameters.clone()
+        self.credential.clone()
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
-        self.parameters.url()
+        self.credential.url()
     }
 }
 
