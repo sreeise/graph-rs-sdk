@@ -333,16 +333,18 @@ impl ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
 					imports: vec![
-						"crate::drives::{DrivesListApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient, WorkbookApiClient, WorksheetsApiClient, WorksheetsIdApiClient}"
+						"crate::drives::{DrivesListApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient, WorkbookApiClient, WorksheetsApiClient, WorksheetsIdApiClient, CreatedByUserApiClient, LastModifiedByUserApiClient}",
 					],
 					api_client_links: vec![
 						ApiClientLinkSettings(Some("DrivesIdApiClient"), vec![
-							ApiClientLink::StructId("list", "DrivesListApiClient"),
+							ApiClientLink::Struct("list", "DrivesListApiClient"),
 							ApiClientLink::StructId("items", "DrivesItemsApiClient"),
 							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
                             ApiClientLink::Struct("workbook", "WorkbookApiClient"),
                             ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
                             ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
+							ApiClientLink::Struct("last_modified_by_user", "LastModifiedByUserApiClient"),
+							ApiClientLink::Struct("created_by_user", "CreatedByUserApiClient"),
 						])
 					],
 				},
@@ -351,7 +353,7 @@ impl ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
 					imports: vec![
-						"crate::drives::{DrivesListContentTypesApiClient, DrivesListContentTypesIdApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient}"
+						"crate::drives::{DrivesListContentTypesApiClient, DrivesListContentTypesIdApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient, CreatedByUserApiClient, LastModifiedByUserApiClient}"
 					],
 					api_client_links: vec![
 						ApiClientLinkSettings(Some("DrivesListApiClient"), vec![
@@ -359,9 +361,19 @@ impl ResourceSettings {
 							ApiClientLink::StructId("content_type", "DrivesListContentTypesIdApiClient"),
 							ApiClientLink::Struct("items", "DrivesItemsApiClient"),
 							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
+							ApiClientLink::Struct("last_modified_by_user", "LastModifiedByUserApiClient"),
+							ApiClientLink::Struct("created_by_user", "CreatedByUserApiClient"),
 						])
 					],
 				},
+			ResourceIdentity::DrivesItems => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::{CreatedByUserApiClient, LastModifiedByUserApiClient}"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("DrivesItemsApiClient"), vec![
+						ApiClientLink::Struct("last_modified_by_user", "LastModifiedByUserApiClient"),
+						ApiClientLink::Struct("created_by_user", "CreatedByUserApiClient"),
+					])
+				]).build().unwrap(),
 			ResourceIdentity::Education => ResourceSettings::builder(path_name, ri)
 				.imports(vec!["crate::education::*"])
 				.api_client_links(vec![
@@ -1950,18 +1962,26 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			])
 			.build().unwrap(),
 
+		ResourceIdentity::CreatedByUser => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::LastModifiedByUser => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}")
+			.build()
+			.unwrap(),
 
 		ResourceIdentity::Drives => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["items", "list"])
+			.filter_path(vec!["items", "list", "createdByUser", "lastModifiedByUser"])
 			.children(map_write_config(vec![
 				ResourceIdentity::DrivesList, ResourceIdentity::DrivesItems, ResourceIdentity::DrivesListContentTypes,
-				ResourceIdentity::Workbook, ResourceIdentity::Worksheets,
+				ResourceIdentity::Workbook, ResourceIdentity::Worksheets, ResourceIdentity::CreatedByUser, ResourceIdentity::LastModifiedByUser,
 			]))
 			.build()
 			.unwrap(),
 		ResourceIdentity::DrivesList => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}")
-			.filter_path(vec!["items", "contentTypes"])
+			.filter_path(vec!["items", "contentTypes", "createdByUser", "lastModifiedByUser"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::DrivesListContentTypes => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
@@ -1970,7 +1990,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.unwrap(),
 		ResourceIdentity::DrivesItems => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}")
-			.filter_path(vec!["workbook", "getActivitiesByInterval()"])
+			.filter_path(vec!["workbook", "getActivitiesByInterval()", "createdByUser", "lastModifiedByUser"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::Workbook => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)

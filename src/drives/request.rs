@@ -1,7 +1,11 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::drives::*;
+use crate::drives::{
+    CreatedByUserApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient,
+    DrivesItemsPathIdApiClient, DrivesListApiClient, LastModifiedByUserApiClient,
+    WorkbookApiClient, WorksheetsApiClient, WorksheetsIdApiClient,
+};
 
 resource_api_client!(DrivesApiClient, DrivesIdApiClient, ResourceIdentity::Drives);
 
@@ -13,7 +17,7 @@ impl DrivesApiClient {
         body: true
     );
     get!(
-        doc: "Get Drive",
+        doc: "Get entities from drives",
         name: list_drive,
         path: "/drives"
     );
@@ -28,7 +32,12 @@ impl DrivesIdApiClient {
     api_client_link_id!(item, DrivesItemsIdApiClient);
     api_client_link_id!(item_by_path, DrivesItemsPathIdApiClient);
     api_client_link!(items, DrivesItemsApiClient);
-    api_client_link_id!(list, DrivesListApiClient);
+    api_client_link!(list, DrivesListApiClient);
+    api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
+    api_client_link!(worksheets, WorksheetsApiClient);
+    api_client_link!(workbook, WorkbookApiClient);
+    api_client_link_id!(worksheet, WorksheetsIdApiClient);
+    api_client_link!(created_by_user, CreatedByUserApiClient);
 
     delete!(
         doc: "Delete entity from drives",
@@ -36,7 +45,7 @@ impl DrivesIdApiClient {
         path: "/drives/{{RID}}"
     );
     get!(
-        doc: "Get Drive",
+        doc: "Get entity from drives by key",
         name: get_drive,
         path: "/drives/{{RID}}"
     );
@@ -46,6 +55,12 @@ impl DrivesIdApiClient {
         path: "/drives/{{RID}}",
         body: true
     );
+    post!(
+        doc: "Create new navigation property to bundles for drives",
+        name: create_bundles,
+        path: "/drives/{{RID}}/bundles",
+        body: true
+    );
     get!(
         doc: "Get bundles from drives",
         name: list_bundles,
@@ -53,7 +68,7 @@ impl DrivesIdApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: get_bundles_count,
+        name: bundles,
         path: "/drives/{{RID}}/bundles/$count"
     );
     get!(
@@ -137,7 +152,7 @@ impl DrivesIdApiClient {
         path: "/drives/{{RID}}/sharedWithMe()"
     );
     get!(
-        doc: "Get special from drives",
+        doc: "Get a special folder by name",
         name: list_special,
         path: "/drives/{{RID}}/special"
     );
@@ -147,7 +162,7 @@ impl DrivesIdApiClient {
         path: "/drives/{{RID}}/special/$count"
     );
     get!(
-        doc: "Get special from drives",
+        doc: "Get a special folder by name",
         name: get_special,
         path: "/drives/{{RID}}/special/{{id}}",
         params: drive_item_id

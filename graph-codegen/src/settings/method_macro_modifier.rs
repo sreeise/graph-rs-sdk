@@ -373,6 +373,20 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 					update: GeneratedMacroType::FnName("get_contacted_reviewers_count"),
 				}
 			],
+		ResourceIdentity::Drives => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"special", "/drives/{{RID}}/special/$count",
+				GeneratedMacroType::FnName("get_special_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"following", "/drives/{{RID}}/following/$count",
+				GeneratedMacroType::FnName("get_following_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"bundles", "/drives/{{RID}}/bundles/$count",
+				GeneratedMacroType::FnName("get_bundles_count")
+			),
+		],
 		ResourceIdentity::DrivesItems => vec![
 			MethodMacroModifier {
 				matching: vec![

@@ -1,15 +1,21 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::drives::*;
+use crate::drives::{
+    CreatedByUserApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient,
+    DrivesListContentTypesApiClient, DrivesListContentTypesIdApiClient,
+    LastModifiedByUserApiClient,
+};
 
 resource_api_client!(DrivesListApiClient, ResourceIdentity::DrivesList);
 
 impl DrivesListApiClient {
-    api_client_link_id!(item, DrivesItemsIdApiClient);
-    api_client_link!(content_types, DrivesListContentTypesApiClient);
     api_client_link_id!(content_type, DrivesListContentTypesIdApiClient);
     api_client_link!(items, DrivesItemsApiClient);
+    api_client_link!(created_by_user, CreatedByUserApiClient);
+    api_client_link!(content_types, DrivesListContentTypesApiClient);
+    api_client_link_id!(item, DrivesItemsIdApiClient);
+    api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
 
     delete!(
         doc: "Delete navigation property list for drives",
