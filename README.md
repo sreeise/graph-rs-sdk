@@ -2,14 +2,13 @@
 
 [![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg)](https://crates.io/crates/graph-rs-sdk)
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
-[![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
 
 ### Rust SDK Client for Microsoft Graph and the Microsoft Graph Api
 
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
 ```toml
-graph-rs-sdk = "1.1.1"
+graph-rs-sdk = "1.1.2"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -88,7 +87,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "1.1.1"
+    graph-rs-sdk = "1.1.2"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -120,7 +119,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "1.1.1"
+    graph-rs-sdk = "1.1.2"
 
 #### Example
 use graph_rs_sdk::*;
