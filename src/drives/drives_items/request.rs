@@ -23,7 +23,7 @@ impl DrivesItemsApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: items,
+        name: get_items_count,
         path: "/items/$count"
     );
 }
