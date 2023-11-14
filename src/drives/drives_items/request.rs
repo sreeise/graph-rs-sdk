@@ -1,6 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::drives::{CreatedByUserApiClient, LastModifiedByUserApiClient};
 
 resource_api_client!(
     DrivesItemsApiClient,
@@ -28,8 +29,11 @@ impl DrivesItemsApiClient {
 }
 
 impl DrivesItemsIdApiClient {
+    api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
+    api_client_link!(created_by_user, CreatedByUserApiClient);
+
     delete!(
-        doc: "Delete navigation property items for drives",
+        doc: "Delete a DriveItem",
         name: delete_items,
         path: "/items/{{RID}}"
     );
@@ -39,7 +43,7 @@ impl DrivesItemsIdApiClient {
         path: "/items/{{RID}}"
     );
     patch!(
-        doc: "Update the navigation property items in drives",
+        doc: "Move a DriveItem to a new folder",
         name: update_items,
         path: "/items/{{RID}}",
         body: true
@@ -163,6 +167,12 @@ impl DrivesItemsIdApiClient {
         path: "/items/{{RID}}/analytics/lastSevenDays"
     );
     post!(
+        doc: "Invoke action assignSensitivityLabel",
+        name: assign_sensitivity_label,
+        path: "/items/{{RID}}/assignSensitivityLabel",
+        body: true
+    );
+    post!(
         doc: "Invoke action checkin",
         name: checkin,
         path: "/items/{{RID}}/checkin",
@@ -249,6 +259,11 @@ impl DrivesItemsIdApiClient {
         params: token
     );
     post!(
+        doc: "Invoke action extractSensitivityLabels",
+        name: extract_sensitivity_labels,
+        path: "/items/{{RID}}/extractSensitivityLabels"
+    );
+    post!(
         doc: "Invoke action follow",
         name: follow,
         path: "/items/{{RID}}/follow"
@@ -271,6 +286,11 @@ impl DrivesItemsIdApiClient {
         path: "/items/{{RID}}/listItem"
     );
     post!(
+        doc: "Invoke action permanentDelete",
+        name: permanent_delete,
+        path: "/items/{{RID}}/permanentDelete"
+    );
+    post!(
         doc: "Create new navigation property to permissions for drives",
         name: create_permissions,
         path: "/items/{{RID}}/permissions",
@@ -287,19 +307,19 @@ impl DrivesItemsIdApiClient {
         path: "/items/{{RID}}/permissions/$count"
     );
     delete!(
-        doc: "Delete navigation property permissions for drives",
+        doc: "Delete a sharing permission from a file or folder",
         name: delete_permissions,
         path: "/items/{{RID}}/permissions/{{id}}",
         params: permission_id
     );
     get!(
-        doc: "Get permissions from drives",
+        doc: "Get sharing permission for a file or folder",
         name: get_permissions,
         path: "/items/{{RID}}/permissions/{{id}}",
         params: permission_id
     );
     patch!(
-        doc: "Update the navigation property permissions in drives",
+        doc: "Update sharing permission",
         name: update_permissions,
         path: "/items/{{RID}}/permissions/{{id}}",
         body: true,
@@ -440,7 +460,7 @@ impl DrivesItemsIdApiClient {
         params: drive_item_version_id
     );
     get!(
-        doc: "Get versions from drives",
+        doc: "Get a DriveItemVersion resource",
         name: get_versions,
         path: "/items/{{RID}}/versions/{{id}}",
         params: drive_item_version_id

@@ -373,6 +373,20 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 					update: GeneratedMacroType::FnName("get_contacted_reviewers_count"),
 				}
 			],
+		ResourceIdentity::Drives => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"special", "/drives/{{RID}}/special/$count",
+				GeneratedMacroType::FnName("get_special_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"following", "/drives/{{RID}}/following/$count",
+				GeneratedMacroType::FnName("get_following_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"bundles", "/drives/{{RID}}/bundles/$count",
+				GeneratedMacroType::FnName("get_bundles_count")
+			),
+		],
 		ResourceIdentity::DrivesItems => vec![
 			MethodMacroModifier {
 				matching: vec![
@@ -730,6 +744,24 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				GeneratedMacroType::FnName("get_application_count")
 			)
 		],
+        ResourceIdentity::Worksheets => vec![
+            MethodMacroModifier::fn_name_and_path(
+                "workbook_worksheet", "/worksheets/{{RID}}/range()",
+                GeneratedMacroType::FnName("get_range_object")
+            ),
+            MethodMacroModifier::fn_name_and_path(
+                "workbook_worksheet", "/worksheets/{{RID}}/range(address='{{id}}')",
+                GeneratedMacroType::FnName("get_range_object_by_address")
+            ),
+            MethodMacroModifier::fn_name_and_path(
+                "workbook_worksheet", "/worksheets/{{RID}}/usedRange()",
+                GeneratedMacroType::FnName("get_used_range_object")
+            ),
+            MethodMacroModifier::fn_name_and_path(
+                "workbook_worksheet", "/worksheets/{{RID}}/usedRange(valuesOnly={{id}})",
+                GeneratedMacroType::FnName("get_used_range_object_with_values_only")
+            )
+        ],
 		_ => vec![],
 	}
 }
