@@ -156,19 +156,19 @@ impl DrivesListContentTypesIdApiClient {
         path: "/contentTypes/{{RID}}/columns/$count"
     );
     delete!(
-        doc: "Delete navigation property columns for drives",
+        doc: "Delete columnDefinition",
         name: delete_columns,
         path: "/contentTypes/{{RID}}/columns/{{id}}",
         params: column_definition_id
     );
     get!(
-        doc: "Get columns from drives",
+        doc: "Get columnDefinition",
         name: get_columns,
         path: "/contentTypes/{{RID}}/columns/{{id}}",
         params: column_definition_id
     );
     patch!(
-        doc: "Update the navigation property columns in drives",
+        doc: "Update columnDefinition",
         name: update_columns,
         path: "/contentTypes/{{RID}}/columns/{{id}}",
         body: true,

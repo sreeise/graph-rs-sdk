@@ -76,6 +76,7 @@ pub enum ResourceIdentity {
     ContentTypes,
     Contracts,
     Conversations,
+    CreatedByUser,
     CreatedObjects,
     Custom,
     DataPolicyOperations,
@@ -139,6 +140,7 @@ pub enum ResourceIdentity {
     Invitations,
     IosManagedAppProtections,
     JoinedTeams,
+    LastModifiedByUser,
     LicenseDetails,
     List,
     Localizations,
@@ -243,7 +245,8 @@ pub enum ResourceIdentity {
     VppTokens,
     WindowsAutopilotDeviceIdentities,
     WindowsInformationProtectionPolicies,
-    Workbooks,
+    Workbook,
+    Worksheets,
 }
 
 impl ToString for ResourceIdentity {
@@ -478,7 +481,6 @@ pub enum TopLevelResource {
     TeamsTemplates,
     Teamwork,
     Users,
-    Workbooks,
 }
 
 impl ToString for TopLevelResource {

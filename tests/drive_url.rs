@@ -60,8 +60,6 @@ fn users() {
 
 #[test]
 pub fn drive_preview_path() {
-    let _client = Graph::new("");
-
     let client = Graph::new("");
 
     assert_eq!(
@@ -75,4 +73,87 @@ pub fn drive_preview_path() {
             .path()
     );
     assert_eq!("/v1.0/users/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/preview.txt:/preview".to_string(), client.user(RID).drive().item_by_path(":/Documents/preview.txt:").preview(&serde_json::json!({})).url().path());
+}
+
+#[test]
+pub fn drives_list_items_last_modified_by_user_path() {
+    let client = Graph::new("");
+
+    assert_eq!(
+        "/v1.0/drives/drive-id/list/items/listItem-id/lastModifiedByUser".to_string(),
+        client
+            .drive("drive-id")
+            .list()
+            .item("listItem-id")
+            .last_modified_by_user()
+            .get_last_modified_by_user()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        "/v1.0/drives/drive-id/items/driveItem-id/lastModifiedByUser".to_string(),
+        client
+            .drive("drive-id")
+            .item("driveItem-id")
+            .last_modified_by_user()
+            .get_last_modified_by_user()
+            .url()
+            .path()
+    );
+}
+
+#[test]
+pub fn drives_list_items_created_by_user_path() {
+    let client = Graph::new("");
+
+    assert_eq!(
+        "/v1.0/drives/drive-id/list/items/listItem-id/createdByUser".to_string(),
+        client
+            .drive("drive-id")
+            .list()
+            .item("listItem-id")
+            .created_by_user()
+            .get_created_by_user()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        "/v1.0/drives/drive-id/items/driveItem-id/createdByUser".to_string(),
+        client
+            .drive("drive-id")
+            .item("driveItem-id")
+            .created_by_user()
+            .get_created_by_user()
+            .url()
+            .path()
+    );
+}
+
+#[test]
+pub fn drives_list_path() {
+    let client = Graph::new("");
+
+    assert_eq!(
+        "/v1.0/drives/drive-id/list/contentTypes/contentType-id/columns/columnDefinition-id"
+            .to_string(),
+        client
+            .drive("drive-id")
+            .list()
+            .content_type("contentType-id")
+            .get_columns("columnDefinition-id")
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        "/v1.0/drives/drive-id/list/columns/$count".to_string(),
+        client
+            .drive("drive-id")
+            .list()
+            .get_columns_count()
+            .url()
+            .path()
+    );
 }
