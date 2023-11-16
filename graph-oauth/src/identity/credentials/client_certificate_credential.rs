@@ -9,7 +9,6 @@ use uuid::Uuid;
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
@@ -17,6 +16,7 @@ use crate::identity::{
     Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlParameterBuilder,
     ConfidentialClientApplication, ForceTokenRefresh, Token, TokenCredentialExecutor,
 };
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 pub(crate) static CLIENT_ASSERTION_TYPE: &str =
     "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
@@ -57,7 +57,6 @@ pub struct ClientCertificateCredential {
     /// openssl crate. This is significantly easier than having to format the assertion from
     /// the certificate yourself.
     pub(crate) client_assertion: String,
-    serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
 
@@ -69,7 +68,6 @@ impl ClientCertificateCredential {
                 .build(),
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
-            serializer: Default::default(),
             token_cache: Default::default(),
         }
     }
@@ -149,6 +147,7 @@ impl TokenCache for ClientCertificateCredential {
 #[async_trait]
 impl TokenCredentialExecutor for ClientCertificateCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
+        let mut serializer = OAuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
@@ -162,14 +161,14 @@ impl TokenCredentialExecutor for ClientCertificateCredential {
             self.client_assertion_type = CLIENT_ASSERTION_TYPE.to_owned();
         }
 
-        self.serializer
+        serializer
             .client_id(client_id.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
             .grant_type("client_credentials")
             .set_scope(self.app_config.scope.clone());
 
-        self.serializer.as_credential_map(
+        serializer.as_credential_map(
             vec![OAuthParameter::Scope],
             vec![
                 OAuthParameter::ClientId,
@@ -211,7 +210,6 @@ impl ClientCertificateCredentialBuilder {
                     .build(),
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: Default::default(),
-                serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
         }
@@ -230,7 +228,6 @@ impl ClientCertificateCredentialBuilder {
                 app_config,
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: Default::default(),
-                serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
         };

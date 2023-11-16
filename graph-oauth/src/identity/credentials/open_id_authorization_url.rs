@@ -9,17 +9,18 @@ use uuid::Uuid;
 use graph_core::crypto::secure_random_32;
 use graph_error::{AuthorizationFailure, IdentityResult, AF};
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
+    AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, OpenIdCredentialBuilder, Prompt,
+    ResponseMode, ResponseType,
 };
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 #[cfg(feature = "interactive-auth")]
 use graph_error::{AuthExecutionError, WebViewError, WebViewResult};
 
 #[cfg(feature = "interactive-auth")]
-use crate::identity::{AuthorizationQueryResponse, OpenIdCredentialBuilder, Token};
+use crate::identity::{AuthorizationQueryResponse, Token};
 
 #[cfg(feature = "interactive-auth")]
 use crate::web::{
@@ -45,7 +46,8 @@ pub struct OpenIdAuthorizationUrlParameters {
     /// Required -
     /// Must include code for OpenID Connect sign-in.
     pub(crate) response_type: BTreeSet<ResponseType>,
-    /// Optional -
+    /// Optional (recommended)
+    ///
     /// Specifies how the identity platform should return the requested token to your app.
     ///
     /// Specifies the method that should be used to send the resulting authorization code back
@@ -132,9 +134,9 @@ impl Debug for OpenIdAuthorizationUrlParameters {
 }
 
 impl OpenIdAuthorizationUrlParameters {
-    pub fn new<T: AsRef<str>, IU: IntoUrl, U: ToString, I: IntoIterator<Item = U>>(
-        client_id: T,
-        redirect_uri: IU,
+    pub fn new<U: ToString, I: IntoIterator<Item = U>>(
+        client_id: impl TryInto<Uuid>,
+        redirect_uri: impl IntoUrl,
         scope: I,
     ) -> IdentityResult<OpenIdAuthorizationUrlParameters> {
         let mut scope_set = BTreeSet::new();
@@ -143,15 +145,12 @@ impl OpenIdAuthorizationUrlParameters {
 
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
 
-        let mut response_type = BTreeSet::new();
-        response_type.insert(ResponseType::IdToken);
-
         Ok(OpenIdAuthorizationUrlParameters {
-            app_config: AppConfig::builder(client_id.as_ref())
+            app_config: AppConfig::builder(client_id)
                 .scope(scope_set)
                 .redirect_uri(redirect_uri.into_url().or(redirect_uri_result)?)
                 .build(),
-            response_type,
+            response_type: BTreeSet::from([ResponseType::IdToken]),
             response_mode: None,
             nonce: secure_random_32()?,
             state: None,
@@ -164,12 +163,9 @@ impl OpenIdAuthorizationUrlParameters {
     fn new_with_app_config(
         app_config: AppConfig,
     ) -> IdentityResult<OpenIdAuthorizationUrlParameters> {
-        let mut response_type = BTreeSet::new();
-        response_type.insert(ResponseType::IdToken);
-
         Ok(OpenIdAuthorizationUrlParameters {
             app_config,
-            response_type,
+            response_type: BTreeSet::from([ResponseType::IdToken]),
             response_mode: None,
             nonce: secure_random_32()?,
             state: None,
@@ -180,9 +176,13 @@ impl OpenIdAuthorizationUrlParameters {
     }
 
     pub fn builder(
-        client_id: impl AsRef<str>,
+        client_id: impl TryInto<Uuid>,
     ) -> IdentityResult<OpenIdAuthorizationUrlParameterBuilder> {
         OpenIdAuthorizationUrlParameterBuilder::new(client_id)
+    }
+
+    pub fn into_credential(self, authorization_code: impl AsRef<str>) -> OpenIdCredentialBuilder {
+        OpenIdCredentialBuilder::new_with_auth_code(self.app_config, authorization_code)
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
@@ -209,6 +209,13 @@ impl OpenIdAuthorizationUrlParameters {
         &self,
         interactive_web_view_options: Option<WebViewOptions>,
     ) -> WebViewResult<AuthorizationQueryResponse> {
+        if self.response_mode.eq(&Some(ResponseMode::FormPost)) {
+            return Err(AF::msg_err(
+                "response_mode",
+                "interactive auth does not support ResponseMode::FormPost at this time",
+            ))
+            .map_err(WebViewError::from);
+        }
         let uri = self
             .url()
             .map_err(|err| Box::new(AuthExecutionError::from(err)))?;
@@ -312,18 +319,17 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
 
         serializer
             .client_id(client_id.as_str())
-            .nonce(self.nonce.as_str())
-            .authority(azure_cloud_instance, &self.app_config.authority);
+            .nonce(self.nonce.as_str());
 
         if self.response_type.is_empty() {
-            serializer.response_type("code");
+            serializer.response_type(ResponseType::Code);
         } else {
             let response_types = self.response_type.as_query();
             if !RESPONSE_TYPES_SUPPORTED.contains(&response_types.as_str()) {
                 return AuthorizationFailure::msg_result(
                     "response_type",
                     format!(
-                        "response_type is not supported - supported response types are: {}",
+                        "provided response_type is not supported - supported response types are: {}",
                         RESPONSE_TYPES_SUPPORTED
                             .iter()
                             .map(|s| format!("`{}`", s))
@@ -337,6 +343,13 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
         }
 
         if let Some(response_mode) = self.response_mode.as_ref() {
+            if response_mode.eq(&ResponseMode::Query) {
+                return Err(AF::msg_err(
+                    "response_mode",
+                    "openid does not support ResponseMode::Query",
+                ));
+            }
+
             serializer.response_mode(response_mode.as_ref());
         }
 
@@ -377,12 +390,9 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
             ],
         )?;
 
-        let authorization_url = serializer
-            .get(OAuthParameter::AuthorizationUrl)
-            .ok_or(AF::msg_err("authorization_url", "Internal Error"))?;
-        let mut url = Url::parse(authorization_url.as_str())?;
-        url.set_query(Some(query.as_str()));
-        Ok(url)
+        let mut uri = azure_cloud_instance.auth_uri(&self.app_config.authority)?;
+        uri.set_query(Some(query.as_str()));
+        Ok(uri)
     }
 }
 
@@ -430,13 +440,11 @@ pub struct OpenIdAuthorizationUrlParameterBuilder {
 
 impl OpenIdAuthorizationUrlParameterBuilder {
     pub(crate) fn new(
-        client_id: impl AsRef<str>,
+        client_id: impl TryInto<Uuid>,
     ) -> IdentityResult<OpenIdAuthorizationUrlParameterBuilder> {
         Ok(OpenIdAuthorizationUrlParameterBuilder {
             credential: OpenIdAuthorizationUrlParameters::new_with_app_config(
-                AppConfig::builder(client_id.as_ref())
-                    .scope(vec!["openid"])
-                    .build(),
+                AppConfig::builder(client_id).scope(vec!["openid"]).build(),
             )?,
         })
     }
@@ -459,9 +467,8 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         Ok(self)
     }
 
-    pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> &mut Self {
-        self.credential.app_config.client_id =
-            Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
+    pub fn with_client_id(&mut self, client_id: impl TryInto<Uuid>) -> &mut Self {
+        self.credential.app_config.client_id = client_id.try_into().unwrap_or_default();
         self
     }
 
@@ -534,22 +541,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// Takes an iterator of scopes to use in the request.
     /// Replaces current scopes if any were added previously.
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        if self.credential.app_config.scope.contains("offline_access") {
-            self.credential.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
-            self.with_offline_access();
-        } else {
-            self.credential.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
-        }
-        self
-    }
-
-    /// Adds the `offline_access` scope parameter which tells the authorization server
-    /// to include a refresh token in the response.
-    pub fn with_offline_access(&mut self) -> &mut Self {
-        self.credential
-            .app_config
-            .scope
-            .extend(vec!["offline_access".to_owned()]);
+        self.credential.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 
@@ -619,8 +611,16 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         self.credential.clone()
     }
 
+    pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
+        self.credential.url_with_host(azure_cloud_instance)
+    }
+
     pub fn url(&self) -> IdentityResult<Url> {
         self.credential.url()
+    }
+
+    pub fn into_credential(self, authorization_code: impl AsRef<str>) -> OpenIdCredentialBuilder {
+        OpenIdCredentialBuilder::new_with_auth_code(self.credential.app_config, authorization_code)
     }
 }
 
@@ -630,8 +630,8 @@ mod test {
 
     #[test]
     #[should_panic]
-    fn code_token_unsupported_response_type() {
-        let _ = OpenIdAuthorizationUrlParameters::builder("client_id")
+    fn panics_on_invalid_response_type_code_token() {
+        let _ = OpenIdAuthorizationUrlParameters::builder(Uuid::new_v4())
             .unwrap()
             .with_response_type([ResponseType::Code, ResponseType::Token])
             .with_scope(["scope"])
@@ -641,12 +641,24 @@ mod test {
 
     #[test]
     #[should_panic]
-    fn id_token_token_unsupported_response_type() {
+    fn panics_on_invalid_client_id() {
         let _ = OpenIdAuthorizationUrlParameters::builder("client_id")
             .unwrap()
             .with_response_type([ResponseType::Token])
             .with_scope(["scope"])
             .url()
             .unwrap();
+    }
+
+    #[test]
+    fn scope_openid_automatically_set() {
+        let url = OpenIdAuthorizationUrlParameters::builder(Uuid::new_v4())
+            .unwrap()
+            .with_response_type([ResponseType::Code])
+            .with_scope(["user.read"])
+            .url()
+            .unwrap();
+        let query = url.query().unwrap();
+        assert!(query.contains("scope=openid+user.read"))
     }
 }

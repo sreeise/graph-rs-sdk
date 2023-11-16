@@ -368,7 +368,6 @@ impl OpenIdCredentialBuilder {
         }
     }
 
-    #[cfg(feature = "interactive-auth")]
     pub(crate) fn new_with_auth_code(
         mut app_config: AppConfig,
         authorization_code: impl AsRef<str>,

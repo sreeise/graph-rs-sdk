@@ -10,11 +10,11 @@ use uuid::Uuid;
 use graph_core::crypto::{secure_random_32, ProofKeyCodeExchange};
 use graph_error::{IdentityResult, AF};
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
-    credentials::app_config::AppConfig, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode,
-    ResponseType,
+    credentials::app_config::AppConfig, AsQuery, AuthorizationUrl, AzureCloudInstance, Prompt,
+    ResponseMode, ResponseType,
 };
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 #[cfg(feature = "interactive-auth")]
 use graph_error::{AuthExecutionError, WebViewError, WebViewResult};
@@ -73,7 +73,8 @@ credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 pub struct AuthCodeAuthorizationUrlParameters {
     pub(crate) app_config: AppConfig,
     pub(crate) response_type: BTreeSet<ResponseType>,
-    /// Optional
+    /// Optional (recommended)
+    ///
     /// Specifies how the identity platform should return the requested token to your app.
     ///
     /// Supported values:
@@ -113,7 +114,7 @@ pub struct AuthCodeAuthorizationUrlParameters {
     /// Finally, [Prompt::SelectAccount] shows the user an account selector, negating silent SSO but
     /// allowing the user to pick which account they intend to sign in with, without requiring
     /// credential entry. You can't use both login_hint and select_account.
-    pub(crate) prompt: Option<Prompt>,
+    pub(crate) prompt: BTreeSet<Prompt>,
     /// Optional
     /// The realm of the user in a federated directory. This skips the email-based discovery
     /// process that the user goes through on the sign-in page, for a slightly more streamlined
@@ -158,7 +159,7 @@ impl AuthCodeAuthorizationUrlParameters {
             response_mode: None,
             nonce: None,
             state: None,
-            prompt: None,
+            prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
             code_challenge: None,
@@ -332,8 +333,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
 
         serializer
             .client_id(client_id.as_str())
-            .set_scope(self.app_config.scope.clone())
-            .authority(azure_cloud_instance, &self.app_config.authority);
+            .set_scope(self.app_config.scope.clone());
 
         let response_types: Vec<String> =
             self.response_type.iter().map(|s| s.to_string()).collect();
@@ -353,9 +353,11 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
 
             // Set response_mode
             if self.response_type.contains(&ResponseType::IdToken) {
-                if self.response_mode.is_none() || self.response_mode.eq(&Some(ResponseMode::Query))
-                {
-                    serializer.response_mode(ResponseMode::Fragment.as_ref());
+                if self.response_mode.eq(&Some(ResponseMode::Query)) {
+                    return Err(AF::msg_err(
+                        "response_mode",
+                        "ResponseType::IdToken requires ResponseMode::Fragment or ResponseMode::FormPost")
+                    );
                 } else if let Some(response_mode) = self.response_mode.as_ref() {
                     serializer.response_mode(response_mode.as_ref());
                 }
@@ -368,8 +370,8 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
             serializer.state(state.as_str());
         }
 
-        if let Some(prompt) = self.prompt.as_ref() {
-            serializer.prompt(prompt.as_ref());
+        if !self.prompt.is_empty() {
+            serializer.prompt(&self.prompt.as_query());
         }
 
         if let Some(domain_hint) = self.domain_hint.as_ref() {
@@ -435,7 +437,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
                 response_type,
                 nonce: None,
                 state: None,
-                prompt: None,
+                prompt: Default::default(),
                 domain_hint: None,
                 login_hint: None,
                 code_challenge: None,
@@ -456,7 +458,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
                 response_type,
                 nonce: None,
                 state: None,
-                prompt: None,
+                prompt: Default::default(),
                 domain_hint: None,
                 login_hint: None,
                 code_challenge: None,
@@ -525,8 +527,8 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     ///     grant permissions to the app.
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience
     ///     listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether.
-    pub fn with_prompt(&mut self, prompt: Prompt) -> &mut Self {
-        self.credential.prompt = Some(prompt);
+    pub fn with_prompt<I: IntoIterator<Item = Prompt>>(&mut self, prompt: I) -> &mut Self {
+        self.credential.prompt.extend(prompt.into_iter());
         self
     }
 
@@ -638,7 +640,7 @@ mod test {
     }
 
     #[test]
-    fn response_mode_set() {
+    fn response_type_id_token_panics_when_response_mode_query() {
         let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
             .with_scope(["read", "write"])
@@ -647,7 +649,6 @@ mod test {
             .unwrap();
 
         let query = url.query().unwrap();
-        assert!(query.contains("response_mode=fragment"));
         assert!(query.contains("response_type=code+id_token"));
     }
 

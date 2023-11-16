@@ -9,12 +9,12 @@ use uuid::Uuid;
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{
     credentials::app_config::AppConfig, Authority, AzureCloudInstance,
     ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication,
     ForceTokenRefresh, Token, TokenCredentialExecutor,
 };
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 credential_builder!(
     ClientSecretCredentialBuilder,
@@ -44,7 +44,6 @@ pub struct ClientSecretCredential {
     /// specification. The Basic auth pattern of instead providing credentials in the Authorization
     /// header, per RFC 6749 is also supported.
     pub(crate) client_secret: String,
-    serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
 
@@ -66,7 +65,6 @@ impl ClientSecretCredential {
                 .scope(vec!["https://graph.microsoft.com/.default"])
                 .build(),
             client_secret: client_secret.as_ref().to_owned(),
-            serializer: OAuthSerializer::new(),
             token_cache: InMemoryCacheStore::new(),
         }
     }
@@ -82,7 +80,6 @@ impl ClientSecretCredential {
                 .scope(vec!["https://graph.microsoft.com/.default"])
                 .build(),
             client_secret: client_secret.as_ref().to_owned(),
-            serializer: OAuthSerializer::new(),
             token_cache: InMemoryCacheStore::new(),
         }
     }
@@ -144,6 +141,7 @@ impl TokenCache for ClientSecretCredential {
 #[async_trait]
 impl TokenCredentialExecutor for ClientSecretCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
+        let mut serializer = OAuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result(OAuthParameter::ClientId);
@@ -153,7 +151,7 @@ impl TokenCredentialExecutor for ClientSecretCredential {
             return AuthorizationFailure::result(OAuthParameter::ClientSecret);
         }
 
-        self.serializer
+        serializer
             .client_id(client_id.as_str())
             .client_secret(self.client_secret.as_str())
             .grant_type("client_credentials")
@@ -161,8 +159,7 @@ impl TokenCredentialExecutor for ClientSecretCredential {
 
         // Don't include ClientId and Client Secret in the fields for form url encode because
         // Client Id and Client Secret are already included as basic auth.
-        self.serializer
-            .as_credential_map(vec![OAuthParameter::Scope], vec![OAuthParameter::GrantType])
+        serializer.as_credential_map(vec![OAuthParameter::Scope], vec![OAuthParameter::GrantType])
     }
 
     fn client_id(&self) -> &Uuid {
@@ -212,7 +209,6 @@ impl ClientSecretCredentialBuilder {
             credential: ClientSecretCredential {
                 app_config,
                 client_secret: client_secret.as_ref().to_string(),
-                serializer: Default::default(),
                 token_cache: InMemoryCacheStore::new(),
             },
         }

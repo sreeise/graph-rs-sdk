@@ -5,8 +5,8 @@ use uuid::Uuid;
 
 use graph_error::{AuthorizationFailure, IdentityResult};
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::{credentials::app_config::AppConfig, Authority, AzureCloudInstance};
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 #[derive(Clone)]
 pub struct ClientCredentialsAuthorizationUrlParameters {

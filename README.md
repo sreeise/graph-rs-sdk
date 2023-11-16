@@ -943,6 +943,8 @@ async fn get_user() -> GraphResult<()> {
 
 ## OAuth - Getting Access Tokens
 
+
+### Warning
 The crate is undergoing major development in order to support all or most scenarios in the 
 Microsoft Identity Platform where its possible to do so. The master branch on GitHub may have some
 unstable features. Any version that is not a pre-release version of the crate is considered stable.

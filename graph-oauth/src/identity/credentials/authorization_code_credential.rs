@@ -11,13 +11,13 @@ use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_core::crypto::ProofKeyCodeExchange;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::{AppConfig, AppConfigBuilder};
 use crate::identity::{
     Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, Token,
     TokenCredentialExecutor,
 };
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 credential_builder!(
     AuthorizationCodeCredentialBuilder,
@@ -55,7 +55,6 @@ pub struct AuthorizationCodeCredential {
     /// Required if PKCE was used in the authorization code grant request. For more information,
     /// see the PKCE RFC https://datatracker.ietf.org/doc/html/rfc7636.
     pub(crate) code_verifier: Option<String>,
-    serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
 
@@ -193,7 +192,6 @@ impl AuthorizationCodeCredential {
             refresh_token: None,
             client_secret: client_secret.as_ref().to_owned(),
             code_verifier: None,
-            serializer: OAuthSerializer::new(),
             token_cache: Default::default(),
         })
     }
@@ -217,7 +215,6 @@ impl AuthorizationCodeCredential {
             refresh_token: None,
             client_secret: client_secret.as_ref().to_owned(),
             code_verifier: None,
-            serializer: OAuthSerializer::new(),
             token_cache: Default::default(),
         })
     }
@@ -259,7 +256,6 @@ impl AuthorizationCodeCredentialBuilder {
                 refresh_token: None,
                 client_secret: client_secret.as_ref().to_owned(),
                 code_verifier: None,
-                serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
         }
@@ -281,7 +277,6 @@ impl AuthorizationCodeCredentialBuilder {
                 refresh_token: None,
                 client_secret: String::new(),
                 code_verifier: None,
-                serializer: OAuthSerializer::new(),
                 token_cache,
             },
         }
@@ -298,7 +293,6 @@ impl AuthorizationCodeCredentialBuilder {
                 refresh_token: None,
                 client_secret: String::new(),
                 code_verifier: None,
-                serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
         }
@@ -346,6 +340,7 @@ impl From<AuthorizationCodeCredential> for AuthorizationCodeCredentialBuilder {
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
+        let mut serializer = OAuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId.alias());
@@ -355,7 +350,7 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
             return AF::result(OAuthParameter::ClientSecret.alias());
         }
 
-        self.serializer
+        serializer
             .client_id(client_id.as_str())
             .client_secret(self.client_secret.as_str())
             .set_scope(self.app_config.scope.clone());
@@ -363,11 +358,11 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if let Some(refresh_token) = token.refresh_token.as_ref() {
-                self.serializer
+                serializer
                     .grant_type("refresh_token")
                     .refresh_token(refresh_token.as_ref());
 
-                return self.serializer.as_credential_map(
+                return serializer.as_credential_map(
                     vec![OAuthParameter::Scope],
                     vec![
                         OAuthParameter::ClientId,
@@ -389,11 +384,11 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
                 return AF::msg_result(OAuthParameter::RefreshToken, "Refresh token is empty");
             }
 
-            self.serializer
+            serializer
                 .grant_type("refresh_token")
                 .refresh_token(refresh_token.as_ref());
 
-            return self.serializer.as_credential_map(
+            return serializer.as_credential_map(
                 vec![OAuthParameter::Scope],
                 vec![
                     OAuthParameter::ClientId,
@@ -411,18 +406,18 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
             }
 
             if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
-                self.serializer.redirect_uri(redirect_uri.as_str());
+                serializer.redirect_uri(redirect_uri.as_str());
             }
 
-            self.serializer
+            serializer
                 .authorization_code(authorization_code.as_ref())
                 .grant_type("authorization_code");
 
             if let Some(code_verifier) = self.code_verifier.as_ref() {
-                self.serializer.code_verifier(code_verifier.as_str());
+                serializer.code_verifier(code_verifier.as_str());
             }
 
-            return self.serializer.as_credential_map(
+            return serializer.as_credential_map(
                 vec![OAuthParameter::Scope, OAuthParameter::CodeVerifier],
                 vec![
                     OAuthParameter::ClientId,

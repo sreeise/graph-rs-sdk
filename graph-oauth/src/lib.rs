@@ -47,9 +47,7 @@ extern crate serde;
 #[macro_use]
 extern crate strum;
 
-pub(crate) mod auth;
-pub mod jwt;
-mod oauth_error;
+pub(crate) mod oauth_serializer;
 
 pub(crate) mod identity;
 
@@ -57,12 +55,12 @@ pub(crate) mod identity;
 pub(crate) mod web;
 
 pub(crate) mod internal {
-    pub use crate::auth::*;
+    pub use crate::oauth_serializer::*;
     pub use graph_core::http::*;
 }
 
 pub mod extensions {
-    pub use crate::auth::*;
+    pub use crate::oauth_serializer::*;
 }
 
 pub mod oauth {

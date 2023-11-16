@@ -19,12 +19,12 @@ use graph_error::{
     IdentityResult,
 };
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     Authority, AzureCloudInstance, DeviceAuthorizationResponse, ForceTokenRefresh,
     PollDeviceCodeEvent, PublicClientApplication, Token, TokenCredentialExecutor,
 };
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 #[cfg(feature = "interactive-auth")]
 use graph_error::WebViewDeviceCodeError;
@@ -67,7 +67,6 @@ pub struct DeviceCodeCredential {
     /// A device_code is a long string used to verify the session between the client and the authorization server.
     /// The client uses this parameter to request the access token from the authorization server.
     pub(crate) device_code: Option<String>,
-    serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
 
@@ -81,7 +80,6 @@ impl DeviceCodeCredential {
             app_config: AppConfig::builder(client_id.as_ref()).scope(scope).build(),
             refresh_token: None,
             device_code: Some(device_code.as_ref().to_owned()),
-            serializer: Default::default(),
             token_cache: Default::default(),
         }
     }
@@ -230,12 +228,13 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
     }
 
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
+        let mut serializer = OAuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
         }
 
-        self.serializer
+        serializer
             .client_id(client_id.as_str())
             .set_scope(self.app_config.scope.clone());
 
@@ -247,11 +246,11 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
                 );
             }
 
-            self.serializer
+            serializer
                 .grant_type("refresh_token")
                 .device_code(refresh_token.as_ref());
 
-            return self.serializer.as_credential_map(
+            return serializer.as_credential_map(
                 vec![],
                 vec![
                     OAuthParameter::ClientId,
@@ -268,11 +267,11 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
                 );
             }
 
-            self.serializer
+            serializer
                 .grant_type(DEVICE_CODE_GRANT_TYPE)
                 .device_code(device_code.as_ref());
 
-            return self.serializer.as_credential_map(
+            return serializer.as_credential_map(
                 vec![],
                 vec![
                     OAuthParameter::ClientId,
@@ -283,7 +282,7 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
             );
         }
 
-        self.serializer.as_credential_map(
+        serializer.as_credential_map(
             vec![],
             vec![OAuthParameter::ClientId, OAuthParameter::Scope],
         )
@@ -318,7 +317,6 @@ impl DeviceCodeCredentialBuilder {
                 app_config: AppConfig::new(client_id.as_ref()),
                 refresh_token: None,
                 device_code: None,
-                serializer: Default::default(),
                 token_cache: Default::default(),
             },
         }
@@ -333,7 +331,6 @@ impl DeviceCodeCredentialBuilder {
                 app_config,
                 refresh_token: None,
                 device_code: Some(device_code.as_ref().to_owned()),
-                serializer: Default::default(),
                 token_cache: Default::default(),
             },
         }
@@ -364,7 +361,6 @@ impl DeviceCodePollingExecutor {
                 app_config,
                 refresh_token: None,
                 device_code: None,
-                serializer: Default::default(),
                 token_cache: Default::default(),
             },
         }

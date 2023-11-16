@@ -6,7 +6,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 
 use uuid::Uuid;
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, IdentityResult, AF};
 
@@ -48,7 +48,6 @@ pub struct ClientAssertionCredential {
     /// workload identity federation to learn how to setup and use assertions generated from
     /// other identity providers.
     pub(crate) client_assertion: String,
-    serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
 
@@ -65,7 +64,6 @@ impl ClientAssertionCredential {
                 .build(),
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: assertion.as_ref().to_string(),
-            serializer: Default::default(),
             token_cache: Default::default(),
         }
     }
@@ -139,7 +137,6 @@ impl ClientAssertionCredentialBuilder {
                     .build(),
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
                 client_assertion: signed_assertion.as_ref().to_owned(),
-                serializer: Default::default(),
                 token_cache: Default::default(),
             },
         }
@@ -157,7 +154,6 @@ impl ClientAssertionCredentialBuilder {
                 app_config,
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
                 client_assertion: signed_assertion,
-                serializer: Default::default(),
                 token_cache: Default::default(),
             },
         }
@@ -172,6 +168,7 @@ impl ClientAssertionCredentialBuilder {
 #[async_trait]
 impl TokenCredentialExecutor for ClientAssertionCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
+        let mut serializer = OAuthSerializer::new();
         let client_id = self.client_id().to_string();
         if client_id.trim().is_empty() {
             return AF::result(OAuthParameter::ClientId.alias());
@@ -185,14 +182,14 @@ impl TokenCredentialExecutor for ClientAssertionCredential {
             self.client_assertion_type = CLIENT_ASSERTION_TYPE.to_owned();
         }
 
-        self.serializer
+        serializer
             .client_id(client_id.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
             .set_scope(self.app_config.scope.clone())
             .grant_type("client_credentials");
 
-        self.serializer.as_credential_map(
+        serializer.as_credential_map(
             vec![OAuthParameter::Scope],
             vec![
                 OAuthParameter::ClientId,

@@ -1,5 +1,5 @@
 use graph_core::crypto::secure_random_32;
-use graph_error::{AuthorizationFailure, IdentityResult};
+use graph_error::{AuthorizationFailure, IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
 use std::collections::HashMap;
@@ -7,9 +7,9 @@ use std::collections::HashMap;
 use url::Url;
 use uuid::*;
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{AzureCloudInstance, Prompt, ResponseMode, ResponseType};
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 credential_builder_base!(ImplicitCredentialBuilder);
 
@@ -31,9 +31,19 @@ pub struct ImplicitCredential {
     /// also contain code in place of token to provide an authorization code, for use in the
     /// authorization code flow. This id_token+code response is sometimes called the hybrid flow.
     pub(crate) response_type: Vec<ResponseType>,
-    /// Optional
-    /// Specifies the method that should be used to send the resulting token back to your app.
-    /// Defaults to query for just an access token, but fragment if the request includes an id_token.
+    /// Optional (recommended)
+    ///
+    /// Specifies how the identity platform should return the requested token to your app.
+    ///
+    /// Supported values:
+    ///
+    /// - query: Default when requesting an access token. Provides the code as a query string
+    /// parameter on your redirect URI. The query parameter isn't supported when requesting an
+    /// ID token by using the implicit flow.
+    /// - fragment: Default when requesting an ID token by using the implicit flow.
+    /// Also supported if requesting only a code.
+    /// - form_post: Executes a POST containing the code to your redirect URI.
+    /// Supported when requesting a code.
     pub(crate) response_mode: ResponseMode,
     /// Optional
     /// A value included in the request that will also be returned in the token response.
@@ -82,7 +92,7 @@ impl ImplicitCredential {
     ) -> IdentityResult<ImplicitCredential> {
         Ok(ImplicitCredential {
             app_config: AppConfig::builder(client_id.as_ref()).scope(scope).build(),
-            response_type: vec![ResponseType::Token],
+            response_type: vec![ResponseType::Code],
             response_mode: ResponseMode::Query,
             state: None,
             nonce: secure_random_32()?,
@@ -114,31 +124,32 @@ impl ImplicitCredential {
         serializer
             .client_id(client_id.as_str())
             .nonce(self.nonce.as_str())
-            .set_scope(self.app_config.scope.clone())
-            .authority(azure_cloud_instance, &self.app_config.authority);
+            .set_scope(self.app_config.scope.clone());
 
         let response_types: Vec<String> =
             self.response_type.iter().map(|s| s.to_string()).collect();
 
         if response_types.is_empty() {
-            serializer.response_type("code");
+            serializer.response_type(ResponseType::Code);
             serializer.response_mode(self.response_mode.as_ref());
         } else {
             let response_type = response_types.join(" ").trim().to_owned();
             if response_type.is_empty() {
-                serializer.response_type("code");
+                serializer.response_type(ResponseType::Code);
             } else {
                 serializer.response_type(response_type);
             }
 
-            // Set response_mode
             if self.response_type.contains(&ResponseType::IdToken) {
                 // id_token requires fragment or form_post. The Microsoft identity
                 // platform recommends form_post. Unless you explicitly set
-                // fragment then form_post is used here. Please file an issue
-                // if you encounter related problems.
+                // fragment then form_post is used here when response type is id_token.
+                // Please file an issue if you encounter related problems.
                 if self.response_mode.eq(&ResponseMode::Query) {
-                    serializer.response_mode(ResponseMode::Fragment.as_ref());
+                    return Err(AF::msg_err(
+                        "response_mode",
+                        "ResponseType::IdToken requires ResponseMode::Fragment or ResponseMode::FormPost")
+                    );
                 } else {
                     serializer.response_mode(self.response_mode.as_ref());
                 }
@@ -149,18 +160,7 @@ impl ImplicitCredential {
 
         // https://learn.microsoft.com/en-us/azure/active-directory/develop/scopes-oidc
         if self.app_config.scope.is_empty() {
-            if self.response_type.contains(&ResponseType::IdToken) {
-                serializer.add_scope("openid");
-            } else {
-                return AuthorizationFailure::msg_result(
-                    "scope",
-                    format!("{} {}",
-                            "scope must be provided or response_type must be id_token which will add openid to scope:",
-                        "https://learn.microsoft.com/en-us/azure/active-directory/develop/scopes-oidc"
-
-                    )
-                );
-            }
+            return Err(AF::required("scope"));
         }
 
         if let Some(state) = self.state.as_ref() {
@@ -196,13 +196,9 @@ impl ImplicitCredential {
             ],
         )?;
 
-        if let Some(authorization_url) = serializer.get(OAuthParameter::AuthorizationUrl) {
-            let mut url = Url::parse(authorization_url.as_str())?;
-            url.set_query(Some(query.as_str()));
-            Ok(url)
-        } else {
-            AuthorizationFailure::msg_result("authorization_url", "Internal Error")
-        }
+        let mut uri = azure_cloud_instance.auth_uri(&self.app_config.authority)?;
+        uri.set_query(Some(query.as_str()));
+        Ok(uri)
     }
 }
 
@@ -367,7 +363,7 @@ mod test {
     }
 
     #[test]
-    fn set_open_id_fragment2() {
+    fn set_response_mode_fragment() {
         let mut authorizer =
             ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
@@ -386,11 +382,12 @@ mod test {
     }
 
     #[test]
-    fn response_type_join() {
+    fn response_type_id_token_token_serializes() {
         let mut authorizer =
             ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Token])
+            .with_response_mode(ResponseMode::Fragment)
             .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
             .with_scope(["User.Read"])
@@ -401,11 +398,12 @@ mod test {
         assert!(url_result.is_ok());
         let url = url_result.unwrap();
         let url_str = url.as_str();
-        assert!(url_str.contains("response_type=id_token+token"))
+        assert!(url_str.contains("response_mode=fragment"));
+        assert!(url_str.contains("response_type=id_token+token"));
     }
 
     #[test]
-    fn response_type_join_string() {
+    fn response_type_id_token_token_serializes_from_string() {
         let mut authorizer =
             ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
@@ -414,6 +412,7 @@ mod test {
                     .into_iter()
                     .collect(),
             ))
+            .with_response_mode(ResponseMode::FormPost)
             .with_redirect_uri("http://localhost:8080/myapp")
             .unwrap()
             .with_scope(["User.Read"])
@@ -424,11 +423,13 @@ mod test {
         assert!(url_result.is_ok());
         let url = url_result.unwrap();
         let url_str = url.as_str();
+        assert!(url_str.contains("response_mode=form_post"));
         assert!(url_str.contains("response_type=id_token+token"))
     }
 
     #[test]
-    fn response_type_into_iter() {
+    #[should_panic]
+    fn response_type_id_token_panics_with_response_mode_query() {
         let mut authorizer =
             ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
         authorizer
@@ -439,30 +440,9 @@ mod test {
             .with_nonce("678910")
             .build();
 
-        let url_result = authorizer.url();
-        assert!(url_result.is_ok());
-        let url = url_result.unwrap();
+        let url = authorizer.url().unwrap();
         let url_str = url.as_str();
         assert!(url_str.contains("response_type=id_token"))
-    }
-
-    #[test]
-    fn response_type_into_iter2() {
-        let mut authorizer =
-            ImplicitCredential::builder("6731de76-14a6-49ae-97bc-6eba6914391e").unwrap();
-        authorizer
-            .with_response_type(vec![ResponseType::IdToken, ResponseType::Token])
-            .with_redirect_uri("http://localhost:8080/myapp")
-            .unwrap()
-            .with_scope(["User.Read"])
-            .with_nonce("678910")
-            .build();
-
-        let url_result = authorizer.url();
-        assert!(url_result.is_ok());
-        let url = url_result.unwrap();
-        let url_str = url.as_str();
-        assert!(url_str.contains("response_type=id_token+token"))
     }
 
     #[test]
@@ -489,6 +469,7 @@ mod test {
             .with_client_id(Uuid::new_v4().to_string())
             .with_scope(["read", "write"])
             .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
+            .with_response_mode(ResponseMode::Fragment)
             .url()
             .unwrap();
 

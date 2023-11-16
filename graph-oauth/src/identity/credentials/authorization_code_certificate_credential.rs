@@ -10,7 +10,6 @@ use uuid::Uuid;
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
-use crate::auth::{OAuthParameter, OAuthSerializer};
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, Authority, AzureCloudInstance,
@@ -19,6 +18,7 @@ use crate::identity::{
 };
 #[cfg(feature = "openssl")]
 use crate::oauth::X509Certificate;
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 credential_builder!(
     AuthorizationCodeCertificateCredentialBuilder,
@@ -49,7 +49,6 @@ pub struct AuthorizationCodeCertificateCredential {
     /// you registered as credentials for your application. Read about certificate credentials
     /// to learn how to register your certificate and the format of the assertion.
     pub(crate) client_assertion: String,
-    serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
 }
 
@@ -84,7 +83,6 @@ impl AuthorizationCodeCertificateCredential {
             code_verifier: None,
             client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
             client_assertion: client_assertion.as_ref().to_owned(),
-            serializer: OAuthSerializer::new(),
             token_cache: Default::default(),
         })
     }
@@ -221,6 +219,7 @@ impl TokenCache for AuthorizationCodeCertificateCredential {
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
+        let mut serializer = OAuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AF::result(OAuthParameter::ClientId);
@@ -234,18 +233,18 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
             self.client_assertion_type = CLIENT_ASSERTION_TYPE.to_owned();
         }
 
-        self.serializer
+        serializer
             .client_id(client_id.as_str())
             .client_assertion(self.client_assertion.as_str())
             .client_assertion_type(self.client_assertion_type.as_str())
             .set_scope(self.app_config.scope.clone());
 
         if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
-            self.serializer.redirect_uri(redirect_uri.as_str());
+            serializer.redirect_uri(redirect_uri.as_str());
         }
 
         if let Some(code_verifier) = self.code_verifier.as_ref() {
-            self.serializer.code_verifier(code_verifier.as_ref());
+            serializer.code_verifier(code_verifier.as_ref());
         }
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
@@ -256,11 +255,11 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
                 );
             }
 
-            self.serializer
+            serializer
                 .refresh_token(refresh_token.as_ref())
                 .grant_type("refresh_token");
 
-            return self.serializer.as_credential_map(
+            return serializer.as_credential_map(
                 vec![OAuthParameter::Scope],
                 vec![
                     OAuthParameter::RefreshToken,
@@ -278,11 +277,11 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
                 );
             }
 
-            self.serializer
+            serializer
                 .authorization_code(authorization_code.as_str())
                 .grant_type("authorization_code");
 
-            return self.serializer.as_credential_map(
+            return serializer.as_credential_map(
                 vec![OAuthParameter::Scope, OAuthParameter::CodeVerifier],
                 vec![
                     OAuthParameter::AuthorizationCode,
@@ -342,7 +341,6 @@ impl AuthorizationCodeCertificateCredentialBuilder {
                 code_verifier: None,
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
                 client_assertion: String::new(),
-                serializer: OAuthSerializer::new(),
                 token_cache: Default::default(),
             },
         };
