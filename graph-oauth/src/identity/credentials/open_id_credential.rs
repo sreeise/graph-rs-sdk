@@ -9,11 +9,12 @@ use url::Url;
 use uuid::Uuid;
 
 use graph_core::crypto::{GenPkce, ProofKeyCodeExchange};
+use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::{AppConfig, AppConfigBuilder};
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh,
+    Authority, AzureCloudInstance, ConfidentialClientApplication,
     OpenIdAuthorizationUrlParameterBuilder, OpenIdAuthorizationUrlParameters, Token,
     TokenCredentialExecutor,
 };
@@ -219,6 +220,10 @@ impl TokenCache for OpenIdCredential {
                 token_result
             }
         }
+    }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.app_config.force_token_refresh = force_token_refresh;
     }
 }
 

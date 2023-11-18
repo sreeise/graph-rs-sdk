@@ -19,7 +19,7 @@ macro_rules! credential_builder_base {
                 &mut self,
                 authority: T,
             ) -> &mut Self {
-                self.credential.app_config.authority = authority.into();
+                self.credential.app_config.with_authority(authority.into());
                 self
             }
 
@@ -100,14 +100,6 @@ macro_rules! credential_builder {
         impl $name {
             pub fn build(&self) -> $client {
                 <$client>::new(self.credential.clone())
-            }
-
-            pub fn force_token_refresh(
-                &mut self,
-                force_token_refresh: ForceTokenRefresh,
-            ) -> &mut Self {
-                self.credential.app_config.force_token_refresh = force_token_refresh;
-                self
             }
         }
     };

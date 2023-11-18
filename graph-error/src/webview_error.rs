@@ -1,4 +1,4 @@
-use crate::{AuthExecutionError, ErrorMessage};
+use crate::{AuthExecutionError, AuthorizationFailure, ErrorMessage};
 
 #[derive(Debug, thiserror::Error)]
 pub enum WebViewError {
@@ -35,7 +35,11 @@ pub enum WebViewError {
     AuthExecutionError(#[from] Box<AuthExecutionError>),
 }
 
-impl WebViewError {}
+impl From<AuthorizationFailure> for WebViewError {
+    fn from(value: AuthorizationFailure) -> Self {
+        WebViewError::AuthExecutionError(Box::new(AuthExecutionError::AuthorizationFailure(value)))
+    }
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum WebViewDeviceCodeError {

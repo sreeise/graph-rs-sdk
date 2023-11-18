@@ -8,12 +8,13 @@ use uuid::Uuid;
 
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, Token,
-    TokenCredentialExecutor, CLIENT_ASSERTION_TYPE,
+    Authority, AzureCloudInstance, ConfidentialClientApplication, Token, TokenCredentialExecutor,
+    CLIENT_ASSERTION_TYPE,
 };
 
 credential_builder!(
@@ -118,6 +119,10 @@ impl TokenCache for ClientAssertionCredential {
             Ok(msal_token)
         }
     }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.app_config.force_token_refresh = force_token_refresh;
+    }
 }
 
 #[derive(Clone)]
@@ -143,7 +148,7 @@ impl ClientAssertionCredentialBuilder {
     }
 
     pub(crate) fn new_with_signed_assertion(
-        signed_assertion: String,
+        signed_assertion: impl AsRef<str>,
         mut app_config: AppConfig,
     ) -> ClientAssertionCredentialBuilder {
         app_config
@@ -153,7 +158,7 @@ impl ClientAssertionCredentialBuilder {
             credential: ClientAssertionCredential {
                 app_config,
                 client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
-                client_assertion: signed_assertion,
+                client_assertion: signed_assertion.as_ref().to_owned(),
                 token_cache: Default::default(),
             },
         }

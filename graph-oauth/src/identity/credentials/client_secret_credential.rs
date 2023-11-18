@@ -7,12 +7,13 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
 
 use crate::identity::{
     credentials::app_config::AppConfig, Authority, AzureCloudInstance,
-    ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication,
-    ForceTokenRefresh, Token, TokenCredentialExecutor,
+    ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication, Token,
+    TokenCredentialExecutor,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
@@ -135,6 +136,10 @@ impl TokenCache for ClientSecretCredential {
             self.token_cache.store(cache_id, msal_token.clone());
             Ok(msal_token)
         }
+    }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.app_config.force_token_refresh = force_token_refresh;
     }
 }
 

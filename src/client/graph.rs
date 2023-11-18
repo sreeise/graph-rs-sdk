@@ -70,6 +70,7 @@ use crate::teams_templates::{TeamsTemplatesApiClient, TeamsTemplatesIdApiClient}
 use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
+use graph_core::identity::ForceTokenRefresh;
 use graph_oauth::oauth::{DeviceCodeCredential, OpenIdCredential, PublicClientApplication};
 use lazy_static::lazy_static;
 
@@ -185,6 +186,18 @@ impl GraphClient {
 
     pub fn url(&self) -> &Url {
         &self.endpoint
+    }
+
+    pub fn with_force_token_refresh(
+        &mut self,
+        force_token_refresh: ForceTokenRefresh,
+    ) -> &mut Self {
+        self.client.with_force_token_refresh(force_token_refresh);
+        self
+    }
+
+    pub fn set_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.client.with_force_token_refresh(force_token_refresh);
     }
 
     /// Set a custom endpoint for the Microsoft Graph API. Provide the scheme and host with an

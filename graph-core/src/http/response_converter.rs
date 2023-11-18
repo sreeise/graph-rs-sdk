@@ -67,7 +67,7 @@ impl ResponseConverterExt for reqwest::blocking::Response {
         let mut builder = http::Response::builder()
             .url(url)
             .json(&json)
-            .status(http::StatusCode::from(&status))
+            .status(status)
             .version(version);
 
         for builder_header in builder.headers_mut().iter_mut() {

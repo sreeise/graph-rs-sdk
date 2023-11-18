@@ -9,12 +9,12 @@ use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_core::crypto::ProofKeyCodeExchange;
+use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::{AppConfig, AppConfigBuilder};
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication, ForceTokenRefresh, Token,
-    TokenCredentialExecutor,
+    Authority, AzureCloudInstance, ConfidentialClientApplication, Token, TokenCredentialExecutor,
 };
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
@@ -174,6 +174,10 @@ impl TokenCache for AuthorizationCodeCredential {
                 token_result
             }
         }
+    }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.app_config.force_token_refresh = force_token_refresh;
     }
 }
 

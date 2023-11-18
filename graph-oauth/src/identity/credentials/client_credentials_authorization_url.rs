@@ -6,7 +6,11 @@ use uuid::Uuid;
 use graph_error::{AuthorizationFailure, IdentityResult};
 
 use crate::identity::{credentials::app_config::AppConfig, Authority, AzureCloudInstance};
+use crate::oauth::{ClientAssertionCredentialBuilder, ClientSecretCredentialBuilder};
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+
+#[cfg(feature = "openssl")]
+use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
 
 #[derive(Clone)]
 pub struct ClientCredentialsAuthorizationUrlParameters {
@@ -35,6 +39,29 @@ impl ClientCredentialsAuthorizationUrlParameters {
         client_id: T,
     ) -> ClientCredentialsAuthorizationUrlParameterBuilder {
         ClientCredentialsAuthorizationUrlParameterBuilder::new(client_id)
+    }
+
+    pub fn into_credential(self, client_secret: impl AsRef<str>) -> ClientSecretCredentialBuilder {
+        ClientSecretCredentialBuilder::new_with_client_secret(client_secret, self.app_config)
+    }
+
+    pub fn into_assertion_credential(
+        self,
+        signed_assertion: impl AsRef<str>,
+    ) -> ClientAssertionCredentialBuilder {
+        ClientAssertionCredentialBuilder::new_with_signed_assertion(
+            signed_assertion,
+            self.app_config,
+        )
+    }
+
+    #[cfg(feature = "openssl")]
+    pub fn into_certificate_credential(
+        self,
+        _client_secret: impl AsRef<str>,
+        x509: &X509Certificate,
+    ) -> IdentityResult<ClientCertificateCredentialBuilder> {
+        ClientCertificateCredentialBuilder::new_with_certificate(x509, self.app_config)
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
@@ -74,13 +101,13 @@ impl ClientCredentialsAuthorizationUrlParameters {
 
 #[derive(Clone)]
 pub struct ClientCredentialsAuthorizationUrlParameterBuilder {
-    parameters: ClientCredentialsAuthorizationUrlParameters,
+    credential: ClientCredentialsAuthorizationUrlParameters,
 }
 
 impl ClientCredentialsAuthorizationUrlParameterBuilder {
     pub fn new(client_id: impl AsRef<str>) -> Self {
         Self {
-            parameters: ClientCredentialsAuthorizationUrlParameters {
+            credential: ClientCredentialsAuthorizationUrlParameters {
                 app_config: AppConfig::new(client_id.as_ref()),
                 state: None,
             },
@@ -89,7 +116,7 @@ impl ClientCredentialsAuthorizationUrlParameterBuilder {
 
     pub(crate) fn new_with_app_config(app_config: AppConfig) -> Self {
         Self {
-            parameters: ClientCredentialsAuthorizationUrlParameters {
+            credential: ClientCredentialsAuthorizationUrlParameters {
                 app_config,
                 state: None,
             },
@@ -97,38 +124,64 @@ impl ClientCredentialsAuthorizationUrlParameterBuilder {
     }
 
     pub fn with_client_id<T: AsRef<str>>(&mut self, client_id: T) -> IdentityResult<&mut Self> {
-        self.parameters.app_config.client_id = Uuid::try_parse(client_id.as_ref())?;
+        self.credential.app_config.client_id = Uuid::try_parse(client_id.as_ref())?;
         Ok(self)
     }
 
     pub fn with_redirect_uri<T: IntoUrl>(&mut self, redirect_uri: T) -> IdentityResult<&mut Self> {
         let redirect_uri_result = Url::parse(redirect_uri.as_str());
         let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
-        self.parameters.app_config.redirect_uri = Some(redirect_uri);
+        self.credential.app_config.redirect_uri = Some(redirect_uri);
         Ok(self)
     }
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
     pub fn with_tenant<T: AsRef<str>>(&mut self, tenant: T) -> &mut Self {
-        self.parameters.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
+        self.credential.app_config.authority = Authority::TenantId(tenant.as_ref().to_owned());
         self
     }
 
     pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
-        self.parameters.app_config.authority = authority.into();
+        self.credential.app_config.authority = authority.into();
         self
     }
 
     pub fn with_state<T: AsRef<str>>(&mut self, state: T) -> &mut Self {
-        self.parameters.state = Some(state.as_ref().to_owned());
+        self.credential.state = Some(state.as_ref().to_owned());
         self
     }
 
     pub fn build(&self) -> ClientCredentialsAuthorizationUrlParameters {
-        self.parameters.clone()
+        self.credential.clone()
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
-        self.parameters.url()
+        self.credential.url()
+    }
+
+    pub fn into_credential(self, client_secret: impl AsRef<str>) -> ClientSecretCredentialBuilder {
+        ClientSecretCredentialBuilder::new_with_client_secret(
+            client_secret,
+            self.credential.app_config,
+        )
+    }
+
+    pub fn into_assertion_credential(
+        self,
+        signed_assertion: impl AsRef<str>,
+    ) -> ClientAssertionCredentialBuilder {
+        ClientAssertionCredentialBuilder::new_with_signed_assertion(
+            signed_assertion,
+            self.credential.app_config,
+        )
+    }
+
+    #[cfg(feature = "openssl")]
+    pub fn into_certificate_credential(
+        self,
+        _client_secret: impl AsRef<str>,
+        x509: &X509Certificate,
+    ) -> IdentityResult<ClientCertificateCredentialBuilder> {
+        ClientCertificateCredentialBuilder::new_with_certificate(x509, self.credential.app_config)
     }
 }

@@ -2,11 +2,11 @@ use crate::identity::{
     application_options::ApplicationOptions, credentials::app_config::AppConfig,
     AuthCodeAuthorizationUrlParameterBuilder, Authority,
     AuthorizationCodeAssertionCredentialBuilder, AuthorizationCodeCredentialBuilder,
-    ClientAssertionCredentialBuilder, ClientCredentialsAuthorizationUrlParameterBuilder,
-    ClientSecretCredentialBuilder, DeviceCodeCredentialBuilder, DeviceCodePollingExecutor,
-    EnvironmentCredential, OpenIdAuthorizationUrlParameterBuilder, OpenIdCredentialBuilder,
-    PublicClientApplication, ResourceOwnerPasswordCredential,
-    ResourceOwnerPasswordCredentialBuilder,
+    AzureCloudInstance, ClientAssertionCredentialBuilder,
+    ClientCredentialsAuthorizationUrlParameterBuilder, ClientSecretCredentialBuilder,
+    DeviceCodeCredentialBuilder, DeviceCodePollingExecutor, EnvironmentCredential,
+    OpenIdAuthorizationUrlParameterBuilder, OpenIdCredentialBuilder, PublicClientApplication,
+    ResourceOwnerPasswordCredential, ResourceOwnerPasswordCredentialBuilder,
 };
 use graph_error::{IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
@@ -40,6 +40,19 @@ impl ConfidentialClientApplicationBuilder {
         let tenant = tenant_id.as_ref().to_string();
         self.app_config.tenant_id = Some(tenant.clone());
         self.app_config.authority = Authority::TenantId(tenant);
+        self
+    }
+
+    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
+        self.app_config.with_authority(authority.into());
+        self
+    }
+
+    pub fn with_azure_cloud_instance(
+        &mut self,
+        azure_cloud_instance: AzureCloudInstance,
+    ) -> &mut Self {
+        self.app_config.azure_cloud_instance = azure_cloud_instance;
         self
     }
 
@@ -86,6 +99,11 @@ impl ConfidentialClientApplicationBuilder {
         self
     }
 
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self
+    }
+
     /// Auth Code Authorization Url Builder
     pub fn auth_code_url_builder(&mut self) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new_with_app_config(self.app_config.clone())
@@ -110,7 +128,7 @@ impl ConfidentialClientApplicationBuilder {
     pub fn with_client_x509_certificate(
         self,
         certificate: &X509Certificate,
-    ) -> anyhow::Result<ClientCertificateCredentialBuilder> {
+    ) -> IdentityResult<ClientCertificateCredentialBuilder> {
         ClientCertificateCredentialBuilder::new_with_certificate(certificate, self.app_config)
     }
 
@@ -128,7 +146,7 @@ impl ConfidentialClientApplicationBuilder {
         signed_assertion: impl AsRef<str>,
     ) -> ClientAssertionCredentialBuilder {
         ClientAssertionCredentialBuilder::new_with_signed_assertion(
-            signed_assertion.as_ref().to_string(),
+            signed_assertion,
             self.app_config,
         )
     }
@@ -243,6 +261,19 @@ impl PublicClientApplicationBuilder {
         self
     }
 
+    pub fn with_authority<T: Into<Authority>>(&mut self, authority: T) -> &mut Self {
+        self.app_config.with_authority(authority.into());
+        self
+    }
+
+    pub fn with_azure_cloud_instance(
+        &mut self,
+        azure_cloud_instance: AzureCloudInstance,
+    ) -> &mut Self {
+        self.app_config.azure_cloud_instance = azure_cloud_instance;
+        self
+    }
+
     /// Extends the query parameters of both the default query params and user defined params.
     /// Does not overwrite default params.
     pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
@@ -283,6 +314,11 @@ impl PublicClientApplicationBuilder {
         self.app_config
             .extra_header_parameters
             .extend(header_parameters);
+        self
+    }
+
+    pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
+        self.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
         self
     }
 

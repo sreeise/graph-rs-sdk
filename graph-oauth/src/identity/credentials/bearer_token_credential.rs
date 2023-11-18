@@ -1,7 +1,8 @@
 use async_trait::async_trait;
 use graph_core::cache::AsBearer;
-use graph_core::identity::ClientApplication;
+use graph_core::identity::{ClientApplication, ForceTokenRefresh};
 use graph_error::AuthExecutionResult;
+use std::fmt::Display;
 
 #[derive(Clone)]
 pub struct BearerTokenCredential(String);
@@ -16,9 +17,9 @@ impl BearerTokenCredential {
     }
 }
 
-impl ToString for BearerTokenCredential {
-    fn to_string(&self) -> String {
-        self.0.to_string()
+impl Display for BearerTokenCredential {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -55,4 +56,6 @@ impl ClientApplication for BearerTokenCredential {
     async fn get_token_silent_async(&mut self) -> AuthExecutionResult<String> {
         Ok(self.0.clone())
     }
+
+    fn with_force_token_refresh(&mut self, _force_token_refresh: ForceTokenRefresh) {}
 }

@@ -17,7 +17,7 @@ use crate::identity::{
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 #[cfg(feature = "interactive-auth")]
-use graph_error::{AuthExecutionError, WebViewError, WebViewResult};
+use graph_error::{WebViewError, WebViewResult};
 
 #[cfg(feature = "interactive-auth")]
 use crate::identity::{AuthorizationQueryResponse, Token};
@@ -213,12 +213,9 @@ impl OpenIdAuthorizationUrlParameters {
             return Err(AF::msg_err(
                 "response_mode",
                 "interactive auth does not support ResponseMode::FormPost at this time",
-            ))
-            .map_err(WebViewError::from);
+            ))?;
         }
-        let uri = self
-            .url()
-            .map_err(|err| Box::new(AuthExecutionError::from(err)))?;
+        let uri = self.url()?;
         let redirect_uri = self.redirect_uri().cloned().unwrap();
         let web_view_options = interactive_web_view_options.unwrap_or_default();
         let (sender, receiver) = std::sync::mpsc::channel();

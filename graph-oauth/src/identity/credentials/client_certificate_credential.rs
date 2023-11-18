@@ -7,6 +7,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
 
 use crate::identity::credentials::app_config::AppConfig;
@@ -14,7 +15,7 @@ use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::X509Certificate;
 use crate::identity::{
     Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlParameterBuilder,
-    ConfidentialClientApplication, ForceTokenRefresh, Token, TokenCredentialExecutor,
+    ConfidentialClientApplication, Token, TokenCredentialExecutor,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
@@ -142,6 +143,10 @@ impl TokenCache for ClientCertificateCredential {
             Ok(msal_token)
         }
     }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.app_config.force_token_refresh = force_token_refresh;
+    }
 }
 
 #[async_trait]
@@ -219,7 +224,7 @@ impl ClientCertificateCredentialBuilder {
     pub(crate) fn new_with_certificate(
         x509: &X509Certificate,
         mut app_config: AppConfig,
-    ) -> anyhow::Result<ClientCertificateCredentialBuilder> {
+    ) -> IdentityResult<ClientCertificateCredentialBuilder> {
         app_config
             .scope
             .insert("https://graph.microsoft.com/.default".into());
@@ -236,7 +241,7 @@ impl ClientCertificateCredentialBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn with_certificate(&mut self, certificate: &X509Certificate) -> anyhow::Result<&mut Self> {
+    pub fn with_certificate(&mut self, certificate: &X509Certificate) -> IdentityResult<&mut Self> {
         if let Some(tenant_id) = self.credential.app_config.authority.tenant_id() {
             self.with_client_assertion(certificate.sign_with_tenant(Some(tenant_id.clone()))?);
         } else {

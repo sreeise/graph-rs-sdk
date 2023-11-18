@@ -1,4 +1,24 @@
+use std::fmt::Display;
 use url::{ParseError, Url};
+
+lazy_static! {
+    pub static ref AZURE_PUBLIC_CLOUD_INSTANCE: Url = {
+        Url::parse(AzureCloudInstance::AzurePublic.as_ref())
+            .expect("Unable to create Azure Public Cloud Instance Url")
+    };
+    pub static ref AZURE_CHINA_CLOUD_INSTANCE: Url = {
+        Url::parse(AzureCloudInstance::AzureChina.as_ref())
+            .expect("Unable to create Azure China Cloud Instance Url")
+    };
+    pub static ref AZURE_GERMANY_CLOUD_INSTANCE: Url = {
+        Url::parse(AzureCloudInstance::AzureGermany.as_ref())
+            .expect("Unable to create Azure Germany Cloud Instance Url")
+    };
+    pub static ref AZURE_US_GOVERNMENT: Url = {
+        Url::parse(AzureCloudInstance::AzureUsGovernment.as_ref())
+            .expect("Unable to create Azure Us Government Cloud Instance Url")
+    };
+}
 
 /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
 /// Maps to the instance url string.
@@ -34,11 +54,25 @@ impl AsRef<str> for AzureCloudInstance {
     }
 }
 
-impl TryFrom<AzureCloudInstance> for Url {
-    type Error = url::ParseError;
+impl From<&AzureCloudInstance> for Url {
+    fn from(value: &AzureCloudInstance) -> Self {
+        match value {
+            AzureCloudInstance::AzurePublic => AZURE_PUBLIC_CLOUD_INSTANCE.clone(),
+            AzureCloudInstance::AzureChina => AZURE_CHINA_CLOUD_INSTANCE.clone(),
+            AzureCloudInstance::AzureGermany => AZURE_GERMANY_CLOUD_INSTANCE.clone(),
+            AzureCloudInstance::AzureUsGovernment => AZURE_US_GOVERNMENT.clone(),
+        }
+    }
+}
 
-    fn try_from(azure_cloud_instance: AzureCloudInstance) -> Result<Self, Self::Error> {
-        Url::parse(azure_cloud_instance.as_ref())
+impl From<AzureCloudInstance> for Url {
+    fn from(value: AzureCloudInstance) -> Self {
+        match value {
+            AzureCloudInstance::AzurePublic => AZURE_PUBLIC_CLOUD_INSTANCE.clone(),
+            AzureCloudInstance::AzureChina => AZURE_CHINA_CLOUD_INSTANCE.clone(),
+            AzureCloudInstance::AzureGermany => AZURE_GERMANY_CLOUD_INSTANCE.clone(),
+            AzureCloudInstance::AzureUsGovernment => AZURE_US_GOVERNMENT.clone(),
+        }
     }
 }
 
@@ -100,10 +134,6 @@ impl AzureCloudInstance {
 /// maps to [Authority]
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum AadAuthorityAudience {
-    /// The sign-in audience was not specified
-    #[default]
-    None,
-
     /// Users with a Microsoft work or school account in my organization’s Azure AD tenant (i.e. single tenant).
     /// Maps to https://[AzureCloudInstance]/[AadAuthorityAudience::AzureAdMyOrg(tenant_id)]
     /// or https://[instance]/[tenant_id]
@@ -116,7 +146,8 @@ pub enum AadAuthorityAudience {
     AzureAdMyOrg(String),
 
     /// Users with a personal Microsoft account, or a work or school account in any organization’s Azure AD tenant
-    /// Maps to https://[AzureCloudInstance]/common/ or https://[instance]/[common]/
+    /// Maps to https://[AzureCloudInstance]/common/ or https://[instance]/[common]/\
+    #[default]
     AzureAdAndPersonalMicrosoftAccount,
 
     /// Users with a Microsoft work or school account in any organization’s Azure AD tenant (i.e. multi-tenant).
@@ -126,6 +157,40 @@ pub enum AadAuthorityAudience {
     /// Users with a personal Microsoft account. Maps to https://[AzureCloudInstance]/consumers/
     /// or https://[instance]/consumers/
     PersonalMicrosoftAccount,
+}
+
+impl AadAuthorityAudience {
+    pub fn as_str(&self) -> &str {
+        match self {
+            AadAuthorityAudience::AzureAdMyOrg(tenant) => tenant.as_str(),
+            AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount => "common",
+            AadAuthorityAudience::AzureAdMultipleOrgs => "organizations",
+            AadAuthorityAudience::PersonalMicrosoftAccount => "consumers",
+        }
+    }
+}
+
+impl AsRef<str> for AadAuthorityAudience {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl Display for AadAuthorityAudience {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<&str> for AadAuthorityAudience {
+    fn from(value: &str) -> Self {
+        match value.as_bytes() {
+            b"common" => AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount,
+            b"organizations" => AadAuthorityAudience::AzureAdMultipleOrgs,
+            b"consumers" => AadAuthorityAudience::PersonalMicrosoftAccount,
+            _ => AadAuthorityAudience::AzureAdMyOrg(value.to_string()),
+        }
+    }
 }
 
 /// Specifies which Microsoft accounts can be used for sign-in with a given application.
@@ -172,22 +237,8 @@ impl Authority {
             _ => None,
         }
     }
-}
 
-impl From<AadAuthorityAudience> for Authority {
-    fn from(value: AadAuthorityAudience) -> Self {
-        match value {
-            AadAuthorityAudience::None => Authority::Common,
-            AadAuthorityAudience::AzureAdMyOrg(tenant_id) => Authority::TenantId(tenant_id),
-            AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount => Authority::Common,
-            AadAuthorityAudience::AzureAdMultipleOrgs => Authority::Organizations,
-            AadAuthorityAudience::PersonalMicrosoftAccount => Authority::Consumers,
-        }
-    }
-}
-
-impl AsRef<str> for Authority {
-    fn as_ref(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Authority::AzureActiveDirectory | Authority::Common => "common",
             Authority::AzureDirectoryFederatedServices => "adfs",
@@ -198,9 +249,37 @@ impl AsRef<str> for Authority {
     }
 }
 
-impl ToString for Authority {
-    fn to_string(&self) -> String {
-        String::from(self.as_ref())
+impl From<&AadAuthorityAudience> for Authority {
+    fn from(value: &AadAuthorityAudience) -> Self {
+        match value {
+            AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount => Authority::Common,
+            AadAuthorityAudience::AzureAdMyOrg(tenant_id) => Authority::TenantId(tenant_id.clone()),
+            AadAuthorityAudience::AzureAdMultipleOrgs => Authority::Organizations,
+            AadAuthorityAudience::PersonalMicrosoftAccount => Authority::Consumers,
+        }
+    }
+}
+
+impl From<AadAuthorityAudience> for Authority {
+    fn from(value: AadAuthorityAudience) -> Self {
+        match value {
+            AadAuthorityAudience::AzureAdAndPersonalMicrosoftAccount => Authority::Common,
+            AadAuthorityAudience::AzureAdMyOrg(tenant_id) => Authority::TenantId(tenant_id),
+            AadAuthorityAudience::AzureAdMultipleOrgs => Authority::Organizations,
+            AadAuthorityAudience::PersonalMicrosoftAccount => Authority::Consumers,
+        }
+    }
+}
+
+impl AsRef<str> for Authority {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl Display for Authority {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 

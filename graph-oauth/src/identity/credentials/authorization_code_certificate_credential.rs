@@ -8,16 +8,16 @@ use reqwest::IntoUrl;
 use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::AppConfig;
+#[cfg(feature = "openssl")]
+use crate::identity::X509Certificate;
 use crate::identity::{
     AuthCodeAuthorizationUrlParameterBuilder, Authority, AzureCloudInstance,
-    ConfidentialClientApplication, ForceTokenRefresh, Token, TokenCredentialExecutor,
-    CLIENT_ASSERTION_TYPE,
+    ConfidentialClientApplication, Token, TokenCredentialExecutor, CLIENT_ASSERTION_TYPE,
 };
-#[cfg(feature = "openssl")]
-use crate::oauth::X509Certificate;
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 credential_builder!(
@@ -213,6 +213,10 @@ impl TokenCache for AuthorizationCodeCertificateCredential {
                 token_result
             }
         }
+    }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.app_config.force_token_refresh = force_token_refresh;
     }
 }
 

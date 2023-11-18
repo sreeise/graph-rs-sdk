@@ -21,8 +21,8 @@ use graph_error::{
 
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, DeviceAuthorizationResponse, ForceTokenRefresh,
-    PollDeviceCodeEvent, PublicClientApplication, Token, TokenCredentialExecutor,
+    Authority, AzureCloudInstance, DeviceAuthorizationResponse, PollDeviceCodeEvent,
+    PublicClientApplication, Token, TokenCredentialExecutor,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
@@ -35,6 +35,7 @@ use crate::web::WebViewOptions;
 #[cfg(feature = "interactive-auth")]
 use crate::web::{HostOptions, InteractiveAuth, UserEvents};
 
+use graph_core::identity::ForceTokenRefresh;
 #[cfg(feature = "interactive-auth")]
 use wry::{
     application::{event_loop::EventLoopProxy, window::Window},
@@ -168,7 +169,7 @@ impl TokenCache for DeviceCodeCredential {
             ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
                 let token_result = self.execute_cached_token_refresh(cache_id);
                 if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
-                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                    self.with_force_token_refresh(ForceTokenRefresh::Never);
                 }
                 token_result
             }
@@ -208,11 +209,15 @@ impl TokenCache for DeviceCodeCredential {
             ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
                 let token_result = self.execute_cached_token_refresh_async(cache_id).await;
                 if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
-                    self.app_config.force_token_refresh = ForceTokenRefresh::Never;
+                    self.with_force_token_refresh(ForceTokenRefresh::Never);
                 }
                 token_result
             }
         }
+    }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.app_config.force_token_refresh = force_token_refresh;
     }
 }
 

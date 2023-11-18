@@ -6,7 +6,7 @@ use crate::identity::{
 };
 use async_trait::async_trait;
 use graph_core::cache::{AsBearer, TokenCache};
-use graph_core::identity::ClientApplication;
+use graph_core::identity::{ClientApplication, ForceTokenRefresh};
 use graph_error::{AuthExecutionResult, IdentityResult};
 use reqwest::Response;
 use std::collections::HashMap;
@@ -55,6 +55,11 @@ impl<Credential: Clone + Debug + Send + Sync + TokenCache> ClientApplication
     async fn get_token_silent_async(&mut self) -> AuthExecutionResult<String> {
         let token = self.credential.get_token_silent_async().await?;
         Ok(token.as_bearer())
+    }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.credential
+            .with_force_token_refresh(force_token_refresh);
     }
 }
 

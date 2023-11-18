@@ -2,13 +2,14 @@ use base64::Engine;
 use std::collections::{BTreeSet, HashMap};
 use std::fmt::{Debug, Formatter};
 
+use graph_core::identity::ForceTokenRefresh;
 use graph_error::AF;
 use reqwest::header::HeaderMap;
 use url::Url;
 use uuid::Uuid;
 
 use crate::identity::{Authority, AzureCloudInstance};
-use crate::oauth::{ApplicationOptions, ForceTokenRefresh};
+use crate::oauth::ApplicationOptions;
 
 #[derive(Clone, Default, PartialEq)]
 pub struct AppConfig {
@@ -163,6 +164,13 @@ impl AppConfig {
 
     pub fn log_pii(&mut self, log_pii: bool) {
         self.log_pii = log_pii;
+    }
+
+    pub fn with_authority(&mut self, authority: Authority) {
+        if let Authority::TenantId(tenant_id) = &authority {
+            self.tenant_id = Some(tenant_id.clone());
+        }
+        self.authority = authority;
     }
 }
 

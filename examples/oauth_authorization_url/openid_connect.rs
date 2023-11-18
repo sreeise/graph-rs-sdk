@@ -50,7 +50,7 @@ fn map_to_credential(
     state: &str,
     scope: Vec<&str>,
     client_secret: &str,
-) {
+) -> IdentityResult<()> {
     let auth_url_builder = OpenIdCredential::authorization_url_builder(client_id)
         .with_tenant(tenant)
         //.with_default_scope()?
@@ -59,7 +59,8 @@ fn map_to_credential(
         .with_response_type([ResponseType::IdToken, ResponseType::Code])
         .with_prompt(Prompt::SelectAccount)
         .with_state(state)
-        .with_scope(scope);
+        .with_scope(scope)
+        .build();
 
     // Open the url in a web browser, sign in, and get the authorization code
     // returned in the POST to the redirect uri.
@@ -73,6 +74,7 @@ fn map_to_credential(
     let mut confidential_client = credential_builder.with_client_secret(client_secret).build();
 
     let _graph_client = GraphClient::from(&confidential_client);
+    Ok(())
 }
 
 fn auth_url_using_confidential_client_builder(

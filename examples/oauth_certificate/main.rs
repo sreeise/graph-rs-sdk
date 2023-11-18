@@ -4,9 +4,10 @@
 extern crate serde;
 
 use graph_rs_sdk::oauth::{
-    AuthorizationCodeCertificateCredential, ConfidentialClientApplication, PKey, Token,
-    TokenCredentialExecutor, X509Certificate, X509,
+    AuthorizationCodeCertificateCredential, ConfidentialClientApplication, PKey, X509Certificate,
+    X509,
 };
+use graph_rs_sdk::GraphClient;
 use std::fs::File;
 use std::io::Read;
 use warp::Filter;
@@ -89,6 +90,18 @@ pub fn x509_certificate(client_id: &str, tenant_id: &str) -> anyhow::Result<X509
     ))
 }
 
+fn build_confidential_client(
+    authorization_code: &str,
+    x509certificate: X509Certificate,
+) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCertificateCredential>> {
+    Ok(ConfidentialClientApplication::builder(CLIENT_ID)
+        .with_authorization_code_x509_certificate(authorization_code, &x509certificate)?
+        .with_tenant(TENANT)
+        .with_scope(vec![SCOPE])
+        .with_redirect_uri(REDIRECT_URI)?
+        .build())
+}
+
 // When the authorization code comes in on the redirect from sign in, call the get_credential
 // method passing in the authorization code.
 // Building AuthorizationCodeCertificateCredential will create a ConfidentialClientApplication
@@ -104,31 +117,16 @@ async fn handle_redirect(
             let authorization_code = access_code.code;
             let x509 = x509_certificate(CLIENT_ID, TENANT).unwrap();
 
-            let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
-                .with_authorization_code_x509_certificate(authorization_code, &x509)
-                .unwrap()
-                .with_tenant(TENANT)
-                .with_scope(vec![SCOPE])
-                .with_redirect_uri(REDIRECT_URI)
-                .unwrap()
-                .build();
+            let confidential_client =
+                build_confidential_client(authorization_code.as_str(), x509).unwrap();
+            let graph_client = GraphClient::from(&confidential_client);
 
-            // Returns reqwest::Response
-            let response = confidential_client.execute_async().await.unwrap();
+            let response = graph_client.users().list_user().send().await.unwrap();
+
             println!("{response:#?}");
 
-            if response.status().is_success() {
-                let mut msal_token: Token = response.json().await.unwrap();
-                msal_token.enable_pii_logging(true);
-
-                // If all went well here we can print out the Access Token.
-                println!("AccessToken: {:#?}", msal_token);
-            } else {
-                // See if Microsoft Graph returned an error in the Response body
-                let result: reqwest::Result<serde_json::Value> = response.json().await;
-                println!("{result:#?}");
-                return Ok(Box::new("Error Logging In! You can close your browser."));
-            }
+            let body: serde_json::Value = response.json().await.unwrap();
+            println!("{body:#?}");
 
             // Generic login page response.
             Ok(Box::new(

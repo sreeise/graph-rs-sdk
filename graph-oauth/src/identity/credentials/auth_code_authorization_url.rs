@@ -11,16 +11,20 @@ use graph_core::crypto::{secure_random_32, ProofKeyCodeExchange};
 use graph_error::{IdentityResult, AF};
 
 use crate::identity::{
-    credentials::app_config::AppConfig, AsQuery, AuthorizationUrl, AzureCloudInstance, Prompt,
-    ResponseMode, ResponseType,
+    credentials::app_config::AppConfig, AsQuery, AuthorizationCodeAssertionCredentialBuilder,
+    AuthorizationCodeCredentialBuilder, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode,
+    ResponseType,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+
+#[cfg(feature = "openssl")]
+use crate::identity::{AuthorizationCodeCertificateCredentialBuilder, X509Certificate};
 
 #[cfg(feature = "interactive-auth")]
 use graph_error::{AuthExecutionError, WebViewError, WebViewResult};
 
 #[cfg(feature = "interactive-auth")]
-use crate::identity::{AuthorizationCodeCredentialBuilder, AuthorizationQueryResponse, Token};
+use crate::identity::{AuthorizationQueryResponse, Token};
 
 #[cfg(feature = "interactive-auth")]
 use crate::web::{
@@ -177,6 +181,36 @@ impl AuthCodeAuthorizationUrlParameters {
 
     pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
         self.authorization_url_with_host(azure_cloud_instance)
+    }
+
+    pub fn into_credential(
+        self,
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeCredentialBuilder {
+        AuthorizationCodeCredentialBuilder::new_with_auth_code(self.app_config, authorization_code)
+    }
+
+    pub fn into_assertion_credential(
+        self,
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeAssertionCredentialBuilder {
+        AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
+            self.app_config,
+            authorization_code,
+        )
+    }
+
+    #[cfg(feature = "openssl")]
+    pub fn into_certificate_credential(
+        self,
+        authorization_code: impl AsRef<str>,
+        x509: &X509Certificate,
+    ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
+        AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
+            self.app_config,
+            authorization_code,
+            x509,
+        )
     }
 
     /// Get the nonce.
@@ -478,9 +512,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.credential
-            .response_type
-            .extend(response_type.into_iter());
+        self.credential.response_type = response_type.into_iter().collect();
         self
     }
 
@@ -612,6 +644,39 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     pub fn url(&self) -> IdentityResult<Url> {
         self.credential.url()
     }
+
+    pub fn into_credential(
+        self,
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeCredentialBuilder {
+        AuthorizationCodeCredentialBuilder::new_with_auth_code(
+            self.credential.app_config,
+            authorization_code,
+        )
+    }
+
+    pub fn into_assertion_credential(
+        self,
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeAssertionCredentialBuilder {
+        AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
+            self.credential.app_config,
+            authorization_code,
+        )
+    }
+
+    #[cfg(feature = "openssl")]
+    pub fn into_certificate_credential(
+        self,
+        authorization_code: impl AsRef<str>,
+        x509: &X509Certificate,
+    ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
+        AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
+            self.credential.app_config,
+            authorization_code,
+            x509,
+        )
+    }
 }
 
 #[cfg(test)]
@@ -640,16 +705,17 @@ mod test {
     }
 
     #[test]
+    #[should_panic]
     fn response_type_id_token_panics_when_response_mode_query() {
         let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
             .with_scope(["read", "write"])
-            .with_response_type(ResponseType::IdToken)
+            .with_response_mode(ResponseMode::Query)
+            .with_response_type(vec![ResponseType::IdToken])
             .url()
             .unwrap();
 
-        let query = url.query().unwrap();
-        assert!(query.contains("response_type=code+id_token"));
+        let _query = url.query().unwrap();
     }
 
     #[test]
@@ -685,13 +751,10 @@ mod test {
         let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4().to_string())
             .with_redirect_uri("https://localhost:8080")
             .with_scope(["read", "write"])
-            .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
             .url()
             .unwrap();
 
         let query = url.query().unwrap();
-        assert!(query.contains("response_mode=fragment"));
-        assert!(query.contains("response_type=code+id_token"));
         assert!(query.contains("nonce"));
     }
 }
