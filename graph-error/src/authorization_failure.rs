@@ -1,4 +1,4 @@
-use crate::IdentityResult;
+use crate::{ErrorMessage, IdentityResult};
 use tokio::sync::mpsc::error::SendTimeoutError;
 
 pub type AF = AuthorizationFailure;
@@ -14,19 +14,19 @@ pub enum AuthorizationFailure {
     },
 
     #[error("{0:#?}")]
-    UrlParseError(#[from] url::ParseError),
+    UrlParse(#[from] url::ParseError),
 
     #[error("{0:#?}")]
-    UuidError(#[from] uuid::Error),
+    Uuid(#[from] uuid::Error),
 
     #[error("{0:#?}")]
     Unknown(String),
 
     #[error("{0:#?}")]
-    X509Error(String),
+    OpenSsl(String),
 
     #[error("{0:#?}")]
-    SerdeJsonError(#[from] serde_json::Error),
+    SerdeJson(#[from] serde_json::Error),
 }
 
 impl AuthorizationFailure {
@@ -35,7 +35,7 @@ impl AuthorizationFailure {
     }
 
     pub fn unknown_result<T: ToString>(value: T) -> IdentityResult<AuthorizationFailure> {
-        Err(AuthorizationFailure::Unknown(value.to_string()))
+        Err(AuthorizationFailure::unknown(value))
     }
 
     pub fn required<T: AsRef<str>>(name: T) -> AuthorizationFailure {
@@ -80,10 +80,6 @@ impl AuthorizationFailure {
         Err(AF::msg_internal_err(name))
     }
 
-    pub fn url_parse_error<T>(url_parse_error: url::ParseError) -> Result<T, AuthorizationFailure> {
-        Err(AuthorizationFailure::UrlParseError(url_parse_error))
-    }
-
     pub fn condition(cond: bool, name: &str, msg: &str) -> IdentityResult<()> {
         if cond {
             AF::msg_result(name, msg)
@@ -93,11 +89,11 @@ impl AuthorizationFailure {
     }
 
     pub fn x509(message: impl ToString) -> AuthorizationFailure {
-        AuthorizationFailure::X509Error(message.to_string())
+        AuthorizationFailure::OpenSsl(message.to_string())
     }
 
     pub fn x509_result<T>(message: impl ToString) -> Result<T, AuthorizationFailure> {
-        Err(AuthorizationFailure::X509Error(message.to_string()))
+        Err(AuthorizationFailure::OpenSsl(message.to_string()))
     }
 }
 
@@ -107,13 +103,36 @@ impl AuthorizationFailure {
 #[derive(Debug, thiserror::Error)]
 pub enum AuthExecutionError {
     #[error("{0:#?}")]
-    AuthorizationFailure(#[from] AuthorizationFailure),
+    Authorization(#[from] AuthorizationFailure),
+
     #[error("{0:#?}")]
-    RequestError(#[from] reqwest::Error),
+    Request(#[from] reqwest::Error),
+
     #[error("{0:#?}")]
-    SerdeError(#[from] serde_json::error::Error),
-    #[error("{0:#?}")]
-    HttpError(#[from] http::Error),
+    Http(#[from] http::Error),
+
+    #[error("message: {0:#?}, response: {1:#?}", message, response)]
+    SilentTokenAuth {
+        message: String,
+        response: http::Response<Result<serde_json::Value, ErrorMessage>>,
+    },
+}
+
+impl AuthExecutionError {
+    pub fn silent_token_auth(
+        response: http::Response<Result<serde_json::Value, ErrorMessage>>,
+    ) -> AuthExecutionError {
+        AuthExecutionError::SilentTokenAuth {
+            message: "silent token auth failed".into(),
+            response,
+        }
+    }
+}
+
+impl From<serde_json::error::Error> for AuthExecutionError {
+    fn from(value: serde_json::error::Error) -> Self {
+        AuthExecutionError::Authorization(AuthorizationFailure::from(value))
+    }
 }
 
 #[derive(Debug, thiserror::Error)]

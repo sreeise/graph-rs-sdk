@@ -162,7 +162,7 @@ async fn file_upload_session_channel(
 // This is a long running test. 20 - 30 seconds.
 #[tokio::test]
 async fn test_upload_session() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let item_by_path = ":/upload_session_file.txt:";
         let local_file = "./test_files/upload_session_file.txt";

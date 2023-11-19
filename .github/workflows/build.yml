@@ -26,6 +26,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    environment: test-environment
 
     steps:
     - uses: actions/checkout@v3.0.2
@@ -33,7 +34,6 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       env:
-        TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
         APP_REGISTRATIONS: ${{ secrets.APP_REGISTRATIONS }}
       run: cargo test --verbose
 

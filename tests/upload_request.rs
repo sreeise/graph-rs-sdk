@@ -86,7 +86,7 @@ async fn get_file_content(
 
 #[tokio::test]
 async fn upload_bytes_mut() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let local_file = "./test_files/test_upload_file_bytes.txt";
         let file_name = ":/test_upload_file_bytes.txt:";
@@ -134,7 +134,7 @@ async fn upload_bytes_mut() {
 
 #[tokio::test]
 async fn upload_reqwest_body() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let local_file = "./test_files/test_upload_file_bytes.txt";
         let file_name = ":/test_upload_file_bytes.txt:";

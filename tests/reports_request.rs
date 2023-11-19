@@ -11,7 +11,7 @@ async fn async_download_office_365_user_counts_reports_test() {
         return;
     }
 
-    let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+    let _ = ASYNC_THROTTLE_MUTEX.lock();
 
     if let Some((_id, client)) =
         OAuthTestClient::graph_by_rid_async(ResourceIdentity::Reports).await
@@ -47,7 +47,7 @@ async fn async_download_office_365_user_counts_reports_test() {
 #[tokio::test]
 async fn get_office_365_user_counts_reports_text() {
     if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+        let _ = ASYNC_THROTTLE_MUTEX.lock();
 
         if let Some((_id, client)) =
             OAuthTestClient::graph_by_rid_async(ResourceIdentity::Reports).await

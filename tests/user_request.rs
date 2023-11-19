@@ -5,7 +5,7 @@ use test_tools::oauth_request::{Environment, OAuthTestClient};
 #[tokio::test]
 async fn list_users() {
     if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+        let _ = ASYNC_THROTTLE_MUTEX.lock();
         if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let result = client.users().list_user().send().await;
 
@@ -27,7 +27,7 @@ async fn list_users() {
 #[tokio::test]
 async fn get_user() {
     if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+        let _ = ASYNC_THROTTLE_MUTEX.lock();
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let result = client.users().id(id).get_user().send().await;
 

@@ -9,12 +9,14 @@ use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_core::crypto::ProofKeyCodeExchange;
+use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::{AppConfig, AppConfigBuilder};
 use crate::identity::{
     Authority, AzureCloudInstance, ConfidentialClientApplication, Token, TokenCredentialExecutor,
+    EXECUTOR_TRACING_TARGET,
 };
 use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
@@ -69,6 +71,13 @@ impl Debug for AuthorizationCodeCredential {
 impl AuthorizationCodeCredential {
     fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
         let response = self.execute()?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response()?,
+            ));
+        }
+
         let new_token: Token = response.json()?;
         self.token_cache.store(cache_id, new_token.clone());
 
@@ -84,13 +93,19 @@ impl AuthorizationCodeCredential {
         cache_id: String,
     ) -> AuthExecutionResult<Token> {
         let response = self.execute_async().await?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response_async().await?,
+            ));
+        }
+
         let new_token: Token = response.json().await?;
+        self.token_cache.store(cache_id, new_token.clone());
 
         if new_token.refresh_token.is_some() {
             self.refresh_token = new_token.refresh_token.clone();
         }
-
-        self.token_cache.store(cache_id, new_token.clone());
         Ok(new_token)
     }
 }
@@ -99,6 +114,7 @@ impl AuthorizationCodeCredential {
 impl TokenCache for AuthorizationCodeCredential {
     type Token = Token;
 
+    #[tracing::instrument]
     fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
 
@@ -107,6 +123,7 @@ impl TokenCache for AuthorizationCodeCredential {
                 // Attempt to bypass a read on the token store by using previous
                 // refresh token stored outside of RwLock
                 if self.refresh_token.is_some() {
+                    tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=Some");
                     if let Ok(token) = self.execute_cached_token_refresh(cache_id.clone()) {
                         return Ok(token);
                     }
@@ -114,19 +131,23 @@ impl TokenCache for AuthorizationCodeCredential {
 
                 if let Some(token) = self.token_cache.get(cache_id.as_str()) {
                     if token.is_expired_sub(time::Duration::minutes(5)) {
+                        tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=Some");
                         if let Some(refresh_token) = token.refresh_token.as_ref() {
                             self.refresh_token = Some(refresh_token.to_owned());
                         }
 
                         self.execute_cached_token_refresh(cache_id)
                     } else {
+                        tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
                         Ok(token)
                     }
                 } else {
+                    tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
                     self.execute_cached_token_refresh(cache_id)
                 }
             }
             ForceTokenRefresh::Once | ForceTokenRefresh::Always => {
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
                 let token_result = self.execute_cached_token_refresh(cache_id);
                 if self.app_config.force_token_refresh == ForceTokenRefresh::Once {
                     self.app_config.force_token_refresh = ForceTokenRefresh::Never;
@@ -136,6 +157,7 @@ impl TokenCache for AuthorizationCodeCredential {
         }
     }
 
+    #[tracing::instrument]
     async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
 
@@ -144,6 +166,7 @@ impl TokenCache for AuthorizationCodeCredential {
                 // Attempt to bypass a read on the token store by using previous
                 // refresh token stored outside of RwLock
                 if self.refresh_token.is_some() {
+                    tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=Some");
                     if let Ok(token) = self
                         .execute_cached_token_refresh_async(cache_id.clone())
                         .await
@@ -157,12 +180,14 @@ impl TokenCache for AuthorizationCodeCredential {
                         if let Some(refresh_token) = old_token.refresh_token.as_ref() {
                             self.refresh_token = Some(refresh_token.to_owned());
                         }
-
+                        tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=Some");
                         self.execute_cached_token_refresh_async(cache_id).await
                     } else {
+                        tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
                         Ok(old_token.clone())
                     }
                 } else {
+                    tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
                     self.execute_cached_token_refresh_async(cache_id).await
                 }
             }

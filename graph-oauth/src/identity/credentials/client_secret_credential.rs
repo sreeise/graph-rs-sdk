@@ -7,13 +7,14 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
-use graph_error::{AuthExecutionError, AuthorizationFailure, IdentityResult};
+use graph_error::{AuthExecutionError, AuthExecutionResult, AuthorizationFailure, IdentityResult};
 
 use crate::identity::{
     credentials::app_config::AppConfig, Authority, AzureCloudInstance,
     ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication, Token,
-    TokenCredentialExecutor,
+    TokenCredentialExecutor, EXECUTOR_TRACING_TARGET,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
@@ -90,6 +91,37 @@ impl ClientSecretCredential {
     ) -> ClientCredentialsAuthorizationUrlParameterBuilder {
         ClientCredentialsAuthorizationUrlParameterBuilder::new(client_id)
     }
+
+    fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
+        let response = self.execute()?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response()?,
+            ));
+        }
+
+        let new_token: Token = response.json()?;
+        self.token_cache.store(cache_id, new_token.clone());
+        Ok(new_token)
+    }
+
+    async fn execute_cached_token_refresh_async(
+        &mut self,
+        cache_id: String,
+    ) -> AuthExecutionResult<Token> {
+        let response = self.execute_async().await?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response_async().await?,
+            ));
+        }
+
+        let new_token: Token = response.json().await?;
+        self.token_cache.store(cache_id, new_token.clone());
+        Ok(new_token)
+    }
 }
 
 #[async_trait]
@@ -100,41 +132,31 @@ impl TokenCache for ClientSecretCredential {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
-                let response = self.execute()?;
-                let msal_token: Token = response.json()?;
-                self.token_cache.store(cache_id, msal_token.clone());
-                Ok(msal_token)
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                self.execute_cached_token_refresh(cache_id)
             } else {
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
                 Ok(token)
             }
         } else {
-            let response = self.execute()?;
-            let msal_token: Token = response.json()?;
-            self.token_cache.store(cache_id, msal_token.clone());
-            Ok(msal_token)
+            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            self.execute_cached_token_refresh(cache_id)
         }
     }
 
-    #[tracing::instrument]
     async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
-                let response = self.execute_async().await?;
-                let msal_token: Token = response.json().await?;
-                tracing::debug!("tokenResponse={:#?}", &msal_token);
-                self.token_cache.store(cache_id, msal_token.clone());
-                Ok(msal_token)
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                self.execute_cached_token_refresh_async(cache_id).await
             } else {
-                tracing::debug!("tokenResponse={:#?}", &token);
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
                 Ok(token.clone())
             }
         } else {
-            let response = self.execute_async().await?;
-            let msal_token: Token = response.json().await?;
-            tracing::debug!("tokenResponse={:#?}", &msal_token);
-            self.token_cache.store(cache_id, msal_token.clone());
-            Ok(msal_token)
+            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            self.execute_cached_token_refresh_async(cache_id).await
         }
     }
 
@@ -222,10 +244,6 @@ impl ClientSecretCredentialBuilder {
     pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
         self.credential.client_secret = client_secret.as_ref().to_owned();
         self
-    }
-
-    pub fn build_client(&self) -> ConfidentialClientApplication<ClientSecretCredential> {
-        ConfidentialClientApplication::credential(self.credential.clone())
     }
 
     pub fn credential(&self) -> ClientSecretCredential {

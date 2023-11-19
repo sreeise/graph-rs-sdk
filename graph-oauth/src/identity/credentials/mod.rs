@@ -57,3 +57,5 @@ mod token_credential_executor;
 
 #[cfg(feature = "openssl")]
 mod x509_certificate;
+
+pub(crate) const EXECUTOR_TRACING_TARGET: &str = "graph_rs_sdk::credential_executor";

@@ -2,12 +2,12 @@ use graph_http::traits::ResponseExt;
 use graph_rs_sdk::http::FileConfig;
 use graph_rs_sdk::*;
 use std::ffi::OsStr;
-use test_tools::oauth_request::{Environment, OAuthTestClient, DRIVE_ASYNC_THROTTLE_MUTEX};
+use test_tools::oauth_request::{Environment, OAuthTestClient, DRIVE_ASYNC_THROTTLE_MUTEX2};
 use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
 async fn drive_download() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock();
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let response = client
             .drive(id.as_str())
@@ -35,7 +35,7 @@ async fn drive_download() {
 
 #[tokio::test]
 async fn drive_download_format() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock();
     if Environment::is_local() {
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let response = client

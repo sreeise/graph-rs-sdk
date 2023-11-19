@@ -37,7 +37,7 @@ pub enum WebViewError {
 
 impl From<AuthorizationFailure> for WebViewError {
     fn from(value: AuthorizationFailure) -> Self {
-        WebViewError::AuthExecutionError(Box::new(AuthExecutionError::AuthorizationFailure(value)))
+        WebViewError::AuthExecutionError(Box::new(AuthExecutionError::Authorization(value)))
     }
 }
 
