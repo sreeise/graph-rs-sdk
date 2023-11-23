@@ -353,6 +353,33 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         Ok(builder)
     }
 
+    #[cfg(feature = "interactive-auth")]
+    #[cfg(feature = "openssl")]
+    pub(crate) fn new_with_token(
+        app_config: AppConfig,
+        token: Token,
+        x509: &X509Certificate,
+    ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
+        let cache_id = app_config.cache_id.clone();
+        let mut token_cache = InMemoryCacheStore::new();
+        token_cache.store(cache_id, token);
+
+        let mut builder = Self {
+            credential: AuthorizationCodeCertificateCredential {
+                app_config,
+                authorization_code: None,
+                refresh_token: None,
+                code_verifier: None,
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
+                client_assertion: String::new(),
+                token_cache,
+            },
+        };
+
+        builder.with_x509(x509)?;
+        Ok(builder)
+    }
+
     pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
         self.credential.authorization_code = Some(authorization_code.as_ref().to_owned());
         self

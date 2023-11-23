@@ -1,14 +1,10 @@
-use graph_rs_sdk::error::IdentityResult;
 use graph_rs_sdk::oauth::{
-    AuthCodeAuthorizationUrlParameters, AuthorizationCodeCredential, ConfidentialClientApplication,
-    GenPkce, ProofKeyCodeExchange, ResponseType, Token, TokenCredentialExecutor,
+    AuthorizationCodeCredential, ConfidentialClientApplication, GenPkce, ProofKeyCodeExchange,
+    TokenCredentialExecutor,
 };
 use lazy_static::lazy_static;
 use url::Url;
 use warp::{get, Filter};
-
-static CLIENT_ID: &str = "<CLIENT_ID>";
-static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
 
 // You can also pass your own values for PKCE instead of automatic generation by
 // calling ProofKeyCodeExchange::new(code_verifier, code_challenge, code_challenge_method)
@@ -27,13 +23,18 @@ lazy_static! {
 /// to in order to sign in. Then wait for the redirect after sign in to the redirect url
 /// you specified in your app. To see a server example listening for the redirect see
 /// [Auth Code Grant PKCE Server Example](https://github.com/sreeise/graph-rs-sdk/examples/oauth/auth_code_grant/auth_code_grant_pkce.rs)
-fn authorization_sign_in_url(client_id: &str, redirect_uri: &str, scope: Vec<String>) -> Url {
-    AuthorizationCodeCredential::authorization_url_builder(client_id)
-        .with_scope(scope)
-        .with_redirect_uri(redirect_uri)
-        .with_pkce(&PKCE)
-        .url()
-        .unwrap()
+fn authorization_sign_in_url(
+    client_id: &str,
+    redirect_uri: &str,
+    scope: Vec<String>,
+) -> anyhow::Result<Url> {
+    Ok(
+        AuthorizationCodeCredential::authorization_url_builder(client_id)
+            .with_scope(scope)
+            .with_redirect_uri(redirect_uri)
+            .with_pkce(&PKCE)
+            .url()?,
+    )
 }
 
 fn build_confidential_client(
@@ -42,13 +43,12 @@ fn build_confidential_client(
     client_secret: &str,
     redirect_uri: &str,
     scope: Vec<String>,
-) -> ConfidentialClientApplication<AuthorizationCodeCredential> {
-    ConfidentialClientApplication::builder(client_id)
+) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCredential>> {
+    Ok(ConfidentialClientApplication::builder(client_id)
         .with_auth_code(authorization_code)
         .with_client_secret(client_secret)
         .with_scope(scope)
-        .with_redirect_uri(redirect_uri)
-        .unwrap()
+        .with_redirect_uri(redirect_uri)?
         .with_pkce(&PKCE)
-        .build()
+        .build())
 }

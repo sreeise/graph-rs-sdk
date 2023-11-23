@@ -140,13 +140,7 @@ impl From<AuthExecutionError> for GraphFailure {
                         error.to_string()
                     ),
                 },
-                AuthorizationFailure::Unknown(message) => GraphFailure::PreFlightError {
-                    url: None,
-                    headers: None,
-                    error: None,
-                    message,
-                },
-                AuthorizationFailure::OpenSsl(message) => GraphFailure::PreFlightError {
+                AuthorizationFailure::Openssl(message) => GraphFailure::PreFlightError {
                     url: None,
                     headers: None,
                     error: None,

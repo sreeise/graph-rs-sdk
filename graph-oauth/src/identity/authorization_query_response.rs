@@ -1,10 +1,10 @@
+use serde::Deserializer;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
-
-use serde_json::Value;
 use url::Url;
 
-/// The specification defines theres errors here:
+/// The specification defines errors here:
 /// https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-31#section-4.2.2.1
 ///
 /// Microsoft has additional errors listed here:
@@ -84,11 +84,27 @@ impl Display for AuthorizationQueryError {
     }
 }
 
+fn deserialize_expires_in<'de, D>(expires_in: D) -> Result<Option<i64>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let expires_in_string_result: Result<String, D::Error> =
+        serde::Deserialize::deserialize(expires_in);
+    if let Ok(expires_in_string) = expires_in_string_result {
+        if let Ok(expires_in) = expires_in_string.parse::<i64>() {
+            return Ok(Some(expires_in));
+        }
+    }
+
+    Ok(None)
+}
+
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct AuthorizationQueryResponse {
+pub struct AuthorizationResponse {
     pub code: Option<String>,
     pub id_token: Option<String>,
-    pub expires_in: Option<String>,
+    #[serde(deserialize_with = "deserialize_expires_in")]
+    pub expires_in: Option<i64>,
     pub access_token: Option<String>,
     pub state: Option<String>,
     pub session_state: Option<String>,
@@ -102,10 +118,10 @@ pub struct AuthorizationQueryResponse {
     log_pii: bool,
 }
 
-impl AuthorizationQueryResponse {
+impl AuthorizationResponse {
     /// Enable or disable logging of personally identifiable information such
     /// as logging the id_token. This is disabled by default. When log_pii is enabled
-    /// passing [AuthorizationQueryResponse] to logging or print functions will log both the bearer
+    /// passing [AuthorizationResponse] to logging or print functions will log both the bearer
     /// access token value of amy and the id token value.
     /// By default these do not get logged.
     pub fn enable_pii_logging(&mut self, log_pii: bool) {
@@ -117,7 +133,7 @@ impl AuthorizationQueryResponse {
     }
 }
 
-impl Debug for AuthorizationQueryResponse {
+impl Debug for AuthorizationResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.log_pii {
             f.debug_struct("AuthQueryResponse")
@@ -144,5 +160,30 @@ impl Debug for AuthorizationQueryResponse {
                 .field("additional_fields", &self.additional_fields)
                 .finish()
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    pub const AUTHORIZATION_RESPONSE: &str = r#"{
+        "access_token": "token",
+        "expires_in": "3600"
+    }"#;
+
+    #[test]
+    pub fn deserialize_authorization_response_from_json() {
+        let response: AuthorizationResponse = serde_json::from_str(AUTHORIZATION_RESPONSE).unwrap();
+        assert_eq!(Some(String::from("token")), response.access_token);
+        assert_eq!(Some(3600), response.expires_in);
+    }
+
+    #[test]
+    pub fn deserialize_authorization_response_from_query() {
+        let query = "access_token=token&expires_in=3600";
+        let response: AuthorizationResponse = serde_urlencoded::from_str(query).unwrap();
+        assert_eq!(Some(String::from("token")), response.access_token);
+        assert_eq!(Some(3600), response.expires_in);
     }
 }

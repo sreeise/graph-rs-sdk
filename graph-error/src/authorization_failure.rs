@@ -20,24 +20,13 @@ pub enum AuthorizationFailure {
     Uuid(#[from] uuid::Error),
 
     #[error("{0:#?}")]
-    Unknown(String),
-
-    #[error("{0:#?}")]
-    OpenSsl(String),
+    Openssl(String),
 
     #[error("{0:#?}")]
     SerdeJson(#[from] serde_json::Error),
 }
 
 impl AuthorizationFailure {
-    pub fn unknown<T: ToString>(value: T) -> AuthorizationFailure {
-        AuthorizationFailure::Unknown(value.to_string())
-    }
-
-    pub fn unknown_result<T: ToString>(value: T) -> IdentityResult<AuthorizationFailure> {
-        Err(AuthorizationFailure::unknown(value))
-    }
-
     pub fn required<T: AsRef<str>>(name: T) -> AuthorizationFailure {
         AuthorizationFailure::RequiredValue {
             name: name.as_ref().to_owned(),
@@ -89,11 +78,11 @@ impl AuthorizationFailure {
     }
 
     pub fn x509(message: impl ToString) -> AuthorizationFailure {
-        AuthorizationFailure::OpenSsl(message.to_string())
+        AuthorizationFailure::Openssl(message.to_string())
     }
 
     pub fn x509_result<T>(message: impl ToString) -> Result<T, AuthorizationFailure> {
-        Err(AuthorizationFailure::OpenSsl(message.to_string()))
+        Err(AuthorizationFailure::Openssl(message.to_string()))
     }
 }
 

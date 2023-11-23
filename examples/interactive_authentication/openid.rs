@@ -3,7 +3,12 @@ use graph_rs_sdk::{
     GraphClient,
 };
 
-fn openid_authenticate(tenant_id: &str, client_id: &str, client_secret: &str, redirect_uri: &str) {
+async fn openid_authenticate(
+    tenant_id: &str,
+    client_id: &str,
+    client_secret: &str,
+    redirect_uri: &str,
+) -> anyhow::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
     pretty_env_logger::init();
 
@@ -13,10 +18,8 @@ fn openid_authenticate(tenant_id: &str, client_id: &str, client_secret: &str, re
             .with_scope(vec!["user.read", "offline_access"]) // Adds offline_access as a scope which is needed to get a refresh token.
             .with_response_mode(ResponseMode::Fragment)
             .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
-            .with_redirect_uri(redirect_uri)
-            .unwrap()
-            .with_interactive_authentication(None)
-            .unwrap();
+            .with_redirect_uri(redirect_uri)?
+            .with_interactive_authentication(Default::default())?;
 
     debug!("{authorization_query_response:#?}");
 
@@ -24,9 +27,11 @@ fn openid_authenticate(tenant_id: &str, client_id: &str, client_secret: &str, re
 
     let client = GraphClient::from(&confidential_client);
 
-    let response = client.users().list_user().into_blocking().send().unwrap();
+    let response = client.users().list_user().send().await?;
 
     debug!("{response:#?}");
-    let body: serde_json::Value = response.json().unwrap();
+    let body: serde_json::Value = response.json().await?;
     debug!("{body:#?}");
+
+    Ok(())
 }

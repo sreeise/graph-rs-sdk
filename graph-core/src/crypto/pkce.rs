@@ -1,6 +1,6 @@
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine;
-use graph_error::{AuthorizationFailure, IdentityResult, AF};
+use graph_error::{IdentityResult, AF};
 use ring::rand::SecureRandom;
 
 /*
@@ -33,17 +33,16 @@ pub trait GenPkce {
     /// Known as code_verifier in proof key for code exchange
     /// Uses the Rust ring crypto library to generate a secure random
     /// 32-octet sequence that is base64 URL encoded (no padding)
-    fn code_verifier() -> IdentityResult<String> {
+    fn code_verifier() -> String {
         let mut buf = [0; 32];
 
         let rng = ring::rand::SystemRandom::new();
-        rng.fill(&mut buf)
-            .map_err(|_| AuthorizationFailure::unknown("ring::error::Unspecified"))?;
+        rng.fill(&mut buf).expect("ring::error::Unspecified");
 
-        Ok(URL_SAFE_NO_PAD.encode(buf))
+        URL_SAFE_NO_PAD.encode(buf)
     }
 
-    fn code_challenge(code_verifier: &String) -> IdentityResult<String> {
+    fn code_challenge(code_verifier: &String) -> String {
         let mut context = ring::digest::Context::new(&ring::digest::SHA256);
         context.update(code_verifier.as_bytes());
 
@@ -51,7 +50,7 @@ pub trait GenPkce {
         let code_challenge = URL_SAFE_NO_PAD.encode(context.finish().as_ref());
 
         // code verifier, code challenge
-        Ok(code_challenge)
+        code_challenge
     }
 
     /// Generate a code challenge and code verifier for the
@@ -69,8 +68,8 @@ pub trait GenPkce {
     /// This sequence is hashed using SHA256 and base64 URL encoded (no padding) resulting in a
     /// 43-octet URL safe string which is known as the code challenge.
     fn oneshot() -> IdentityResult<ProofKeyCodeExchange> {
-        let code_verifier = ProofKeyCodeExchange::code_verifier()?;
-        let code_challenge = ProofKeyCodeExchange::code_challenge(&code_verifier)?;
+        let code_verifier = ProofKeyCodeExchange::code_verifier();
+        let code_challenge = ProofKeyCodeExchange::code_challenge(&code_verifier);
         ProofKeyCodeExchange::new(
             code_verifier,
             code_challenge,

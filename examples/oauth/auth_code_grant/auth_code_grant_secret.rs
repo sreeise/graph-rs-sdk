@@ -24,16 +24,15 @@ async fn auth_code_grant_secret(
     client_secret: &str,
     scope: Vec<String>,
     redirect_uri: &str,
-) {
+) -> anyhow::Result<GraphClient> {
     let mut confidential_client = ConfidentialClientApplication::builder(client_id)
         .with_auth_code(authorization_code) // returns builder type for AuthorizationCodeCredential
         .with_client_secret(client_secret)
         .with_scope(scope)
-        .with_redirect_uri(redirect_uri)
-        .unwrap()
+        .with_redirect_uri(redirect_uri)?
         .build();
 
     let graph_client = GraphClient::from(&confidential_client);
 
-    let _response = graph_client.users().list_user().send().await;
+    Ok(graph_client)
 }

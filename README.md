@@ -44,11 +44,9 @@ use graph_rs_sdk::*;
 
 ## Table Of Contents
 
+Graph Client
+
 * [Usage](#usage)
-  * [OAuth - Getting Access Tokens](#oauth---getting-access-tokens) 
-    * [Identity Platform Support](#identity-platform-support)
-    * [Automatic Token Refresh](#automatic-token-refresh)
-    * [Interactive Authentication](#interactive-authentication)
   * [Async and Blocking Client](#async-and-blocking-client)
     * [Async Client](#async-client-default)
     * [Blocking Client](#blocking-client)
@@ -61,6 +59,22 @@ use graph_rs_sdk::*;
   * [Contributing](#contributing)
   * [Wiki](#wiki)
   * [Feature Requests for Bug Reports](#feature-requests-or-bug-reports)
+
+OAuth and Openid
+
+* [OAuth - Getting Access Tokens](#oauth---getting-access-tokens)
+  * [Identity Platform Support](#identity-platform-support)
+  * [Credentials](#credentials)
+    * [Auth Code Grant](#authorization-code-grant)
+      * [Authorization Code Grant Secret](#authorization-code-secret)
+      * [Authorization Code With Proof Key Code Exchange](#authorization-code-secret-with-proof-key-code-exchange)
+    * [Client Credentials](#client-credentials)
+      * [Client Secret Credential](#client-secret-credential)
+    * [Environment Credentials](#environment-credentials)
+      * [Client Secret Environment Credential](#client-secret-environment-credential)
+      * [Resource Owner Password Credential](#resource-owner-password-credential)
+  * [Automatic Token Refresh](#automatic-token-refresh)
+  * [Interactive Authentication](#interactive-authentication)
 
 ### What APIs are available
 
@@ -945,7 +959,7 @@ async fn get_user() -> GraphResult<()> {
 
 
 ### Warning
-The crate is undergoing major development in order to support all or most scenarios in the 
+This crate is undergoing major development in order to support all or most scenarios in the 
 Microsoft Identity Platform where its possible to do so. The master branch on GitHub may have some
 unstable features. Any version that is not a pre-release version of the crate is considered stable.
 
@@ -975,10 +989,10 @@ For more extensive examples see the
 directory on [GitHub](https://github.com/sreeise/graph-rs-sdk).
 
 
-```rust,ignore
-let confidental_client: ConfidentialClientApplication<ClientSecretCredential> = ...
-
-let graph_client = Graph::from(confidential_client);
+```rust
+fn build_client(confidential_client: ConfidentialClientApplication<ClientSecretCredential>) {
+  let graph_client = GraphClient::from(&confidential_client);
+}
 ```
 
 ### Identity Platform Support
@@ -996,7 +1010,8 @@ The following flows from the Microsoft Identity Platform are supported:
 
 You can use the url builders for those flows that require an authorization code using a redirect after sign in you can use 
 
-### Examples
+## Credentials
+
 
 ### Authorization Code Grant
 
@@ -1007,39 +1022,78 @@ on redirect after sign in is performed by the user.
 Once you have the authorization code you can pass this to the client and the client
 will perform the request to get an access token on the first graph api call that you make.
 
+
+#### Authorization Code Secret
+
 ```rust
 use graph_rs_sdk::{
-    Graph,
-    oauth::ConfidentialClientApplication,
+  Graph,
+  oauth::ConfidentialClientApplication,
 };
 
-#[tokio::main]
-async fn main() {
-    let authorization_code = "<AUTH_CODE>";
-    let client_id = "<CLIENT_ID>";
-    let client_secret = "<CLIENT_SECRET>";
-    let scope = vec!["<SCOPE>", "<SCOPE>"];
-    let redirect_uri = "http://localhost:8080";
+async fn build_client(
+  authorization_code: &str,
+  client_id: &str,
+  client_secret: &str,
+  redirect_uri: &str,
+  scope: Vec<&str>
+) -> anyhow::Result<GraphClient> {
+  let mut confidential_client = ConfidentialClientApplication::builder(client_id)
+          .with_authorization_code(authorization_code) // returns builder type for AuthorizationCodeCredential
+          .with_client_secret(client_secret)
+          .with_scope(scope)
+          .with_redirect_uri(redirect_uri)
+          .unwrap()
+          .build();
 
-    let mut confidential_client = ConfidentialClientApplication::builder(client_id)
-        .with_authorization_code(authorization_code) // returns builder type for AuthorizationCodeCredential
-        .with_client_secret(client_secret)
-        .with_scope(scope)
-        .with_redirect_uri(redirect_uri)
-        .unwrap()
-        .build();
-
-    let graph_client = Graph::from(confidential_client);
-
-    let _response = graph_client
-        .users()
-        .list_user()
-        .send() // Also makes first access token request at this point
-        .await;
+  let graph_client = Graph::from(confidential_client);
+  
+  Ok(graph_client)
 }
 ```
 
-### Client Credentials Grant.
+#### Authorization Code Secret With Proof Key Code Exchange
+
+```rust
+use graph_rs_sdk::oauth::{
+  AuthorizationCodeCredential, ConfidentialClientApplication, GenPkce,
+  ProofKeyCodeExchange, TokenCredentialExecutor,
+};
+use lazy_static::lazy_static;
+use url::Url;
+
+// You can also pass your own values for PKCE instead of automatic generation by
+// calling ProofKeyCodeExchange::new(code_verifier, code_challenge, code_challenge_method)
+lazy_static! {
+    static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
+}
+
+fn authorization_sign_in_url(client_id: &str, redirect_uri: &str, scope: Vec<String>) -> anyhow::Result<Url> {
+  Ok(AuthorizationCodeCredential::authorization_url_builder(client_id)
+          .with_scope(scope)
+          .with_redirect_uri(redirect_uri)
+          .with_pkce(&PKCE)
+          .url()?)
+}
+
+fn build_confidential_client(
+  authorization_code: &str,
+  client_id: &str,
+  client_secret: &str,
+  redirect_uri: &str,
+  scope: Vec<String>,
+) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCredential>> {
+  Ok(ConfidentialClientApplication::builder(client_id)
+          .with_auth_code(authorization_code)
+          .with_client_secret(client_secret)
+          .with_scope(scope)
+          .with_redirect_uri(redirect_uri)?
+          .with_pkce(&PKCE)
+          .build())
+}
+```
+
+### Client Credentials
 
 The OAuth 2.0 client credentials grant flow permits a web service (confidential client) to use its own credentials,
 instead of impersonating a user, to authenticate when calling another web service. The grant specified in RFC 6749, 
@@ -1050,6 +1104,9 @@ interaction with a user, and is often referred to as daemons or service accounts
 Client credentials flow requires a one time administrator acceptance
 of the permissions for your apps scopes. To see an example of building the URL to sign in and accept permissions
 as an administrator see [Admin Consent Example](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth/client_credentials/client_credentials_admin_consent.rs)
+
+
+#### Client Secret Credential
 
 ```rust
 use graph_rs_sdk::{
@@ -1067,7 +1124,43 @@ pub async fn get_graph_client(tenant: &str, client_id: &str, client_secret: &str
 ```
 
 
+### Environment Credentials
+
+#### Client Secret Environment Credential
+
+Environment Variables:
+
+- AZURE_TENANT_ID (Optional/Recommended - puts the tenant id in the authorization url)
+- AZURE_CLIENT_ID (Required)
+- AZURE_CLIENT_SECRET (Required)
+
+```rust
+pub fn client_secret_credential() -> anyhow::Result<GraphClient> {
+    let confidential_client = EnvironmentCredential::client_secret_credential()?;
+    Ok(GraphClient::from(&confidential_client))
+}
+```
+
+#### Resource Owner Password Credential
+
+Environment Variables:
+
+- AZURE_TENANT_ID (Optional - puts the tenant id in the authorization url)
+- AZURE_CLIENT_ID (Required)
+- AZURE_USERNAME (Required)
+- AZURE_PASSWORD (Required)
+
+```rust
+pub fn username_password() -> anyhow::Result<GraphClient> {
+    let public_client = EnvironmentCredential::resource_owner_password_credential()?;
+    Ok(GraphClient::from(&public_client))
+}
+```
+
+
 ### Automatic Token Refresh
+
+The client stores tokens using an in memory cache.
 
 Using automatic token refresh requires getting a refresh token as part of the token response.
 To get a refresh token you must include the `offline_access` scope.
@@ -1079,16 +1172,42 @@ If you are using the `client credentials` grant you do not need the `offline_acc
 Tokens will still be automatically refreshed as this flow does not require using a refresh token to get
 a new access token.
 
+The example below uses the auth code grant.
+
+First create the url where the user will sign in. After sign in the user will be redirected back to your app and
+the authentication code will be in the query of the uri.
 ```rust
-async fn authenticate(client_id: &str, tenant: &str, redirect_uri: &str) {
+pub fn authorization_sign_in_url(client_id: &str, tenant: &str, redirect_uri: &str) -> Url {
   let scope = vec!["offline_access"];
-  let mut credential_builder = ConfidentialClientApplication::builder(client_id)
-          .auth_code_url_builder()
-          .with_tenant(tenant)
-          .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
+
+  AuthorizationCodeCredential::authorization_url_builder(client_id)
           .with_redirect_uri(redirect_uri)
-          .url();
-  // ... add any other parameters you need
+          .with_scope(scope)
+          .url()
+          .unwrap()
+}
+```
+
+Once you have the authorization code you can build a confidential client and pass it to the graph client.
+
+```rust
+async fn build_client(
+  authorization_code: &str,
+  client_id: &str,
+  client_secret: &str,
+  scope: Vec<String>, // with offline_access
+  redirect_uri: &str,
+) -> anyhow::Result<GraphClient> {
+  let mut confidential_client = ConfidentialClientApplication::builder(client_id)
+          .with_auth_code(authorization_code) // returns builder type for AuthorizationCodeCredential
+          .with_client_secret(client_secret)
+          .with_scope(scope)
+          .with_redirect_uri(redirect_uri)?
+          .build();
+
+  let graph_client = GraphClient::from(&confidential_client);
+
+  Ok(graph_client)
 }
 ```
 
@@ -1106,46 +1225,31 @@ Interactive Authentication uses the [wry](https://github.com/tauri-apps/wry) cra
 platforms that support it such as on a desktop.
 
 ```rust
-use graph_rs_sdk::oauth::{
-  web::Theme, web::WebViewOptions, AuthorizationCodeCredential,
-  ConfidentialClientApplication
-};
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::{oauth::AuthorizationCodeCredential, GraphClient};
 
-fn run_interactive_auth() -> ConfidentialClientApplication<AuthorizationCodeCredential> {
-  let mut confidential_client_builder = ConfidentialClientApplication::builder(CLIENT_ID)
-          .auth_code_url_builder()
-          .with_tenant(TENANT_ID)
-          .with_scope(vec!["user.read", "offline_access"]) // Adds offline_access as a scope which is needed to get a refresh token.
-          .with_redirect_uri(REDIRECT_URI)
-          .interactive_authentication(None)
-          .unwrap();
+async fn authenticate(
+  tenant_id: &str,
+  client_id: &str,
+  client_secret: &str,
+  redirect_uri: &str,
+  scope: Vec<&str>,
+) -> anyhow::Result<GraphClient> {
+  std::env::set_var("RUST_LOG", "debug");
+  pretty_env_logger::init();
 
-  confidential_client_builder.with_client_secret(CLIENT_SECRET).build()
-}
+  let (authorization_query_response, mut credential_builder) =
+          AuthorizationCodeCredential::authorization_url_builder(client_id)
+                  .with_tenant(tenant_id)
+                  .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
+                  .with_redirect_uri(redirect_uri)
+                  .with_interactive_authentication_for_secret(Default::default())
+                  .unwrap();
 
-async fn authenticate() {
-    // Create a tracing subscriber to log debug/trace events coming from
-    // authorization http calls and the Graph client.
-    tracing_subscriber::fmt()
-        .pretty()
-        .with_thread_names(true)
-        .with_max_level(tracing::Level::TRACE)
-        .init();
+  debug!("{authorization_query_response:#?}");
 
-    let mut confidential_client = run_interactive_auth();
+  let mut confidential_client = credential_builder.with_client_secret(client_secret).build();
 
-    let client = Graph::from(&confidential_client);
-
-    let response = client.user(USER_ID)
-        .get_user()
-        .send()
-        .await
-        .unwrap();
-
-    println!("{response:#?}");
-    let body: serde_json::Value = response.json().await.unwrap();
-    println!("{body:#?}");
+  Ok(GraphClient::from(&confidential_client))
 }
 ```
 

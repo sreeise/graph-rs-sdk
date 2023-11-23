@@ -24,7 +24,7 @@ use crate::identity::{AuthorizationCodeCertificateCredentialBuilder, X509Certifi
 use graph_error::{AuthExecutionError, WebViewError, WebViewResult};
 
 #[cfg(feature = "interactive-auth")]
-use crate::identity::{AuthorizationQueryResponse, Token};
+use crate::identity::{AuthorizationResponse, Token};
 
 #[cfg(feature = "interactive-auth")]
 use crate::web::{
@@ -61,9 +61,10 @@ credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 /// to build the url that the user will be directed to authorize at.
 ///
 /// ```rust
-/// # use graph_oauth::oauth::{ConfidentialClientApplication, Prompt};
+/// use uuid::Uuid;
+/// use graph_oauth::oauth::{AzureCloudInstance, ConfidentialClientApplication, Prompt};
 ///
-/// let client_app = ConfidentialClientApplication::builder("client-id")
+/// let auth_url_builder = ConfidentialClientApplication::builder(Uuid::new_v4().to_string())
 ///     .auth_code_url_builder()
 ///     .with_tenant("tenant-id")
 ///     .with_prompt(Prompt::Login)
@@ -72,6 +73,9 @@ credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 ///     .with_redirect_uri("http://localhost:8000")
 ///     .build();
 ///
+/// let url = auth_url_builder.url();
+/// // or
+/// let url = auth_url_builder.url_with_host(&AzureCloudInstance::AzurePublic);
 /// ```
 #[derive(Clone)]
 pub struct AuthCodeAuthorizationUrlParameters {
@@ -224,23 +228,21 @@ impl AuthCodeAuthorizationUrlParameters {
     }
 
     #[cfg(feature = "interactive-auth")]
-    #[tracing::instrument]
     pub fn interactive_webview_authentication(
         &self,
-        interactive_web_view_options: Option<WebViewOptions>,
-    ) -> WebViewResult<AuthorizationQueryResponse> {
+        options: WebViewOptions,
+    ) -> WebViewResult<AuthorizationResponse> {
         let uri = self
             .url()
             .map_err(|err| Box::new(AuthExecutionError::from(err)))?;
         let redirect_uri = self.redirect_uri().cloned().unwrap();
-        let web_view_options = interactive_web_view_options.unwrap_or_default();
         let (sender, receiver) = std::sync::mpsc::channel();
 
         std::thread::spawn(move || {
             AuthCodeAuthorizationUrlParameters::interactive_auth(
                 uri,
                 vec![redirect_uri],
-                web_view_options,
+                options,
                 sender,
             )
             .unwrap();
@@ -267,7 +269,7 @@ impl AuthCodeAuthorizationUrlParameters {
                             uri.to_string()
                         )))?;
 
-                    let response_query: AuthorizationQueryResponse =
+                    let response_query: AuthorizationResponse =
                         serde_urlencoded::from_str(query)
                             .map_err(|err| WebViewError::InvalidUri(err.to_string()))?;
 
@@ -419,7 +421,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
         if let Some(nonce) = self.nonce.as_ref() {
             serializer.nonce(nonce);
         } else {
-            serializer.nonce(&secure_random_32()?);
+            serializer.nonce(&secure_random_32());
         }
 
         if let Some(code_challenge) = self.code_challenge.as_ref() {
@@ -604,22 +606,19 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     }
 
     #[cfg(feature = "interactive-auth")]
-    pub fn with_interactive_authentication(
+    pub fn with_interactive_authentication_for_secret(
         &self,
-        options: Option<WebViewOptions>,
-    ) -> WebViewResult<(
-        AuthorizationQueryResponse,
-        AuthorizationCodeCredentialBuilder,
-    )> {
+        options: WebViewOptions,
+    ) -> WebViewResult<(AuthorizationResponse, AuthorizationCodeCredentialBuilder)> {
         let query_response = self
             .credential
             .interactive_webview_authentication(options)?;
         if let Some(authorization_code) = query_response.code.as_ref() {
             Ok((
-                query_response.clone(),
+                query_response,
                 AuthorizationCodeCredentialBuilder::new_with_auth_code(
                     self.credential.app_config.clone(),
-                    authorization_code,
+                    authorization_code.clone(),
                 ),
             ))
         } else {
@@ -629,6 +628,70 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
                     self.credential.app_config.clone(),
                     Token::from(query_response),
                 ),
+            ))
+        }
+    }
+
+    #[cfg(feature = "interactive-auth")]
+    pub fn with_interactive_authentication_for_assertion(
+        &self,
+        options: WebViewOptions,
+    ) -> WebViewResult<(
+        AuthorizationResponse,
+        AuthorizationCodeAssertionCredentialBuilder,
+    )> {
+        let query_response = self
+            .credential
+            .interactive_webview_authentication(options)?;
+        if let Some(authorization_code) = query_response.code.as_ref() {
+            Ok((
+                query_response,
+                AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
+                    self.credential.app_config.clone(),
+                    authorization_code.clone(),
+                ),
+            ))
+        } else {
+            Ok((
+                query_response.clone(),
+                AuthorizationCodeAssertionCredentialBuilder::new_with_token(
+                    self.credential.app_config.clone(),
+                    Token::from(query_response),
+                ),
+            ))
+        }
+    }
+
+    #[cfg(feature = "interactive-auth")]
+    #[cfg(feature = "openssl")]
+    pub fn with_interactive_authentication_for_certificate(
+        &self,
+        options: WebViewOptions,
+        x509: &X509Certificate,
+    ) -> WebViewResult<(
+        AuthorizationResponse,
+        AuthorizationCodeCertificateCredentialBuilder,
+    )> {
+        let query_response = self
+            .credential
+            .interactive_webview_authentication(options)?;
+        if let Some(authorization_code) = query_response.code.as_ref() {
+            Ok((
+                query_response,
+                AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
+                    self.credential.app_config.clone(),
+                    authorization_code.clone(),
+                    x509,
+                )?,
+            ))
+        } else {
+            Ok((
+                query_response.clone(),
+                AuthorizationCodeCertificateCredentialBuilder::new_with_token(
+                    self.credential.app_config.clone(),
+                    Token::from(query_response),
+                    x509,
+                )?,
             ))
         }
     }
@@ -645,7 +708,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self.credential.url()
     }
 
-    pub fn into_credential(
+    pub fn into_secret_credential_builder(
         self,
         authorization_code: impl AsRef<str>,
     ) -> AuthorizationCodeCredentialBuilder {
@@ -655,7 +718,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         )
     }
 
-    pub fn into_assertion_credential(
+    pub fn into_assertion_credential_builder(
         self,
         authorization_code: impl AsRef<str>,
     ) -> AuthorizationCodeAssertionCredentialBuilder {
@@ -666,7 +729,7 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn into_certificate_credential(
+    pub fn into_certificate_credential_builder(
         self,
         authorization_code: impl AsRef<str>,
         x509: &X509Certificate,

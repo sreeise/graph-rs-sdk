@@ -29,7 +29,6 @@ where
         proxy: EventLoopProxy<UserEvents>,
     ) -> anyhow::Result<WebView>;
 
-    #[tracing::instrument]
     fn interactive_auth(
         start_url: Url,
         redirect_uris: Vec<Url>,
@@ -50,12 +49,12 @@ where
             }
 
             match event {
-                Event::NewEvents(StartCause::Init) => tracing::trace!(target: "interactive_webview", "Webview runtime started"),
+                Event::NewEvents(StartCause::Init) => tracing::trace!(target: "graph_rs_sdk::interactive_auth", "Webview runtime started"),
                 Event::NewEvents(StartCause::ResumeTimeReached { start, requested_resume, .. }) => {
                     sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::TimedOut {
                         start, requested_resume
                     })).unwrap_or_default();
-                    tracing::debug!(target: "interactive_webview", "Timeout reached - closing window");
+                    tracing::debug!(target: "graph_rs_sdk::interactive_auth", "Timeout reached - closing window");
 
                     if options.clear_browsing_data {
                         let _ = webview.clear_all_browsing_data();
@@ -70,7 +69,7 @@ where
                     ..
                 } => {
                     sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::CloseRequested)).unwrap_or_default();
-                    tracing::trace!(target: "interactive_webview", "Window close requested by user");
+                    tracing::trace!(target: "graph_rs_sdk::interactive_auth", "Window close requested by user");
 
                     if options.clear_browsing_data {
                         let _ = webview.clear_all_browsing_data();
@@ -81,12 +80,12 @@ where
                     *control_flow = ControlFlow::Exit
                 }
                 Event::UserEvent(UserEvents::ReachedRedirectUri(uri)) => {
-                    tracing::trace!(target: "interactive_webview", "Matched on redirect uri: {uri}");
+                    tracing::trace!(target: "graph_rs_sdk::interactive_auth", "Matched on redirect uri: {uri}");
                     sender.send(InteractiveAuthEvent::ReachedRedirectUri(uri))
                         .unwrap_or_default();
                 }
                 Event::UserEvent(UserEvents::InternalCloseWindow) => {
-                    tracing::trace!(target: "interactive_webview", "Closing window");
+                    tracing::trace!(target: "graph_rs_sdk::interactive_auth", "Closing window");
                     if options.clear_browsing_data {
                         let _ = webview.clear_all_browsing_data();
                     }

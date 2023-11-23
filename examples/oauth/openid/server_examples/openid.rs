@@ -4,6 +4,7 @@ use graph_rs_sdk::oauth::{
 };
 use url::Url;
 
+use graph_rs_sdk::GraphClient;
 /// # Example
 /// ```
 /// use graph_rs_sdk::oauth::{AccessToken, IdToken, OAuth};
@@ -43,9 +44,20 @@ fn openid_authorization_url() -> anyhow::Result<Url> {
         .url()?)
 }
 
+async fn list_users(confidential_client: &ConfidentialClientApplication<OpenIdCredential>) {
+    let graph_client = GraphClient::from(confidential_client);
+
+    let response = graph_client.users().list_user().send().await.unwrap();
+
+    debug!("{response:#?}");
+
+    let users: serde_json::Value = response.json().await.unwrap();
+    debug!("{:#?}", users);
+}
+
 async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
     id_token.enable_pii_logging(true);
-    println!("{id_token:#?}");
+    debug!("{id_token:#?}");
 
     let code = id_token.code.unwrap();
 
@@ -57,18 +69,7 @@ async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, 
         .with_scope(vec!["User.Read", "User.ReadWrite"]) // OpenIdCredential automatically sets the openid scope
         .build();
 
-    let mut response = confidential_client.execute_async().await.unwrap();
-
-    if response.status().is_success() {
-        let mut access_token: Token = response.json().await.unwrap();
-        access_token.enable_pii_logging(true);
-
-        println!("\n{access_token:#?}\n");
-    } else {
-        // See if Microsoft Graph returned an error in the Response body
-        let result: reqwest::Result<serde_json::Value> = response.json().await;
-        println!("{result:#?}");
-    }
+    list_users(&confidential_client);
 
     Ok(Box::new(
         "Successfully Logged In! You can close your browser.",

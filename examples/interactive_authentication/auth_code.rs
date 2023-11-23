@@ -1,14 +1,5 @@
 use graph_rs_sdk::{oauth::AuthorizationCodeCredential, GraphClient};
 
-static CLIENT_ID: &str = "CLIENT_ID";
-static CLIENT_SECRET: &str = "CLIENT_SECRET";
-static TENANT_ID: &str = "TENANT_ID";
-
-// This should be the user id for the user you are logging in as.
-static USER_ID: &str = "USER_ID";
-
-static REDIRECT_URI: &str = "http://localhost:8000/redirect";
-
 // Requires feature=interactive_authentication
 
 // Interactive Authentication WebView Using Wry library https://github.com/tauri-apps/wry
@@ -28,27 +19,27 @@ static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 // and subsequent calls will use this token. If a refresh token is included, which you can get
 // by requesting the offline_access scope, then the confidential client will take care of refreshing
 // the token.
-async fn authenticate() {
+async fn authenticate(
+    tenant_id: &str,
+    client_id: &str,
+    client_secret: &str,
+    redirect_uri: &str,
+    scope: Vec<&str>,
+) -> anyhow::Result<GraphClient> {
     std::env::set_var("RUST_LOG", "debug");
     pretty_env_logger::init();
 
     let (authorization_query_response, mut credential_builder) =
-        AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
-            .with_tenant(TENANT_ID)
-            .with_scope(vec!["user.read", "offline_access"]) // Adds offline_access as a scope which is needed to get a refresh token.
-            .with_redirect_uri(REDIRECT_URI)
-            .with_interactive_authentication(None)
+        AuthorizationCodeCredential::authorization_url_builder(client_id)
+            .with_tenant(tenant_id)
+            .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
+            .with_redirect_uri(redirect_uri)
+            .with_interactive_authentication_for_secret(Default::default())
             .unwrap();
 
     debug!("{authorization_query_response:#?}");
 
-    let mut confidential_client = credential_builder.with_client_secret(CLIENT_SECRET).build();
+    let mut confidential_client = credential_builder.with_client_secret(client_secret).build();
 
-    let client = GraphClient::from(&confidential_client);
-
-    let response = client.user(USER_ID).get_user().send().await.unwrap();
-
-    debug!("{response:#?}");
-    let body: serde_json::Value = response.json().await.unwrap();
-    debug!("{body:#?}");
+    Ok(GraphClient::from(&confidential_client))
 }

@@ -37,26 +37,6 @@ impl IdToken {
         }
     }
 
-    pub fn id_token(&mut self, id_token: &str) {
-        self.id_token = id_token.into();
-    }
-
-    /*pub fn jwt(&self) -> Option<JsonWebToken> {
-        JwtParser::parse(self.id_token.as_str()).ok()
-    }*/
-
-    pub fn code(&mut self, code: &str) {
-        self.code = Some(code.into());
-    }
-
-    pub fn state(&mut self, state: &str) {
-        self.state = Some(state.into());
-    }
-
-    pub fn session_state(&mut self, session_state: &str) {
-        self.session_state = Some(session_state.into());
-    }
-
     /// Enable or disable logging of personally identifiable information such
     /// as logging the id_token. This is disabled by default. When log_pii is enabled
     /// passing an [IdToken] to logging or print functions will log id_token field.

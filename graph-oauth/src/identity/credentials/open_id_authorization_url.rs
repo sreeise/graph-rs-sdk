@@ -20,7 +20,7 @@ use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 use graph_error::{WebViewError, WebViewResult};
 
 #[cfg(feature = "interactive-auth")]
-use crate::identity::{AuthorizationQueryResponse, Token};
+use crate::identity::{AuthorizationResponse, Token};
 
 #[cfg(feature = "interactive-auth")]
 use crate::web::{
@@ -152,7 +152,7 @@ impl OpenIdAuthorizationUrlParameters {
                 .build(),
             response_type: BTreeSet::from([ResponseType::IdToken]),
             response_mode: None,
-            nonce: secure_random_32()?,
+            nonce: secure_random_32(),
             state: None,
             prompt: Default::default(),
             domain_hint: None,
@@ -160,24 +160,20 @@ impl OpenIdAuthorizationUrlParameters {
         })
     }
 
-    fn new_with_app_config(
-        app_config: AppConfig,
-    ) -> IdentityResult<OpenIdAuthorizationUrlParameters> {
-        Ok(OpenIdAuthorizationUrlParameters {
+    fn new_with_app_config(app_config: AppConfig) -> OpenIdAuthorizationUrlParameters {
+        OpenIdAuthorizationUrlParameters {
             app_config,
             response_type: BTreeSet::from([ResponseType::IdToken]),
             response_mode: None,
-            nonce: secure_random_32()?,
+            nonce: secure_random_32(),
             state: None,
             prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
-        })
+        }
     }
 
-    pub fn builder(
-        client_id: impl TryInto<Uuid>,
-    ) -> IdentityResult<OpenIdAuthorizationUrlParameterBuilder> {
+    pub fn builder(client_id: impl TryInto<Uuid>) -> OpenIdAuthorizationUrlParameterBuilder {
         OpenIdAuthorizationUrlParameterBuilder::new(client_id)
     }
 
@@ -204,11 +200,10 @@ impl OpenIdAuthorizationUrlParameters {
     }
 
     #[cfg(feature = "interactive-auth")]
-    #[tracing::instrument]
     pub fn interactive_webview_authentication(
         &self,
-        interactive_web_view_options: Option<WebViewOptions>,
-    ) -> WebViewResult<AuthorizationQueryResponse> {
+        web_view_options: WebViewOptions,
+    ) -> WebViewResult<AuthorizationResponse> {
         if self.response_mode.eq(&Some(ResponseMode::FormPost)) {
             return Err(AF::msg_err(
                 "response_mode",
@@ -217,7 +212,6 @@ impl OpenIdAuthorizationUrlParameters {
         }
         let uri = self.url()?;
         let redirect_uri = self.redirect_uri().cloned().unwrap();
-        let web_view_options = interactive_web_view_options.unwrap_or_default();
         let (sender, receiver) = std::sync::mpsc::channel();
 
         std::thread::spawn(move || {
@@ -251,7 +245,7 @@ impl OpenIdAuthorizationUrlParameters {
                             uri.to_string()
                         )))?;
 
-                    let response_query: AuthorizationQueryResponse =
+                    let response_query: AuthorizationResponse =
                         serde_urlencoded::from_str(query)
                             .map_err(|err| WebViewError::InvalidUri(err.to_string()))?;
 
@@ -299,13 +293,6 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
             return AuthorizationFailure::result("client_id");
         }
 
-        if self.nonce.is_empty() {
-            return AuthorizationFailure::msg_result(
-                "nonce",
-                "nonce is empty - nonce is automatically generated if not updated by the caller",
-            );
-        }
-
         if self.app_config.scope.is_empty() || !self.app_config.scope.contains("openid") {
             let mut scope = self.app_config.scope.clone();
             scope.insert("openid".into());
@@ -343,7 +330,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
             if response_mode.eq(&ResponseMode::Query) {
                 return Err(AF::msg_err(
                     "response_mode",
-                    "openid does not support ResponseMode::Query",
+                    "openid does not support ResponseMode::Query. Use ResponseMode::Fragment or ResponseMode::FormPost",
                 ));
             }
 
@@ -395,7 +382,6 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
 
 #[cfg(feature = "interactive-auth")]
 impl InteractiveAuth for OpenIdAuthorizationUrlParameters {
-    #[tracing::instrument]
     fn webview(
         host_options: HostOptions,
         window: Window,
@@ -436,14 +422,12 @@ pub struct OpenIdAuthorizationUrlParameterBuilder {
 }
 
 impl OpenIdAuthorizationUrlParameterBuilder {
-    pub(crate) fn new(
-        client_id: impl TryInto<Uuid>,
-    ) -> IdentityResult<OpenIdAuthorizationUrlParameterBuilder> {
-        Ok(OpenIdAuthorizationUrlParameterBuilder {
+    pub(crate) fn new(client_id: impl TryInto<Uuid>) -> OpenIdAuthorizationUrlParameterBuilder {
+        OpenIdAuthorizationUrlParameterBuilder {
             credential: OpenIdAuthorizationUrlParameters::new_with_app_config(
-                AppConfig::builder(client_id).scope(vec!["openid"]).build(),
-            )?,
-        })
+                AppConfig::builder(client_id).build(),
+            ),
+        }
     }
 
     pub(crate) fn new_with_app_config(
@@ -451,8 +435,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     ) -> OpenIdAuthorizationUrlParameterBuilder {
         app_config.scope.insert("openid".into());
         OpenIdAuthorizationUrlParameterBuilder {
-            credential: OpenIdAuthorizationUrlParameters::new_with_app_config(app_config)
-                .expect("ring::crypto::Unspecified"),
+            credential: OpenIdAuthorizationUrlParameters::new_with_app_config(app_config),
         }
     }
 
@@ -580,8 +563,8 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     #[cfg(feature = "interactive-auth")]
     pub fn with_interactive_authentication(
         &self,
-        options: Option<WebViewOptions>,
-    ) -> WebViewResult<(AuthorizationQueryResponse, OpenIdCredentialBuilder)> {
+        options: WebViewOptions,
+    ) -> WebViewResult<(AuthorizationResponse, OpenIdCredentialBuilder)> {
         let query_response = self
             .credential
             .interactive_webview_authentication(options)?;

@@ -71,7 +71,10 @@ use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_core::identity::ForceTokenRefresh;
-use graph_oauth::oauth::{DeviceCodeCredential, OpenIdCredential, PublicClientApplication};
+use graph_oauth::oauth::{
+    DeviceCodeCredential, OpenIdCredential, PublicClientApplication,
+    ResourceOwnerPasswordCredential,
+};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -204,17 +207,14 @@ impl GraphClient {
     /// optional path. The path is not set by the sdk when using a custom endpoint.
     ///
     /// The scheme must be https:// and any other provided scheme will cause a panic.
-    /// # See [microsoft-graph-and-graph-explorer-service-root-endpoints](https://learn.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints)
+    /// See [Microsoft Graph Service Root Endpoints](https://learn.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints)
     ///
     /// Attempting to use an invalid host will cause the client to panic. This is done
     /// for increased security.
     ///
-    /// Do not use a U.S. Government host endpoint without authorization and any necessary
-    /// clearances.
-    ///
-    /// Using any U.S. Government or China host endpoint means you should
-    /// expect every API call will be monitored and recorded. The U.S. Government has made it clear
-    /// you have no right to privacy when using any U.S. Government website or API.
+    /// Do not use a government host endpoint without authorization and any necessary clearances.
+    /// Using any government host endpoint means you should expect every API call will be monitored
+    /// and recorded.
     ///
     /// You should also assume China's Graph API operated by 21Vianet is being monitored
     /// by the Chinese government (who controls all Chinese companies and citizens).
@@ -250,17 +250,14 @@ impl GraphClient {
     /// optional path. The path is not set by the sdk when using a custom endpoint.
     ///
     /// The scheme must be https:// and any other provided scheme will cause a panic.
-    /// # See [microsoft-graph-and-graph-explorer-service-root-endpoints](https://learn.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints)
+    /// See [Microsoft Graph Service Root Endpoints](https://learn.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints)
     ///
     /// Attempting to use an invalid host will cause the client to panic. This is done
     /// for increased security.
     ///
-    /// Do not use a U.S. Government host endpoint without authorization and any necessary
-    /// clearances.
-    ///
-    /// Using any U.S. Government or China host endpoint means you should
-    /// expect every API call will be monitored and recorded. The U.S. Government has made it clear
-    /// you have no right to privacy when using any U.S. Government website or API.
+    /// Do not use a government host endpoint without authorization and any necessary clearances.
+    /// Using any government host endpoint means you should expect every API call will be monitored
+    /// and recorded.
     ///
     /// You should also assume China's Graph API operated by 21Vianet is being monitored
     /// by the Chinese government (who controls all Chinese companies and citizens).
@@ -614,6 +611,12 @@ impl From<&ConfidentialClientApplication<OpenIdCredential>> for GraphClient {
 
 impl From<&PublicClientApplication<DeviceCodeCredential>> for GraphClient {
     fn from(value: &PublicClientApplication<DeviceCodeCredential>) -> Self {
+        GraphClient::from_client_app(value.clone())
+    }
+}
+
+impl From<&PublicClientApplication<ResourceOwnerPasswordCredential>> for GraphClient {
+    fn from(value: &PublicClientApplication<ResourceOwnerPasswordCredential>) -> Self {
         GraphClient::from_client_app(value.clone())
     }
 }

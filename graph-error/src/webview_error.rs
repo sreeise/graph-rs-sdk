@@ -46,7 +46,7 @@ pub enum WebViewDeviceCodeError {
     /// Webview Window closed for one of the following reasons:
     /// 1. The user closed the webview window without logging in.
     /// 2. The webview exited because of a timeout defined in the WebViewOptions.
-    #[error("WindowClosed: {0:#?}")]
+    #[error("window closed reason: {0:#?}")]
     WindowClosed(String),
     /// Error that happens calling the http request.
     #[error("{0:#?}")]

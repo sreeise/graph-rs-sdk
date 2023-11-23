@@ -1,4 +1,5 @@
 use graph_rs_sdk::oauth::{web::Theme, web::WebViewOptions, AuthorizationCodeCredential};
+use graph_rs_sdk::GraphClient;
 use std::collections::HashSet;
 use std::ops::Add;
 use std::time::{Duration, Instant};
@@ -25,11 +26,21 @@ fn get_webview_options() -> WebViewOptions {
         .with_ports(HashSet::from([8000]))
 }
 
-async fn customize_webview(tenant_id: &str, client_id: &str, scope: Vec<&str>, redirect_uri: &str) {
-    let mut credential_builder = AuthorizationCodeCredential::authorization_url_builder(client_id)
-        .with_tenant(tenant_id)
-        .with_scope(scope)
-        .with_redirect_uri(redirect_uri)
-        .with_interactive_authentication(Some(get_webview_options()))
-        .unwrap();
+async fn customize_webview(
+    tenant_id: &str,
+    client_id: &str,
+    client_secret: &str,
+    scope: Vec<&str>,
+    redirect_uri: &str,
+) -> anyhow::Result<GraphClient> {
+    let (authorization_response, mut credential_builder) =
+        AuthorizationCodeCredential::authorization_url_builder(client_id)
+            .with_tenant(tenant_id)
+            .with_scope(scope)
+            .with_redirect_uri(redirect_uri)
+            .with_interactive_authentication_for_secret(get_webview_options())?;
+
+    let confidential_client = credential_builder.with_client_secret(client_secret).build();
+
+    Ok(GraphClient::from(&confidential_client))
 }

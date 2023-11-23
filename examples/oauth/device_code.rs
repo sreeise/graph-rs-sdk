@@ -19,17 +19,18 @@ static TENANT: &str = "<TENANT>";
 // go to in order to enter the code. Polling will continue until either the user
 // has entered the code. Once a successful code has been entered the next time the
 // device code endpoint is polled an access token is returned.
-fn poll_device_code() {
+fn poll_device_code() -> anyhow::Result<()> {
     let mut device_executor = PublicClientApplication::builder(CLIENT_ID)
         .with_device_code_executor()
         .with_scope(vec!["User.Read"])
         .with_tenant(TENANT)
-        .poll()
-        .unwrap();
+        .poll()?;
 
     while let Ok(response) = device_executor.recv() {
         println!("{:#?}", response);
     }
+
+    Ok(())
 }
 
 fn get_token(device_code: &str) {

@@ -345,6 +345,28 @@ impl AuthorizationCodeAssertionCredentialBuilder {
         }
     }
 
+    #[cfg(feature = "interactive-auth")]
+    pub(crate) fn new_with_token(
+        app_config: AppConfig,
+        token: Token,
+    ) -> AuthorizationCodeAssertionCredentialBuilder {
+        let cache_id = app_config.cache_id.clone();
+        let mut token_cache = InMemoryCacheStore::new();
+        token_cache.store(cache_id, token);
+
+        Self {
+            credential: AuthorizationCodeAssertionCredential {
+                app_config,
+                authorization_code: None,
+                refresh_token: None,
+                code_verifier: None,
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
+                client_assertion: String::new(),
+                token_cache,
+            },
+        }
+    }
+
     pub(crate) fn new_with_auth_code_and_assertion(
         app_config: AppConfig,
         authorization_code: impl AsRef<str>,

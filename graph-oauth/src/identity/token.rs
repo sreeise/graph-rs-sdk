@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Add, Sub};
 
-use crate::identity::{AuthorizationQueryResponse, IdToken};
+use crate::identity::{AuthorizationResponse, IdToken};
 use graph_core::cache::AsBearer;
 use std::str::FromStr;
 use time::OffsetDateTime;
@@ -403,8 +403,8 @@ impl Default for Token {
     }
 }
 
-impl From<AuthorizationQueryResponse> for Token {
-    fn from(value: AuthorizationQueryResponse) -> Self {
+impl From<AuthorizationResponse> for Token {
+    fn from(value: AuthorizationResponse) -> Self {
         Token {
             access_token: value.access_token.unwrap_or_default(),
             token_type: "Bearer".to_string(),

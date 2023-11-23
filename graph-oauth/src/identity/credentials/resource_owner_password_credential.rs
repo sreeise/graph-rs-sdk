@@ -1,8 +1,13 @@
 use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{Authority, AzureCloudInstance, TokenCredentialExecutor};
+use crate::identity::{
+    Authority, AzureCloudInstance, Token, TokenCredentialExecutor, EXECUTOR_TRACING_TARGET,
+};
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 use async_trait::async_trait;
-use graph_error::{IdentityResult, AF};
+use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
+use graph_core::identity::ForceTokenRefresh;
+use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use uuid::Uuid;
@@ -25,6 +30,7 @@ pub struct ResourceOwnerPasswordCredential {
     /// Required
     /// The user's password.
     pub(crate) password: String,
+    token_cache: InMemoryCacheStore<Token>,
 }
 
 impl Debug for ResourceOwnerPasswordCredential {
@@ -47,6 +53,7 @@ impl ResourceOwnerPasswordCredential {
                 .build(),
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
+            token_cache: Default::default(),
         }
     }
 
@@ -62,11 +69,84 @@ impl ResourceOwnerPasswordCredential {
                 .build(),
             username: username.as_ref().to_owned(),
             password: password.as_ref().to_owned(),
+            token_cache: Default::default(),
         }
     }
 
     pub fn builder<T: AsRef<str>>(client_id: T) -> ResourceOwnerPasswordCredentialBuilder {
         ResourceOwnerPasswordCredentialBuilder::new(client_id)
+    }
+
+    fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
+        let response = self.execute()?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response()?,
+            ));
+        }
+
+        let new_token: Token = response.json()?;
+        self.token_cache.store(cache_id, new_token.clone());
+        Ok(new_token)
+    }
+
+    async fn execute_cached_token_refresh_async(
+        &mut self,
+        cache_id: String,
+    ) -> AuthExecutionResult<Token> {
+        let response = self.execute_async().await?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response_async().await?,
+            ));
+        }
+
+        let new_token: Token = response.json().await?;
+        self.token_cache.store(cache_id, new_token.clone());
+        Ok(new_token)
+    }
+}
+
+#[async_trait]
+impl TokenCache for ResourceOwnerPasswordCredential {
+    type Token = Token;
+
+    fn get_token_silent(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                self.execute_cached_token_refresh(cache_id)
+            } else {
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
+                Ok(token)
+            }
+        } else {
+            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            self.execute_cached_token_refresh(cache_id)
+        }
+    }
+
+    async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError> {
+        let cache_id = self.app_config.cache_id.to_string();
+        if let Some(token) = self.token_cache.get(cache_id.as_str()) {
+            if token.is_expired_sub(time::Duration::minutes(5)) {
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                self.execute_cached_token_refresh_async(cache_id).await
+            } else {
+                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
+                Ok(token.clone())
+            }
+        } else {
+            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            self.execute_cached_token_refresh_async(cache_id).await
+        }
+    }
+
+    fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.app_config.force_token_refresh = force_token_refresh;
     }
 }
 
@@ -110,8 +190,12 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
         self.app_config.azure_cloud_instance
     }
 
+    fn basic_auth(&self) -> Option<(String, String)> {
+        Some((self.username.clone(), self.password.clone()))
+    }
+
     fn app_config(&self) -> &AppConfig {
-        todo!()
+        &self.app_config
     }
 }
 
@@ -127,6 +211,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
                 app_config: AppConfig::new(client_id.as_ref()),
                 username: Default::default(),
                 password: Default::default(),
+                token_cache: Default::default(),
             },
         }
     }
@@ -141,6 +226,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
                 app_config,
                 username: username.as_ref().to_owned(),
                 password: password.as_ref().to_owned(),
+                token_cache: Default::default(),
             },
         }
     }
