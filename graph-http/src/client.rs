@@ -133,6 +133,7 @@ impl GraphClientConfiguration {
         self
     }
 
+    #[cfg(feature = "https-not-required")]
     pub fn https_only(mut self, https_only: bool) -> GraphClientConfiguration {
         self.config.https_only = https_only;
         self
