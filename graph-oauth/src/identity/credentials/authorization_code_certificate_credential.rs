@@ -8,6 +8,7 @@ use reqwest::IntoUrl;
 use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
@@ -94,20 +95,27 @@ impl AuthorizationCodeCertificateCredential {
         x509: &X509Certificate,
     ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
         AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
-            AppConfig::new(client_id.as_ref()),
             authorization_code,
             x509,
+            AppConfig::new(client_id.as_ref()),
         )
     }
 
-    pub fn authorization_url_builder<T: AsRef<str>>(
-        client_id: T,
+    pub fn authorization_url_builder(
+        client_id: impl TryInto<Uuid>,
     ) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new(client_id)
     }
 
     fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
         let response = self.execute()?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response()?,
+            ));
+        }
+
         let new_token: Token = response.json()?;
         self.token_cache.store(cache_id, new_token.clone());
 
@@ -123,6 +131,13 @@ impl AuthorizationCodeCertificateCredential {
         cache_id: String,
     ) -> AuthExecutionResult<Token> {
         let response = self.execute_async().await?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response_async().await?,
+            ));
+        }
+
         let new_token: Token = response.json().await?;
 
         if new_token.refresh_token.is_some() {
@@ -333,9 +348,9 @@ pub struct AuthorizationCodeCertificateCredentialBuilder {
 impl AuthorizationCodeCertificateCredentialBuilder {
     #[cfg(feature = "openssl")]
     pub(crate) fn new_with_auth_code_and_x509(
-        app_config: AppConfig,
         authorization_code: impl AsRef<str>,
         x509: &X509Certificate,
+        app_config: AppConfig,
     ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
         let mut builder = Self {
             credential: AuthorizationCodeCertificateCredential {

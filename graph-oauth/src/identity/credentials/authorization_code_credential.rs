@@ -260,8 +260,8 @@ impl AuthorizationCodeCredential {
         AuthorizationCodeCredentialBuilder::new(client_id, client_secret, authorization_code)
     }
 
-    pub fn authorization_url_builder<T: AsRef<str>>(
-        client_id: T,
+    pub fn authorization_url_builder(
+        client_id: impl TryInto<Uuid>,
     ) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new(client_id)
     }
@@ -312,8 +312,8 @@ impl AuthorizationCodeCredentialBuilder {
     }
 
     pub(crate) fn new_with_auth_code(
-        app_config: AppConfig,
         authorization_code: impl AsRef<str>,
+        app_config: AppConfig,
     ) -> AuthorizationCodeCredentialBuilder {
         Self {
             credential: AuthorizationCodeCredential {

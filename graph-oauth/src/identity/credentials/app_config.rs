@@ -1,4 +1,5 @@
 use base64::Engine;
+use http::{HeaderName, HeaderValue};
 use std::collections::{BTreeSet, HashMap};
 use std::fmt::{Debug, Formatter};
 
@@ -166,11 +167,62 @@ impl AppConfig {
         self.log_pii = log_pii;
     }
 
-    pub fn with_authority(&mut self, authority: Authority) {
+    pub(crate) fn with_client_id(&mut self, client_id: impl TryInto<Uuid>) {
+        self.client_id = client_id.try_into().unwrap_or_default();
+    }
+
+    pub(crate) fn with_authority(&mut self, authority: Authority) {
         if let Authority::TenantId(tenant_id) = &authority {
             self.tenant_id = Some(tenant_id.clone());
         }
         self.authority = authority;
+    }
+
+    pub(crate) fn with_azure_cloud_instance(&mut self, azure_cloud_instance: AzureCloudInstance) {
+        self.azure_cloud_instance = azure_cloud_instance;
+    }
+
+    pub(crate) fn with_tenant(&mut self, tenant_id: impl AsRef<str>) {
+        let tenant = tenant_id.as_ref().to_string();
+        self.tenant_id = Some(tenant.clone());
+        self.authority = Authority::TenantId(tenant);
+    }
+
+    /// Extends the query parameters of both the default query params and user defined params.
+    /// Does not overwrite default params.
+    pub(crate) fn with_extra_query_param(&mut self, query_param: (String, String)) {
+        self.extra_query_parameters
+            .insert(query_param.0, query_param.1);
+    }
+
+    /// Extends the query parameters of both the default query params and user defined params.
+    /// Does not overwrite default params.
+    pub(crate) fn with_extra_query_parameters(
+        &mut self,
+        query_parameters: HashMap<String, String>,
+    ) {
+        self.extra_query_parameters.extend(query_parameters);
+    }
+
+    /// Extends the header parameters of both the default header params and user defined params.
+    /// Does not overwrite default params.
+    pub(crate) fn with_extra_header_param<K: Into<HeaderName>, V: Into<HeaderValue>>(
+        &mut self,
+        header_name: K,
+        header_value: V,
+    ) {
+        self.extra_header_parameters
+            .insert(header_name.into(), header_value.into());
+    }
+
+    /// Extends the header parameters of both the default header params and user defined params.
+    /// Does not overwrite default params.
+    pub(crate) fn with_extra_header_parameters(&mut self, header_parameters: HeaderMap) {
+        self.extra_header_parameters.extend(header_parameters);
+    }
+
+    pub(crate) fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) {
+        self.scope = scope.into_iter().map(|s| s.to_string()).collect();
     }
 }
 

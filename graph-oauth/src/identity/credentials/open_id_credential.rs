@@ -9,6 +9,7 @@ use url::Url;
 use uuid::Uuid;
 
 use graph_core::crypto::{GenPkce, ProofKeyCodeExchange};
+use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
@@ -115,6 +116,13 @@ impl OpenIdCredential {
 
     fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
         let response = self.execute()?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response()?,
+            ));
+        }
+
         let new_token: Token = response.json()?;
         self.token_cache.store(cache_id, new_token.clone());
 
@@ -130,6 +138,13 @@ impl OpenIdCredential {
         cache_id: String,
     ) -> AuthExecutionResult<Token> {
         let response = self.execute_async().await?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response_async().await?,
+            ));
+        }
+
         let new_token: Token = response.json().await?;
 
         if new_token.refresh_token.is_some() {

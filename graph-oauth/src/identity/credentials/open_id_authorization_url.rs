@@ -499,17 +499,11 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// replay attacks. The value is typically a randomized, unique string that can be used
     /// to identify the origin of the request.
     ///
-    /// Because openid requires a nonce as part of the OAuth flow a nonce is already included.
-    /// The nonce is generated internally using the same requirements of generating a secure
-    /// random string as is done when using proof key for code exchange (PKCE) in the
-    /// authorization code grant. If you are unsure or unclear how the nonce works then it is
-    /// recommended to stay with the generated nonce as it is cryptographically secure.
+    /// Because openid requires a nonce as part of the openid flow a secure random nonce
+    /// is already generated for OpenIdCredential. Providing a nonce here will override this
+    /// generated nonce.
     pub fn with_nonce<T: AsRef<str>>(&mut self, nonce: T) -> &mut Self {
-        if self.credential.nonce.is_empty() {
-            self.credential.nonce.push_str(nonce.as_ref());
-        } else {
-            self.credential.nonce = nonce.as_ref().to_owned();
-        }
+        self.credential.nonce = nonce.as_ref().to_owned();
         self
     }
 
@@ -607,12 +601,12 @@ impl OpenIdAuthorizationUrlParameterBuilder {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::identity::TokenCredentialExecutor;
 
     #[test]
     #[should_panic]
     fn panics_on_invalid_response_type_code_token() {
         let _ = OpenIdAuthorizationUrlParameters::builder(Uuid::new_v4())
-            .unwrap()
             .with_response_type([ResponseType::Code, ResponseType::Token])
             .with_scope(["scope"])
             .url()
@@ -623,7 +617,6 @@ mod test {
     #[should_panic]
     fn panics_on_invalid_client_id() {
         let _ = OpenIdAuthorizationUrlParameters::builder("client_id")
-            .unwrap()
             .with_response_type([ResponseType::Token])
             .with_scope(["scope"])
             .url()
@@ -633,12 +626,30 @@ mod test {
     #[test]
     fn scope_openid_automatically_set() {
         let url = OpenIdAuthorizationUrlParameters::builder(Uuid::new_v4())
-            .unwrap()
             .with_response_type([ResponseType::Code])
             .with_scope(["user.read"])
             .url()
             .unwrap();
         let query = url.query().unwrap();
         assert!(query.contains("scope=openid+user.read"))
+    }
+
+    #[test]
+    fn into_credential() {
+        let client_id = Uuid::new_v4();
+        let url_builder = OpenIdAuthorizationUrlParameters::builder(Uuid::new_v4())
+            .with_response_type([ResponseType::Code])
+            .with_scope(["user.read"])
+            .build();
+        let mut credential = url_builder.into_credential("code");
+        let confidential_client = credential
+            .with_client_secret("secret")
+            .with_tenant("tenant")
+            .build();
+
+        assert_eq!(
+            confidential_client.client_id().to_string(),
+            client_id.to_string()
+        )
     }
 }

@@ -25,41 +25,41 @@ use std::collections::BTreeSet;
 use graph_rs_sdk::oauth::legacy::ImplicitCredential;
 use graph_rs_sdk::oauth::{Prompt, ResponseMode, ResponseType, TokenCredentialExecutor};
 
-fn oauth_implicit_flow() {
-    let authorizer = ImplicitCredential::builder("<YOUR_CLIENT_ID>")
-        .unwrap()
+fn oauth_implicit_flow() -> anyhow::Result<()> {
+    let credential = ImplicitCredential::builder("<YOUR_CLIENT_ID>")
         .with_prompt(Prompt::Login)
         .with_response_type(ResponseType::Token)
         .with_response_mode(ResponseMode::Fragment)
-        .with_redirect_uri("https::/localhost:8080/myapp")
-        .unwrap()
+        .with_redirect_uri("https::/localhost:8080/myapp")?
         .with_scope(["User.Read"])
         .with_nonce("678910")
         .build();
 
-    let url = authorizer.url().unwrap();
+    let url = credential.url()?;
 
     // Opens the default browser to the Microsoft login page.
     // After logging in the page will redirect and the Url
     // will have the access token in either the query or
     // the fragment of the Uri.
     // webbrowser crate in dev dependencies will open to default browser in the system.
-    webbrowser::open(url.as_str()).unwrap();
+    webbrowser::open(url.as_str())?;
+
+    Ok(())
 }
 
-fn multi_response_types() {
+fn multi_response_types() -> anyhow::Result<()> {
     let _ = ImplicitCredential::builder("<YOUR_CLIENT_ID>")
-        .unwrap()
         .with_response_type(vec![ResponseType::Token, ResponseType::IdToken])
         .build();
 
     // Or
 
     let _ = ImplicitCredential::builder("<YOUR_CLIENT_ID>")
-        .unwrap()
         .with_response_type(ResponseType::StringSet(BTreeSet::from_iter(vec![
             "token".to_string(),
             "id_token".to_string(),
         ])))
         .build();
+
+    Ok(())
 }

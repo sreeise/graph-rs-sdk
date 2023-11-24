@@ -8,6 +8,7 @@ use reqwest::IntoUrl;
 use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
@@ -59,12 +60,13 @@ impl Debug for AuthorizationCodeAssertionCredential {
             .finish()
     }
 }
+
 impl AuthorizationCodeAssertionCredential {
-    pub fn new<T: AsRef<str>, U: IntoUrl>(
-        client_id: T,
-        authorization_code: T,
-        client_assertion: T,
-        redirect_uri: Option<U>,
+    pub fn new(
+        client_id: impl TryInto<Uuid>,
+        authorization_code: impl AsRef<str>,
+        client_assertion: impl AsRef<str>,
+        redirect_uri: Option<impl IntoUrl>,
     ) -> IdentityResult<AuthorizationCodeAssertionCredential> {
         let redirect_uri = {
             if let Some(redirect_uri) = redirect_uri {
@@ -75,7 +77,7 @@ impl AuthorizationCodeAssertionCredential {
         };
 
         Ok(AuthorizationCodeAssertionCredential {
-            app_config: AppConfig::builder(client_id.as_ref())
+            app_config: AppConfig::builder(client_id)
                 .redirect_uri_option(redirect_uri)
                 .build(),
             authorization_code: Some(authorization_code.as_ref().to_owned()),
@@ -88,23 +90,30 @@ impl AuthorizationCodeAssertionCredential {
     }
 
     pub fn builder(
-        client_id: impl AsRef<str>,
+        client_id: impl TryInto<Uuid>,
         authorization_code: impl AsRef<str>,
     ) -> AuthorizationCodeAssertionCredentialBuilder {
         AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
-            AppConfig::new(client_id.as_ref()),
+            AppConfig::new(client_id),
             authorization_code,
         )
     }
 
-    pub fn authorization_url_builder<T: AsRef<str>>(
-        client_id: T,
+    pub fn authorization_url_builder(
+        client_id: impl TryInto<Uuid>,
     ) -> AuthCodeAuthorizationUrlParameterBuilder {
         AuthCodeAuthorizationUrlParameterBuilder::new(client_id)
     }
 
     fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
         let response = self.execute()?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response()?,
+            ));
+        }
+
         let new_token: Token = response.json()?;
         self.token_cache.store(cache_id, new_token.clone());
 
@@ -120,6 +129,13 @@ impl AuthorizationCodeAssertionCredential {
         cache_id: String,
     ) -> AuthExecutionResult<Token> {
         let response = self.execute_async().await?;
+
+        if !response.status().is_success() {
+            return Err(AuthExecutionError::silent_token_auth(
+                response.into_http_response_async().await?,
+            ));
+        }
+
         let new_token: Token = response.json().await?;
 
         if new_token.refresh_token.is_some() {
@@ -328,6 +344,16 @@ pub struct AuthorizationCodeAssertionCredentialBuilder {
 }
 
 impl AuthorizationCodeAssertionCredentialBuilder {
+    pub fn new(
+        client_id: impl TryInto<Uuid>,
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeAssertionCredentialBuilder {
+        AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
+            AppConfig::new(client_id),
+            authorization_code,
+        )
+    }
+
     pub(crate) fn new_with_auth_code(
         app_config: AppConfig,
         authorization_code: impl AsRef<str>,
@@ -368,9 +394,9 @@ impl AuthorizationCodeAssertionCredentialBuilder {
     }
 
     pub(crate) fn new_with_auth_code_and_assertion(
-        app_config: AppConfig,
         authorization_code: impl AsRef<str>,
         assertion: impl AsRef<str>,
+        app_config: AppConfig,
     ) -> AuthorizationCodeAssertionCredentialBuilder {
         Self {
             credential: AuthorizationCodeAssertionCredential {

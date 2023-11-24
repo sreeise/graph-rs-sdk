@@ -12,6 +12,7 @@ use graph_error::{IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use std::env::VarError;
+use uuid::Uuid;
 
 #[cfg(feature = "openssl")]
 use crate::identity::{
@@ -24,9 +25,9 @@ pub struct ConfidentialClientApplicationBuilder {
 }
 
 impl ConfidentialClientApplicationBuilder {
-    pub fn new(client_id: impl AsRef<str>) -> Self {
+    pub fn new(client_id: impl TryInto<Uuid>) -> Self {
         ConfidentialClientApplicationBuilder {
-            app_config: AppConfig::new(client_id.as_ref()),
+            app_config: AppConfig::new(client_id),
         }
     }
 
@@ -37,9 +38,7 @@ impl ConfidentialClientApplicationBuilder {
     }
 
     pub fn with_tenant(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
-        let tenant = tenant_id.as_ref().to_string();
-        self.app_config.tenant_id = Some(tenant.clone());
-        self.app_config.authority = Authority::TenantId(tenant);
+        self.app_config.with_tenant(tenant_id);
         self
     }
 
@@ -52,16 +51,15 @@ impl ConfidentialClientApplicationBuilder {
         &mut self,
         azure_cloud_instance: AzureCloudInstance,
     ) -> &mut Self {
-        self.app_config.azure_cloud_instance = azure_cloud_instance;
+        self.app_config
+            .with_azure_cloud_instance(azure_cloud_instance);
         self
     }
 
     /// Extends the query parameters of both the default query params and user defined params.
     /// Does not overwrite default params.
     pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
-        self.app_config
-            .extra_query_parameters
-            .insert(query_param.0, query_param.1);
+        self.app_config.with_extra_query_param(query_param);
         self
     }
 
@@ -72,8 +70,7 @@ impl ConfidentialClientApplicationBuilder {
         query_parameters: HashMap<String, String>,
     ) -> &mut Self {
         self.app_config
-            .extra_query_parameters
-            .extend(query_parameters);
+            .with_extra_query_parameters(query_parameters);
         self
     }
 
@@ -85,8 +82,7 @@ impl ConfidentialClientApplicationBuilder {
         header_value: V,
     ) -> &mut Self {
         self.app_config
-            .extra_header_parameters
-            .insert(header_name.into(), header_value.into());
+            .with_extra_header_param(header_name, header_value);
         self
     }
 
@@ -94,13 +90,12 @@ impl ConfidentialClientApplicationBuilder {
     /// Does not overwrite default params.
     pub fn with_extra_header_parameters(&mut self, header_parameters: HeaderMap) -> &mut Self {
         self.app_config
-            .extra_header_parameters
-            .extend(header_parameters);
+            .with_extra_header_parameters(header_parameters);
         self
     }
 
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self.app_config.with_scope(scope);
         self
     }
 
@@ -126,63 +121,72 @@ impl ConfidentialClientApplicationBuilder {
     /// Client Credentials Using X509 Certificate
     #[cfg(feature = "openssl")]
     pub fn with_client_x509_certificate(
-        self,
+        &mut self,
         certificate: &X509Certificate,
     ) -> IdentityResult<ClientCertificateCredentialBuilder> {
-        ClientCertificateCredentialBuilder::new_with_certificate(certificate, self.app_config)
+        ClientCertificateCredentialBuilder::new_with_certificate(
+            certificate,
+            self.app_config.clone(),
+        )
     }
 
     /// Client Credentials Using Client Secret.
     pub fn with_client_secret(
-        self,
+        &mut self,
         client_secret: impl AsRef<str>,
     ) -> ClientSecretCredentialBuilder {
-        ClientSecretCredentialBuilder::new_with_client_secret(client_secret, self.app_config)
+        ClientSecretCredentialBuilder::new_with_client_secret(
+            client_secret,
+            self.app_config.clone(),
+        )
     }
 
     /// Client Credentials Using Assertion.
     pub fn with_client_assertion(
-        self,
+        &mut self,
         signed_assertion: impl AsRef<str>,
     ) -> ClientAssertionCredentialBuilder {
         ClientAssertionCredentialBuilder::new_with_signed_assertion(
             signed_assertion,
-            self.app_config,
+            self.app_config.clone(),
         )
     }
 
     /// Client Credentials Authorization Url Builder
     pub fn with_auth_code(
-        self,
+        &mut self,
         authorization_code: impl AsRef<str>,
     ) -> AuthorizationCodeCredentialBuilder {
-        AuthorizationCodeCredentialBuilder::new_with_auth_code(self.into(), authorization_code)
+        AuthorizationCodeCredentialBuilder::new_with_auth_code(
+            authorization_code,
+            self.app_config.clone(),
+        )
     }
 
     /// Auth Code Using Assertion
     pub fn with_auth_code_assertion(
-        self,
+        &mut self,
         authorization_code: impl AsRef<str>,
         assertion: impl AsRef<str>,
     ) -> AuthorizationCodeAssertionCredentialBuilder {
         AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code_and_assertion(
-            self.into(),
             authorization_code,
             assertion,
+            self.app_config.clone(),
         )
     }
 
     /// Auth Code Using X509 Certificate
     #[cfg(feature = "openssl")]
     pub fn with_authorization_code_x509_certificate(
-        self,
+        &mut self,
         authorization_code: impl AsRef<str>,
         x509: &X509Certificate,
     ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
         AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
-            self.into(),
             authorization_code,
             x509,
+            self.app_config.clone(),
         )
     }
 
@@ -190,14 +194,14 @@ impl ConfidentialClientApplicationBuilder {
 
     /// Auth Code Using OpenId.
     pub fn with_openid(
-        self,
+        &mut self,
         authorization_code: impl AsRef<str>,
         client_secret: impl AsRef<str>,
     ) -> OpenIdCredentialBuilder {
         OpenIdCredentialBuilder::new_with_auth_code_and_secret(
             authorization_code,
             client_secret,
-            self.app_config,
+            self.app_config.clone(),
         )
     }
 }
@@ -255,9 +259,7 @@ impl PublicClientApplicationBuilder {
     }
 
     pub fn with_tenant(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
-        let tenant = tenant_id.as_ref().to_string();
-        self.app_config.tenant_id = Some(tenant.clone());
-        self.app_config.authority = Authority::TenantId(tenant);
+        self.app_config.with_tenant(tenant_id);
         self
     }
 
@@ -270,16 +272,15 @@ impl PublicClientApplicationBuilder {
         &mut self,
         azure_cloud_instance: AzureCloudInstance,
     ) -> &mut Self {
-        self.app_config.azure_cloud_instance = azure_cloud_instance;
+        self.app_config
+            .with_azure_cloud_instance(azure_cloud_instance);
         self
     }
 
     /// Extends the query parameters of both the default query params and user defined params.
     /// Does not overwrite default params.
     pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
-        self.app_config
-            .extra_query_parameters
-            .insert(query_param.0, query_param.1);
+        self.app_config.with_extra_query_param(query_param);
         self
     }
 
@@ -290,8 +291,7 @@ impl PublicClientApplicationBuilder {
         query_parameters: HashMap<String, String>,
     ) -> &mut Self {
         self.app_config
-            .extra_query_parameters
-            .extend(query_parameters);
+            .with_extra_query_parameters(query_parameters);
         self
     }
 
@@ -303,8 +303,7 @@ impl PublicClientApplicationBuilder {
         header_value: V,
     ) -> &mut Self {
         self.app_config
-            .extra_header_parameters
-            .insert(header_name.into(), header_value.into());
+            .with_extra_header_param(header_name, header_value);
         self
     }
 
@@ -312,33 +311,38 @@ impl PublicClientApplicationBuilder {
     /// Does not overwrite default params.
     pub fn with_extra_header_parameters(&mut self, header_parameters: HeaderMap) -> &mut Self {
         self.app_config
-            .extra_header_parameters
-            .extend(header_parameters);
+            .with_extra_header_parameters(header_parameters);
         self
     }
 
     pub fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) -> &mut Self {
-        self.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self.app_config.with_scope(scope);
         self
     }
 
-    pub fn with_device_code_executor(self) -> DeviceCodePollingExecutor {
-        DeviceCodePollingExecutor::new_with_app_config(self.app_config)
+    pub fn with_device_code_executor(&mut self) -> DeviceCodePollingExecutor {
+        DeviceCodePollingExecutor::new_with_app_config(self.app_config.clone())
     }
 
-    pub fn with_device_code(self, device_code: impl AsRef<str>) -> DeviceCodeCredentialBuilder {
-        DeviceCodeCredentialBuilder::new_with_device_code(device_code.as_ref(), self.app_config)
+    pub fn with_device_code(
+        &mut self,
+        device_code: impl AsRef<str>,
+    ) -> DeviceCodeCredentialBuilder {
+        DeviceCodeCredentialBuilder::new_with_device_code(
+            device_code.as_ref(),
+            self.app_config.clone(),
+        )
     }
 
     pub fn with_username_password(
-        self,
+        &mut self,
         username: impl AsRef<str>,
         password: impl AsRef<str>,
     ) -> ResourceOwnerPasswordCredentialBuilder {
         ResourceOwnerPasswordCredentialBuilder::new_with_username_password(
             username.as_ref(),
             password.as_ref(),
-            self.app_config,
+            self.app_config.clone(),
         )
     }
 
@@ -381,7 +385,7 @@ mod test {
     use url::Url;
     use uuid::Uuid;
 
-    use crate::identity::{AadAuthorityAudience, AzureCloudInstance};
+    use crate::identity::{AadAuthorityAudience, AzureCloudInstance, TokenCredentialExecutor};
 
     use super::*;
 
@@ -467,6 +471,21 @@ mod test {
                 .get("name")
                 .unwrap(),
             &String::from("123")
+        );
+    }
+
+    #[test]
+    fn confidential_client_builder() {
+        let client_id = Uuid::new_v4();
+        let confidential_client = ConfidentialClientApplicationBuilder::new(client_id)
+            .with_tenant("tenant-id")
+            .with_client_secret("client-secret")
+            .with_scope(vec!["scope"])
+            .build();
+
+        assert_eq!(
+            confidential_client.client_id().to_string(),
+            client_id.to_string()
         );
     }
 }

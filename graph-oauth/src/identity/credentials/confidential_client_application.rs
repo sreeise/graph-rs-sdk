@@ -38,7 +38,7 @@ pub struct ConfidentialClientApplication<Credential> {
 }
 
 impl ConfidentialClientApplication<()> {
-    pub fn builder(client_id: impl AsRef<str>) -> ConfidentialClientApplicationBuilder {
+    pub fn builder(client_id: impl TryInto<Uuid>) -> ConfidentialClientApplicationBuilder {
         ConfidentialClientApplicationBuilder::new(client_id)
     }
 }

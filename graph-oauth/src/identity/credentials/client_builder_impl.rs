@@ -1,23 +1,20 @@
 macro_rules! credential_builder_base {
     ($name:ident) => {
         impl $name {
-            pub fn with_client_id(&mut self, client_id: impl AsRef<str>) -> &mut Self {
-                self.credential.app_config.client_id =
-                    Uuid::try_parse(client_id.as_ref()).unwrap_or_default();
+            pub fn with_client_id(&mut self, client_id: impl TryInto<uuid::Uuid>) -> &mut Self {
+                self.credential.app_config.with_client_id(client_id);
                 self
             }
 
             /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]
             pub fn with_tenant(&mut self, tenant_id: impl AsRef<str>) -> &mut Self {
-                self.credential.app_config.authority =
-                    crate::identity::Authority::TenantId(tenant_id.as_ref().to_owned());
-                self.credential.app_config.tenant_id = Some(tenant_id.as_ref().to_owned());
+                self.credential.app_config.with_tenant(tenant_id);
                 self
             }
 
-            pub fn with_authority<T: Into<crate::identity::Authority>>(
+            pub fn with_authority(
                 &mut self,
-                authority: T,
+                authority: impl Into<crate::identity::Authority>,
             ) -> &mut Self {
                 self.credential.app_config.with_authority(authority.into());
                 self
@@ -27,7 +24,9 @@ macro_rules! credential_builder_base {
                 &mut self,
                 azure_cloud_instance: AzureCloudInstance,
             ) -> &mut Self {
-                self.credential.app_config.azure_cloud_instance = azure_cloud_instance;
+                self.credential
+                    .app_config
+                    .with_azure_cloud_instance(azure_cloud_instance);
                 self
             }
 
@@ -36,8 +35,7 @@ macro_rules! credential_builder_base {
             pub fn with_extra_query_param(&mut self, query_param: (String, String)) -> &mut Self {
                 self.credential
                     .app_config
-                    .extra_query_parameters
-                    .insert(query_param.0, query_param.1);
+                    .with_extra_query_param(query_param);
                 self
             }
 
@@ -49,8 +47,7 @@ macro_rules! credential_builder_base {
             ) -> &mut Self {
                 self.credential
                     .app_config
-                    .extra_query_parameters
-                    .extend(query_parameters);
+                    .with_extra_query_parameters(query_parameters);
                 self
             }
 
@@ -63,8 +60,7 @@ macro_rules! credential_builder_base {
             ) -> &mut Self {
                 self.credential
                     .app_config
-                    .extra_header_parameters
-                    .insert(header_name.into(), header_value.into());
+                    .with_extra_header_param(header_name, header_value);
                 self
             }
 
@@ -76,8 +72,7 @@ macro_rules! credential_builder_base {
             ) -> &mut Self {
                 self.credential
                     .app_config
-                    .extra_header_parameters
-                    .extend(header_parameters);
+                    .with_extra_header_parameters(header_parameters);
                 self
             }
 
@@ -85,8 +80,7 @@ macro_rules! credential_builder_base {
                 &mut self,
                 scope: I,
             ) -> &mut Self {
-                self.credential.app_config.scope =
-                    scope.into_iter().map(|s| s.to_string()).collect();
+                self.credential.app_config.with_scope(scope);
                 self
             }
         }
