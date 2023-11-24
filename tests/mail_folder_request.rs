@@ -1,52 +1,41 @@
-use graph_core::resource::ResourceIdentity;
 use graph_http::api_impl::ODataQuery;
-use test_tools::oauth_request::ASYNC_THROTTLE_MUTEX2;
-use test_tools::oauth_request::{Environment, OAuthTestClient};
+use test_tools::oauth_request::{DEFAULT_ONENOTE_CREDENTIALS_MUTEX};
 
+#[ignore]
 #[tokio::test]
 async fn get_drafts_mail_folder() {
-    if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX2.lock().await;
-        if let Some((id, client)) =
-            OAuthTestClient::graph_by_rid_async(ResourceIdentity::MailFolders).await
-        {
-            let response = client
-                .user(id.as_str())
-                .mail_folder("drafts")
-                .get_mail_folders()
-                .send()
-                .await
-                .unwrap();
+    let test_client = DEFAULT_ONENOTE_CREDENTIALS_MUTEX.lock().await;
+    let response = test_client
+        .client
+        .user(test_client.user_id.as_str())
+        .mail_folder("drafts")
+        .get_mail_folders()
+        .send()
+        .await
+        .unwrap();
 
-            assert!(response.status().is_success());
-            let body: serde_json::Value = response.json().await.unwrap();
-            let display_name = body["displayName"].as_str().unwrap();
-            assert_eq!("Drafts", display_name);
-        }
-    }
+    assert!(response.status().is_success());
+    let body: serde_json::Value = response.json().await.unwrap();
+    let display_name = body["displayName"].as_str().unwrap();
+    assert_eq!("Drafts", display_name);
 }
 
 #[tokio::test]
 async fn mail_folder_list_messages() {
-    if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX2.lock().await;
-        if let Some((id, client)) =
-            OAuthTestClient::graph_by_rid_async(ResourceIdentity::MailFolders).await
-        {
-            let response = client
-                .user(id.as_str())
-                .mail_folder("inbox")
-                .messages()
-                .list_messages()
-                .top("2")
-                .send()
-                .await
-                .unwrap();
+    let test_client = DEFAULT_ONENOTE_CREDENTIALS_MUTEX.lock().await;
+    let response = test_client
+        .client
+        .user(test_client.user_id.as_str())
+        .mail_folder("inbox")
+        .messages()
+        .list_messages()
+        .top("2")
+        .send()
+        .await
+        .unwrap();
 
-            assert!(response.status().is_success());
-            let body: serde_json::Value = response.json().await.unwrap();
-            let messages = body["value"].as_array().unwrap();
-            assert_eq!(messages.len(), 2);
-        }
-    }
+    assert!(response.status().is_success());
+    let body: serde_json::Value = response.json().await.unwrap();
+    let messages = body["value"].as_array().unwrap();
+    assert_eq!(messages.len(), 2);
 }

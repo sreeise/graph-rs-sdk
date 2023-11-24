@@ -6,13 +6,46 @@ use graph_rs_sdk::oauth::{
     ClientSecretCredential, ConfidentialClientApplication, ResourceOwnerPasswordCredential, Token,
     TokenCredentialExecutor,
 };
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::{Graph, GraphClient};
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
 
 use graph_core::identity::ClientApplication;
+
+pub struct GraphTestClient {
+    pub client: GraphClient,
+    pub user_id: String,
+}
+
+impl GraphTestClient {
+    pub fn new_mutex() -> tokio::sync::Mutex<GraphTestClient> {
+        let app_registration = OAuthTestClient::get_app_registration().unwrap();
+        let app_registration_client = app_registration.get_default_client_credentials();
+        let test_client = app_registration_client
+            .clients
+            .get(&OAuthTestClient::ClientCredentials)
+            .cloned()
+            .unwrap();
+        let user_id = test_client.user_id.clone().unwrap();
+        let client = Graph::from(&test_client.client_credentials());
+        tokio::sync::Mutex::new(GraphTestClient { client, user_id })
+    }
+
+    pub fn new_mutex_from_identity(
+        resource_identity: ResourceIdentity,
+    ) -> tokio::sync::Mutex<GraphTestClient> {
+        let app_registration = OAuthTestClient::get_app_registration().unwrap();
+        let client = app_registration
+            .get_by_resource_identity(resource_identity)
+            .unwrap();
+        let (test_client, credentials) = client.default_client().unwrap();
+        let (user_id, client_application) = test_client.get_credential(credentials).unwrap();
+        let client = GraphClient::from_client_app(client_application);
+        tokio::sync::Mutex::new(GraphTestClient { client, user_id })
+    }
+}
 
 // static mutex's that are used for preventing test failures
 // due to too many concurrent requests (throttling) for Microsoft Graph.
@@ -22,6 +55,18 @@ lazy_static! {
     pub static ref DRIVE_ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
     pub static ref DRIVE_ASYNC_THROTTLE_MUTEX2: tokio::sync::Mutex<()> =
         tokio::sync::Mutex::new(());
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX2: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX3: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX4: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX5: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_ONENOTE_CREDENTIALS_MUTEX: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex_from_identity(ResourceIdentity::Onenote);
 }
 
 //pub const APPLICATIONS_CLIENT: Mutex<Option<(String, Graph)>> = Mutex::new(OAuthTestClient::graph_by_rid(ResourceIdentity::Applications));
@@ -308,6 +353,18 @@ impl OAuthTestClient {
             .unwrap();
         let confidential_client = test_client.client_credentials();
         Some(confidential_client.into_inner())
+    }
+
+    pub fn default_graph_client() -> GraphClient {
+        let app_registration = OAuthTestClient::get_app_registration().unwrap();
+        let app_registration_client = app_registration.get_default_client_credentials();
+        let test_client = app_registration_client
+            .clients
+            .get(&OAuthTestClient::ClientCredentials)
+            .cloned()
+            .unwrap();
+        let confidential_client = test_client.client_credentials();
+        Graph::from(&confidential_client)
     }
 
     pub async fn graph_by_rid_async(

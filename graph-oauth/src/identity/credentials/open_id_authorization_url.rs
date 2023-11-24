@@ -637,7 +637,7 @@ mod test {
     #[test]
     fn into_credential() {
         let client_id = Uuid::new_v4();
-        let url_builder = OpenIdAuthorizationUrlParameters::builder(Uuid::new_v4())
+        let url_builder = OpenIdAuthorizationUrlParameters::builder(client_id)
             .with_response_type([ResponseType::Code])
             .with_scope(["user.read"])
             .build();
@@ -650,6 +650,6 @@ mod test {
         assert_eq!(
             confidential_client.client_id().to_string(),
             client_id.to_string()
-        )
+        );
     }
 }

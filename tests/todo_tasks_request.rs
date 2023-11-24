@@ -18,7 +18,7 @@ struct TodoListsTasks {
 }
 
 #[tokio::test]
-async fn list_users() {
+async fn list_todo_list_tasks() {
     let _ = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) =
         OAuthTestClient::graph_by_rid_async(ResourceIdentity::TodoListsTasks).await

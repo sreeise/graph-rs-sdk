@@ -819,6 +819,7 @@ mod test {
         let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4())
             .with_redirect_uri("https://localhost:8080")
             .with_scope(["read", "write"])
+            .with_generated_nonce()
             .url()
             .unwrap();
 
