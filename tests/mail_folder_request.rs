@@ -1,5 +1,5 @@
 use graph_http::api_impl::ODataQuery;
-use test_tools::oauth_request::{DEFAULT_ONENOTE_CREDENTIALS_MUTEX};
+use test_tools::oauth_request::DEFAULT_ONENOTE_CREDENTIALS_MUTEX;
 
 #[ignore]
 #[tokio::test]

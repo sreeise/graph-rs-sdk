@@ -1,4 +1,4 @@
-use crate::web::{HostOptions, UserEvents, WebViewOptions};
+use crate::web::{HostOptions, WebViewOptions};
 use graph_error::WebViewResult;
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::mpsc::Sender;
@@ -9,8 +9,43 @@ use wry::application::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, Eve
 use wry::application::window::{Window, WindowBuilder};
 use wry::webview::WebView;
 
+#[cfg(target_family = "unix")]
+use wry::application::platform::unix::EventLoopBuilderExtUnix;
+
 #[cfg(target_family = "windows")]
 use wry::application::platform::windows::EventLoopBuilderExtWindows;
+
+#[derive(Clone, Debug)]
+pub enum WindowCloseReason {
+    CloseRequested,
+    TimedOut {
+        start: Instant,
+        requested_resume: Instant,
+    },
+}
+
+impl Display for WindowCloseReason {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            WindowCloseReason::CloseRequested => write!(f, "CloseRequested"),
+            WindowCloseReason::TimedOut { .. } => write!(f, "TimedOut"),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum InteractiveAuthEvent {
+    InvalidRedirectUri(String),
+    ReachedRedirectUri(Url),
+    WindowClosed(WindowCloseReason),
+}
+
+#[derive(Debug, Clone)]
+pub enum UserEvents {
+    CloseWindow,
+    InternalCloseWindow,
+    ReachedRedirectUri(Url),
+}
 
 pub trait InteractiveAuthenticator {
     fn interactive_authentication(
@@ -125,40 +160,9 @@ where
             .with_resizable(true)
     }
 
-    #[cfg(target_family = "windows")]
     fn event_loop() -> EventLoop<UserEvents> {
         EventLoopBuilder::with_user_event()
             .with_any_thread(true)
             .build()
     }
-
-    #[cfg(target_family = "unix")]
-    fn event_loop() -> EventLoop<UserEvents> {
-        EventLoopBuilder::with_user_event().build()
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum WindowCloseReason {
-    CloseRequested,
-    TimedOut {
-        start: Instant,
-        requested_resume: Instant,
-    },
-}
-
-impl Display for WindowCloseReason {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            WindowCloseReason::CloseRequested => write!(f, "CloseRequested"),
-            WindowCloseReason::TimedOut { .. } => write!(f, "TimedOut"),
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum InteractiveAuthEvent {
-    InvalidRedirectUri(String),
-    ReachedRedirectUri(Url),
-    WindowClosed(WindowCloseReason),
 }

@@ -8,7 +8,7 @@ Support for:
 - Device Code Polling
 - Authorization Using Certificates | features = [`openssl`]
 
-Purpose built as OAuth client for Microsoft Graph and the [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk) project.
+OAuth and Openid client for Microsoft Graph as part of the [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk) project.
 This project can however be used outside [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk) as an OAuth client
 for Microsoft Identity Platform or by using [graph-rs-sdk](https://crates.io/crates/graph-rs-sdk).
 

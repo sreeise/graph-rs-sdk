@@ -103,6 +103,7 @@ where
 pub struct AuthorizationResponse {
     pub code: Option<String>,
     pub id_token: Option<String>,
+    #[serde(default)]
     #[serde(deserialize_with = "deserialize_expires_in")]
     pub expires_in: Option<i64>,
     pub access_token: Option<String>,
@@ -172,6 +173,10 @@ mod test {
         "expires_in": "3600"
     }"#;
 
+    pub const AUTHORIZATION_RESPONSE2: &str = r#"{
+        "access_token": "token"
+    }"#;
+
     #[test]
     pub fn deserialize_authorization_response_from_json() {
         let response: AuthorizationResponse = serde_json::from_str(AUTHORIZATION_RESPONSE).unwrap();
@@ -180,10 +185,24 @@ mod test {
     }
 
     #[test]
+    pub fn deserialize_authorization_response_from_json2() {
+        let response: AuthorizationResponse =
+            serde_json::from_str(AUTHORIZATION_RESPONSE2).unwrap();
+        assert_eq!(Some(String::from("token")), response.access_token);
+    }
+
+    #[test]
     pub fn deserialize_authorization_response_from_query() {
         let query = "access_token=token&expires_in=3600";
         let response: AuthorizationResponse = serde_urlencoded::from_str(query).unwrap();
         assert_eq!(Some(String::from("token")), response.access_token);
         assert_eq!(Some(3600), response.expires_in);
+    }
+
+    #[test]
+    pub fn deserialize_authorization_response_from_query_without_expires_in() {
+        let query = "access_token=token";
+        let response: AuthorizationResponse = serde_urlencoded::from_str(query).unwrap();
+        assert_eq!(Some(String::from("token")), response.access_token);
     }
 }

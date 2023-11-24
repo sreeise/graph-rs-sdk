@@ -33,8 +33,10 @@ use graph_error::WebViewDeviceCodeError;
 use crate::web::WebViewOptions;
 
 #[cfg(feature = "interactive-auth")]
-use crate::web::{HostOptions, InteractiveAuth, UserEvents};
+use crate::web::{HostOptions, InteractiveAuth};
 
+#[cfg(feature = "interactive-auth")]
+use crate::web::UserEvents;
 use graph_core::identity::ForceTokenRefresh;
 #[cfg(feature = "interactive-auth")]
 use wry::{

@@ -4,19 +4,19 @@ use std::hash::Hash;
 use url::{Host, Url};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum HostValidator {
+pub enum HostIs {
     Valid,
     Invalid,
 }
 
 pub trait ValidateHosts<RHS = Self> {
-    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostValidator;
+    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostIs;
 }
 
 impl ValidateHosts for Url {
-    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostValidator {
+    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostIs {
         if valid_hosts.is_empty() {
-            return HostValidator::Invalid;
+            return HostIs::Invalid;
         }
 
         let size_before = valid_hosts.len();
@@ -25,37 +25,37 @@ impl ValidateHosts for Url {
 
         if let Some(host) = self.host() {
             if hosts.contains(&host) {
-                return HostValidator::Valid;
+                return HostIs::Valid;
             }
         }
 
         for value in valid_hosts.iter() {
             if !value.scheme().eq("https") {
-                return HostValidator::Invalid;
+                return HostIs::Invalid;
             }
         }
 
-        HostValidator::Invalid
+        HostIs::Invalid
     }
 }
 
 impl ValidateHosts for String {
-    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostValidator {
+    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostIs {
         if let Ok(url) = Url::parse(self) {
             return url.validate_hosts(valid_hosts);
         }
 
-        HostValidator::Invalid
+        HostIs::Invalid
     }
 }
 
 impl ValidateHosts for &str {
-    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostValidator {
+    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostIs {
         if let Ok(url) = Url::parse(self) {
             return url.validate_hosts(valid_hosts);
         }
 
-        HostValidator::Invalid
+        HostIs::Invalid
     }
 }
 
@@ -75,15 +75,15 @@ impl AllowedHostValidator {
         AllowedHostValidator { allowed_hosts }
     }
 
-    pub fn validate_str(&self, url_str: &str) -> HostValidator {
+    pub fn validate_str(&self, url_str: &str) -> HostIs {
         if let Ok(url) = Url::parse(url_str) {
             return self.validate_hosts(&[url]);
         }
 
-        HostValidator::Invalid
+        HostIs::Invalid
     }
 
-    pub fn validate_url(&self, url: &Url) -> HostValidator {
+    pub fn validate_url(&self, url: &Url) -> HostIs {
         self.validate_hosts(&[url.clone()])
     }
 }
@@ -96,22 +96,19 @@ impl From<&[Url]> for AllowedHostValidator {
 }
 
 impl ValidateHosts for AllowedHostValidator {
-    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostValidator {
+    fn validate_hosts(&self, valid_hosts: &[Url]) -> HostIs {
         if valid_hosts.is_empty() {
-            return HostValidator::Invalid;
+            return HostIs::Invalid;
         }
 
         let urls: Vec<Url> = self.allowed_hosts.iter().cloned().collect();
         for url in valid_hosts.iter() {
-            if url
-                .validate_hosts(urls.as_slice())
-                .eq(&HostValidator::Invalid)
-            {
-                return HostValidator::Invalid;
+            if url.validate_hosts(urls.as_slice()).eq(&HostIs::Invalid) {
+                return HostIs::Invalid;
             }
         }
 
-        HostValidator::Valid
+        HostIs::Valid
     }
 }
 
@@ -161,7 +158,7 @@ mod test {
         assert_eq!(6, host_urls.len());
 
         for url in host_urls.iter() {
-            assert_eq!(HostValidator::Valid, url.validate_hosts(&host_urls));
+            assert_eq!(HostIs::Valid, url.validate_hosts(&host_urls));
         }
     }
 
@@ -196,10 +193,7 @@ mod test {
         assert_eq!(4, host_urls.len());
 
         for url in host_urls.iter() {
-            assert_eq!(
-                HostValidator::Invalid,
-                url.validate_hosts(valid_hosts.as_slice())
-            );
+            assert_eq!(HostIs::Invalid, url.validate_hosts(valid_hosts.as_slice()));
         }
     }
 
@@ -228,10 +222,7 @@ mod test {
         let allowed_host_validator = AllowedHostValidator::from(host_urls.as_slice());
 
         for url in host_urls.iter() {
-            assert_eq!(
-                HostValidator::Valid,
-                allowed_host_validator.validate_url(url)
-            );
+            assert_eq!(HostIs::Valid, allowed_host_validator.validate_url(url));
         }
     }
 }

@@ -1,5 +1,6 @@
 #![allow(dead_code, unused, unused_imports)]
 
+extern crate pretty_env_logger;
 #[macro_use]
 extern crate log;
 mod auth_code;
@@ -7,4 +8,5 @@ mod openid;
 mod webview_errors;
 mod webview_options;
 
-fn main() {}
+#[tokio::main]
+async fn main() {}

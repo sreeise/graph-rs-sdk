@@ -20,7 +20,7 @@ use crate::identity::{DeviceCodeCredential, PublicClientApplication};
 ///
 /// The actual [device code response](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code#device-authorization-response)
 /// that is received from Microsoft Graph does not include the verification_uri_complete field
-/// that the [specification](https://datatracker.ietf.org/doc/html/rfc8628#section-3.2)
+/// even though it's in the [specification](https://datatracker.ietf.org/doc/html/rfc8628#section-3.2).
 /// The device code response from Microsoft Graph looks like similar to the following:
 ///
 /// ```json

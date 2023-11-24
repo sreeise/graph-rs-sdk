@@ -34,33 +34,21 @@ static USER_ID: &str = "USER_ID";
 static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
 async fn authenticate() {
-    // Create a tracing subscriber to log debug/trace events coming from
-    // authorization http calls and the Graph client.
-    tracing_subscriber::fmt()
-        .pretty()
-        .with_thread_names(true)
-        .with_max_level(tracing::Level::TRACE)
-        .init();
+    std::env::set_var("RUST_LOG", "debug");
+    pretty_env_logger::init();
 
     let mut credential_builder = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
         .with_tenant(TENANT_ID)
         .with_scope(vec!["user.read"])
         .with_offline_access() // Adds offline_access as a scope which is needed to get a refresh token.
         .with_redirect_uri(REDIRECT_URI)
-        .with_interactive_authentication(None)
+        .with_interactive_authentication(Default::default())
         .unwrap();
 
     let mut confidential_client = credential_builder.with_client_secret(CLIENT_SECRET).build();
 
     let client = GraphClient::from(&confidential_client);
-
-    let response = client.user(USER_ID).get_user().send().await.unwrap();
-
-    println!("{response:#?}");
-    let body: serde_json::Value = response.json().await.unwrap();
-    println!("{body:#?}");
 }
-
 ```
 
 

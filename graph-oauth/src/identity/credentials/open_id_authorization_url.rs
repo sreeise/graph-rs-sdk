@@ -24,10 +24,11 @@ use crate::identity::{AuthorizationResponse, Token};
 
 #[cfg(feature = "interactive-auth")]
 use crate::web::{
-    HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,
-    WebViewOptions,
+    HostOptions, InteractiveAuth, InteractiveAuthEvent, WebViewHostValidator, WebViewOptions,
 };
 
+#[cfg(feature = "interactive-auth")]
+use crate::web::UserEvents;
 #[cfg(feature = "interactive-auth")]
 use wry::{
     application::{event_loop::EventLoopProxy, window::Window},
@@ -199,6 +200,7 @@ impl OpenIdAuthorizationUrlParameters {
         &self.nonce
     }
 
+    #[tracing::instrument]
     #[cfg(feature = "interactive-auth")]
     pub fn interactive_webview_authentication(
         &self,

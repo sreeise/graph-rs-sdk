@@ -77,11 +77,11 @@ test-tools = { path = "./test-tools", version = "0.0.1" }
 debug = false
 
 [[example]]
-name = "oauth_certificate_main"
+name = "oauth_certificate"
 path = "examples/oauth_certificate/main.rs"
 required-features = ["openssl"]
 
 [[example]]
-name = "interactive_auth_main"
-path = "examples/interactive_authentication/main.rs"
+name = "interactive_auth"
+path = "examples/interactive_auth/main.rs"
 required-features = ["interactive-auth"]

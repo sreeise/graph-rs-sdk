@@ -111,11 +111,21 @@ impl Debug for AppConfig {
                 .finish()
         } else {
             f.debug_struct("AppConfig")
-                .field("tenant_id", &self.tenant_id)
-                .field("client_id", &self.client_id)
+                .field(
+                    "tenant_id",
+                    &"[REDACTED] - call enable_pii_logging(true) to log value",
+                )
+                .field(
+                    "client_id",
+                    &"[REDACTED] - call enable_pii_logging(true) to log value",
+                )
                 .field("authority", &self.authority)
                 .field("azure_cloud_instance", &self.azure_cloud_instance)
                 .field("extra_query_parameters", &self.extra_query_parameters)
+                .field(
+                    "extra_header_parameters",
+                    &"[REDACTED] - call enable_pii_logging(true) to log value",
+                )
                 .field("scope", &self.scope)
                 .field("force_token_refresh", &self.force_token_refresh)
                 .finish()
@@ -163,7 +173,7 @@ impl AppConfig {
         }
     }
 
-    pub fn log_pii(&mut self, log_pii: bool) {
+    pub fn enable_pii_logging(&mut self, log_pii: bool) {
         self.log_pii = log_pii;
     }
 

@@ -22,6 +22,8 @@ struct ClientConfiguration {
     connect_timeout: Option<Duration>,
     connection_verbose: bool,
     https_only: bool,
+    /// TLS 1.2 required to support all features in Microsoft Graph
+    /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     min_tls_version: Version,
 }
 
@@ -42,8 +44,6 @@ impl ClientConfiguration {
             connect_timeout: None,
             connection_verbose: false,
             https_only: true,
-            /// TLS 1.2 required to support all features in Microsoft Graph
-            /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
             min_tls_version: Version::TLS_1_2,
         }
     }
@@ -139,12 +139,14 @@ impl GraphClientConfiguration {
         self
     }
 
+    /// TLS 1.2 required to support all features in Microsoft Graph
+    /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     pub fn min_tls_version(mut self, version: Version) -> GraphClientConfiguration {
         self.config.min_tls_version = version;
         self
     }
 
-    pub fn build(self) -> Client {
+    pub(crate) fn build(self) -> Client {
         let config = self.clone();
         let headers = self.config.headers.clone();
         let mut builder = reqwest::ClientBuilder::new()
@@ -276,6 +278,12 @@ impl Debug for Client {
             .field("headers", &self.headers)
             .field("builder", &self.builder)
             .finish()
+    }
+}
+
+impl From<GraphClientConfiguration> for Client {
+    fn from(value: GraphClientConfiguration) -> Self {
+        value.build()
     }
 }
 

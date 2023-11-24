@@ -4,7 +4,7 @@ use url::Url;
 
 pub use wry::application::window::Theme;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct HostOptions {
     pub(crate) start_uri: Url,
     pub(crate) redirect_uris: Vec<Url>,
@@ -37,6 +37,8 @@ pub struct WebViewOptions {
     pub window_title: String,
     /// OS specific theme. Only available on Windows.
     /// See wry crate for more info.
+    ///
+    /// Theme is not set by default.
     #[cfg(windows)]
     pub theme: Option<Theme>,
     /// Provide a list of ports to use for interactive authentication.
@@ -47,10 +49,14 @@ pub struct WebViewOptions {
     /// when that timeout is reached. For instance, if your app is waiting on the
     /// user to log in and the user has not logged in after 20 minutes you may
     /// want to assume the user is idle in some way and close out of the webview window.
+    ///
+    /// Default is no timeout.
     pub timeout: Option<Instant>,
     /// The webview can store the cookies that were set after sign in so that on the next
     /// sign in the user is automatically logged in through SSO. Or you can clear the browsing
     /// data, cookies in this case, after sign in when the webview window closes.
+    ///
+    /// Default is true
     pub clear_browsing_data: bool,
 }
 
@@ -96,15 +102,27 @@ impl WebViewOptions {
     }
 }
 
+#[cfg(windows)]
 impl Default for WebViewOptions {
     fn default() -> Self {
         WebViewOptions {
             window_title: "Sign In".to_string(),
             theme: None,
             ports: Default::default(),
-            // 10 Minutes default timeout
             timeout: None,
-            clear_browsing_data: false,
+            clear_browsing_data: true,
+        }
+    }
+}
+
+#[cfg(unix)]
+impl Default for WebViewOptions {
+    fn default() -> Self {
+        WebViewOptions {
+            window_title: "Sign In".to_string(),
+            ports: Default::default(),
+            timeout: None,
+            clear_browsing_data: true,
         }
     }
 }

@@ -12,7 +12,7 @@ pub fn x509_certificate(
     public_key_path: impl AsRef<Path>,
     private_key_path: impl AsRef<Path>,
 ) -> anyhow::Result<X509Certificate> {
-    // Use include_bytes!(file_path) if the files are local
+    // You can use include_bytes!(file_path) if the files are local
     let mut cert_file = File::open(public_key_path)?;
     let mut certificate: Vec<u8> = Vec::new();
     cert_file.read_to_end(&mut certificate)?;

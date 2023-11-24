@@ -45,11 +45,12 @@ use crate::identity_governance::IdentityGovernanceApiClient;
 use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdApiClient};
 use crate::invitations::InvitationsApiClient;
 use crate::me::MeApiClient;
-use crate::oauth::{AllowedHostValidator, HostValidator, Token};
 use crate::oauth::{
-    AuthorizationCodeAssertionCredential, AuthorizationCodeCertificateCredential,
-    AuthorizationCodeCredential, BearerTokenCredential, ClientAssertionCredential,
-    ClientCertificateCredential, ClientSecretCredential, ConfidentialClientApplication,
+    AllowedHostValidator, AuthorizationCodeAssertionCredential,
+    AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, BearerTokenCredential,
+    ClientAssertionCredential, ClientCertificateCredential, ClientSecretCredential,
+    ConfidentialClientApplication, DeviceCodeCredential, HostIs, OpenIdCredential,
+    PublicClientApplication, ResourceOwnerPasswordCredential, Token,
 };
 use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
@@ -71,10 +72,6 @@ use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_core::identity::ForceTokenRefresh;
-use graph_oauth::oauth::{
-    DeviceCodeCredential, OpenIdCredential, PublicClientApplication,
-    ResourceOwnerPasswordCredential,
-};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -126,7 +123,7 @@ impl GraphClient {
     ///     .send()
     ///     .await?;
     /// ```
-    pub fn v1(&mut self) -> &mut Graph {
+    pub fn v1(&mut self) -> &mut GraphClient {
         self.endpoint = PARSED_GRAPH_URL.clone();
         self
     }
@@ -164,7 +161,7 @@ impl GraphClient {
     ///     .send()
     ///     .await?;
     /// ```
-    pub fn beta(&mut self) -> &mut Graph {
+    pub fn beta(&mut self) -> &mut GraphClient {
         self.endpoint = PARSED_GRAPH_URL_BETA.clone();
         self
     }
@@ -199,7 +196,7 @@ impl GraphClient {
         self
     }
 
-    pub fn set_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+    pub fn use_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
         self.client.with_force_token_refresh(force_token_refresh);
     }
 
@@ -241,7 +238,7 @@ impl GraphClient {
     ///     .send()
     ///     .await?;
     /// ```
-    pub fn custom_endpoint(&mut self, custom_endpoint: &str) -> &mut Graph {
+    pub fn custom_endpoint(&mut self, custom_endpoint: &str) -> &mut GraphClient {
         self.use_endpoint(custom_endpoint);
         self
     }
@@ -283,7 +280,7 @@ impl GraphClient {
     /// ```
     pub fn use_endpoint(&mut self, custom_endpoint: &str) {
         match self.allowed_host_validator.validate_str(custom_endpoint) {
-            HostValidator::Valid => {
+            HostIs::Valid => {
                 let url = Url::parse(custom_endpoint).expect("Unable to set custom endpoint");
 
                 if url.query().is_some() {
@@ -295,7 +292,7 @@ impl GraphClient {
                 self.endpoint.set_host(url.host_str()).unwrap();
                 self.endpoint.set_path(url.path());
             }
-            HostValidator::Invalid => panic!("Invalid host"),
+            HostIs::Invalid => panic!("Invalid host"),
         }
     }
 
@@ -560,7 +557,7 @@ impl From<&Token> for GraphClient {
 impl From<GraphClientConfiguration> for GraphClient {
     fn from(graph_client_builder: GraphClientConfiguration) -> Self {
         GraphClient {
-            client: graph_client_builder.build(),
+            client: Client::from(graph_client_builder),
             endpoint: PARSED_GRAPH_URL.clone(),
             allowed_host_validator: AllowedHostValidator::default(),
         }
