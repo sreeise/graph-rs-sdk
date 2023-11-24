@@ -6,7 +6,7 @@ async fn interactive_auth(tenant_id: &str, client_id: &str, scope: Vec<&str>, re
             .with_tenant(tenant_id)
             .with_scope(scope)
             .with_redirect_uri(redirect_uri)
-            .with_interactive_authentication_for_secret(None);
+            .with_interactive_authentication_for_secret(Default::default());
 
     if let Ok((authorization_query_response, credential_builder)) = credential_builder_result {
         // ...

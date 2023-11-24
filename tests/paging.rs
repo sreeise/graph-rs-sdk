@@ -9,7 +9,7 @@ async fn paging_all() {
         return;
     }
 
-    let _lock = ASYNC_THROTTLE_MUTEX.lock();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let mut vec = client
             .users()
@@ -33,7 +33,7 @@ async fn paging_all() {
 #[tokio::test]
 async fn paging_stream() {
     if Environment::is_local() {
-        let _lock = ASYNC_THROTTLE_MUTEX.lock();
+        let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
         if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let mut stream = client
                 .users()

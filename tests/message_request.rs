@@ -6,7 +6,7 @@ use test_tools::oauth_request::{Environment, OAuthTestClient};
 #[tokio::test]
 async fn list_and_get_messages() {
     if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX2.lock();
+        let _ = ASYNC_THROTTLE_MUTEX2.lock().await;
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             if let Ok(response) = client
                 .user(id.as_str())
@@ -41,7 +41,7 @@ async fn list_and_get_messages() {
 #[tokio::test]
 async fn mail_create_and_delete_message() {
     if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX2.lock();
+        let _ = ASYNC_THROTTLE_MUTEX2.lock().await;
         if let Some((id, mut client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let result = client
                 .v1()

@@ -6,7 +6,7 @@ use test_tools::oauth_request::{Environment, OAuthTestClient};
 #[tokio::test]
 async fn get_drafts_mail_folder() {
     if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX2.lock();
+        let _ = ASYNC_THROTTLE_MUTEX2.lock().await;
         if let Some((id, client)) =
             OAuthTestClient::graph_by_rid_async(ResourceIdentity::MailFolders).await
         {
@@ -29,7 +29,7 @@ async fn get_drafts_mail_folder() {
 #[tokio::test]
 async fn mail_folder_list_messages() {
     if Environment::is_local() {
-        let _ = ASYNC_THROTTLE_MUTEX2.lock();
+        let _ = ASYNC_THROTTLE_MUTEX2.lock().await;
         if let Some((id, client)) =
             OAuthTestClient::graph_by_rid_async(ResourceIdentity::MailFolders).await
         {

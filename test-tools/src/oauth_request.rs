@@ -17,11 +17,11 @@ use graph_core::identity::ClientApplication;
 // static mutex's that are used for preventing test failures
 // due to too many concurrent requests (throttling) for Microsoft Graph.
 lazy_static! {
-    pub static ref ASYNC_THROTTLE_MUTEX: parking_lot::Mutex<()> = parking_lot::Mutex::new(());
-    pub static ref ASYNC_THROTTLE_MUTEX2: parking_lot::Mutex<()> = parking_lot::Mutex::new(());
-    pub static ref DRIVE_ASYNC_THROTTLE_MUTEX: parking_lot::Mutex<()> = parking_lot::Mutex::new(());
-    pub static ref DRIVE_ASYNC_THROTTLE_MUTEX2: parking_lot::Mutex<()> =
-        parking_lot::Mutex::new(());
+    pub static ref ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
+    pub static ref ASYNC_THROTTLE_MUTEX2: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
+    pub static ref DRIVE_ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
+    pub static ref DRIVE_ASYNC_THROTTLE_MUTEX2: tokio::sync::Mutex<()> =
+        tokio::sync::Mutex::new(());
 }
 
 //pub const APPLICATIONS_CLIENT: Mutex<Option<(String, Graph)>> = Mutex::new(OAuthTestClient::graph_by_rid(ResourceIdentity::Applications));

@@ -6,7 +6,7 @@ use test_tools::oauth_request::{Environment, OAuthTestClient};
 #[tokio::test]
 async fn drive_download_graph_error() {
     if Environment::is_local() {
-        let _lock = ASYNC_THROTTLE_MUTEX.lock();
+        let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let response = client
                 .drive(id.as_str())

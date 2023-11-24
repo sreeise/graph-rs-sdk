@@ -314,6 +314,7 @@ impl ImplicitCredentialBuilder {
 #[cfg(test)]
 mod test {
     use super::*;
+    use uuid::Uuid;
 
     #[test]
     fn serialize_uri() {

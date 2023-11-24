@@ -34,7 +34,7 @@ pub struct LicenseDetail {
 
 #[tokio::test]
 async fn buffered_requests() {
-    let _ = ASYNC_THROTTLE_MUTEX2.lock();
+    let _ = ASYNC_THROTTLE_MUTEX2.lock().await;
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let mut stream = client
             .users()

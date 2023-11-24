@@ -14,7 +14,7 @@ use test_tools::oauth_request::{Environment, OAuthTestClient};
 #[tokio::test]
 async fn list_versions_get_item() {
     if Environment::is_local() {
-        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock();
+        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let get_item_res = client
                 .user(id.as_str())
@@ -48,7 +48,7 @@ async fn list_versions_get_item() {
 
 #[tokio::test]
 async fn drive_check_in_out() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock();
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if Environment::is_local() {
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let result = client
@@ -95,7 +95,7 @@ async fn update_item_by_path(
 #[tokio::test]
 async fn drive_update() {
     if Environment::is_local() {
-        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock();
+        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let req = update_item_by_path(
                 id.as_str(),
@@ -197,7 +197,7 @@ async fn delete_file(
 
 #[tokio::test]
 async fn drive_upload_item() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock();
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let local_file = "./test_files/test_upload_file.txt";
         let file_name = ":/test_upload_file.txt:";

@@ -22,7 +22,7 @@ async fn delete_item(
 #[tokio::test]
 async fn job_status() {
     if Environment::is_local() {
-        let _lock = ASYNC_THROTTLE_MUTEX.lock();
+        let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
 
         let original_file = ":/test_job_status.txt:";
         let copy_name = "test_job_status_copy.txt";

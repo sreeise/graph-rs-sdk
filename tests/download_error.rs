@@ -9,7 +9,7 @@ use test_tools::oauth_request::{Environment, OAuthTestClient};
 #[tokio::test]
 async fn download_config_file_exists() {
     if Environment::is_local() {
-        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock();
+        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock().await;
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let response = client
                 .user(id.as_str())
@@ -46,7 +46,7 @@ async fn download_config_file_exists() {
 #[tokio::test]
 async fn download_is_err_config_dir_no_exists() {
     if Environment::is_local() {
-        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock();
+        let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock().await;
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let response = client
                 .user(id.as_str())

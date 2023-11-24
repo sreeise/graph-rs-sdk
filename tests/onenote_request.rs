@@ -15,7 +15,7 @@ async fn list_get_notebooks_and_sections() {
         return;
     }
 
-    let _lock = ASYNC_THROTTLE_MUTEX.lock();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::graph_by_rid_async(ResourceIdentity::Onenote).await
     {
         let notebooks = client
@@ -84,7 +84,7 @@ async fn create_delete_page_from_file() {
         return;
     }
 
-    let _lock = ASYNC_THROTTLE_MUTEX.lock();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((id, client)) = OAuthTestClient::graph_by_rid_async(ResourceIdentity::Onenote).await
     {
         let res = client
@@ -124,7 +124,7 @@ async fn download_page() {
         return;
     }
 
-    let _lock = ASYNC_THROTTLE_MUTEX.lock();
+    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
     if let Some((user_id, client)) =
         OAuthTestClient::graph_by_rid_async(ResourceIdentity::Onenote).await
     {

@@ -7,7 +7,7 @@ use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
 async fn drive_download() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock();
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock().await;
     if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let response = client
             .drive(id.as_str())
@@ -35,7 +35,7 @@ async fn drive_download() {
 
 #[tokio::test]
 async fn drive_download_format() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock();
+    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX2.lock().await;
     if Environment::is_local() {
         if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
             let response = client
