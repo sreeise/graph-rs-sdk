@@ -48,7 +48,7 @@ rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls
 brotli = ["reqwest/brotli"]
 deflate = ["reqwest/deflate"]
 trust-dns = ["reqwest/trust-dns"]
-https-not-required = ["graph-http/https-not-required"]
+test-util = ["graph-http/test-util"]
 
 [dev-dependencies]
 bytes = { version = "1.4.0" }
