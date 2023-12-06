@@ -3,6 +3,7 @@ use graph_rs_sdk::GraphClient;
 use std::collections::HashSet;
 use std::ops::Add;
 use std::time::{Duration, Instant};
+use url::Url;
 
 #[cfg(windows)]
 fn get_webview_options() -> WebViewOptions {
@@ -58,10 +59,11 @@ async fn customize_webview(
         AuthorizationCodeCredential::authorization_url_builder(client_id)
             .with_tenant(tenant_id)
             .with_scope(scope)
-            .with_redirect_uri(redirect_uri)
-            .with_interactive_authentication_for_secret(get_webview_options())?;
+            .with_redirect_uri(Url::parse(redirect_uri)?)
+            .with_interactive_auth_for_secret(client_secret, get_webview_options())?
+            .into_result()?;
 
-    let confidential_client = credential_builder.with_client_secret(client_secret).build();
+    let confidential_client = credential_builder.build();
 
     Ok(GraphClient::from(&confidential_client))
 }

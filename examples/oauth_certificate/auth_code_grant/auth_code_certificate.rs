@@ -38,7 +38,7 @@ fn build_confidential_client(
     x509certificate: X509Certificate,
 ) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCertificateCredential>> {
     Ok(ConfidentialClientApplication::builder(client_id)
-        .with_authorization_code_x509_certificate(authorization_code, &x509certificate)?
+        .with_auth_code_x509_certificate(authorization_code, &x509certificate)?
         .with_tenant(tenant)
         .with_scope(scope)
         .with_redirect_uri(redirect_uri)?

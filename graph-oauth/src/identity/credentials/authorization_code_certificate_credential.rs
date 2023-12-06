@@ -4,19 +4,22 @@ use std::fmt::{Debug, Formatter};
 use async_trait::async_trait;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
+use url::Url;
 
 use uuid::Uuid;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
-use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
+use graph_error::{
+    AuthExecutionError, AuthExecutionResult, AuthorizationFailure, IdentityResult, AF,
+};
 
 use crate::identity::credentials::app_config::AppConfig;
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
 use crate::identity::{
-    AuthCodeAuthorizationUrlParameterBuilder, Authority, AzureCloudInstance,
+    AuthCodeAuthorizationUrlParameterBuilder, Authority, AuthorizationResponse, AzureCloudInstance,
     ConfidentialClientApplication, Token, TokenCredentialExecutor, CLIENT_ASSERTION_TYPE,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
@@ -417,9 +420,9 @@ impl AuthorizationCodeCertificateCredentialBuilder {
     #[cfg(feature = "interactive-auth")]
     #[cfg(feature = "openssl")]
     pub(crate) fn new_with_token(
-        app_config: AppConfig,
         token: Token,
         x509: &X509Certificate,
+        app_config: AppConfig,
     ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
         let cache_id = app_config.cache_id.clone();
         let mut token_cache = InMemoryCacheStore::new();
@@ -441,6 +444,26 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         Ok(builder)
     }
 
+    #[cfg(feature = "openssl")]
+    pub(crate) fn new_authorization_response(
+        value: (AppConfig, AuthorizationResponse, &X509Certificate),
+    ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
+        let (app_config, authorization_response, x509) = value;
+        if let Some(authorization_code) = authorization_response.code.as_ref() {
+            AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
+                authorization_code,
+                x509,
+                app_config,
+            )
+        } else {
+            AuthorizationCodeCertificateCredentialBuilder::new_with_token(
+                Token::from(authorization_response.clone()),
+                x509,
+                app_config,
+            )
+        }
+    }
+
     pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
         self.credential.authorization_code = Some(authorization_code.as_ref().to_owned());
         self
@@ -452,9 +475,9 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         self
     }
 
-    pub fn with_redirect_uri(&mut self, redirect_uri: impl IntoUrl) -> anyhow::Result<&mut Self> {
-        self.credential.app_config.redirect_uri = Some(redirect_uri.into_url()?);
-        Ok(self)
+    pub fn with_redirect_uri(&mut self, redirect_uri: Url) -> &mut Self {
+        self.credential.app_config.redirect_uri = Some(redirect_uri);
+        self
     }
 
     pub fn with_code_verifier<T: AsRef<str>>(&mut self, code_verifier: T) -> &mut Self {
@@ -508,5 +531,11 @@ impl From<AuthorizationCodeCertificateCredentialBuilder>
 {
     fn from(builder: AuthorizationCodeCertificateCredentialBuilder) -> Self {
         builder.credential
+    }
+}
+
+impl Debug for AuthorizationCodeCertificateCredentialBuilder {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        self.credential.fmt(f)
     }
 }

@@ -4,10 +4,55 @@ use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 
+use base64::{DecodeError, Engine};
+use jsonwebtoken::errors as JwtErrors;
+use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
 use std::str::FromStr;
 use url::form_urlencoded::parse;
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct JwtHeader {
+    pub typ: String,
+    pub alg: String,
+    pub kid: String,
+    pub x5t: Option<String>,
+}
+
+impl Display for JwtHeader {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "typ: {}, alg: {}, kid: {}, x5t: {:#?}",
+            self.typ, self.alg, self.kid, self.x5t
+        )
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Claims {
+    pub aud: String,
+    pub iss: String,
+    pub iat: usize,
+    pub nbf: usize,
+    pub exp: usize,
+    pub aio: String,
+    pub c_hash: String,
+    pub cc: String,
+    pub email: String,
+    pub name: String,
+    pub nonce: String,
+    pub oid: String,
+    pub preferred_username: String,
+    pub rh: String,
+    pub sub: String,
+    pub tid: String,
+    pub uti: String,
+    pub ver: String,
+    #[serde(flatten)]
+    pub additional_fields: HashMap<String, Value>,
+}
 
 /// ID tokens are sent to the client application as part of an OpenID Connect flow.
 /// They can be sent alongside or instead of an access token. ID tokens are used by the
@@ -26,15 +71,70 @@ pub struct IdToken {
 }
 
 impl IdToken {
-    pub fn new(id_token: &str, code: &str, state: &str, session_state: &str) -> IdToken {
+    pub fn new(
+        id_token: &str,
+        code: Option<&str>,
+        state: Option<&str>,
+        session_state: Option<&str>,
+    ) -> IdToken {
         IdToken {
-            code: Some(code.into()),
+            code: code.map(|value| value.into()),
             id_token: id_token.into(),
-            state: Some(state.into()),
-            session_state: Some(session_state.into()),
+            state: state.map(|value| value.into()),
+            session_state: session_state.map(|value| value.into()),
             additional_fields: Default::default(),
             log_pii: false,
         }
+    }
+
+    /// Decode the id token payload.
+    pub fn decode_payload(&self) -> JwtErrors::Result<serde_json::Value> {
+        let parts: Vec<&str> = self.id_token.split('.').collect();
+        if parts.is_empty() {
+            return Err(JwtErrors::Error::from(JwtErrors::ErrorKind::InvalidToken));
+        }
+        let payload_decoded = base64::engine::general_purpose::STANDARD_NO_PAD
+            .decode(parts[1])
+            .unwrap();
+        let utf8_payload = String::from_utf8(payload_decoded)?.to_owned();
+        let payload: serde_json::Value = serde_json::from_str(&utf8_payload)?;
+        Ok(payload)
+    }
+
+    /// Decode the id token header.
+    pub fn decode_header(&self) -> JwtErrors::Result<jsonwebtoken::Header> {
+        /*
+        let parts: Vec<&str> = self.id_token.split('.').collect();
+        if parts.is_empty() {
+            return  Err(JwtErrors::Error::from(JwtErrors::ErrorKind::InvalidToken));
+        }
+        let header_decoded = base64::engine::general_purpose::STANDARD_NO_PAD.decode(parts[0])?;
+        let utf8_header = String::from_utf8(header_decoded)?;
+        let jwt_header: JwtHeader = serde_json::from_str(&utf8_header)?;
+         */
+
+        jsonwebtoken::decode_header(self.id_token.as_str())
+    }
+
+    /// Decode and validate the id token.
+    pub fn decode(
+        &self,
+        n: &str,
+        e: &str,
+        client_id: &str,
+        issuer: Option<&str>,
+    ) -> JwtErrors::Result<TokenData<Claims>> {
+        let mut validation = Validation::new(Algorithm::RS256);
+        validation.set_audience(&[client_id]);
+        if let Some(issuer) = issuer {
+            validation.set_issuer(&[issuer]);
+        }
+
+        jsonwebtoken::decode::<Claims>(
+            &self.id_token,
+            &DecodingKey::from_rsa_components(n, e).unwrap(),
+            &validation,
+        )
     }
 
     /// Enable or disable logging of personally identifiable information such
@@ -43,6 +143,22 @@ impl IdToken {
     /// By default this does not get logged.
     pub fn enable_pii_logging(&mut self, log_pii: bool) {
         self.log_pii = log_pii;
+    }
+}
+
+impl Display for IdToken {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{:#?}, {:#?}, {:#?}, {:#?}",
+            self.id_token, self.state, self.session_state, self.code
+        )
+    }
+}
+
+impl AsRef<str> for IdToken {
+    fn as_ref(&self) -> &str {
+        self.id_token.as_str()
     }
 }
 
@@ -146,6 +262,10 @@ impl FromStr for IdToken {
     type Err = serde::de::value::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_urlencoded::from_str(s)
+        let deserialize_result = serde_urlencoded::from_str(s);
+        if deserialize_result.is_err() {
+            return Ok(IdToken::new(s, None, None, None));
+        }
+        deserialize_result
     }
 }

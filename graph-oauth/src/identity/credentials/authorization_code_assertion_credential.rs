@@ -4,6 +4,7 @@ use std::fmt::{Debug, Formatter};
 use async_trait::async_trait;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
+use url::Url;
 
 use uuid::Uuid;
 
@@ -422,9 +423,9 @@ impl AuthorizationCodeAssertionCredentialBuilder {
         self
     }
 
-    pub fn with_redirect_uri(&mut self, redirect_uri: impl IntoUrl) -> anyhow::Result<&mut Self> {
-        self.credential.app_config.redirect_uri = Some(redirect_uri.into_url()?);
-        Ok(self)
+    pub fn with_redirect_uri(&mut self, redirect_uri: Url) -> &mut Self {
+        self.credential.app_config.redirect_uri = Some(redirect_uri);
+        self
     }
 
     pub fn with_code_verifier<T: AsRef<str>>(&mut self, code_verifier: T) -> &mut Self {
@@ -447,5 +448,11 @@ impl AuthorizationCodeAssertionCredentialBuilder {
 
     pub fn credential(self) -> AuthorizationCodeAssertionCredential {
         self.credential
+    }
+}
+
+impl Debug for AuthorizationCodeAssertionCredentialBuilder {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        self.credential.fmt(f)
     }
 }

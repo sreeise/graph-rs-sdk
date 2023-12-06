@@ -109,6 +109,18 @@ impl AzureCloudInstance {
         ))
     }
 
+    pub fn openid_configuration_uri(&self, authority: &Authority) -> Result<Url, ParseError> {
+        Url::parse(&format!(
+            "{}/{}/v2.0/.well-known/openid-configuration",
+            self.as_ref(),
+            authority.as_ref()
+        ))
+    }
+
+    pub fn issuer(&self, authority: &Authority) -> Result<Url, ParseError> {
+        Url::parse(&format!("{}/{}/v2.0", self.as_ref(), authority.as_ref()))
+    }
+
     /*
     pub fn default_microsoft_graph_scope(&self) -> &'static str {
         "https://graph.microsoft.com/.default"

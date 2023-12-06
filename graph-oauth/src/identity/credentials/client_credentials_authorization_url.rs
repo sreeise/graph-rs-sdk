@@ -41,11 +41,14 @@ impl ClientCredentialsAuthorizationUrlParameters {
         ClientCredentialsAuthorizationUrlParameterBuilder::new(client_id)
     }
 
-    pub fn into_credential(self, client_secret: impl AsRef<str>) -> ClientSecretCredentialBuilder {
+    pub fn with_client_secret(
+        self,
+        client_secret: impl AsRef<str>,
+    ) -> ClientSecretCredentialBuilder {
         ClientSecretCredentialBuilder::new_with_client_secret(client_secret, self.app_config)
     }
 
-    pub fn into_assertion_credential(
+    pub fn with_client_assertion(
         self,
         signed_assertion: impl AsRef<str>,
     ) -> ClientAssertionCredentialBuilder {
@@ -56,7 +59,7 @@ impl ClientCredentialsAuthorizationUrlParameters {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn into_certificate_credential(
+    pub fn with_client_x509_certificate(
         self,
         _client_secret: impl AsRef<str>,
         x509: &X509Certificate,
@@ -159,14 +162,17 @@ impl ClientCredentialsAuthorizationUrlParameterBuilder {
         self.credential.url()
     }
 
-    pub fn into_credential(self, client_secret: impl AsRef<str>) -> ClientSecretCredentialBuilder {
+    pub fn with_client_secret(
+        self,
+        client_secret: impl AsRef<str>,
+    ) -> ClientSecretCredentialBuilder {
         ClientSecretCredentialBuilder::new_with_client_secret(
             client_secret,
             self.credential.app_config,
         )
     }
 
-    pub fn into_assertion_credential(
+    pub fn with_client_assertion(
         self,
         signed_assertion: impl AsRef<str>,
     ) -> ClientAssertionCredentialBuilder {
@@ -177,7 +183,7 @@ impl ClientCredentialsAuthorizationUrlParameterBuilder {
     }
 
     #[cfg(feature = "openssl")]
-    pub fn into_certificate_credential(
+    pub fn with_client_x509_certificate(
         self,
         _client_secret: impl AsRef<str>,
         x509: &X509Certificate,

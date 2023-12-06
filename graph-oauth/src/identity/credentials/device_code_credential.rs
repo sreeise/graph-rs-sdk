@@ -11,6 +11,12 @@ use tracing::error;
 use url::Url;
 use uuid::Uuid;
 
+use crate::identity::{
+    tracing_targets::INTERACTIVE_AUTH, AppConfig, Authority, AzureCloudInstance,
+    DeviceAuthorizationResponse, PollDeviceCodeEvent, PublicClientApplication, Token,
+    TokenCredentialExecutor,
+};
+use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 use graph_core::http::{
     AsyncResponseConverterExt, HttpResponseExt, JsonHttpResponse, ResponseConverterExt,
 };
@@ -18,13 +24,6 @@ use graph_error::{
     AuthExecutionError, AuthExecutionResult, AuthTaskExecutionResult, AuthorizationFailure,
     IdentityResult,
 };
-
-use crate::identity::credentials::app_config::AppConfig;
-use crate::identity::{
-    Authority, AzureCloudInstance, DeviceAuthorizationResponse, PollDeviceCodeEvent,
-    PublicClientApplication, Token, TokenCredentialExecutor,
-};
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
 #[cfg(feature = "interactive-auth")]
 use graph_error::WebViewDeviceCodeError;
@@ -453,7 +452,7 @@ impl DeviceCodePollingExecutor {
                             Err(_) => {
                                 error!(
                                     target = "device_code_polling_executor",
-                                    "Invalid PollDeviceCodeEvent"
+                                    "invalid PollDeviceCodeEvent"
                                 );
                                 break;
                             }
@@ -563,34 +562,43 @@ impl DeviceCodePollingExecutor {
     ) -> AuthExecutionResult<(DeviceAuthorizationResponse, DeviceCodeInteractiveAuth)> {
         let response = self.credential.execute()?;
         let device_authorization_response: DeviceAuthorizationResponse = response.json()?;
+        self.credential
+            .with_device_code(device_authorization_response.device_code.clone());
+
         Ok((
             device_authorization_response.clone(),
             DeviceCodeInteractiveAuth {
                 credential: self.credential.clone(),
-                device_authorization_response,
+                interval: Duration::from_secs(device_authorization_response.interval),
+                verification_uri: device_authorization_response.verification_uri.clone(),
+                verification_uri_complete: device_authorization_response
+                    .verification_uri_complete
+                    .clone(),
             },
         ))
     }
 }
 
-#[cfg(feature = "interactive-auth")]
-impl InteractiveAuth for DeviceCodeCredential {
-    fn webview(
-        host_options: HostOptions,
-        window: Window,
-        _proxy: EventLoopProxy<UserEvents>,
-    ) -> anyhow::Result<WebView> {
-        Ok(WebViewBuilder::new(window)?
-            .with_url(host_options.start_uri.as_ref())?
-            // Disables file drop
-            .with_file_drop_handler(|_, _| true)
-            .with_navigation_handler(move |uri| {
-                if let Ok(url) = Url::parse(uri.as_str()) {
-                    tracing::event!(tracing::Level::INFO, url = url.as_str());
-                }
-                true
-            })
-            .build()?)
+pub(crate) mod internal {
+    use super::*;
+
+    #[cfg(feature = "interactive-auth")]
+    impl InteractiveAuth for DeviceCodeCredential {
+        fn webview(
+            host_options: HostOptions,
+            window: Window,
+            _proxy: EventLoopProxy<UserEvents>,
+        ) -> anyhow::Result<WebView> {
+            Ok(WebViewBuilder::new(window)?
+                .with_url(host_options.start_uri.as_ref())?
+                // Disables file drop
+                .with_file_drop_handler(|_, _| true)
+                .with_navigation_handler(move |uri| {
+                    tracing::debug!(target: INTERACTIVE_AUTH, url = uri.as_str());
+                    true
+                })
+                .build()?)
+        }
     }
 }
 
@@ -598,62 +606,55 @@ impl InteractiveAuth for DeviceCodeCredential {
 #[derive(Debug)]
 pub struct DeviceCodeInteractiveAuth {
     credential: DeviceCodeCredential,
-    pub device_authorization_response: DeviceAuthorizationResponse,
+    interval: Duration,
+    verification_uri: String,
+    verification_uri_complete: Option<String>,
 }
 
 #[allow(dead_code)]
 #[cfg(feature = "interactive-auth")]
 impl DeviceCodeInteractiveAuth {
     pub(crate) fn new(
-        credential: DeviceCodeCredential,
+        mut credential: DeviceCodeCredential,
         device_authorization_response: DeviceAuthorizationResponse,
     ) -> DeviceCodeInteractiveAuth {
+        credential.with_device_code(device_authorization_response.device_code.clone());
         DeviceCodeInteractiveAuth {
             credential,
-            device_authorization_response,
+            interval: Duration::from_secs(device_authorization_response.interval),
+            verification_uri: device_authorization_response.verification_uri.clone(),
+            verification_uri_complete: device_authorization_response
+                .verification_uri_complete
+                .clone(),
         }
     }
 
     pub fn interactive_webview_authentication(
         &mut self,
-        options: Option<WebViewOptions>,
+        options: WebViewOptions,
     ) -> Result<PublicClientApplication<DeviceCodeCredential>, WebViewDeviceCodeError> {
         let url = {
-            if let Some(url_complete) = self
-                .device_authorization_response
-                .verification_uri_complete
-                .as_ref()
-            {
-                Url::parse(url_complete).unwrap()
+            if let Some(url_complete) = self.verification_uri_complete.as_ref() {
+                Url::parse(url_complete).map_err(AuthorizationFailure::from)?
             } else {
-                Url::parse(self.device_authorization_response.verification_uri.as_str()).unwrap()
+                Url::parse(self.verification_uri.as_str()).map_err(AuthorizationFailure::from)?
             }
         };
 
         let (sender, _receiver) = std::sync::mpsc::channel();
 
         std::thread::spawn(move || {
-            DeviceCodeCredential::interactive_auth(
-                url,
-                vec![],
-                options.unwrap_or_default(),
-                sender,
-            )
-            .unwrap();
+            DeviceCodeCredential::interactive_auth(url, vec![], options, sender).unwrap();
         });
 
         self.poll()
     }
 
-    #[tracing::instrument]
     pub(crate) fn poll(
         &mut self,
     ) -> Result<PublicClientApplication<DeviceCodeCredential>, WebViewDeviceCodeError> {
         let mut credential = self.credential.clone();
-
-        let device_code = self.device_authorization_response.device_code.clone();
-        let interval = Duration::from_secs(self.device_authorization_response.interval);
-        credential.with_device_code(device_code);
+        let interval = self.interval.clone();
 
         let mut should_slow_down = false;
 
@@ -667,13 +668,13 @@ impl DeviceCodeInteractiveAuth {
             }
 
             let response = credential.execute().unwrap();
-            let http_response = response.into_http_response()?;
+            let http_response = response.into_http_response().map_err(|err| Box::new(err))?;
             let status = http_response.status();
 
             if status.is_success() {
                 let json = http_response.json().unwrap();
-                let token: Token =
-                    serde_json::from_value(json).map_err(AuthExecutionError::from)?;
+                let token: Token = serde_json::from_value(json)
+                    .map_err(|err| Box::new(AuthExecutionError::from(err)))?;
                 let cache_id = credential.app_config.cache_id.clone();
                 credential.token_cache.store(cache_id, token);
                 return Ok(PublicClientApplication::from(credential));

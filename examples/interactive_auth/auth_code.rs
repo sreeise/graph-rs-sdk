@@ -1,4 +1,5 @@
 use graph_rs_sdk::{oauth::AuthorizationCodeCredential, GraphClient};
+use url::Url;
 
 // Requires feature=interactive_authentication
 
@@ -29,17 +30,17 @@ async fn authenticate(
     std::env::set_var("RUST_LOG", "debug");
     pretty_env_logger::init();
 
-    let (authorization_query_response, mut credential_builder) =
+    let (authorization_query_response, credential_builder) =
         AuthorizationCodeCredential::authorization_url_builder(client_id)
             .with_tenant(tenant_id)
             .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
-            .with_redirect_uri(redirect_uri)
-            .with_interactive_authentication_for_secret(Default::default())
-            .unwrap();
+            .with_redirect_uri(Url::parse(redirect_uri)?)
+            .with_interactive_auth_for_secret(client_secret, Default::default())?
+            .into_result()?;
 
     debug!("{authorization_query_response:#?}");
 
-    let mut confidential_client = credential_builder.with_client_secret(client_secret).build();
+    let confidential_client = credential_builder.build();
 
     Ok(GraphClient::from(&confidential_client))
 }

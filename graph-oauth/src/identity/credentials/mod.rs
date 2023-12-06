@@ -1,3 +1,4 @@
+pub use app_config::*;
 pub use application_builder::*;
 pub use as_query::*;
 pub use auth_code_authorization_url::*;
@@ -58,4 +59,7 @@ mod token_credential_executor;
 #[cfg(feature = "openssl")]
 mod x509_certificate;
 
-pub(crate) const EXECUTOR_TRACING_TARGET: &str = "graph_rs_sdk::credential_executor";
+pub(crate) mod tracing_targets {
+    pub const CREDENTIAL_EXECUTOR: &str = "graph_rs_sdk::credential_executor";
+    pub const INTERACTIVE_AUTH: &str = "graph_rs_sdk::interactive_auth";
+}

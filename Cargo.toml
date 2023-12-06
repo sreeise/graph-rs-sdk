@@ -69,6 +69,7 @@ webbrowser = "0.8.7"
 anyhow = "1.0.69"
 log = "0.4"
 pretty_env_logger = "0.5.0"
+base64 = "0.21.0"
 
 graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
 test-tools = { path = "./test-tools", version = "0.0.1" }

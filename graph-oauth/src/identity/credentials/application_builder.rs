@@ -178,7 +178,7 @@ impl ConfidentialClientApplicationBuilder {
 
     /// Auth Code Using X509 Certificate
     #[cfg(feature = "openssl")]
-    pub fn with_authorization_code_x509_certificate(
+    pub fn with_auth_code_x509_certificate(
         &mut self,
         authorization_code: impl AsRef<str>,
         x509: &X509Certificate,

@@ -14,8 +14,8 @@ use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication, Token, TokenCredentialExecutor,
-    CLIENT_ASSERTION_TYPE, EXECUTOR_TRACING_TARGET,
+    tracing_targets::CREDENTIAL_EXECUTOR, Authority, AzureCloudInstance,
+    ConfidentialClientApplication, Token, TokenCredentialExecutor, CLIENT_ASSERTION_TYPE,
 };
 
 credential_builder!(
@@ -55,9 +55,9 @@ pub struct ClientAssertionCredential {
 
 impl ClientAssertionCredential {
     pub fn new(
-        assertion: impl AsRef<str>,
         tenant_id: impl AsRef<str>,
         client_id: impl AsRef<str>,
+        assertion: impl AsRef<str>,
     ) -> ClientAssertionCredential {
         ClientAssertionCredential {
             app_config: AppConfig::builder(client_id.as_ref())
@@ -119,14 +119,14 @@ impl TokenCache for ClientAssertionCredential {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
                 self.execute_cached_token_refresh(cache_id)
             } else {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "using token from cache");
                 Ok(token)
             }
         } else {
-            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
             self.execute_cached_token_refresh(cache_id)
         }
     }
@@ -136,65 +136,20 @@ impl TokenCache for ClientAssertionCredential {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
                 self.execute_cached_token_refresh_async(cache_id).await
             } else {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "using token from cache");
                 Ok(token.clone())
             }
         } else {
-            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
             self.execute_cached_token_refresh_async(cache_id).await
         }
     }
 
     fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
         self.app_config.force_token_refresh = force_token_refresh;
-    }
-}
-
-#[derive(Clone)]
-pub struct ClientAssertionCredentialBuilder {
-    credential: ClientAssertionCredential,
-}
-
-impl ClientAssertionCredentialBuilder {
-    pub fn new(
-        client_id: impl AsRef<str>,
-        signed_assertion: impl AsRef<str>,
-    ) -> ClientAssertionCredentialBuilder {
-        ClientAssertionCredentialBuilder {
-            credential: ClientAssertionCredential {
-                app_config: AppConfig::builder(client_id.as_ref())
-                    .scope(vec!["https://graph.microsoft.com/.default"])
-                    .build(),
-                client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
-                client_assertion: signed_assertion.as_ref().to_owned(),
-                token_cache: Default::default(),
-            },
-        }
-    }
-
-    pub(crate) fn new_with_signed_assertion(
-        signed_assertion: impl AsRef<str>,
-        mut app_config: AppConfig,
-    ) -> ClientAssertionCredentialBuilder {
-        app_config
-            .scope
-            .insert("https://graph.microsoft.com/.default".to_string());
-        ClientAssertionCredentialBuilder {
-            credential: ClientAssertionCredential {
-                app_config,
-                client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
-                client_assertion: signed_assertion.as_ref().to_owned(),
-                token_cache: Default::default(),
-            },
-        }
-    }
-
-    pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
-        self.credential.client_assertion = client_assertion.as_ref().to_owned();
-        self
     }
 }
 
@@ -247,5 +202,50 @@ impl TokenCredentialExecutor for ClientAssertionCredential {
 
     fn app_config(&self) -> &AppConfig {
         &self.app_config
+    }
+}
+
+#[derive(Clone)]
+pub struct ClientAssertionCredentialBuilder {
+    credential: ClientAssertionCredential,
+}
+
+impl ClientAssertionCredentialBuilder {
+    pub fn new(
+        client_id: impl AsRef<str>,
+        signed_assertion: impl AsRef<str>,
+    ) -> ClientAssertionCredentialBuilder {
+        ClientAssertionCredentialBuilder {
+            credential: ClientAssertionCredential {
+                app_config: AppConfig::builder(client_id.as_ref())
+                    .scope(vec!["https://graph.microsoft.com/.default"])
+                    .build(),
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
+                client_assertion: signed_assertion.as_ref().to_owned(),
+                token_cache: Default::default(),
+            },
+        }
+    }
+
+    pub(crate) fn new_with_signed_assertion(
+        signed_assertion: impl AsRef<str>,
+        mut app_config: AppConfig,
+    ) -> ClientAssertionCredentialBuilder {
+        app_config
+            .scope
+            .insert("https://graph.microsoft.com/.default".to_string());
+        ClientAssertionCredentialBuilder {
+            credential: ClientAssertionCredential {
+                app_config,
+                client_assertion_type: CLIENT_ASSERTION_TYPE.to_string(),
+                client_assertion: signed_assertion.as_ref().to_owned(),
+                token_cache: Default::default(),
+            },
+        }
+    }
+
+    pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
+        self.credential.client_assertion = client_assertion.as_ref().to_owned();
+        self
     }
 }

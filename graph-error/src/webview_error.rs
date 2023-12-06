@@ -5,7 +5,7 @@ pub enum WebViewError {
     /// Webview Window closed for one of the following reasons:
     /// 1. The user closed the webview window without logging in.
     /// 2. The webview exited because of a timeout defined in the WebViewOptions.
-    #[error("WindowClosed: {0:#?}")]
+    #[error("window closed: {0:#?}")]
     WindowClosed(String),
 
     /// One of the following errors has occurred:
@@ -25,7 +25,7 @@ pub enum WebViewError {
     /// The query or fragment of the redirect uri is an error returned
     /// from Microsoft.
     #[error("{error:#?}, {error_description:#?}, {error_uri:#?}")]
-    AuthorizationQuery {
+    Authorization {
         error: String,
         error_description: String,
         error_uri: Option<String>,
@@ -46,11 +46,20 @@ pub enum WebViewDeviceCodeError {
     /// Webview Window closed for one of the following reasons:
     /// 1. The user closed the webview window without logging in.
     /// 2. The webview exited because of a timeout defined in the WebViewOptions.
-    #[error("window closed reason: {0:#?}")]
+    /// 3. The window or event loop was destroyed. The cause is unknown.
+    #[error("{0:#?}")]
     WindowClosed(String),
     /// Error that happens calling the http request.
     #[error("{0:#?}")]
-    AuthExecutionError(#[from] AuthExecutionError),
+    AuthExecutionError(#[from] Box<AuthExecutionError>),
     #[error("{0:#?}")]
     DeviceCodePollingError(http::Response<Result<serde_json::Value, ErrorMessage>>),
+}
+
+impl From<AuthorizationFailure> for WebViewDeviceCodeError {
+    fn from(value: AuthorizationFailure) -> Self {
+        WebViewDeviceCodeError::AuthExecutionError(Box::new(AuthExecutionError::Authorization(
+            value,
+        )))
+    }
 }

@@ -5,7 +5,6 @@ extern crate pretty_env_logger;
 extern crate log;
 mod auth_code;
 mod openid;
-mod webview_errors;
 mod webview_options;
 
 #[tokio::main]

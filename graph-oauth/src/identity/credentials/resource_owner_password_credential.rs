@@ -1,6 +1,7 @@
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AzureCloudInstance, Token, TokenCredentialExecutor, EXECUTOR_TRACING_TARGET,
+    tracing_targets::CREDENTIAL_EXECUTOR, Authority, AzureCloudInstance, Token,
+    TokenCredentialExecutor,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 use async_trait::async_trait;
@@ -117,14 +118,14 @@ impl TokenCache for ResourceOwnerPasswordCredential {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
                 self.execute_cached_token_refresh(cache_id)
             } else {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "using token from cache");
                 Ok(token)
             }
         } else {
-            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
             self.execute_cached_token_refresh(cache_id)
         }
     }
@@ -133,14 +134,14 @@ impl TokenCache for ResourceOwnerPasswordCredential {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
                 self.execute_cached_token_refresh_async(cache_id).await
             } else {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "using token from cache");
                 Ok(token.clone())
             }
         } else {
-            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
             self.execute_cached_token_refresh_async(cache_id).await
         }
     }

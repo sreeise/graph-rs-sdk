@@ -6,8 +6,9 @@ use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Add, Sub};
 
-use crate::identity::{AuthorizationResponse, IdToken};
+use crate::identity::{Authority, AuthorizationResponse, Claims, IdToken};
 use graph_core::cache::AsBearer;
+use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
 use std::str::FromStr;
 use time::OffsetDateTime;
 
@@ -107,7 +108,7 @@ pub struct Token {
     /// [Refresh tokens in the Microsoft identity platform.](https://learn.microsoft.com/en-us/azure/active-directory/develop/refresh-tokens)
     pub refresh_token: Option<String>,
     pub user_id: Option<String>,
-    pub id_token: Option<String>,
+    pub id_token: Option<IdToken>,
     pub state: Option<String>,
     pub correlation_id: Option<String>,
     pub client_info: Option<String>,
@@ -246,7 +247,7 @@ impl Token {
     /// access_token.set_id_token("id_token");
     /// ```
     pub fn set_id_token(&mut self, s: &str) -> &mut Self {
-        self.id_token = Some(s.to_string());
+        self.id_token = Some(IdToken::new(s, None, None, None));
         self
     }
 
@@ -260,11 +261,7 @@ impl Token {
     /// access_token.with_id_token(IdToken::new("id_token", "code", "state", "session_state"));
     /// ```
     pub fn with_id_token(&mut self, id_token: IdToken) {
-        self.id_token = Some(id_token.id_token);
-    }
-
-    pub fn parse_id_token(&mut self) -> Option<Result<IdToken, serde::de::value::Error>> {
-        self.id_token.clone().map(|s| IdToken::from_str(s.as_str()))
+        self.id_token = Some(id_token);
     }
 
     /// Set the state.
@@ -377,6 +374,41 @@ impl Token {
     pub fn elapsed(&self) -> Option<time::Duration> {
         Some(self.expires_on? - self.timestamp?)
     }
+
+    pub fn decode_header(&self) -> jsonwebtoken::errors::Result<jsonwebtoken::Header> {
+        let id_token = self
+            .id_token
+            .as_ref()
+            .ok_or(jsonwebtoken::errors::Error::from(
+                jsonwebtoken::errors::ErrorKind::InvalidToken,
+            ))?;
+        jsonwebtoken::decode_header(id_token.as_ref())
+    }
+
+    /// Decode and validate the id token.
+    pub fn decode(
+        &self,
+        n: &str,
+        e: &str,
+        client_id: &str,
+        issuer: &str,
+    ) -> jsonwebtoken::errors::Result<TokenData<Claims>> {
+        let id_token = self
+            .id_token
+            .as_ref()
+            .ok_or(jsonwebtoken::errors::Error::from(
+                jsonwebtoken::errors::ErrorKind::InvalidToken,
+            ))?;
+        let mut validation = Validation::new(Algorithm::RS256);
+        validation.set_audience(&[client_id]);
+        validation.set_issuer(&[issuer]);
+
+        jsonwebtoken::decode::<Claims>(
+            id_token.as_ref(),
+            &DecodingKey::from_rsa_components(n, e).unwrap(),
+            &validation,
+        )
+    }
 }
 
 impl Default for Token {
@@ -413,7 +445,9 @@ impl From<AuthorizationResponse> for Token {
             scope: vec![],
             refresh_token: None,
             user_id: None,
-            id_token: value.id_token,
+            id_token: value
+                .id_token
+                .map(|id_token| IdToken::new(id_token.as_ref(), None, None, None)),
             state: None,
             correlation_id: None,
             client_info: None,
@@ -532,6 +566,14 @@ impl<'de> Deserialize<'de> for Token {
         let timestamp = OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(phantom_access_token.expires_in));
 
+        let id_token = {
+            if let Some(id_token_string) = phantom_access_token.id_token.as_ref() {
+                IdToken::from_str(id_token_string.as_ref()).ok()
+            } else {
+                None
+            }
+        };
+
         Ok(Token {
             access_token: phantom_access_token.access_token,
             token_type: phantom_access_token.token_type,
@@ -540,7 +582,7 @@ impl<'de> Deserialize<'de> for Token {
             scope: phantom_access_token.scope,
             refresh_token: phantom_access_token.refresh_token,
             user_id: phantom_access_token.user_id,
-            id_token: phantom_access_token.id_token,
+            id_token,
             state: phantom_access_token.state,
             correlation_id: phantom_access_token.correlation_id,
             client_info: phantom_access_token.client_info,

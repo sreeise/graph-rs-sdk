@@ -5,21 +5,24 @@ use async_trait::async_trait;
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use http::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::IntoUrl;
-use url::Url;
+use url::{ParseError, Url};
 use uuid::Uuid;
 
 use graph_core::crypto::{GenPkce, ProofKeyCodeExchange};
 use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
-use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
+use graph_error::{
+    AuthExecutionError, AuthExecutionResult, AuthorizationFailure, IdentityResult, AF,
+};
 
 use crate::identity::credentials::app_config::{AppConfig, AppConfigBuilder};
 use crate::identity::{
-    Authority, AzureCloudInstance, ConfidentialClientApplication,
+    Authority, AuthorizationResponse, AzureCloudInstance, ConfidentialClientApplication,
     OpenIdAuthorizationUrlParameterBuilder, OpenIdAuthorizationUrlParameters, Token,
     TokenCredentialExecutor,
 };
 use crate::internal::{OAuthParameter, OAuthSerializer};
+use crate::oauth::JwtHeader;
 
 credential_builder!(
     OpenIdCredentialBuilder,
@@ -61,7 +64,9 @@ pub struct OpenIdCredential {
     pub(crate) pkce: Option<ProofKeyCodeExchange>,
     serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
+    openid_config: Option<serde_json::Value>,
 }
+
 impl Debug for OpenIdCredential {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("OpenIdCredential")
@@ -90,6 +95,7 @@ impl OpenIdCredential {
             pkce: None,
             serializer: Default::default(),
             token_cache: Default::default(),
+            openid_config: None,
         })
     }
 
@@ -112,6 +118,84 @@ impl OpenIdCredential {
 
     pub fn pkce(&self) -> Option<&ProofKeyCodeExchange> {
         self.pkce.as_ref()
+    }
+
+    pub fn get_openid_config(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
+        let uri = self
+            .app_config
+            .azure_cloud_instance
+            .openid_configuration_uri(&self.app_config.authority)
+            .map_err(AuthorizationFailure::from)?;
+        Ok(reqwest::blocking::get(uri)?)
+    }
+
+    pub async fn get_openid_config_async(&self) -> AuthExecutionResult<reqwest::Response> {
+        let uri = self
+            .app_config
+            .azure_cloud_instance
+            .openid_configuration_uri(&self.app_config.authority)
+            .map_err(AuthorizationFailure::from)?;
+        reqwest::get(uri).await.map_err(AuthExecutionError::from)
+    }
+
+    pub fn get_jwks(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
+        let config_response = self.get_openid_config()?;
+        let json: serde_json::Value = config_response.json()?;
+        let jwks_uri = json["jwks_uri"]
+            .as_str()
+            .ok_or(AuthExecutionError::Authorization(AF::msg_err(
+                "jwks_uri",
+                "not found in openid configuration",
+            )))?;
+        Ok(reqwest::blocking::get(jwks_uri)?)
+    }
+
+    pub async fn get_jwks_async(&self) -> AuthExecutionResult<reqwest::Response> {
+        let config_response = self.get_openid_config_async().await?;
+        let json: serde_json::Value = config_response.json().await?;
+        let jwks_uri = json["jwks_uri"]
+            .as_str()
+            .ok_or(AuthExecutionError::Authorization(AF::msg_err(
+                "jwks_uri",
+                "not found in openid configuration",
+            )))?;
+        reqwest::get(jwks_uri)
+            .await
+            .map_err(AuthExecutionError::from)
+    }
+
+    pub fn get_jwks_key(&self, kid: &str) -> AuthExecutionResult<serde_json::Value> {
+        let response = self.get_jwks()?;
+        let json: serde_json::Value = response.json()?;
+        let keys = json["keys"].as_array().ok_or(AF::msg_err(
+            "keys",
+            "required but not found in json web key set",
+        ))?;
+        keys.iter()
+            .find(|value| value["kid"].as_str().eq(&Some(kid)))
+            .cloned()
+            .ok_or(AF::msg_err("kid", "no match found in json web keys"))
+            .map_err(AuthExecutionError::from)
+    }
+
+    pub async fn get_jwks_key_async(&self, kid: &str) -> AuthExecutionResult<serde_json::Value> {
+        let response = self.get_jwks_async().await?;
+        let json: serde_json::Value = response.json().await?;
+        let keys = json["keys"].as_array().ok_or(AF::msg_err(
+            "keys",
+            "required but not found in json web key set",
+        ))?;
+        keys.iter()
+            .find(|value| value["kid"].as_str().eq(&Some(kid)))
+            .cloned()
+            .ok_or(AF::msg_err("kid", "no match found in json web keys"))
+            .map_err(AuthExecutionError::from)
+    }
+
+    pub fn issuer(&self) -> Result<Url, ParseError> {
+        self.app_config
+            .azure_cloud_instance
+            .issuer(&self.app_config.authority)
     }
 
     fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
@@ -351,6 +435,12 @@ pub struct OpenIdCredentialBuilder {
     credential: OpenIdCredential,
 }
 
+impl Debug for OpenIdCredentialBuilder {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        self.credential.fmt(f)
+    }
+}
+
 impl OpenIdCredentialBuilder {
     fn new(client_id: impl TryInto<Uuid>) -> OpenIdCredentialBuilder {
         Self {
@@ -368,6 +458,7 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
+                openid_config: None,
             },
         }
     }
@@ -384,6 +475,7 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
+                openid_config: None,
             },
         }
     }
@@ -403,6 +495,7 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
+                openid_config: None,
             },
         }
     }
@@ -423,11 +516,11 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
+                openid_config: None,
             },
         }
     }
 
-    #[cfg(feature = "interactive-auth")]
     pub(crate) fn new_with_token(app_config: AppConfig, token: Token) -> OpenIdCredentialBuilder {
         let cache_id = app_config.cache_id.clone();
         let mut token_cache = InMemoryCacheStore::new();
@@ -443,6 +536,7 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache,
+                openid_config: None,
             },
         }
     }
@@ -488,6 +582,34 @@ impl OpenIdCredentialBuilder {
         Ok(self)
     }
 
+    pub fn issuer(&self) -> Result<Url, ParseError> {
+        self.credential.issuer()
+    }
+
+    pub fn get_openid_config(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
+        self.credential.get_openid_config()
+    }
+
+    pub async fn get_openid_config_async(&self) -> AuthExecutionResult<reqwest::Response> {
+        self.credential.get_openid_config_async().await
+    }
+
+    pub fn get_jwks(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
+        self.credential.get_jwks()
+    }
+
+    pub async fn get_jwks_async(&self) -> AuthExecutionResult<reqwest::Response> {
+        self.credential.get_jwks_async().await
+    }
+
+    pub fn get_jwks_key(&self, kid: &str) -> AuthExecutionResult<serde_json::Value> {
+        self.credential.get_jwks_key(kid)
+    }
+
+    pub async fn get_jwks_key_async(&self, kid: &str) -> AuthExecutionResult<serde_json::Value> {
+        self.credential.get_jwks_key_async(kid).await
+    }
+
     pub fn credential(&self) -> &OpenIdCredential {
         &self.credential
     }
@@ -502,6 +624,20 @@ impl From<OpenIdAuthorizationUrlParameters> for OpenIdCredentialBuilder {
 impl From<OpenIdCredential> for OpenIdCredentialBuilder {
     fn from(credential: OpenIdCredential) -> Self {
         OpenIdCredentialBuilder { credential }
+    }
+}
+
+impl From<(AppConfig, AuthorizationResponse)> for OpenIdCredentialBuilder {
+    fn from(value: (AppConfig, AuthorizationResponse)) -> Self {
+        let (app_config, authorization_response) = value;
+        if let Some(authorization_code) = authorization_response.code.as_ref() {
+            OpenIdCredentialBuilder::new_with_auth_code(app_config, authorization_code)
+        } else {
+            OpenIdCredentialBuilder::new_with_token(
+                app_config,
+                Token::from(authorization_response.clone()),
+            )
+        }
     }
 }
 

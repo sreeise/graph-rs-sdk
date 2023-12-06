@@ -1,5 +1,5 @@
+use crate::identity::tracing_targets::INTERACTIVE_AUTH;
 use crate::web::{HostOptions, WebViewOptions};
-use graph_error::WebViewResult;
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::mpsc::Sender;
 use std::time::{Duration, Instant};
@@ -22,6 +22,7 @@ pub enum WindowCloseReason {
         start: Instant,
         requested_resume: Instant,
     },
+    WindowDestroyed,
 }
 
 impl Display for WindowCloseReason {
@@ -29,6 +30,7 @@ impl Display for WindowCloseReason {
         match self {
             WindowCloseReason::CloseRequested => write!(f, "CloseRequested"),
             WindowCloseReason::TimedOut { .. } => write!(f, "TimedOut"),
+            WindowCloseReason::WindowDestroyed => write!(f, "WindowDestroyed"),
         }
     }
 }
@@ -45,13 +47,6 @@ pub enum UserEvents {
     CloseWindow,
     InternalCloseWindow,
     ReachedRedirectUri(Url),
-}
-
-pub trait InteractiveAuthenticator {
-    fn interactive_authentication(
-        &self,
-        interactive_web_view_options: Option<WebViewOptions>,
-    ) -> WebViewResult<std::sync::mpsc::Receiver<InteractiveAuthEvent>>;
 }
 
 pub trait InteractiveAuth
@@ -84,12 +79,23 @@ where
             }
 
             match event {
-                Event::NewEvents(StartCause::Init) => tracing::trace!(target: "graph_rs_sdk::interactive_auth", "Webview runtime started"),
-                Event::NewEvents(StartCause::ResumeTimeReached { start, requested_resume, .. }) => {
-                    sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::TimedOut {
-                        start, requested_resume
-                    })).unwrap_or_default();
-                    tracing::debug!(target: "graph_rs_sdk::interactive_auth", "Timeout reached - closing window");
+                Event::NewEvents(StartCause::Init) => {
+                    tracing::debug!(target: INTERACTIVE_AUTH, "webview runtime started")
+                }
+                Event::NewEvents(StartCause::ResumeTimeReached {
+                    start,
+                    requested_resume,
+                    ..
+                }) => {
+                    sender
+                        .send(InteractiveAuthEvent::WindowClosed(
+                            WindowCloseReason::TimedOut {
+                                start,
+                                requested_resume,
+                            },
+                        ))
+                        .unwrap_or_default();
+                    tracing::debug!(target: INTERACTIVE_AUTH, "timeout reached - closing window");
 
                     if options.clear_browsing_data {
                         let _ = webview.clear_all_browsing_data();
@@ -99,12 +105,33 @@ where
                     std::thread::sleep(Duration::from_millis(500));
                     *control_flow = ControlFlow::Exit
                 }
-                Event::UserEvent(UserEvents::CloseWindow) | Event::WindowEvent {
+                Event::LoopDestroyed
+                | Event::WindowEvent {
+                    event: WindowEvent::Destroyed,
+                    ..
+                } => {
+                    tracing::debug!(target: INTERACTIVE_AUTH, "window destroyed");
+                    sender
+                        .send(InteractiveAuthEvent::WindowClosed(
+                            WindowCloseReason::WindowDestroyed,
+                        ))
+                        .unwrap_or_default();
+
+                    // Wait time to avoid deadlock where window closes before receiver gets the event
+                    std::thread::sleep(Duration::from_millis(500));
+                    *control_flow = ControlFlow::Exit
+                }
+                Event::UserEvent(UserEvents::CloseWindow)
+                | Event::WindowEvent {
                     event: WindowEvent::CloseRequested,
                     ..
                 } => {
-                    sender.send(InteractiveAuthEvent::WindowClosed(WindowCloseReason::CloseRequested)).unwrap_or_default();
-                    tracing::trace!(target: "graph_rs_sdk::interactive_auth", "Window close requested by user");
+                    tracing::debug!(target: INTERACTIVE_AUTH, "window close requested by user");
+                    sender
+                        .send(InteractiveAuthEvent::WindowClosed(
+                            WindowCloseReason::CloseRequested,
+                        ))
+                        .unwrap_or_default();
 
                     if options.clear_browsing_data {
                         let _ = webview.clear_all_browsing_data();
@@ -115,18 +142,21 @@ where
                     *control_flow = ControlFlow::Exit
                 }
                 Event::UserEvent(UserEvents::ReachedRedirectUri(uri)) => {
-                    tracing::trace!(target: "graph_rs_sdk::interactive_auth", "Matched on redirect uri: {uri}");
-                    sender.send(InteractiveAuthEvent::ReachedRedirectUri(uri))
+                    tracing::debug!(target: INTERACTIVE_AUTH, "matched on redirect uri: {uri}");
+                    sender
+                        .send(InteractiveAuthEvent::ReachedRedirectUri(uri))
                         .unwrap_or_default();
                 }
                 Event::UserEvent(UserEvents::InternalCloseWindow) => {
-                    tracing::trace!(target: "graph_rs_sdk::interactive_auth", "Closing window");
+                    tracing::debug!(target: INTERACTIVE_AUTH, "closing window");
                     if options.clear_browsing_data {
+                        tracing::debug!(target: INTERACTIVE_AUTH, "clearing browsing data");
                         let _ = webview.clear_all_browsing_data();
                     }
 
                     // Wait time to avoid deadlock where window closes before
-                    // the channel has received the redirect uri.
+                    // the channel has received the redirect uri. InternalCloseWindow
+                    // is called after ReachedRedirectUri.
                     std::thread::sleep(Duration::from_millis(500));
                     *control_flow = ControlFlow::Exit
                 }

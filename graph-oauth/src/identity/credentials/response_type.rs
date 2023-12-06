@@ -1,4 +1,5 @@
 use std::collections::BTreeSet;
+use std::fmt::Display;
 
 use crate::identity::AsQuery;
 
@@ -6,19 +7,20 @@ use crate::identity::AsQuery;
 pub enum ResponseType {
     #[default]
     Code,
-    Token,
     IdToken,
+    Token,
     StringSet(BTreeSet<String>),
 }
 
-impl ToString for ResponseType {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for ResponseType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
             ResponseType::Code => "code".to_owned(),
-            ResponseType::Token => "token".to_owned(),
             ResponseType::IdToken => "id_token".to_owned(),
+            ResponseType::Token => "token".to_owned(),
             ResponseType::StringSet(response_type_vec) => response_type_vec.iter().as_query(),
-        }
+        };
+        write!(f, "{}", str)
     }
 }
 

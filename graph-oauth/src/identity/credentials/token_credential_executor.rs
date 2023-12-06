@@ -12,7 +12,7 @@ use graph_error::{AuthExecutionResult, IdentityResult};
 
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    Authority, AuthorizationRequestParts, AzureCloudInstance, EXECUTOR_TRACING_TARGET,
+    tracing_targets::CREDENTIAL_EXECUTOR, Authority, AuthorizationRequestParts, AzureCloudInstance,
 };
 
 dyn_clone::clone_trait_object!(TokenCredentialExecutor);
@@ -56,7 +56,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .form(&auth_request.form_urlencoded);
 
             tracing::debug!(
-                 target: EXECUTOR_TRACING_TARGET,
+                 target: CREDENTIAL_EXECUTOR,
                 "authorization request constructed"
             );
             Ok(request_builder)
@@ -67,7 +67,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .form(&auth_request.form_urlencoded);
 
             tracing::debug!(
-                 target: EXECUTOR_TRACING_TARGET,
+                 target: CREDENTIAL_EXECUTOR,
                 "authorization request constructed"
             );
             Ok(request_builder)
@@ -91,7 +91,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .form(&auth_request.form_urlencoded);
 
             tracing::debug!(
-                target: EXECUTOR_TRACING_TARGET,
+                target: CREDENTIAL_EXECUTOR,
                 "authorization request constructed"
             );
             Ok(request_builder)
@@ -102,7 +102,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
                 .form(&auth_request.form_urlencoded);
 
             tracing::debug!(
-                target: EXECUTOR_TRACING_TARGET,
+                target: CREDENTIAL_EXECUTOR,
                 "authorization request constructed"
             );
             Ok(request_builder)
@@ -139,7 +139,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
         let request_builder = self.build_request()?;
         let response = request_builder.send()?;
         let status = response.status();
-        tracing::debug!(target: EXECUTOR_TRACING_TARGET, "authorization response received; status={status:#?}");
+        tracing::debug!(target: CREDENTIAL_EXECUTOR, "authorization response received; status={status:#?}");
         Ok(response)
     }
 
@@ -147,7 +147,7 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
         let request_builder = self.build_request_async()?;
         let response = request_builder.send().await?;
         let status = response.status();
-        tracing::debug!(target: EXECUTOR_TRACING_TARGET, "authorization response received; status={status:#?}");
+        tracing::debug!(target: CREDENTIAL_EXECUTOR, "authorization response received; status={status:#?}");
         Ok(response)
     }
 }

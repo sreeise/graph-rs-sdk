@@ -54,7 +54,7 @@ pub struct X509Certificate {
 }
 
 impl X509Certificate {
-    pub fn new<T: AsRef<str>>(client_id: T, certificate: X509, private_key: PKey<Private>) -> Self {
+    pub fn new(client_id: impl AsRef<str>, certificate: X509, private_key: PKey<Private>) -> Self {
         Self {
             client_id: client_id.as_ref().to_owned(),
             tenant_id: None,
@@ -68,9 +68,9 @@ impl X509Certificate {
         }
     }
 
-    pub fn new_with_tenant<T: AsRef<str>>(
-        client_id: T,
-        tenant_id: T,
+    pub fn new_with_tenant(
+        client_id: impl AsRef<str>,
+        tenant_id: impl AsRef<str>,
         certificate: X509,
         private_key: PKey<Private>,
     ) -> Self {
@@ -87,9 +87,9 @@ impl X509Certificate {
         }
     }
 
-    pub fn new_from_pass<T: AsRef<str>>(
-        client_id: T,
-        pass: T,
+    pub fn new_from_pass(
+        client_id: impl AsRef<str>,
+        pass: impl AsRef<str>,
         certificate: X509,
     ) -> IdentityResult<Self> {
         let der = encode_cert(&certificate)?;
@@ -123,10 +123,10 @@ impl X509Certificate {
         })
     }
 
-    pub fn new_from_pass_with_tenant<T: AsRef<str>>(
-        client_id: T,
-        tenant_id: T,
-        pass: T,
+    pub fn new_from_pass_with_tenant(
+        client_id: impl AsRef<str>,
+        tenant_id: impl AsRef<str>,
+        pass: impl AsRef<str>,
         certificate: X509,
     ) -> IdentityResult<Self> {
         let der = encode_cert(&certificate)?;

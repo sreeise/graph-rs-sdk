@@ -15,8 +15,9 @@ use crate::identity::credentials::app_config::AppConfig;
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
 use crate::identity::{
-    Authority, AzureCloudInstance, ClientCredentialsAuthorizationUrlParameterBuilder,
-    ConfidentialClientApplication, Token, TokenCredentialExecutor, EXECUTOR_TRACING_TARGET,
+    tracing_targets::CREDENTIAL_EXECUTOR, Authority, AzureCloudInstance,
+    ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication, Token,
+    TokenCredentialExecutor,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
@@ -44,7 +45,6 @@ credential_builder!(
 /// the certificate yourself. If you need to use your own assertion see
 /// [ClientAssertionCredential](crate::identity::ClientAssertionCredential)
 #[derive(Clone)]
-#[allow(dead_code)]
 pub struct ClientCertificateCredential {
     pub(crate) app_config: AppConfig,
     /// The value must be set to urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
@@ -63,22 +63,11 @@ pub struct ClientCertificateCredential {
 }
 
 impl ClientCertificateCredential {
-    pub fn new<T: AsRef<str>>(client_id: T, client_assertion: T) -> ClientCertificateCredential {
-        ClientCertificateCredential {
-            app_config: AppConfig::builder(client_id.as_ref())
-                .scope(vec!["https://graph.microsoft.com/.default"])
-                .build(),
-            client_assertion_type: CLIENT_ASSERTION_TYPE.to_owned(),
-            client_assertion: client_assertion.as_ref().to_owned(),
-            token_cache: Default::default(),
-        }
-    }
-
     #[cfg(feature = "openssl")]
-    pub fn x509<T: AsRef<str>>(
+    pub fn new<T: AsRef<str>>(
         client_id: T,
         x509: &X509Certificate,
-    ) -> anyhow::Result<ClientCertificateCredential> {
+    ) -> IdentityResult<ClientCertificateCredential> {
         let mut builder = ClientCertificateCredentialBuilder::new(client_id.as_ref());
         builder.with_certificate(x509)?;
         Ok(builder.credential)
@@ -143,14 +132,14 @@ impl TokenCache for ClientCertificateCredential {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
                 self.execute_cached_token_refresh(cache_id)
             } else {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "using token from cache");
                 Ok(token)
             }
         } else {
-            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request; refresh_token=None");
+            tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request; refresh_token=None");
             self.execute_cached_token_refresh(cache_id)
         }
     }
@@ -160,14 +149,14 @@ impl TokenCache for ClientCertificateCredential {
         let cache_id = self.app_config.cache_id.to_string();
         if let Some(token) = self.token_cache.get(cache_id.as_str()) {
             if token.is_expired_sub(time::Duration::minutes(5)) {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token refresh");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token refresh");
                 self.execute_cached_token_refresh_async(cache_id).await
             } else {
-                tracing::debug!(target: EXECUTOR_TRACING_TARGET, "using token from cache");
+                tracing::debug!(target: CREDENTIAL_EXECUTOR, "using token from cache");
                 Ok(token.clone())
             }
         } else {
-            tracing::debug!(target: EXECUTOR_TRACING_TARGET, "executing silent token request");
+            tracing::debug!(target: CREDENTIAL_EXECUTOR, "executing silent token request");
             self.execute_cached_token_refresh_async(cache_id).await
         }
     }
@@ -278,7 +267,7 @@ impl ClientCertificateCredentialBuilder {
         Ok(self)
     }
 
-    pub fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
+    fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
         self.credential.client_assertion = client_assertion.as_ref().to_owned();
         self
     }

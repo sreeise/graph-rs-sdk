@@ -1,3 +1,5 @@
+use crate::identity::AppConfig;
+use graph_error::{WebViewError, WebViewResult};
 use serde::Deserializer;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -100,6 +102,33 @@ where
 }
 
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub(crate) struct PhantomAuthorizationResponse {
+    pub code: Option<String>,
+    pub id_token: Option<String>,
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_expires_in")]
+    pub expires_in: Option<i64>,
+    pub access_token: Option<String>,
+    pub state: Option<String>,
+    pub session_state: Option<String>,
+    pub nonce: Option<String>,
+    pub error: Option<AuthorizationQueryError>,
+    pub error_description: Option<String>,
+    pub error_uri: Option<Url>,
+    #[serde(flatten)]
+    pub additional_fields: HashMap<String, Value>,
+    #[serde(skip)]
+    log_pii: bool,
+}
+
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct AuthorizationError {
+    pub error: Option<AuthorizationQueryError>,
+    pub error_description: Option<String>,
+    pub error_uri: Option<Url>,
+}
+
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AuthorizationResponse {
     pub code: Option<String>,
     pub id_token: Option<String>,
@@ -160,6 +189,77 @@ impl Debug for AuthorizationResponse {
                 .field("error_uri", &self.error_uri)
                 .field("additional_fields", &self.additional_fields)
                 .finish()
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum AuthorizationImpeded {
+    WindowClosed(String),
+    InvalidUri(String),
+}
+
+#[derive(Clone, Debug)]
+pub enum AuthorizationEvent<CredentialBuilder: Clone + Debug> {
+    Authorized {
+        authorization_response: AuthorizationResponse,
+        credential_builder: CredentialBuilder,
+    },
+    Unauthorized(AuthorizationResponse),
+    WindowClosed(String),
+}
+
+impl<CredentialBuilder: Clone + Debug> AuthorizationEvent<CredentialBuilder> {
+    pub fn into_result(self) -> WebViewResult<(AuthorizationResponse, CredentialBuilder)> {
+        match self {
+            AuthorizationEvent::Authorized {
+                authorization_response,
+                credential_builder,
+            } => Ok((authorization_response, credential_builder)),
+            AuthorizationEvent::Unauthorized(authorization_response) => {
+                Err(WebViewError::Authorization {
+                    error: authorization_response
+                        .error
+                        .map(|query_error| query_error.to_string())
+                        .unwrap_or_default(),
+                    error_description: authorization_response.error_description.unwrap_or_default(),
+                    error_uri: authorization_response.error_uri.map(|uri| uri.to_string()),
+                })
+            }
+            AuthorizationEvent::WindowClosed(reason) => Err(WebViewError::WindowClosed(reason)),
+        }
+    }
+}
+
+pub trait IntoCredentialBuilder<CredentialBuilder: Clone + Debug> {
+    fn into_credential_builder(self) -> WebViewResult<(AuthorizationResponse, CredentialBuilder)>;
+}
+
+impl<CredentialBuilder: Clone + Debug> IntoCredentialBuilder<CredentialBuilder>
+    for WebViewResult<AuthorizationEvent<CredentialBuilder>>
+{
+    fn into_credential_builder(self) -> WebViewResult<(AuthorizationResponse, CredentialBuilder)> {
+        match self {
+            Ok(auth_event) => match auth_event {
+                AuthorizationEvent::Authorized {
+                    authorization_response,
+                    credential_builder,
+                } => Ok((authorization_response, credential_builder)),
+                AuthorizationEvent::Unauthorized(authorization_response) => {
+                    Err(WebViewError::Authorization {
+                        error: authorization_response
+                            .error
+                            .map(|query_error| query_error.to_string())
+                            .unwrap_or_default(),
+                        error_description: authorization_response
+                            .error_description
+                            .unwrap_or_default(),
+                        error_uri: authorization_response.error_uri.map(|uri| uri.to_string()),
+                    })
+                }
+                AuthorizationEvent::WindowClosed(reason) => Err(WebViewError::WindowClosed(reason)),
+            },
+            Err(err) => Err(err),
         }
     }
 }
