@@ -133,6 +133,12 @@ impl GraphClientConfiguration {
         self
     }
 
+    #[cfg(feature = "test-util")]
+    pub fn https_only(mut self, https_only: bool) -> GraphClientConfiguration {
+        self.config.https_only = https_only;
+        self
+    }
+
     pub fn build(self) -> Client {
         let config = self.clone();
         let headers = self.config.headers.clone();
