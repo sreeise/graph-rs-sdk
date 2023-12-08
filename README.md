@@ -19,13 +19,13 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ```
 
-To use stream features add futures crate:
+To use [stream](#streaming) features add the [futures](https://crates.io/crates/futures) crate:
 
 ```toml
 futures = "0.3"
 ```
 
-And import `futures::StreamExt` when using [Streaming](#streaming) features.
+And import `futures::StreamExt`.
 
 ```rust
 use futures::StreamExt;
