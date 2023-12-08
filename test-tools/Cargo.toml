@@ -22,4 +22,4 @@ url = "2"
 graph-core = { path = "../graph-core" }
 graph-http = { path = "../graph-http" }
 graph-error = { path = "../graph-error" }
-graph-rs-sdk = { path = "../" }
+graph-rs-sdk = { path = "../", features = ["test-util"] }

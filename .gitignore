@@ -14,6 +14,7 @@ Cargo.lock
 src/bin
 examples/example_files/**
 examples/test.rs
+examples/test2.rs
 gen
 .run
 
@@ -23,5 +24,7 @@ env.toml
 env.json
 env.yaml
 app_registrations.json
+app_registrations2.json
 
+# Codegen debugging output
 graph-codegen/src/parsed_metadata/**

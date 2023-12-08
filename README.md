@@ -8,7 +8,7 @@
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
 ```toml
-graph-rs-sdk = "1.1.2"
+graph-rs-sdk = "1.1.3"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -19,13 +19,13 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ```
 
-To use stream features add futures crate:
+To use [stream](#streaming) features add the [futures](https://crates.io/crates/futures) crate:
 
 ```toml
 futures = "0.3"
 ```
 
-And import `futures::StreamExt` when using [Streaming](#streaming) features.
+And import `futures::StreamExt`.
 
 ```rust
 use futures::StreamExt;
@@ -87,7 +87,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "1.1.2"
+    graph-rs-sdk = "1.1.3"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -119,7 +119,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "1.1.2"
+    graph-rs-sdk = "1.1.3"
 
 #### Example
 use graph_rs_sdk::*;
@@ -148,8 +148,9 @@ fn main() -> GraphResult<()> {
 - `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
 - `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
 - `brotli`: Enables reqwest feature brotli. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
-- `defalte`: Enables reqwest feature deflate. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
+- `deflate`: Enables reqwest feature deflate. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
 - `trust-dns`: Enables reqwest feature trust-dns. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
+- `test-util`: Enables testing features. Currently only enables setting https-only to false for use in mocking frameworks.
 
 Default features: `default=["native-tls"]`
 
@@ -179,8 +180,36 @@ pub async fn get_drive_item() -> GraphResult<()> {
 }
 ```
 
+#### Response Errors/Error Types
+
+While the crate does have its own error type and result you will probably want to use crates like
+[anyhow](https://crates.io/crates/anyhow) due to the amount of possible errors that could occur.
+
+If the Microsoft Graph API returned an error this is almost always in the body of the response.
+The `ResponseExt` for async requests and `BlockingResponseExt` for blocking requests have convenience
+methods that can be used to get the error message from the body of the response.
+
+```rust
+use graph_rs_sdk::{http::ResponseExt, Graph};
+use std::error::Error;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let client = Graph::new("token");
+    let response = client.users().list_user().send().await?;
+
+    if !response.status().is_success() {
+        if let Ok(error) = response.into_graph_error_message().await {
+            println!("{error:#?}");
+        }
+    }
+
+    Ok(())
+}
+```
+
 ##### Custom Types
-You can pass types your own types to API requests that require a request body by implementing `serde::Serialize`.
+You can pass your own types to API requests that require a request body by implementing `serde::Serialize`.
 
 You can implement your own types by utilizing methods from reqwest::Response. These types must implement `serde::Deserialize`.
 See the reqwest crate for more info.
@@ -248,7 +277,7 @@ pub async fn get_drive_item() -> GraphResult<()> {
 Paging handles scenarios where the response body is a truncated version of the data and a URL is provided
 to continue calling and getting the rest of the data. Paging can consist of multiple links in the call chain.
 
-The sdk provides conveniance methods for getting all data in a paging scenario such as using next links or using [delta links to track changes to Graph data](https://learn.microsoft.com/en-us/graph/delta-query-overview).
+The sdk provides convenience methods for getting all data in a paging scenario such as using next links or using [delta links to track changes to Graph data](https://learn.microsoft.com/en-us/graph/delta-query-overview).
 
 If you just want a quick and easy way to get all next link responses or the JSON bodies you can use the `paging().json()` method which will exhaust all
 next link calls and return all the responses in a `VecDeque<Response<Result<T>>>`. Keep in mind that the larger the volume of next link calls that need to be

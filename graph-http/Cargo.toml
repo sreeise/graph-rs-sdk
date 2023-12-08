@@ -1,6 +1,6 @@
 [package]
 name = "graph-http"
-version = "1.1.1"
+version = "1.1.2"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
@@ -33,4 +33,7 @@ graph-core = { path = "../graph-core" }
 default = ["native-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
+brotli = ["reqwest/brotli"]
+deflate = ["reqwest/deflate"]
+trust-dns = ["reqwest/trust-dns"]
 test-util = []
