@@ -2,17 +2,14 @@ use graph_rs_sdk::{Graph, GraphClientConfiguration};
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
+/// Tests the test-util feature and setting https-only to false.
 #[tokio::test]
 async fn test_util_feature() {
-    // Start a background HTTP server on a random local port
     let mock_server = MockServer::start().await;
 
-    // Arrange the behaviour of the MockServer adding a Mock:
-    // when it receives a GET request on '/hello' it will respond with a 200.
     Mock::given(method("GET"))
         .and(path("/users"))
         .respond_with(ResponseTemplate::new(200))
-        // Mounting the mock on the mock server - it's now effective!
         .mount(&mock_server)
         .await;
 
