@@ -19,7 +19,7 @@ use crate::identity::{
     ConfidentialClientApplication, Token, TokenCredentialExecutor,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
-use crate::{AuthCodeAuthorizationUrlParameterBuilder, Secret};
+use crate::AuthCodeAuthorizationUrlParameterBuilder;
 
 credential_builder!(
     AuthorizationCodeCredentialBuilder,
@@ -324,6 +324,7 @@ impl AuthorizationCodeCredentialBuilder {
         }
     }
 
+    #[allow(dead_code)]
     pub(crate) fn from_secret(
         authorization_code: String,
         secret: String,
@@ -533,9 +534,9 @@ mod test {
     #[test]
     fn with_tenant_id_common() {
         let credential = AuthorizationCodeCredential::builder(
+            "auth_code",
             Uuid::new_v4().to_string(),
-            "secret".to_string(),
-            "code",
+            "client_secret",
         )
         .with_authority(Authority::TenantId("common".into()))
         .build();
@@ -546,9 +547,9 @@ mod test {
     #[test]
     fn with_tenant_id_adfs() {
         let credential = AuthorizationCodeCredential::builder(
+            "auth_code",
             Uuid::new_v4().to_string(),
-            "secret".to_string(),
-            "code",
+            "client_secret",
         )
         .with_authority(Authority::AzureDirectoryFederatedServices)
         .build();
@@ -560,9 +561,9 @@ mod test {
     #[should_panic]
     fn required_value_missing_client_id() {
         let mut credential_builder = AuthorizationCodeCredential::builder(
+            "auth_code",
             Uuid::default().to_string(),
-            "secret".to_string(),
-            "code",
+            "secret",
         );
         credential_builder
             .with_authorization_code("code")
@@ -575,7 +576,7 @@ mod test {
     fn serialization() {
         let uuid_value = Uuid::new_v4().to_string();
         let mut credential_builder =
-            AuthorizationCodeCredential::builder(uuid_value.clone(), "secret".to_string(), "code");
+            AuthorizationCodeCredential::builder("auth_code", uuid_value.clone(), "secret");
         let mut credential = credential_builder
             .with_redirect_uri(Url::parse("http://localhost").unwrap())
             .with_client_secret("client_secret")
@@ -591,7 +592,7 @@ mod test {
     fn should_force_refresh_test() {
         let uuid_value = Uuid::new_v4().to_string();
         let mut credential_builder =
-            AuthorizationCodeCredential::builder(uuid_value, "secret".to_string(), "code");
+            AuthorizationCodeCredential::builder("auth_code", uuid_value, "client_secret");
         let _credential = credential_builder
             .with_redirect_uri(Url::parse("http://localhost").unwrap())
             .with_client_secret("client_secret")

@@ -571,9 +571,7 @@ impl DeviceCodePollingExecutor {
                 credential: self.credential.clone(),
                 interval: Duration::from_secs(device_authorization_response.interval),
                 verification_uri: device_authorization_response.verification_uri.clone(),
-                verification_uri_complete: device_authorization_response
-                    .verification_uri_complete
-                    .clone(),
+                verification_uri_complete: device_authorization_response.verification_uri_complete,
             },
         ))
     }
@@ -623,9 +621,7 @@ impl DeviceCodeInteractiveAuth {
             credential,
             interval: Duration::from_secs(device_authorization_response.interval),
             verification_uri: device_authorization_response.verification_uri.clone(),
-            verification_uri_complete: device_authorization_response
-                .verification_uri_complete
-                .clone(),
+            verification_uri_complete: device_authorization_response.verification_uri_complete,
         }
     }
 
@@ -654,7 +650,7 @@ impl DeviceCodeInteractiveAuth {
         &mut self,
     ) -> Result<PublicClientApplication<DeviceCodeCredential>, WebViewDeviceCodeError> {
         let mut credential = self.credential.clone();
-        let interval = self.interval.clone();
+        let interval = self.interval;
 
         let mut should_slow_down = false;
 
@@ -668,7 +664,7 @@ impl DeviceCodeInteractiveAuth {
             }
 
             let response = credential.execute().unwrap();
-            let http_response = response.into_http_response().map_err(|err| Box::new(err))?;
+            let http_response = response.into_http_response().map_err(Box::new)?;
             let status = http_response.status();
 
             if status.is_success() {

@@ -16,7 +16,6 @@ async fn auth_code_grant(
         AuthorizationCodeCredential::builder(client_id, client_secret, authorization_code)
             .with_scope(scope)
             .with_redirect_uri(Url::parse(redirect_uri).unwrap())
-            .unwrap()
             .build();
 
     let response = confidential_client.execute_async().await.unwrap();

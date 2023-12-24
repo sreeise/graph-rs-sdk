@@ -19,6 +19,7 @@ use graph_rs_sdk::identity::{
     DeviceCodeCredential, GenPkce, ProofKeyCodeExchange, PublicClientApplication, Token,
     TokenCredentialExecutor,
 };
+use url::Url;
 
 fn main() {}
 
@@ -30,7 +31,7 @@ static SCOPE: &str = "User.Read"; // or pass more values to vec![] below
 // Authorization Code Grant Auth URL Builder
 pub fn auth_code_grant_authorization() {
     let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
-        .with_redirect_uri(REDIRECT_URI)
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .with_scope(vec![SCOPE])
         .url()
         .unwrap();
@@ -59,7 +60,7 @@ fn auth_code_grant_pkce_authorization() {
 
     let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
         .with_scope(vec![SCOPE])
-        .with_redirect_uri(REDIRECT_URI)
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .with_pkce(&pkce)
         .url()
         .unwrap();

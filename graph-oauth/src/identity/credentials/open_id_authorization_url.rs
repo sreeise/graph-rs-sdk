@@ -11,30 +11,25 @@ use graph_error::{AuthorizationFailure, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{
-    AsQuery, Authority, AuthorizationImpeded, AuthorizationUrl, AzureCloudInstance,
-    OpenIdCredentialBuilder, Prompt, ResponseMode, ResponseType,
+    AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, OpenIdCredentialBuilder, Prompt,
+    ResponseMode, ResponseType,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 
-#[cfg(feature = "interactive-auth")]
-use graph_error::{WebViewError, WebViewResult};
-
-#[cfg(feature = "interactive-auth")]
-use crate::identity::{AuthorizationResponse, Token};
-
-#[cfg(feature = "interactive-auth")]
-use crate::web::{
-    HostOptions, InteractiveAuth, InteractiveAuthEvent, WebViewHostValidator, WebViewOptions,
-};
-
 use crate::identity::tracing_targets::CREDENTIAL_EXECUTOR;
+
 #[cfg(feature = "interactive-auth")]
-use crate::web::UserEvents;
-use crate::{AuthorizationEvent, PhantomAuthorizationResponse};
-#[cfg(feature = "interactive-auth")]
-use wry::{
-    application::{event_loop::EventLoopProxy, window::Window},
-    webview::{WebView, WebViewBuilder},
+use {
+    crate::identity::{AuthorizationEvent, AuthorizationResponse},
+    crate::web::{
+        HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,
+        WebViewOptions,
+    },
+    graph_error::{WebViewError, WebViewResult},
+    wry::{
+        application::{event_loop::EventLoopProxy, window::Window},
+        webview::{WebView, WebViewBuilder},
+    },
 };
 
 const RESPONSE_TYPES_SUPPORTED: &[&str] = &["code", "id_token", "code id_token", "id_token token"];

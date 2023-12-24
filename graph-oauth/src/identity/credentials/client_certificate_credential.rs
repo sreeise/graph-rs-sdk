@@ -267,6 +267,7 @@ impl ClientCertificateCredentialBuilder {
         Ok(self)
     }
 
+    #[allow(dead_code)]
     fn with_client_assertion<T: AsRef<str>>(&mut self, client_assertion: T) -> &mut Self {
         self.credential.client_assertion = client_assertion.as_ref().to_owned();
         self

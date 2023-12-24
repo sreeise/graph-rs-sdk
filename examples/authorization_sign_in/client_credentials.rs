@@ -1,5 +1,7 @@
-use graph_oauth::oauth::ClientSecretCredential;
-use graph_rs_sdk::{error::IdentityResult, identity::ClientCredentialsAuthorizationUrlParameters};
+use graph_rs_sdk::{
+    error::IdentityResult,
+    identity::{ClientCredentialsAuthorizationUrlParameters, ClientSecretCredential},
+};
 
 // The client_id must be changed before running this example.
 static CLIENT_ID: &str = "<CLIENT_ID>";

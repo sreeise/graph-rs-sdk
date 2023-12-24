@@ -34,7 +34,7 @@ fn openid_authorization_url() -> anyhow::Result<Url> {
     Ok(OpenIdCredential::authorization_url_builder(CLIENT_ID)
         .with_tenant(TENANT_ID)
         //.with_default_scope()?
-        .with_redirect_uri(REDIRECT_URI)?
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .with_response_mode(ResponseMode::FormPost)
         .with_response_type([ResponseType::IdToken, ResponseType::Code])
         .with_prompt(Prompt::SelectAccount)
@@ -64,7 +64,7 @@ async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, 
     let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
         .with_openid(code, CLIENT_SECRET)
         .with_tenant(TENANT_ID)
-        .with_redirect_uri(REDIRECT_URI)
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .unwrap()
         .with_scope(vec!["User.Read", "User.ReadWrite"]) // OpenIdCredential automatically sets the openid scope
         .build();

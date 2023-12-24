@@ -4,6 +4,7 @@ use graph_rs_sdk::identity::{
     Token, TokenCredentialExecutor,
 };
 use graph_rs_sdk::*;
+use url::Url;
 use warp::Filter;
 
 // Update these values with your own or provide them directly in the
@@ -20,7 +21,7 @@ pub struct AccessCode {
 
 pub fn authorization_sign_in() {
     let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
-        .with_redirect_uri(REDIRECT_URI)
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .with_scope(vec![SCOPE])
         .url()
         .unwrap();
@@ -34,8 +35,7 @@ fn get_graph_client(authorization_code: &str) -> Graph {
         .with_auth_code(authorization_code)
         .with_client_secret(CLIENT_SECRET)
         .with_scope(vec![SCOPE])
-        .with_redirect_uri(REDIRECT_URI)
-        .unwrap()
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .build();
     GraphClient::from(&confidential_client)
 }

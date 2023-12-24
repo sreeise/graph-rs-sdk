@@ -37,7 +37,7 @@ static CLIENT_ID: &str = "<CLIENT_ID>";
 // Only required for certain applications. Used here as an example.
 static TENANT: &str = "<TENANT_ID>";
 
-static REDIRECT_URI: Url = Url::parse("http://localhost:8000/redirect").unwrap();
+static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 
 static SCOPE: &str = "User.Read";
 
@@ -55,7 +55,7 @@ pub struct AccessCode {
 pub fn authorization_sign_in() {
     let url = AuthorizationCodeCertificateCredential::authorization_url_builder(CLIENT_ID)
         .with_tenant(TENANT)
-        .with_redirect_uri(REDIRECT_URI.clone())
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .with_scope(vec![SCOPE])
         .url()
         .unwrap();
@@ -89,7 +89,7 @@ fn build_confidential_client(
         .with_auth_code_x509_certificate(authorization_code, &x509certificate)?
         .with_tenant(TENANT)
         .with_scope(vec![SCOPE])
-        .with_redirect_uri(REDIRECT_URI.clone())?
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .build())
 }
 

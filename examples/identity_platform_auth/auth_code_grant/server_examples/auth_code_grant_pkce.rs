@@ -4,6 +4,7 @@ use graph_rs_sdk::identity::{
     ResponseType, Token, TokenCredentialExecutor,
 };
 use lazy_static::lazy_static;
+use url::Url;
 use warp::{get, Filter};
 
 static CLIENT_ID: &str = "<CLIENT_ID>";
@@ -34,7 +35,7 @@ pub struct AccessCode {
 fn authorization_sign_in() {
     let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
         .with_scope(vec!["user.read"])
-        .with_redirect_uri("http://localhost:8000/redirect")
+        .with_redirect_uri(Url::parse("http://localhost:8000/redirect").unwrap())
         .with_pkce(&PKCE)
         .url()
         .unwrap();
@@ -58,8 +59,7 @@ async fn handle_redirect(
             let mut confidential_client = ConfidentialClientApplication::builder(CLIENT_ID)
                 .with_auth_code(authorization_code)
                 .with_client_secret(CLIENT_SECRET)
-                .with_redirect_uri("http://localhost:8000/redirect")
-                .unwrap()
+                .with_redirect_uri(Url::parse("http://localhost:8000/redirect").unwrap())
                 .with_pkce(&PKCE)
                 .build();
 

@@ -2,7 +2,7 @@
 use serde::de::{Error, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fmt::{Debug, Display, Formatter};
 
@@ -78,7 +78,7 @@ impl IdToken {
         let payload_decoded = base64::engine::general_purpose::STANDARD_NO_PAD
             .decode(parts[1])
             .unwrap();
-        let utf8_payload = String::from_utf8(payload_decoded)?.to_owned();
+        let utf8_payload = String::from_utf8(payload_decoded)?;
         let payload: serde_json::Value = serde_json::from_str(&utf8_payload)?;
         Ok(payload)
     }

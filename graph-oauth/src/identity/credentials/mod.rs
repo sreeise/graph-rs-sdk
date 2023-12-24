@@ -61,6 +61,8 @@ mod x509_certificate;
 
 pub(crate) mod tracing_targets {
     pub const CREDENTIAL_EXECUTOR: &str = "graph_rs_sdk::credential_executor";
+
+    #[allow(dead_code)]
     pub const INTERACTIVE_AUTH: &str = "graph_rs_sdk::interactive_auth";
 }
 

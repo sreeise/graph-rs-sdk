@@ -4,7 +4,7 @@ use std::fmt::{Debug, Formatter};
 use async_trait::async_trait;
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use http::{HeaderMap, HeaderName, HeaderValue};
-use jsonwebtoken::errors::ErrorKind;
+
 use jsonwebtoken::TokenData;
 use reqwest::IntoUrl;
 use url::{ParseError, Url};
@@ -68,7 +68,6 @@ pub struct OpenIdCredential {
     pub(crate) pkce: Option<ProofKeyCodeExchange>,
     serializer: OAuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
-    openid_config: Option<serde_json::Value>,
     verify_id_token: bool,
     id_token_jwt: Option<DecodedJwt>,
 }
@@ -101,7 +100,6 @@ impl OpenIdCredential {
             pkce: None,
             serializer: Default::default(),
             token_cache: Default::default(),
-            openid_config: None,
             verify_id_token: Default::default(),
             id_token_jwt: None,
         })
@@ -184,7 +182,6 @@ impl OpenIdCredential {
             .ok_or(AF::msg_err("token", "no cached token"))?;
         let mut id_token = token
             .id_token
-            .clone()
             .ok_or(AF::msg_err("id_token", "no cached id_token"))?;
         self.verify_jwks_from_token(&mut id_token)
     }
@@ -294,6 +291,7 @@ impl OpenIdCredential {
         }
     }
 
+    #[allow(unused)]
     async fn verify_authorization_id_token_async(
         &mut self,
     ) -> Option<AuthExecutionResult<TokenData<Claims>>> {
@@ -330,7 +328,7 @@ impl OpenIdCredential {
 
                 let id_token_verification_result = self.verify_jwks_from_token(&mut id_token);
                 if let Ok(token_data) = id_token_verification_result {
-                    self.id_token_jwt = Some(DecodedJwt::from(token_data));
+                    self.id_token_jwt = Some(token_data);
                     dbg!(&self.id_token_jwt);
                     tracing::debug!(target: CREDENTIAL_EXECUTOR, "jwks verification successful");
                 } else if let Err(err) = id_token_verification_result {
@@ -344,7 +342,7 @@ impl OpenIdCredential {
             }
         }
 
-        self.token_cache.store(cache_id.clone(), new_token.clone());
+        self.token_cache.store(cache_id, new_token.clone());
 
         if new_token.refresh_token.is_some() {
             self.refresh_token = new_token.refresh_token.clone();
@@ -378,7 +376,7 @@ impl OpenIdCredential {
                 let id_token_verification_result =
                     self.verify_jwks_from_token_async(&mut id_token).await;
                 if let Ok(token_data) = id_token_verification_result {
-                    self.id_token_jwt = Some(DecodedJwt::from(token_data));
+                    self.id_token_jwt = Some(token_data);
                     dbg!(&self.id_token_jwt);
                     tracing::debug!(target: CREDENTIAL_EXECUTOR, "jwks verification successful");
                 } else if let Err(err) = id_token_verification_result {
@@ -624,7 +622,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
-                openid_config: None,
                 verify_id_token: Default::default(),
                 id_token_jwt: None,
             },
@@ -643,7 +640,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
-                openid_config: None,
                 verify_id_token: Default::default(),
                 id_token_jwt: None,
             },
@@ -666,7 +662,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
-                openid_config: None,
                 verify_id_token,
                 id_token_jwt: None,
             },
@@ -689,7 +684,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
-                openid_config: None,
                 verify_id_token: Default::default(),
                 id_token_jwt: None,
             },
@@ -711,7 +705,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache,
-                openid_config: None,
                 verify_id_token: Default::default(),
                 id_token_jwt: None,
             },
@@ -784,6 +777,7 @@ impl OpenIdCredentialBuilder {
         self.credential.get_jwks_async().await
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn verify_jwks_async(&self) -> AuthExecutionResult<TokenData<Claims>> {
         self.credential.verify_jwks_async().await
     }

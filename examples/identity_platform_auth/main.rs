@@ -32,6 +32,7 @@ use graph_rs_sdk::identity::{
     TokenCredentialExecutor,
 };
 use graph_rs_sdk::GraphClient;
+use url::Url;
 
 fn main() {}
 
@@ -46,8 +47,7 @@ async fn auth_code_grant(
     let mut confidential_client =
         AuthorizationCodeCredential::builder(client_id, client_secret, authorization_code)
             .with_scope(scope)
-            .with_redirect_uri(redirect_uri)
-            .unwrap()
+            .with_redirect_uri(Url::parse(redirect_uri).unwrap())
             .build();
 
     let _graph_client = GraphClient::from(&confidential_client);

@@ -33,7 +33,7 @@ fn openid_authorization_url3(
     OpenIdCredential::authorization_url_builder(client_id)
         .with_tenant(tenant)
         //.with_default_scope()?
-        .with_redirect_uri(redirect_uri)?
+        .with_redirect_uri(Url::parse(redirect_uri)?)
         .with_response_mode(ResponseMode::FormPost)
         .with_response_type([ResponseType::IdToken, ResponseType::Code])
         .with_prompt(Prompt::SelectAccount)
@@ -54,7 +54,7 @@ fn map_to_credential(
     let auth_url_builder = OpenIdCredential::authorization_url_builder(client_id)
         .with_tenant(tenant)
         //.with_default_scope()?
-        .with_redirect_uri(redirect_uri)?
+        .with_redirect_uri(Url::parse(redirect_uri)?)
         .with_response_mode(ResponseMode::FormPost)
         .with_response_type([ResponseType::IdToken, ResponseType::Code])
         .with_prompt(Prompt::SelectAccount)
@@ -86,7 +86,7 @@ fn auth_url_using_confidential_client_builder(
     ConfidentialClientApplication::builder(client_id)
         .openid_url_builder()
         .with_tenant(tenant)
-        .with_redirect_uri(redirect_uri)?
+        .with_redirect_uri(Url::parse(redirect_uri)?)
         .with_scope(scope)
         .build()
         .url()
@@ -101,7 +101,7 @@ fn auth_url_using_open_id_credential(
 ) -> IdentityResult<Url> {
     OpenIdCredential::authorization_url_builder(client_id)
         .with_tenant(tenant)
-        .with_redirect_uri(redirect_uri)?
+        .with_redirect_uri(Url::parse(redirect_uri)?)
         .with_scope(scope)
         .build()
         .url()

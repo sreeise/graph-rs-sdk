@@ -7,13 +7,13 @@ use url::Url;
 
 static CLIENT_ID: &str = "<CLIENT_ID>";
 static CLIENT_SECRET: &str = "<CLIENT_SECRET>";
-static REDIRECT_URI: Url = Url::parse("http://localhost:8000/redirect").unwrap();
+const REDIRECT_URI: &str = "http://localhost:8000/redirect";
 static SCOPE: &str = "User.Read"; // or pass more values to vec![] below
 
 // Authorization Code Grant Auth URL Builder
 pub fn auth_code_grant_authorization() {
     let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
-        .with_redirect_uri(REDIRECT_URI)
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .with_scope(vec![SCOPE])
         .url()
         .unwrap();
@@ -42,7 +42,7 @@ fn auth_code_grant_pkce_authorization() {
 
     let url = AuthorizationCodeCredential::authorization_url_builder(CLIENT_ID)
         .with_scope(vec![SCOPE])
-        .with_redirect_uri(REDIRECT_URI)
+        .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
         .with_pkce(&pkce)
         .url()
         .unwrap();

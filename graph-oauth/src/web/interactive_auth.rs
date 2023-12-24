@@ -12,8 +12,8 @@ use wry::webview::WebView;
 #[cfg(target_family = "unix")]
 use wry::application::platform::unix::EventLoopBuilderExtUnix;
 
-use crate::identity::{AuthorizationCodeCredentialBuilder, AuthorizationEvent};
-use crate::Secret;
+use crate::identity::AuthorizationEvent;
+
 use graph_error::WebViewResult;
 #[cfg(target_family = "windows")]
 use wry::application::platform::windows::EventLoopBuilderExtWindows;

@@ -31,7 +31,7 @@ fn authorization_sign_in_url(
     Ok(
         AuthorizationCodeCredential::authorization_url_builder(client_id)
             .with_scope(scope)
-            .with_redirect_uri(redirect_uri)
+            .with_redirect_uri(Url::parse(redirect_uri).unwrap())
             .with_pkce(&PKCE)
             .url()?,
     )
@@ -48,7 +48,7 @@ fn build_confidential_client(
         .with_auth_code(authorization_code)
         .with_client_secret(client_secret)
         .with_scope(scope)
-        .with_redirect_uri(redirect_uri)?
+        .with_redirect_uri(Url::parse(redirect_uri).unwrap())
         .with_pkce(&PKCE)
         .build())
 }

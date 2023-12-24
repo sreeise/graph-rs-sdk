@@ -295,8 +295,9 @@ impl AuthCodeAuthorizationUrlParameters {
         }
     }
 
+    #[allow(dead_code)]
     #[cfg(feature = "interactive-auth")]
-    pub(crate) fn interactive_authentication_builder<CredentialBuilder: Clone>(
+    pub(crate) fn interactive_authentication_builder(
         &self,
         options: WebViewOptions,
     ) -> WebViewResult<AuthorizationResponse> {
@@ -747,7 +748,7 @@ impl WithInteractiveAuth<Secret> for AuthCodeAuthorizationUrlParameterBuilder {
             }
         };
 
-        credential_builder.with_client_secret(auth_type.into_inner());
+        credential_builder.with_client_secret(auth_type.0);
         Ok(AuthorizationEvent::Authorized {
             authorization_response,
             credential_builder,
@@ -788,7 +789,7 @@ impl WithInteractiveAuth<Assertion> for AuthCodeAuthorizationUrlParameterBuilder
             }
         };
 
-        credential_builder.with_client_assertion(auth_type.into_inner());
+        credential_builder.with_client_assertion(auth_type.0);
         Ok(AuthorizationEvent::Authorized {
             authorization_response,
             credential_builder,

@@ -11,15 +11,13 @@ use uuid::Uuid;
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
-use graph_error::{
-    AuthExecutionError, AuthExecutionResult, AuthorizationFailure, IdentityResult, AF,
-};
+use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
-use crate::identity::credentials::app_config::AppConfig;
 #[cfg(feature = "openssl")]
-use crate::identity::X509Certificate;
+use crate::identity::{AuthorizationResponse, X509Certificate};
+
 use crate::identity::{
-    AuthCodeAuthorizationUrlParameterBuilder, Authority, AuthorizationResponse, AzureCloudInstance,
+    AppConfig, AuthCodeAuthorizationUrlParameterBuilder, Authority, AzureCloudInstance,
     ConfidentialClientApplication, Token, TokenCredentialExecutor, CLIENT_ASSERTION_TYPE,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
@@ -444,6 +442,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         Ok(builder)
     }
 
+    #[allow(unused)]
     #[cfg(feature = "openssl")]
     pub(crate) fn new_authorization_response(
         value: (AppConfig, AuthorizationResponse, &X509Certificate),
