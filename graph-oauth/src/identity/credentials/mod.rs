@@ -66,16 +66,4 @@ pub(crate) mod tracing_targets {
 
 pub struct Secret(pub String);
 
-impl Secret {
-    pub(crate) fn into_inner(self) -> String {
-        self.0
-    }
-}
-
 pub struct Assertion(pub String);
-
-impl Assertion {
-    pub(crate) fn into_inner(self) -> String {
-        self.0
-    }
-}

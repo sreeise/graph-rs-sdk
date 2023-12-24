@@ -26,4 +26,5 @@ env.yaml
 app_registrations.json
 app_registrations2.json
 
+# Codegen debugging output
 graph-codegen/src/parsed_metadata/**

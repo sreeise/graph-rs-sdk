@@ -4,13 +4,12 @@ use serde_aux::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
-use std::fmt::{format, Display};
+use std::fmt::Display;
 use std::ops::{Add, Sub};
 
-use crate::identity::{Authority, AuthorizationResponse, IdToken};
+use crate::identity::{AuthorizationResponse, IdToken};
 use graph_core::{cache::AsBearer, identity::Claims};
 use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
-use std::str::FromStr;
 use time::OffsetDateTime;
 
 fn deserialize_scope<'de, D>(scope: D) -> Result<Vec<String>, D::Error>
