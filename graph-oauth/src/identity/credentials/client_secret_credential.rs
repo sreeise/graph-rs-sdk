@@ -213,7 +213,7 @@ impl TokenCredentialExecutor for ClientSecretCredential {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ClientSecretCredentialBuilder {
     credential: ClientSecretCredential,
 }

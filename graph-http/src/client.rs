@@ -1,5 +1,5 @@
 use crate::blocking::BlockingClient;
-use graph_core::identity::{ClientApplication, ForceTokenRefresh};
+use graph_core::identity::{ClientApplication, DecodedJwt, ForceTokenRefresh};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
@@ -262,6 +262,10 @@ impl Client {
     pub fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
         self.client_application
             .with_force_token_refresh(force_token_refresh);
+    }
+
+    pub fn get_decoded_jwt(&self) -> Option<&DecodedJwt> {
+        self.client_application.get_decoded_jwt()
     }
 }
 

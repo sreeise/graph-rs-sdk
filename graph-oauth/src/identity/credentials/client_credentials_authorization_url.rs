@@ -6,8 +6,8 @@ use uuid::Uuid;
 use graph_error::{AuthorizationFailure, IdentityResult};
 
 use crate::identity::{credentials::app_config::AppConfig, Authority, AzureCloudInstance};
-use crate::oauth::{ClientAssertionCredentialBuilder, ClientSecretCredentialBuilder};
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::{ClientAssertionCredentialBuilder, ClientSecretCredentialBuilder};
 
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};

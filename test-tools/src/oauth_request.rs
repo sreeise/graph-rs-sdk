@@ -2,7 +2,7 @@
 
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use graph_rs_sdk::oauth::{
+use graph_rs_sdk::identity::{
     ClientSecretCredential, ConfidentialClientApplication, ResourceOwnerPasswordCredential, Token,
     TokenCredentialExecutor,
 };

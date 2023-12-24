@@ -12,6 +12,9 @@ use wry::webview::WebView;
 #[cfg(target_family = "unix")]
 use wry::application::platform::unix::EventLoopBuilderExtUnix;
 
+use crate::identity::{AuthorizationCodeCredentialBuilder, AuthorizationEvent};
+use crate::Secret;
+use graph_error::WebViewResult;
 #[cfg(target_family = "windows")]
 use wry::application::platform::windows::EventLoopBuilderExtWindows;
 
@@ -195,4 +198,24 @@ where
             .with_any_thread(true)
             .build()
     }
+}
+
+pub trait WithInteractiveAuth<T> {
+    type CredentialBuilder: Clone + Debug;
+
+    fn with_interactive_auth(
+        &self,
+        auth_type: T,
+        options: WebViewOptions,
+    ) -> WebViewResult<AuthorizationEvent<Self::CredentialBuilder>>;
+}
+
+pub trait WithInteractiveAuthBuilder<CredentialBuilder: Clone + Debug> {
+    type AuthType;
+
+    fn with_interactive_auth_builder(
+        &self,
+        auth_type: Self::AuthType,
+        options: WebViewOptions,
+    ) -> WebViewResult<AuthorizationEvent<CredentialBuilder>>;
 }

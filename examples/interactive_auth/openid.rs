@@ -1,5 +1,5 @@
 use graph_rs_sdk::{
-    oauth::{OpenIdCredential, ResponseMode, ResponseType},
+    identity::{OpenIdCredential, ResponseMode, ResponseType},
     GraphClient,
 };
 use url::Url;

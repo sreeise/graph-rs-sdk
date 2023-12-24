@@ -8,7 +8,6 @@ mod credentials;
 mod device_authorization_response;
 mod id_token;
 mod token;
-mod token_validator;
 
 #[cfg(feature = "openssl")]
 pub use openssl::{
@@ -26,4 +25,3 @@ pub use credentials::*;
 pub use device_authorization_response::*;
 pub use id_token::*;
 pub use token::*;
-pub use token_validator::*;

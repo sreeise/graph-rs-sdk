@@ -1,3 +1,4 @@
+use crate::identity::DecodedJwt;
 use async_trait::async_trait;
 use dyn_clone::DynClone;
 use graph_error::AuthExecutionResult;
@@ -26,6 +27,10 @@ pub trait ClientApplication: DynClone + Send + Sync {
     async fn get_token_silent_async(&mut self) -> AuthExecutionResult<String>;
 
     fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh);
+
+    fn get_decoded_jwt(&self) -> Option<&DecodedJwt> {
+        None
+    }
 }
 
 #[async_trait]

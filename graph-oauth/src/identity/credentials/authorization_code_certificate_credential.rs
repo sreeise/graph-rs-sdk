@@ -457,7 +457,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
             )
         } else {
             AuthorizationCodeCertificateCredentialBuilder::new_with_token(
-                Token::from(authorization_response.clone()),
+                Token::try_from(authorization_response.clone())?,
                 x509,
                 app_config,
             )

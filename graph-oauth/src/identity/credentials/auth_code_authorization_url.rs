@@ -8,36 +8,33 @@ use url::Url;
 use uuid::Uuid;
 
 use graph_core::crypto::{secure_random_32, ProofKeyCodeExchange};
-use graph_error::{AuthorizationFailure, IdentityResult, AF};
+use graph_error::{IdentityResult, AF};
 
 use crate::identity::{
-    credentials::app_config::AppConfig, tracing_targets::INTERACTIVE_AUTH, AsQuery,
+    tracing_targets::INTERACTIVE_AUTH, AppConfig, AsQuery,
     AuthorizationCodeAssertionCredentialBuilder, AuthorizationCodeCredentialBuilder,
     AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::{Assertion, AuthorizationEvent, Secret};
 
 #[cfg(feature = "openssl")]
-use crate::identity::{AuthorizationCodeCertificateCredentialBuilder, X509Certificate};
+use crate::identity::X509Certificate;
 
 #[cfg(feature = "interactive-auth")]
-use graph_error::{AuthExecutionError, WebViewError, WebViewResult};
-
-#[cfg(feature = "interactive-auth")]
-use crate::identity::{AuthorizationResponse, Token};
-
-#[cfg(feature = "interactive-auth")]
-use crate::web::{
-    HostOptions, InteractiveAuth, InteractiveAuthEvent, WebViewHostValidator, WebViewOptions,
-};
-
-use crate::oauth::AuthorizationEvent;
-#[cfg(feature = "interactive-auth")]
-use crate::web::UserEvents;
-#[cfg(feature = "interactive-auth")]
-use wry::{
-    application::{event_loop::EventLoopProxy, window::Window},
-    webview::{WebView, WebViewBuilder},
+use {
+    crate::identity::{
+        AuthorizationCodeCertificateCredentialBuilder, AuthorizationResponse, Token,
+    },
+    crate::web::{
+        HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,
+        WebViewOptions, WithInteractiveAuth,
+    },
+    graph_error::{AuthExecutionError, WebViewError, WebViewResult},
+    wry::{
+        application::{event_loop::EventLoopProxy, window::Window},
+        webview::{WebView, WebViewBuilder},
+    },
 };
 
 credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
@@ -670,121 +667,6 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
         self
     }
 
-    #[cfg(feature = "interactive-auth")]
-    pub fn with_interactive_auth_for_secret(
-        &self,
-        client_secret: impl AsRef<str>,
-        options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<AuthorizationCodeCredentialBuilder>> {
-        let authorization_response = self
-            .credential
-            .interactive_webview_authentication(options)?;
-
-        if authorization_response.is_err() {
-            tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
-            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
-        }
-
-        tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
-
-        let mut credential_builder = {
-            if let Some(authorization_code) = authorization_response.code.as_ref() {
-                AuthorizationCodeCredentialBuilder::new_with_auth_code(
-                    authorization_code,
-                    self.credential.app_config.clone(),
-                )
-            } else {
-                AuthorizationCodeCredentialBuilder::new_with_token(
-                    self.credential.app_config.clone(),
-                    Token::from(authorization_response.clone()),
-                )
-            }
-        };
-
-        credential_builder.with_client_secret(client_secret);
-        Ok(AuthorizationEvent::Authorized {
-            authorization_response,
-            credential_builder,
-        })
-    }
-
-    #[cfg(feature = "interactive-auth")]
-    pub fn with_interactive_auth_for_assertion(
-        &self,
-        client_assertion: impl AsRef<str>,
-        options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<AuthorizationCodeAssertionCredentialBuilder>> {
-        let authorization_response = self
-            .credential
-            .interactive_webview_authentication(options)?;
-
-        if authorization_response.is_err() {
-            tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
-            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
-        }
-
-        tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
-        let mut credential_builder = {
-            if let Some(authorization_code) = authorization_response.code.as_ref() {
-                AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
-                    self.credential.app_config.clone(),
-                    authorization_code,
-                )
-            } else {
-                AuthorizationCodeAssertionCredentialBuilder::new_with_token(
-                    self.credential.app_config.clone(),
-                    Token::from(authorization_response.clone()),
-                )
-            }
-        };
-
-        credential_builder.with_client_assertion(client_assertion);
-        Ok(AuthorizationEvent::Authorized {
-            authorization_response,
-            credential_builder,
-        })
-    }
-
-    #[cfg(feature = "interactive-auth")]
-    #[cfg(feature = "openssl")]
-    pub fn with_interactive_auth_for_x509_certificate(
-        &self,
-        x509: &X509Certificate,
-        options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<AuthorizationCodeCertificateCredentialBuilder>> {
-        let authorization_response = self
-            .credential
-            .interactive_webview_authentication(options)?;
-
-        if authorization_response.is_err() {
-            tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
-            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
-        }
-
-        tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
-        let mut credential_builder = {
-            if let Some(authorization_code) = authorization_response.code.as_ref() {
-                AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
-                    authorization_code,
-                    x509,
-                    self.credential.app_config.clone(),
-                )?
-            } else {
-                AuthorizationCodeCertificateCredentialBuilder::new_with_token(
-                    Token::from(authorization_response.clone()),
-                    x509,
-                    self.credential.app_config.clone(),
-                )?
-            }
-        };
-
-        credential_builder.with_x509(x509)?;
-        Ok(AuthorizationEvent::Authorized {
-            authorization_response,
-            credential_builder,
-        })
-    }
-
     pub fn build(&self) -> AuthCodeAuthorizationUrlParameters {
         self.credential.clone()
     }
@@ -831,6 +713,133 @@ impl AuthCodeAuthorizationUrlParameterBuilder {
     }
 }
 
+#[cfg(feature = "interactive-auth")]
+impl WithInteractiveAuth<Secret> for AuthCodeAuthorizationUrlParameterBuilder {
+    type CredentialBuilder = AuthorizationCodeCredentialBuilder;
+
+    fn with_interactive_auth(
+        &self,
+        auth_type: Secret,
+        options: WebViewOptions,
+    ) -> WebViewResult<AuthorizationEvent<Self::CredentialBuilder>> {
+        let authorization_response = self
+            .credential
+            .interactive_webview_authentication(options)?;
+
+        if authorization_response.is_err() {
+            tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
+            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
+        }
+
+        tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
+
+        let mut credential_builder = {
+            if let Some(authorization_code) = authorization_response.code.as_ref() {
+                AuthorizationCodeCredentialBuilder::new_with_auth_code(
+                    authorization_code,
+                    self.credential.app_config.clone(),
+                )
+            } else {
+                AuthorizationCodeCredentialBuilder::new_with_token(
+                    self.credential.app_config.clone(),
+                    Token::try_from(authorization_response.clone())?,
+                )
+            }
+        };
+
+        credential_builder.with_client_secret(auth_type.into_inner());
+        Ok(AuthorizationEvent::Authorized {
+            authorization_response,
+            credential_builder,
+        })
+    }
+}
+
+#[cfg(feature = "interactive-auth")]
+impl WithInteractiveAuth<Assertion> for AuthCodeAuthorizationUrlParameterBuilder {
+    type CredentialBuilder = AuthorizationCodeAssertionCredentialBuilder;
+
+    fn with_interactive_auth(
+        &self,
+        auth_type: Assertion,
+        options: WebViewOptions,
+    ) -> WebViewResult<AuthorizationEvent<Self::CredentialBuilder>> {
+        let authorization_response = self
+            .credential
+            .interactive_webview_authentication(options)?;
+
+        if authorization_response.is_err() {
+            tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
+            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
+        }
+
+        tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
+        let mut credential_builder = {
+            if let Some(authorization_code) = authorization_response.code.as_ref() {
+                AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code(
+                    self.credential.app_config.clone(),
+                    authorization_code,
+                )
+            } else {
+                AuthorizationCodeAssertionCredentialBuilder::new_with_token(
+                    self.credential.app_config.clone(),
+                    Token::try_from(authorization_response.clone())?,
+                )
+            }
+        };
+
+        credential_builder.with_client_assertion(auth_type.into_inner());
+        Ok(AuthorizationEvent::Authorized {
+            authorization_response,
+            credential_builder,
+        })
+    }
+}
+
+#[cfg(feature = "openssl")]
+#[cfg(feature = "interactive-auth")]
+impl WithInteractiveAuth<&X509Certificate> for AuthCodeAuthorizationUrlParameterBuilder {
+    type CredentialBuilder = AuthorizationCodeCertificateCredentialBuilder;
+
+    fn with_interactive_auth(
+        &self,
+        auth_type: &X509Certificate,
+        options: WebViewOptions,
+    ) -> WebViewResult<AuthorizationEvent<Self::CredentialBuilder>> {
+        let authorization_response = self
+            .credential
+            .interactive_webview_authentication(options)?;
+
+        if authorization_response.is_err() {
+            tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
+            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
+        }
+
+        tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
+        let mut credential_builder = {
+            if let Some(authorization_code) = authorization_response.code.as_ref() {
+                AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
+                    authorization_code,
+                    auth_type,
+                    self.credential.app_config.clone(),
+                )?
+            } else {
+                AuthorizationCodeCertificateCredentialBuilder::new_with_token(
+                    Token::try_from(authorization_response.clone())?,
+                    auth_type,
+                    self.credential.app_config.clone(),
+                )?
+            }
+        };
+
+        credential_builder.with_x509(auth_type)?;
+        Ok(AuthorizationEvent::Authorized {
+            authorization_response,
+            credential_builder,
+        })
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -838,7 +847,7 @@ mod test {
     #[test]
     fn serialize_uri() {
         let authorizer = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4())
-            .with_redirect_uri("https://localhost:8080")
+            .with_redirect_uri(Url::parse("https://localhost:8080").unwrap())
             .with_scope(["read", "write"])
             .build();
 
@@ -849,7 +858,7 @@ mod test {
     #[test]
     fn url_with_host() {
         let url_result = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4())
-            .with_redirect_uri("https://localhost:8080")
+            .with_redirect_uri(Url::parse("https://localhost:8080").unwrap())
             .with_scope(["read", "write"])
             .url_with_host(&AzureCloudInstance::AzureGermany);
 
@@ -860,7 +869,7 @@ mod test {
     #[should_panic]
     fn response_type_id_token_panics_when_response_mode_query() {
         let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4())
-            .with_redirect_uri("https://localhost:8080")
+            .with_redirect_uri(Url::parse("https://localhost:8080").unwrap())
             .with_scope(["read", "write"])
             .with_response_mode(ResponseMode::Query)
             .with_response_type(vec![ResponseType::IdToken])
@@ -873,7 +882,7 @@ mod test {
     #[test]
     fn response_mode_not_set() {
         let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4())
-            .with_redirect_uri("https://localhost:8080")
+            .with_redirect_uri(Url::parse("https://localhost:8080").unwrap())
             .with_scope(["read", "write"])
             .url()
             .unwrap();
@@ -886,7 +895,7 @@ mod test {
     #[test]
     fn multi_response_type_set() {
         let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4())
-            .with_redirect_uri("https://localhost:8080")
+            .with_redirect_uri(Url::parse("https://localhost:8080").unwrap())
             .with_scope(["read", "write"])
             .with_response_mode(ResponseMode::FormPost)
             .with_response_type(vec![ResponseType::IdToken, ResponseType::Code])
@@ -901,7 +910,7 @@ mod test {
     #[test]
     fn generate_nonce() {
         let url = AuthCodeAuthorizationUrlParameters::builder(Uuid::new_v4())
-            .with_redirect_uri("https://localhost:8080")
+            .with_redirect_uri(Url::parse("https://localhost:8080").unwrap())
             .with_scope(["read", "write"])
             .with_generated_nonce()
             .url()

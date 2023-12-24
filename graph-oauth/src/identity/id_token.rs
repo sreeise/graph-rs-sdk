@@ -2,57 +2,18 @@
 use serde::de::{Error, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::fmt::{Debug, Display, Formatter};
 
-use base64::{DecodeError, Engine};
+use crate::identity::AuthorizationResponse;
+use base64::Engine;
+use graph_core::identity::{Claims, DecodedJwt};
+use graph_error::{AuthorizationFailure, AF};
 use jsonwebtoken::errors as JwtErrors;
-use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
+use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use std::str::FromStr;
 use url::form_urlencoded::parse;
-
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct JwtHeader {
-    pub typ: String,
-    pub alg: String,
-    pub kid: String,
-    pub x5t: Option<String>,
-}
-
-impl Display for JwtHeader {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "typ: {}, alg: {}, kid: {}, x5t: {:#?}",
-            self.typ, self.alg, self.kid, self.x5t
-        )
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Claims {
-    pub aud: String,
-    pub iss: String,
-    pub iat: usize,
-    pub nbf: usize,
-    pub exp: usize,
-    pub aio: String,
-    pub c_hash: String,
-    pub cc: String,
-    pub email: String,
-    pub name: String,
-    pub nonce: String,
-    pub oid: String,
-    pub preferred_username: String,
-    pub rh: String,
-    pub sub: String,
-    pub tid: String,
-    pub uti: String,
-    pub ver: String,
-    #[serde(flatten)]
-    pub additional_fields: HashMap<String, Value>,
-}
 
 /// ID tokens are sent to the client application as part of an OpenID Connect flow.
 /// They can be sent alongside or instead of an access token. ID tokens are used by the
@@ -68,6 +29,26 @@ pub struct IdToken {
     pub additional_fields: HashMap<String, Value>,
     #[serde(skip)]
     log_pii: bool,
+    #[serde(skip)]
+    pub(crate) verified: bool,
+}
+
+impl TryFrom<AuthorizationResponse> for IdToken {
+    type Error = AuthorizationFailure;
+
+    fn try_from(value: AuthorizationResponse) -> Result<Self, Self::Error> {
+        Ok(IdToken {
+            code: value.code,
+            id_token: value
+                .id_token
+                .ok_or_else(|| AF::msg_err("id_token", "id_token is None"))?,
+            state: value.state,
+            session_state: value.session_state,
+            additional_fields: Default::default(),
+            log_pii: false,
+            verified: false,
+        })
+    }
 }
 
 impl IdToken {
@@ -84,6 +65,7 @@ impl IdToken {
             session_state: session_state.map(|value| value.into()),
             additional_fields: Default::default(),
             log_pii: false,
+            verified: false,
         }
     }
 
@@ -103,38 +85,34 @@ impl IdToken {
 
     /// Decode the id token header.
     pub fn decode_header(&self) -> JwtErrors::Result<jsonwebtoken::Header> {
-        /*
-        let parts: Vec<&str> = self.id_token.split('.').collect();
-        if parts.is_empty() {
-            return  Err(JwtErrors::Error::from(JwtErrors::ErrorKind::InvalidToken));
-        }
-        let header_decoded = base64::engine::general_purpose::STANDARD_NO_PAD.decode(parts[0])?;
-        let utf8_header = String::from_utf8(header_decoded)?;
-        let jwt_header: JwtHeader = serde_json::from_str(&utf8_header)?;
-         */
-
         jsonwebtoken::decode_header(self.id_token.as_str())
     }
 
-    /// Decode and validate the id token.
+    /// Decode and verify the id token using the following parameters:
+    /// modulus (n): product of two prime numbers used to generate key pair.
+    /// Exponent (e): exponent used to decode the data.
+    /// client_id: tenant client id in Azure.
+    /// issuer: issuer for tenant in Azure.
     pub fn decode(
-        &self,
-        n: &str,
-        e: &str,
+        &mut self,
+        modulus: &str,
+        exponent: &str,
         client_id: &str,
         issuer: Option<&str>,
-    ) -> JwtErrors::Result<TokenData<Claims>> {
+    ) -> JwtErrors::Result<DecodedJwt> {
         let mut validation = Validation::new(Algorithm::RS256);
         validation.set_audience(&[client_id]);
         if let Some(issuer) = issuer {
             validation.set_issuer(&[issuer]);
         }
 
-        jsonwebtoken::decode::<Claims>(
+        let token_data = jsonwebtoken::decode::<Claims>(
             &self.id_token,
-            &DecodingKey::from_rsa_components(n, e).unwrap(),
+            &DecodingKey::from_rsa_components(modulus, exponent).unwrap(),
             &validation,
-        )
+        )?;
+        self.verified = true;
+        Ok(token_data)
     }
 
     /// Enable or disable logging of personally identifiable information such

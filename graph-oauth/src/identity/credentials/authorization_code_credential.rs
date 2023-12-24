@@ -18,8 +18,8 @@ use crate::identity::{
     tracing_targets::CREDENTIAL_EXECUTOR, Authority, AuthorizationResponse, AzureCloudInstance,
     ConfidentialClientApplication, Token, TokenCredentialExecutor,
 };
-use crate::oauth::AuthCodeAuthorizationUrlParameterBuilder;
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::{AuthCodeAuthorizationUrlParameterBuilder, Secret};
 
 credential_builder!(
     AuthorizationCodeCredentialBuilder,
@@ -114,12 +114,12 @@ impl AuthorizationCodeCredential {
         self.refresh_token = Some(refresh_token.as_ref().to_owned());
     }
 
-    pub fn builder<T: AsRef<str>, U: AsRef<str>>(
-        client_id: T,
-        client_secret: T,
-        authorization_code: U,
+    pub fn builder(
+        authorization_code: impl AsRef<str>,
+        client_id: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
     ) -> AuthorizationCodeCredentialBuilder {
-        AuthorizationCodeCredentialBuilder::new(client_id, client_secret, authorization_code)
+        AuthorizationCodeCredentialBuilder::new(authorization_code, client_id, client_secret)
     }
 
     pub fn authorization_url_builder(
@@ -271,10 +271,10 @@ pub struct AuthorizationCodeCredentialBuilder {
 }
 
 impl AuthorizationCodeCredentialBuilder {
-    fn new<T: AsRef<str>, U: AsRef<str>>(
-        client_id: T,
-        client_secret: T,
-        authorization_code: U,
+    fn new(
+        authorization_code: impl AsRef<str>,
+        client_id: impl AsRef<str>,
+        client_secret: impl AsRef<str>,
     ) -> AuthorizationCodeCredentialBuilder {
         Self {
             credential: AuthorizationCodeCredential {
@@ -318,6 +318,23 @@ impl AuthorizationCodeCredentialBuilder {
                 authorization_code: Some(authorization_code.as_ref().to_owned()),
                 refresh_token: None,
                 client_secret: String::new(),
+                code_verifier: None,
+                token_cache: Default::default(),
+            },
+        }
+    }
+
+    pub(crate) fn from_secret(
+        authorization_code: String,
+        secret: String,
+        app_config: AppConfig,
+    ) -> AuthorizationCodeCredentialBuilder {
+        Self {
+            credential: AuthorizationCodeCredential {
+                app_config,
+                authorization_code: Some(authorization_code),
+                refresh_token: None,
+                client_secret: secret,
                 code_verifier: None,
                 token_cache: Default::default(),
             },
@@ -503,7 +520,7 @@ impl From<(AppConfig, AuthorizationResponse)> for AuthorizationCodeCredentialBui
         } else {
             AuthorizationCodeCredentialBuilder::new_with_token(
                 app_config,
-                Token::from(authorization_response.clone()),
+                Token::try_from(authorization_response.clone()).unwrap_or_default(),
             )
         }
     }
@@ -560,8 +577,7 @@ mod test {
         let mut credential_builder =
             AuthorizationCodeCredential::builder(uuid_value.clone(), "secret".to_string(), "code");
         let mut credential = credential_builder
-            .with_redirect_uri("https://localhost")
-            .unwrap()
+            .with_redirect_uri(Url::parse("http://localhost").unwrap())
             .with_client_secret("client_secret")
             .with_scope(vec!["scope"])
             .with_tenant("tenant_id")
@@ -577,8 +593,7 @@ mod test {
         let mut credential_builder =
             AuthorizationCodeCredential::builder(uuid_value, "secret".to_string(), "code");
         let _credential = credential_builder
-            .with_redirect_uri("https://localhost")
-            .unwrap()
+            .with_redirect_uri(Url::parse("http://localhost").unwrap())
             .with_client_secret("client_secret")
             .with_scope(vec!["scope"])
             .with_tenant("tenant_id")

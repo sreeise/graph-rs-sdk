@@ -27,9 +27,10 @@ use crate::web::{
     HostOptions, InteractiveAuth, InteractiveAuthEvent, WebViewHostValidator, WebViewOptions,
 };
 
-use crate::oauth::{AuthorizationEvent, PhantomAuthorizationResponse};
+use crate::identity::tracing_targets::CREDENTIAL_EXECUTOR;
 #[cfg(feature = "interactive-auth")]
 use crate::web::UserEvents;
+use crate::{AuthorizationEvent, PhantomAuthorizationResponse};
 #[cfg(feature = "interactive-auth")]
 use wry::{
     application::{event_loop::EventLoopProxy, window::Window},
@@ -122,6 +123,7 @@ pub struct OpenIdAuthorizationUrlParameters {
     /// this parameter during re-authentication, after already extracting the login_hint
     /// optional claim from an earlier sign-in.
     pub(crate) login_hint: Option<String>,
+    verify_id_token: bool,
 }
 
 impl Debug for OpenIdAuthorizationUrlParameters {
@@ -159,6 +161,7 @@ impl OpenIdAuthorizationUrlParameters {
             prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
+            verify_id_token: Default::default(),
         })
     }
 
@@ -172,6 +175,7 @@ impl OpenIdAuthorizationUrlParameters {
             prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
+            verify_id_token: Default::default(),
         }
     }
 
@@ -180,7 +184,11 @@ impl OpenIdAuthorizationUrlParameters {
     }
 
     pub fn into_credential(self, authorization_code: impl AsRef<str>) -> OpenIdCredentialBuilder {
-        OpenIdCredentialBuilder::new_with_auth_code(self.app_config, authorization_code)
+        OpenIdCredentialBuilder::new_with_auth_code(
+            self.app_config,
+            authorization_code,
+            self.verify_id_token,
+        )
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
@@ -267,7 +275,12 @@ impl OpenIdAuthorizationUrlParameters {
                         self.app_config.clone(),
                         authorization_response.clone(),
                     ));
+
                     credential_builder.with_client_secret(client_secret);
+
+                    if self.verify_id_token {
+                        credential_builder.with_id_token_verification(true);
+                    }
 
                     Ok(AuthorizationEvent::Authorized {
                         authorization_response,
@@ -318,19 +331,20 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
             serializer.response_type(ResponseType::Code);
         } else {
             let response_types = self.response_type.as_query();
-            dbg!(response_types.as_str());
             if !RESPONSE_TYPES_SUPPORTED.contains(&response_types.as_str()) {
-                return AuthorizationFailure::msg_result(
-                    "response_type",
-                    format!(
-                        "provided response_type is not supported - supported response types are: {}",
-                        RESPONSE_TYPES_SUPPORTED
-                            .iter()
-                            .map(|s| format!("`{}`", s))
-                            .collect::<Vec<String>>()
-                            .join(", ")
-                    ),
+                let err = format!(
+                    "provided response_type is not supported - supported response types are: {}",
+                    RESPONSE_TYPES_SUPPORTED
+                        .iter()
+                        .map(|s| format!("`{}`", s))
+                        .collect::<Vec<String>>()
+                        .join(", ")
                 );
+                tracing::error!(
+                    target: CREDENTIAL_EXECUTOR,
+                    err
+                );
+                return AuthorizationFailure::msg_result("response_type", err);
             }
 
             serializer.response_types(self.response_type.iter());
@@ -561,6 +575,11 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         self
     }
 
+    pub fn with_id_token_verification(&mut self, verify_id_token: bool) -> &mut Self {
+        self.credential.verify_id_token = verify_id_token;
+        self
+    }
+
     #[cfg(feature = "interactive-auth")]
     pub fn with_interactive_auth(
         &self,
@@ -587,6 +606,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         OpenIdCredentialBuilder::new_with_auth_code(
             self.credential.app_config.clone(),
             authorization_code,
+            false,
         )
     }
 }

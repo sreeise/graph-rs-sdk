@@ -9,8 +9,8 @@ use reqwest::header::HeaderMap;
 use url::Url;
 use uuid::Uuid;
 
-use crate::identity::{Authority, AzureCloudInstance};
-use crate::oauth::ApplicationOptions;
+use crate::identity::{Authority, AzureCloudInstance, IdToken};
+use crate::ApplicationOptions;
 
 #[derive(Clone, Default, PartialEq)]
 pub struct AppConfig {
@@ -64,6 +64,7 @@ pub struct AppConfig {
     /// Cache id used in a token cache store.
     pub(crate) cache_id: String,
     pub(crate) force_token_refresh: ForceTokenRefresh,
+    pub(crate) id_token: Option<IdToken>,
     pub(crate) log_pii: bool,
 }
 
@@ -91,6 +92,7 @@ impl TryFrom<ApplicationOptions> for AppConfig {
             ),
             cache_id,
             force_token_refresh: Default::default(),
+            id_token: Default::default(),
             log_pii: false,
         })
     }
@@ -169,6 +171,7 @@ impl AppConfig {
             ),
             cache_id,
             force_token_refresh: Default::default(),
+            id_token: Default::default(),
             log_pii: Default::default(),
         }
     }
@@ -233,6 +236,10 @@ impl AppConfig {
 
     pub(crate) fn with_scope<T: ToString, I: IntoIterator<Item = T>>(&mut self, scope: I) {
         self.scope = scope.into_iter().map(|s| s.to_string()).collect();
+    }
+
+    pub(crate) fn with_id_token(&mut self, id_token: IdToken) {
+        self.id_token = Some(id_token);
     }
 }
 

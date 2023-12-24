@@ -2,22 +2,24 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 
 use async_trait::async_trait;
+use jsonwebtoken::TokenData;
 
 use reqwest::Response;
 use url::Url;
 use uuid::Uuid;
 
-use graph_core::cache::{AsBearer, TokenCache};
-use graph_core::identity::{ClientApplication, ForceTokenRefresh};
+use graph_core::identity::{ClientApplication, DecodedJwt, ForceTokenRefresh};
+use graph_core::{
+    cache::{AsBearer, TokenCache},
+    identity::Claims,
+};
 use graph_error::{AuthExecutionResult, IdentityResult};
 
 use crate::identity::{
-    credentials::app_config::AppConfig,
-    credentials::application_builder::ConfidentialClientApplicationBuilder,
-    credentials::client_assertion_credential::ClientAssertionCredential, Authority,
-    AuthorizationCodeAssertionCredential, AuthorizationCodeCertificateCredential,
-    AuthorizationCodeCredential, AzureCloudInstance, ClientCertificateCredential,
-    ClientSecretCredential, OpenIdCredential, TokenCredentialExecutor,
+    AppConfig, Authority, AuthorizationCodeAssertionCredential,
+    AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, AzureCloudInstance,
+    ClientAssertionCredential, ClientCertificateCredential, ClientSecretCredential,
+    ConfidentialClientApplicationBuilder, OpenIdCredential, TokenCredentialExecutor,
 };
 
 /// Clients capable of maintaining the confidentiality of their credentials
@@ -60,8 +62,8 @@ impl<Credential: Clone + Debug + Send + Sync + TokenCredentialExecutor>
 }
 
 #[async_trait]
-impl<Credential: Clone + Debug + Send + Sync + TokenCache> ClientApplication
-    for ConfidentialClientApplication<Credential>
+impl<Credential: Clone + Debug + Send + Sync + TokenCache + TokenCredentialExecutor>
+    ClientApplication for ConfidentialClientApplication<Credential>
 {
     fn get_token_silent(&mut self) -> AuthExecutionResult<String> {
         let token = self.credential.get_token_silent()?;
@@ -76,6 +78,10 @@ impl<Credential: Clone + Debug + Send + Sync + TokenCache> ClientApplication
     fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
         self.credential
             .with_force_token_refresh(force_token_refresh);
+    }
+
+    fn get_decoded_jwt(&self) -> Option<&DecodedJwt> {
+        self.credential.decoded_jwt()
     }
 }
 
@@ -170,6 +176,12 @@ impl From<OpenIdCredential> for ConfidentialClientApplication<OpenIdCredential> 
     }
 }
 
+impl ConfidentialClientApplication<OpenIdCredential> {
+    pub fn decoded_id_token(&self) -> Option<&TokenData<Claims>> {
+        self.credential.get_decoded_jwt()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::identity::Authority;
@@ -185,8 +197,7 @@ mod test {
                 .with_auth_code("code")
                 .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
                 .with_scope(vec!["Read.Write"])
-                .with_redirect_uri("http://localhost:8888/redirect")
-                .unwrap()
+                .with_redirect_uri(Url::parse("http://localhost:8888/redirect").unwrap())
                 .build();
 
         let credential_uri = confidential_client.credential.uri().unwrap();
@@ -207,8 +218,7 @@ mod test {
                 .with_tenant("tenant")
                 .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
                 .with_scope(vec!["Read.Write"])
-                .with_redirect_uri("http://localhost:8888/redirect")
-                .unwrap()
+                .with_redirect_uri(Url::parse("http://localhost:8888/redirect").unwrap())
                 .build();
 
         let credential_uri = confidential_client.credential.uri().unwrap();
@@ -228,9 +238,8 @@ mod test {
                 .with_auth_code("code")
                 .with_authority(Authority::Consumers)
                 .with_client_secret("ALDSKFJLKERLKJALSDKJF2209LAKJGFL")
-                .with_scope(vec!["Read.Write", "Fall.Down"])
-                .with_redirect_uri("http://localhost:8888/redirect")
-                .unwrap()
+                .with_scope(vec!["Read.Write"])
+                .with_redirect_uri(Url::parse("http://localhost:8888/redirect").unwrap())
                 .build();
 
         let credential_uri = confidential_client.credential.uri().unwrap();

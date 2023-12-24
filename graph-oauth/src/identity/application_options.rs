@@ -2,7 +2,7 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::identity::AadAuthorityAudience;
-use crate::oauth::AzureCloudInstance;
+use crate::AzureCloudInstance;
 
 /// Application Options typically stored as JSON file in .net applications.
 #[derive(Clone, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
@@ -58,9 +58,10 @@ mod test {
 
     #[test]
     fn application_options_from_file() {
-        let file =
-            File::open(r#"./src/identity/credentials/test/application_options/aad_options.json"#)
-                .unwrap();
+        let file = File::open(
+            r#"../../../src/identity_/credentials/test/application_options/aad_options.json"#,
+        )
+        .unwrap();
         let application_options: ApplicationOptions = serde_json::from_reader(file).unwrap();
         assert_eq!(
             application_options.aad_authority_audience,

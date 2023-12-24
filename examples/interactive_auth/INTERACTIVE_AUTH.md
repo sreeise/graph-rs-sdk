@@ -250,16 +250,18 @@ fn authenticate(tenant_id: &str, client_id: &str, client_secret: &str, scope: Ve
 }
 ```
 
-Using `into_result` transforms the `Unauthorized` and `Impeded` variants of `AuthorizationEvent`
+Using `map_to_credential_builder` transforms the `Unauthorized` and `Impeded` variants of `AuthorizationEvent`
 into `WebViewError` which is then returned in the result `Result<(AuthorizationResponse, CredentialBuilder), WebViewError>`
 
 ```rust
+use graph_rs_sdk::identity::{AuthorizationCodeCredential, Secret, WithInteractiveAuth};
+
 async fn authenticate(tenant_id: &str, client_id: &str, scope: Vec<&str>, redirect_uri: &str) -> anyhow::Result<()> {
     let (authorization_response, credential_builder) = AuthorizationCodeCredential::authorization_url_builder(client_id)
         .with_tenant(tenant_id)
         .with_scope(scope)
         .with_redirect_uri(redirect_uri)?
-        .with_interactive_auth_for_secret(Default::default())?
+        .with_interactive_auth(Secret("client-secret".to_string()), Default::default())
         .into_result()?;
     
     Ok(())

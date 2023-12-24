@@ -3,9 +3,10 @@ use std::fmt::Debug;
 
 use async_trait::async_trait;
 use dyn_clone::DynClone;
+use graph_core::identity::DecodedJwt;
 use reqwest::header::HeaderMap;
 use reqwest::tls::Version;
-use url::Url;
+use url::{ParseError, Url};
 use uuid::Uuid;
 
 use graph_error::{AuthExecutionResult, IdentityResult};
@@ -129,6 +130,10 @@ pub trait TokenCredentialExecutor: DynClone + Debug {
 
     fn extra_header_parameters(&self) -> &HeaderMap {
         &self.app_config().extra_header_parameters
+    }
+
+    fn issuer(&self) -> Result<Url, ParseError> {
+        self.azure_cloud_instance().issuer(&self.authority())
     }
 
     fn extra_query_parameters(&self) -> &HashMap<String, String> {

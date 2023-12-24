@@ -394,7 +394,7 @@ impl AuthorizationCodeAssertionCredentialBuilder {
         }
     }
 
-    pub(crate) fn new_with_auth_code_and_assertion(
+    pub(crate) fn from_assertion(
         authorization_code: impl AsRef<str>,
         assertion: impl AsRef<str>,
         app_config: AppConfig,

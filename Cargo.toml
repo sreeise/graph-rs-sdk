@@ -79,8 +79,8 @@ debug = false
 
 [[example]]
 name = "oauth_certificate"
-path = "examples/oauth_certificate/main.rs"
-required-features = ["openssl"]
+path = "examples/certificate_auth/main.rs"
+required-features = ["interactive-auth", "openssl"]
 
 [[example]]
 name = "interactive_auth"

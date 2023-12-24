@@ -1055,7 +1055,7 @@ async fn build_client(
 #### Authorization Code Secret With Proof Key Code Exchange
 
 ```rust
-use graph_rs_sdk::oauth::{
+use graph_rs_sdk::identity::{
   AuthorizationCodeCredential, ConfidentialClientApplication, GenPkce,
   ProofKeyCodeExchange, TokenCredentialExecutor,
 };
@@ -1225,7 +1225,7 @@ Interactive Authentication uses the [wry](https://github.com/tauri-apps/wry) cra
 platforms that support it such as on a desktop.
 
 ```rust
-use graph_rs_sdk::{oauth::AuthorizationCodeCredential, GraphClient};
+use graph_rs_sdk::{identity::{AuthorizationCodeCredential, Secret}, GraphClient};
 
 async fn authenticate(
   tenant_id: &str,
@@ -1242,7 +1242,7 @@ async fn authenticate(
                   .with_tenant(tenant_id)
                   .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
                   .with_redirect_uri(redirect_uri)
-                  .with_interactive_authentication_for_secret(Default::default())
+                  .with_interactive_auth(Secret("client-secret".to_string()), Default::default())
                   .unwrap();
 
   debug!("{authorization_query_response:#?}");

@@ -204,7 +204,7 @@ pub mod education;
 pub mod extended_properties;
 pub mod group_lifecycle_policies;
 pub mod groups;
-pub mod identity;
+pub mod identity_access;
 pub mod identity_governance;
 pub mod identity_providers;
 pub mod invitations;
@@ -234,9 +234,9 @@ pub use graph_error::{GraphFailure, GraphResult};
 pub use graph_http::api_impl::{GraphClientConfiguration, ODataQuery};
 
 /// Reexport of graph-oauth crate.
-pub mod oauth {
+pub mod identity {
     pub use graph_core::identity::ClientApplication;
-    pub use graph_oauth::oauth::*;
+    pub use graph_oauth::*;
 }
 
 pub mod http {
@@ -246,13 +246,15 @@ pub mod http {
         AsyncIterator, ODataDeltaLink, ODataDownloadLink, ODataMetadataLink, ODataNextLink,
         ODataQuery, ResponseBlockingExt, ResponseExt, UploadSessionLink,
     };
-    pub use reqwest::tls::Version;
-    pub use reqwest::{Body, Method};
 
     pub mod blocking {
         pub use graph_http::api_impl::UploadSessionBlocking;
         pub use reqwest::blocking::Body;
     }
+
+    pub use reqwest::tls::Version;
+    pub use reqwest::{Body, Method};
+    pub use url::Url;
 }
 
 /// Reexport of graph-error crate.
@@ -267,13 +269,13 @@ pub mod header {
 
 pub(crate) mod api_default_imports {
     pub(crate) use handlebars::*;
-    pub use reqwest::Method;
-    pub use url::Url;
+    pub(crate) use reqwest::Method;
+    pub(crate) use url::Url;
 
-    pub use graph_core::resource::ResourceIdentity;
-    pub use graph_error::*;
+    pub(crate) use graph_core::resource::ResourceIdentity;
+    pub(crate) use graph_error::*;
     pub(crate) use graph_http::api_impl::*;
 
-    pub use crate::client::Graph;
+    pub(crate) use crate::client::Graph;
     pub(crate) use crate::client::{map_errors, map_parameters, ResourceProvisioner};
 }

@@ -1,13 +1,14 @@
-use graph_error::GraphFailure;
+use graph_error::{AuthorizationFailure, GraphFailure, AF};
 use serde::{Deserialize, Deserializer};
 use serde_aux::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
+use std::fmt::{format, Display};
 use std::ops::{Add, Sub};
 
-use crate::identity::{Authority, AuthorizationResponse, Claims, IdToken};
-use graph_core::cache::AsBearer;
+use crate::identity::{Authority, AuthorizationResponse, IdToken};
+use graph_core::{cache::AsBearer, identity::Claims};
 use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
 use std::str::FromStr;
 use time::OffsetDateTime;
@@ -41,6 +42,8 @@ struct PhantomToken {
     user_id: Option<String>,
     id_token: Option<String>,
     state: Option<String>,
+    session_state: Option<String>,
+    nonce: Option<String>,
     correlation_id: Option<String>,
     client_info: Option<String>,
     #[serde(flatten)]
@@ -110,6 +113,8 @@ pub struct Token {
     pub user_id: Option<String>,
     pub id_token: Option<IdToken>,
     pub state: Option<String>,
+    pub session_state: Option<String>,
+    pub nonce: Option<String>,
     pub correlation_id: Option<String>,
     pub client_info: Option<String>,
     pub timestamp: Option<time::OffsetDateTime>,
@@ -141,6 +146,8 @@ impl Token {
             user_id: None,
             id_token: None,
             state: None,
+            session_state: None,
+            nonce: None,
             correlation_id: None,
             client_info: None,
             timestamp: Some(timestamp),
@@ -423,6 +430,8 @@ impl Default for Token {
             user_id: None,
             id_token: None,
             state: None,
+            session_state: None,
+            nonce: None,
             correlation_id: None,
             client_info: None,
             timestamp: Some(time::OffsetDateTime::now_utc()),
@@ -435,33 +444,39 @@ impl Default for Token {
     }
 }
 
-impl From<AuthorizationResponse> for Token {
-    fn from(value: AuthorizationResponse) -> Self {
-        Token {
-            access_token: value.access_token.unwrap_or_default(),
+impl TryFrom<AuthorizationResponse> for Token {
+    type Error = AuthorizationFailure;
+
+    fn try_from(value: AuthorizationResponse) -> Result<Self, Self::Error> {
+        let id_token = IdToken::try_from(value.clone()).ok();
+
+        Ok(Token {
+            access_token: value
+                .access_token
+                .ok_or_else(|| AF::msg_err("access_token", "access_token is None"))?,
             token_type: "Bearer".to_string(),
-            expires_in: 3600,
+            expires_in: value.expires_in.unwrap_or_default(),
             ext_expires_in: None,
             scope: vec![],
             refresh_token: None,
             user_id: None,
-            id_token: value
-                .id_token
-                .map(|id_token| IdToken::new(id_token.as_ref(), None, None, None)),
-            state: None,
+            id_token,
+            state: value.state,
+            session_state: value.session_state,
+            nonce: value.nonce,
             correlation_id: None,
             client_info: None,
             timestamp: None,
             expires_on: None,
             additional_fields: Default::default(),
             log_pii: false,
-        }
+        })
     }
 }
 
-impl ToString for Token {
-    fn to_string(&self) -> String {
-        self.access_token.to_string()
+impl Display for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.access_token.to_string())
     }
 }
 
@@ -562,19 +577,13 @@ impl<'de> Deserialize<'de> for Token {
         D: Deserializer<'de>,
     {
         let phantom_access_token: PhantomToken = Deserialize::deserialize(deserializer)?;
-
         let timestamp = OffsetDateTime::now_utc();
         let expires_on = timestamp.add(time::Duration::seconds(phantom_access_token.expires_in));
+        let id_token = phantom_access_token
+            .id_token
+            .map(|id_token_string| IdToken::new(id_token_string.as_ref(), None, None, None));
 
-        let id_token = {
-            if let Some(id_token_string) = phantom_access_token.id_token.as_ref() {
-                IdToken::from_str(id_token_string.as_ref()).ok()
-            } else {
-                None
-            }
-        };
-
-        Ok(Token {
+        let token = Token {
             access_token: phantom_access_token.access_token,
             token_type: phantom_access_token.token_type,
             expires_in: phantom_access_token.expires_in,
@@ -584,13 +593,19 @@ impl<'de> Deserialize<'de> for Token {
             user_id: phantom_access_token.user_id,
             id_token,
             state: phantom_access_token.state,
+            session_state: phantom_access_token.session_state,
+            nonce: phantom_access_token.nonce,
             correlation_id: phantom_access_token.correlation_id,
             client_info: phantom_access_token.client_info,
             timestamp: Some(timestamp),
             expires_on: Some(expires_on),
             additional_fields: phantom_access_token.additional_fields,
             log_pii: false,
-        })
+        };
+
+        // tracing::debug!(target: "phantom", token.as_value());
+
+        Ok(token)
     }
 }
 
@@ -639,5 +654,38 @@ mod test {
     pub fn test_deserialize() {
         let _token: Token = serde_json::from_str(ACCESS_TOKEN_INT).unwrap();
         let _token: Token = serde_json::from_str(ACCESS_TOKEN_STRING).unwrap();
+    }
+
+    #[test]
+    pub fn try_from_url_authorization_response() {
+        let authorization_response = AuthorizationResponse {
+            code: Some("code".into()),
+            id_token: Some("id_token".into()),
+            expires_in: Some(3600),
+            access_token: Some("token".into()),
+            state: Some("state".into()),
+            session_state: Some("session_state".into()),
+            nonce: None,
+            error: None,
+            error_description: None,
+            error_uri: None,
+            additional_fields: Default::default(),
+            log_pii: false,
+        };
+
+        let token = Token::try_from(authorization_response).unwrap();
+        assert_eq!(
+            token.id_token,
+            Some(IdToken::new(
+                "id_token",
+                Some("code"),
+                Some("state"),
+                Some("session_state")
+            ))
+        );
+        assert_eq!(token.access_token, "token".to_string());
+        assert_eq!(token.state, Some("state".to_string()));
+        assert_eq!(token.session_state, Some("session_state".to_string()));
+        assert_eq!(token.expires_in, 3600);
     }
 }

@@ -105,6 +105,9 @@ pub enum AuthExecutionError {
         message: String,
         response: http::Response<Result<serde_json::Value, ErrorMessage>>,
     },
+
+    #[error("{0:#?}")]
+    JsonWebToken(#[from] jsonwebtoken::errors::Error),
 }
 
 impl AuthExecutionError {

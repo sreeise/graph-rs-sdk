@@ -1,4 +1,3 @@
-use crate::identity::AppConfig;
 use graph_error::{WebViewError, WebViewResult};
 use serde::Deserializer;
 use serde_json::Value;
@@ -12,7 +11,7 @@ use url::Url;
 /// Microsoft has additional errors listed here:
 /// https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#error-codes-for-authorization-endpoint-errors
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum AuthorizationQueryError {
+pub enum AuthorizationResponseError {
     /// The request is missing a required parameter, includes an
     /// invalid parameter value, includes a parameter more than
     /// once, or is otherwise malformed.
@@ -80,7 +79,7 @@ pub enum AuthorizationQueryError {
     InteractionRequired,
 }
 
-impl Display for AuthorizationQueryError {
+impl Display for AuthorizationResponseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{self:#?}")
     }
@@ -112,7 +111,7 @@ pub(crate) struct PhantomAuthorizationResponse {
     pub state: Option<String>,
     pub session_state: Option<String>,
     pub nonce: Option<String>,
-    pub error: Option<AuthorizationQueryError>,
+    pub error: Option<AuthorizationResponseError>,
     pub error_description: Option<String>,
     pub error_uri: Option<Url>,
     #[serde(flatten)]
@@ -123,7 +122,7 @@ pub(crate) struct PhantomAuthorizationResponse {
 
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AuthorizationError {
-    pub error: Option<AuthorizationQueryError>,
+    pub error: Option<AuthorizationResponseError>,
     pub error_description: Option<String>,
     pub error_uri: Option<Url>,
 }
@@ -139,25 +138,20 @@ pub struct AuthorizationResponse {
     pub state: Option<String>,
     pub session_state: Option<String>,
     pub nonce: Option<String>,
-    pub error: Option<AuthorizationQueryError>,
+    pub error: Option<AuthorizationResponseError>,
     pub error_description: Option<String>,
     pub error_uri: Option<Url>,
     #[serde(flatten)]
     pub additional_fields: HashMap<String, Value>,
+    /// When true debug logging will log personally identifiable information such
+    /// as the id_token. This is disabled by default. When log_pii is enabled
+    /// passing [AuthorizationResponse] to logging or print functions will log the access token
+    /// and id token value.
     #[serde(skip)]
-    log_pii: bool,
+    pub log_pii: bool,
 }
 
 impl AuthorizationResponse {
-    /// Enable or disable logging of personally identifiable information such
-    /// as logging the id_token. This is disabled by default. When log_pii is enabled
-    /// passing [AuthorizationResponse] to logging or print functions will log both the bearer
-    /// access token value of amy and the id token value.
-    /// By default these do not get logged.
-    pub fn enable_pii_logging(&mut self, log_pii: bool) {
-        self.log_pii = log_pii;
-    }
-
     pub fn is_err(&self) -> bool {
         self.error.is_some()
     }
@@ -231,14 +225,17 @@ impl<CredentialBuilder: Clone + Debug> AuthorizationEvent<CredentialBuilder> {
     }
 }
 
-pub trait IntoCredentialBuilder<CredentialBuilder: Clone + Debug> {
-    fn into_credential_builder(self) -> WebViewResult<(AuthorizationResponse, CredentialBuilder)>;
+pub trait MapCredentialBuilder<CredentialBuilder: Clone + Debug> {
+    fn map_to_credential_builder(self)
+        -> WebViewResult<(AuthorizationResponse, CredentialBuilder)>;
 }
 
-impl<CredentialBuilder: Clone + Debug> IntoCredentialBuilder<CredentialBuilder>
+impl<CredentialBuilder: Clone + Debug> MapCredentialBuilder<CredentialBuilder>
     for WebViewResult<AuthorizationEvent<CredentialBuilder>>
 {
-    fn into_credential_builder(self) -> WebViewResult<(AuthorizationResponse, CredentialBuilder)> {
+    fn map_to_credential_builder(
+        self,
+    ) -> WebViewResult<(AuthorizationResponse, CredentialBuilder)> {
         match self {
             Ok(auth_event) => match auth_event {
                 AuthorizationEvent::Authorized {

@@ -169,7 +169,7 @@ impl ConfidentialClientApplicationBuilder {
         authorization_code: impl AsRef<str>,
         assertion: impl AsRef<str>,
     ) -> AuthorizationCodeAssertionCredentialBuilder {
-        AuthorizationCodeAssertionCredentialBuilder::new_with_auth_code_and_assertion(
+        AuthorizationCodeAssertionCredentialBuilder::from_assertion(
             authorization_code,
             assertion,
             self.app_config.clone(),

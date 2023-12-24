@@ -1,4 +1,9 @@
-use graph_rs_sdk::{oauth::AuthorizationCodeCredential, GraphClient};
+use graph_rs_sdk::{
+    identity::{
+        web::WithInteractiveAuth, AuthorizationCodeCredential, MapCredentialBuilder, Secret,
+    },
+    GraphClient,
+};
 use url::Url;
 
 // Requires feature=interactive_authentication
@@ -35,8 +40,8 @@ async fn authenticate(
             .with_tenant(tenant_id)
             .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
             .with_redirect_uri(Url::parse(redirect_uri)?)
-            .with_interactive_auth_for_secret(client_secret, Default::default())?
-            .into_result()?;
+            .with_interactive_auth(Secret("secret".to_string()), Default::default())
+            .map_to_credential_builder()?;
 
     debug!("{authorization_query_response:#?}");
 

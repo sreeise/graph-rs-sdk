@@ -53,6 +53,14 @@ pub struct ClientAssertionCredential {
     token_cache: InMemoryCacheStore<Token>,
 }
 
+impl Debug for ClientAssertionCredential {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ClientAssertionCredential")
+            .field("app_config", &self.app_config)
+            .finish()
+    }
+}
+
 impl ClientAssertionCredential {
     pub fn new(
         tenant_id: impl AsRef<str>,
@@ -99,14 +107,6 @@ impl ClientAssertionCredential {
         let new_token: Token = response.json().await?;
         self.token_cache.store(cache_id, new_token.clone());
         Ok(new_token)
-    }
-}
-
-impl Debug for ClientAssertionCredential {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ClientAssertionCredential")
-            .field("app_config", &self.app_config)
-            .finish()
     }
 }
 
@@ -205,7 +205,7 @@ impl TokenCredentialExecutor for ClientAssertionCredential {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ClientAssertionCredentialBuilder {
     credential: ClientAssertionCredential,
 }

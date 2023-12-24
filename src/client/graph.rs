@@ -40,18 +40,18 @@ use crate::group_lifecycle_policies::{
     GroupLifecyclePoliciesApiClient, GroupLifecyclePoliciesIdApiClient,
 };
 use crate::groups::{GroupsApiClient, GroupsIdApiClient};
-use crate::identity::IdentityApiClient;
-use crate::identity_governance::IdentityGovernanceApiClient;
-use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdApiClient};
-use crate::invitations::InvitationsApiClient;
-use crate::me::MeApiClient;
-use crate::oauth::{
+use crate::identity::{
     AllowedHostValidator, AuthorizationCodeAssertionCredential,
     AuthorizationCodeCertificateCredential, AuthorizationCodeCredential, BearerTokenCredential,
     ClientAssertionCredential, ClientCertificateCredential, ClientSecretCredential,
     ConfidentialClientApplication, DeviceCodeCredential, HostIs, OpenIdCredential,
     PublicClientApplication, ResourceOwnerPasswordCredential, Token,
 };
+use crate::identity_access::IdentityApiClient;
+use crate::identity_governance::IdentityGovernanceApiClient;
+use crate::identity_providers::{IdentityProvidersApiClient, IdentityProvidersIdApiClient};
+use crate::invitations::InvitationsApiClient;
+use crate::me::MeApiClient;
 use crate::oauth2_permission_grants::{
     Oauth2PermissionGrantsApiClient, Oauth2PermissionGrantsIdApiClient,
 };
@@ -71,7 +71,7 @@ use crate::teams_templates::{TeamsTemplatesApiClient, TeamsTemplatesIdApiClient}
 use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
-use graph_core::identity::ForceTokenRefresh;
+use graph_core::identity::{DecodedJwt, ForceTokenRefresh};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -294,6 +294,10 @@ impl GraphClient {
             }
             HostIs::Invalid => panic!("Invalid host"),
         }
+    }
+
+    pub fn decoded_jwt(&self) -> Option<&DecodedJwt> {
+        self.client.get_decoded_jwt()
     }
 
     api_client_impl!(admin, AdminApiClient);
