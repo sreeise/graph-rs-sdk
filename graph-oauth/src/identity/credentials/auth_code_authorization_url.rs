@@ -11,9 +11,9 @@ use graph_core::crypto::{secure_random_32, ProofKeyCodeExchange};
 use graph_error::{IdentityResult, AF};
 
 use crate::identity::{
-    tracing_targets::INTERACTIVE_AUTH, AppConfig, AsQuery,
-    AuthorizationCodeAssertionCredentialBuilder, AuthorizationCodeCredentialBuilder,
-    AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode, ResponseType,
+    AppConfig, AsQuery, AuthorizationCodeAssertionCredentialBuilder,
+    AuthorizationCodeCredentialBuilder, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode,
+    ResponseType,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 use crate::{Assertion, AuthorizationEvent, Secret};
@@ -24,7 +24,8 @@ use crate::identity::X509Certificate;
 #[cfg(feature = "interactive-auth")]
 use {
     crate::identity::{
-        AuthorizationCodeCertificateCredentialBuilder, AuthorizationResponse, Token,
+        tracing_targets::INTERACTIVE_AUTH, AuthorizationCodeCertificateCredentialBuilder,
+        AuthorizationResponse, Token,
     },
     crate::web::{
         HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,

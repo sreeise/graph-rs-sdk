@@ -204,6 +204,7 @@ pub mod education;
 pub mod extended_properties;
 pub mod group_lifecycle_policies;
 pub mod groups;
+/// The main identity APIs with starting path `identity/`
 pub mod identity_access;
 pub mod identity_governance;
 pub mod identity_providers;

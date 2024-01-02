@@ -18,7 +18,7 @@ pub mod traits;
 pub mod io_tools;
 
 pub(crate) mod internal {
-    pub use crate::blocking::*;
+    
     pub use crate::client::*;
     pub use crate::core::*;
     pub use crate::io_tools::*;
@@ -27,7 +27,6 @@ pub(crate) mod internal {
     pub use crate::resource_identifier::*;
     pub use crate::traits::*;
     pub use crate::upload_session::*;
-    pub use crate::url::*;
     pub use graph_core::http::*;
 }
 

@@ -238,8 +238,8 @@ impl GraphClient {
     ///     .send()
     ///     .await?;
     /// ```
-    pub fn custom_endpoint(&mut self, custom_endpoint: &str) -> &mut GraphClient {
-        self.use_endpoint(custom_endpoint);
+    pub fn custom_endpoint(&mut self, url: &Url) -> &mut GraphClient {
+        self.use_endpoint(url);
         self
     }
 
@@ -271,26 +271,29 @@ impl GraphClient {
     ///
     /// Example
     /// ```rust
+    /// use url::Url;
     /// use graph_rs_sdk::Graph;
     ///
     /// let mut client = Graph::new("ACCESS_TOKEN");
-    /// client.use_endpoint("https://graph.microsoft.com/v1.0");
+    /// client.use_endpoint(&Url::parse("https://graph.microsoft.com/v1.0").unwrap());
     ///
     /// assert_eq!(client.url().to_string(), "https://graph.microsoft.com/v1.0".to_string())
     /// ```
-    pub fn use_endpoint(&mut self, custom_endpoint: &str) {
-        match self.allowed_host_validator.validate_str(custom_endpoint) {
+    pub fn use_endpoint(&mut self, url: &Url) {
+        if cfg!(feature = "test-util") {
+            self.endpoint = url.clone();
+            return;
+        }
+
+        if url.query().is_some() {
+            panic!(
+                "Invalid query - provide only the scheme, host, and optional path of the Uri such as https://graph.microsoft.com/v1.0"
+            );
+        }
+
+        match self.allowed_host_validator.validate_url(url) {
             HostIs::Valid => {
-                let url = Url::parse(custom_endpoint).expect("Unable to set custom endpoint");
-
-                if url.query().is_some() {
-                    panic!(
-                        "Invalid query - Provide only the scheme, host, and optional path of the Uri such as https://graph.microsoft.com/v1.0"
-                    );
-                }
-
-                self.endpoint.set_host(url.host_str()).unwrap();
-                self.endpoint.set_path(url.path());
+                self.endpoint = url.clone();
             }
             HostIs::Invalid => panic!("Invalid host"),
         }
@@ -626,60 +629,64 @@ impl From<&PublicClientApplication<ResourceOwnerPasswordCredential>> for GraphCl
 mod test {
     use super::*;
 
-    #[test]
-    #[should_panic]
-    fn try_invalid_host() {
-        let mut client = GraphClient::new("token");
-        client.custom_endpoint("https://example.org");
+    fn test_url(url: &str) -> Url {
+        Url::parse(url).unwrap()
     }
 
     #[test]
     #[should_panic]
-    fn try_invalid_scheme() {
+    fn try_invalid_host() {
         let mut client = GraphClient::new("token");
-        client.custom_endpoint("http://example.org");
+        client.custom_endpoint(&Url::parse("https://example.org").unwrap());
+    }
+
+    #[test]
+    #[should_panic]
+    fn try_invalid_http_scheme() {
+        let mut client = GraphClient::new("token");
+        client.custom_endpoint(&Url::parse("http://example.org").unwrap());
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_query() {
         let mut client = GraphClient::new("token");
-        client.custom_endpoint("https://example.org?user=name");
+        client.custom_endpoint(&Url::parse("https://example.org?user=name").unwrap());
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_path() {
         let mut client = GraphClient::new("token");
-        client.custom_endpoint("https://example.org/v1");
+        client.custom_endpoint(&Url::parse("https://example.org/v1").unwrap());
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_host2() {
         let mut client = GraphClient::new("token");
-        client.use_endpoint("https://example.org");
+        client.use_endpoint(&Url::parse("https://example.org").unwrap());
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_scheme2() {
         let mut client = GraphClient::new("token");
-        client.use_endpoint("http://example.org");
+        client.use_endpoint(&Url::parse("http://example.org").unwrap());
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_query2() {
         let mut client = GraphClient::new("token");
-        client.use_endpoint("https://example.org?user=name");
+        client.use_endpoint(&Url::parse("https://example.org?user=name").unwrap());
     }
 
     #[test]
     #[should_panic]
     fn try_invalid_path2() {
         let mut client = GraphClient::new("token");
-        client.use_endpoint("https://example.org/v1");
+        client.use_endpoint(&Url::parse("https://example.org/v1").unwrap());
     }
 
     #[test]
@@ -696,7 +703,7 @@ mod test {
         let mut client = Graph::new("token");
 
         for url in urls.iter() {
-            client.custom_endpoint(url);
+            client.custom_endpoint(&Url::parse(url).unwrap());
             assert_eq!(client.url().clone(), Url::parse(url).unwrap());
         }
     }

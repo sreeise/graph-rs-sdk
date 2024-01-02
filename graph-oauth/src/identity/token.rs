@@ -122,7 +122,7 @@ pub struct Token {
     #[serde(flatten)]
     pub additional_fields: HashMap<String, Value>,
     #[serde(skip)]
-    log_pii: bool,
+    pub log_pii: bool,
 }
 
 impl Token {
