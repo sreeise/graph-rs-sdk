@@ -6,15 +6,15 @@ use std::str::FromStr;
 use std::time::Duration;
 
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
+use graph_core::identity::ForceTokenRefresh;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use tracing::error;
 use url::Url;
 use uuid::Uuid;
 
 use crate::identity::{
-    tracing_targets::INTERACTIVE_AUTH, AppConfig, Authority, AzureCloudInstance,
-    DeviceAuthorizationResponse, PollDeviceCodeEvent, PublicClientApplication, Token,
-    TokenCredentialExecutor,
+    AppConfig, Authority, AzureCloudInstance, DeviceAuthorizationResponse, PollDeviceCodeEvent,
+    PublicClientApplication, Token, TokenCredentialExecutor,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
 use graph_core::http::{
@@ -26,21 +26,14 @@ use graph_error::{
 };
 
 #[cfg(feature = "interactive-auth")]
-use graph_error::WebViewDeviceCodeError;
-
-#[cfg(feature = "interactive-auth")]
-use crate::web::WebViewOptions;
-
-#[cfg(feature = "interactive-auth")]
-use crate::web::{HostOptions, InteractiveAuth};
-
-#[cfg(feature = "interactive-auth")]
-use crate::web::UserEvents;
-use graph_core::identity::ForceTokenRefresh;
-#[cfg(feature = "interactive-auth")]
-use wry::{
-    application::{event_loop::EventLoopProxy, window::Window},
-    webview::{WebView, WebViewBuilder},
+use {
+    crate::tracing_targets::INTERACTIVE_AUTH,
+    crate::web::{HostOptions, InteractiveAuth, UserEvents, WebViewOptions},
+    graph_error::WebViewDeviceCodeError,
+    wry::{
+        application::{event_loop::EventLoopProxy, window::Window},
+        webview::{WebView, WebViewBuilder},
+    },
 };
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
@@ -577,10 +570,10 @@ impl DeviceCodePollingExecutor {
     }
 }
 
+#[cfg(feature = "interactive-auth")]
 pub(crate) mod internal {
     use super::*;
 
-    #[cfg(feature = "interactive-auth")]
     impl InteractiveAuth for DeviceCodeCredential {
         fn webview(
             host_options: HostOptions,

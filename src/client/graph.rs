@@ -629,10 +629,6 @@ impl From<&PublicClientApplication<ResourceOwnerPasswordCredential>> for GraphCl
 mod test {
     use super::*;
 
-    fn test_url(url: &str) -> Url {
-        Url::parse(url).unwrap()
-    }
-
     #[test]
     #[should_panic]
     fn try_invalid_host() {

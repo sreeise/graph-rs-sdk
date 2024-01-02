@@ -52,17 +52,13 @@ impl ApplicationOptions {
 
 #[cfg(test)]
 mod test {
-    use std::fs::File;
-
     use super::*;
 
     #[test]
     fn application_options_from_file() {
-        let file = File::open(
-            r#"../../../src/identity_/credentials/test/application_options/aad_options.json"#,
-        )
-        .unwrap();
-        let application_options: ApplicationOptions = serde_json::from_reader(file).unwrap();
+        let file_content = include_str!("credentials/test/application_options/aad_options.json");
+        let application_options: ApplicationOptions = serde_json::from_str(file_content).unwrap();
+
         assert_eq!(
             application_options.aad_authority_audience,
             Some(AadAuthorityAudience::PersonalMicrosoftAccount)

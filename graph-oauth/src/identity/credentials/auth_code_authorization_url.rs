@@ -16,7 +16,6 @@ use crate::identity::{
     ResponseType,
 };
 use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
-use crate::{Assertion, AuthorizationEvent, Secret};
 
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
@@ -31,6 +30,7 @@ use {
         HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,
         WebViewOptions, WithInteractiveAuth,
     },
+    crate::{Assertion, AuthorizationEvent, Secret},
     graph_error::{AuthExecutionError, WebViewError, WebViewResult},
     wry::{
         application::{event_loop::EventLoopProxy, window::Window},
@@ -353,10 +353,10 @@ impl AuthCodeAuthorizationUrlParameters {
     }
 }
 
+#[cfg(feature = "interactive-auth")]
 mod internal {
     use super::*;
 
-    #[cfg(feature = "interactive-auth")]
     impl InteractiveAuth for AuthCodeAuthorizationUrlParameters {
         fn webview(
             host_options: HostOptions,

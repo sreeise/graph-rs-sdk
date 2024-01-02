@@ -55,7 +55,6 @@ pub mod web;
 
 pub(crate) mod internal {
     pub use crate::oauth_serializer::*;
-    pub use graph_core::http::*;
 }
 
 pub mod extensions {

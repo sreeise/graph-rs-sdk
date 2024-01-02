@@ -18,12 +18,13 @@ pub mod traits;
 pub mod io_tools;
 
 pub(crate) mod internal {
-    
+
     pub use crate::client::*;
     pub use crate::core::*;
     pub use crate::io_tools::*;
     pub use crate::request_components::*;
     pub use crate::request_handler::*;
+    #[allow(unused_imports)]
     pub use crate::resource_identifier::*;
     pub use crate::traits::*;
     pub use crate::upload_session::*;
