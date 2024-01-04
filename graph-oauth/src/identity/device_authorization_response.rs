@@ -8,7 +8,7 @@ use serde_json::Value;
 use graph_core::http::JsonHttpResponse;
 
 #[cfg(feature = "interactive-auth")]
-use crate::web::WindowCloseReason;
+use crate::interactive::WindowCloseReason;
 
 #[cfg(feature = "interactive-auth")]
 use crate::identity::{DeviceCodeCredential, PublicClientApplication};

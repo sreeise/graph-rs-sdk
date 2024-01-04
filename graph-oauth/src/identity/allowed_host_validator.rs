@@ -114,7 +114,7 @@ impl ValidateHosts for AllowedHostValidator {
 
 impl Default for AllowedHostValidator {
     fn default() -> Self {
-        let urls: HashSet<Url> = vec![
+        let urls: HashSet<Url> = [
             "https://graph.microsoft.com",
             "https://graph.microsoft.us",
             "https://dod-graph.microsoft.us",
@@ -137,7 +137,7 @@ mod test {
 
     #[test]
     fn test_valid_hosts() {
-        let valid_hosts: Vec<String> = vec![
+        let valid_hosts: Vec<String> = [
             "graph.microsoft.com",
             "graph.microsoft.us",
             "dod-graph.microsoft.us",
@@ -171,7 +171,7 @@ mod test {
             "example.org",
         ];
 
-        let valid_hosts: Vec<Url> = vec![
+        let valid_hosts: Vec<Url> = [
             "graph.microsoft.com",
             "graph.microsoft.us",
             "dod-graph.microsoft.us",
@@ -199,7 +199,7 @@ mod test {
 
     #[test]
     fn test_allowed_host_validator() {
-        let valid_hosts: Vec<String> = vec![
+        let valid_hosts: Vec<String> = [
             "graph.microsoft.com",
             "graph.microsoft.us",
             "dod-graph.microsoft.us",

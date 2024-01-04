@@ -14,16 +14,16 @@ use crate::identity::{
     AsQuery, Authority, AuthorizationUrl, AzureCloudInstance, OpenIdCredentialBuilder, Prompt,
     ResponseMode, ResponseType,
 };
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 
 use crate::identity::tracing_targets::CREDENTIAL_EXECUTOR;
 
 #[cfg(feature = "interactive-auth")]
 use {
-    crate::identity::{AuthorizationEvent, AuthorizationResponse},
-    crate::web::{
-        HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,
-        WebViewOptions,
+    crate::identity::AuthorizationResponse,
+    crate::interactive::{
+        HostOptions, InteractiveAuthEvent, UserEvents, WebViewAuth, WebViewAuthorizationEvent,
+        WebViewHostValidator, WebViewOptions,
     },
     graph_error::{WebViewError, WebViewResult},
     wry::{
@@ -209,7 +209,7 @@ impl OpenIdAuthorizationUrlParameters {
         &self,
         client_secret: impl AsRef<str>,
         web_view_options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<OpenIdCredentialBuilder>> {
+    ) -> WebViewResult<WebViewAuthorizationEvent<OpenIdCredentialBuilder>> {
         if self.response_mode.eq(&Some(ResponseMode::FormPost)) {
             return Err(AF::msg_err(
                 "response_mode",
@@ -221,7 +221,7 @@ impl OpenIdAuthorizationUrlParameters {
         let (sender, receiver) = std::sync::mpsc::channel();
 
         std::thread::spawn(move || {
-            OpenIdAuthorizationUrlParameters::interactive_auth(
+            OpenIdAuthorizationUrlParameters::run(
                 uri,
                 vec![redirect_uri],
                 web_view_options,
@@ -248,20 +248,22 @@ impl OpenIdAuthorizationUrlParameters {
                         .or(uri.fragment())
                         .ok_or(WebViewError::InvalidUri(format!(
                             "uri missing query or fragment: {}",
-                            uri.to_string()
+                            uri
                         )))?;
 
                     let authorization_response: AuthorizationResponse =
                         serde_urlencoded::from_str(query).map_err(|_| {
                             WebViewError::InvalidUri(format!(
                                 "unable to deserialize query or fragment: {}",
-                                uri.to_string()
+                                uri
                             ))
                         })?;
 
                     if authorization_response.is_err() {
                         tracing::debug!(target: "graph_rs_sdk::interactive_auth", "error in authorization query or fragment from redirect uri");
-                        return Ok(AuthorizationEvent::Unauthorized(authorization_response));
+                        return Ok(WebViewAuthorizationEvent::Unauthorized(
+                            authorization_response,
+                        ));
                     }
 
                     tracing::debug!(target: "graph_rs_sdk::interactive_auth", "parsed authorization query or fragment from redirect uri");
@@ -277,13 +279,13 @@ impl OpenIdAuthorizationUrlParameters {
                         credential_builder.with_id_token_verification(true);
                     }
 
-                    Ok(AuthorizationEvent::Authorized {
+                    Ok(WebViewAuthorizationEvent::Authorized {
                         authorization_response,
                         credential_builder,
                     })
                 }
                 InteractiveAuthEvent::WindowClosed(window_close_reason) => Ok(
-                    AuthorizationEvent::WindowClosed(window_close_reason.to_string()),
+                    WebViewAuthorizationEvent::WindowClosed(window_close_reason.to_string()),
                 ),
             },
         }
@@ -303,7 +305,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
         &self,
         azure_cloud_instance: &AzureCloudInstance,
     ) -> IdentityResult<Url> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
 
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
@@ -378,18 +380,18 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
 
         let query = serializer.encode_query(
             vec![
-                OAuthParameter::ResponseMode,
-                OAuthParameter::RedirectUri,
-                OAuthParameter::State,
-                OAuthParameter::Prompt,
-                OAuthParameter::LoginHint,
-                OAuthParameter::DomainHint,
+                AuthParameter::ResponseMode,
+                AuthParameter::RedirectUri,
+                AuthParameter::State,
+                AuthParameter::Prompt,
+                AuthParameter::LoginHint,
+                AuthParameter::DomainHint,
             ],
             vec![
-                OAuthParameter::ClientId,
-                OAuthParameter::ResponseType,
-                OAuthParameter::Scope,
-                OAuthParameter::Nonce,
+                AuthParameter::ClientId,
+                AuthParameter::ResponseType,
+                AuthParameter::Scope,
+                AuthParameter::Nonce,
             ],
         )?;
 
@@ -400,7 +402,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
 }
 
 #[cfg(feature = "interactive-auth")]
-impl InteractiveAuth for OpenIdAuthorizationUrlParameters {
+impl WebViewAuth for OpenIdAuthorizationUrlParameters {
     fn webview(
         host_options: HostOptions,
         window: Window,
@@ -493,7 +495,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         &mut self,
         response_type: I,
     ) -> &mut Self {
-        self.credential.response_type = BTreeSet::from_iter(response_type.into_iter());
+        self.credential.response_type = BTreeSet::from_iter(response_type);
         self
     }
 
@@ -580,7 +582,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         &self,
         client_secret: impl AsRef<str>,
         options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<OpenIdCredentialBuilder>> {
+    ) -> WebViewResult<WebViewAuthorizationEvent<OpenIdCredentialBuilder>> {
         self.credential
             .interactive_webview_authentication(client_secret, options)
     }

@@ -31,7 +31,6 @@ async fn list_todo_list_tasks() {
             .send()
             .await
             .unwrap();
-        println!("{:#?}\n", response);
         assert!(response.status().is_success());
         let body: TodoListsTasks = response.json().await.unwrap();
         assert!(body.value.len() >= 2);

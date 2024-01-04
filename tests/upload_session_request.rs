@@ -96,7 +96,7 @@ async fn channel_upload_session(mut upload_session: UploadSession) -> GraphResul
             }
             Err(err) => {
                 cancel_request.send().await?;
-                return Err(err).map_err(GraphFailure::from);
+                return Err(GraphFailure::from(err));
             }
         }
     }

@@ -16,7 +16,7 @@ use crate::identity::{
     AzureCloudInstance, ClientCredentialsAuthorizationUrlParameterBuilder,
     ConfidentialClientApplication, Token, TokenCredentialExecutor,
 };
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 
 credential_builder!(
     ClientSecretCredentialBuilder,
@@ -168,14 +168,14 @@ impl TokenCache for ClientSecretCredential {
 #[async_trait]
 impl TokenCredentialExecutor for ClientSecretCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
-            return AuthorizationFailure::result(OAuthParameter::ClientId);
+            return AuthorizationFailure::result(AuthParameter::ClientId);
         }
 
         if self.client_secret.trim().is_empty() {
-            return AuthorizationFailure::result(OAuthParameter::ClientSecret);
+            return AuthorizationFailure::result(AuthParameter::ClientSecret);
         }
 
         serializer
@@ -186,7 +186,7 @@ impl TokenCredentialExecutor for ClientSecretCredential {
 
         // Don't include ClientId and Client Secret in the fields for form url encode because
         // Client Id and Client Secret are already included as basic auth.
-        serializer.as_credential_map(vec![OAuthParameter::Scope], vec![OAuthParameter::GrantType])
+        serializer.as_credential_map(vec![AuthParameter::Scope], vec![AuthParameter::GrantType])
     }
 
     fn client_id(&self) -> &Uuid {

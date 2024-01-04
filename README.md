@@ -155,7 +155,8 @@ fn main() -> GraphResult<()> {
 - `brotli`: Enables reqwest feature brotli. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
 - `deflate`: Enables reqwest feature deflate. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
 - `trust-dns`: Enables reqwest feature trust-dns. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
-- `test-util`: Enables testing features. Currently only enables setting https-only to false for use in mocking frameworks.
+- `test-util`: Enables testing features. Adds the ability to set a custom endpoint for mocking frameworks using the `use_test_endpoint` method on the `GraphClient`. 
+  - Also allow http (disable https only)
 
 Default features: `default=["native-tls"]`
 
@@ -997,10 +998,11 @@ handle the access token requests for you.
 
 Support for:
 
+- OpenId, Auth Code Grant, Client Credentials, Device Code, Certificate Auth
 - Automatic Token Refresh
-- Interactive Authentication
+- Interactive Authentication | features = [`interactive-auth`]
 - Device Code Polling
-- Authorization Using Certificates
+- Authorization Using Certificates | features = [`openssl`]
 
 There are two main types for building your chosen OAuth or OpenId Connect Flow.
 

@@ -280,11 +280,6 @@ impl GraphClient {
     /// assert_eq!(client.url().to_string(), "https://graph.microsoft.com/v1.0".to_string())
     /// ```
     pub fn use_endpoint(&mut self, url: &Url) {
-        if cfg!(feature = "test-util") {
-            self.endpoint = url.clone();
-            return;
-        }
-
         if url.query().is_some() {
             panic!(
                 "Invalid query - provide only the scheme, host, and optional path of the Uri such as https://graph.microsoft.com/v1.0"
@@ -297,6 +292,11 @@ impl GraphClient {
             }
             HostIs::Invalid => panic!("Invalid host"),
         }
+    }
+
+    #[cfg(feature = "test-util")]
+    pub fn use_test_endpoint(&mut self, url: &Url) {
+        self.endpoint = url.clone();
     }
 
     pub fn decoded_jwt(&self) -> Option<&DecodedJwt> {
@@ -687,7 +687,7 @@ mod test {
 
     #[test]
     fn try_valid_hosts() {
-        let urls = vec![
+        let urls = [
             "https://graph.microsoft.com/v1.0",
             "https://graph.microsoft.us",
             "https://dod-graph.microsoft.us",
@@ -702,5 +702,65 @@ mod test {
             client.custom_endpoint(&Url::parse(url).unwrap());
             assert_eq!(client.url().clone(), Url::parse(url).unwrap());
         }
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "test-util")]
+mod test_util_feature {
+    use crate::{http::Url, Graph, GraphClientConfiguration, ODataQuery};
+    use wiremock::matchers::{bearer_token, method, path, query_param};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    /// Tests the test-util feature and setting https-only to false.
+    #[tokio::test]
+    async fn can_set_test_endpoint() {
+        let mock_server = MockServer::start().await;
+
+        Mock::given(method("GET"))
+            .and(path("/users"))
+            .and(query_param("$top", "10"))
+            .and(bearer_token("token"))
+            .respond_with(ResponseTemplate::new(200))
+            .mount(&mock_server)
+            .await;
+
+        let graph_client_configuration = GraphClientConfiguration::new()
+            .access_token("token")
+            .https_only(false);
+
+        let mut client = Graph::from(graph_client_configuration);
+        let uri = mock_server.uri();
+        client.use_test_endpoint(&Url::parse(uri.as_str()).unwrap());
+
+        let response = client.users().list_user().top("10").send().await.unwrap();
+        let status = response.status();
+        assert_eq!(status.as_u16(), 200);
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn test_util_feature_use_endpoint_panics() {
+        let mock_server = MockServer::start().await;
+
+        Mock::given(method("GET"))
+            .and(path("/users"))
+            .and(query_param("$top", "10"))
+            .and(bearer_token("token"))
+            .respond_with(ResponseTemplate::new(200))
+            .mount(&mock_server)
+            .await;
+
+        let graph_client_configuration = GraphClientConfiguration::new()
+            .access_token("token")
+            .https_only(false);
+
+        let mut client = Graph::from(graph_client_configuration);
+        let uri = mock_server.uri();
+        client.use_endpoint(&Url::parse(uri.as_str()).unwrap());
+
+        let response = client.users().list_user().top("10").send().await.unwrap();
+        let status = response.status();
+        assert_eq!(status.as_u16(), 200);
     }
 }

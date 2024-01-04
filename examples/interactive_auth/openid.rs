@@ -1,8 +1,8 @@
 use graph_rs_sdk::{
-    identity::{OpenIdCredential, ResponseMode, ResponseType},
+    http::Url,
+    identity::{IntoCredentialBuilder, OpenIdCredential, ResponseMode, ResponseType},
     GraphClient,
 };
-use url::Url;
 
 async fn openid_authenticate(
     tenant_id: &str,
@@ -20,8 +20,8 @@ async fn openid_authenticate(
             .with_response_mode(ResponseMode::Fragment)
             .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
             .with_redirect_uri(Url::parse(redirect_uri)?)
-            .with_interactive_auth(client_secret, Default::default())?
-            .into_result()?;
+            .with_interactive_auth(client_secret, Default::default())
+            .into_credential_builder()?;
 
     debug!("{authorization_query_response:#?}");
 

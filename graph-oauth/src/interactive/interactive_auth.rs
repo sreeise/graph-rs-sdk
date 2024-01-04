@@ -1,5 +1,5 @@
 use crate::identity::tracing_targets::INTERACTIVE_AUTH;
-use crate::web::{HostOptions, WebViewOptions};
+use crate::interactive::{HostOptions, WebViewOptions};
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::mpsc::Sender;
 use std::time::{Duration, Instant};
@@ -12,9 +12,6 @@ use wry::webview::WebView;
 #[cfg(target_family = "unix")]
 use wry::application::platform::unix::EventLoopBuilderExtUnix;
 
-use crate::identity::AuthorizationEvent;
-
-use graph_error::WebViewResult;
 #[cfg(target_family = "windows")]
 use wry::application::platform::windows::EventLoopBuilderExtWindows;
 
@@ -52,7 +49,7 @@ pub enum UserEvents {
     ReachedRedirectUri(Url),
 }
 
-pub trait InteractiveAuth
+pub trait WebViewAuth
 where
     Self: Debug,
 {
@@ -62,7 +59,7 @@ where
         proxy: EventLoopProxy<UserEvents>,
     ) -> anyhow::Result<WebView>;
 
-    fn interactive_auth(
+    fn run(
         start_url: Url,
         redirect_uris: Vec<Url>,
         options: WebViewOptions,
@@ -198,24 +195,4 @@ where
             .with_any_thread(true)
             .build()
     }
-}
-
-pub trait WithInteractiveAuth<T> {
-    type CredentialBuilder: Clone + Debug;
-
-    fn with_interactive_auth(
-        &self,
-        auth_type: T,
-        options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<Self::CredentialBuilder>>;
-}
-
-pub trait WithInteractiveAuthBuilder<CredentialBuilder: Clone + Debug> {
-    type AuthType;
-
-    fn with_interactive_auth_builder(
-        &self,
-        auth_type: Self::AuthType,
-        options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<CredentialBuilder>>;
 }

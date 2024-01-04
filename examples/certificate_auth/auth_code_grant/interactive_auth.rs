@@ -1,12 +1,13 @@
 use graph_rs_sdk::identity::{
-    web::WithInteractiveAuth, AuthorizationCodeCertificateCredential,
-    ConfidentialClientApplication, MapCredentialBuilder, PKey, X509Certificate, X509,
+    interactive::WithInteractiveAuth, ConfidentialClientApplication, IntoCredentialBuilder, PKey,
+    X509Certificate, X509,
 };
 use graph_rs_sdk::GraphClient;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use url::Url;
+
 pub fn x509_certificate(
     client_id: &str,
     tenant: &str,
@@ -43,7 +44,7 @@ fn interactive_auth(
             .with_scope(scope)
             .with_redirect_uri(redirect_uri)
             .with_interactive_auth(&x509certificate, Default::default())
-            .map_to_credential_builder()
+            .into_credential_builder()
             .unwrap();
 
     let confidential_client = credential_builder.build();

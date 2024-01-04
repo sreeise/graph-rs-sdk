@@ -26,7 +26,7 @@ use crate::identity::{
     ConfidentialClientApplication, IdToken, OpenIdAuthorizationUrlParameterBuilder,
     OpenIdAuthorizationUrlParameters, Token, TokenCredentialExecutor,
 };
-use crate::internal::{OAuthParameter, OAuthSerializer};
+use crate::internal::{AuthParameter, AuthSerializer};
 
 credential_builder!(
     OpenIdCredentialBuilder,
@@ -66,7 +66,7 @@ pub struct OpenIdCredential {
     /// Used only when the client generates the pkce itself when the generate method
     /// is called.
     pub(crate) pkce: Option<ProofKeyCodeExchange>,
-    serializer: OAuthSerializer,
+    serializer: AuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
     verify_id_token: bool,
     id_token_jwt: Option<DecodedJwt>,
@@ -495,11 +495,11 @@ impl TokenCredentialExecutor for OpenIdCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
-            return AF::result(OAuthParameter::ClientId.alias());
+            return AF::result(AuthParameter::ClientId.alias());
         }
 
         if self.client_secret.trim().is_empty() {
-            return AF::result(OAuthParameter::ClientSecret.alias());
+            return AF::result(AuthParameter::ClientSecret.alias());
         }
 
         self.serializer
@@ -509,7 +509,7 @@ impl TokenCredentialExecutor for OpenIdCredential {
 
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
-                return AF::msg_result(OAuthParameter::RefreshToken, "Refresh token is empty");
+                return AF::msg_result(AuthParameter::RefreshToken, "Refresh token is empty");
             }
 
             self.serializer
@@ -517,18 +517,18 @@ impl TokenCredentialExecutor for OpenIdCredential {
                 .refresh_token(refresh_token.as_ref());
 
             return self.serializer.as_credential_map(
-                vec![OAuthParameter::Scope],
+                vec![AuthParameter::Scope],
                 vec![
-                    OAuthParameter::ClientId,
-                    OAuthParameter::ClientSecret,
-                    OAuthParameter::RefreshToken,
-                    OAuthParameter::GrantType,
+                    AuthParameter::ClientId,
+                    AuthParameter::ClientSecret,
+                    AuthParameter::RefreshToken,
+                    AuthParameter::GrantType,
                 ],
             );
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
                 return AF::msg_result(
-                    OAuthParameter::AuthorizationCode.alias(),
+                    AuthParameter::AuthorizationCode.alias(),
                     "Authorization code is empty",
                 );
             }
@@ -549,13 +549,13 @@ impl TokenCredentialExecutor for OpenIdCredential {
             }
 
             return self.serializer.as_credential_map(
-                vec![OAuthParameter::Scope, OAuthParameter::CodeVerifier],
+                vec![AuthParameter::Scope, AuthParameter::CodeVerifier],
                 vec![
-                    OAuthParameter::ClientId,
-                    OAuthParameter::ClientSecret,
-                    OAuthParameter::RedirectUri,
-                    OAuthParameter::AuthorizationCode,
-                    OAuthParameter::GrantType,
+                    AuthParameter::ClientId,
+                    AuthParameter::ClientSecret,
+                    AuthParameter::RedirectUri,
+                    AuthParameter::AuthorizationCode,
+                    AuthParameter::GrantType,
                 ],
             );
         }
@@ -563,8 +563,8 @@ impl TokenCredentialExecutor for OpenIdCredential {
         AF::msg_result(
             format!(
                 "{} or {}",
-                OAuthParameter::AuthorizationCode.alias(),
-                OAuthParameter::RefreshToken.alias()
+                AuthParameter::AuthorizationCode.alias(),
+                AuthParameter::RefreshToken.alias()
             ),
             "Either authorization code or refresh token is required",
         )

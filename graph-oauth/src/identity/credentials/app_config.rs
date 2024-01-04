@@ -138,11 +138,8 @@ impl Debug for AppConfig {
 impl AppConfig {
     fn generate_cache_id(client_id: Uuid, tenant_id: Option<&String>) -> String {
         if let Some(tenant_id) = tenant_id.as_ref() {
-            base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(format!(
-                "{},{}",
-                tenant_id,
-                client_id.to_string()
-            ))
+            base64::engine::general_purpose::URL_SAFE_NO_PAD
+                .encode(format!("{},{}", tenant_id, client_id))
         } else {
             base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(client_id.to_string())
         }

@@ -1,6 +1,6 @@
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::{AzureCloudInstance, Prompt, ResponseMode, ResponseType};
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 use graph_core::crypto::secure_random_32;
 use graph_error::{AuthorizationFailure, IdentityResult, AF};
 use http::{HeaderMap, HeaderName, HeaderValue};
@@ -108,7 +108,7 @@ impl ImplicitCredential {
     }
 
     pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
             return AuthorizationFailure::result("client_id");
@@ -178,18 +178,18 @@ impl ImplicitCredential {
 
         let query = serializer.encode_query(
             vec![
-                OAuthParameter::RedirectUri,
-                OAuthParameter::ResponseMode,
-                OAuthParameter::State,
-                OAuthParameter::Prompt,
-                OAuthParameter::LoginHint,
-                OAuthParameter::DomainHint,
+                AuthParameter::RedirectUri,
+                AuthParameter::ResponseMode,
+                AuthParameter::State,
+                AuthParameter::Prompt,
+                AuthParameter::LoginHint,
+                AuthParameter::DomainHint,
             ],
             vec![
-                OAuthParameter::ClientId,
-                OAuthParameter::ResponseType,
-                OAuthParameter::Scope,
-                OAuthParameter::Nonce,
+                AuthParameter::ClientId,
+                AuthParameter::ResponseType,
+                AuthParameter::Scope,
+                AuthParameter::Nonce,
             ],
         )?;
 

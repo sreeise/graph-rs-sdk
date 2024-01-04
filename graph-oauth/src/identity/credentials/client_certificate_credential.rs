@@ -19,7 +19,7 @@ use crate::identity::{
     ClientCredentialsAuthorizationUrlParameterBuilder, ConfidentialClientApplication, Token,
     TokenCredentialExecutor,
 };
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 
 pub(crate) static CLIENT_ASSERTION_TYPE: &str =
     "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
@@ -169,14 +169,14 @@ impl TokenCache for ClientCertificateCredential {
 #[async_trait]
 impl TokenCredentialExecutor for ClientCertificateCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
-            return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
+            return AuthorizationFailure::result(AuthParameter::ClientId.alias());
         }
 
         if self.client_assertion.trim().is_empty() {
-            return AuthorizationFailure::result(OAuthParameter::ClientAssertion.alias());
+            return AuthorizationFailure::result(AuthParameter::ClientAssertion.alias());
         }
 
         if self.client_assertion_type.trim().is_empty() {
@@ -191,12 +191,12 @@ impl TokenCredentialExecutor for ClientCertificateCredential {
             .set_scope(self.app_config.scope.clone());
 
         serializer.as_credential_map(
-            vec![OAuthParameter::Scope],
+            vec![AuthParameter::Scope],
             vec![
-                OAuthParameter::ClientId,
-                OAuthParameter::GrantType,
-                OAuthParameter::ClientAssertion,
-                OAuthParameter::ClientAssertionType,
+                AuthParameter::ClientId,
+                AuthParameter::GrantType,
+                AuthParameter::ClientAssertion,
+                AuthParameter::ClientAssertionType,
             ],
         )
     }

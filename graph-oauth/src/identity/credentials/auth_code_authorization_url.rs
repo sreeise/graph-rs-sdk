@@ -15,7 +15,7 @@ use crate::identity::{
     AuthorizationCodeCredentialBuilder, AuthorizationUrl, AzureCloudInstance, Prompt, ResponseMode,
     ResponseType,
 };
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 
 #[cfg(feature = "openssl")]
 use crate::identity::X509Certificate;
@@ -26,11 +26,11 @@ use {
         tracing_targets::INTERACTIVE_AUTH, AuthorizationCodeCertificateCredentialBuilder,
         AuthorizationResponse, Token,
     },
-    crate::web::{
-        HostOptions, InteractiveAuth, InteractiveAuthEvent, UserEvents, WebViewHostValidator,
-        WebViewOptions, WithInteractiveAuth,
+    crate::interactive::{
+        HostOptions, InteractiveAuthEvent, UserEvents, WebViewAuth, WebViewAuthorizationEvent,
+        WebViewHostValidator, WebViewOptions, WithInteractiveAuth,
     },
-    crate::{Assertion, AuthorizationEvent, Secret},
+    crate::{Assertion, Secret},
     graph_error::{AuthExecutionError, WebViewError, WebViewResult},
     wry::{
         application::{event_loop::EventLoopProxy, window::Window},
@@ -239,13 +239,8 @@ impl AuthCodeAuthorizationUrlParameters {
         let (sender, receiver) = std::sync::mpsc::channel();
 
         std::thread::spawn(move || {
-            AuthCodeAuthorizationUrlParameters::interactive_auth(
-                uri,
-                vec![redirect_uri],
-                options,
-                sender,
-            )
-            .unwrap();
+            AuthCodeAuthorizationUrlParameters::run(uri, vec![redirect_uri], options, sender)
+                .unwrap();
         });
         let mut iter = receiver.try_iter();
         let mut next = iter.next();
@@ -266,7 +261,7 @@ impl AuthCodeAuthorizationUrlParameters {
                         .or(uri.fragment())
                         .ok_or(WebViewError::InvalidUri(format!(
                             "uri missing query or fragment: {}",
-                            uri.to_string()
+                            uri
                         )))?;
 
                     let response_query: AuthorizationResponse =
@@ -309,13 +304,8 @@ impl AuthCodeAuthorizationUrlParameters {
         let (sender, receiver) = std::sync::mpsc::channel();
 
         std::thread::spawn(move || {
-            AuthCodeAuthorizationUrlParameters::interactive_auth(
-                uri,
-                vec![redirect_uri],
-                options,
-                sender,
-            )
-            .unwrap();
+            AuthCodeAuthorizationUrlParameters::run(uri, vec![redirect_uri], options, sender)
+                .unwrap();
         });
         let mut iter = receiver.try_iter();
         let mut next = iter.next();
@@ -336,7 +326,7 @@ impl AuthCodeAuthorizationUrlParameters {
                         .or(uri.fragment())
                         .ok_or(WebViewError::InvalidUri(format!(
                             "uri missing query or fragment: {}",
-                            uri.to_string()
+                            uri
                         )))?;
 
                     let response_query: AuthorizationResponse =
@@ -357,7 +347,7 @@ impl AuthCodeAuthorizationUrlParameters {
 mod internal {
     use super::*;
 
-    impl InteractiveAuth for AuthCodeAuthorizationUrlParameters {
+    impl WebViewAuth for AuthCodeAuthorizationUrlParameters {
         fn webview(
             host_options: HostOptions,
             window: Window,
@@ -407,7 +397,7 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
         &self,
         azure_cloud_instance: &AzureCloudInstance,
     ) -> IdentityResult<Url> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
 
         if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
             if redirect_uri.as_str().trim().is_empty() {
@@ -491,20 +481,20 @@ impl AuthorizationUrl for AuthCodeAuthorizationUrlParameters {
 
         let query = serializer.encode_query(
             vec![
-                OAuthParameter::ResponseMode,
-                OAuthParameter::State,
-                OAuthParameter::Prompt,
-                OAuthParameter::LoginHint,
-                OAuthParameter::DomainHint,
-                OAuthParameter::Nonce,
-                OAuthParameter::CodeChallenge,
-                OAuthParameter::CodeChallengeMethod,
+                AuthParameter::ResponseMode,
+                AuthParameter::State,
+                AuthParameter::Prompt,
+                AuthParameter::LoginHint,
+                AuthParameter::DomainHint,
+                AuthParameter::Nonce,
+                AuthParameter::CodeChallenge,
+                AuthParameter::CodeChallengeMethod,
             ],
             vec![
-                OAuthParameter::ClientId,
-                OAuthParameter::ResponseType,
-                OAuthParameter::RedirectUri,
-                OAuthParameter::Scope,
+                AuthParameter::ClientId,
+                AuthParameter::ResponseType,
+                AuthParameter::RedirectUri,
+                AuthParameter::Scope,
             ],
         )?;
 
@@ -723,14 +713,16 @@ impl WithInteractiveAuth<Secret> for AuthCodeAuthorizationUrlParameterBuilder {
         &self,
         auth_type: Secret,
         options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<Self::CredentialBuilder>> {
+    ) -> WebViewResult<WebViewAuthorizationEvent<Self::CredentialBuilder>> {
         let authorization_response = self
             .credential
             .interactive_webview_authentication(options)?;
 
         if authorization_response.is_err() {
             tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
-            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
+            return Ok(WebViewAuthorizationEvent::Unauthorized(
+                authorization_response,
+            ));
         }
 
         tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
@@ -750,7 +742,7 @@ impl WithInteractiveAuth<Secret> for AuthCodeAuthorizationUrlParameterBuilder {
         };
 
         credential_builder.with_client_secret(auth_type.0);
-        Ok(AuthorizationEvent::Authorized {
+        Ok(WebViewAuthorizationEvent::Authorized {
             authorization_response,
             credential_builder,
         })
@@ -765,14 +757,16 @@ impl WithInteractiveAuth<Assertion> for AuthCodeAuthorizationUrlParameterBuilder
         &self,
         auth_type: Assertion,
         options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<Self::CredentialBuilder>> {
+    ) -> WebViewResult<WebViewAuthorizationEvent<Self::CredentialBuilder>> {
         let authorization_response = self
             .credential
             .interactive_webview_authentication(options)?;
 
         if authorization_response.is_err() {
             tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
-            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
+            return Ok(WebViewAuthorizationEvent::Unauthorized(
+                authorization_response,
+            ));
         }
 
         tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
@@ -791,7 +785,7 @@ impl WithInteractiveAuth<Assertion> for AuthCodeAuthorizationUrlParameterBuilder
         };
 
         credential_builder.with_client_assertion(auth_type.0);
-        Ok(AuthorizationEvent::Authorized {
+        Ok(WebViewAuthorizationEvent::Authorized {
             authorization_response,
             credential_builder,
         })
@@ -807,14 +801,16 @@ impl WithInteractiveAuth<&X509Certificate> for AuthCodeAuthorizationUrlParameter
         &self,
         auth_type: &X509Certificate,
         options: WebViewOptions,
-    ) -> WebViewResult<AuthorizationEvent<Self::CredentialBuilder>> {
+    ) -> WebViewResult<WebViewAuthorizationEvent<Self::CredentialBuilder>> {
         let authorization_response = self
             .credential
             .interactive_webview_authentication(options)?;
 
         if authorization_response.is_err() {
             tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
-            return Ok(AuthorizationEvent::Unauthorized(authorization_response));
+            return Ok(WebViewAuthorizationEvent::Unauthorized(
+                authorization_response,
+            ));
         }
 
         tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
@@ -835,7 +831,7 @@ impl WithInteractiveAuth<&X509Certificate> for AuthCodeAuthorizationUrlParameter
         };
 
         credential_builder.with_x509(auth_type)?;
-        Ok(AuthorizationEvent::Authorized {
+        Ok(WebViewAuthorizationEvent::Authorized {
             authorization_response,
             credential_builder,
         })

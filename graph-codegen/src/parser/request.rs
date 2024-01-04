@@ -403,7 +403,7 @@ impl RequestSet {
     pub fn group_by_operation_mapping(&self) -> HashMap<String, Vec<RequestMap>> {
         let mut map: HashMap<String, Vec<RequestMap>> = HashMap::new();
         for request_map in self.set.iter() {
-            if let Some(request) = request_map.requests.get(0) {
+            if let Some(request) = request_map.requests.front() {
                 let operation_mapping = request.operation_mapping.to_string();
                 map.entry_modify_insert(operation_mapping, request_map.clone());
             }

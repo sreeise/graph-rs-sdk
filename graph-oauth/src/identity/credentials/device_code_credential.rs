@@ -16,7 +16,7 @@ use crate::identity::{
     AppConfig, Authority, AzureCloudInstance, DeviceAuthorizationResponse, PollDeviceCodeEvent,
     PublicClientApplication, Token, TokenCredentialExecutor,
 };
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 use graph_core::http::{
     AsyncResponseConverterExt, HttpResponseExt, JsonHttpResponse, ResponseConverterExt,
 };
@@ -27,8 +27,8 @@ use graph_error::{
 
 #[cfg(feature = "interactive-auth")]
 use {
+    crate::interactive::{HostOptions, UserEvents, WebViewAuth, WebViewOptions},
     crate::tracing_targets::INTERACTIVE_AUTH,
-    crate::web::{HostOptions, InteractiveAuth, UserEvents, WebViewOptions},
     graph_error::WebViewDeviceCodeError,
     wry::{
         application::{event_loop::EventLoopProxy, window::Window},
@@ -241,10 +241,10 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
     }
 
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
-            return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
+            return AuthorizationFailure::result(AuthParameter::ClientId.alias());
         }
 
         serializer
@@ -254,7 +254,7 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
                 return AuthorizationFailure::msg_result(
-                    OAuthParameter::RefreshToken.alias(),
+                    AuthParameter::RefreshToken.alias(),
                     "Found empty string for refresh token",
                 );
             }
@@ -266,16 +266,16 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
             return serializer.as_credential_map(
                 vec![],
                 vec![
-                    OAuthParameter::ClientId,
-                    OAuthParameter::RefreshToken,
-                    OAuthParameter::Scope,
-                    OAuthParameter::GrantType,
+                    AuthParameter::ClientId,
+                    AuthParameter::RefreshToken,
+                    AuthParameter::Scope,
+                    AuthParameter::GrantType,
                 ],
             );
         } else if let Some(device_code) = self.device_code.as_ref() {
             if device_code.trim().is_empty() {
                 return AuthorizationFailure::msg_result(
-                    OAuthParameter::DeviceCode.alias(),
+                    AuthParameter::DeviceCode.alias(),
                     "Found empty string for device code",
                 );
             }
@@ -287,18 +287,15 @@ impl TokenCredentialExecutor for DeviceCodeCredential {
             return serializer.as_credential_map(
                 vec![],
                 vec![
-                    OAuthParameter::ClientId,
-                    OAuthParameter::DeviceCode,
-                    OAuthParameter::Scope,
-                    OAuthParameter::GrantType,
+                    AuthParameter::ClientId,
+                    AuthParameter::DeviceCode,
+                    AuthParameter::Scope,
+                    AuthParameter::GrantType,
                 ],
             );
         }
 
-        serializer.as_credential_map(
-            vec![],
-            vec![OAuthParameter::ClientId, OAuthParameter::Scope],
-        )
+        serializer.as_credential_map(vec![], vec![AuthParameter::ClientId, AuthParameter::Scope])
     }
 
     fn client_id(&self) -> &Uuid {
@@ -574,7 +571,7 @@ impl DeviceCodePollingExecutor {
 pub(crate) mod internal {
     use super::*;
 
-    impl InteractiveAuth for DeviceCodeCredential {
+    impl WebViewAuth for DeviceCodeCredential {
         fn webview(
             host_options: HostOptions,
             window: Window,
@@ -633,7 +630,7 @@ impl DeviceCodeInteractiveAuth {
         let (sender, _receiver) = std::sync::mpsc::channel();
 
         std::thread::spawn(move || {
-            DeviceCodeCredential::interactive_auth(url, vec![], options, sender).unwrap();
+            DeviceCodeCredential::run(url, vec![], options, sender).unwrap();
         });
 
         self.poll()

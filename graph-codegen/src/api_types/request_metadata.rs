@@ -446,7 +446,7 @@ impl MacroQueueWriter for PathMetadata {
 
     fn parent(&self) -> String {
         self.metadata
-            .get(0)
+            .front()
             .map(|m| m.parent.clone())
             .unwrap_or_default()
     }

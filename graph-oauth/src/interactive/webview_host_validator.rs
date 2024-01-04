@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use url::Url;
 
-use crate::web::HostOptions;
+use crate::interactive::HostOptions;
 use graph_error::{WebViewError, WebViewResult};
 
 pub(crate) struct WebViewHostValidator {

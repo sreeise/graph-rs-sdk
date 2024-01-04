@@ -349,7 +349,7 @@ impl X509Certificate {
             .set_rsa_padding(Padding::PKCS1)
             .map_err(|err| AF::x509(err.to_string()))?;
         signer
-            .update(token.as_str().as_bytes())
+            .update(token.as_bytes())
             .map_err(|err| AF::x509(err.to_string()))?;
         let signature = URL_SAFE_NO_PAD.encode(
             signer
@@ -373,7 +373,7 @@ impl X509Certificate {
             .set_rsa_padding(Padding::PKCS1)
             .map_err(|err| AF::x509(err.to_string()))?;
         signer
-            .update(token.as_str().as_bytes())
+            .update(token.as_bytes())
             .map_err(|err| AF::x509(err.to_string()))?;
         let signature = URL_SAFE_NO_PAD.encode(
             signer

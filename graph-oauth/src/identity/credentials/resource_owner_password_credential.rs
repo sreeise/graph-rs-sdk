@@ -3,7 +3,7 @@ use crate::identity::{
     tracing_targets::CREDENTIAL_EXECUTOR, Authority, AzureCloudInstance, Token,
     TokenCredentialExecutor,
 };
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 use async_trait::async_trait;
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
@@ -154,18 +154,18 @@ impl TokenCache for ResourceOwnerPasswordCredential {
 #[async_trait]
 impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
-            return AF::result(OAuthParameter::ClientId.alias());
+            return AF::result(AuthParameter::ClientId.alias());
         }
 
         if self.username.trim().is_empty() {
-            return AF::result(OAuthParameter::Username.alias());
+            return AF::result(AuthParameter::Username.alias());
         }
 
         if self.password.trim().is_empty() {
-            return AF::result(OAuthParameter::Password.alias());
+            return AF::result(AuthParameter::Password.alias());
         }
 
         serializer
@@ -174,8 +174,8 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
             .set_scope(self.app_config.scope.clone());
 
         serializer.as_credential_map(
-            vec![OAuthParameter::Scope],
-            vec![OAuthParameter::ClientId, OAuthParameter::GrantType],
+            vec![AuthParameter::Scope],
+            vec![AuthParameter::ClientId, AuthParameter::GrantType],
         )
     }
 
@@ -269,7 +269,7 @@ impl ResourceOwnerPasswordCredentialBuilder {
         authority: T,
     ) -> IdentityResult<&mut Self> {
         let authority = authority.into();
-        if vec![
+        if [
             Authority::Common,
             Authority::Consumers,
             Authority::AzureActiveDirectory,

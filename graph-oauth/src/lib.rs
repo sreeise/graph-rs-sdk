@@ -51,7 +51,7 @@ pub(crate) mod oauth_serializer;
 pub(crate) mod identity;
 
 #[cfg(feature = "interactive-auth")]
-pub mod web;
+pub mod interactive;
 
 pub(crate) mod internal {
     pub use crate::oauth_serializer::*;

@@ -7,6 +7,7 @@ mod authorization_url;
 mod credentials;
 mod device_authorization_response;
 mod id_token;
+mod into_credential_builder;
 mod token;
 
 #[cfg(feature = "openssl")]
@@ -24,4 +25,5 @@ pub use authorization_url::*;
 pub use credentials::*;
 pub use device_authorization_response::*;
 pub use id_token::*;
+pub use into_credential_builder::*;
 pub use token::*;

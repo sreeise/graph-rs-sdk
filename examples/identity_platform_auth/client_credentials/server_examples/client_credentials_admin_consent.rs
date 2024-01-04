@@ -21,7 +21,7 @@
 // or admin. See examples/client_credentials.rs
 
 use graph_rs_sdk::error::IdentityResult;
-use graph_rs_sdk::identity::ConfidentialClientApplication;
+use graph_rs_sdk::identity::{ClientCredentialAdminConsentResponse, ConfidentialClientApplication};
 use warp::Filter;
 
 // The client_id must be changed before running this example.
@@ -54,24 +54,21 @@ fn get_admin_consent_url() -> IdentityResult<url::Url> {
 // After admin consent has been granted see examples/client_credential.rs for how to
 // programmatically get access tokens using the client credentials flow.
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-pub struct ClientCredentialsResponse {
-    admin_consent: bool,
-    tenant: String,
-}
-
 async fn handle_redirect(
-    client_credential_option: Option<ClientCredentialsResponse>,
+    client_credential_option: Option<ClientCredentialAdminConsentResponse>,
 ) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
     match client_credential_option {
         Some(client_credential_response) => {
             // Print out for debugging purposes.
             println!("{client_credential_response:#?}");
 
-            // Generic login page response.
-            Ok(Box::new(
-                "Successfully Logged In! You can close your browser.",
-            ))
+            // Generic response page.
+            if client_credential_response.admin_consent {
+                Ok(Box::new("Admin consent granted"))
+            } else {
+                // Generic login page response.
+                Ok(Box::new("Failed to grant consent"))
+            }
         }
         None => Err(warp::reject()),
     }
@@ -87,10 +84,10 @@ async fn handle_redirect(
 /// }
 /// ```
 pub async fn start_server_main() {
-    let query = warp::query::<ClientCredentialsResponse>()
+    let query = warp::query::<ClientCredentialAdminConsentResponse>()
         .map(Some)
         .or_else(|_| async {
-            Ok::<(Option<ClientCredentialsResponse>,), std::convert::Infallible>((None,))
+            Ok::<(Option<ClientCredentialAdminConsentResponse>,), std::convert::Infallible>((None,))
         });
 
     let routes = warp::get()

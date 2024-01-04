@@ -6,11 +6,17 @@ use uuid::Uuid;
 use graph_error::{AuthorizationFailure, IdentityResult};
 
 use crate::identity::{credentials::app_config::AppConfig, Authority, AzureCloudInstance};
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 use crate::{ClientAssertionCredentialBuilder, ClientSecretCredentialBuilder};
 
 #[cfg(feature = "openssl")]
 use crate::identity::{ClientCertificateCredentialBuilder, X509Certificate};
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct ClientCredentialAdminConsentResponse {
+    pub admin_consent: bool,
+    pub tenant: String,
+}
 
 #[derive(Clone)]
 pub struct ClientCredentialsAuthorizationUrlParameters {
@@ -72,14 +78,14 @@ impl ClientCredentialsAuthorizationUrlParameters {
     }
 
     pub fn url_with_host(&self, azure_cloud_instance: &AzureCloudInstance) -> IdentityResult<Url> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.trim().is_empty() || self.app_config.client_id.is_nil() {
-            return AuthorizationFailure::result(OAuthParameter::ClientId.alias());
+            return AuthorizationFailure::result(AuthParameter::ClientId.alias());
         }
 
         if self.app_config.redirect_uri.is_none() {
-            return AuthorizationFailure::result(OAuthParameter::RedirectUri.alias());
+            return AuthorizationFailure::result(AuthParameter::RedirectUri.alias());
         }
 
         if let Some(redirect_uri) = self.app_config.redirect_uri.as_ref() {
@@ -94,8 +100,8 @@ impl ClientCredentialsAuthorizationUrlParameters {
 
         let mut uri = azure_cloud_instance.admin_consent_uri(&self.app_config.authority)?;
         let query = serializer.encode_query(
-            vec![OAuthParameter::State],
-            vec![OAuthParameter::ClientId, OAuthParameter::RedirectUri],
+            vec![AuthParameter::State],
+            vec![AuthParameter::ClientId, AuthParameter::RedirectUri],
         )?;
         uri.set_query(Some(query.as_str()));
         Ok(uri)

@@ -20,7 +20,7 @@ use crate::identity::{
     AppConfig, AuthCodeAuthorizationUrlParameterBuilder, Authority, AzureCloudInstance,
     ConfidentialClientApplication, Token, TokenCredentialExecutor, CLIENT_ASSERTION_TYPE,
 };
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 
 credential_builder!(
     AuthorizationCodeCertificateCredentialBuilder,
@@ -285,14 +285,14 @@ impl TokenCache for AuthorizationCodeCertificateCredential {
 #[async_trait]
 impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
         let client_id = self.app_config.client_id.to_string();
         if client_id.is_empty() || self.app_config.client_id.is_nil() {
-            return AF::result(OAuthParameter::ClientId);
+            return AF::result(AuthParameter::ClientId);
         }
 
         if self.client_assertion.trim().is_empty() {
-            return AF::result(OAuthParameter::ClientAssertion);
+            return AF::result(AuthParameter::ClientAssertion);
         }
 
         if self.client_assertion_type.trim().is_empty() {
@@ -316,7 +316,7 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
         if let Some(refresh_token) = self.refresh_token.as_ref() {
             if refresh_token.trim().is_empty() {
                 return AF::msg_result(
-                    OAuthParameter::RefreshToken.alias(),
+                    AuthParameter::RefreshToken.alias(),
                     "refresh_token is empty - cannot be an empty string",
                 );
             }
@@ -326,19 +326,19 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
                 .grant_type("refresh_token");
 
             return serializer.as_credential_map(
-                vec![OAuthParameter::Scope],
+                vec![AuthParameter::Scope],
                 vec![
-                    OAuthParameter::RefreshToken,
-                    OAuthParameter::ClientId,
-                    OAuthParameter::GrantType,
-                    OAuthParameter::ClientAssertion,
-                    OAuthParameter::ClientAssertionType,
+                    AuthParameter::RefreshToken,
+                    AuthParameter::ClientId,
+                    AuthParameter::GrantType,
+                    AuthParameter::ClientAssertion,
+                    AuthParameter::ClientAssertionType,
                 ],
             );
         } else if let Some(authorization_code) = self.authorization_code.as_ref() {
             if authorization_code.trim().is_empty() {
                 return AF::msg_result(
-                    OAuthParameter::AuthorizationCode.alias(),
+                    AuthParameter::AuthorizationCode.alias(),
                     "authorization_code is empty - cannot be an empty string",
                 );
             }
@@ -348,14 +348,14 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
                 .grant_type("authorization_code");
 
             return serializer.as_credential_map(
-                vec![OAuthParameter::Scope, OAuthParameter::CodeVerifier],
+                vec![AuthParameter::Scope, AuthParameter::CodeVerifier],
                 vec![
-                    OAuthParameter::AuthorizationCode,
-                    OAuthParameter::ClientId,
-                    OAuthParameter::GrantType,
-                    OAuthParameter::RedirectUri,
-                    OAuthParameter::ClientAssertion,
-                    OAuthParameter::ClientAssertionType,
+                    AuthParameter::AuthorizationCode,
+                    AuthParameter::ClientId,
+                    AuthParameter::GrantType,
+                    AuthParameter::RedirectUri,
+                    AuthParameter::ClientAssertion,
+                    AuthParameter::ClientAssertionType,
                 ],
             );
         }
@@ -363,8 +363,8 @@ impl TokenCredentialExecutor for AuthorizationCodeCertificateCredential {
         AF::msg_result(
             format!(
                 "{} or {}",
-                OAuthParameter::AuthorizationCode.alias(),
-                OAuthParameter::RefreshToken.alias()
+                AuthParameter::AuthorizationCode.alias(),
+                AuthParameter::RefreshToken.alias()
             ),
             "Either authorization code or refresh token is required",
         )

@@ -19,7 +19,6 @@ exclude = [
 anyhow = { version = "1.0.69", features = ["backtrace"]}
 async-trait = "0.1.35"
 base64 = "0.21.0"
-either = "1.9.0"
 dyn-clone = "1.0.14"
 hex = "0.4.3"
 http = "0.2.11"

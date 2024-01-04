@@ -22,7 +22,6 @@ mod client_credentials;
 mod device_code;
 mod environment_credential;
 mod getting_tokens_manually;
-mod is_access_token_expired;
 mod openid;
 
 use graph_rs_sdk::identity::{

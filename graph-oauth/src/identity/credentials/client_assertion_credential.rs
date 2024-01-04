@@ -6,7 +6,7 @@ use http::{HeaderMap, HeaderName, HeaderValue};
 
 use uuid::Uuid;
 
-use crate::oauth_serializer::{OAuthParameter, OAuthSerializer};
+use crate::oauth_serializer::{AuthParameter, AuthSerializer};
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use graph_core::http::{AsyncResponseConverterExt, ResponseConverterExt};
 use graph_core::identity::ForceTokenRefresh;
@@ -156,14 +156,14 @@ impl TokenCache for ClientAssertionCredential {
 #[async_trait]
 impl TokenCredentialExecutor for ClientAssertionCredential {
     fn form_urlencode(&mut self) -> IdentityResult<HashMap<String, String>> {
-        let mut serializer = OAuthSerializer::new();
+        let mut serializer = AuthSerializer::new();
         let client_id = self.client_id().to_string();
         if client_id.trim().is_empty() {
-            return AF::result(OAuthParameter::ClientId.alias());
+            return AF::result(AuthParameter::ClientId.alias());
         }
 
         if self.client_assertion.trim().is_empty() {
-            return AF::result(OAuthParameter::ClientAssertion.alias());
+            return AF::result(AuthParameter::ClientAssertion.alias());
         }
 
         if self.client_assertion_type.trim().is_empty() {
@@ -178,12 +178,12 @@ impl TokenCredentialExecutor for ClientAssertionCredential {
             .grant_type("client_credentials");
 
         serializer.as_credential_map(
-            vec![OAuthParameter::Scope],
+            vec![AuthParameter::Scope],
             vec![
-                OAuthParameter::ClientId,
-                OAuthParameter::GrantType,
-                OAuthParameter::ClientAssertion,
-                OAuthParameter::ClientAssertionType,
+                AuthParameter::ClientId,
+                AuthParameter::GrantType,
+                AuthParameter::ClientAssertion,
+                AuthParameter::ClientAssertionType,
             ],
         )
     }

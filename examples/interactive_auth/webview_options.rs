@@ -1,6 +1,6 @@
 use graph_rs_sdk::identity::{
-    web::Theme, web::WebViewOptions, web::WithInteractiveAuth, AuthorizationCodeCredential,
-    MapCredentialBuilder, Secret,
+    interactive::Theme, interactive::WebViewOptions, interactive::WithInteractiveAuth,
+    AuthorizationCodeCredential, IntoCredentialBuilder, Secret,
 };
 use graph_rs_sdk::GraphClient;
 use std::collections::HashSet;
@@ -64,7 +64,7 @@ async fn customize_webview(
             .with_scope(scope)
             .with_redirect_uri(Url::parse(redirect_uri)?)
             .with_interactive_auth(Secret(client_secret.to_string()), get_webview_options())
-            .map_to_credential_builder()?;
+            .into_credential_builder()?;
 
     let confidential_client = credential_builder.build();
 

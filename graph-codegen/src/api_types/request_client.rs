@@ -22,7 +22,7 @@ impl RequestClientList {
     pub fn client_links(&self) -> BTreeMap<String, Vec<String>> {
         let mut links_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
         for (_name, metadata) in self.clients.iter() {
-            if let Some(m) = metadata.get(0) {
+            if let Some(m) = metadata.front() {
                 let links = m.operation_mapping.struct_links();
                 links_map.extend(links);
             }
@@ -50,7 +50,7 @@ impl From<VecDeque<RequestMetadata>> for RequestClientList {
 
         let mut links_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
         for (_name, metadata) in clients.iter() {
-            if let Some(m) = metadata.get(0) {
+            if let Some(m) = metadata.front() {
                 let links = m.operation_mapping.struct_links();
                 links_map.extend(links);
             }
