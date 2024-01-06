@@ -1,11 +1,12 @@
 # graph-rs-sdk
 
-[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg)](https://crates.io/crates/graph-rs-sdk)
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
+
+![Crates.io Version](https://img.shields.io/crates/v/graph-rs-sdk?style=for-the-badge&color=%23778aab)
 
 ### Rust SDK Client for Microsoft Graph and the Microsoft Graph Api
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.3) - v1.1.3 - Latest Stable Version
 
 ```toml
 graph-rs-sdk = "1.1.3"
@@ -30,6 +31,18 @@ And import `futures::StreamExt`.
 ```rust
 use futures::StreamExt;
 use graph_rs_sdk::*;
+```
+
+### Pre Release Version (May Be Unstable)
+
+- Complete rewrite of SDK Client for the Microsoft Identity Platform
+- In Memory Token Cache
+- Automatic Token Refresh
+- Interactive Auth Using WebView
+- X509 Certificate Support
+
+```
+graph-rs-sdk = "2.0.0-beta.0"
 ```
 
 Contributing and Wiki:
