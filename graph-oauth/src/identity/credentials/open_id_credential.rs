@@ -723,7 +723,6 @@ impl OpenIdCredentialBuilder {
         self
     }
 
-    /// Defaults to http://localhost
     pub fn with_redirect_uri<U: IntoUrl>(&mut self, redirect_uri: U) -> anyhow::Result<&mut Self> {
         self.credential.app_config.redirect_uri = Some(redirect_uri.into_url()?);
         Ok(self)

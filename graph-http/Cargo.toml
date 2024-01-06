@@ -1,11 +1,12 @@
 [package]
 name = "graph-http"
-version = "1.1.2"
+version = "2.0.0-beta.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs-sdk"
 description = "Http client and utilities for the graph-rs-sdk crate"
+homepage = "https://github.com/sreeise/graph-rs-sdk"
 
 [dependencies]
 async-stream = "0.3"

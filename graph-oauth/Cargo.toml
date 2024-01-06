@@ -1,12 +1,13 @@
 [package]
 name = "graph-oauth"
-version = "1.0.3"
+version = "2.0.0-beta.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/sreeise/graph-rs-sdk"
-description = "OAuth client implementing the OAuth 2.0 and OpenID Connect protocols for Microsoft Identity Platform"
+description = "Rust SDK Client for Microsoft Identity Platform"
+homepage = "https://github.com/sreeise/graph-rs-sdk"
 
 keywords = ["microsoft", "oauth", "authentication", "authorization"]
 categories = ["authentication", "web-programming::http-client"]

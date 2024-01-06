@@ -3,22 +3,23 @@
 [![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg)](https://crates.io/crates/graph-rs-sdk)
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
 
-### Rust SDK Client for Microsoft Graph and the Microsoft Graph Api
+### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform (Microsoft Entra and personal account sign in)
 
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
 Features:
 
-- Microsoft Graph V1 and Beta API Client
-  - Paging using Streaming, Channels, or Iterators. 
+- Microsoft Graph V1 and Beta API Client 
+  - Paging using Streaming, Channels, or Iterators
   - Upload Sessions, OData Queries, and File Downloads
 - Microsoft Graph Identity Platform OAuth2 and OpenId Connect Client 
-  - Auth Code, Client Credentials, Device Code, OpenId, X509 Certificates, PKCE
+  - Auth Code, Client Credentials, Device Code, OpenId
+  - X509 Certificates, PKCE
   - Interactive Authentication
   - Automatic Token Refresh
 
 ```toml
-graph-rs-sdk = "1.1.3"
+graph-rs-sdk = "2.0.0-beta.0"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -92,7 +93,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "1.1.3"
+    graph-rs-sdk = "2.0.0-beta.0"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -124,7 +125,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "1.1.3"
+    graph-rs-sdk = "2.0.0-beta.0"
 
 #### Example
 use graph_rs_sdk::*;
@@ -1004,6 +1005,17 @@ Support for:
 - Device Code Polling
 - Authorization Using Certificates | features = [`openssl`]
 
+#### Detailed Examples:
+
+
+- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth)
+  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth/auth_code_grant)
+  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth/openid))
+  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth/client_credentials))
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth))
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/certificate_auth)
+
 There are two main types for building your chosen OAuth or OpenId Connect Flow.
 
 - `PublicClientApplication`
@@ -1066,7 +1078,7 @@ async fn build_client(
   authorization_code: &str,
   client_id: &str,
   client_secret: &str,
-  redirect_uri: &str,
+  redirect_uri: url::Url,
   scope: Vec<&str>
 ) -> anyhow::Result<GraphClient> {
   let mut confidential_client = ConfidentialClientApplication::builder(client_id)
@@ -1074,7 +1086,6 @@ async fn build_client(
           .with_client_secret(client_secret)
           .with_scope(scope)
           .with_redirect_uri(redirect_uri)
-          .unwrap()
           .build();
 
   let graph_client = Graph::from(confidential_client);
@@ -1099,7 +1110,7 @@ lazy_static! {
     static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
 }
 
-fn authorization_sign_in_url(client_id: &str, redirect_uri: &str, scope: Vec<String>) -> anyhow::Result<Url> {
+fn authorization_sign_in_url(client_id: &str, redirect_uri: url::Url, scope: Vec<String>) -> anyhow::Result<Url> {
   Ok(AuthorizationCodeCredential::authorization_url_builder(client_id)
           .with_scope(scope)
           .with_redirect_uri(redirect_uri)
@@ -1111,14 +1122,14 @@ fn build_confidential_client(
   authorization_code: &str,
   client_id: &str,
   client_secret: &str,
-  redirect_uri: &str,
+  redirect_uri: url::Url,
   scope: Vec<String>,
 ) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCredential>> {
   Ok(ConfidentialClientApplication::builder(client_id)
           .with_auth_code(authorization_code)
           .with_client_secret(client_secret)
           .with_scope(scope)
-          .with_redirect_uri(redirect_uri)?
+          .with_redirect_uri(redirect_uri)
           .with_pkce(&PKCE)
           .build())
 }
@@ -1208,7 +1219,7 @@ The example below uses the auth code grant.
 First create the url where the user will sign in. After sign in the user will be redirected back to your app and
 the authentication code will be in the query of the uri.
 ```rust
-pub fn authorization_sign_in_url(client_id: &str, tenant: &str, redirect_uri: &str) -> Url {
+pub fn authorization_sign_in_url(client_id: &str, tenant: &str, redirect_uri: url::Url) -> Url {
   let scope = vec!["offline_access"];
 
   AuthorizationCodeCredential::authorization_url_builder(client_id)
@@ -1227,13 +1238,13 @@ async fn build_client(
   client_id: &str,
   client_secret: &str,
   scope: Vec<String>, // with offline_access
-  redirect_uri: &str,
+  redirect_uri: url::Url,
 ) -> anyhow::Result<GraphClient> {
   let mut confidential_client = ConfidentialClientApplication::builder(client_id)
           .with_auth_code(authorization_code) // returns builder type for AuthorizationCodeCredential
           .with_client_secret(client_secret)
           .with_scope(scope)
-          .with_redirect_uri(redirect_uri)?
+          .with_redirect_uri(redirect_uri)
           .build();
 
   let graph_client = GraphClient::from(&confidential_client);
@@ -1262,7 +1273,7 @@ async fn authenticate(
   tenant_id: &str,
   client_id: &str,
   client_secret: &str,
-  redirect_uri: &str,
+  redirect_uri: url::Url,
   scope: Vec<&str>,
 ) -> anyhow::Result<GraphClient> {
   std::env::set_var("RUST_LOG", "debug");

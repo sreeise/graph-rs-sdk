@@ -24,7 +24,10 @@ fn get_webview_options() -> WebViewOptions {
         // The webview can store the cookies that were set after sign in so that on the next
         // sign in the user is automatically logged in through SSO. Or you can clear the browsing
         // data, cookies in this case, after sign in when the webview window closes.
-        .clear_browsing_data_on_close(false)
+        // Default is false.
+        // When using webview and the user is automatically logged in the webview
+        // will only show temporarily and then close itself.
+        .clear_browsing_data_on_close(true)
         // Provide a list of ports to use for interactive authentication.
         // This assumes that you have http://localhost or http://localhost:port
         // for each port registered in your ADF application registration.

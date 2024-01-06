@@ -36,7 +36,7 @@ async fn authenticate(
     std::env::set_var("RUST_LOG", "debug");
     pretty_env_logger::init();
 
-    let (authorization_query_response, credential_builder) =
+    let (authorization_response, credential_builder) =
         AuthorizationCodeCredential::authorization_url_builder(client_id)
             .with_tenant(tenant_id)
             .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
@@ -44,7 +44,7 @@ async fn authenticate(
             .with_interactive_auth(Secret("secret".to_string()), Default::default())
             .into_credential_builder()?;
 
-    debug!("{authorization_query_response:#?}");
+    debug!("{authorization_response:#?}");
 
     let confidential_client = credential_builder.build();
 

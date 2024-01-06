@@ -1,11 +1,12 @@
 [package]
 name = "graph-core"
-version = "0.4.1"
+version = "2.0.0-beta.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs-sdk"
 description = "Common types and traits for the graph-rs-sdk crate"
+homepage = "https://github.com/sreeise/graph-rs-sdk"
 
 [dependencies]
 async-stream = "0.3"
@@ -26,7 +27,7 @@ remain = "0.2.6"
 tracing = "0.1.37"
 url = { version = "2", features = ["serde"] }
 
-graph-error = { path = "../graph-error"  }
+graph-error = { version = "0.3.0-beta.0", path = "../graph-error"  }
 
 [features]
 default = ["native-tls"]

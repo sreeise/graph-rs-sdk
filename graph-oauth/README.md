@@ -1,4 +1,4 @@
-# OAuth 2.0 and OpenID Connect Client For The Microsoft Identity Platform
+# Rust SDK Client For The Microsoft Identity Platform
 
 Support for:
 
@@ -28,14 +28,14 @@ for Microsoft Identity Platform or by using [graph-rs-sdk](https://crates.io/cra
 For async:
 
 ```toml
-graph-oauth = "1.0.2"
+graph-oauth = "2.0.0-beta.0"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
 For blocking:
 
 ```toml
-graph-oauth = "1.0.2"
+graph-oauth = "2.0.0-beta.0"
 ```
 
 ### Feature Flags
@@ -108,7 +108,7 @@ async fn build_client(
   authorization_code: &str, 
   client_id: &str, 
   client_secret: &str, 
-  redirect_uri: &str, 
+  redirect_uri: url::Url, 
   scope: Vec<&str>
 ) -> anyhow::Result<GraphClient> {
     let mut confidential_client = ConfidentialClientApplication::builder(client_id)
@@ -118,7 +118,7 @@ async fn build_client(
         .with_redirect_uri(redirect_uri)?
         .build();
 
-  let graph_client = Graph::from(confidential_client);
+  let graph_client = Graph::from(&confidential_client);
 
   Ok(graph_client)
 }
@@ -197,7 +197,7 @@ Tokens will still be automatically refreshed as this flow does not require using
 a new access token.
 
 ```rust
-async fn authenticate(client_id: &str, tenant: &str, redirect_uri: &str) {
+async fn authenticate(client_id: &str, tenant: &str, redirect_uri: url::Url) {
   let scope = vec!["offline_access"];
   
   let mut credential_builder = ConfidentialClientApplication::builder(client_id)
@@ -223,7 +223,14 @@ Interactive Authentication uses the [wry](https://github.com/tauri-apps/wry) cra
 platforms that support it such as on a desktop.
 
 ```rust
-use graph_rs_sdk::{oauth::AuthorizationCodeCredential, GraphClient};
+use graph_rs_sdk::{
+  identity::{
+    interactive::WithInteractiveAuth, AuthorizationCodeCredential, IntoCredentialBuilder,
+    Secret,
+  },
+  GraphClient,
+  http::Url,
+};
 
 async fn authenticate(
   tenant_id: &str,
@@ -235,19 +242,18 @@ async fn authenticate(
   std::env::set_var("RUST_LOG", "debug");
   pretty_env_logger::init();
 
-  let (authorization_query_response, mut credential_builder) =
+  let (authorization_response, credential_builder) =
           AuthorizationCodeCredential::authorization_url_builder(client_id)
                   .with_tenant(tenant_id)
                   .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
-                  .with_redirect_uri(redirect_uri)
-                  .with_interactive_authentication_for_secret(Default::default())
-                  .unwrap();
+                  .with_redirect_uri(Url::parse(redirect_uri)?)
+                  .with_interactive_auth(Secret("secret".to_string()), Default::default())
+                  .into_credential_builder()?;
 
-  debug!("{authorization_query_response:#?}");
+  debug!("{authorization_response:#?}");
 
-  let mut confidential_client = credential_builder.with_client_secret(client_secret).build();
+  let confidential_client = credential_builder.build();
 
   Ok(GraphClient::from(&confidential_client))
 }
-
 ```
