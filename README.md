@@ -1,9 +1,10 @@
 # graph-rs-sdk
 
-[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg)](https://crates.io/crates/graph-rs-sdk)
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
 
-### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform (Microsoft Entra and personal account sign in)
+![Crates.io Version](https://img.shields.io/crates/v/graph-rs-sdk?style=for-the-badge&color=%23778aab)
+
+### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform
 
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
 
@@ -1008,13 +1009,13 @@ Support for:
 #### Detailed Examples:
 
 
-- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth)
-  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth/auth_code_grant)
-  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth/openid))
-  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth/client_credentials))
-- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/authorization_sign_in)
-- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth))
-- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/certificate_auth)
+- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
+  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
+  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/openid))
+  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/client_credentials))
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth))
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/certificate_auth)
 
 There are two main types for building your chosen OAuth or OpenId Connect Flow.
 

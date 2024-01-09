@@ -1,0 +1,16 @@
+[package]
+name = "graph-rs-interactive-auth"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/sreeise/graph-rs-sdk"
+description = "Interactive Auth For The Microsoft Identity Platform"
+homepage = "https://github.com/sreeise/graph-rs-sdk"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = { version = "1.0.69", features = ["backtrace"]}
+wry = { version = "0.33.1" }
+tracing = "0.1.37"
+url = { version = "2", features = ["serde"] }

@@ -328,7 +328,7 @@ impl OAuthTestClient {
         let (test_client, credentials) = client.default_client()?;
 
         if let Some((id, token)) = test_client.get_access_token(credentials) {
-            Some((id, Graph::new(token.access_token)))
+            Some((id, GraphClient::new(token.access_token)))
         } else {
             None
         }
