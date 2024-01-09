@@ -1,8 +1,8 @@
 # graph-rs-sdk
 
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
-
-![Crates.io Version](https://img.shields.io/crates/v/graph-rs-sdk?style=for-the-badge&color=%23778aab)
+[![Static Badge](https://img.shields.io/badge/crates.io-1.1.3-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
+[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
 
 ### Rust SDK Client for Microsoft Graph and the Microsoft Graph Api
 
