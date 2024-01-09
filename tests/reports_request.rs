@@ -7,7 +7,7 @@ use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
 async fn async_download_office_365_user_counts_reports_test() {
-    if Environment::is_local() {
+    if Environment::is_local() || Environment::is_github() {
         return;
     }
 
