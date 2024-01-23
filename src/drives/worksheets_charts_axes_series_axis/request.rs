@@ -9,8 +9,8 @@ resource_api_client!(
 );
 
 impl WorksheetsChartsAxesSeriesAxisApiClient {
-    api_client_link!(title, WorksheetsChartsTitleApiClient);
     api_client_link!(formatting, WorksheetsChartsFormatApiClient);
+    api_client_link!(title, WorksheetsChartsTitleApiClient);
 
     delete!(
         doc: "Delete navigation property seriesAxis for drives",

@@ -35,10 +35,10 @@ impl WorksheetsApiClient {
 }
 
 impl WorksheetsIdApiClient {
-    api_client_link!(charts, WorksheetsChartsApiClient);
     api_client_link_id!(table, WorkbookTablesIdApiClient);
     api_client_link_id!(chart, WorksheetsChartsIdApiClient);
     api_client_link!(tables, WorkbookTablesApiClient);
+    api_client_link!(charts, WorksheetsChartsApiClient);
 
     get!(
         doc: "Get Worksheet",

@@ -450,6 +450,28 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				update: GeneratedMacroType::FnName("get_drive_item_delta"),
 			},
 		],
+		ResourceIdentity::DrivesListContentTypes => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"content_types", "/contentTypes/$count",
+				GeneratedMacroType::FnName("get_content_types_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"base_types", "/contentTypes/{{RID}}/baseTypes/$count",
+				GeneratedMacroType::FnName("get_base_types_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"column_links", "/contentTypes/{{RID}}/columnLinks/$count",
+				GeneratedMacroType::FnName("get_column_links_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"column_positions", "/contentTypes/{{RID}}/columnPositions/$count",
+				GeneratedMacroType::FnName("get_column_positions_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"columns", "/contentTypes/{{RID}}/columns/$count",
+				GeneratedMacroType::FnName("get_columns_count")
+			),
+		],
 		ResourceIdentity::TermsAndConditions =>
 			vec![MethodMacroModifier {
 				matching: vec![

@@ -47,11 +47,11 @@ impl WorksheetsChartsApiClient {
 }
 
 impl WorksheetsChartsIdApiClient {
+    api_client_link!(legend, WorksheetsChartsLegendApiClient);
+    api_client_link!(formatting, WorksheetsChartsFormatApiClient);
     api_client_link!(axes, WorksheetsChartsAxesApiClient);
     api_client_link!(series, WorksheetsChartsSeriesApiClient);
-    api_client_link!(formatting, WorksheetsChartsFormatApiClient);
     api_client_link!(title, WorksheetsChartsTitleApiClient);
-    api_client_link!(legend, WorksheetsChartsLegendApiClient);
 
     delete!(
         doc: "Chart: delete",

@@ -42,9 +42,9 @@ impl WorkbookTablesApiClient {
 
 impl WorkbookTablesIdApiClient {
     api_client_link_id!(row, WorkbookTablesRowsIdApiClient);
-    api_client_link_id!(column, WorkbookTablesColumnsIdApiClient);
     api_client_link!(rows, WorkbookTablesRowsApiClient);
     api_client_link!(columns, WorkbookTablesColumnsApiClient);
+    api_client_link_id!(column, WorkbookTablesColumnsIdApiClient);
 
     get!(
         doc: "Get Table",

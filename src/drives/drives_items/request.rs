@@ -29,10 +29,10 @@ impl DrivesItemsApiClient {
 }
 
 impl DrivesItemsIdApiClient {
-    api_client_link_id!(worksheet, WorksheetsIdApiClient);
+    api_client_link!(workbook, WorkbookApiClient);
     api_client_link!(worksheets, WorksheetsApiClient);
     api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
-    api_client_link!(workbook, WorkbookApiClient);
+    api_client_link_id!(worksheet, WorksheetsIdApiClient);
     api_client_link!(created_by_user, CreatedByUserApiClient);
 
     delete!(
