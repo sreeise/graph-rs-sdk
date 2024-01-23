@@ -403,6 +403,14 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 		],
 		ResourceIdentity::DrivesItems => vec![
 			MethodMacroModifier::fn_name_and_path(
+				"children", "/items/{{RID}}/children/$count",
+				GeneratedMacroType::FnName("get_children_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"items", "/items/$count",
+				GeneratedMacroType::FnName("get_items_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
 				"item_activity_stats", "/items/{{RID}}/analytics/itemActivityStats/$count",
 				GeneratedMacroType::FnName("get_item_activity_stats_count")
 			),
@@ -812,7 +820,18 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				GeneratedMacroType::FnName("get_application_count")
 			)
 		],
+		/*
+		    get!(
+        doc: "Get the number of the resource",
+        name: worksheets,
+        path: "/worksheets/$count"
+    );
+		 */
         ResourceIdentity::Worksheets => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"worksheets", "/worksheets/$count",
+				GeneratedMacroType::FnName("get_worksheets_count")
+			),
             MethodMacroModifier::fn_name_and_path(
                 "workbook_worksheet", "/worksheets/{{RID}}/range()",
                 GeneratedMacroType::FnName("get_range_object")
@@ -831,6 +850,58 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
             )
         ],
 		ResourceIdentity::WorksheetsCharts => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"get_worksheet", "/charts/itemAt(index={{id}})/worksheet",
+				GeneratedMacroType::FnName("item_at_get_worksheet")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"set_data", "/charts/itemAt(index={{id}})/setData",
+				GeneratedMacroType::FnName("item_at_set_data")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"set_position", "/charts/itemAt(index={{id}})/setPosition",
+				GeneratedMacroType::FnName("item_at_set_position")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item_at", "/charts/itemAt(index={{id}})/image(width={{id2}},height={{id3}},fittingMode='{{id4}}')",
+				GeneratedMacroType::FnName("item_at_image_by_width_and_height_and_fitting_mode")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item_at", "/charts/itemAt(index={{id}})/image(width={{id2}},height={{id3}})",
+				GeneratedMacroType::FnName("item_at_image_by_width_and_height")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item_at", "/charts/itemAt(index={{id}})/image(width={{id2}})",
+				GeneratedMacroType::FnName("item_at_image_by_width")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item_at", "/charts/itemAt(index={{id}})/image()",
+				GeneratedMacroType::FnName("item_at_image")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"count", "/charts/count()",
+				GeneratedMacroType::FnName("get_charts_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item", "/charts/item(name='{{id}}')/image(width={{id2}},height={{id3}},fittingMode='{{id4}}')",
+				GeneratedMacroType::FnName("get_charts_item_by_name_and_width_and_height_and_fitting_mode")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item", "/charts/item(name='{{id}}')/image(width={{id2}},height={{id3}})",
+				GeneratedMacroType::FnName("get_charts_item_by_name_and_width_and_height")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item", "/charts/item(name='{{id}}')/image(width={{id2}})",
+				GeneratedMacroType::FnName("get_charts_item_by_name_and_width")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item", "/charts/item(name='{{id}}')/image()",
+				GeneratedMacroType::FnName("get_charts_item_image_by_name")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"item", "/charts/item(name='{{id}}')",
+				GeneratedMacroType::FnName("get_charts_item_by_name")
+			),
 			MethodMacroModifier::fn_name_and_path(
 				"delete_format", "/charts/{{RID}}/title/format",
 				GeneratedMacroType::FnName("delete_title_format")

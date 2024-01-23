@@ -339,7 +339,7 @@ impl ResourceSettings {
 					api_client_links: vec![
 						// api_client_link_id!(item_by_path, DrivesItemsPathIdApiClient);
 						ApiClientLinkSettings(Some("DrivesIdApiClient"), vec![
-							ApiClientLink::Struct("lists", "DrivesListApiClient"),
+							ApiClientLink::Struct("list", "DrivesListApiClient"),
 							ApiClientLink::Struct("items", "DrivesItemsApiClient"),
 							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
 							ApiClientLink::StructId("item_by_path", "DrivesItemsPathIdApiClient"),

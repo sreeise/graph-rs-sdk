@@ -83,7 +83,7 @@ pub fn drives_list_items_last_modified_by_user_path() {
         "/v1.0/drives/drive-id/list/items/listItem-id/lastModifiedByUser".to_string(),
         client
             .drive("drive-id")
-            .lists()
+            .list()
             .item("listItem-id")
             .last_modified_by_user()
             .get_last_modified_by_user()
@@ -111,7 +111,7 @@ pub fn drives_list_items_created_by_user_path() {
         "/v1.0/drives/drive-id/list/items/listItem-id/createdByUser".to_string(),
         client
             .drive("drive-id")
-            .lists()
+            .list()
             .item("listItem-id")
             .created_by_user()
             .get_created_by_user()
@@ -140,7 +140,7 @@ pub fn drives_list_path() {
             .to_string(),
         client
             .drive("drive-id")
-            .lists()
+            .list()
             .content_type("contentType-id")
             .get_columns("columnDefinition-id")
             .url()

@@ -17,7 +17,7 @@ impl WorksheetsChartsApiClient {
         body: true
     );
     get!(
-        doc: "List charts",
+        doc: "List ChartCollection",
         name: list_charts,
         path: "/charts"
     );
@@ -29,14 +29,58 @@ impl WorksheetsChartsApiClient {
     );
     get!(
         doc: "Invoke function count",
-        name: count,
+        name: get_charts_count,
         path: "/charts/count()"
     );
     get!(
         doc: "Invoke function item",
-        name: item,
+        name: get_charts_item_by_name,
         path: "/charts/item(name='{{id}}')",
         params: name
+    );
+    get!(
+        doc: "Invoke function image",
+        name: get_charts_item_image_by_name,
+        path: "/charts/item(name='{{id}}')/image()",
+        params: workbook_worksheet_id
+    );
+    get!(
+        doc: "Invoke function image",
+        name: get_charts_item_by_name_and_width,
+        path: "/charts/item(name='{{id}}')/image(width={{id2}})",
+        params: width
+    );
+    get!(
+        doc: "Invoke function image",
+        name: get_charts_item_by_name_and_width_and_height,
+        path: "/charts/item(name='{{id}}')/image(width={{id2}},height={{id3}})",
+        params: width, height
+    );
+    get!(
+        doc: "Invoke function image",
+        name: get_charts_item_by_name_and_width_and_height_and_fitting_mode,
+        path: "/charts/item(name='{{id}}')/image(width={{id2}},height={{id3}},fittingMode='{{id4}}')",
+        params: width, height, fitting_mode
+    );
+    post!(
+        doc: "Invoke action setData",
+        name: set_data,
+        path: "/charts/item(name='{{id}}')/setData",
+        body: true,
+        params: workbook_worksheet_id
+    );
+    post!(
+        doc: "Invoke action setPosition",
+        name: set_position,
+        path: "/charts/item(name='{{id}}')/setPosition",
+        body: true,
+        params: workbook_worksheet_id
+    );
+    get!(
+        doc: "Get worksheet from drives",
+        name: get_worksheet,
+        path: "/charts/item(name='{{id}}')/worksheet",
+        params: workbook_worksheet_id
     );
     get!(
         doc: "Invoke function itemAt",
@@ -44,14 +88,58 @@ impl WorksheetsChartsApiClient {
         path: "/charts/itemAt(index={{id}})",
         params: index
     );
+    get!(
+        doc: "Invoke function image",
+        name: item_at_image,
+        path: "/charts/itemAt(index={{id}})/image()",
+        params: workbook_worksheet_id
+    );
+    get!(
+        doc: "Invoke function image",
+        name: item_at_image_by_width,
+        path: "/charts/itemAt(index={{id}})/image(width={{id2}})",
+        params: width
+    );
+    get!(
+        doc: "Invoke function image",
+        name: item_at_image_by_width_and_height,
+        path: "/charts/itemAt(index={{id}})/image(width={{id2}},height={{id3}})",
+        params: width, height
+    );
+    get!(
+        doc: "Invoke function image",
+        name: item_at_image_by_width_and_height_and_fitting_mode,
+        path: "/charts/itemAt(index={{id}})/image(width={{id2}},height={{id3}},fittingMode='{{id4}}')",
+        params: width, height, fitting_mode
+    );
+    post!(
+        doc: "Invoke action setData",
+        name: item_at_set_data,
+        path: "/charts/itemAt(index={{id}})/setData",
+        body: true,
+        params: workbook_worksheet_id
+    );
+    post!(
+        doc: "Invoke action setPosition",
+        name: item_at_set_position,
+        path: "/charts/itemAt(index={{id}})/setPosition",
+        body: true,
+        params: workbook_worksheet_id
+    );
+    get!(
+        doc: "Get worksheet from drives",
+        name: item_at_get_worksheet,
+        path: "/charts/itemAt(index={{id}})/worksheet",
+        params: workbook_worksheet_id
+    );
 }
 
 impl WorksheetsChartsIdApiClient {
-    api_client_link!(legend, WorksheetsChartsLegendApiClient);
-    api_client_link!(formatting, WorksheetsChartsFormatApiClient);
     api_client_link!(axes, WorksheetsChartsAxesApiClient);
+    api_client_link!(legend, WorksheetsChartsLegendApiClient);
     api_client_link!(series, WorksheetsChartsSeriesApiClient);
     api_client_link!(title, WorksheetsChartsTitleApiClient);
+    api_client_link!(formatting, WorksheetsChartsFormatApiClient);
 
     delete!(
         doc: "Chart: delete",

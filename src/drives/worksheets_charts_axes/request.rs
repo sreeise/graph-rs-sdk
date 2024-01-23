@@ -9,12 +9,12 @@ resource_api_client!(
 );
 
 impl WorksheetsChartsAxesApiClient {
-    api_client_link!(series_axis, WorksheetsChartsLegendApiClient);
+    api_client_link!(value_axis, WorksheetsChartsSeriesApiClient);
     api_client_link!(title, WorksheetsChartsTitleApiClient);
+    api_client_link!(category_axis, WorksheetsChartsAxesApiClient);
+    api_client_link!(series_axis, WorksheetsChartsLegendApiClient);
     api_client_link!(data_labels, WorksheetsChartsDataLabelsApiClient);
     api_client_link!(formatting, WorksheetsChartsFormatApiClient);
-    api_client_link!(category_axis, WorksheetsChartsAxesApiClient);
-    api_client_link!(value_axis, WorksheetsChartsSeriesApiClient);
 
     delete!(
         doc: "Delete navigation property axes for drives",

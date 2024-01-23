@@ -16,7 +16,7 @@ impl WorksheetsChartsSeriesApiClient {
         body: true
     );
     get!(
-        doc: "List ChartSeriesCollection",
+        doc: "List series",
         name: list_series,
         path: "/series"
     );
@@ -30,6 +30,19 @@ impl WorksheetsChartsSeriesApiClient {
         name: item_at,
         path: "/series/itemAt(index={{id}})",
         params: index
+    );
+    post!(
+        doc: "Create ChartPoints",
+        name: create_points,
+        path: "/series/itemAt(index={{id}})/points",
+        body: true,
+        params: workbook_chart_id
+    );
+    get!(
+        doc: "List points",
+        name: list_points,
+        path: "/series/itemAt(index={{id}})/points",
+        params: workbook_chart_id
     );
 }
 
@@ -57,7 +70,7 @@ impl WorksheetsChartsSeriesIdApiClient {
         body: true
     );
     get!(
-        doc: "List ChartPointsCollection",
+        doc: "List points",
         name: list_points,
         path: "/series/{{RID}}/points"
     );

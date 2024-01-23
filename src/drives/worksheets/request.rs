@@ -17,13 +17,13 @@ impl WorksheetsApiClient {
         body: true
     );
     get!(
-        doc: "List worksheets",
+        doc: "List WorksheetCollection",
         name: list_worksheets,
         path: "/worksheets"
     );
     get!(
         doc: "Get the number of the resource",
-        name: worksheets,
+        name: get_worksheets_count,
         path: "/worksheets/$count"
     );
     post!(
@@ -37,8 +37,8 @@ impl WorksheetsApiClient {
 impl WorksheetsIdApiClient {
     api_client_link_id!(table, WorkbookTablesIdApiClient);
     api_client_link_id!(chart, WorksheetsChartsIdApiClient);
-    api_client_link!(tables, WorkbookTablesApiClient);
     api_client_link!(charts, WorksheetsChartsApiClient);
+    api_client_link!(tables, WorkbookTablesApiClient);
 
     get!(
         doc: "Get Worksheet",

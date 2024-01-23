@@ -16,7 +16,7 @@ impl WorkbookTablesColumnsApiClient {
         body: true
     );
     get!(
-        doc: "List TableColumnCollection",
+        doc: "List columns",
         name: list_columns,
         path: "/columns"
     );
@@ -36,6 +36,49 @@ impl WorkbookTablesColumnsApiClient {
         name: item_at,
         path: "/columns/itemAt(index={{id}})",
         params: index
+    );
+    get!(
+        doc: "Invoke function dataBodyRange",
+        name: data_body_range,
+        path: "/columns/itemAt(index={{id}})/dataBodyRange()",
+        params: workbook_table_id
+    );
+    delete!(
+        doc: "Delete navigation property filter for drives",
+        name: delete_filter,
+        path: "/columns/itemAt(index={{id}})/filter",
+        params: workbook_table_id
+    );
+    get!(
+        doc: "Get filter from drives",
+        name: get_filter,
+        path: "/columns/itemAt(index={{id}})/filter",
+        params: workbook_table_id
+    );
+    patch!(
+        doc: "Update the navigation property filter in drives",
+        name: update_filter,
+        path: "/columns/itemAt(index={{id}})/filter",
+        body: true,
+        params: workbook_table_id
+    );
+    get!(
+        doc: "Invoke function headerRowRange",
+        name: header_row_range,
+        path: "/columns/itemAt(index={{id}})/headerRowRange()",
+        params: workbook_table_id
+    );
+    get!(
+        doc: "Invoke function range",
+        name: range,
+        path: "/columns/itemAt(index={{id}})/range()",
+        params: workbook_table_id
+    );
+    get!(
+        doc: "Invoke function totalRowRange",
+        name: total_row_range,
+        path: "/columns/itemAt(index={{id}})/totalRowRange()",
+        params: workbook_table_id
     );
 }
 

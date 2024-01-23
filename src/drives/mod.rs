@@ -29,6 +29,7 @@ pub use drives_items_path::*;
 pub use drives_list::*;
 pub use drives_list_content_types::*;
 pub use last_modified_by_user::*;
+#[allow(unused_imports)]
 pub use manual_request::*;
 pub use request::*;
 pub use workbook::*;

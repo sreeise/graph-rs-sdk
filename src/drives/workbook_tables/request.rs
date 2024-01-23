@@ -38,13 +38,80 @@ impl WorkbookTablesApiClient {
         path: "/tables/itemAt(index={{id}})",
         params: index
     );
+    post!(
+        doc: "Invoke action clearFilters",
+        name: clear_filters,
+        path: "/tables/itemAt(index={{id}})/clearFilters",
+        params: drive_item_id
+    );
+    post!(
+        doc: "Invoke action convertToRange",
+        name: convert_to_range,
+        path: "/tables/itemAt(index={{id}})/convertToRange",
+        params: drive_item_id
+    );
+    get!(
+        doc: "Invoke function dataBodyRange",
+        name: data_body_range,
+        path: "/tables/itemAt(index={{id}})/dataBodyRange()",
+        params: drive_item_id
+    );
+    get!(
+        doc: "Invoke function headerRowRange",
+        name: header_row_range,
+        path: "/tables/itemAt(index={{id}})/headerRowRange()",
+        params: drive_item_id
+    );
+    get!(
+        doc: "Invoke function range",
+        name: range,
+        path: "/tables/itemAt(index={{id}})/range()",
+        params: drive_item_id
+    );
+    post!(
+        doc: "Invoke action reapplyFilters",
+        name: reapply_filters,
+        path: "/tables/itemAt(index={{id}})/reapplyFilters",
+        params: drive_item_id
+    );
+    delete!(
+        doc: "Delete navigation property sort for drives",
+        name: delete_sort,
+        path: "/tables/itemAt(index={{id}})/sort",
+        params: drive_item_id
+    );
+    get!(
+        doc: "Get TableSort",
+        name: get_sort,
+        path: "/tables/itemAt(index={{id}})/sort",
+        params: drive_item_id
+    );
+    patch!(
+        doc: "Update the navigation property sort in drives",
+        name: update_sort,
+        path: "/tables/itemAt(index={{id}})/sort",
+        body: true,
+        params: drive_item_id
+    );
+    get!(
+        doc: "Invoke function totalRowRange",
+        name: total_row_range,
+        path: "/tables/itemAt(index={{id}})/totalRowRange()",
+        params: drive_item_id
+    );
+    get!(
+        doc: "Get worksheet from drives",
+        name: get_worksheet,
+        path: "/tables/itemAt(index={{id}})/worksheet",
+        params: drive_item_id
+    );
 }
 
 impl WorkbookTablesIdApiClient {
+    api_client_link_id!(column, WorkbookTablesColumnsIdApiClient);
+    api_client_link!(columns, WorkbookTablesColumnsApiClient);
     api_client_link_id!(row, WorkbookTablesRowsIdApiClient);
     api_client_link!(rows, WorkbookTablesRowsApiClient);
-    api_client_link!(columns, WorkbookTablesColumnsApiClient);
-    api_client_link_id!(column, WorkbookTablesColumnsIdApiClient);
 
     get!(
         doc: "Get Table",

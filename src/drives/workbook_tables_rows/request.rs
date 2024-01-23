@@ -16,7 +16,7 @@ impl WorkbookTablesRowsApiClient {
         body: true
     );
     get!(
-        doc: "List rows",
+        doc: "List TableRowCollection",
         name: list_rows,
         path: "/rows"
     );
@@ -36,6 +36,12 @@ impl WorkbookTablesRowsApiClient {
         name: item_at,
         path: "/rows/itemAt(index={{id}})",
         params: index
+    );
+    get!(
+        doc: "Invoke function range",
+        name: range,
+        path: "/rows/itemAt(index={{id}})/range()",
+        params: workbook_table_id
     );
 }
 

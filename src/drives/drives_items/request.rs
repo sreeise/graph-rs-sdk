@@ -23,17 +23,17 @@ impl DrivesItemsApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: items,
+        name: get_items_count,
         path: "/items/$count"
     );
 }
 
 impl DrivesItemsIdApiClient {
-    api_client_link!(workbook, WorkbookApiClient);
+    api_client_link!(created_by_user, CreatedByUserApiClient);
+    api_client_link_id!(worksheet, WorksheetsIdApiClient);
     api_client_link!(worksheets, WorksheetsApiClient);
     api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
-    api_client_link_id!(worksheet, WorksheetsIdApiClient);
-    api_client_link!(created_by_user, CreatedByUserApiClient);
+    api_client_link!(workbook, WorkbookApiClient);
 
     delete!(
         doc: "Delete a DriveItem",
@@ -46,7 +46,7 @@ impl DrivesItemsIdApiClient {
         path: "/items/{{RID}}"
     );
     patch!(
-        doc: "Move a DriveItem to a new folder",
+        doc: "Update DriveItem properties",
         name: update_items,
         path: "/items/{{RID}}",
         body: true
@@ -199,7 +199,7 @@ impl DrivesItemsIdApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: children,
+        name: get_children_count,
         path: "/items/{{RID}}/children/$count"
     );
     get!(
