@@ -20,6 +20,8 @@ struct ClientConfiguration {
     connect_timeout: Option<Duration>,
     connection_verbose: bool,
     https_only: bool,
+    /// TLS 1.2 required to support all features in Microsoft Graph
+    /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     min_tls_version: Version,
 }
 
@@ -36,8 +38,6 @@ impl ClientConfiguration {
             connect_timeout: None,
             connection_verbose: false,
             https_only: true,
-            /// TLS 1.2 required to support all features in Microsoft Graph
-            /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
             min_tls_version: Version::TLS_1_2,
         }
     }

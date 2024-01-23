@@ -1,6 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::drives::*;
 
 resource_api_client!(
     WorksheetsApiClient,
@@ -16,7 +17,7 @@ impl WorksheetsApiClient {
         body: true
     );
     get!(
-        doc: "List WorksheetCollection",
+        doc: "List worksheets",
         name: list_worksheets,
         path: "/worksheets"
     );
@@ -34,6 +35,11 @@ impl WorksheetsApiClient {
 }
 
 impl WorksheetsIdApiClient {
+    api_client_link!(charts, WorksheetsChartsApiClient);
+    api_client_link_id!(table, WorkbookTablesIdApiClient);
+    api_client_link_id!(chart, WorksheetsChartsIdApiClient);
+    api_client_link!(tables, WorkbookTablesApiClient);
+
     get!(
         doc: "Get Worksheet",
         name: get_worksheets,

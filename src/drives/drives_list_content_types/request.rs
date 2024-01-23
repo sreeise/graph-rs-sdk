@@ -22,7 +22,7 @@ impl DrivesListContentTypesApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: get_content_types_count,
+        name: content_types,
         path: "/contentTypes/$count"
     );
     post!(
@@ -79,7 +79,7 @@ impl DrivesListContentTypesIdApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: get_base_types_count,
+        name: base_types,
         path: "/contentTypes/{{RID}}/baseTypes/$count"
     );
     get!(
@@ -101,7 +101,7 @@ impl DrivesListContentTypesIdApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: get_column_links_count,
+        name: column_links,
         path: "/contentTypes/{{RID}}/columnLinks/$count"
     );
     delete!(
@@ -130,7 +130,7 @@ impl DrivesListContentTypesIdApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: get_column_positions_count,
+        name: column_positions,
         path: "/contentTypes/{{RID}}/columnPositions/$count"
     );
     get!(
@@ -152,7 +152,7 @@ impl DrivesListContentTypesIdApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: get_columns_count,
+        name: columns,
         path: "/contentTypes/{{RID}}/columns/$count"
     );
     delete!(

@@ -1,10 +1,17 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::drives::*;
 
 resource_api_client!(WorkbookApiClient, ResourceIdentity::Workbook);
 
 impl WorkbookApiClient {
+    api_client_link!(worksheets, WorksheetsApiClient);
+    api_client_link!(functions, WorkbookFunctionsApiClient);
+    api_client_link!(tables, WorkbookTablesApiClient);
+    api_client_link_id!(table, WorkbookTablesIdApiClient);
+    api_client_link_id!(worksheet, WorksheetsIdApiClient);
+
     delete!(
         doc: "Delete navigation property workbook for drives",
         name: delete_workbook,

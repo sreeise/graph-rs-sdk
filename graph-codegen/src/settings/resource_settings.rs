@@ -135,6 +135,7 @@ impl ResourceSettings {
 						)
 					],
 				},
+
 			ResourceIdentity::Calls =>
 				ResourceSettings {
 					path_name: path_name.into(),
@@ -333,13 +334,15 @@ impl ResourceSettings {
 					path_name: path_name.to_string(),
 					ri,
 					imports: vec![
-						"crate::drives::{DrivesListApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient, WorkbookApiClient, WorksheetsApiClient, WorksheetsIdApiClient, CreatedByUserApiClient, LastModifiedByUserApiClient}",
+						"crate::drives::*",
 					],
 					api_client_links: vec![
+						// api_client_link_id!(item_by_path, DrivesItemsPathIdApiClient);
 						ApiClientLinkSettings(Some("DrivesIdApiClient"), vec![
-							ApiClientLink::Struct("list", "DrivesListApiClient"),
-							ApiClientLink::StructId("items", "DrivesItemsApiClient"),
+							ApiClientLink::Struct("lists", "DrivesListApiClient"),
+							ApiClientLink::Struct("items", "DrivesItemsApiClient"),
 							ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
+							ApiClientLink::StructId("item_by_path", "DrivesItemsPathIdApiClient"),
                             ApiClientLink::Struct("workbook", "WorkbookApiClient"),
                             ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
                             ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
@@ -348,6 +351,7 @@ impl ResourceSettings {
 						])
 					],
 				},
+
 			ResourceIdentity::DrivesList =>
 				ResourceSettings {
 					path_name: path_name.to_string(),
@@ -367,13 +371,126 @@ impl ResourceSettings {
 					],
 				},
 			ResourceIdentity::DrivesItems => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::drives::{CreatedByUserApiClient, LastModifiedByUserApiClient}"])
+				.imports(vec!["crate::drives::*"])
 				.api_client_links(vec![
-					ApiClientLinkSettings(Some("DrivesItemsApiClient"), vec![
+					ApiClientLinkSettings(Some("DrivesItemsIdApiClient"), vec![
 						ApiClientLink::Struct("last_modified_by_user", "LastModifiedByUserApiClient"),
 						ApiClientLink::Struct("created_by_user", "CreatedByUserApiClient"),
+						ApiClientLink::Struct("workbook", "WorkbookApiClient"),
+						ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
+						ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
 					])
 				]).build().unwrap(),
+			ResourceIdentity::Workbook => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorkbookApiClient"), vec![
+						ApiClientLink::Struct("tables", "WorkbookTablesApiClient"),
+						ApiClientLink::StructId("table", "WorkbookTablesIdApiClient"),
+						ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
+						ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
+						ApiClientLink::Struct("functions", "WorkbookFunctionsApiClient"),
+					]),
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::WorkbookTables => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorkbookTablesIdApiClient"), vec![
+						ApiClientLink::Struct("columns", "WorkbookTablesColumnsApiClient"),
+						ApiClientLink::StructId("column", "WorkbookTablesColumnsIdApiClient"),
+						ApiClientLink::Struct("rows", "WorkbookTablesRowsApiClient"),
+						ApiClientLink::StructId("row", "WorkbookTablesRowsIdApiClient"),
+					])
+				])
+				.build().unwrap(),
+			ResourceIdentity::Worksheets => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorksheetsIdApiClient"), vec![
+						ApiClientLink::Struct("tables", "WorkbookTablesApiClient"),
+						ApiClientLink::StructId("table", "WorkbookTablesIdApiClient"),
+						ApiClientLink::Struct("charts", "WorksheetsChartsApiClient"),
+						ApiClientLink::StructId("chart", "WorksheetsChartsIdApiClient"),
+					])
+				]).build().unwrap(),
+			ResourceIdentity::WorksheetsCharts => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorksheetsChartsIdApiClient"), vec![
+						ApiClientLink::Struct("axes", "WorksheetsChartsAxesApiClient"),
+						ApiClientLink::Struct("legend", "WorksheetsChartsLegendApiClient"),
+						ApiClientLink::Struct("series", "WorksheetsChartsSeriesApiClient"),
+						ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+						ApiClientLink::Struct("title", "WorksheetsChartsTitleApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::WorksheetsChartsAxes => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorksheetsChartsAxesApiClient"), vec![
+						ApiClientLink::Struct("category_axis", "WorksheetsChartsAxesApiClient"),
+						ApiClientLink::Struct("series_axis", "WorksheetsChartsLegendApiClient"),
+						ApiClientLink::Struct("value_axis", "WorksheetsChartsSeriesApiClient"),
+						ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+						ApiClientLink::Struct("data_labels", "WorksheetsChartsDataLabelsApiClient"),
+						ApiClientLink::Struct("title", "WorksheetsChartsTitleApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::WorksheetsChartsAxesSeriesAxis => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorksheetsChartsAxesSeriesAxisApiClient"), vec![
+						ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+						ApiClientLink::Struct("title", "WorksheetsChartsTitleApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::WorksheetsChartsAxesValueAxis => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorksheetsChartsAxesValueAxisApiClient"), vec![
+						ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+						ApiClientLink::Struct("title", "WorksheetsChartsTitleApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::WorksheetsChartsAxesCategoryAxis => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorksheetsChartsAxesCategoryAxisApiClient"), vec![
+						ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+						ApiClientLink::Struct("title", "WorksheetsChartsTitleApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::WorksheetsChartsTitle => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorksheetsChartsTitleApiClient"), vec![
+						ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::WorksheetsChartsDataLabels => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::drives::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("WorksheetsChartsDataLabelsApiClient"), vec![
+						ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+
 			ResourceIdentity::Education => ResourceSettings::builder(path_name, ri)
 				.imports(vec!["crate::education::*"])
 				.api_client_links(vec![
@@ -1432,10 +1549,26 @@ pub fn map_shared_write_config(ris: Vec<ResourceIdentity>) -> Vec<WriteConfigura
                     .build()
                     .unwrap()
             }
+
             ResourceIdentity::Channels => {
                 WriteConfiguration::second_level_builder(ResourceIdentity::Users, *ri)
                     .trim_path_start("/users/{user-id}/joinedTeams/{team-id}")
                     .filter_path(get_me_child_filters(*ri))
+                    .imports(vec!["crate::teams::*", "crate::chats::*"])
+                    .api_client_links(vec![ApiClientLinkSettings(
+                        Some("ChannelsIdApiClient"),
+                        vec![
+                            ApiClientLink::Struct("messages", "ChatsMessagesApiClient"),
+                            ApiClientLink::StructId("message", "ChatsMessagesIdApiClient"),
+                            ApiClientLink::Struct("shared_with_teams", "SharedWithTeamsApiClient"),
+                            ApiClientLink::StructId(
+                                "shared_with_team",
+                                "SharedWithTeamsIdApiClient",
+                            ),
+                            ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+                            ApiClientLink::StructId("member", "TeamsMembersIdApiClient"),
+                        ],
+                    )])
                     .build()
                     .unwrap()
             }
@@ -1511,6 +1644,17 @@ pub fn map_write_config(ris: Vec<ResourceIdentity>) -> Vec<WriteConfiguration> {
 
 pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConfiguration {
     match resource_identity {
+		ResourceIdentity::AuthenticationMethodsPolicy => WriteConfiguration::builder(resource_identity)
+			.imports(vec!["crate::authentication_method_configurations::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					None, vec![
+						ApiClientLink::Struct("authentication_method_configurations", "AuthenticationMethodConfigurationsApiClient"),
+						ApiClientLink::StructId("authentication_method_configuration", "AuthenticationMethodConfigurationsIdApiClient"),
+					]
+				),
+			])
+			.build().unwrap(),
 		// Teamwork
 		ResourceIdentity::Teamwork => WriteConfiguration::builder(resource_identity)
 			.filter_path(vec!["channels", "deletedTeams"])
@@ -1551,17 +1695,55 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::Applications => WriteConfiguration::builder(resource_identity)
+			.imports(vec!["crate::service_principals::*", "crate::users::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					Some("ServicePrincipalsIdApiClient"), vec![
+						ApiClientLink::Struct("owners", "ServicePrincipalsOwnersApiClient"),
+						ApiClientLink::StructId("owner", "ServicePrincipalsOwnersIdApiClient"),
+						ApiClientLink::Struct("transitive_member_of", "TransitiveMemberOfApiClient"),
+						ApiClientLink::Struct("member_of", "MemberOfApiClient"),
+					]
+				),
+			])
 			.filter_path(vec!["owners"])
 			.build()
 			.unwrap(),
-
-
 		ResourceIdentity::Communications => WriteConfiguration::builder(resource_identity)
 			.children(map_write_config(vec![ResourceIdentity::Calls, ResourceIdentity::CallRecords, ResourceIdentity::CallRecordsSessions]))
+			.imports(vec!["crate::communications::{call_records::CallRecordsApiClient, call_records::CallRecordsIdApiClient, calls::CallsApiClient, calls::CallsIdApiClient}"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					None,
+					vec![
+						ApiClientLink::Struct("call_records", "CallRecordsApiClient"),
+						ApiClientLink::StructId(
+							"call_record",
+							"CallRecordsIdApiClient"
+						),
+						ApiClientLink::Struct("calls", "CallsApiClient"),
+						ApiClientLink::StructId("call", "CallsIdApiClient")
+					]
+				)
+			])
 			.build()
 			.unwrap(),
-		ResourceIdentity::Calls | ResourceIdentity::CallRecords =>  WriteConfiguration::second_level_builder(ResourceIdentity::Communications, resource_identity)
+		ResourceIdentity::Calls =>  WriteConfiguration::second_level_builder(ResourceIdentity::Communications, resource_identity)
 			.trim_path_start("/communications")
+			.build()
+			.unwrap(),
+		ResourceIdentity::CallRecords =>  WriteConfiguration::second_level_builder(ResourceIdentity::Communications, resource_identity)
+			.imports(vec!["crate::communications::*"])
+			.trim_path_start("/communications")
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					Some("CallRecordsIdApiClient"),
+					vec![
+						ApiClientLink::Struct("sessions", "CallRecordsSessionsApiClient"),
+						ApiClientLink::StructId("session", "CallRecordsSessionsIdApiClient")
+					]
+				)
+			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::CallRecordsSessions =>  WriteConfiguration::second_level_builder(ResourceIdentity::Communications, resource_identity)
@@ -1576,11 +1758,33 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::Chats => WriteConfiguration::builder(resource_identity)
 			.filter_path(vec!["messages", "members", "tabs"])
 			.children(map_write_config(vec![ResourceIdentity::ChatsMessages, ResourceIdentity::ChatsMessagesReplies]))
+			.imports(vec!["crate::chats::*", "crate::teams::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					Some("ChatsIdApiClient"),
+					vec![
+						ApiClientLink::Struct("messages", "ChatsMessagesApiClient"),
+						ApiClientLink::StructId("message", "ChatsMessagesIdApiClient"),
+						ApiClientLink::Struct("members", "TeamsMembersApiClient"),
+						ApiClientLink::Struct("member", "TeamsMembersIdApiClient"),
+					]
+				)
+			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ChatsMessages => WriteConfiguration::second_level_builder(ResourceIdentity::Chats, resource_identity)
 			.trim_path_start("/chats/{chat-id}")
 			.filter_path(vec!["replies"])
+			.imports(vec!["crate::chats::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					Some("ChatsMessagesIdApiClient"),
+					vec![
+						ApiClientLink::Struct("replies", "ChatsMessagesRepliesApiClient"),
+						ApiClientLink::StructId("reply", "ChatsMessagesRepliesIdApiClient"),
+					]
+				)
+			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ChatsMessagesReplies => WriteConfiguration::second_level_builder(ResourceIdentity::Chats, resource_identity)
@@ -1592,6 +1796,13 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::ConnectedOrganizations => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
 			.trim_path_start("/identityGovernance/entitlementManagement")
 			.filter_path(vec!["internalSponsors", "externalSponsors"])
+			.imports(vec!["crate::identity_governance::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(Some("ConnectedOrganizationsIdApiClient"), vec![
+					ApiClientLink::Struct("external_sponsors", "ConnectedOrganizationsExternalSponsorsApiClient"),
+					ApiClientLink::Struct("internal_sponsors", "ConnectedOrganizationsInternalSponsorsApiClient"),
+				])
+			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ConnectedOrganizationsInternalSponsors => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
@@ -1623,6 +1834,17 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::ManagedEBooks => WriteConfiguration::second_level_builder(ResourceIdentity::DeviceAppManagement, resource_identity)
 			.trim_path_start("/deviceAppManagement")
 			.filter_path(vec!["userStateSummary", "deviceStates"])
+			.imports(vec!["crate::device_app_management::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					None, 							vec![
+						ApiClientLink::Struct("device_states", "ManagedEBooksDeviceStatesApiClient"),
+						ApiClientLink::StructId("device_state", "ManagedEBooksDeviceStatesIdApiClient"),
+						ApiClientLink::Struct("user_state_summary", "ManagedEBooksUserStateSummaryApiClient"),
+						ApiClientLink::StructId("user_state_summary_id", "ManagedEBooksUserStateSummaryIdApiClient"),
+					]
+				),
+			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ManagedEBooksDeviceStates |
@@ -1633,6 +1855,17 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::ManagedAppRegistrations => WriteConfiguration::second_level_builder(ResourceIdentity::DeviceAppManagement, resource_identity)
 			.trim_path_start("/deviceAppManagement")
 			.filter_path(vec!["appliedPolicies", "intendedPolicies"])
+			.imports(vec!["crate::device_app_management::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					None, 							vec![
+						ApiClientLink::Struct("intended_policies", "ManagedAppRegistrationsIntendedPoliciesApiClient"),
+						ApiClientLink::StructId("intended_policies_id", "ManagedAppRegistrationsIntendedPoliciesIdApiClient"),
+						ApiClientLink::Struct("applied_policies", "ManagedAppRegistrationsAppliedPoliciesApiClient"),
+						ApiClientLink::StructId("applied_policies_id", "ManagedAppRegistrationsAppliedPoliciesIdApiClient"),
+					]
+				),
+			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::ManagedAppRegistrationsIntendedPolicies |
@@ -1657,9 +1890,43 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 				ResourceIdentity::ManagedEBooksDeviceStates, ResourceIdentity::ManagedEBooksUserStateSummary,
 				ResourceIdentity::ManagedAppRegistrationsAppliedPolicies, ResourceIdentity::ManagedAppRegistrationsIntendedPolicies
 			]))
+			.imports(vec!["crate::device_app_management::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					None, vec![
+						ApiClientLink::Struct("android_managed_app_protections", "AndroidManagedAppProtectionsApiClient"),
+						ApiClientLink::StructId("android_managed_app_protection", "AndroidManagedAppProtectionsIdApiClient"),
+						ApiClientLink::Struct("default_managed_app_protections", "DefaultManagedAppProtectionsApiClient"),
+						ApiClientLink::StructId("default_managed_app_protection", "DefaultManagedAppProtectionsIdApiClient"),
+						ApiClientLink::Struct("ios_managed_app_protections", "IosManagedAppProtectionsApiClient"),
+						ApiClientLink::StructId("ios_managed_app_protection", "IosManagedAppProtectionsIdApiClient"),
+						ApiClientLink::Struct("managed_app_registrations", "ManagedAppRegistrationsApiClient"),
+						ApiClientLink::StructId("managed_app_registration", "ManagedAppRegistrationsIdApiClient"),
+						ApiClientLink::Struct("managed_app_statuses", "ManagedAppStatusesApiClient"),
+						ApiClientLink::StructId("managed_app_statuses_id", "ManagedAppStatusesIdApiClient"),
+						ApiClientLink::Struct("mdm_windows_information_protection_policies", "MdmWindowsInformationProtectionPoliciesApiClient"),
+						ApiClientLink::StructId("mdm_windows_information_protection_policy", "MdmWindowsInformationProtectionPoliciesIdApiClient"),
+						ApiClientLink::Struct("managed_app_policies", "ManagedAppPoliciesApiClient"),
+						ApiClientLink::StructId("managed_app_policies_id", "ManagedAppPoliciesIdApiClient"),
+						ApiClientLink::Struct("mobile_app_categories", "MobileAppCategoriesApiClient"),
+						ApiClientLink::StructId("mobile_app_categories_id", "MobileAppCategoriesIdApiClient"),
+						ApiClientLink::Struct("managed_e_books", "ManagedEBooksApiClient"),
+						ApiClientLink::StructId("managed_e_book", "ManagedEBooksIdApiClient"),
+						ApiClientLink::Struct("mobile_app_configurations", "MobileAppConfigurationsApiClient"),
+						ApiClientLink::StructId("mobile_app_configuration", "MobileAppConfigurationsIdApiClient"),
+						ApiClientLink::Struct("mobile_apps", "MobileAppsApiClient"),
+						ApiClientLink::StructId("mobile_app", "MobileAppsIdApiClient"),
+						ApiClientLink::Struct("targeted_managed_app_configurations", "TargetedManagedAppConfigurationsApiClient"),
+						ApiClientLink::StructId("targeted_managed_app_configuration", "TargetedManagedAppConfigurationsIdApiClient"),
+						ApiClientLink::Struct("vpp_tokens", "VppTokensApiClient"),
+						ApiClientLink::StructId("vpp_token", "VppTokensIdApiClient"),
+						ApiClientLink::Struct("windows_information_protection_policies", "WindowsInformationProtectionPoliciesApiClient"),
+						ApiClientLink::StructId("windows_information_protection_policies_id", "WindowsInformationProtectionPoliciesIdApiClient"),
+					]
+				),
+			])
 			.build()
 			.unwrap(),
-
 
 		// Device Management
 		ResourceIdentity::DeviceConfigurations |
@@ -1692,6 +1959,33 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 					ResourceIdentity::DeviceCompliancePolicySettingStateSummaries,
 					ResourceIdentity::WindowsAutopilotDeviceIdentities,
 				]))
+				.imports(vec!["crate::device_management::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(
+						None, vec![
+							ApiClientLink::Struct("device_configurations", "DeviceConfigurationsApiClient"),
+							ApiClientLink::StructId("device_configuration", "DeviceConfigurationsIdApiClient"),
+							ApiClientLink::Struct("device_enrollment_configurations", "DeviceEnrollmentConfigurationsApiClient"),
+							ApiClientLink::StructId(
+								"device_enrollment_configuration",
+								"DeviceEnrollmentConfigurationsIdApiClient"
+							),
+							ApiClientLink::Struct("managed_devices", "DeviceManagementManagedDevicesApiClient"),
+							ApiClientLink::StructId("managed_device", "DeviceManagementManagedDevicesIdApiClient"),
+							ApiClientLink::Struct("role_definitions", "RoleDefinitionsApiClient"),
+							ApiClientLink::StructId("role_definition", "RoleDefinitionsIdApiClient"),
+							ApiClientLink::Struct("terms_and_conditions", "TermsAndConditionsApiClient"),
+							ApiClientLink::StructId("terms_and_condition", "TermsAndConditionsIdApiClient"),
+							ApiClientLink::Struct("troubleshooting_events", "TroubleshootingEventsApiClient"),
+							ApiClientLink::StructId("troubleshooting_event", "TroubleshootingEventsIdApiClient"),
+							ApiClientLink::Struct("reports", "DeviceManagementReportsApiClient"),
+							ApiClientLink::Struct("device_compliance_policy_setting_state_summaries", "DeviceCompliancePolicySettingStateSummariesApiClient"),
+							ApiClientLink::StructId("device_compliance_policy_setting_state_summaries_id", "DeviceCompliancePolicySettingStateSummariesIdApiClient"),
+							ApiClientLink::StructId("windows_autopilot_device_identities", "WindowsAutopilotDeviceIdentitiesApiClient"),
+							ApiClientLink::StructId("windows_autopilot_device_identities_id", "WindowsAutopilotDeviceIdentitiesIdApiClient"),
+						]
+					),
+				])
 				.build()
 				.unwrap(),
 
@@ -1746,30 +2040,95 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.filter_path(vec!["additionalAccess()", "accessPackages/"])
 			.build()
 			.unwrap(),
-		ResourceIdentity::AccessPackages |
+
+		ResourceIdentity::AccessPackages => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.imports(vec!["crate::identity_governance::*"])
+			.trim_path_start("/identityGovernance/entitlementManagement")
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					Some("AccessPackagesIdApiClient"),
+					vec![
+						ApiClientLink::Struct(
+							"assignment_policies",
+							"AssignmentPoliciesApiClient"
+						),
+						ApiClientLink::StructId(
+							"assignment_policy",
+							"AssignmentPoliciesIdApiClient"
+						)
+					]
+				)
+			])
+			.build()
+			.unwrap(),
 		ResourceIdentity::AccessPackageAssignmentApprovals |
 		ResourceIdentity::AssignmentPolicies |
 		ResourceIdentity::AssignmentRequests => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
 			.trim_path_start("/identityGovernance/entitlementManagement")
 			.build().unwrap(),
-		ResourceIdentity::AppConsent |
+		ResourceIdentity::AppConsent => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.imports(vec!["crate::identity_governance::*"])
+			.filter_path(vec!["definitions", "/multiValueExtendedProperties", "singleValueExtendedProperties"])
+			.trim_path_start("/identityGovernance".to_string())
+			.build().unwrap(),
 		ResourceIdentity::AccessReviews => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.imports(vec!["crate::identity_governance::*"])
+			.api_client_links( vec![
+				ApiClientLinkSettings(
+					None,
+					vec![
+						ApiClientLink::Struct("definitions", "AccessReviewsDefinitionsApiClient"),
+						ApiClientLink::StructId("definition", "AccessReviewsDefinitionsIdApiClient")
+					]
+				)
+			])
 			.filter_path(vec!["definitions", "/multiValueExtendedProperties", "singleValueExtendedProperties"])
 			.trim_path_start("/identityGovernance".to_string())
 			.build().unwrap(),
 		ResourceIdentity::AccessReviewsDefinitions => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.imports(vec!["crate::identity_governance::*"])
 			.trim_path_start("/identityGovernance/accessReviews".to_string())
 			.filter_path(vec!["instance"])
+			.api_client_links( vec![
+				ApiClientLinkSettings(
+					Some("AccessReviewsDefinitionsIdApiClient"),
+					vec![
+						ApiClientLink::Struct("instances", "AccessReviewsDefinitionsInstancesApiClient"),
+						ApiClientLink::StructId("instance", "AccessReviewsDefinitionsInstancesIdApiClient")
+					]
+				)
+			])
 			.build().unwrap(),
 		ResourceIdentity::AccessReviewsDefinitionsInstances => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
+			.imports(vec!["crate::identity_governance::*"])
 			.trim_path_start("/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}")
+			.api_client_links(vec![
+				ApiClientLinkSettings(
+					Some("AccessReviewsDefinitionsInstancesIdApiClient"),
+					vec![
+						ApiClientLink::Struct("stages", "AccessReviewsDefinitionsInstancesStagesApiClient"),
+						ApiClientLink::StructId("stage", "AccessReviewsDefinitionsInstancesStagesIdApiClient")
+					]
+				)
+			])
 			.build().unwrap(),
 		ResourceIdentity::AccessReviewsDefinitionsInstancesStages => WriteConfiguration::second_level_builder(ResourceIdentity::IdentityGovernance, resource_identity)
 			.trim_path_start("/identityGovernance/accessReviews/definitions/{accessReviewScheduleDefinition-id}/instances/{accessReviewInstance-id}")
 			.build().unwrap(),
+
 		ResourceIdentity::IdentityGovernance =>
 			WriteConfiguration::builder(resource_identity)
+				.imports(vec!["crate::identity_governance::{AccessReviewsApiClient, AccessPackagesApiClient, AccessPackagesIdApiClient, EntitlementManagementApiClient}"])
 				.filter_path(vec!["entitlementManagement", "accessReviews", "appConsent"])
+				.api_client_links( vec![
+					ApiClientLinkSettings(
+						None,
+						vec![
+							ApiClientLink::Struct("access_reviews", "AccessReviewsApiClient"),
+							ApiClientLink::Struct("entitlement_management", "EntitlementManagementApiClient")
+						]
+					)
+				])
 				.children(
 					vec![
 						get_write_configuration(ResourceIdentity::AccessPackageAssignmentApprovals),
@@ -1973,10 +2332,33 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 
 		ResourceIdentity::Drives => WriteConfiguration::builder(resource_identity)
 			.filter_path(vec!["items", "list", "createdByUser", "lastModifiedByUser"])
+			.imports(vec!["crate::drives::*"])
 			.children(map_write_config(vec![
 				ResourceIdentity::DrivesList, ResourceIdentity::DrivesItems, ResourceIdentity::DrivesListContentTypes,
-				ResourceIdentity::Workbook, ResourceIdentity::Worksheets, ResourceIdentity::CreatedByUser, ResourceIdentity::LastModifiedByUser,
+				ResourceIdentity::Workbook, ResourceIdentity::WorkbookFunctions, ResourceIdentity::WorkbookTables,
+				ResourceIdentity::WorkbookTablesColumns, ResourceIdentity::WorkbookTablesRows,
+				ResourceIdentity::Worksheets, ResourceIdentity::CreatedByUser, ResourceIdentity::LastModifiedByUser,
+				ResourceIdentity::WorksheetsCharts, ResourceIdentity::WorksheetsChartsAxes,
+				ResourceIdentity::WorksheetsChartsAxesCategoryAxis, ResourceIdentity::WorksheetsChartsAxesSeriesAxis,
+				ResourceIdentity::WorksheetsChartsAxesValueAxis, ResourceIdentity::WorksheetsChartsLegend,
+				ResourceIdentity::WorksheetsChartsSeries, ResourceIdentity::WorksheetsChartsTitle,
+				ResourceIdentity::WorksheetsChartsFormat, ResourceIdentity::WorksheetsChartsDataLabels
 			]))
+			.api_client_links(vec![
+				// api_client_link_id!(item_by_path, DrivesItemsPathIdApiClient);
+				ApiClientLinkSettings(Some("DrivesIdApiClient"), vec![
+					ApiClientLink::Struct("list", "DrivesListApiClient"),
+					ApiClientLink::Struct("items", "DrivesItemsApiClient"),
+					ApiClientLink::StructId("item", "DrivesItemsIdApiClient"),
+					ApiClientLink::StructId("item_by_path", "DrivesItemsPathIdApiClient"),
+					ApiClientLink::Struct("workbook", "WorkbookApiClient"),
+					ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
+					ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
+					ApiClientLink::Struct("last_modified_by_user", "LastModifiedByUserApiClient"),
+					ApiClientLink::Struct("created_by_user", "CreatedByUserApiClient"),
+				])
+			])
+			.custom_modules(vec!["manual_request", "drives_items_path"])
 			.build()
 			.unwrap(),
 		ResourceIdentity::DrivesList => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
@@ -1991,18 +2373,129 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::DrivesItems => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}")
 			.filter_path(vec!["workbook", "getActivitiesByInterval()", "createdByUser", "lastModifiedByUser"])
+			.imports(vec!["crate::drives::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(Some("DrivesItemsIdApiClient"), vec![
+					ApiClientLink::Struct("last_modified_by_user", "LastModifiedByUserApiClient"),
+					ApiClientLink::Struct("created_by_user", "CreatedByUserApiClient"),
+					ApiClientLink::Struct("workbook", "WorkbookApiClient"),
+					ApiClientLink::Struct("worksheets", "WorksheetsApiClient"),
+					ApiClientLink::StructId("worksheet", "WorksheetsIdApiClient"),
+				])
+			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::Workbook => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}")
-			.filter_path(vec!["worksheets", "tables", "functions", "names", "comments"])
+			.filter_path(vec!["tables", "worksheets", "functions", "names", "comments"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(Some("WorkbookApiClient"), vec![
+					ApiClientLink::Struct("tables", "WorkbookTablesApiClient"),
+					ApiClientLink::StructId("table", "WorkbookTablesIdApiClient"),
+					ApiClientLink::Struct("functions", "WorkbookFunctionsApiClient"),
+				])
+			])
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorkbookFunctions => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook")
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorkbookTables => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook")
+			.filter_path(vec!["columns", "rows"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(Some("WorkbookTablesIdApiClient"), vec![
+					ApiClientLink::Struct("columns", "WorkbookTablesColumnsApiClient"),
+					ApiClientLink::StructId("column", "WorkbookTablesColumnsIdApiClient"),
+					ApiClientLink::Struct("rows", "WorkbookTablesRowsApiClient"),
+					ApiClientLink::StructId("row", "WorkbookTablesRowsIdApiClient"),
+				])
+			])
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorkbookTablesColumns => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/tables/{workbookTable-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorkbookTablesRows => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/tables/{workbookTable-id}")
 			.build()
 			.unwrap(),
 		ResourceIdentity::Worksheets => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
 			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook")
 			.filter_path(vec!["tables", "charts", "names", "pivotTables"])
+			.imports(vec!["crate::drives::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(Some("WorksheetsIdApiClient"), vec![
+					ApiClientLink::Struct("charts", "WorksheetsChartsApiClient"),
+					ApiClientLink::StructId("chart", "WorksheetsChartsIdApiClient"),
+				])
+			])
 			.build()
 			.unwrap(),
+		ResourceIdentity::WorksheetsCharts => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}")
+			.filter_path(vec!["axes", "legend", "series", "format", "dataLabels", "title"])
+			.imports(vec!["crate::drives::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(Some("WorksheetsChartsIdApiClient"), vec![
+					ApiClientLink::Struct("axes", "WorksheetsChartsAxesApiClient"),
+					ApiClientLink::Struct("legend", "WorksheetsChartsLegendApiClient"),
+					ApiClientLink::Struct("series", "WorksheetsChartsSeriesApiClient"),
+					ApiClientLink::Struct("data_labels", "WorksheetsChartsDataLabelsApiClient"),
+					ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+					ApiClientLink::Struct("title", "WorksheetsChartsTitleApiClient"),
+				])
+			])
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorksheetsChartsAxes => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}")
+			.filter_path(vec!["categoryAxis", "seriesAxis", "valueAxis", "format", "dataLabels", "title"])
+			.imports(vec!["crate::drives::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(Some("WorksheetsChartsAxesApiClient"), vec![
+					ApiClientLink::Struct("category_axis", "WorksheetsChartsAxesApiClient"),
+					ApiClientLink::Struct("series_axis", "WorksheetsChartsLegendApiClient"),
+					ApiClientLink::Struct("value_axis", "WorksheetsChartsSeriesApiClient"),
+					ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+					ApiClientLink::Struct("data_labels", "WorksheetsChartsDataLabelsApiClient"),
+				])
+			])
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorksheetsChartsAxesCategoryAxis | ResourceIdentity::WorksheetsChartsAxesSeriesAxis
+		| ResourceIdentity::WorksheetsChartsAxesValueAxis => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}/axes")
+			.filter_path(vec!["format", "title"])
+			.imports(vec!["crate::drives::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(None, vec![
+					ApiClientLink::Struct("formatting", "WorksheetsChartsFormatApiClient"),
+					ApiClientLink::Struct("title", "WorksheetsChartsTitleApiClient"),
+				])
+			])
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorksheetsChartsLegend | ResourceIdentity::WorksheetsChartsSeries
+		| ResourceIdentity::WorksheetsChartsFormat => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.filter_path(vec!["format"])
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorksheetsChartsDataLabels => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}")
+			.filter_path(vec!["format"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::WorksheetsChartsTitle => WriteConfiguration::second_level_builder(ResourceIdentity::Drives, resource_identity)
+			.trim_path_start("/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/{workbookChart-id}")
+			.filter_path(vec!["format"])
+			.build()
+			.unwrap(),
+
+
 
 
 		// Service Principals

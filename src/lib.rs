@@ -345,6 +345,6 @@ pub(crate) mod api_default_imports {
     pub use graph_error::*;
     pub(crate) use graph_http::api_impl::*;
 
-    pub use crate::client::Graph;
+    //pub use crate::client::Graph;
     pub(crate) use crate::client::{map_errors, map_parameters, ResourceProvisioner};
 }

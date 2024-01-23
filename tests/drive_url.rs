@@ -83,7 +83,7 @@ pub fn drives_list_items_last_modified_by_user_path() {
         "/v1.0/drives/drive-id/list/items/listItem-id/lastModifiedByUser".to_string(),
         client
             .drive("drive-id")
-            .list()
+            .lists()
             .item("listItem-id")
             .last_modified_by_user()
             .get_last_modified_by_user()
@@ -111,7 +111,7 @@ pub fn drives_list_items_created_by_user_path() {
         "/v1.0/drives/drive-id/list/items/listItem-id/createdByUser".to_string(),
         client
             .drive("drive-id")
-            .list()
+            .lists()
             .item("listItem-id")
             .created_by_user()
             .get_created_by_user()
@@ -140,7 +140,7 @@ pub fn drives_list_path() {
             .to_string(),
         client
             .drive("drive-id")
-            .list()
+            .lists()
             .content_type("contentType-id")
             .get_columns("columnDefinition-id")
             .url()
@@ -153,6 +153,61 @@ pub fn drives_list_path() {
             .drive("drive-id")
             .list()
             .get_columns_count()
+            .url()
+            .path()
+    );
+}
+
+#[test]
+pub fn drives_item_workbook() {
+    let client = Graph::new("");
+
+    assert_eq!(
+        "/v1.0/drives/drive-id/items/item-id/worksheets/worksheet-id/charts/chart-id".to_string(),
+        client
+            .drive("drive-id")
+            .item("item-id")
+            .worksheet("worksheet-id")
+            .chart("chart-id")
+            .get_charts()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        "/v1.0/drives/drive-id/items/driveItem-id/workbook/worksheets/workbookWorksheet-id/tables/workbookTable-id/rows".to_string(),
+        client.drive("drive-id").item("driveItem-id").workbook()
+            .worksheet("workbookWorksheet-id")
+            .table("workbookTable-id")
+            .rows()
+            .list_rows()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        "/v1.0/me/drive/items/driveItem-id/workbook/worksheets/workbookWorksheet-id/tables/workbookTable-id/rows".to_string(),
+        client.me()
+            .drive()
+            .item("driveItem-id")
+            .workbook()
+            .worksheet("workbookWorksheet-id")
+            .table("workbookTable-id")
+            .rows()
+            .list_rows()
+            .url()
+            .path()
+    );
+
+    assert_eq!(
+        "/v1.0/me/drive/worksheets/workbookWorksheet-id/tables/workbookTable-id/rows".to_string(),
+        client
+            .me()
+            .drive()
+            .worksheet("workbookWorksheet-id")
+            .table("workbookTable-id")
+            .rows()
+            .list_rows()
             .url()
             .path()
     );
