@@ -34,3 +34,14 @@ impl DrivesItemsIdApiClient {
         params: file_name
     );
 }
+
+impl WorksheetsIdApiClient {
+    patch!(
+        doc: "Invoke function range",
+        name: update_range_object_by_address,
+        path: "/worksheets/{{RID}}/range(address='{{id}}')",
+        body: true,
+        params: address
+        );
+
+}
