@@ -189,4 +189,9 @@ impl DefaultDriveApiClient {
     api_client_link_id!(item, DrivesItemsIdApiClient);
     api_client_link_id!(item_by_path, DefaultDrivesItemsPathIdApiClient);
     api_client_link!(lists, DrivesListApiClient);
+    api_client_link!(worksheets, WorksheetsApiClient);
+    api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
+    api_client_link_id!(worksheet, WorksheetsIdApiClient);
+    api_client_link!(created_by_user, CreatedByUserApiClient);
+    api_client_link!(workbook, WorkbookApiClient);
 }

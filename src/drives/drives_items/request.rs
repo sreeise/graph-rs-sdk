@@ -1,7 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::drives::{CreatedByUserApiClient, LastModifiedByUserApiClient};
+use crate::drives::*;
 
 api_client!(
     DrivesItemsApiClient,
@@ -29,8 +29,11 @@ impl DrivesItemsApiClient {
 }
 
 impl DrivesItemsIdApiClient {
-    api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
     api_client_link!(created_by_user, CreatedByUserApiClient);
+    api_client_link_id!(worksheet, WorksheetsIdApiClient);
+    api_client_link!(worksheets, WorksheetsApiClient);
+    api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
+    api_client_link!(workbook, WorkbookApiClient);
 
     delete!(
         doc: "Delete a DriveItem",
@@ -43,7 +46,7 @@ impl DrivesItemsIdApiClient {
         path: "/items/{{RID}}"
     );
     patch!(
-        doc: "Move a DriveItem to a new folder",
+        doc: "Update DriveItem properties",
         name: update_items,
         path: "/items/{{RID}}",
         body: true
@@ -345,6 +348,22 @@ impl DrivesItemsIdApiClient {
         body: true
     );
     get!(
+        doc: "Get retentionLabel from drives",
+        name: get_retention_label,
+        path: "/items/{{RID}}/retentionLabel"
+    );
+    delete!(
+        doc: "driveItem: removeRetentionLabel",
+        name: delete_retention_label,
+        path: "/items/{{RID}}/retentionLabel"
+    );
+    patch!(
+        doc: "driveItem: setRetentionLabel",
+        name: update_retention_label,
+        path: "/items/{{RID}}/retentionLabel",
+        body: true
+    );
+    get!(
         doc: "Invoke function search",
         name: search,
         path: "/items/{{RID}}/search(q='{{id}}')",
@@ -363,7 +382,7 @@ impl DrivesItemsIdApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: get_subscriptions_count,
+        name: subscriptions,
         path: "/items/{{RID}}/subscriptions/$count"
     );
     delete!(

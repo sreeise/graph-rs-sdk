@@ -61,6 +61,12 @@ pub struct WriteConfiguration {
     pub api_client_links: Vec<ApiClientLinkSettings>,
 
     pub children: Vec<WriteConfiguration>,
+
+    /// Names of custom modules not part of code generation that need to have
+    /// a module declaration, `mod custom_mod_name`, and a pub use export `pub use custom_mod::*`
+    /// This is commonly used for APIs that have a manual_request.rs file that implements
+    /// API methods for Microsoft Graph that are not in the OpenAPI metadata file.
+    pub custom_modules: Vec<&'static str>,
 }
 
 impl WriteConfiguration {
@@ -105,6 +111,9 @@ impl WriteConfiguration {
                         declarations,
                     } => {
                         declarations.extend(mods);
+                        if !self.custom_modules.is_empty() {
+                            declarations.extend(self.custom_modules.iter().map(|s| s.to_string()));
+                        }
                     }
                 }
             }

@@ -1,11 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
-use crate::drives::{
-    CreatedByUserApiClient, DrivesItemsApiClient, DrivesItemsIdApiClient,
-    DrivesItemsPathIdApiClient, DrivesListApiClient, LastModifiedByUserApiClient,
-    WorkbookApiClient, WorksheetsApiClient, WorksheetsIdApiClient,
-};
+use crate::drives::*;
 
 api_client!(DrivesApiClient, DrivesIdApiClient, ResourceIdentity::Drives);
 
@@ -21,23 +17,18 @@ impl DrivesApiClient {
         name: list_drive,
         path: "/drives"
     );
-    get!(
-        doc: "Get the number of the resource",
-        name: get_drives_count,
-        path: "/drives/$count"
-    );
 }
 
 impl DrivesIdApiClient {
     api_client_link_id!(item, DrivesItemsIdApiClient);
     api_client_link_id!(item_by_path, DrivesItemsPathIdApiClient);
+    api_client_link!(worksheets, WorksheetsApiClient);
+    api_client_link!(created_by_user, CreatedByUserApiClient);
+    api_client_link_id!(worksheet, WorksheetsIdApiClient);
     api_client_link!(items, DrivesItemsApiClient);
     api_client_link!(list, DrivesListApiClient);
-    api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
-    api_client_link!(worksheets, WorksheetsApiClient);
     api_client_link!(workbook, WorkbookApiClient);
-    api_client_link_id!(worksheet, WorksheetsIdApiClient);
-    api_client_link!(created_by_user, CreatedByUserApiClient);
+    api_client_link!(last_modified_by_user, LastModifiedByUserApiClient);
 
     delete!(
         doc: "Delete entity from drives",
@@ -68,7 +59,7 @@ impl DrivesIdApiClient {
     );
     get!(
         doc: "Get the number of the resource",
-        name: bundles,
+        name: get_bundles_count,
         path: "/drives/{{RID}}/bundles/$count"
     );
     get!(

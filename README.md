@@ -1,12 +1,14 @@
 # graph-rs-sdk
 
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
+[![Static Badge](https://img.shields.io/badge/crates.io-1.1.3-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
+[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
 
 ![Crates.io Version](https://img.shields.io/crates/v/graph-rs-sdk?style=for-the-badge&color=%23778aab)
 
 ### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.3) - v1.1.3 - Latest Stable Version
 
 Features:
 
@@ -43,6 +45,42 @@ And import `futures::StreamExt`.
 use futures::StreamExt;
 use graph_rs_sdk::*;
 ```
+
+### Pre Release Version (May Be Unstable)
+
+- Complete rewrite of SDK Client for the Microsoft Identity Platform
+- In Memory Token Cache
+- Automatic Token Refresh
+- Interactive Auth Using WebView
+- X509 Certificate Support
+
+See https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0 for examples and docs.
+
+On **Pre-Release** Only:
+- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
+  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
+  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/openid))
+  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/client_credentials))
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth))
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/certificate_auth)
+
+```
+graph-rs-sdk = "2.0.0-beta.0"
+```
+
+Contributing and Wiki:
+- [Contributions](https://github.com/sreeise/graph-rs-sdk/wiki/Contributing)
+- [Wiki](https://github.com/sreeise/graph-rs-sdk/wiki)
+
+### Feature requests or Bug reports.
+
+For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
+
+The [Discussions](https://github.com/sreeise/graph-rs-sdk/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs-sdk/discussions)
+is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
+an issue first. Features can be requested through issues or discussions. Either way works.
+Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
 
 ## Table Of Contents
 

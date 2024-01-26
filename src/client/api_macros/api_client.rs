@@ -17,6 +17,7 @@ macro_rules! api_client {
         }
 
         impl $name {
+            #[allow(dead_code)]
             pub(crate) fn new(
                 client: graph_http::api_impl::Client,
                 resource_config: graph_http::api_impl::ResourceConfig,
