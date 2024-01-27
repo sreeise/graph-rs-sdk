@@ -48,7 +48,7 @@ impl WorkbookTablesIdApiClient {
     patch!(
         doc: "Invoke function range",
         name: update_range_object_by_address,
-        path: "/workbook/tables/{{RID}}/range(address='{{id}}')",
+        path: "/tables/{{RID}}/range(address='{{id}}')",
         body: true,
         params: address
     );
@@ -58,7 +58,7 @@ impl WorkbookTablesColumnsIdApiClient {
     patch!(
         doc: "Invoke function range",
         name: update_range_object_by_address,
-        path: "/workbook/tables/{{RID}}/columns/{{id}}/range(address='{{id}}')",
+        path: "/tables/{{RID}}/columns/{{id}}/range(address='{{id}}')",
         body: true,
         params: address
     );
