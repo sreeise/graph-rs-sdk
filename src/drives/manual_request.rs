@@ -60,7 +60,7 @@ impl WorkbookTablesColumnsIdApiClient {
         name: update_range_object_by_address,
         path: "/tables/{{RID}}/columns/{{id}}/range(address='{{id}}')",
         body: true,
-        params: address
+        params: column, address
     );
 }
 
