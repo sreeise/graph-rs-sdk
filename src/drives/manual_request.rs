@@ -46,18 +46,17 @@ impl WorksheetsIdApiClient {
 }
 impl WorkbookTablesIdApiClient {
     patch!(
-        doc: "Invoke function range",
-        name: update_range_object_by_address,
-        path: "/range(address='{{id}}')",
-        body: true,
-        params: address
+        doc: "Update range",
+        name: update_range,
+        path: "/tables/{{RID}}/range",
+        body: true
     );
 }
 
 impl WorkbookTablesColumnsIdApiClient {
     patch!(
-        doc: "Invoke function range",
-        name: update_range_object_by_address,
+        doc: "Update range of column",
+        name: update_range,
         path: "/columns/{{RID}}/range",
         body: true
     );
