@@ -21,7 +21,7 @@ pub async fn update_range_by_address() {
         .item(ITEM_ID)
         .workbook()
         .worksheet("Sheet1")
-        .update_range_by_address(range_address, body)
+        .update_range_object_by_address(range_address, body)
         .send()
         .await
         .unwrap();

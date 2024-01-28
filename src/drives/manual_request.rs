@@ -44,6 +44,7 @@ impl WorksheetsIdApiClient {
         params: address
     );
 }
+
 impl WorkbookTablesIdApiClient {
     patch!(
         doc: "Update range",
