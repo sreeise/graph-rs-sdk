@@ -1,8 +1,7 @@
 use std::collections::HashSet;
 use std::time::Instant;
+use tao::window::Theme;
 use url::Url;
-
-pub use wry::application::window::Theme;
 
 #[derive(Clone, Debug)]
 pub struct HostOptions {
@@ -36,7 +35,7 @@ pub struct WebViewOptions {
     /// Give the window a title. The default is "Sign In"
     pub window_title: String,
     /// OS specific theme. Only available on Windows.
-    /// See wry crate for more info.
+    /// See tao/wry crate for more info.
     ///
     /// Theme is not set by default.
     #[cfg(windows)]

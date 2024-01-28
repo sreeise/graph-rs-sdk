@@ -3,17 +3,17 @@ use crate::interactive::{HostOptions, WebViewOptions};
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::mpsc::Sender;
 use std::time::{Duration, Instant};
+use tao::event::{Event, StartCause, WindowEvent};
+use tao::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
+use tao::window::{Window, WindowBuilder};
 use url::Url;
-use wry::application::event::{Event, StartCause, WindowEvent};
-use wry::application::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
-use wry::application::window::{Window, WindowBuilder};
-use wry::webview::WebView;
+use wry::WebView;
 
 #[cfg(target_family = "unix")]
-use wry::application::platform::unix::EventLoopBuilderExtUnix;
+use tao::platform::unix::EventLoopBuilderExtUnix;
 
 #[cfg(target_family = "windows")]
-use wry::application::platform::windows::EventLoopBuilderExtWindows;
+use tao::platform::windows::EventLoopBuilderExtWindows;
 
 #[derive(Clone, Debug)]
 pub enum WindowCloseReason {
