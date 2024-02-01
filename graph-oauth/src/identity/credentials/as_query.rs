@@ -1,4 +1,4 @@
-pub trait AsQuery<RHS = Self> {
+pub(crate) trait AsQuery<RHS = Self> {
     fn as_query(&self) -> String;
 }
 

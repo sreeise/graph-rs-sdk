@@ -32,10 +32,8 @@ use {
     },
     crate::{Assertion, Secret},
     graph_error::{AuthExecutionError, WebViewError, WebViewResult},
-    wry::{
-        application::{event_loop::EventLoopProxy, window::Window},
-        webview::{WebView, WebViewBuilder},
-    },
+    tao::{event_loop::EventLoopProxy, window::Window},
+    wry::{WebView, WebViewBuilder},
 };
 
 credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
@@ -350,7 +348,7 @@ mod internal {
     impl WebViewAuth for AuthCodeAuthorizationUrlParameters {
         fn webview(
             host_options: HostOptions,
-            window: Window,
+            window: &Window,
             proxy: EventLoopProxy<UserEvents>,
         ) -> anyhow::Result<WebView> {
             let start_uri = host_options.start_uri.clone();

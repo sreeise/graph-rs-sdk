@@ -22,7 +22,7 @@ macro_rules! credential_builder_base {
 
             pub fn with_azure_cloud_instance(
                 &mut self,
-                azure_cloud_instance: AzureCloudInstance,
+                azure_cloud_instance: crate::identity::AzureCloudInstance,
             ) -> &mut Self {
                 self.credential
                     .app_config

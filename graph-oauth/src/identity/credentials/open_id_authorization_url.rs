@@ -26,10 +26,8 @@ use {
         WebViewHostValidator, WebViewOptions,
     },
     graph_error::{WebViewError, WebViewResult},
-    wry::{
-        application::{event_loop::EventLoopProxy, window::Window},
-        webview::{WebView, WebViewBuilder},
-    },
+    tao::{event_loop::EventLoopProxy, window::Window},
+    wry::{WebView, WebViewBuilder},
 };
 
 const RESPONSE_TYPES_SUPPORTED: &[&str] = &["code", "id_token", "code id_token", "id_token token"];
@@ -405,7 +403,7 @@ impl AuthorizationUrl for OpenIdAuthorizationUrlParameters {
 impl WebViewAuth for OpenIdAuthorizationUrlParameters {
     fn webview(
         host_options: HostOptions,
-        window: Window,
+        window: &Window,
         proxy: EventLoopProxy<UserEvents>,
     ) -> anyhow::Result<WebView> {
         let start_uri = host_options.start_uri.clone();

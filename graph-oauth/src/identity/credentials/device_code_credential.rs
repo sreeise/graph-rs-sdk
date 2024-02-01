@@ -30,10 +30,8 @@ use {
     crate::interactive::{HostOptions, UserEvents, WebViewAuth, WebViewOptions},
     crate::tracing_targets::INTERACTIVE_AUTH,
     graph_error::WebViewDeviceCodeError,
-    wry::{
-        application::{event_loop::EventLoopProxy, window::Window},
-        webview::{WebView, WebViewBuilder},
-    },
+    tao::{event_loop::EventLoopProxy, window::Window},
+    wry::{WebView, WebViewBuilder},
 };
 
 const DEVICE_CODE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
@@ -574,7 +572,7 @@ pub(crate) mod internal {
     impl WebViewAuth for DeviceCodeCredential {
         fn webview(
             host_options: HostOptions,
-            window: Window,
+            window: &Window,
             _proxy: EventLoopProxy<UserEvents>,
         ) -> anyhow::Result<WebView> {
             Ok(WebViewBuilder::new(window)?

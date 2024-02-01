@@ -1,6 +1,6 @@
 pub use app_config::*;
 pub use application_builder::*;
-pub use as_query::*;
+pub(crate) use as_query::*;
 pub use auth_code_authorization_url::*;
 pub use authorization_code_assertion_credential::*;
 pub use authorization_code_certificate_credential::*;

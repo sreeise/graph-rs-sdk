@@ -55,7 +55,7 @@ where
 {
     fn webview(
         host_options: HostOptions,
-        window: Window,
+        window: &Window,
         proxy: EventLoopProxy<UserEvents>,
     ) -> anyhow::Result<WebView>;
 
@@ -69,7 +69,7 @@ where
         let proxy = event_loop.create_proxy();
         let window = Self::window_builder(&options).build(&event_loop).unwrap();
         let host_options = HostOptions::new(start_url, redirect_uris, options.ports.clone());
-        let webview = Self::webview(host_options, window, proxy)?;
+        let webview = Self::webview(host_options, &window, proxy)?;
 
         event_loop.run(move |event, _, control_flow| {
             if let Some(timeout) = options.timeout.as_ref() {
