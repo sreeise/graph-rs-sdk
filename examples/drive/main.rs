@@ -12,6 +12,7 @@ mod thumbnails;
 mod update_item;
 mod upload_and_update_file;
 mod upload_file;
+mod worksheet;
 
 // For a complete example of uploading a new file, updating an existing file,
 // and deleting a file see upload_and_update_file.rs
