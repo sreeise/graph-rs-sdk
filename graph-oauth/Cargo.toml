@@ -32,7 +32,7 @@ serde-aux = "4.1.2"
 serde_json = "1"
 serde_urlencoded = "0.7.1"
 strum = { version = "0.25.0", features = ["derive"] }
-tao = { version = "0.25.0", features = ["serde"] }
+tao = { version = "0.25.0", features = ["serde"], optional = true }
 url = { version = "2", features = ["serde"] }
 time = { version = "0.3.10", features = ["local-offset", "serde"] }
 wry = { version = "0.36.0", optional = true }
@@ -51,7 +51,7 @@ brotli = ["reqwest/brotli", "graph-core/brotli"]
 deflate = ["reqwest/deflate", "graph-core/deflate"]
 trust-dns = ["reqwest/trust-dns", "graph-core/trust-dns"]
 openssl = ["dep:openssl"]
-interactive-auth = ["dep:wry"]
+interactive-auth = ["dep:wry", "dep:tao"]
 
 [[test]]
 name = "x509_certificate_tests"

@@ -8,8 +8,7 @@ homepage = "https://github.com/sreeise/graph-rs-sdk"
 
 [dependencies]
 clap = { version = "4.4.18", features = ["derive"] }
-tao = { version = "0.24.1", features = ["serde"] }
+# tao = { version = "0.24.1", features = ["serde"] }
 time = { version = "0.3.10", features = ["local-offset", "serde"] }
 url = { version = "2", features = ["serde"] }
-wry = { version = "0.35.2" }
-
+# wry = { version = "0.35.2" }
