@@ -1,14 +1,14 @@
 # graph-rs-sdk
 
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
-[![Static Badge](https://img.shields.io/badge/crates.io-1.1.3-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
+[![Static Badge](https://img.shields.io/badge/crates.io-1.1.4-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
 [![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
 
 ![Crates.io Version](https://img.shields.io/crates/v/graph-rs-sdk?style=for-the-badge&color=%23778aab)
 
 ### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.3) - v1.1.3 - Latest Stable Version
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.4) - v1.1.4 - Latest Stable Version
 
 Features:
 
@@ -22,7 +22,7 @@ Features:
   - Automatic Token Refresh
 
 ```toml
-graph-rs-sdk = "2.0.0-beta.0"
+graph-rs-sdk = "1.1.4"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -47,6 +47,8 @@ use graph_rs_sdk::*;
 ```
 
 ### Pre Release Version (May Be Unstable)
+
+[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
 
 - Complete rewrite of SDK Client for the Microsoft Identity Platform
 - In Memory Token Cache
@@ -132,7 +134,11 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
+<<<<<<< HEAD
     graph-rs-sdk = "2.0.0-beta.0"
+=======
+    graph-rs-sdk = "1.1.4"
+>>>>>>> master
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -164,7 +170,11 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
+<<<<<<< HEAD
     graph-rs-sdk = "2.0.0-beta.0"
+=======
+    graph-rs-sdk = "1.1.4"
+>>>>>>> master
 
 #### Example
 use graph_rs_sdk::*;
