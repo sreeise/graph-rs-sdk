@@ -1,8 +1,6 @@
 use serde::Serialize;
 use std::fmt::{Display, Formatter};
 
-use std::string::ToString;
-
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct InnerError {
     #[serde(skip_serializing_if = "Option::is_none")]

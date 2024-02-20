@@ -60,7 +60,8 @@ credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 ///
 /// ```rust
 /// use uuid::Uuid;
-/// use graph_oauth::oauth::{AzureCloudInstance, ConfidentialClientApplication, Prompt};
+/// use graph_oauth::{AzureCloudInstance, ConfidentialClientApplication, Prompt};
+/// use url::Url;
 ///
 /// let auth_url_builder = ConfidentialClientApplication::builder(Uuid::new_v4())
 ///     .auth_code_url_builder()
@@ -68,7 +69,7 @@ credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 ///     .with_prompt(Prompt::Login)
 ///     .with_state("1234")
 ///     .with_scope(vec!["User.Read"])
-///     .with_redirect_uri("http://localhost:8000")
+///     .with_redirect_uri(Url::parse("http://localhost:8000").unwrap())
 ///     .build();
 ///
 /// let url = auth_url_builder.url();
@@ -353,10 +354,10 @@ mod internal {
         ) -> anyhow::Result<WebView> {
             let start_uri = host_options.start_uri.clone();
             let validator = WebViewHostValidator::try_from(host_options)?;
-            Ok(WebViewBuilder::new(window)?
+            Ok(WebViewBuilder::new(window)
                 .with_url(start_uri.as_ref())?
                 // Disables file drop
-                .with_file_drop_handler(|_, _| true)
+                .with_file_drop_handler(|_| true)
                 .with_navigation_handler(move |uri| {
                     if let Ok(url) = Url::parse(uri.as_str()) {
                         let is_valid_host = validator.is_valid_uri(&url);

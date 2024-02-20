@@ -1,5 +1,4 @@
 use from_as::*;
-use std::convert::TryFrom;
 use std::io::{Read, Write};
 
 /// Describes the type of action this request will perform. In some instances

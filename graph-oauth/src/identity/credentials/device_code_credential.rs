@@ -397,20 +397,13 @@ impl DeviceCodePollingExecutor {
         sender.send(http_response).unwrap();
 
         let device_code = device_code_response.device_code;
-        let interval = Duration::from_secs(device_code_response.interval);
+        let mut interval = Duration::from_secs(device_code_response.interval);
         credential.with_device_code(device_code);
 
         let _ = std::thread::spawn(move || {
-            let mut should_slow_down = false;
-
             loop {
                 // Wait the amount of seconds that interval is.
-                if should_slow_down {
-                    should_slow_down = false;
-                    std::thread::sleep(interval.add(Duration::from_secs(5)));
-                } else {
-                    std::thread::sleep(interval);
-                }
+                std::thread::sleep(interval);
 
                 let response = credential.execute().unwrap();
                 let http_response = response.into_http_response()?;
@@ -427,13 +420,13 @@ impl DeviceCodePollingExecutor {
                     if let Some(error) = option_error {
                         match PollDeviceCodeEvent::from_str(error.as_str()) {
                             Ok(poll_device_code_type) => match poll_device_code_type {
-                                PollDeviceCodeEvent::AuthorizationPending => continue,
-                                PollDeviceCodeEvent::AuthorizationDeclined => break,
-                                PollDeviceCodeEvent::BadVerificationCode => continue,
-                                PollDeviceCodeEvent::ExpiredToken => break,
-                                PollDeviceCodeEvent::AccessDenied => break,
+                                PollDeviceCodeEvent::AuthorizationPending
+                                | PollDeviceCodeEvent::BadVerificationCode => continue,
+                                PollDeviceCodeEvent::AuthorizationDeclined
+                                | PollDeviceCodeEvent::ExpiredToken
+                                | PollDeviceCodeEvent::AccessDenied => break,
                                 PollDeviceCodeEvent::SlowDown => {
-                                    should_slow_down = true;
+                                    interval = interval.add(Duration::from_secs(5));
                                     continue;
                                 }
                             },
@@ -487,17 +480,7 @@ impl DeviceCodePollingExecutor {
         credential.with_device_code(device_code);
 
         tokio::spawn(async move {
-            let mut should_slow_down = false;
-
             loop {
-                // Should slow down is part of the openid connect spec and means that
-                // that we should wait longer between polling by the amount specified
-                // in the interval field of the device code.
-                if should_slow_down {
-                    should_slow_down = false;
-                    interval = interval.add(Duration::from_secs(5));
-                }
-
                 // Wait the amount of seconds that interval is.
                 tokio::time::sleep(interval).await;
 
@@ -526,7 +509,10 @@ impl DeviceCodePollingExecutor {
                                 PollDeviceCodeEvent::ExpiredToken => break,
                                 PollDeviceCodeEvent::AccessDenied => break,
                                 PollDeviceCodeEvent::SlowDown => {
-                                    should_slow_down = true;
+                                    // Should slow down is part of the openid connect spec and means that
+                                    // that we should wait longer between polling by the amount specified
+                                    // in the interval field of the device code.
+                                    interval = interval.add(Duration::from_secs(5));
                                     continue;
                                 }
                             },
@@ -575,10 +561,10 @@ pub(crate) mod internal {
             window: &Window,
             _proxy: EventLoopProxy<UserEvents>,
         ) -> anyhow::Result<WebView> {
-            Ok(WebViewBuilder::new(window)?
+            Ok(WebViewBuilder::new(window)
                 .with_url(host_options.start_uri.as_ref())?
                 // Disables file drop
-                .with_file_drop_handler(|_, _| true)
+                .with_file_drop_handler(|_| true)
                 .with_navigation_handler(move |uri| {
                     tracing::debug!(target: INTERACTIVE_AUTH, url = uri.as_str());
                     true
@@ -638,18 +624,11 @@ impl DeviceCodeInteractiveAuth {
         &mut self,
     ) -> Result<PublicClientApplication<DeviceCodeCredential>, WebViewDeviceCodeError> {
         let mut credential = self.credential.clone();
-        let interval = self.interval;
-
-        let mut should_slow_down = false;
+        let mut interval = self.interval;
 
         loop {
             // Wait the amount of seconds that interval is.
-            if should_slow_down {
-                should_slow_down = false;
-                std::thread::sleep(interval.add(Duration::from_secs(5)));
-            } else {
-                std::thread::sleep(interval);
-            }
+            std::thread::sleep(interval);
 
             let response = credential.execute().unwrap();
             let http_response = response.into_http_response().map_err(Box::new)?;
@@ -672,7 +651,7 @@ impl DeviceCodeInteractiveAuth {
                             PollDeviceCodeEvent::AuthorizationPending
                             | PollDeviceCodeEvent::BadVerificationCode => continue,
                             PollDeviceCodeEvent::SlowDown => {
-                                should_slow_down = true;
+                                interval = interval.add(Duration::from_secs(5));
                                 continue;
                             }
                             PollDeviceCodeEvent::AuthorizationDeclined

@@ -14,7 +14,7 @@ fn get_webview_options() -> WebViewOptions {
         // Give the window a title. The default is "Sign In"
         .window_title("Sign In")
         // OS specific theme. Windows only.
-        // See wry crate for more info.
+        // See Tao crate for more info.
         .theme(Theme::Dark)
         // Add a timeout that will close the window and return an error
         // when that timeout is reached. For instance, if your app is waiting on the

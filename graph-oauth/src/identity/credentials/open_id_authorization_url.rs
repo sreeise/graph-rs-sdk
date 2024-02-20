@@ -408,10 +408,10 @@ impl WebViewAuth for OpenIdAuthorizationUrlParameters {
     ) -> anyhow::Result<WebView> {
         let start_uri = host_options.start_uri.clone();
         let validator = WebViewHostValidator::try_from(host_options)?;
-        Ok(WebViewBuilder::new(window)?
+        Ok(WebViewBuilder::new(window)
             .with_url(start_uri.as_ref())?
             // Disables file drop
-            .with_file_drop_handler(|_, _| true)
+            .with_file_drop_handler(|_| true)
             .with_navigation_handler(move |uri| {
                 if let Ok(url) = Url::parse(uri.as_str()) {
                     let is_valid_host = validator.is_valid_uri(&url);

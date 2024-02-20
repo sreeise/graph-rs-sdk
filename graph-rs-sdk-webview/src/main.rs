@@ -1,6 +1,4 @@
 use clap::Parser;
-use std::collections::HashSet;
-use std::time::Instant;
 
 // `C:\Users\reeis\src\graph-rs\target\debug\graph-rs-sdk-webview.exe
 // cargo run --bin graph-rs-sdk-webview -- --window-title my_window_title

@@ -11,3 +11,6 @@ pub use interactive_auth::*;
 pub use webview_authorization_event::*;
 pub use webview_options::*;
 pub use with_interactive_auth::*;
+
+#[cfg(windows)]
+pub use tao::window::Theme;

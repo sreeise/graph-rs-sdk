@@ -8,7 +8,7 @@
 //! # Example ConfidentialClientApplication Authorization Code Flow
 //! ```rust
 //! use url::Url;
-//! use graph_oauth::oauth::{AuthorizationCodeCredential, ConfidentialClientApplication};
+//! use graph_oauth::{AuthorizationCodeCredential, ConfidentialClientApplication};
 //!
 //! pub fn authorization_url(client_id: &str) -> anyhow::Result<Url> {
 //!     Ok(ConfidentialClientApplication::builder(client_id)

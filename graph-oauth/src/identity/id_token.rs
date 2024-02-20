@@ -3,7 +3,6 @@ use serde::de::{Error, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::collections::HashMap;
-use std::convert::TryFrom;
 use std::fmt::{Debug, Display, Formatter};
 
 use crate::identity::AuthorizationResponse;

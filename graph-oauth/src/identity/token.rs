@@ -60,7 +60,7 @@ struct PhantomToken {
 /// Create a new AccessToken.
 /// # Example
 /// ```
-/// # use graph_oauth::oauth::Token;
+/// # use graph_oauth::Token;
 /// let token_response = Token::new("Bearer", 3600, "ASODFIUJ34KJ;LADSK", vec!["User.Read"]);
 /// ```
 /// The [Token::jwt] method attempts to parse the access token as a JWT.
@@ -160,7 +160,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// access_token.with_token_type("Bearer");
@@ -174,7 +174,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// access_token.with_expires_in(3600);
@@ -191,7 +191,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// access_token.with_scope(vec!["User.Read"]);
@@ -205,7 +205,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// access_token.with_access_token("ASODFIUJ34KJ;LADSK");
@@ -219,7 +219,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// access_token.with_refresh_token("#ASOD323U5342");
@@ -233,7 +233,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// access_token.with_user_id("user_id");
@@ -247,7 +247,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{Token, IdToken};
+    /// # use graph_oauth::{Token, IdToken};
     ///
     /// let mut access_token = Token::default();
     /// access_token.set_id_token("id_token");
@@ -274,8 +274,8 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
-    /// # use graph_oauth::oauth::IdToken;
+    /// # use graph_oauth::Token;
+    /// # use graph_oauth::IdToken;
     ///
     /// let mut access_token = Token::default();
     /// access_token.with_state("state");
@@ -314,7 +314,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// access_token.expires_in = 86999;
@@ -333,7 +333,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// println!("{:#?}", access_token.is_expired());
@@ -352,7 +352,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// println!("{:#?}", access_token.is_expired_sub(time::Duration::minutes(5)));
@@ -372,7 +372,7 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::Token;
+    /// # use graph_oauth::Token;
     ///
     /// let mut access_token = Token::default();
     /// println!("{:#?}", access_token.elapsed());
