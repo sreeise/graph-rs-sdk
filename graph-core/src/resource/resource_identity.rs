@@ -203,6 +203,7 @@ pub enum ResourceIdentity {
     Security,
     ServicePrincipals,
     ServicePrincipalsOwners,
+    Services,
     Settings,
     SharedWithTeams,
     Shares,

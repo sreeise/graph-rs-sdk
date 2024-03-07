@@ -1204,6 +1204,8 @@ impl ResourceSettings {
 					vec![
 						ApiClientLink::Struct("appointments", "AppointmentsApiClient"),
 						ApiClientLink::StructId("appointment", "AppointmentsIdApiClient"),
+						ApiClientLink::Struct("services", "ServicesApiClient"),
+						ApiClientLink::StructId("service", "ServicesIdApiClient"),
 					]
 					)
 				])
@@ -2687,6 +2689,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.children(vec![
 				get_write_configuration(ResourceIdentity::BookingBusinesses),
 				get_write_configuration(ResourceIdentity::Appointments),
+				get_write_configuration(ResourceIdentity::Services),
 			])
 			.build()
 			.unwrap(),
@@ -2696,6 +2699,10 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::Appointments => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::Services => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
 			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
 			.build()
 			.unwrap(),

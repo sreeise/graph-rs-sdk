@@ -26,6 +26,8 @@ impl BookingBusinessesApiClient {
 
 impl BookingBusinessesIdApiClient {api_client_link_id!(appointment, AppointmentsIdApiClient);
 api_client_link!(appointments, AppointmentsApiClient);
+api_client_link_id!(service, ServicesIdApiClient);
+api_client_link!(services, ServicesApiClient);
 
 	delete!(
 		doc: "Delete bookingBusiness", 
