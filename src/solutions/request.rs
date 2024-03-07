@@ -5,8 +5,8 @@ use crate::solutions::*;
 
 resource_api_client!(SolutionsApiClient, ResourceIdentity::Solutions);
 
-impl SolutionsApiClient {api_client_link!(booking_businesses, BookingBusinessesApiClient);
-api_client_link_id!(booking_business, BookingBusinessesIdApiClient);
+impl SolutionsApiClient {api_client_link_id!(booking_business, BookingBusinessesIdApiClient);
+api_client_link!(booking_businesses, BookingBusinessesApiClient);
 
 	get!(
 		doc: "Get solutions", 

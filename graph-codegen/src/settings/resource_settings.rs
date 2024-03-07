@@ -1198,6 +1198,15 @@ impl ResourceSettings {
 				.build()
 				.unwrap(),
 			ResourceIdentity::BookingBusinesses => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("BookingBusinessesIdApiClient"), 
+					vec![
+						ApiClientLink::Struct("appointments", "AppointmentsApiClient"),
+						ApiClientLink::StructId("appointment", "AppointmentsIdApiClient"),
+					]
+					)
+				])
 				.build()
 				.unwrap(),
 			_ => ResourceSettings::default(path_name, ri),
@@ -2677,12 +2686,17 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.filter_path(vec!["bookingBusinesses", "virtualEvents", "bookingCurrencies"])
 			.children(vec![
 				get_write_configuration(ResourceIdentity::BookingBusinesses),
+				get_write_configuration(ResourceIdentity::Appointments),
 			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::BookingBusinesses => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
 			.filter_path(vec!["appointments", "calendarView", "customQuestions", "customers", "services", "staffMembers"])
 			.trim_path_start("/solutions")
+			.build()
+			.unwrap(),
+		ResourceIdentity::Appointments => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
 			.build()
 			.unwrap(),
 		_ => WriteConfiguration::builder(resource_identity)

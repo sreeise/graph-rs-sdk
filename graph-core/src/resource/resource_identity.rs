@@ -41,6 +41,7 @@ pub enum ResourceIdentity {
     Application,
     Applications,
     ApplicationTemplates,
+    Appointments,
     AppRoleAssignments,
     AssignmentPolicies,
     AssignmentRequests,

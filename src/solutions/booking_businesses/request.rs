@@ -1,6 +1,7 @@
 // GENERATED CODE
 
 use crate::api_default_imports::*;
+use crate::solutions::*;
 
 resource_api_client!(BookingBusinessesApiClient, BookingBusinessesIdApiClient, ResourceIdentity::BookingBusinesses);
 
@@ -23,7 +24,9 @@ impl BookingBusinessesApiClient {
 	);
 }
 
-impl BookingBusinessesIdApiClient {
+impl BookingBusinessesIdApiClient {api_client_link_id!(appointment, AppointmentsIdApiClient);
+api_client_link!(appointments, AppointmentsApiClient);
+
 	delete!(
 		doc: "Delete bookingBusiness", 
 		name: delete_booking_businesses,
