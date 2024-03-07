@@ -50,6 +50,7 @@ pub enum ResourceIdentity {
     AuthenticationMethodConfigurations,
     AuthenticationMethodsPolicy,
     Batch, // Specifically for $batch requests.
+    BookingBusinesses,
     Branding,
     Buckets,
     CalendarGroups,

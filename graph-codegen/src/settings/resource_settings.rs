@@ -1185,6 +1185,21 @@ impl ResourceSettings {
 				.api_client_links(get_users_api_client_links(ri))
 				.build()
 				.unwrap(),
+			ResourceIdentity::Solutions => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("SolutionsApiClient"), 
+					vec![
+						ApiClientLink::Struct("booking_businesses", "BookingBusinessesApiClient"),
+						ApiClientLink::StructId("booking_business", "BookingBusinessesIdApiClient"),
+					]
+					)
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::BookingBusinesses => ResourceSettings::builder(path_name, ri)
+				.build()
+				.unwrap(),
 			_ => ResourceSettings::default(path_name, ri),
 		}
     }
@@ -2656,6 +2671,18 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::MailFolders => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
 			.filter_path(vec!["childFolders", "messages", "singleValueExtendedProperties", "multiValueExtendedProperties"])
 			.trim_path_start("/users/{user-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::Solutions => WriteConfiguration::builder(resource_identity)
+			.filter_path(vec!["bookingBusinesses", "virtualEvents", "bookingCurrencies"])
+			.children(vec![
+				get_write_configuration(ResourceIdentity::BookingBusinesses),
+			])
+			.build()
+			.unwrap(),
+		ResourceIdentity::BookingBusinesses => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.filter_path(vec!["appointments", "calendarView", "customQuestions", "customers", "services", "staffMembers"])
+			.trim_path_start("/solutions")
 			.build()
 			.unwrap(),
 		_ => WriteConfiguration::builder(resource_identity)
