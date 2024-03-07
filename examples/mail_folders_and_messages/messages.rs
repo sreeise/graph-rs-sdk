@@ -1,4 +1,5 @@
 use graph_rs_sdk::*;
+use graph_rs_sdk::header::{HeaderValue, CONTENT_LENGTH};
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
@@ -91,6 +92,19 @@ pub async fn update_message() {
         .unwrap();
 
     println!("{response:#?}");
+}
+
+pub async fn send_message() {
+    let client = Graph::new(ACCESS_TOKEN);
+
+    let response = client
+        .me()
+        .message(MESSAGE_ID)
+        .send()
+        .header(CONTENT_LENGTH, HeaderValue::from_str("0").unwrap())
+        .send()
+        .await
+        .unwrap();
 }
 
 pub async fn send_mail() -> GraphResult<()> {
