@@ -379,7 +379,7 @@ impl Graph {
 
     api_client_impl!(sites, SitesApiClient, site, SitesIdApiClient);
 
-    //api_client_impl!(solutions, SolutionsApiClient);
+    api_client_impl!(solutions, SolutionsApiClient);
 
     api_client_impl!(
         subscribed_skus,

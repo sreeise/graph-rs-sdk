@@ -1207,7 +1207,7 @@ impl ResourceSettings {
 						ApiClientLink::Struct("services", "ServicesApiClient"),
 						ApiClientLink::StructId("service", "ServicesIdApiClient"),
 						ApiClientLink::Struct("custom_questions", "CustomQuestionsApiClient"),
-						ApiClientLink::StructId("custom_question", "CustomQuestionIdApiClient"),
+						ApiClientLink::StructId("custom_question", "CustomQuestionsIdApiClient"),
 						ApiClientLink::Struct("customers", "CustomersApiClient"),
 						ApiClientLink::StructId("customer", "CustomersIdApiClient"),
 						ApiClientLink::Struct("staff_members", "StaffMembersApiClient"),
