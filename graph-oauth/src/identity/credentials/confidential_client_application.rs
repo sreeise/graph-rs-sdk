@@ -177,7 +177,7 @@ impl From<OpenIdCredential> for ConfidentialClientApplication<OpenIdCredential> 
 }
 
 impl ConfidentialClientApplication<OpenIdCredential> {
-    pub fn decoded_id_token(&self) -> Option<&TokenData<Claims>> {
+    pub fn decoded_id_token(&self) -> Option<TokenData<Claims>> {
         self.credential.get_decoded_jwt()
     }
 }

@@ -20,8 +20,8 @@
 // used to get access tokens programmatically without any consent by a user
 // or admin. See examples/client_credentials.rs
 
-use graph_rs_sdk::error::IdentityResult;
 use graph_rs_sdk::identity::{ClientCredentialAdminConsentResponse, ConfidentialClientApplication};
+use url::Url;
 use warp::Filter;
 
 // The client_id must be changed before running this example.
@@ -34,14 +34,14 @@ static REDIRECT_URI: &str = "http://localhost:8000/redirect";
 // OR use the builder:
 
 // Use the builder if you want to set a specific tenant, or a state, or set a specific Authority.
-fn get_admin_consent_url() -> IdentityResult<url::Url> {
+fn get_admin_consent_url() -> anyhow::Result<url::Url> {
     let url_builder = ConfidentialClientApplication::builder(CLIENT_ID)
         .client_credential_url_builder()
-        .with_redirect_uri(REDIRECT_URI)?
+        .with_redirect_uri(Url::parse(REDIRECT_URI)?)
         .with_state("123")
         .with_tenant(TENANT_ID)
         .build();
-    url_builder.url()
+    Ok(url_builder.url()?)
 }
 
 // -------------------------------------------------------------------------------------------------

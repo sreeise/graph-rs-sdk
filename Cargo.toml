@@ -26,8 +26,7 @@ members = [
     "test-tools",
     "graph-codegen",
     "graph-http",
-    "graph-core",
-    "graph-rs-sdk-webview"
+    "graph-core"
 ]
 
 [dependencies]

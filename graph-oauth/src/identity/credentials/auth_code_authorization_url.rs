@@ -355,7 +355,7 @@ mod internal {
             let start_uri = host_options.start_uri.clone();
             let validator = WebViewHostValidator::try_from(host_options)?;
             Ok(WebViewBuilder::new(window)
-                .with_url(start_uri.as_ref())?
+                .with_url(start_uri.as_ref())
                 // Disables file drop
                 .with_file_drop_handler(|_| true)
                 .with_navigation_handler(move |uri| {

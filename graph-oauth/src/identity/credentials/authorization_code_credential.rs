@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 
 use async_trait::async_trait;
 use http::{HeaderMap, HeaderName, HeaderValue};
-use reqwest::IntoUrl;
+
 use url::Url;
 use uuid::Uuid;
 
@@ -92,11 +92,8 @@ impl AuthorizationCodeCredential {
         client_id: impl AsRef<str>,
         client_secret: impl AsRef<str>,
         authorization_code: impl AsRef<str>,
-        redirect_uri: impl IntoUrl,
+        redirect_uri: Url,
     ) -> IdentityResult<AuthorizationCodeCredential> {
-        let redirect_uri_result = Url::parse(redirect_uri.as_str());
-        let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
-
         Ok(AuthorizationCodeCredential {
             app_config: AppConfigBuilder::new(client_id.as_ref())
                 .tenant(tenant_id.as_ref())

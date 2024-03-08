@@ -63,10 +63,8 @@ struct PhantomToken {
 /// # use graph_oauth::Token;
 /// let token_response = Token::new("Bearer", 3600, "ASODFIUJ34KJ;LADSK", vec!["User.Read"]);
 /// ```
-/// The [Token::jwt] method attempts to parse the access token as a JWT.
-/// Tokens returned for personal microsoft accounts that use legacy MSA
-/// are encrypted and cannot be parsed. This bearer token may still be
-/// valid but the jwt() method will return None.
+/// The [Token::decode] method parses the id token into a JWT and returns it. Calling
+/// [Token::decode] when the [Token]'s `id_token` field is None returns an error result.
 /// For more info see:
 /// [Microsoft identity platform access tokens](https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens)
 /// ```

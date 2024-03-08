@@ -562,7 +562,7 @@ pub(crate) mod internal {
             _proxy: EventLoopProxy<UserEvents>,
         ) -> anyhow::Result<WebView> {
             Ok(WebViewBuilder::new(window)
-                .with_url(host_options.start_uri.as_ref())?
+                .with_url(host_options.start_uri.as_ref())
                 // Disables file drop
                 .with_file_drop_handler(|_| true)
                 .with_navigation_handler(move |uri| {

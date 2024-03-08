@@ -64,7 +64,6 @@ async fn handle_redirect(mut id_token: IdToken) -> Result<Box<dyn warp::Reply>, 
         .with_openid(code, CLIENT_SECRET)
         .with_tenant(TENANT_ID)
         .with_redirect_uri(Url::parse(REDIRECT_URI).unwrap())
-        .unwrap()
         .with_scope(vec!["User.Read", "User.ReadWrite"]) // OpenIdCredential automatically sets the openid scope
         .build();
 

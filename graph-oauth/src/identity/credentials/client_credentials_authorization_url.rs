@@ -137,11 +137,9 @@ impl ClientCredentialsAuthorizationUrlParameterBuilder {
         Ok(self)
     }
 
-    pub fn with_redirect_uri<T: IntoUrl>(&mut self, redirect_uri: T) -> IdentityResult<&mut Self> {
-        let redirect_uri_result = Url::parse(redirect_uri.as_str());
-        let redirect_uri = redirect_uri.into_url().or(redirect_uri_result)?;
+    pub fn with_redirect_uri(&mut self, redirect_uri: Url) -> &mut Self {
         self.credential.app_config.redirect_uri = Some(redirect_uri);
-        Ok(self)
+        self
     }
 
     /// Convenience method. Same as calling [with_authority(Authority::TenantId("tenant_id"))]

@@ -211,7 +211,8 @@ impl GraphClient {
     /// and recorded.
     ///
     /// You should also assume China's Graph API operated by 21Vianet is being monitored
-    /// by the Chinese government (who controls all Chinese companies and citizens).
+    /// by the Chinese government who is well known for the control it has over Chinese companies
+    /// and for its surveillance state of Chinese citizens.
     /// And, according to Microsoft, **These services are subject to Chinese laws**. See
     /// [Microsoft 365 operated by 21Vianet](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-operated-by-21vianet)
     ///
@@ -254,7 +255,8 @@ impl GraphClient {
     /// and recorded.
     ///
     /// You should also assume China's Graph API operated by 21Vianet is being monitored
-    /// by the Chinese government (who controls all Chinese companies and citizens).
+    /// by the Chinese government who is well known for the control it has over Chinese companies
+    /// and for its surveillance state of Chinese citizens.
     /// And, according to Microsoft, **These services are subject to Chinese laws**. See
     /// [Microsoft 365 operated by 21Vianet](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-operated-by-21vianet)
     ///

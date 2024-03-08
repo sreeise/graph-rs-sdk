@@ -126,8 +126,8 @@ impl OpenIdCredential {
         self.pkce.as_ref()
     }
 
-    pub(crate) fn get_decoded_jwt(&self) -> Option<&TokenData<Claims>> {
-        self.id_token_jwt.as_ref()
+    pub(crate) fn get_decoded_jwt(&self) -> Option<TokenData<Claims>> {
+        self.id_token_jwt.clone()
     }
 
     pub fn get_openid_config(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
@@ -723,9 +723,9 @@ impl OpenIdCredentialBuilder {
         self
     }
 
-    pub fn with_redirect_uri<U: IntoUrl>(&mut self, redirect_uri: U) -> anyhow::Result<&mut Self> {
-        self.credential.app_config.redirect_uri = Some(redirect_uri.into_url()?);
-        Ok(self)
+    pub fn with_redirect_uri(&mut self, redirect_uri: Url) -> &mut Self {
+        self.credential.app_config.redirect_uri = Some(redirect_uri);
+        self
     }
 
     pub fn with_client_secret<T: AsRef<str>>(&mut self, client_secret: T) -> &mut Self {
