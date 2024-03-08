@@ -56,7 +56,7 @@ use crate::reports::ReportsApiClient;
 use crate::schema_extensions::{SchemaExtensionsApiClient, SchemaExtensionsIdApiClient};
 use crate::service_principals::{ServicePrincipalsApiClient, ServicePrincipalsIdApiClient};
 use crate::sites::{SitesApiClient, SitesIdApiClient};
-//use crate::solutions::SolutionsApiClient;
+use crate::solutions::SolutionsApiClient;
 use crate::subscribed_skus::SubscribedSkusApiClient;
 use crate::subscriptions::{SubscriptionsApiClient, SubscriptionsIdApiClient};
 use crate::teams::{TeamsApiClient, TeamsIdApiClient};
