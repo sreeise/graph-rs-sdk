@@ -288,7 +288,7 @@ pub mod reports;
 pub mod schema_extensions;
 pub mod service_principals;
 pub mod sites;
-pub mod solutions;
+//pub mod solutions;
 pub mod subscribed_skus;
 pub mod subscriptions;
 pub mod teams;

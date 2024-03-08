@@ -1206,6 +1206,12 @@ impl ResourceSettings {
 						ApiClientLink::StructId("appointment", "AppointmentsIdApiClient"),
 						ApiClientLink::Struct("services", "ServicesApiClient"),
 						ApiClientLink::StructId("service", "ServicesIdApiClient"),
+						ApiClientLink::Struct("custom_questions", "CustomQuestionsApiClient"),
+						ApiClientLink::StructId("custom_question", "CustomQuestionIdApiClient"),
+						ApiClientLink::Struct("customers", "CustomersApiClient"),
+						ApiClientLink::StructId("customer", "CustomersIdApiClient"),
+						ApiClientLink::Struct("staff_members", "StaffMembersApiClient"),
+						ApiClientLink::StructId("staff_member", "StaffMembersIdApiClient"),
 					]
 					)
 				])
@@ -2690,6 +2696,9 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 				get_write_configuration(ResourceIdentity::BookingBusinesses),
 				get_write_configuration(ResourceIdentity::Appointments),
 				get_write_configuration(ResourceIdentity::Services),
+				get_write_configuration(ResourceIdentity::CustomQuestions),
+				get_write_configuration(ResourceIdentity::Customers),
+				get_write_configuration(ResourceIdentity::StaffMembers),
 			])
 			.build()
 			.unwrap(),
@@ -2703,6 +2712,18 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::Services => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::CustomQuestions => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::Customers=> WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::StaffMembers => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
 			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
 			.build()
 			.unwrap(),
