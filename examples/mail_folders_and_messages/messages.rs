@@ -105,6 +105,8 @@ pub async fn send_message() {
         .send()
         .await
         .unwrap();
+
+    println!("{response:#?}");
 }
 
 pub async fn send_mail() -> GraphResult<()> {
