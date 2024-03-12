@@ -309,7 +309,9 @@ pub mod oauth {
 }
 
 pub mod http {
-    pub use graph_http::api_impl::{BodyRead, FileConfig, UploadSession};
+    pub use graph_http::api_impl::{
+        BodyRead, FileConfig, PagingResponse, PagingResult, UploadSession,
+    };
     pub use graph_http::traits::{
         AsyncIterator, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
         ODataMetadataLink, ODataNextLink, ODataQuery, ResponseBlockingExt, ResponseExt,
@@ -344,6 +346,7 @@ pub(crate) mod api_default_imports {
     pub use graph_error::*;
     pub(crate) use graph_http::api_impl::*;
 
+    #[allow(unused_imports)]
     pub use crate::client::Graph;
     pub(crate) use crate::client::{map_errors, map_parameters, ResourceProvisioner};
 }

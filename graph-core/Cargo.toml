@@ -1,6 +1,6 @@
 [package]
 name = "graph-core"
-version = "0.4.0"
+version = "0.4.2"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"

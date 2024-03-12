@@ -23,6 +23,8 @@ struct ClientConfiguration {
     connect_timeout: Option<Duration>,
     connection_verbose: bool,
     https_only: bool,
+    /// TLS 1.2 required to support all features in Microsoft Graph
+    /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     min_tls_version: Version,
     pipeline: Vec<Arc<dyn HttpPipelinePolicy + Send + Sync>>,
 }
@@ -40,8 +42,6 @@ impl ClientConfiguration {
             connect_timeout: None,
             connection_verbose: false,
             https_only: true,
-            /// TLS 1.2 required to support all features in Microsoft Graph
-            /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
             min_tls_version: Version::TLS_1_2,
             pipeline: vec![],
         }
@@ -135,6 +135,12 @@ impl GraphClientConfiguration {
 
     pub fn min_tls_version(mut self, version: Version) -> GraphClientConfiguration {
         self.config.min_tls_version = version;
+        self
+    }
+
+    #[cfg(feature = "test-util")]
+    pub fn https_only(mut self, https_only: bool) -> GraphClientConfiguration {
+        self.config.https_only = https_only;
         self
     }
 

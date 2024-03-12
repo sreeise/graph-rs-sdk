@@ -617,23 +617,23 @@ impl FilterMetadata for PathMetadataQueue {
 
 impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
     fn from(value: (WriteConfiguration, &OpenApi)) -> Self {
-        let resource_parsing_info = value.0;
+        let write_configuration = value.0;
         let open_api = value.1;
 
         let requests = {
-            if let Some(trim_pat) = resource_parsing_info.trim_path_start.as_ref() {
+            if let Some(trim_pat) = write_configuration.trim_path_start.as_ref() {
                 open_api
-                    .requests_secondary(trim_pat.as_str(), &resource_parsing_info.parameter_filter)
+                    .requests_secondary(trim_pat.as_str(), &write_configuration.parameter_filter)
             } else {
                 open_api.requests()
             }
         };
 
         let name = {
-            if let Some(name) = resource_parsing_info.modifier_name.as_ref() {
+            if let Some(name) = write_configuration.modifier_name.as_ref() {
                 name.to_string()
             } else {
-                resource_parsing_info.resource_identity.to_string()
+                write_configuration.resource_identity.to_string()
             }
         };
 
@@ -659,13 +659,13 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
         }
          */
 
-        let path_filter = resource_parsing_info.path;
+        let path_filter = write_configuration.path;
 
         let mut metadata: VecDeque<PathMetadata> = requests
             .iter()
             .filter(|r| r.path_starts_with(&path_filter))
             .filter(|r| {
-                !resource_parsing_info
+                !write_configuration
                     .filter_path
                     .iter()
                     .any(|s| r.path.contains(s))
@@ -673,7 +673,7 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
             .cloned()
             .collect();
 
-        if let Some(operation_map) = resource_parsing_info.replace_operation_map.as_ref() {
+        if let Some(operation_map) = write_configuration.replace_operation_map.as_ref() {
             metadata
                 .iter_mut()
                 .for_each(|m| m.replace_operation_map(operation_map.to_string()));
@@ -681,15 +681,15 @@ impl From<(WriteConfiguration, &OpenApi)> for PathMetadataQueue {
 
         let mut metadata_queue = PathMetadataQueue(metadata);
 
-        metadata_queue.set_resource_identity(resource_parsing_info.resource_identity);
+        metadata_queue.set_resource_identity(write_configuration.resource_identity);
 
-        if let Some(_trim_path_start) = resource_parsing_info.trim_path_start.as_ref() {
+        if let Some(_trim_path_start) = write_configuration.trim_path_start.as_ref() {
             metadata_queue.format_path_parameters();
 
             metadata_queue.transform_secondary_id_metadata(
                 path_filter.as_str(),
                 name.as_str(),
-                resource_parsing_info.resource_identity,
+                write_configuration.resource_identity,
             );
         } else {
             metadata_queue.format_path_parameters();

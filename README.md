@@ -1,15 +1,15 @@
 # graph-rs-sdk
 
-[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg)](https://crates.io/crates/graph-rs-sdk)
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
-[![Build status](https://ci.appveyor.com/api/projects/status/llvpt7xiy53dmo7a/branch/master?svg=true)](https://ci.appveyor.com/project/sreeise/rust-onedrive)
+[![Static Badge](https://img.shields.io/badge/crates.io-1.1.4-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
+[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
 
 ### Rust SDK Client for Microsoft Graph and the Microsoft Graph Api
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk)
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.4) - v1.1.4 - Latest Stable Version
 
 ```toml
-graph-rs-sdk = "1.1.1"
+graph-rs-sdk = "1.1.4"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -20,17 +20,42 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ```
 
-To use stream features add futures crate:
+To use [stream](#streaming) features add the [futures](https://crates.io/crates/futures) crate:
 
 ```toml
 futures = "0.3"
 ```
 
-And import `futures::StreamExt` when using [Streaming](#streaming) features.
+And import `futures::StreamExt`.
 
 ```rust
 use futures::StreamExt;
 use graph_rs_sdk::*;
+```
+
+### Pre Release Version (May Be Unstable)
+
+[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
+
+- Complete rewrite of SDK Client for the Microsoft Identity Platform
+- In Memory Token Cache
+- Automatic Token Refresh
+- Interactive Auth Using WebView
+- X509 Certificate Support
+
+See https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0 for examples and docs.
+
+On **Pre-Release** Only:
+- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
+  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
+  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/openid))
+  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/client_credentials))
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth))
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/certificate_auth)
+
+```
+graph-rs-sdk = "2.0.0-beta.0"
 ```
 
 Contributing and Wiki:
@@ -49,10 +74,7 @@ Other than that feel free to ask questions, provide tips to others, and talk abo
 ## Table Of Contents
 
 * [Usage](#usage)
-  * [OAuth](#oauth)
-    * [Supported Authorization Flows](#supported-authorization-flows)
-      * [Microsoft OneDrive and SharePoint](#microsoft-onedrive-and-sharepoint)
-      * [Microsoft Identity Platform](#microsoft-identity-platform)
+  * [Authentication and Authorization](#authentication-and-authorization-in-active-development) 
   * [Async and Blocking Client](#async-and-blocking-client)
     * [Async Client](#async-client-default)
     * [Blocking Client](#blocking-client)
@@ -74,158 +96,16 @@ config but in general most of them are implemented.
 
 For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs-sdk/tree/master/examples)
 
-## OAuth
+### Authentication and Authorization (In Active Development)
 
-OAuth client implementing the OAuth 2.0 and OpenID Connect protocols for Microsoft identity platform
+The crate is undergoing major development in order to support all or most scenarios in the Microsoft Identity Platform
+where its possible to do so. Another goal is to make the authentication/authorization impl much easier to use
+by providing easy to use clients that follow similar designs to other sdks for the Identity Platform.
 
-The crate provides an OAuth client that can be used to get access and refresh tokens using various
-OAuth flows such as auth code grant, client credentials, and open id connect. 
-
-#### Supported Authorization Flows
-
-##### Microsoft OneDrive and SharePoint
-
-- [Token Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#token-flow)
-- [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
-
-##### Microsoft Identity Platform
-
-- [Authorization Code Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
-- [Authorization Code Grant PKCE](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
-- [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
-- [Implicit Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow)
-- [Device Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
-- [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
-- [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
-
-
-The following is an auth code grant example. For more extensive examples and explanations see the 
-[OAuth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth) in the examples/oauth
-directory on [GitHub](https://github.com/sreeise/graph-rs-sdk).
-
-```rust
-
-/// # Example
-/// ```
-/// use graph_rs_sdk::*:
-///
-/// #[tokio::main]
-/// async fn main() {
-///   start_server_main().await;
-/// }
-/// ```
-#[macro_use]
-extern crate serde;
-
-use graph_rs_sdk::*;
-use graph_rs_sdk::oauth::{OAuth, AccessToken};
-use warp::Filter;
-
-static CLIENT_ID: &str = "<YOUR_CLIENT_ID>";
-static CLIENT_SECRET: &str = "<YOUR_CLIENT_SECRET>";
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-pub struct AccessCode {
-    code: String,
-}
-
-fn oauth_client() -> OAuth {
-    let mut oauth = OAuth::new();
-    oauth
-        .client_id(CLIENT_ID)
-        .client_secret(CLIENT_SECRET)
-        .add_scope("files.read")
-        .add_scope("files.readwrite")
-        .add_scope("files.read.all")
-        .add_scope("files.readwrite.all")
-        .add_scope("offline_access")
-        .redirect_uri("http://localhost:8000/redirect")
-        .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
-        .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-        .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-        .response_type("code");
-    oauth
-}
-
-pub async fn set_and_req_access_code(access_code: AccessCode) -> GraphResult<()> {
-  let mut oauth = oauth_client();
-  // The response type is automatically set to token and the grant type is automatically
-  // set to authorization_code if either of these were not previously set.
-  // This is done here as an example.
-  oauth.access_code(access_code.code.as_str());
-  let mut request = oauth.build_async().authorization_code_grant();
-
-  // Returns reqwest::Response
-  let response = request.access_token().send().await?;
-  println!("{:#?}", response);
-
-  if response.status().is_success() {
-    let mut access_token: AccessToken = response.json().await?;
-    oauth.access_token(access_token);
-
-    // If all went well here we can print out the OAuth config with the Access Token.
-    println!("{:#?}", &oauth);
-  } else {
-    // See if Microsoft Graph returned an error in the Response body
-    let result: reqwest::Result<serde_json::Value> = response.json().await;
-
-    match result {
-      Ok(body) => println!("{:#?}", body),
-      Err(err) => println!("Error on deserialization:\n{:#?}", err),
-    }
-  }
-
-  Ok(())
-}
-
-async fn handle_redirect(
-    code_option: Option<AccessCode>,
-) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
-    match code_option {
-        Some(access_code) => {
-            // Print out the code for debugging purposes.
-            println!("{:#?}", access_code);
-
-            // Set the access code and request an access token.
-            // Callers should handle the Result from requesting an access token
-            // in case of an error here.
-            set_and_req_access_code(access_code).await;
-
-            // Generic login page response.
-            Ok(Box::new(
-                "Successfully Logged In! You can close your browser.",
-            ))
-        }
-        None => Err(warp::reject()),
-    }
-}
-
-/// # Example
-/// ```
-/// use graph_rs_sdk::*:
-///
-/// #[tokio::main]
-/// async fn main() {
-///   start_server_main().await;
-/// }
-/// ```
-pub async fn start_server_main() {
-    let query = warp::query::<AccessCode>()
-        .map(Some)
-        .or_else(|_| async { Ok::<(Option<AccessCode>,), std::convert::Infallible>((None,)) });
-
-    let routes = warp::get()
-        .and(warp::path("redirect"))
-        .and(query)
-        .and_then(handle_redirect);
-
-    let mut oauth = oauth_client();
-    let mut request = oauth.build_async().authorization_code_grant();
-    request.browser_authorization().open().unwrap();
-
-    warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
-}
-```
+This includes token caches, automatic refresh of tokens, interactive web view authentication, and much more. 
+The development is well underway - as of right now no merge has gone into master but changes will be there soon
+and they will almost certainly be unstable in some respects while we continue to work on this. However, the crate
+on crates.io is currently only updated on stable version releases.
 
 ### Async and Blocking Client
 
@@ -233,7 +113,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "1.1.1"
+    graph-rs-sdk = "1.1.4"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -265,7 +145,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "1.1.1"
+    graph-rs-sdk = "1.1.4"
 
 #### Example
 use graph_rs_sdk::*;
@@ -294,8 +174,9 @@ fn main() -> GraphResult<()> {
 - `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
 - `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
 - `brotli`: Enables reqwest feature brotli. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
-- `defalte`: Enables reqwest feature deflate. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
+- `deflate`: Enables reqwest feature deflate. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
 - `trust-dns`: Enables reqwest feature trust-dns. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
+- `test-util`: Enables testing features. Currently only enables setting https-only to false for use in mocking frameworks.
 
 Default features: `default=["native-tls"]`
 
@@ -325,8 +206,36 @@ pub async fn get_drive_item() -> GraphResult<()> {
 }
 ```
 
+#### Response Errors/Error Types
+
+While the crate does have its own error type and result you will probably want to use crates like
+[anyhow](https://crates.io/crates/anyhow) due to the amount of possible errors that could occur.
+
+If the Microsoft Graph API returned an error this is almost always in the body of the response.
+The `ResponseExt` for async requests and `BlockingResponseExt` for blocking requests have convenience
+methods that can be used to get the error message from the body of the response.
+
+```rust
+use graph_rs_sdk::{http::ResponseExt, Graph};
+use std::error::Error;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let client = Graph::new("token");
+    let response = client.users().list_user().send().await?;
+
+    if !response.status().is_success() {
+        if let Ok(error) = response.into_graph_error_message().await {
+            println!("{error:#?}");
+        }
+    }
+
+    Ok(())
+}
+```
+
 ##### Custom Types
-You can pass types your own types to API requests that require a request body by implementing `serde::Serialize`.
+You can pass your own types to API requests that require a request body by implementing `serde::Serialize`.
 
 You can implement your own types by utilizing methods from reqwest::Response. These types must implement `serde::Deserialize`.
 See the reqwest crate for more info.
@@ -391,9 +300,10 @@ pub async fn get_drive_item() -> GraphResult<()> {
 
 ## Paging
 
-The Graph API will limit the number of returned items per page even if you specify a very large `.top()` value and will
-provide a `next_link` link for you to retrieve the next batch. You can use the `.paging()` method to access several
-different ways to get/call next link requests.
+Paging handles scenarios where the response body is a truncated version of the data and a URL is provided
+to continue calling and getting the rest of the data. Paging can consist of multiple links in the call chain.
+
+The sdk provides convenience methods for getting all data in a paging scenario such as using next links or using [delta links to track changes to Graph data](https://learn.microsoft.com/en-us/graph/delta-query-overview).
 
 If you just want a quick and easy way to get all next link responses or the JSON bodies you can use the `paging().json()` method which will exhaust all
 next link calls and return all the responses in a `VecDeque<Response<Result<T>>>`. Keep in mind that the larger the volume of next link calls that need to be
@@ -401,49 +311,9 @@ made the longer the return delay will be when calling this method.
 
 All paging methods have their response body read in order to get the `@odata.nextLink` URL for calling next link requests. Because of this
 the original `reqwest::Response` is lost. However, the paging responses are re-wrapped in a Response object (`http::Response`) that is
-similar to `reqwest::Response`. The main difference is that the paging calls must specify the type of response body in order to be
-called and the response that is returned can provide a reference to the body `response.body()` or you can take ownership of the body
-which will drop the response using `response.into_body()` whereas with `reqwest::Response` you don't have to specify the type of body
-before getting the response. 
+similar to `reqwest::Response`. 
 
-For paging, the response bodies are returned in a result, `Result<T, ErrorMessage>` when calling `body()` or `into_body()`
-where errors are typically due to deserialization when the Graph Api returns error messages in the `Response` body. 
-For instance, if you were to call the Graph Api using paging with a custom type and your access token has already 
-expired the response body will be an error because the response body could not be converted to your custom type.
-Because of the way Microsoft Graph returns errors as `Response` bodies, using `serde_json::Value`, for paging
-calls will return those errors as `Ok(serde_json::Value)` instead of `Err(ErrorMessage)`. So just keep
-this in mind if you do a paging call and specify the body as `serde_json::Value`.
-
-If you get an unsuccessful status code from the `Response` object you can typically assume
-that your response body is an error. With paging, the `Result<T, ErrorMessage>` will include any
-Microsoft Graph specific error from the Response body in `ErrorMessage` except when you specify
-`serde_json::Value` as the type for `Response` body in the paging call as mentioned above.
-
-You can however almost always get original response body using `serde_json::Value` from a paging call because 
-this sdk stores the response in a `serde_json::Value`, transferred in `Response` as `Vec<u8>`,
-for each `Response`. To get the original response body as `serde_json::Value` when using custom types, first
-add a use statement for `HttpResponseExt`, the sdk trait for `http::Response`: `use graph_rs_sdk::http::HttpResponseExt;`
-call the `json` method on the `http::Response<Result<T, ErrorMessage>>` which returns an `Option<serde_json::Value>`. 
-This `serde_json::Value`, in unsuccessful responses, will almost always be the Microsoft Graph Error.
-You can convert this `serde_json::Value` to the provided type, `ErrorMessage`,
-from `graph_rs_sdk::error::ErrorMessage`, or to whatever type you choose.
-
-```rust
-use graph_rs_sdk::http::HttpResponseExt;
-
-fn main() {
-  // Given response = http::Response<T>>
-  println!("{:#?}", response.url()); // Get the url of the request.
-  println!("{:#?}", response.json()); // Get the original JSON that came in the Response
-}
-```
-
-Performance wise, It is better to use `http::Response::body()` and `http::Response::into_body()` for any type,
-whether its custom types or `serde_json::Value`, instead of `HttpResponseExt::json()` because
-in successful responses the body from `body()` or `into_body()` has already been converted. 
-The `HttpResponseExt::json` method must convert from `Vec<u8>`.
-In general, this method can be used for any use case. However, its provided if needed for debugging and 
-for error messages that Microsoft Graph returns.
+See the [Detailed Guide On Paging](https://github.com/sreeise/graph-rs-sdk/wiki/Paging-%E2%80%90-Detailed-Guide) to learn more about using Paging calls in the SDK.
 
 There are different levels of support for paging Microsoft Graph APIs. See the documentation, 
 [Paging Microsoft Graph data in your app](https://learn.microsoft.com/en-us/graph/paging), for more info on

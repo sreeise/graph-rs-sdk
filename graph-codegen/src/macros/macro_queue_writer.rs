@@ -574,7 +574,11 @@ pub trait OpenApiParser {
 
         let open_api = OpenApi::default();
 
+        dbg!(&write_configuration);
+
         for write_config in write_configuration.children.iter() {
+            // dbg!(&write_config);
+
             let mut open_api2 = open_api.clone();
 
             if let Some(trim_path_start) = write_config.trim_path_start.as_ref() {
