@@ -1,18 +1,28 @@
 use crate::blocking::BlockingClient;
 use crate::traits::ODataQuery;
 
-use crate::http_pipeline::HttpPipelinePolicy;
-use crate::internal::{ExponentialBackoffRetryPolicy, ThrottleRetryPolicy, TransportPolicy};
 use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
+use reqwest::{Request, Response};
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
-use std::sync::Arc;
 use std::time::Duration;
+use tower::limit::ConcurrencyLimitLayer;
+use tower::retry::RetryLayer;
+use tower::util::BoxCloneService;
+use tower::ServiceExt;
+
 use url::Url;
+
+#[derive(Default, Clone)]
+struct ServiceLayersConfiguration {
+    concurrency_limit: Option<usize>,
+    retry: Option<usize>,
+    wait_for_retry_after_headers: Option<()>,
+}
 
 #[derive(Clone)]
 struct ClientConfiguration {
@@ -26,7 +36,7 @@ struct ClientConfiguration {
     /// TLS 1.2 required to support all features in Microsoft Graph
     /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     min_tls_version: Version,
-    pipeline: Vec<Arc<dyn HttpPipelinePolicy + Send + Sync>>,
+    service_layers_configuration: ServiceLayersConfiguration,
 }
 
 impl ClientConfiguration {
@@ -43,7 +53,7 @@ impl ClientConfiguration {
             connection_verbose: false,
             https_only: true,
             min_tls_version: Version::TLS_1_2,
-            pipeline: vec![],
+            service_layers_configuration: ServiceLayersConfiguration::default(),
         }
     }
 }
@@ -144,27 +154,26 @@ impl GraphClientConfiguration {
         self
     }
 
-    pub fn pipeline(
-        mut self,
-        pipeline: Vec<Arc<dyn HttpPipelinePolicy + Send + Sync>>,
-    ) -> GraphClientConfiguration {
-        self.config.pipeline = pipeline;
+    pub fn retry(mut self, retry: Option<usize>) -> GraphClientConfiguration {
+        self.config.service_layers_configuration.retry = retry;
         self
     }
 
-    pub fn add_pipeline_policy(
-        mut self,
-        policy: Arc<dyn HttpPipelinePolicy + Send + Sync>,
-    ) -> GraphClientConfiguration {
-        self.config.pipeline.push(policy);
-        self
-    }
-
-    pub fn add_default_pipeline_retries_policies(mut self) -> GraphClientConfiguration {
+    pub fn wait_for_retry_after_headers(mut self, retry: bool) -> GraphClientConfiguration {
         self.config
-            .pipeline
-            .push(Arc::new(ExponentialBackoffRetryPolicy::default()));
-        self.config.pipeline.push(Arc::new(ThrottleRetryPolicy {}));
+            .service_layers_configuration
+            .wait_for_retry_after_headers = match retry {
+            true => Some(()),
+            false => None,
+        };
+        self
+    }
+
+    pub fn concurrency_limit(
+        mut self,
+        concurrency_limit: Option<usize>,
+    ) -> GraphClientConfiguration {
+        self.config.service_layers_configuration.concurrency_limit = concurrency_limit;
         self
     }
 
@@ -187,15 +196,36 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
-        let mut pipeline = self.config.pipeline;
-        pipeline.push(Arc::new(TransportPolicy {}));
+        let client = builder.build().unwrap();
+
+        let service = tower::ServiceBuilder::new()
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .retry
+                    .map(|num| RetryLayer::new(crate::tower_services::Attempts(num))),
+            )
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .wait_for_retry_after_headers
+                    .map(|_| RetryLayer::new(crate::tower_services::WaitFor())),
+            )
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .concurrency_limit
+                    .map(ConcurrencyLimitLayer::new),
+            )
+            .service(client.clone())
+            .boxed_clone();
 
         Client {
             access_token: self.config.access_token.unwrap_or_default(),
-            inner: builder.build().unwrap(),
+            inner: client,
             headers,
             builder: config,
-            pipeline,
+            service,
         }
     }
 
@@ -237,7 +267,8 @@ pub struct Client {
     pub(crate) inner: reqwest::Client,
     pub(crate) headers: HeaderMap,
     pub(crate) builder: GraphClientConfiguration,
-    pub(crate) pipeline: Vec<Arc<dyn HttpPipelinePolicy + Send + Sync>>,
+    pub(crate) service:
+        BoxCloneService<Request, Response, Box<dyn std::error::Error + Send + Sync>>,
 }
 
 impl Client {

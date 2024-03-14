@@ -8,7 +8,7 @@ mod request_components;
 mod request_handler;
 mod resource_identifier;
 mod upload_session;
-mod http_pipeline;
+mod tower_services;
 
 pub mod url;
 
@@ -30,7 +30,7 @@ pub(crate) mod internal {
     pub use crate::traits::*;
     pub use crate::upload_session::*;
     pub use crate::url::*;
-    pub use crate::http_pipeline::*;
+    pub use crate::tower_services::*;
 }
 
 pub mod api_impl {
@@ -42,6 +42,5 @@ pub mod api_impl {
     pub use crate::resource_identifier::{ResourceConfig, ResourceIdentifier};
     pub use crate::traits::{BodyExt, ODataQuery};
     pub use crate::upload_session::UploadSession;
-    pub use crate::http_pipeline::{HttpPipelinePolicy, ThrottleRetryPolicy, ExponentialBackoffRetryPolicy};
     pub use graph_error::{GraphFailure, GraphResult};
 }

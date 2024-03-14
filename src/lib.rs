@@ -317,7 +317,6 @@ pub mod http {
         ODataMetadataLink, ODataNextLink, ODataQuery, ResponseBlockingExt, ResponseExt,
         UploadSessionLink,
     };
-    pub use graph_http::api_impl::{HttpPipelinePolicy, ThrottleRetryPolicy, ExponentialBackoffRetryPolicy};
     pub use reqwest::tls::Version;
     pub use reqwest::{Body, Method};
 

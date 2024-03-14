@@ -3,6 +3,7 @@ use crate::internal::GraphRsError;
 use crate::ErrorMessage;
 use reqwest::header::HeaderMap;
 use std::cell::BorrowMutError;
+use std::error::Error;
 use std::io;
 use std::io::ErrorKind;
 use std::num::ParseIntError;
@@ -116,5 +117,11 @@ impl Default for GraphFailure {
 impl From<ring::error::Unspecified> for GraphFailure {
     fn from(_: ring::error::Unspecified) -> Self {
         GraphFailure::CryptoError
+    }
+}
+
+impl From<Box<dyn Error + Send + Sync>> for GraphFailure {
+    fn from(value: Box<dyn Error + Send + Sync>) -> Self {
+        value.into()
     }
 }

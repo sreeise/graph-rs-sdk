@@ -1,20 +1,21 @@
 use crate::blocking::BlockingRequestHandler;
 use crate::internal::{
-    BodyRead, Client, GraphClientConfiguration, HttpPipelinePolicy, HttpResponseBuilderExt,
+    BodyRead, Client, GraphClientConfiguration, HttpResponseBuilderExt,
     ODataNextLink, ODataQuery, RequestComponents,
 };
 use async_stream::try_stream;
 use futures::Stream;
 use graph_error::{ErrorMessage, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
+use reqwest::{Request, Response};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
 use std::fmt::Debug;
-use std::sync::Arc;
 use std::time::Duration;
+use tower::util::BoxCloneService;
+use tower::{Service, ServiceExt};
 use url::Url;
 
-#[derive(Default)]
 pub struct RequestHandler {
     pub(crate) inner: reqwest::Client,
     pub(crate) access_token: String,
@@ -22,7 +23,8 @@ pub struct RequestHandler {
     pub(crate) error: Option<GraphFailure>,
     pub(crate) body: Option<BodyRead>,
     pub(crate) client_builder: GraphClientConfiguration,
-    pub(crate) pipeline: Vec<Arc<dyn HttpPipelinePolicy + Send + Sync>>,
+    pub(crate) service:
+        BoxCloneService<Request, Response, Box<dyn std::error::Error + Send + Sync>>,
 }
 
 impl RequestHandler {
@@ -52,7 +54,7 @@ impl RequestHandler {
             error,
             body,
             client_builder: inner.builder,
-            pipeline: inner.pipeline,
+            service: inner.service.clone(),
         }
     }
 
@@ -190,12 +192,17 @@ impl RequestHandler {
 
     #[inline]
     pub async fn send(self) -> GraphResult<reqwest::Response> {
-        let pipeline = self.pipeline.clone();
-        let policy = pipeline.first().unwrap();
+        let mut service = self.service.clone();
+
         let request_builder = self.build()?;
         let request = request_builder.build();
-
-        policy.process_async(&mut request?, &pipeline[1..]).await
+        service
+            .ready()
+            .await
+            .map_err(GraphFailure::from)?
+            .call(request?)
+            .await
+            .map_err(GraphFailure::from)
     }
 }
 

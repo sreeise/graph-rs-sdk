@@ -25,7 +25,8 @@ serde_urlencoded = "0.7.1"
 thiserror = "1"
 tokio = { version = "1.27.0", features = ["full"] }
 url = { version = "2", features = ["serde"] }
-backoff = { version = "0.4.0", features = ["tokio"] }
+tower = { version = "0.4.13", features = ["limit", "retry", "timeout", "util"] }
+futures-util = "0.3.30"
 
 graph-error = { path = "../graph-error"  }
 graph-core = { path = "../graph-core" }
