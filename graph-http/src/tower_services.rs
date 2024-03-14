@@ -71,7 +71,6 @@ impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send +
                     Some(retry_after) => match retry_after.to_str() {
                         Ok(ra) => match ra.parse::<u64>() {
                             Ok(retry_after) => {
-                                println!("Wait for {}" , retry_after);
                                 let sleep = WaitBeforeRetry::new(
                                     Some(WaitFor()),
                                     Duration::from_secs(retry_after),
