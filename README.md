@@ -1,28 +1,29 @@
 # graph-rs-sdk
 
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
-[![Static Badge](https://img.shields.io/badge/crates.io-1.1.4-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
-[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
-
-![Crates.io Version](https://img.shields.io/crates/v/graph-rs-sdk?style=for-the-badge&color=%23778aab)
+[![Static Badge](https://img.shields.io/badge/crates.io-2.0.0-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
 
 ### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.4) - v1.1.4 - Latest Stable Version
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.4) - v2.0.0 - Latest Stable Version
 
-Features:
+#### Features:
 
-- Microsoft Graph V1 and Beta API Client 
+Microsoft Graph V1 and Beta API Client
+  - Wide support for Graph APIs
   - Paging using Streaming, Channels, or Iterators
   - Upload Sessions, OData Queries, and File Downloads
-- Microsoft Graph Identity Platform OAuth2 and OpenId Connect Client 
-  - Auth Code, Client Credentials, Device Code, OpenId
-  - X509 Certificates, PKCE
-  - Interactive Authentication
-  - Automatic Token Refresh
+
+Microsoft Identity Platform (Getting Access Tokens)
+- Auth Code, Client Credentials, Device Code, OpenId
+- In Memory Token Cache
+- Automatic Token Refresh
+- Interactive WebView Auth (feature = `interactive-auth`)
+- X509 Certificate (feature = `openssl`) and Proof Key Code Exchange (PKCE) Support
+
 
 ```toml
-graph-rs-sdk = "1.1.4"
+graph-rs-sdk = "2.0.0"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -44,31 +45,6 @@ And import `futures::StreamExt`.
 ```rust
 use futures::StreamExt;
 use graph_rs_sdk::*;
-```
-
-### Pre Release Version (May Be Unstable)
-
-[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
-
-- Complete rewrite of SDK Client for the Microsoft Identity Platform
-- In Memory Token Cache
-- Automatic Token Refresh
-- Interactive Auth Using WebView
-- X509 Certificate Support
-
-See https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0 for examples and docs.
-
-On **Pre-Release** Only:
-- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
-  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
-  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/openid))
-  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/client_credentials))
-- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/authorization_sign_in)
-- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth))
-- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/certificate_auth)
-
-```
-graph-rs-sdk = "2.0.0-beta.0"
 ```
 
 Contributing and Wiki:
@@ -118,6 +94,15 @@ OAuth and Openid
   * [Automatic Token Refresh](#automatic-token-refresh)
   * [Interactive Authentication](#interactive-authentication)
 
+
+[Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
+- [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
+- [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/openid))
+- [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/client_credentials))
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Build Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth))
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/certificate_auth)
+
 ### What APIs are available
 
 The APIs available are generated from OpenApi configs that are stored in Microsoft's msgraph-metadata repository
@@ -134,11 +119,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-<<<<<<< HEAD
-    graph-rs-sdk = "2.0.0-beta.0"
-=======
-    graph-rs-sdk = "1.1.4"
->>>>>>> master
+    graph-rs-sdk = "2.0.0"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -170,11 +151,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-<<<<<<< HEAD
-    graph-rs-sdk = "2.0.0-beta.0"
-=======
-    graph-rs-sdk = "1.1.4"
->>>>>>> master
+    graph-rs-sdk = "2.0.0"
 
 #### Example
 use graph_rs_sdk::*;
@@ -1037,12 +1014,6 @@ async fn get_user() -> GraphResult<()> {
 
 ## OAuth - Getting Access Tokens
 
-
-### Warning
-This crate is undergoing major development in order to support all or most scenarios in the 
-Microsoft Identity Platform where its possible to do so. The master branch on GitHub may have some
-unstable features. Any version that is not a pre-release version of the crate is considered stable.
-
 Use application builders to store your auth configuration and have the client
 handle the access token requests for you.
 
@@ -1055,7 +1026,6 @@ Support for:
 - Authorization Using Certificates | features = [`openssl`]
 
 #### Detailed Examples:
-
 
 - [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
   - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
@@ -1305,11 +1275,11 @@ async fn build_client(
 
 ### Interactive Authentication
 
-Requires Feature `interactive_auth`
+Requires Feature `interactive-auth`
 
 ```toml
 [dependencies]
-graph-rs-sdk = { version = "...", features = ["interactive_auth"] }
+graph-rs-sdk = { version = "...", features = ["interactive-auth"] }
 ```
 
 Interactive Authentication uses the [wry](https://github.com/tauri-apps/wry) crate to run web view on 
