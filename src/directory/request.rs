@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::directory::*;
 
-resource_api_client!(DirectoryApiClient, ResourceIdentity::Directory);
+api_client!(DirectoryApiClient, ResourceIdentity::Directory);
 
 impl DirectoryApiClient {
     api_client_link!(deleted_items, DeletedItemsApiClient);

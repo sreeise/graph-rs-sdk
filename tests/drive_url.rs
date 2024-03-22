@@ -72,7 +72,11 @@ pub fn drive_preview_path() {
             .url()
             .path()
     );
-    assert_eq!("/v1.0/users/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/preview.txt:/preview".to_string(), client.user(RID).drive().item_by_path(":/Documents/preview.txt:").preview(&serde_json::json!({})).url().path());
+    assert_eq!("/v1.0/users/T5Y6RODPNfYICbtYWrofwUGBJWnaJkNwH9x/drive/root:/Documents/preview.txt:/preview"
+                   .to_string(),
+               client.user(RID).drive().item_by_path(":/Documents/preview.txt:")
+                   .preview(&serde_json::json!({})).url().path()
+    );
 }
 
 #[test]

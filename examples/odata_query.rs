@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use graph_rs_sdk::{Graph, GraphResult, ODataQuery};
+use graph_rs_sdk::{GraphClient, GraphResult, ODataQuery};
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
@@ -9,7 +9,7 @@ fn main() {}
 // https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http
 
 async fn custom_path() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client
         .users()
@@ -22,7 +22,7 @@ async fn custom_path() -> GraphResult<()> {
 }
 
 async fn top() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client.users().list_user().top("5").send().await?;
 
@@ -30,7 +30,7 @@ async fn top() -> GraphResult<()> {
 }
 
 async fn skip() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client.users().list_user().skip("2").send().await?;
 
@@ -38,7 +38,7 @@ async fn skip() -> GraphResult<()> {
 }
 
 async fn expand() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client
         .users()
@@ -51,7 +51,7 @@ async fn expand() -> GraphResult<()> {
 }
 
 async fn filter() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client
         .users()
@@ -64,7 +64,7 @@ async fn filter() -> GraphResult<()> {
 }
 
 async fn order_by() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client
         .users()
@@ -77,7 +77,7 @@ async fn order_by() -> GraphResult<()> {
 }
 
 async fn format() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client.users().list_user().format("json").send().await?;
 
@@ -85,7 +85,7 @@ async fn format() -> GraphResult<()> {
 }
 
 async fn count() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client.users().list_user().count("true").send().await?;
 
@@ -93,7 +93,7 @@ async fn count() -> GraphResult<()> {
 }
 
 async fn search() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let _ = client.users().list_user().search("pizza").send().await?;
 

@@ -9,7 +9,7 @@ static LIST_ID: &str = "<LIST_ID>";
 static LIST_ITEM_ID: &str = "<LIST_ITEM_ID>";
 
 pub async fn create_list() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .site(SITE_ID)
@@ -39,7 +39,7 @@ pub async fn create_list() -> GraphResult<()> {
 }
 
 pub async fn list_all_list_items() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .site(SITE_ID)
@@ -58,7 +58,7 @@ pub async fn list_all_list_items() -> GraphResult<()> {
 }
 
 pub async fn create_list_item() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .site(SITE_ID)
@@ -80,7 +80,7 @@ pub async fn create_list_item() -> GraphResult<()> {
 }
 
 pub async fn update_list_item() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .site(SITE_ID)
@@ -103,7 +103,7 @@ pub async fn update_list_item() -> GraphResult<()> {
 }
 
 pub async fn get_list_item() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .site(SITE_ID)
@@ -122,7 +122,7 @@ pub async fn get_list_item() -> GraphResult<()> {
 }
 
 pub async fn delete_list_item() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .site(SITE_ID)

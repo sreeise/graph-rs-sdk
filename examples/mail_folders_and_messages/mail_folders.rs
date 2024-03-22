@@ -10,7 +10,7 @@ static USER_ID: &str = "USER_ID";
 
 // Get the top 2 inbox messages for a user.
 pub async fn get_user_inbox_messages() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let response = client
         .user(USER_ID)
         .mail_folder("Inbox")
@@ -30,7 +30,7 @@ pub async fn get_user_inbox_messages() -> GraphResult<()> {
 
 // Get the top 2 inbox messages for a user.
 pub async fn get_me_inbox_messages() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let response = client
         .me()
         .mail_folder("Inbox")
@@ -48,7 +48,7 @@ pub async fn get_me_inbox_messages() {
 }
 
 pub async fn create_mail_folder_message() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let response = client
         .me()
         .mail_folder(MAIL_FOLDER_ID)
@@ -77,7 +77,7 @@ pub async fn create_mail_folder_message() -> GraphResult<()> {
 }
 
 pub async fn create_mail_folder_draft_message() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let response = client
         .me()
         .mail_folder("drafts")
@@ -105,7 +105,7 @@ pub async fn create_mail_folder_draft_message() {
 }
 
 pub async fn delete_mail_folder_message() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let response = client
         .me()
         .mail_folder(MAIL_FOLDER_ID)
@@ -119,7 +119,7 @@ pub async fn delete_mail_folder_message() {
 }
 
 pub async fn add_mail_folder_message_attachment() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()

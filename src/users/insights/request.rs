@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(InsightsApiClient, ResourceIdentity::Insights);
+api_client!(InsightsApiClient, ResourceIdentity::Insights);
 
 impl InsightsApiClient {
     delete!(

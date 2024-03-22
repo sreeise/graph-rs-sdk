@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(ReportsApiClient, ResourceIdentity::Reports);
+api_client!(ReportsApiClient, ResourceIdentity::Reports);
 
 impl ReportsApiClient {
     get!(

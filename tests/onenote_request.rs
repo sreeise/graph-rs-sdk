@@ -4,8 +4,8 @@ use graph_rs_sdk::http::FileConfig;
 use std::ffi::OsStr;
 use std::thread;
 use std::time::Duration;
-use test_tools::oauth_request::ASYNC_THROTTLE_MUTEX;
-use test_tools::oauth_request::{Environment, OAuthTestClient};
+use test_tools::oauth_request::Environment;
+use test_tools::oauth_request::DEFAULT_ONENOTE_CREDENTIALS_MUTEX;
 use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
@@ -14,65 +14,66 @@ async fn list_get_notebooks_and_sections() {
         return;
     }
 
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let notebooks = client
-            .user(id.as_str())
+    let test_client = DEFAULT_ONENOTE_CREDENTIALS_MUTEX.lock().await;
+    let notebooks = test_client
+        .client
+        .user(test_client.user_id.as_str())
+        .onenote()
+        .notebooks()
+        .list_notebooks()
+        .send()
+        .await;
+
+    if let Ok(response) = notebooks {
+        let body: serde_json::Value = response.json().await.unwrap();
+        let vec = body["value"].as_array().unwrap();
+
+        let mut found_test_notebook = false;
+        let mut notebook_id = String::new();
+        for value in vec.iter() {
+            if value["displayName"].as_str().unwrap().eq("TestNotebook") {
+                found_test_notebook = true;
+                notebook_id.push_str(value["id"].as_str().unwrap());
+            }
+        }
+
+        assert!(found_test_notebook);
+        let get_notebook = test_client
+            .client
+            .user(test_client.user_id.as_str())
             .onenote()
-            .notebooks()
-            .list_notebooks()
+            .notebook(notebook_id.as_str())
+            .get_notebooks()
             .send()
             .await;
 
-        if let Ok(response) = notebooks {
+        if let Ok(notebook_response) = get_notebook {
+            let body: serde_json::Value = notebook_response.json().await.unwrap();
+            assert_eq!("TestNotebook", body["displayName"].as_str().unwrap());
+        } else if let Err(e) = get_notebook {
+            panic!("Request error. Method: onenote notebooks get. Error: {e:#?}");
+        }
+
+        let result = test_client
+            .client
+            .user(test_client.user_id.as_str())
+            .onenote()
+            .notebook(notebook_id.as_str())
+            .sections()
+            .list_sections()
+            .send()
+            .await;
+
+        if let Ok(response) = result {
             let body: serde_json::Value = response.json().await.unwrap();
             let vec = body["value"].as_array().unwrap();
-
-            let mut found_test_notebook = false;
-            let mut notebook_id = String::new();
-            for value in vec.iter() {
-                if value["displayName"].as_str().unwrap().eq("TestNotebook") {
-                    found_test_notebook = true;
-                    notebook_id.push_str(value["id"].as_str().unwrap());
-                }
-            }
-
-            assert!(found_test_notebook);
-            let get_notebook = client
-                .user(id.as_str())
-                .onenote()
-                .notebook(notebook_id.as_str())
-                .get_notebooks()
-                .send()
-                .await;
-
-            if let Ok(notebook_response) = get_notebook {
-                let body: serde_json::Value = notebook_response.json().await.unwrap();
-                assert_eq!("TestNotebook", body["displayName"].as_str().unwrap());
-            } else if let Err(e) = get_notebook {
-                panic!("Request error. Method: onenote notebooks get. Error: {e:#?}");
-            }
-
-            let result = client
-                .user(id.as_str())
-                .onenote()
-                .notebook(notebook_id.as_str())
-                .sections()
-                .list_sections()
-                .send()
-                .await;
-
-            if let Ok(response) = result {
-                let body: serde_json::Value = response.json().await.unwrap();
-                let vec = body["value"].as_array().unwrap();
-                let section_name = vec[0]["displayName"].as_str().unwrap();
-                assert_eq!("TestSection", section_name);
-            } else if let Err(e) = result {
-                panic!("Request error. Method: onenote notebooks list sections. Error: {e:#?}");
-            }
-        } else if let Err(e) = notebooks {
-            panic!("Request error. Method: onenote notebooks list. Error: {e:#?}");
+            let section_name = vec[0]["displayName"].as_str().unwrap();
+            assert_eq!("TestSection", section_name);
+        } else if let Err(e) = result {
+            panic!("Request error. Method: onenote notebooks list sections. Error: {e:#?}");
         }
+    } else if let Err(e) = notebooks {
+        panic!("Request error. Method: onenote notebooks list. Error: {e:#?}");
     }
 }
 
@@ -82,36 +83,36 @@ async fn create_delete_page_from_file() {
         return;
     }
 
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let res = client
-            .user(&id)
+    let test_client = DEFAULT_ONENOTE_CREDENTIALS_MUTEX.lock().await;
+    let res = test_client
+        .client
+        .user(&test_client.user_id)
+        .onenote()
+        .pages()
+        .create_pages(&FileConfig::new("./test_files/one_note_page.html"))
+        .header(CONTENT_TYPE, HeaderValue::from_static("text/html"))
+        .send()
+        .await;
+
+    if let Ok(response) = res {
+        assert!(response.status().is_success());
+        let body: serde_json::Value = response.json().await.unwrap();
+        let page_id = body["id"].as_str().unwrap();
+
+        thread::sleep(Duration::from_secs(3));
+        let delete_res = test_client
+            .client
+            .user(&test_client.user_id)
             .onenote()
-            .pages()
-            .create_pages(&FileConfig::new("./test_files/one_note_page.html"))
-            .header(CONTENT_TYPE, HeaderValue::from_static("text/html"))
+            .page(page_id)
+            .delete_pages()
             .send()
-            .await;
+            .await
+            .unwrap();
 
-        if let Ok(response) = res {
-            assert!(response.status().is_success());
-            let body: serde_json::Value = response.json().await.unwrap();
-            let page_id = body["id"].as_str().unwrap();
-
-            thread::sleep(Duration::from_secs(3));
-            let delete_res = client
-                .user(&id)
-                .onenote()
-                .page(page_id)
-                .delete_pages()
-                .send()
-                .await
-                .unwrap();
-
-            assert!(delete_res.status().is_success());
-        } else if let Err(e) = res {
-            panic!("Request error. Method onenote create page. Error: {e:#?}");
-        }
+        assert!(delete_res.status().is_success());
+    } else if let Err(e) = res {
+        panic!("Request error. Method onenote create page. Error: {e:#?}");
     }
 }
 
@@ -121,59 +122,60 @@ async fn download_page() {
         return;
     }
 
-    let _lock = ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((user_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let file_location = "./test_files/downloaded_page.html";
-        let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
-        clean_up.rm_files(file_location.into());
+    let test_client = DEFAULT_ONENOTE_CREDENTIALS_MUTEX.lock().await;
+    let file_location = "./test_files/downloaded_page.html";
+    let mut clean_up = AsyncCleanUp::new_remove_existing(file_location);
+    clean_up.rm_files(file_location.into());
 
-        let res = client
-            .user(&user_id)
+    let res = test_client
+        .client
+        .user(&test_client.user_id)
+        .onenote()
+        .pages()
+        .create_pages(&FileConfig::new("./test_files/one_note_page.html"))
+        .header(CONTENT_TYPE, HeaderValue::from_static("text/html"))
+        .send()
+        .await;
+
+    if let Ok(response) = res {
+        assert!(response.status().is_success());
+        let body: serde_json::Value = response.json().await.unwrap();
+        let page_id = body["id"].as_str().unwrap();
+
+        thread::sleep(Duration::from_secs(3));
+        let response = test_client
+            .client
+            .user(&test_client.user_id)
             .onenote()
-            .pages()
-            .create_pages(&FileConfig::new("./test_files/one_note_page.html"))
-            .header(CONTENT_TYPE, HeaderValue::from_static("text/html"))
+            .page(page_id)
+            .get_pages_content()
             .send()
-            .await;
+            .await
+            .unwrap();
 
-        if let Ok(response) = res {
-            assert!(response.status().is_success());
-            let body: serde_json::Value = response.json().await.unwrap();
-            let page_id = body["id"].as_str().unwrap();
+        let response2 = response
+            .download(
+                &FileConfig::new("./test_files").file_name(OsStr::new("downloaded_page.html")),
+            )
+            .await
+            .unwrap();
 
-            thread::sleep(Duration::from_secs(3));
-            let response = client
-                .user(&user_id)
-                .onenote()
-                .page(page_id)
-                .get_pages_content()
-                .send()
-                .await
-                .unwrap();
+        assert!(response2.status().is_success());
+        let path_buf = response2.into_body();
+        assert!(path_buf.exists());
 
-            let response2 = response
-                .download(
-                    &FileConfig::new("./test_files").file_name(OsStr::new("downloaded_page.html")),
-                )
-                .await
-                .unwrap();
+        let response = test_client
+            .client
+            .user(&test_client.user_id)
+            .onenote()
+            .page(page_id)
+            .delete_pages()
+            .send()
+            .await
+            .expect("onenote delete pages from page id");
 
-            assert!(response2.status().is_success());
-            let path_buf = response2.into_body();
-            assert!(path_buf.exists());
-
-            let response = client
-                .user(&user_id)
-                .onenote()
-                .page(page_id)
-                .delete_pages()
-                .send()
-                .await
-                .expect("onenote delete pages from page id");
-
-            assert!(response.status().is_success());
-        } else if let Err(e) = res {
-            panic!("Request error. Method onenote create page (download page test) | 01 get content -> download page. Error: {e:#?}");
-        }
+        assert!(response.status().is_success());
+    } else if let Err(e) = res {
+        panic!("Request error. Method onenote create page (download page test) | 01 get content -> download page. Error: {e:#?}");
     }
 }

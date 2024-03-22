@@ -5,7 +5,7 @@ static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
 static GROUP_ID: &str = "<GROUP_ID>";
 
 pub async fn create_group() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .groups()
@@ -31,7 +31,7 @@ pub async fn create_group() -> GraphResult<()> {
 }
 
 pub async fn update_group() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .group(GROUP_ID)

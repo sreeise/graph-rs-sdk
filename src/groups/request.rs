@@ -8,7 +8,7 @@ use crate::planner::*;
 use crate::sites::*;
 use crate::users::*;
 
-resource_api_client!(GroupsApiClient, GroupsIdApiClient, ResourceIdentity::Groups);
+api_client!(GroupsApiClient, GroupsIdApiClient, ResourceIdentity::Groups);
 
 impl GroupsApiClient {
     post!(

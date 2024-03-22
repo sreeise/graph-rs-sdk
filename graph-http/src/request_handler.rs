@@ -5,7 +5,7 @@ use crate::internal::{
 };
 use async_stream::try_stream;
 use futures::Stream;
-use graph_error::{ErrorMessage, GraphFailure, GraphResult};
+use graph_error::{AuthExecutionResult, ErrorMessage, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
@@ -15,8 +15,7 @@ use url::Url;
 
 #[derive(Default)]
 pub struct RequestHandler {
-    pub(crate) inner: reqwest::Client,
-    pub(crate) access_token: String,
+    pub(crate) inner: Client,
     pub(crate) request_components: RequestComponents,
     pub(crate) error: Option<GraphFailure>,
     pub(crate) body: Option<BodyRead>,
@@ -30,34 +29,34 @@ impl RequestHandler {
         err: Option<GraphFailure>,
         body: Option<BodyRead>,
     ) -> RequestHandler {
-        let mut original_headers = inner.headers;
+        let client_builder = inner.builder.clone();
+        let mut original_headers = inner.headers.clone();
         original_headers.extend(request_components.headers.clone());
         request_components.headers = original_headers;
 
         let mut error = None;
         if let Some(err) = err {
+            let message = err.to_string();
             error = Some(GraphFailure::PreFlightError {
                 url: Some(request_components.url.clone()),
-                headers: request_components.headers.clone(),
-                error: Box::new(err),
+                headers: Some(request_components.headers.clone()),
+                error: Some(Box::new(err)),
+                message,
             });
         }
 
         RequestHandler {
-            inner: inner.inner.clone(),
-            access_token: inner.access_token,
+            inner,
             request_components,
             error,
             body,
-            client_builder: inner.builder,
+            client_builder,
         }
     }
 
     pub fn into_blocking(self) -> BlockingRequestHandler {
         BlockingRequestHandler::new(
-            self.client_builder
-                .access_token(self.access_token)
-                .build_blocking(),
+            self.client_builder.build_blocking(),
             self.request_components,
             self.error,
             self.body,
@@ -154,14 +153,23 @@ impl RequestHandler {
         Paging(self)
     }
 
-    pub(crate) fn default_request_builder(&mut self) -> reqwest::RequestBuilder {
+    pub(crate) async fn default_request_builder_with_token(
+        &mut self,
+    ) -> AuthExecutionResult<(String, reqwest::RequestBuilder)> {
+        let access_token = self
+            .inner
+            .client_application
+            .get_token_silent_async()
+            .await?;
+
         let request_builder = self
+            .inner
             .inner
             .request(
                 self.request_components.method.clone(),
                 self.request_components.url.clone(),
             )
-            .bearer_auth(self.access_token.as_str())
+            .bearer_auth(access_token.as_str())
             .headers(self.request_components.headers.clone());
 
         if let Some(body) = self.body.take() {
@@ -169,25 +177,57 @@ impl RequestHandler {
                 .headers
                 .entry(CONTENT_TYPE)
                 .or_insert(HeaderValue::from_static("application/json"));
-            return request_builder
-                .body::<reqwest::Body>(body.into())
-                .headers(self.request_components.headers.clone());
+            return Ok((
+                access_token,
+                request_builder
+                    .body::<reqwest::Body>(body.into())
+                    .headers(self.request_components.headers.clone()),
+            ));
         }
-        request_builder
+        Ok((access_token, request_builder))
+    }
+
+    pub(crate) async fn default_request_builder(&mut self) -> GraphResult<reqwest::RequestBuilder> {
+        let access_token = self
+            .inner
+            .client_application
+            .get_token_silent_async()
+            .await?;
+
+        let request_builder = self
+            .inner
+            .inner
+            .request(
+                self.request_components.method.clone(),
+                self.request_components.url.clone(),
+            )
+            .bearer_auth(access_token.as_str())
+            .headers(self.request_components.headers.clone());
+
+        if let Some(body) = self.body.take() {
+            self.request_components
+                .headers
+                .entry(CONTENT_TYPE)
+                .or_insert(HeaderValue::from_static("application/json"));
+            return Ok(request_builder
+                .body::<reqwest::Body>(body.into())
+                .headers(self.request_components.headers.clone()));
+        }
+        Ok(request_builder)
     }
 
     /// Builds the request and returns a [`reqwest::RequestBuilder`].
     #[inline]
-    pub fn build(mut self) -> GraphResult<reqwest::RequestBuilder> {
+    pub async fn build(mut self) -> GraphResult<reqwest::RequestBuilder> {
         if let Some(err) = self.error {
             return Err(err);
         }
-        Ok(self.default_request_builder())
+        self.default_request_builder().await
     }
 
     #[inline]
     pub async fn send(self) -> GraphResult<reqwest::Response> {
-        let request_builder = self.build()?;
+        let request_builder = self.build().await?;
         request_builder.send().await.map_err(GraphFailure::from)
     }
 }
@@ -254,23 +294,44 @@ impl Paging {
     ///
     /// # Example
     /// ```rust,ignore
-    /// let mut stream = client
-    ///     .users()
-    ///     .delta()
-    ///     .paging()
-    ///     .stream::<serde_json::Value>()
-    ///     .unwrap();
+    /// #[derive(Debug, Serialize, Deserialize)]
+    /// pub struct User {
+    ///     pub(crate) id: Option<String>,
+    ///     #[serde(rename = "userPrincipalName")]
+    ///     user_principal_name: Option<String>,
+    /// }
     ///
-    ///  while let Some(result) = stream.next().await {
-    ///     println!("{result:#?}");
-    ///  }
+    /// #[derive(Debug, Serialize, Deserialize)]
+    /// pub struct Users {
+    ///     pub value: Vec<User>,
+    /// }
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> GraphResult<()> {
+    ///     let client = GraphClient::new("ACCESS_TOKEN");
+    ///
+    ///     let deque = client
+    ///         .users()
+    ///         .list_user()
+    ///         .select(&["id", "userPrincipalName"])
+    ///         .paging()
+    ///         .json::<Users>()
+    ///         .await?;
+    ///
+    ///     for response in deque.iter() {
+    ///         let users = response.into_body()?;
+    ///         println!("{users:#?}");
+    ///     }
+    ///     Ok(())
+    /// }
+    ///
     /// ```
     pub async fn json<T: DeserializeOwned>(mut self) -> GraphResult<VecDeque<PagingResponse<T>>> {
         if let Some(err) = self.0.error {
             return Err(err);
         }
 
-        let request = self.0.default_request_builder();
+        let (access_token, request) = self.0.default_request_builder_with_token().await?;
         let response = request.send().await?;
 
         let (next, http_response) = Paging::http_response(response).await?;
@@ -278,8 +339,7 @@ impl Paging {
         let mut vec = VecDeque::new();
         vec.push_back(http_response);
 
-        let client = self.0.inner.clone();
-        let access_token = self.0.access_token.clone();
+        let client = self.0.inner.inner.clone();
         while let Some(next) = next_link {
             let response = client
                 .get(next)
@@ -300,7 +360,7 @@ impl Paging {
         mut self,
     ) -> impl Stream<Item = PagingResult<T>> + 'a {
         try_stream! {
-            let request = self.0.default_request_builder();
+            let (access_token, request) = self.0.default_request_builder_with_token().await?;
             let response = request.send().await?;
             let (next, http_response) = Paging::http_response(response).await?;
             let mut next_link = next;
@@ -309,8 +369,9 @@ impl Paging {
             while let Some(url) = next_link {
                 let response = self.0
                     .inner
+                    .inner
                     .get(url)
-                    .bearer_auth(self.0.access_token.as_str())
+                    .bearer_auth(access_token.as_str())
                     .send()
                     .await?;
                 let (next, http_response) = Paging::http_response(response).await?;
@@ -395,7 +456,7 @@ impl Paging {
     ///     .list_user()
     ///     .top("5")
     ///     .paging()
-    ///     .channel::<serde_json::Value>()
+    ///     .channel_timeout::<serde_json::Value>(Duration::from_secs(60))
     ///     .await?;
     ///
     ///  while let Some(result) = receiver.recv().await {
@@ -438,7 +499,7 @@ impl Paging {
     ///     .list_user()
     ///     .top("5")
     ///     .paging()
-    ///     .channel::<serde_json::Value>()
+    ///     .channel_buffer_timeout::<serde_json::Value>(100, Duration::from_secs(60))
     ///     .await?;
     ///
     ///  while let Some(result) = receiver.recv().await {
@@ -454,7 +515,7 @@ impl Paging {
     ) -> GraphResult<tokio::sync::mpsc::Receiver<PagingResult<T>>> {
         let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
 
-        let request = self.0.default_request_builder();
+        let (access_token, request) = self.0.default_request_builder_with_token().await?;
         let response = request.send().await?;
         let (next, http_response) = Paging::http_response(response).await?;
         let mut next_link = next;
@@ -463,9 +524,7 @@ impl Paging {
             .await
             .unwrap();
 
-        let client = self.0.inner.clone();
-        let access_token = self.0.access_token.clone();
-
+        let client = self.0.inner.inner.clone();
         tokio::spawn(async move {
             while let Some(next) = next_link {
                 let result =

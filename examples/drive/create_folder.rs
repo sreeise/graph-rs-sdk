@@ -9,7 +9,7 @@ static PARENT_ID: &str = "PARENT_ID";
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_post_children?view=odsp-graph-online
 
 pub async fn create_new_folder() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let folder: HashMap<String, serde_json::Value> = HashMap::new();
 
     let response = client

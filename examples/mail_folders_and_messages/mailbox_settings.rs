@@ -6,7 +6,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static USER_ID: &str = "USER_ID";
 
 pub async fn get_mailbox_settings() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -24,7 +24,7 @@ pub async fn get_mailbox_settings() -> GraphResult<()> {
 }
 
 pub async fn get_user_mailbox_settings() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .user(USER_ID)

@@ -15,7 +15,7 @@ static FILE_PATH: &str = "./FILE.html";
 // here: https://learn.microsoft.com/en-us/graph/api/section-post-pages?view=graph-rest-1.0
 
 pub async fn upload_page_content() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .user(USER_ID)
@@ -31,7 +31,7 @@ pub async fn upload_page_content() {
 }
 
 pub async fn upload_page_content_using_file() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let mut file = OpenOptions::new().read(true).open(FILE_PATH)?;
 

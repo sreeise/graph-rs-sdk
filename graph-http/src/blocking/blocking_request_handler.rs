@@ -9,8 +9,7 @@ use url::Url;
 
 #[derive(Default)]
 pub struct BlockingRequestHandler {
-    pub(crate) inner: reqwest::blocking::Client,
-    pub(crate) access_token: String,
+    pub(crate) inner: BlockingClient,
     pub(crate) request_components: RequestComponents,
     pub(crate) error: Option<GraphFailure>,
     pub(crate) body: Option<BodyRead>,
@@ -23,22 +22,21 @@ impl BlockingRequestHandler {
         err: Option<GraphFailure>,
         body: Option<BodyRead>,
     ) -> BlockingRequestHandler {
-        let mut original_headers = inner.headers;
-        original_headers.extend(request_components.headers.clone());
-        request_components.headers = original_headers;
+        request_components.headers.extend(inner.headers.clone());
 
         let mut error = None;
         if let Some(err) = err {
+            let message = err.to_string();
             error = Some(GraphFailure::PreFlightError {
                 url: Some(request_components.url.clone()),
-                headers: request_components.headers.clone(),
-                error: Box::new(err),
+                headers: Some(request_components.headers.clone()),
+                error: Some(Box::new(err)),
+                message,
             });
         }
 
         BlockingRequestHandler {
-            inner: inner.inner.clone(),
-            access_token: inner.access_token,
+            inner,
             request_components,
             error,
             body,
@@ -136,14 +134,17 @@ impl BlockingRequestHandler {
     }
 
     #[inline]
-    fn default_request_builder(&mut self) -> reqwest::blocking::RequestBuilder {
+    fn default_request_builder(&mut self) -> GraphResult<reqwest::blocking::RequestBuilder> {
+        let access_token = self.inner.client_application.get_token_silent()?;
+
         let request_builder = self
+            .inner
             .inner
             .request(
                 self.request_components.method.clone(),
                 self.request_components.url.clone(),
             )
-            .bearer_auth(self.access_token.as_str())
+            .bearer_auth(access_token.as_str())
             .headers(self.request_components.headers.clone());
 
         if let Some(body) = self.body.take() {
@@ -151,11 +152,11 @@ impl BlockingRequestHandler {
                 .headers
                 .entry(CONTENT_TYPE)
                 .or_insert(HeaderValue::from_static("application/json"));
-            return request_builder
+            return Ok(request_builder
                 .body::<reqwest::blocking::Body>(body.into())
-                .headers(self.request_components.headers.clone());
+                .headers(self.request_components.headers.clone()));
         }
-        request_builder
+        Ok(request_builder)
     }
 
     /// Builds the request and returns a [`reqwest::blocking::RequestBuilder`].
@@ -164,7 +165,7 @@ impl BlockingRequestHandler {
         if let Some(err) = self.error {
             return Err(err);
         }
-        Ok(self.default_request_builder())
+        self.default_request_builder()
     }
 
     #[inline]
@@ -249,7 +250,7 @@ impl BlockingPaging {
             return Err(err);
         }
 
-        let request = self.0.default_request_builder();
+        let request = self.0.default_request_builder()?;
         let response = request.send()?;
 
         let (next, http_response) = BlockingPaging::http_response(response)?;
@@ -257,8 +258,8 @@ impl BlockingPaging {
         let mut vec = VecDeque::new();
         vec.push_back(http_response);
 
-        let client = self.0.inner.clone();
-        let access_token = self.0.access_token.clone();
+        let client = self.0.inner.inner.clone();
+        let access_token = self.0.inner.client_application.get_token_silent()?;
         while let Some(next) = next_link {
             let response = client
                 .get(next)
@@ -293,15 +294,15 @@ impl BlockingPaging {
         mut self,
     ) -> GraphResult<std::sync::mpsc::Receiver<Option<PagingResult<T>>>> {
         let (sender, receiver) = std::sync::mpsc::channel();
-        let request = self.0.default_request_builder();
+        let request = self.0.default_request_builder()?;
         let response = request.send()?;
 
         let (next, http_response) = BlockingPaging::http_response(response)?;
         let mut next_link = next;
         sender.send(Some(Ok(http_response))).unwrap();
 
-        let client = self.0.inner.clone();
-        let access_token = self.0.access_token.clone();
+        let client = self.0.inner.inner.clone();
+        let access_token = self.0.inner.client_application.get_token_silent()?;
 
         std::thread::spawn(move || {
             while let Some(next) = next_link.as_ref() {

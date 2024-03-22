@@ -162,7 +162,7 @@ impl FileConfig {
         self
     }
 
-    /// Create all directories in the path given if they do not exist.
+    /// Create all directories in the path if they do not exist.
     ///
     /// # Example
     /// ```rust

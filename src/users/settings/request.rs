@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(SettingsApiClient, ResourceIdentity::Settings);
+api_client!(SettingsApiClient, ResourceIdentity::Settings);
 
 impl SettingsApiClient {
     delete!(

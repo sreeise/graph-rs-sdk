@@ -15,7 +15,7 @@ use crate::identity_governance::{
     EntitlementManagementCatalogsApiClient, EntitlementManagementCatalogsIdApiClient,
 };
 
-resource_api_client!(
+api_client!(
     EntitlementManagementApiClient,
     ResourceIdentity::EntitlementManagement
 );

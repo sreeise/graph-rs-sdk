@@ -14,7 +14,7 @@ async fn update() {
     // Fields that are not included will not be changed.
     let value = serde_json::json!({ "name": DRIVE_FILE_NEW_NAME });
 
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()

@@ -3,7 +3,7 @@ use graph_rs_sdk::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 pub async fn list_thumbnails() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()

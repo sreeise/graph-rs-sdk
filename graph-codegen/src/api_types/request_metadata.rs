@@ -10,7 +10,6 @@ use crate::traits::{FilterMetadata, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
-use std::convert::TryFrom;
 use std::io::{Read, Write};
 use std::str::FromStr;
 
@@ -446,7 +445,7 @@ impl MacroQueueWriter for PathMetadata {
 
     fn parent(&self) -> String {
         self.metadata
-            .get(0)
+            .front()
             .map(|m| m.parent.clone())
             .unwrap_or_default()
     }

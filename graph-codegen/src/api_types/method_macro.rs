@@ -3,7 +3,6 @@ use crate::parser::HttpMethod;
 use crate::settings::{GeneratedMacroType, MethodMacroModifier};
 use from_as::*;
 use inflector::Inflector;
-use std::convert::TryFrom;
 use std::io::{Read, Write};
 
 /// Represents the macro used for describing requests. This is the outer

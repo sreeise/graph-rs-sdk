@@ -2,7 +2,6 @@ use crate::api_types::ModFile;
 use crate::settings::ApiClientLinkSettings;
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use std::convert::TryFrom;
 use std::io::{Read, Write};
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, FromFile, AsFile)]

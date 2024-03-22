@@ -8,7 +8,7 @@ use crate::oauth2_permission_grants::*;
 use crate::planner::*;
 use crate::users::*;
 
-resource_api_client!(UsersApiClient, UsersIdApiClient, ResourceIdentity::Users);
+api_client!(UsersApiClient, UsersIdApiClient, ResourceIdentity::Users);
 
 impl UsersApiClient {
     post!(

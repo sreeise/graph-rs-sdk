@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::drives::*;
 
-resource_api_client!(WorkbookApiClient, ResourceIdentity::Workbook);
+api_client!(WorkbookApiClient, ResourceIdentity::Workbook);
 
 impl WorkbookApiClient {
     api_client_link_id!(worksheet, WorksheetsIdApiClient);

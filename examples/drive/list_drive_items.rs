@@ -9,7 +9,7 @@ pub async fn list_drive_items() {
 }
 
 pub async fn drive_root() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client.me().drive().get_root().send().await.unwrap();
 
@@ -20,7 +20,7 @@ pub async fn drive_root() {
 }
 
 pub async fn drive_root_children() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -37,7 +37,7 @@ pub async fn drive_root_children() {
 }
 
 pub async fn special_docs() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()

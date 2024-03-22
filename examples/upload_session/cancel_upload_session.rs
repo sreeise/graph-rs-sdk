@@ -18,7 +18,7 @@ static PATH_IN_ONE_DRIVE: &str = ":/Documents/file.ext:";
 static CONFLICT_BEHAVIOR: &str = "rename";
 
 pub async fn cancel_upload_session(bytes: &[u8]) -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let upload = serde_json::json!({
         "@microsoft.graph.conflictBehavior": Some(CONFLICT_BEHAVIOR.to_string())

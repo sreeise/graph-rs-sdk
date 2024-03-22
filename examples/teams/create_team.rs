@@ -17,7 +17,7 @@ pub async fn create_team() {
        "user@odata.bind": format!("https://graph.microsoft.com/v1.0/users('{OWNER_ID}')")
     }]});
 
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let response = client.teams().create_team(&json).send().await.unwrap();
 
     println!("{response:#?}");

@@ -6,7 +6,7 @@ use graph_rs_sdk::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 fn main() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client.users().list_user().into_blocking().send()?;
 
@@ -19,7 +19,7 @@ fn main() -> GraphResult<()> {
 }
 
 fn paging_json() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .users()
@@ -34,7 +34,7 @@ fn paging_json() -> GraphResult<()> {
 }
 
 fn paging_channel() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let receiver = client
         .users()
@@ -61,7 +61,7 @@ static ONEDRIVE_FILE: &str = ":/file.txt:";
 static LOCAL_FILE: &str = "./file.txt";
 
 fn upload_session_channel() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let upload = serde_json::json!({
         "@microsoft.graph.conflictBehavior": Some("fail".to_string())
@@ -94,7 +94,7 @@ fn upload_session_channel() -> GraphResult<()> {
 
 // Best way to use Iterator impl:
 fn upload_session_iter() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let upload = serde_json::json!({
         "@microsoft.graph.conflictBehavior": Some("fail".to_string())

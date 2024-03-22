@@ -67,104 +67,96 @@ fn expand_filter_query() {
     );
 }
 
+async fn filter_request(client: &Graph) -> GraphResult<reqwest::Response> {
+    client
+        .users()
+        .list_user()
+        .filter(&["startswith(givenName, 'A')"])
+        .send()
+        .await
+}
+
+async fn filter_request_beta(client: &mut Graph) -> GraphResult<reqwest::Response> {
+    client
+        .beta()
+        .users()
+        .list_user()
+        .filter(&["startswith(givenName, 'A')"])
+        .send()
+        .await
+}
+
+async fn order_by_request(client: &Graph) -> GraphResult<reqwest::Response> {
+    client
+        .users()
+        .list_user()
+        .order_by(&["displayName"])
+        .send()
+        .await
+}
+
+async fn order_by_request_beta(client: &mut Graph) -> GraphResult<reqwest::Response> {
+    client
+        .beta()
+        .users()
+        .list_user()
+        .order_by(&["displayName"])
+        .send()
+        .await
+}
+
+async fn validate_order_by_request(beta: bool, client: &mut Graph) {
+    let result = {
+        if beta {
+            order_by_request_beta(client).await
+        } else {
+            order_by_request(client).await
+        }
+    };
+
+    if let Ok(response) = result {
+        let body: serde_json::Value = response.json().await.unwrap();
+        let users = body["value"].as_array().unwrap();
+        let found_user = users.iter().find(|user| {
+            let name = user["displayName"].as_str().unwrap();
+            name.eq("Adele Vance")
+        });
+
+        assert!(found_user.is_some());
+    } else if let Err(e) = result {
+        panic!("Request Error. Method: filter_query_request. Error: {e:#?}");
+    }
+}
+
+async fn validate_filter_request(beta: bool, client: &mut Graph) {
+    let result = {
+        if beta {
+            filter_request_beta(client).await
+        } else {
+            filter_request(client).await
+        }
+    };
+
+    if let Ok(response) = result {
+        let body: serde_json::Value = response.json().await.unwrap();
+        let users = body["value"].as_array().unwrap();
+        let found_user = users.iter().find(|user| {
+            let name = user["displayName"].as_str().unwrap();
+            name.eq("Adele Vance")
+        });
+
+        assert!(found_user.is_some());
+    } else if let Err(e) = result {
+        panic!("Request Error. Method: filter_query_request. Error: {e:#?}");
+    }
+}
+
 #[tokio::test]
 async fn filter_query_request_v1() {
-    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let result = client
-            .users()
-            .list_user()
-            .filter(&["startswith(givenName, 'A')"])
-            .send()
-            .await;
-
-        if let Ok(response) = result {
-            let body: serde_json::Value = response.json().await.unwrap();
-            let users = body["value"].as_array().unwrap();
-            let found_user = users.iter().find(|user| {
-                let name = user["displayName"].as_str().unwrap();
-                name.eq("Adele Vance")
-            });
-
-            assert!(found_user.is_some());
-        } else if let Err(e) = result {
-            panic!("Request Error. Method: filter_query_request. Error: {e:#?}");
-        }
-    }
-}
-
-#[tokio::test]
-async fn filter_query_request_beta() {
     if let Some((_id, mut client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let result = client
-            .beta()
-            .users()
-            .list_user()
-            .filter(&["startswith(givenName, 'A')"])
-            .send()
-            .await;
-
-        if let Ok(response) = result {
-            let body: serde_json::Value = response.json().await.unwrap();
-            let users = body["value"].as_array().unwrap();
-            let found_user = users.iter().find(|user| {
-                let name = user["displayName"].as_str().unwrap();
-                name.eq("Adele Vance")
-            });
-
-            assert!(found_user.is_some());
-        } else if let Err(e) = result {
-            panic!("Request Error. Method: filter_query_request. Error: {e:#?}");
-        }
-    }
-}
-
-#[tokio::test]
-async fn order_by_query_request_v1() {
-    if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let result = client
-            .users()
-            .list_user()
-            .order_by(&["displayName"])
-            .send()
-            .await;
-
-        if let Ok(response) = result {
-            let body: serde_json::Value = response.json().await.unwrap();
-            let users = body["value"].as_array().unwrap();
-            let found_user = users.iter().find(|user| {
-                let name = user["displayName"].as_str().unwrap();
-                name.eq("Adele Vance")
-            });
-
-            assert!(found_user.is_some());
-        } else if let Err(e) = result {
-            panic!("Request Error. Method: filter_query_request. Error: {e:#?}");
-        }
-    }
-}
-
-#[tokio::test]
-async fn order_by_request_beta() {
-    if let Some((_id, mut client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let result = client
-            .beta()
-            .users()
-            .list_user()
-            .order_by(&["displayName"])
-            .send()
-            .await;
-
-        if let Ok(response) = result {
-            let body: serde_json::Value = response.json().await.unwrap();
-            let users = body["value"].as_array().unwrap();
-            let found_user = users.iter().find(|user| {
-                let name = user["displayName"].as_str().unwrap();
-                name.eq("Adele Vance")
-            });
-
-            assert!(found_user.is_some());
-        } else if let Err(e) = result {
-            panic!("Request Error. Method: filter_query_request. Error: {e:#?}");
-        }
+        validate_filter_request(false, &mut client).await;
+        validate_filter_request(true, &mut client).await;
+        validate_order_by_request(false, &mut client).await;
+        validate_order_by_request(true, &mut client).await;
     }
 }

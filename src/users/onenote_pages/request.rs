@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(
+api_client!(
     OnenotePagesApiClient,
     OnenotePagesIdApiClient,
     ResourceIdentity::OnenotePages

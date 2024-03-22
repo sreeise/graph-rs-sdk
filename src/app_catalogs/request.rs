@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(AppCatalogsApiClient, ResourceIdentity::AppCatalogs);
+api_client!(AppCatalogsApiClient, ResourceIdentity::AppCatalogs);
 
 impl AppCatalogsApiClient {
     get!(

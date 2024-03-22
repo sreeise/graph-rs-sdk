@@ -13,7 +13,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 #[tokio::main]
 async fn main() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
     let json = serde_json::json!({
         "requests": [
             {

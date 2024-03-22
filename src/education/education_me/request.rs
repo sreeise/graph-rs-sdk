@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::education::*;
 
-resource_api_client!(EducationMeApiClient, ResourceIdentity::EducationMe);
+api_client!(EducationMeApiClient, ResourceIdentity::EducationMe);
 
 impl EducationMeApiClient {
     api_client_link!(assignments, EducationAssignmentsApiClient);

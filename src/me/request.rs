@@ -9,7 +9,7 @@ use crate::planner::*;
 use crate::teams::*;
 use crate::users::*;
 
-resource_api_client!(MeApiClient, ResourceIdentity::Me);
+api_client!(MeApiClient, ResourceIdentity::Me);
 
 impl MeApiClient {
     api_client_link_id!(message, UsersMessagesIdApiClient);

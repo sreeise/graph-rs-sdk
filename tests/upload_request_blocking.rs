@@ -83,7 +83,7 @@ fn upload_reqwest_body() {
             assert!(body["id"].as_str().is_some());
             let item_id = body["id"].as_str().unwrap();
 
-            thread::sleep(Duration::from_secs(5));
+            thread::sleep(Duration::from_secs(3));
 
             let response = get_file_content(id.as_str(), item_id, &client).unwrap();
             assert!(response.status().is_success());

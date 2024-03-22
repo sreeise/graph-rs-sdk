@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::authentication_method_configurations::*;
 
-resource_api_client!(
+api_client!(
     AuthenticationMethodsPolicyApiClient,
     ResourceIdentity::AuthenticationMethodsPolicy
 );

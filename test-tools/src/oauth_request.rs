@@ -1,27 +1,80 @@
+#![allow(dead_code)]
+
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
-use graph_rs_sdk::oauth::{AccessToken, OAuth};
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::identity::{
+    ClientSecretCredential, ConfidentialClientApplication, ResourceOwnerPasswordCredential, Token,
+    TokenCredentialExecutor,
+};
+use graph_rs_sdk::{Graph, GraphClient};
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
-use std::sync::Mutex;
+
+use graph_core::identity::ClientApplication;
+
+pub struct GraphTestClient {
+    pub client: GraphClient,
+    pub user_id: String,
+}
+
+impl GraphTestClient {
+    pub fn new_mutex() -> tokio::sync::Mutex<GraphTestClient> {
+        let app_registration = OAuthTestClient::get_app_registration().unwrap();
+        let app_registration_client = app_registration.get_default_client_credentials();
+        let test_client = app_registration_client
+            .clients
+            .get(&OAuthTestClient::ClientCredentials)
+            .cloned()
+            .unwrap();
+        let user_id = test_client.user_id.clone().unwrap();
+        let client = Graph::from(&test_client.client_credentials());
+        tokio::sync::Mutex::new(GraphTestClient { client, user_id })
+    }
+
+    pub fn new_mutex_from_identity(
+        resource_identity: ResourceIdentity,
+    ) -> tokio::sync::Mutex<GraphTestClient> {
+        let app_registration = OAuthTestClient::get_app_registration().unwrap();
+        let client = app_registration
+            .get_by_resource_identity(resource_identity)
+            .unwrap();
+        let (test_client, credentials) = client.default_client().unwrap();
+        let (user_id, client_application) = test_client.get_credential(credentials).unwrap();
+        let client = GraphClient::from_client_app(client_application);
+        tokio::sync::Mutex::new(GraphTestClient { client, user_id })
+    }
+}
 
 // static mutex's that are used for preventing test failures
-// due to too many concurrent requests for Microsoft Graph.
+// due to too many concurrent requests (throttling) for Microsoft Graph.
 lazy_static! {
-    pub static ref THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
-    pub static ref DRIVE_THROTTLE_MUTEX: Mutex<()> = Mutex::new(());
     pub static ref ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
+    pub static ref ASYNC_THROTTLE_MUTEX2: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
     pub static ref DRIVE_ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
+    pub static ref DRIVE_ASYNC_THROTTLE_MUTEX2: tokio::sync::Mutex<()> =
+        tokio::sync::Mutex::new(());
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX2: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX3: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX4: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX5: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex();
+    pub static ref DEFAULT_ONENOTE_CREDENTIALS_MUTEX: tokio::sync::Mutex<GraphTestClient> =
+        GraphTestClient::new_mutex_from_identity(ResourceIdentity::Onenote);
 }
+
+//pub const APPLICATIONS_CLIENT: Mutex<Option<(String, Graph)>> = Mutex::new(OAuthTestClient::graph_by_rid(ResourceIdentity::Applications));
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile, Default)]
 pub enum TestEnv {
     AppVeyor,
     GitHub,
-    TravisCI,
     #[default]
     Local,
 }
@@ -31,7 +84,6 @@ impl TestEnv {
         match self {
             TestEnv::AppVeyor => Environment::is_appveyor(),
             TestEnv::GitHub => Environment::is_github(),
-            TestEnv::TravisCI => Environment::is_travis(),
             TestEnv::Local => Environment::is_local(),
         }
     }
@@ -117,110 +169,142 @@ impl OAuthTestCredentials {
         }
     }
 
-    pub fn new_local() -> OAuthTestCredentials {
-        OAuthTestCredentials::new_local_from_path("./env.toml")
+    fn client_credentials(self) -> ConfidentialClientApplication<ClientSecretCredential> {
+        ConfidentialClientApplication::builder(self.client_id.as_str())
+            .with_client_secret(self.client_secret.as_str())
+            .with_tenant(self.tenant.as_str())
+            .build()
     }
 
-    pub fn new_local_from_path(path: &str) -> OAuthTestCredentials {
-        let mut creds: OAuthTestCredentials = OAuthTestCredentials::from_file(path).unwrap();
-        creds
-            .scope
-            .push("https://graph.microsoft.com/.default".into());
-        creds
-    }
-
-    fn into_oauth(self) -> OAuth {
-        let mut oauth = OAuth::new();
-        oauth
-            .client_id(self.client_id.as_str())
-            .client_secret(self.client_secret.as_str())
-            .username(self.username.as_str())
-            .password(self.password.as_str())
-            .add_scope("https://graph.microsoft.com/.default")
-            .access_token_url(
-                format!(
-                    "https://login.microsoftonline.com/{}/oauth2/v2.0/token",
-                    self.tenant.as_str()
-                )
-                .as_str(),
-            );
-        oauth
+    fn resource_owner_password_credential(self) -> ResourceOwnerPasswordCredential {
+        ResourceOwnerPasswordCredential::builder(self.client_id.as_str())
+            .with_tenant(self.tenant.as_str())
+            .with_client_id(self.client_id.as_str())
+            .with_username(self.username.as_str())
+            .with_password(self.password.as_str())
+            .with_scope(vec!["https://graph.microsoft.com/.default"])
+            .build()
     }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Hash, AsFile, FromFile)]
 pub enum OAuthTestClient {
     ClientCredentials,
-    ROPC,
+    ResourceOwnerPasswordCredentials,
+    AuthorizationCodeCredential,
 }
 
 impl OAuthTestClient {
-    fn get_access_token(&self, creds: OAuthTestCredentials) -> Option<(String, AccessToken)> {
+    fn get_access_token(&self, creds: OAuthTestCredentials) -> Option<(String, Token)> {
         let user_id = creds.user_id.clone()?;
-        let mut oauth: OAuth = creds.into_oauth();
-        let mut req = {
-            match self {
-                OAuthTestClient::ClientCredentials => oauth.build().client_credentials(),
-                OAuthTestClient::ROPC => oauth.build().resource_owner_password_credentials(),
+        match self {
+            OAuthTestClient::ClientCredentials => {
+                let mut credential = creds.client_credentials();
+                if let Ok(response) = credential.execute() {
+                    let token: Token = response.json().unwrap();
+                    Some((user_id, token))
+                } else {
+                    None
+                }
             }
-        };
-
-        if let Ok(response) = req.access_token().send() {
-            let token: AccessToken = response.json().unwrap();
-            Some((user_id, token))
-        } else {
-            None
+            OAuthTestClient::ResourceOwnerPasswordCredentials => {
+                let mut credential = creds.resource_owner_password_credential();
+                if let Ok(response) = credential.execute() {
+                    let token: Token = response.json().unwrap();
+                    Some((user_id, token))
+                } else {
+                    None
+                }
+            }
+            _ => None,
         }
     }
 
-    async fn get_access_token_async(
+    pub fn get_client_credentials(
         &self,
         creds: OAuthTestCredentials,
-    ) -> Option<(String, AccessToken)> {
-        let user_id = creds.user_id.clone()?;
-        let mut oauth: OAuth = creds.into_oauth();
-        let mut req = {
-            match self {
-                OAuthTestClient::ClientCredentials => oauth.build_async().client_credentials(),
-                OAuthTestClient::ROPC => oauth.build_async().resource_owner_password_credentials(),
-            }
-        };
+    ) -> ConfidentialClientApplication<ClientSecretCredential> {
+        creds.client_credentials()
+    }
 
-        match req.access_token().send().await {
-            Ok(response) => {
-                let token: AccessToken = response.json().await.unwrap();
-                Some((user_id, token))
+    async fn get_access_token_async(&self, creds: OAuthTestCredentials) -> Option<(String, Token)> {
+        let user_id = creds.user_id.clone()?;
+        match self {
+            OAuthTestClient::ClientCredentials => {
+                let mut credential = creds.client_credentials();
+                match credential.execute_async().await {
+                    Ok(response) => {
+                        let token: Token = response.json().await.unwrap();
+                        Some((user_id, token))
+                    }
+                    Err(_) => None,
+                }
             }
-            Err(_) => None,
+            OAuthTestClient::ResourceOwnerPasswordCredentials => {
+                let mut credential = creds.resource_owner_password_credential();
+                match credential.execute_async().await {
+                    Ok(response) => {
+                        let token: Token = response.json().await.unwrap();
+                        Some((user_id, token))
+                    }
+                    Err(_) => None,
+                }
+            }
+            _ => None,
         }
     }
 
-    pub fn request_access_token(&self) -> Option<(String, AccessToken)> {
-        if Environment::is_local() || Environment::is_travis() {
-            let map: OAuthTestClientMap = OAuthTestClientMap::from_file("./env.json").unwrap();
-            self.get_access_token(map.get(self).unwrap())
+    fn get_credential(
+        &self,
+        creds: OAuthTestCredentials,
+    ) -> Option<(String, impl ClientApplication)> {
+        let user_id = creds.user_id.clone()?;
+        match self {
+            OAuthTestClient::ClientCredentials => {
+                let credential = creds.client_credentials();
+                Some((user_id, credential))
+            }
+            _ => None,
+        }
+    }
+
+    pub fn request_access_token(&self) -> Option<(String, Token)> {
+        if Environment::is_local() || Environment::is_travis() || Environment::is_github() {
+            let map = OAuthTestClient::get_app_registration()?;
+            let test_client_map = OAuthTestClientMap {
+                clients: map.get_default_client_credentials().clients,
+            };
+            self.get_access_token(test_client_map.get(self).unwrap())
         } else if Environment::is_appveyor() {
             self.get_access_token(OAuthTestCredentials::new_env())
-        } else if Environment::is_github() {
-            let map: OAuthTestClientMap =
-                serde_json::from_str(&env::var("TEST_CREDENTIALS").unwrap()).unwrap();
-            self.get_access_token(map.get(self).unwrap())
         } else {
             None
         }
     }
 
-    pub async fn request_access_token_async(&self) -> Option<(String, AccessToken)> {
-        if Environment::is_local() || Environment::is_travis() {
-            let map: OAuthTestClientMap = OAuthTestClientMap::from_file("./env.json").unwrap();
-            self.get_access_token_async(map.get(self).unwrap()).await
+    pub fn request_access_token_credential(&self) -> Option<(String, impl ClientApplication)> {
+        if Environment::is_local() || Environment::is_travis() || Environment::is_github() {
+            let map = OAuthTestClient::get_app_registration()?;
+            let test_client_map = OAuthTestClientMap {
+                clients: map.get_default_client_credentials().clients,
+            };
+            self.get_credential(test_client_map.get(self).unwrap())
+        } else {
+            None
+        }
+    }
+
+    pub async fn request_access_token_async(&self) -> Option<(String, Token)> {
+        if Environment::is_local() || Environment::is_travis() || Environment::is_github() {
+            let map = OAuthTestClient::get_app_registration()?;
+            let test_client_map = OAuthTestClientMap {
+                clients: map.get_default_client_credentials().clients,
+            };
+            self.get_access_token_async(test_client_map.get(self).unwrap())
+                .await
         } else if Environment::is_appveyor() {
             self.get_access_token_async(OAuthTestCredentials::new_env())
                 .await
-        } else if Environment::is_github() {
-            let map: OAuthTestClientMap =
-                serde_json::from_str(&env::var("TEST_CREDENTIALS").unwrap()).unwrap();
-            self.get_access_token_async(map.get(self).unwrap()).await
         } else {
             None
         }
@@ -239,49 +323,82 @@ impl OAuthTestClient {
     }
 
     pub fn graph_by_rid(resource_identity: ResourceIdentity) -> Option<(String, Graph)> {
-        let mut app_registration = OAuthTestClient::get_app_registration()?;
-        let client = app_registration.get_by(resource_identity)?;
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
 
         if let Some((id, token)) = test_client.get_access_token(credentials) {
-            Some((id, Graph::new(token.bearer_token())))
+            Some((id, GraphClient::new(token.access_token)))
         } else {
             None
         }
     }
 
+    pub fn client_credentials_by_rid(
+        resource_identity: ResourceIdentity,
+    ) -> Option<ConfidentialClientApplication<ClientSecretCredential>> {
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by_resource_identity(resource_identity)?;
+        let (test_client, credentials) = client.default_client()?;
+        Some(test_client.get_client_credentials(credentials))
+    }
+
+    pub fn client_secret_credential_default() -> Option<ClientSecretCredential> {
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let app_registration_client = app_registration.get_default_client_credentials();
+        let test_client = app_registration_client
+            .clients
+            .get(&OAuthTestClient::ClientCredentials)
+            .cloned()
+            .unwrap();
+        let confidential_client = test_client.client_credentials();
+        Some(confidential_client.into_inner())
+    }
+
+    pub fn default_graph_client() -> GraphClient {
+        let app_registration = OAuthTestClient::get_app_registration().unwrap();
+        let app_registration_client = app_registration.get_default_client_credentials();
+        let test_client = app_registration_client
+            .clients
+            .get(&OAuthTestClient::ClientCredentials)
+            .cloned()
+            .unwrap();
+        let confidential_client = test_client.client_credentials();
+        Graph::from(&confidential_client)
+    }
+
     pub async fn graph_by_rid_async(
         resource_identity: ResourceIdentity,
     ) -> Option<(String, Graph)> {
-        let mut app_registration = OAuthTestClient::get_app_registration()?;
-        let client = app_registration.get_by(resource_identity)?;
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, credentials) = client.default_client()?;
-        if let Some((id, token)) = test_client.get_access_token_async(credentials).await {
-            Some((id, Graph::new(token.bearer_token())))
+        if let Some((id, client_application)) = test_client.get_credential(credentials) {
+            Some((id, Graph::from_client_app(client_application)))
         } else {
             None
         }
     }
 
     pub fn graph(&self) -> Option<(String, Graph)> {
-        if let Some((id, token)) = self.request_access_token() {
-            Some((id, Graph::new(token.bearer_token())))
+        if let Some((id, client_application)) = self.request_access_token_credential() {
+            Some((id, Graph::from_client_app(client_application)))
         } else {
             None
         }
     }
 
     pub async fn graph_async(&self) -> Option<(String, Graph)> {
-        if let Some((id, token)) = self.request_access_token_async().await {
-            Some((id, Graph::new(token.bearer_token())))
+        if let Some((id, client_application)) = self.request_access_token_credential() {
+            Some((id, Graph::from_client_app(client_application)))
         } else {
             None
         }
     }
 
-    pub fn token(resource_identity: ResourceIdentity) -> Option<AccessToken> {
-        let mut app_registration = OAuthTestClient::get_app_registration()?;
-        let client = app_registration.get_by(resource_identity)?;
+    pub fn token(resource_identity: ResourceIdentity) -> Option<Token> {
+        let app_registration = OAuthTestClient::get_app_registration()?;
+        let client = app_registration.get_by_resource_identity(resource_identity)?;
         let (test_client, _credentials) = client.default_client()?;
 
         if let Some((_id, token)) = test_client.request_access_token() {
@@ -315,8 +432,13 @@ impl OAuthTestClientMap {
     pub fn get_any(&self) -> Option<(OAuthTestClient, OAuthTestCredentials)> {
         let client = self.get(&OAuthTestClient::ClientCredentials);
         if client.is_none() {
-            self.get(&OAuthTestClient::ROPC)
-                .map(|credentials| (OAuthTestClient::ROPC, credentials))
+            self.get(&OAuthTestClient::ResourceOwnerPasswordCredentials)
+                .map(|credentials| {
+                    (
+                        OAuthTestClient::ResourceOwnerPasswordCredentials,
+                        credentials,
+                    )
+                })
         } else {
             client.map(|credentials| (OAuthTestClient::ClientCredentials, credentials))
         }
@@ -341,7 +463,7 @@ pub struct AppRegistrationClient {
     permissions: Vec<String>,
     test_envs: Vec<TestEnv>,
     test_resources: Vec<ResourceIdentity>,
-    clients: OAuthTestClientMap,
+    clients: HashMap<OAuthTestClient, OAuthTestCredentials>,
 }
 
 impl AppRegistrationClient {
@@ -356,7 +478,7 @@ impl AppRegistrationClient {
             permissions,
             test_envs,
             test_resources,
-            clients: OAuthTestClientMap::new(),
+            clients: HashMap::new(),
         }
     }
 
@@ -365,16 +487,30 @@ impl AppRegistrationClient {
     }
 
     pub fn get(&self, client: &OAuthTestClient) -> Option<OAuthTestCredentials> {
-        self.clients.get(client)
+        self.clients.get(client).cloned()
     }
 
     pub fn default_client(&self) -> Option<(OAuthTestClient, OAuthTestCredentials)> {
-        self.clients.get_any()
+        let client = self.get(&OAuthTestClient::ClientCredentials);
+        if client.is_none() {
+            self.get(&OAuthTestClient::ResourceOwnerPasswordCredentials)
+                .map(|credentials| {
+                    (
+                        OAuthTestClient::ResourceOwnerPasswordCredentials,
+                        credentials,
+                    )
+                })
+        } else {
+            client.map(|credentials| (OAuthTestClient::ClientCredentials, credentials))
+        }
     }
 }
 
-pub trait GetBy<T, U> {
-    fn get_by(&mut self, value: T) -> U;
+pub trait GetAppRegistration {
+    fn get_by_resource_identity(&self, value: ResourceIdentity) -> Option<AppRegistrationClient>;
+    fn get_by_str(&self, value: &str) -> Option<AppRegistrationClient>;
+
+    fn get_default_client_credentials(&self) -> AppRegistrationClient;
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize, AsFile, FromFile)]
@@ -389,17 +525,24 @@ impl AppRegistrationMap {
     }
 }
 
-impl GetBy<&str, Option<AppRegistrationClient>> for AppRegistrationMap {
-    fn get_by(&mut self, value: &str) -> Option<AppRegistrationClient> {
-        self.apps.get(value).cloned()
-    }
-}
-
-impl GetBy<ResourceIdentity, Option<AppRegistrationClient>> for AppRegistrationMap {
-    fn get_by(&mut self, value: ResourceIdentity) -> Option<AppRegistrationClient> {
+impl GetAppRegistration for AppRegistrationMap {
+    fn get_by_resource_identity(&self, value: ResourceIdentity) -> Option<AppRegistrationClient> {
         self.apps
             .iter()
             .find(|(_, reg)| reg.test_resources.contains(&value))
             .map(|(_, reg)| reg.clone())
+    }
+
+    fn get_by_str(&self, value: &str) -> Option<AppRegistrationClient> {
+        self.apps.get(value).cloned()
+    }
+
+    fn get_default_client_credentials(&self) -> AppRegistrationClient {
+        let app_registration = self
+            .apps
+            .get("graph-rs-default-client-credentials")
+            .cloned()
+            .unwrap();
+        app_registration
     }
 }

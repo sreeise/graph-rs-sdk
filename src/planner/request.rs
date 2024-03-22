@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::planner::*;
 
-resource_api_client!(PlannerApiClient, ResourceIdentity::Planner);
+api_client!(PlannerApiClient, ResourceIdentity::Planner);
 
 impl PlannerApiClient {
     api_client_link_id!(bucket, BucketsIdApiClient);

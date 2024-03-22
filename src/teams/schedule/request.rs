@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(ScheduleApiClient, ResourceIdentity::Schedule);
+api_client!(ScheduleApiClient, ResourceIdentity::Schedule);
 
 impl ScheduleApiClient {
     delete!(

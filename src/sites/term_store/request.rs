@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::sites::*;
 
-resource_api_client!(TermStoreApiClient, ResourceIdentity::TermStore);
+api_client!(TermStoreApiClient, ResourceIdentity::TermStore);
 
 impl TermStoreApiClient {
     api_client_link_id!(set, TermStoreSetsIdApiClient);

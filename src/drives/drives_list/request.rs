@@ -7,7 +7,7 @@ use crate::drives::{
     LastModifiedByUserApiClient,
 };
 
-resource_api_client!(DrivesListApiClient, ResourceIdentity::DrivesList);
+api_client!(DrivesListApiClient, ResourceIdentity::DrivesList);
 
 impl DrivesListApiClient {
     api_client_link_id!(item, DrivesItemsIdApiClient);

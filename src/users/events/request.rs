@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::users::*;
 
-resource_api_client!(EventsApiClient, EventsIdApiClient, ResourceIdentity::Events);
+api_client!(EventsApiClient, EventsIdApiClient, ResourceIdentity::Events);
 
 impl EventsApiClient {
     post!(

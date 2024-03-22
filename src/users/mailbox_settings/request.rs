@@ -1,6 +1,6 @@
 use crate::api_default_imports::*;
 
-resource_api_client!(MailboxSettingsApiClient, ResourceIdentity::MailboxSettings);
+api_client!(MailboxSettingsApiClient, ResourceIdentity::MailboxSettings);
 
 impl MailboxSettingsApiClient {
     get!(

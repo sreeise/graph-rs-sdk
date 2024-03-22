@@ -18,7 +18,7 @@ fn drive() {
             assert!(response.status().is_success());
             let body: serde_json::Value = response.json().unwrap();
             assert_eq!(body["name"].as_str(), Some("update_test.docx"));
-            thread::sleep(Duration::from_secs(2));
+            thread::sleep(Duration::from_secs(4));
 
             let req = client
                 .drive(id.as_str())

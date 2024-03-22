@@ -6,7 +6,7 @@ use crate::communications::{
     calls::CallsApiClient, calls::CallsIdApiClient,
 };
 
-resource_api_client!(CommunicationsApiClient, ResourceIdentity::Communications);
+api_client!(CommunicationsApiClient, ResourceIdentity::Communications);
 
 impl CommunicationsApiClient {
     api_client_link_id!(

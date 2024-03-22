@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(PhotosApiClient, PhotosIdApiClient, ResourceIdentity::Photos);
+api_client!(PhotosApiClient, PhotosIdApiClient, ResourceIdentity::Photos);
 
 impl PhotosApiClient {
     get!(

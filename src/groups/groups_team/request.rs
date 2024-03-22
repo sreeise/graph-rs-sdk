@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(GroupsTeamApiClient, ResourceIdentity::GroupsTeam);
+api_client!(GroupsTeamApiClient, ResourceIdentity::GroupsTeam);
 
 impl GroupsTeamApiClient {
     patch!(

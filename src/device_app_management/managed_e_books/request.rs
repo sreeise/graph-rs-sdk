@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::device_app_management::*;
 
-resource_api_client!(
+api_client!(
     ManagedEBooksApiClient,
     ManagedEBooksIdApiClient,
     ResourceIdentity::ManagedEBooks

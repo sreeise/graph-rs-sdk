@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(OutlookApiClient, ResourceIdentity::Outlook);
+api_client!(OutlookApiClient, ResourceIdentity::Outlook);
 
 impl OutlookApiClient {
     get!(

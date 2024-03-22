@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::identity_governance::{AccessPackagesApiClient, AccessPackagesIdApiClient};
 
-resource_api_client!(
+api_client!(
     EntitlementManagementCatalogsApiClient,
     EntitlementManagementCatalogsIdApiClient,
     ResourceIdentity::EntitlementManagementCatalogs
