@@ -116,7 +116,6 @@ pub struct OpenIdAuthorizationUrlParameters {
     /// this parameter during re-authentication, after already extracting the login_hint
     /// optional claim from an earlier sign-in.
     pub(crate) login_hint: Option<String>,
-    verify_id_token: bool,
 }
 
 impl Debug for OpenIdAuthorizationUrlParameters {
@@ -154,7 +153,6 @@ impl OpenIdAuthorizationUrlParameters {
             prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
-            verify_id_token: Default::default(),
         })
     }
 
@@ -168,7 +166,6 @@ impl OpenIdAuthorizationUrlParameters {
             prompt: Default::default(),
             domain_hint: None,
             login_hint: None,
-            verify_id_token: Default::default(),
         }
     }
 
@@ -177,11 +174,7 @@ impl OpenIdAuthorizationUrlParameters {
     }
 
     pub fn into_credential(self, authorization_code: impl AsRef<str>) -> OpenIdCredentialBuilder {
-        OpenIdCredentialBuilder::new_with_auth_code(
-            self.app_config,
-            authorization_code,
-            self.verify_id_token,
-        )
+        OpenIdCredentialBuilder::new_with_auth_code(self.app_config, authorization_code)
     }
 
     pub fn url(&self) -> IdentityResult<Url> {
@@ -272,10 +265,6 @@ impl OpenIdAuthorizationUrlParameters {
                     ));
 
                     credential_builder.with_client_secret(client_secret);
-
-                    if self.verify_id_token {
-                        credential_builder.with_id_token_verification(true);
-                    }
 
                     Ok(WebViewAuthorizationEvent::Authorized {
                         authorization_response,
@@ -570,11 +559,6 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         self
     }
 
-    pub fn with_id_token_verification(&mut self, verify_id_token: bool) -> &mut Self {
-        self.credential.verify_id_token = verify_id_token;
-        self
-    }
-
     #[cfg(feature = "interactive-auth")]
     pub fn with_interactive_auth(
         &self,
@@ -601,7 +585,6 @@ impl OpenIdAuthorizationUrlParameterBuilder {
         OpenIdCredentialBuilder::new_with_auth_code(
             self.credential.app_config.clone(),
             authorization_code,
-            false,
         )
     }
 }

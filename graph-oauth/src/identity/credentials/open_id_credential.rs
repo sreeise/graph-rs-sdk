@@ -5,26 +5,23 @@ use async_trait::async_trait;
 use graph_core::cache::{CacheStore, InMemoryCacheStore, TokenCache};
 use http::{HeaderMap, HeaderName, HeaderValue};
 
-use jsonwebtoken::TokenData;
 use reqwest::IntoUrl;
-use url::{ParseError, Url};
+use url::Url;
 use uuid::Uuid;
 
 use graph_core::{
     crypto::{GenPkce, ProofKeyCodeExchange},
     http::{AsyncResponseConverterExt, ResponseConverterExt},
-    identity::{Claims, DecodedJwt, ForceTokenRefresh, JwksKeySet},
+    identity::ForceTokenRefresh,
 };
 
-use graph_error::{
-    AuthExecutionError, AuthExecutionResult, AuthorizationFailure, IdentityResult, AF,
-};
+use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 use crate::identity::credentials::app_config::{AppConfig, AppConfigBuilder};
 use crate::identity::{
-    tracing_targets::CREDENTIAL_EXECUTOR, Authority, AuthorizationResponse, AzureCloudInstance,
-    ConfidentialClientApplication, IdToken, OpenIdAuthorizationUrlParameterBuilder,
-    OpenIdAuthorizationUrlParameters, Token, TokenCredentialExecutor,
+    Authority, AuthorizationResponse, AzureCloudInstance, ConfidentialClientApplication, IdToken,
+    OpenIdAuthorizationUrlParameterBuilder, OpenIdAuthorizationUrlParameters, Token,
+    TokenCredentialExecutor,
 };
 use crate::internal::{AuthParameter, AuthSerializer};
 
@@ -68,8 +65,6 @@ pub struct OpenIdCredential {
     pub(crate) pkce: Option<ProofKeyCodeExchange>,
     serializer: AuthSerializer,
     token_cache: InMemoryCacheStore<Token>,
-    verify_id_token: bool,
-    id_token_jwt: Option<DecodedJwt>,
 }
 
 impl Debug for OpenIdCredential {
@@ -100,8 +95,6 @@ impl OpenIdCredential {
             pkce: None,
             serializer: Default::default(),
             token_cache: Default::default(),
-            verify_id_token: Default::default(),
-            id_token_jwt: None,
         })
     }
 
@@ -126,191 +119,6 @@ impl OpenIdCredential {
         self.pkce.as_ref()
     }
 
-    pub(crate) fn get_decoded_jwt(&self) -> Option<TokenData<Claims>> {
-        self.id_token_jwt.clone()
-    }
-
-    pub fn get_openid_config(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let uri = self
-            .app_config
-            .azure_cloud_instance
-            .openid_configuration_uri(&self.app_config.authority)
-            .map_err(AuthorizationFailure::from)?;
-        Ok(reqwest::blocking::get(uri)?)
-    }
-
-    pub async fn get_openid_config_async(&self) -> AuthExecutionResult<reqwest::Response> {
-        let uri = self
-            .app_config
-            .azure_cloud_instance
-            .openid_configuration_uri(&self.app_config.authority)
-            .map_err(AuthorizationFailure::from)?;
-        reqwest::get(uri).await.map_err(AuthExecutionError::from)
-    }
-
-    pub fn get_jwks(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        let config_response = self.get_openid_config()?;
-        let json: serde_json::Value = config_response.json()?;
-        let jwks_uri = json["jwks_uri"]
-            .as_str()
-            .ok_or(AuthExecutionError::Authorization(AF::msg_err(
-                "jwks_uri",
-                "not found in openid configuration",
-            )))?;
-        Ok(reqwest::blocking::get(jwks_uri)?)
-    }
-
-    pub async fn get_jwks_async(&self) -> AuthExecutionResult<reqwest::Response> {
-        let config_response = self.get_openid_config_async().await?;
-        let json: serde_json::Value = config_response.json().await?;
-        let jwks_uri = json["jwks_uri"]
-            .as_str()
-            .ok_or(AuthExecutionError::Authorization(AF::msg_err(
-                "jwks_uri",
-                "not found in openid configuration",
-            )))?;
-        reqwest::get(jwks_uri)
-            .await
-            .map_err(AuthExecutionError::from)
-    }
-
-    pub fn verify_jwks(&self) -> AuthExecutionResult<TokenData<Claims>> {
-        let cache_id = self.app_config.cache_id.to_string();
-        let token = self
-            .token_cache
-            .get(cache_id.as_str())
-            .ok_or(AF::msg_err("token", "no cached token"))?;
-        let mut id_token = token
-            .id_token
-            .ok_or(AF::msg_err("id_token", "no cached id_token"))?;
-        self.verify_jwks_from_token(&mut id_token)
-    }
-
-    pub async fn verify_jwks_async(&self) -> AuthExecutionResult<TokenData<Claims>> {
-        let cache_id = self.app_config.cache_id.to_string();
-        let token = self
-            .token_cache
-            .get(cache_id.as_str())
-            .ok_or(AF::msg_err("token", "no cached token"))?;
-        let mut id_token = token
-            .id_token
-            .clone()
-            .ok_or(AF::msg_err("id_token", "no cached id_token"))?;
-        self.verify_jwks_from_token_async(&mut id_token).await
-    }
-
-    fn verify_jwks_from_token(
-        &self,
-        id_token: &mut IdToken,
-    ) -> AuthExecutionResult<TokenData<Claims>> {
-        let headers = id_token.decode_header()?;
-        let kid = headers
-            .kid
-            .as_ref()
-            .ok_or(AF::msg_err("id_token", "id_token header does not have kid"))?;
-
-        let response = self.get_jwks()?;
-        let status = response.status();
-
-        tracing::debug!(target: CREDENTIAL_EXECUTOR, "jwks key set response received; status={status:#?}");
-
-        let key_set: JwksKeySet = response.json()?;
-        let jwks_key = key_set
-            .keys
-            .iter()
-            .find(|key| key.kid.eq(kid))
-            .cloned()
-            .ok_or(AF::msg_err(
-                "kid",
-                "no match found for kid in json web keys",
-            ))
-            .map_err(AuthExecutionError::from)?;
-
-        tracing::debug!(target: CREDENTIAL_EXECUTOR, "found matching kid in jwks key set");
-
-        if self.app_config.tenant_id.is_some() {
-            Ok(id_token.decode(
-                jwks_key.modulus.as_str(),
-                jwks_key.exponent.as_str(),
-                &self.app_config.client_id.to_string(),
-                Some(self.issuer().map_err(AuthorizationFailure::from)?.as_str()),
-            )?)
-        } else {
-            Ok(id_token.decode(
-                jwks_key.modulus.as_str(),
-                jwks_key.exponent.as_str(),
-                &self.app_config.client_id.to_string(),
-                None,
-            )?)
-        }
-    }
-
-    async fn verify_jwks_from_token_async(
-        &self,
-        id_token: &mut IdToken,
-    ) -> AuthExecutionResult<TokenData<Claims>> {
-        let headers = id_token.decode_header()?;
-        let value2 = serde_json::to_string(&headers).unwrap();
-        tracing::debug!(
-             target: CREDENTIAL_EXECUTOR,
-            value2
-        );
-
-        let kid = headers
-            .kid
-            .as_ref()
-            .ok_or(AF::msg_err("id_token", "id_token header does not have kid"))?;
-
-        let response = self.get_jwks_async().await?;
-        let key_set: JwksKeySet = response.json().await?;
-        let jwks_key = key_set
-            .keys
-            .iter()
-            .find(|key| key.kid.eq(kid))
-            .cloned()
-            .ok_or(AF::msg_err(
-                "kid",
-                "no match found for kid in json web keys",
-            ))
-            .map_err(AuthExecutionError::from)?;
-
-        if self.app_config.tenant_id.is_some() {
-            Ok(id_token.decode(
-                jwks_key.modulus.as_str(),
-                jwks_key.exponent.as_str(),
-                &self.app_config.client_id.to_string(),
-                Some(self.issuer().map_err(AuthorizationFailure::from)?.as_str()),
-            )?)
-        } else {
-            Ok(id_token.decode(
-                jwks_key.modulus.as_str(),
-                jwks_key.exponent.as_str(),
-                &self.app_config.client_id.to_string(),
-                None,
-            )?)
-        }
-    }
-
-    #[allow(unused)]
-    async fn verify_authorization_id_token_async(
-        &mut self,
-    ) -> Option<AuthExecutionResult<TokenData<Claims>>> {
-        if let Some(id_token) = self.app_config.id_token.as_ref() {
-            let mut id_token_clone = id_token.clone();
-            if !id_token_clone.verified {
-                return match self.verify_jwks_from_token_async(&mut id_token_clone).await {
-                    Ok(token_data) => {
-                        self.app_config.with_id_token(id_token_clone);
-                        Some(Ok(token_data))
-                    }
-                    Err(err) => Some(Err(err)),
-                };
-                // return Some(self.verify_jwks_from_token_async(&mut id_token_clone).await)
-            }
-        }
-        None
-    }
-
     fn execute_cached_token_refresh(&mut self, cache_id: String) -> AuthExecutionResult<Token> {
         let response = self.execute()?;
 
@@ -321,27 +129,6 @@ impl OpenIdCredential {
         }
 
         let new_token: Token = response.json()?;
-
-        if self.verify_id_token {
-            if let Some(mut id_token) = new_token.id_token.clone() {
-                tracing::debug!(target: CREDENTIAL_EXECUTOR, "performing jwks verification");
-
-                let id_token_verification_result = self.verify_jwks_from_token(&mut id_token);
-                if let Ok(token_data) = id_token_verification_result {
-                    self.id_token_jwt = Some(token_data);
-                    dbg!(&self.id_token_jwt);
-                    tracing::debug!(target: CREDENTIAL_EXECUTOR, "jwks verification successful");
-                } else if let Err(err) = id_token_verification_result {
-                    tracing::debug!(target: CREDENTIAL_EXECUTOR, "jwks verification failed - evicting token from cache");
-
-                    // The new token has not been stored in the cache but we still need evict any previous tokens.
-                    self.refresh_token = None;
-                    self.token_cache.evict(cache_id.as_str());
-                    return Err(err);
-                }
-            }
-        }
-
         self.token_cache.store(cache_id, new_token.clone());
 
         if new_token.refresh_token.is_some() {
@@ -365,37 +152,11 @@ impl OpenIdCredential {
 
         let new_token: Token = response.json().await?;
 
-        if self.verify_id_token {
-            if let Some(mut id_token) = new_token.id_token.clone() {
-                tracing::debug!(
-                    target: CREDENTIAL_EXECUTOR,
-                    verify_id_token = self.verify_id_token,
-                    "performing jwks verification:"
-                );
-
-                let id_token_verification_result =
-                    self.verify_jwks_from_token_async(&mut id_token).await;
-                if let Ok(token_data) = id_token_verification_result {
-                    self.id_token_jwt = Some(token_data);
-                    dbg!(&self.id_token_jwt);
-                    tracing::debug!(target: CREDENTIAL_EXECUTOR, "jwks verification successful");
-                } else if let Err(err) = id_token_verification_result {
-                    tracing::debug!(target: CREDENTIAL_EXECUTOR, "jwks verification failed - evicting token from cache");
-
-                    // The new token has not been stored in the cache but we still need evict any previous tokens.
-                    self.refresh_token = None;
-                    self.token_cache.evict(cache_id.as_str());
-                    return Err(err);
-                }
-            }
-        }
-
-        self.token_cache.store(cache_id, new_token.clone());
-
         if new_token.refresh_token.is_some() {
             self.refresh_token = new_token.refresh_token.clone();
         }
 
+        self.token_cache.store(cache_id, new_token.clone());
         Ok(new_token)
     }
 }
@@ -483,10 +244,6 @@ impl TokenCache for OpenIdCredential {
 
     fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
         self.app_config.force_token_refresh = force_token_refresh;
-    }
-
-    fn decoded_jwt(&self) -> Option<&DecodedJwt> {
-        self.id_token_jwt.as_ref()
     }
 }
 
@@ -622,8 +379,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
-                verify_id_token: Default::default(),
-                id_token_jwt: None,
             },
         }
     }
@@ -640,8 +395,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
-                verify_id_token: Default::default(),
-                id_token_jwt: None,
             },
         }
     }
@@ -649,7 +402,6 @@ impl OpenIdCredentialBuilder {
     pub(crate) fn new_with_auth_code(
         mut app_config: AppConfig,
         authorization_code: impl AsRef<str>,
-        verify_id_token: bool,
     ) -> OpenIdCredentialBuilder {
         app_config.scope.insert("openid".to_string());
         OpenIdCredentialBuilder {
@@ -662,8 +414,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
-                verify_id_token,
-                id_token_jwt: None,
             },
         }
     }
@@ -684,8 +434,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache: Default::default(),
-                verify_id_token: Default::default(),
-                id_token_jwt: None,
             },
         }
     }
@@ -705,8 +453,6 @@ impl OpenIdCredentialBuilder {
                 pkce: None,
                 serializer: Default::default(),
                 token_cache,
-                verify_id_token: Default::default(),
-                id_token_jwt: None,
             },
         }
     }
@@ -751,36 +497,6 @@ impl OpenIdCredentialBuilder {
         Ok(self)
     }
 
-    pub fn with_id_token_verification(&mut self, verify_id_token: bool) -> &mut Self {
-        self.credential.verify_id_token = verify_id_token;
-        self
-    }
-
-    pub fn issuer(&self) -> Result<Url, ParseError> {
-        self.credential.issuer()
-    }
-
-    pub fn get_openid_config(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        self.credential.get_openid_config()
-    }
-
-    pub async fn get_openid_config_async(&self) -> AuthExecutionResult<reqwest::Response> {
-        self.credential.get_openid_config_async().await
-    }
-
-    pub fn get_jwks(&self) -> AuthExecutionResult<reqwest::blocking::Response> {
-        self.credential.get_jwks()
-    }
-
-    pub async fn get_jwks_async(&self) -> AuthExecutionResult<reqwest::Response> {
-        self.credential.get_jwks_async().await
-    }
-
-    #[allow(dead_code)]
-    pub(crate) async fn verify_jwks_async(&self) -> AuthExecutionResult<TokenData<Claims>> {
-        self.credential.verify_jwks_async().await
-    }
-
     pub fn credential(&self) -> &OpenIdCredential {
         &self.credential
     }
@@ -809,9 +525,9 @@ impl From<(AppConfig, AuthorizationResponse)> for OpenIdCredentialBuilder {
                     Some(authorization_code.as_ref()),
                     None,
                 ));
-                OpenIdCredentialBuilder::new_with_auth_code(app_config, authorization_code, true)
+                OpenIdCredentialBuilder::new_with_auth_code(app_config, authorization_code)
             } else {
-                OpenIdCredentialBuilder::new_with_auth_code(app_config, authorization_code, false)
+                OpenIdCredentialBuilder::new_with_auth_code(app_config, authorization_code)
             }
         } else {
             OpenIdCredentialBuilder::new_with_token(

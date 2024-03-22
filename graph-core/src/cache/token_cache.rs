@@ -1,4 +1,4 @@
-use crate::identity::{DecodedJwt, ForceTokenRefresh};
+use crate::identity::ForceTokenRefresh;
 use async_trait::async_trait;
 use graph_error::AuthExecutionError;
 
@@ -27,8 +27,4 @@ pub trait TokenCache {
     async fn get_token_silent_async(&mut self) -> Result<Self::Token, AuthExecutionError>;
 
     fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh);
-
-    fn decoded_jwt(&self) -> Option<&DecodedJwt> {
-        None
-    }
 }

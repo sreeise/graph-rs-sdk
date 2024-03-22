@@ -7,6 +7,17 @@ use graph_rs_sdk::{
     GraphClient,
 };
 
+// Use the into_credential_builder method to map the WebViewAuthorizationEvent to a
+// CredentialBuilder result. The CredentialBuilder for openid will be the OpenIdCredentialBuilder.
+// The into_credential_builder method transforms WebViewAuthorizationEvent::Authorized to a
+// successful result.
+//
+// A WebViewAuthorizationEvent::Unauthorized and WebViewAuthorizationEvent::WindowClosed
+// are returned as errors in the result: Result<(AuthorizationResponse, CredentialBuilder), WebViewError>
+//
+// The openid_authenticate2 method shows handling the WebViewAuthorizationEvent manually which is the
+// default return type of using with_interactive_auth and provides better event handling.
+
 async fn openid_authenticate(
     tenant_id: &str,
     client_id: &str,

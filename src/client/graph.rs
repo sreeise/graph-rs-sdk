@@ -68,7 +68,7 @@ use crate::teams_templates::{TeamsTemplatesApiClient, TeamsTemplatesIdApiClient}
 use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
-use graph_core::identity::{DecodedJwt, ForceTokenRefresh};
+use graph_core::identity::ForceTokenRefresh;
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -296,10 +296,6 @@ impl GraphClient {
     #[cfg(feature = "test-util")]
     pub fn use_test_endpoint(&mut self, url: &Url) {
         self.endpoint = url.clone();
-    }
-
-    pub fn decoded_jwt(&self) -> Option<&DecodedJwt> {
-        self.client.get_decoded_jwt()
     }
 
     api_client_impl!(admin, AdminApiClient);

@@ -2,17 +2,13 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 
 use async_trait::async_trait;
-use jsonwebtoken::TokenData;
 
 use reqwest::Response;
 use url::Url;
 use uuid::Uuid;
 
-use graph_core::identity::{ClientApplication, DecodedJwt, ForceTokenRefresh};
-use graph_core::{
-    cache::{AsBearer, TokenCache},
-    identity::Claims,
-};
+use graph_core::cache::{AsBearer, TokenCache};
+use graph_core::identity::{ClientApplication, ForceTokenRefresh};
 use graph_error::{AuthExecutionResult, IdentityResult};
 
 use crate::identity::{
@@ -78,10 +74,6 @@ impl<Credential: Clone + Debug + Send + Sync + TokenCache + TokenCredentialExecu
     fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
         self.credential
             .with_force_token_refresh(force_token_refresh);
-    }
-
-    fn get_decoded_jwt(&self) -> Option<&DecodedJwt> {
-        self.credential.decoded_jwt()
     }
 }
 
@@ -173,12 +165,6 @@ impl From<ClientAssertionCredential> for ConfidentialClientApplication<ClientAss
 impl From<OpenIdCredential> for ConfidentialClientApplication<OpenIdCredential> {
     fn from(value: OpenIdCredential) -> Self {
         ConfidentialClientApplication::credential(value)
-    }
-}
-
-impl ConfidentialClientApplication<OpenIdCredential> {
-    pub fn decoded_id_token(&self) -> Option<TokenData<Claims>> {
-        self.credential.get_decoded_jwt()
     }
 }
 

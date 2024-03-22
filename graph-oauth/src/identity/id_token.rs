@@ -87,12 +87,14 @@ impl IdToken {
         jsonwebtoken::decode_header(self.id_token.as_str())
     }
 
+    /// Slated Post 2.0 Release
     /// Decode and verify the id token using the following parameters:
     /// modulus (n): product of two prime numbers used to generate key pair.
     /// Exponent (e): exponent used to decode the data.
     /// client_id: tenant client id in Azure.
     /// issuer: issuer for tenant in Azure.
-    pub fn decode(
+    #[allow(dead_code)]
+    fn decode(
         &mut self,
         modulus: &str,
         exponent: &str,

@@ -41,6 +41,7 @@ async fn authenticate(
             .with_tenant(tenant_id)
             .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
             .with_redirect_uri(Url::parse(redirect_uri)?)
+            // Can be Secret("value"), Assertion("value"), or X509Certificate
             .with_interactive_auth(Secret("secret".to_string()), Default::default())
             .into_credential_builder()?;
 
