@@ -1,5 +1,6 @@
-use crate::{ErrorMessage, IdentityResult};
+use crate::{ErrorMessage, IdentityResult, WebViewDeviceCodeError};
 use tokio::sync::mpsc::error::SendTimeoutError;
+use url::ParseError;
 
 pub type AF = AuthorizationFailure;
 
@@ -124,6 +125,21 @@ impl AuthExecutionError {
 impl From<serde_json::error::Error> for AuthExecutionError {
     fn from(value: serde_json::error::Error) -> Self {
         AuthExecutionError::Authorization(AuthorizationFailure::from(value))
+    }
+}
+
+impl From<WebViewDeviceCodeError> for AuthExecutionError {
+    fn from(value: WebViewDeviceCodeError) -> Self {
+        AuthExecutionError::Authorization(AuthorizationFailure::msg_err(
+            "Unknown",
+            &value.to_string(),
+        ))
+    }
+}
+
+impl From<url::ParseError> for AuthExecutionError {
+    fn from(value: ParseError) -> Self {
+        AuthExecutionError::Authorization(AuthorizationFailure::UrlParse(value))
     }
 }
 

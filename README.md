@@ -1277,6 +1277,8 @@ async fn build_client(
 
 Requires Feature `interactive-auth`
 
+NOTE: Device code interactive auth does not currently work in async code.
+
 ```toml
 [dependencies]
 graph-rs-sdk = { version = "...", features = ["interactive-auth"] }

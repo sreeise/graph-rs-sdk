@@ -5,6 +5,7 @@ use std::sync::mpsc::Sender;
 use std::time::{Duration, Instant};
 use tao::event::{Event, StartCause, WindowEvent};
 use tao::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
+use tao::platform::run_return::EventLoopExtRunReturn;
 use tao::window::{Window, WindowBuilder};
 use url::Url;
 use wry::WebView;
@@ -65,13 +66,13 @@ where
         options: WebViewOptions,
         sender: Sender<InteractiveAuthEvent>,
     ) -> anyhow::Result<()> {
-        let event_loop: EventLoop<UserEvents> = Self::event_loop();
+        let mut event_loop: EventLoop<UserEvents> = Self::event_loop();
         let proxy = event_loop.create_proxy();
         let window = Self::window_builder(&options).build(&event_loop).unwrap();
         let host_options = HostOptions::new(start_url, redirect_uris, options.ports.clone());
         let webview = Self::webview(host_options, &window, proxy)?;
 
-        event_loop.run(move |event, _, control_flow| {
+        event_loop.run_return(move |event, _, control_flow| {
             if let Some(timeout) = options.timeout.as_ref() {
                 *control_flow = ControlFlow::WaitUntil(*timeout);
             } else {
@@ -163,6 +164,7 @@ where
                 _ => (),
             }
         });
+        Ok(())
     }
 
     #[cfg(target_family = "windows")]

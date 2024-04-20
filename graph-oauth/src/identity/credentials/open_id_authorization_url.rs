@@ -25,6 +25,7 @@ use {
         HostOptions, InteractiveAuthEvent, UserEvents, WebViewAuth, WebViewAuthorizationEvent,
         WebViewHostValidator, WebViewOptions,
     },
+    crate::Secret,
     graph_error::{WebViewError, WebViewResult},
     tao::{event_loop::EventLoopProxy, window::Window},
     wry::{WebView, WebViewBuilder},
@@ -562,11 +563,11 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     #[cfg(feature = "interactive-auth")]
     pub fn with_interactive_auth(
         &self,
-        client_secret: impl AsRef<str>,
+        client_secret: Secret,
         options: WebViewOptions,
     ) -> WebViewResult<WebViewAuthorizationEvent<OpenIdCredentialBuilder>> {
         self.credential
-            .interactive_webview_authentication(client_secret, options)
+            .interactive_webview_authentication(client_secret.0, options)
     }
 
     pub fn build(&self) -> OpenIdAuthorizationUrlParameters {

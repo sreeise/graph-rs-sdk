@@ -531,8 +531,9 @@ impl DeviceCodePollingExecutor {
     }
 
     #[cfg(feature = "interactive-auth")]
-    pub fn with_interactive_authentication(
+    pub fn with_interactive_auth(
         &mut self,
+        options: WebViewOptions,
     ) -> AuthExecutionResult<(DeviceAuthorizationResponse, DeviceCodeInteractiveAuth)> {
         let response = self.credential.execute()?;
         let device_authorization_response: DeviceAuthorizationResponse = response.json()?;
@@ -546,6 +547,7 @@ impl DeviceCodePollingExecutor {
                 interval: Duration::from_secs(device_authorization_response.interval),
                 verification_uri: device_authorization_response.verification_uri.clone(),
                 verification_uri_complete: device_authorization_response.verification_uri_complete,
+                options,
             },
         ))
     }
@@ -581,27 +583,28 @@ pub struct DeviceCodeInteractiveAuth {
     interval: Duration,
     verification_uri: String,
     verification_uri_complete: Option<String>,
+    options: WebViewOptions,
 }
 
 #[allow(dead_code)]
 #[cfg(feature = "interactive-auth")]
 impl DeviceCodeInteractiveAuth {
     pub(crate) fn new(
-        mut credential: DeviceCodeCredential,
+        credential: DeviceCodeCredential,
         device_authorization_response: DeviceAuthorizationResponse,
+        options: WebViewOptions,
     ) -> DeviceCodeInteractiveAuth {
-        credential.with_device_code(device_authorization_response.device_code.clone());
         DeviceCodeInteractiveAuth {
             credential,
             interval: Duration::from_secs(device_authorization_response.interval),
             verification_uri: device_authorization_response.verification_uri.clone(),
             verification_uri_complete: device_authorization_response.verification_uri_complete,
+            options,
         }
     }
 
-    pub fn interactive_webview_authentication(
+    pub fn poll(
         &mut self,
-        options: WebViewOptions,
     ) -> Result<PublicClientApplication<DeviceCodeCredential>, WebViewDeviceCodeError> {
         let url = {
             if let Some(url_complete) = self.verification_uri_complete.as_ref() {
@@ -611,21 +614,22 @@ impl DeviceCodeInteractiveAuth {
             }
         };
 
-        let (sender, _receiver) = std::sync::mpsc::channel();
+        let (sender, receiver) = std::sync::mpsc::channel();
 
+        let options = self.options.clone();
         std::thread::spawn(move || {
             DeviceCodeCredential::run(url, vec![], options, sender).unwrap();
         });
 
-        self.poll()
-    }
-
-    pub(crate) fn poll(
-        &mut self,
-    ) -> Result<PublicClientApplication<DeviceCodeCredential>, WebViewDeviceCodeError> {
         let mut credential = self.credential.clone();
         let mut interval = self.interval;
+        DeviceCodeInteractiveAuth::poll_internal(interval, credential)
+    }
 
+    pub(crate) fn poll_internal(
+        mut interval: Duration,
+        mut credential: DeviceCodeCredential,
+    ) -> Result<PublicClientApplication<DeviceCodeCredential>, WebViewDeviceCodeError> {
         loop {
             // Wait the amount of seconds that interval is.
             std::thread::sleep(interval);
@@ -635,12 +639,17 @@ impl DeviceCodeInteractiveAuth {
             let status = http_response.status();
 
             if status.is_success() {
-                let json = http_response.json().unwrap();
-                let token: Token = serde_json::from_value(json)
-                    .map_err(|err| Box::new(AuthExecutionError::from(err)))?;
-                let cache_id = credential.app_config.cache_id.clone();
-                credential.token_cache.store(cache_id, token);
-                return Ok(PublicClientApplication::from(credential));
+                return if let Some(json) = http_response.json() {
+                    let token: Token = serde_json::from_value(json)
+                        .map_err(|err| Box::new(AuthExecutionError::from(err)))?;
+                    let cache_id = credential.app_config.cache_id.clone();
+                    credential.token_cache.store(cache_id, token);
+                    Ok(PublicClientApplication::from(credential))
+                } else {
+                    Err(WebViewDeviceCodeError::DeviceCodePollingError(
+                        http_response,
+                    ))
+                };
             } else {
                 let json = http_response.json().unwrap();
                 let option_error = json["error"].as_str().map(|value| value.to_owned());

@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use graph_oauth::Secret;
 use graph_rs_sdk::{
     http::Url,
     identity::interactive::WebViewAuthorizationEvent,
@@ -34,7 +35,7 @@ async fn openid_authenticate(
             .with_response_mode(ResponseMode::Fragment)
             .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
             .with_redirect_uri(Url::parse(redirect_uri)?)
-            .with_interactive_auth(client_secret, Default::default())
+            .with_interactive_auth(Secret(client_secret.to_string()), Default::default())
             .into_credential_builder()?;
 
     debug!("{authorization_response:#?}");
@@ -59,7 +60,7 @@ async fn openid_authenticate2(
         .with_response_mode(ResponseMode::Fragment)
         .with_response_type(vec![ResponseType::Code, ResponseType::IdToken])
         .with_redirect_uri(Url::parse(redirect_uri)?)
-        .with_interactive_auth(client_secret, Default::default())?;
+        .with_interactive_auth(Secret(client_secret.to_string()), Default::default())?;
 
     match auth_event {
         WebViewAuthorizationEvent::Authorized {
