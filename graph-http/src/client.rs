@@ -5,11 +5,24 @@ use graph_error::GraphResult;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
+use reqwest::{Request, Response};
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
 use std::time::Duration;
+use tower::limit::ConcurrencyLimitLayer;
+use tower::retry::RetryLayer;
+use tower::util::BoxCloneService;
+use tower::ServiceExt;
+
 use url::Url;
+
+#[derive(Default, Clone)]
+struct ServiceLayersConfiguration {
+    concurrency_limit: Option<usize>,
+    retry: Option<usize>,
+    wait_for_retry_after_headers: Option<()>,
+}
 
 #[derive(Clone)]
 struct ClientConfiguration {
@@ -23,6 +36,7 @@ struct ClientConfiguration {
     /// TLS 1.2 required to support all features in Microsoft Graph
     /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     min_tls_version: Version,
+    service_layers_configuration: ServiceLayersConfiguration,
 }
 
 impl ClientConfiguration {
@@ -39,6 +53,7 @@ impl ClientConfiguration {
             connection_verbose: false,
             https_only: true,
             min_tls_version: Version::TLS_1_2,
+            service_layers_configuration: ServiceLayersConfiguration::default(),
         }
     }
 }
@@ -139,6 +154,45 @@ impl GraphClientConfiguration {
         self
     }
 
+    /// Enable a request retry in case of failure and how many times we should retry before giving up
+    ///
+    /// Some requests may fail on GraphAPI side and should be retried. Only server errors (HTTP code between 500 and 599) with be retried.
+    ///
+    /// Default is no retry
+    pub fn retry(mut self, retry: Option<usize>) -> GraphClientConfiguration {
+        self.config.service_layers_configuration.retry = retry;
+        self
+    }
+
+    /// Enable a request retry if we reach the throttling limits and GraphAPI returns a 429 Too Many Requests with a Retry-After header
+    ///
+    /// Be careful with this parameter as some API endpoints have quite low limits (reports for example) and the request may hang for hundreds of seconds.
+    /// For maximum throughput you may want to not respect the Retry-After header as hitting another server thanks to load-balancing may lead to a successful response.
+    ///
+    /// Default is no retry
+    pub fn wait_for_retry_after_headers(mut self, retry: bool) -> GraphClientConfiguration {
+        self.config
+            .service_layers_configuration
+            .wait_for_retry_after_headers = match retry {
+            true => Some(()),
+            false => None,
+        };
+        self
+    }
+
+    /// Enable a concurrency limit on the client
+    ///
+    /// Every request through this client will be subject to a concurrency limit. Can be useful to stay under the API limits set by GraphAPI
+    ///
+    /// Default is no concurrency limit
+    pub fn concurrency_limit(
+        mut self,
+        concurrency_limit: Option<usize>,
+    ) -> GraphClientConfiguration {
+        self.config.service_layers_configuration.concurrency_limit = concurrency_limit;
+        self
+    }
+
     pub fn build(self) -> Client {
         let config = self.clone();
         let headers = self.config.headers.clone();
@@ -158,11 +212,36 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
+        let client = builder.build().unwrap();
+
+        let service = tower::ServiceBuilder::new()
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .retry
+                    .map(|num| RetryLayer::new(crate::tower_services::Attempts(num))),
+            )
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .wait_for_retry_after_headers
+                    .map(|_| RetryLayer::new(crate::tower_services::WaitFor())),
+            )
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .concurrency_limit
+                    .map(ConcurrencyLimitLayer::new),
+            )
+            .service(client.clone())
+            .boxed_clone();
+
         Client {
             access_token: self.config.access_token.unwrap_or_default(),
-            inner: builder.build().unwrap(),
+            inner: client,
             headers,
             builder: config,
+            service,
         }
     }
 
@@ -204,6 +283,8 @@ pub struct Client {
     pub(crate) inner: reqwest::Client,
     pub(crate) headers: HeaderMap,
     pub(crate) builder: GraphClientConfiguration,
+    pub(crate) service:
+        BoxCloneService<Request, Response, Box<dyn std::error::Error + Send + Sync>>,
 }
 
 impl Client {
