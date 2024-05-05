@@ -2703,7 +2703,7 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::BookingBusinesses => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
-			.filter_path(vec!["appointments", "calendarView", "customQuestions", "customers", "services", "staffMembers"])
+			.filter_path(vec!["appointments", "customQuestions", "customers", "services", "staffMembers"])
 			.trim_path_start("/solutions")
 			.build()
 			.unwrap(),
