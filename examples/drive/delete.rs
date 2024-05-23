@@ -8,7 +8,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 // Delete a drive item by id.
 pub async fn delete_by_id(item_id: &str) {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     // Send the request.
     let response = client
@@ -26,7 +26,7 @@ pub async fn delete_by_id(item_id: &str) {
 
 // Deleting an item by path.
 pub async fn delete_by_path(path: &str) {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     // Send the request.
     let response = client

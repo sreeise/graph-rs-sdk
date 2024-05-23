@@ -8,7 +8,7 @@ static USER_ID: &str = "USER_ID";
 static PAGE_ID: &str = "PAGE_ID";
 
 pub async fn delete_page() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .user(USER_ID)

@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(PlacesApiClient, PlacesIdApiClient, ResourceIdentity::Places);
+api_client!(PlacesApiClient, PlacesIdApiClient, ResourceIdentity::Places);
 
 impl PlacesApiClient {
     get!(

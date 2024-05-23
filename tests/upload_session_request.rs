@@ -3,9 +3,9 @@ use graph_error::{GraphFailure, GraphResult};
 use graph_http::api_impl::UploadSession;
 use graph_http::traits::ResponseExt;
 use graph_rs_sdk::Graph;
-use std::thread;
+
 use std::time::Duration;
-use test_tools::oauth_request::{OAuthTestClient, DRIVE_ASYNC_THROTTLE_MUTEX};
+use test_tools::oauth_request::DEFAULT_CLIENT_CREDENTIALS_MUTEX2;
 
 async fn delete_item(
     drive_id: &str,
@@ -96,7 +96,7 @@ async fn channel_upload_session(mut upload_session: UploadSession) -> GraphResul
             }
             Err(err) => {
                 cancel_request.send().await?;
-                return Err(err).map_err(GraphFailure::from);
+                return Err(GraphFailure::from(err));
             }
         }
     }
@@ -162,31 +162,45 @@ async fn file_upload_session_channel(
 // This is a long running test. 20 - 30 seconds.
 #[tokio::test]
 async fn test_upload_session() {
-    let _lock = DRIVE_ASYNC_THROTTLE_MUTEX.lock().await;
-    if let Some((id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
-        let item_by_path = ":/upload_session_file.txt:";
-        let local_file = "./test_files/upload_session_file.txt";
+    let test_client = DEFAULT_CLIENT_CREDENTIALS_MUTEX2.lock().await;
+    let item_by_path = ":/upload_session_file.txt:";
+    let local_file = "./test_files/upload_session_file.txt";
 
-        // Stream Upload Session
-        let stream_item_id =
-            file_upload_session_stream(id.as_str(), item_by_path, local_file, &client)
-                .await
-                .unwrap();
-        let response = delete_item(id.as_str(), stream_item_id.as_str(), &client)
-            .await
-            .unwrap();
-        assert!(response.status().is_success());
+    // Stream Upload Session
+    let stream_item_id = file_upload_session_stream(
+        test_client.user_id.as_str(),
+        item_by_path,
+        local_file,
+        &test_client.client,
+    )
+    .await
+    .unwrap();
+    let response = delete_item(
+        test_client.user_id.as_str(),
+        stream_item_id.as_str(),
+        &test_client.client,
+    )
+    .await
+    .unwrap();
+    assert!(response.status().is_success());
 
-        thread::sleep(Duration::from_secs(2));
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
-        // Channel Upload Session
-        let channel_item_id =
-            file_upload_session_channel(id.as_str(), item_by_path, local_file, &client)
-                .await
-                .unwrap();
-        let response = delete_item(id.as_str(), channel_item_id.as_str(), &client)
-            .await
-            .unwrap();
-        assert!(response.status().is_success());
-    }
+    // Channel Upload Session
+    let channel_item_id = file_upload_session_channel(
+        test_client.user_id.as_str(),
+        item_by_path,
+        local_file,
+        &test_client.client,
+    )
+    .await
+    .unwrap();
+    let response = delete_item(
+        test_client.user_id.as_str(),
+        channel_item_id.as_str(),
+        &test_client.client,
+    )
+    .await
+    .unwrap();
+    assert!(response.status().is_success());
 }

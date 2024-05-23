@@ -11,14 +11,14 @@ static ATTACHMENT_ID: &str = "ATTACHMENT_ID";
 static USER_ID: &str = "USER_ID";
 
 pub async fn list_messages() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client.me().messages().list_messages().send().await.unwrap();
     println!("{response:#?}");
 }
 
 pub async fn user_list_messages() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .user(USER_ID)
@@ -32,7 +32,7 @@ pub async fn user_list_messages() {
 }
 
 pub async fn delete_message() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -46,7 +46,7 @@ pub async fn delete_message() {
 }
 
 pub async fn create_message() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -74,7 +74,7 @@ pub async fn create_message() {
 }
 
 pub async fn update_message() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -110,7 +110,7 @@ pub async fn send_message() {
 }
 
 pub async fn send_mail() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()

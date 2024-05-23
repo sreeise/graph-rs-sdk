@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::users::*;
 
-resource_api_client!(OnenoteApiClient, ResourceIdentity::Onenote);
+api_client!(OnenoteApiClient, ResourceIdentity::Onenote);
 
 impl OnenoteApiClient {
     api_client_link!(sections, OnenoteSectionsApiClient);

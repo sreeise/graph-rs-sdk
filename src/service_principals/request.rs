@@ -4,7 +4,7 @@ use crate::api_default_imports::*;
 use crate::service_principals::*;
 use crate::users::*;
 
-resource_api_client!(
+api_client!(
     ServicePrincipalsApiClient,
     ServicePrincipalsIdApiClient,
     ResourceIdentity::ServicePrincipals

@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(PresenceApiClient, ResourceIdentity::Presence);
+api_client!(PresenceApiClient, ResourceIdentity::Presence);
 
 impl PresenceApiClient {
     delete!(

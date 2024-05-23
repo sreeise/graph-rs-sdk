@@ -1,6 +1,6 @@
 #[macro_use]
-pub mod macros;
+pub mod http_macros;
 #[macro_use]
-pub mod register_client;
+pub mod api_client;
 #[macro_use]
 pub mod api_client_link;

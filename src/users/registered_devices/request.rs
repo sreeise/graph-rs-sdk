@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(
+api_client!(
     RegisteredDevicesApiClient,
     RegisteredDevicesIdApiClient,
     ResourceIdentity::RegisteredDevices

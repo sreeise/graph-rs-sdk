@@ -1,18 +1,38 @@
 [package]
 name = "graph-core"
-version = "0.4.2"
+version = "2.0.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs-sdk"
-description = "Common types for the graph-rs-sdk crate"
-
-keywords = ["onedrive", "microsoft", "microsoft-graph", "api"]
-categories = ["web-programming::http-client"]
+description = "Common types and traits for the graph-rs-sdk crate"
+homepage = "https://github.com/sreeise/graph-rs-sdk"
 
 [dependencies]
+async-stream = "0.3"
+async-trait = "0.1.35"
+base64 = "0.21.0"
+dyn-clone = "1.0.14"
 Inflector = "0.11.4"
+http = "0.2.11"
+jsonwebtoken = "9.1.0"
+parking_lot = "0.12.1"
+percent-encoding = "2"
+reqwest = { version = "0.11.22", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
+ring = "0.16.15"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-strum = { version = "0.24.1", features = ["derive"] }
+strum = { version = "0.25.0", features = ["derive"] }
 remain = "0.2.6"
+tracing = "0.1.37"
+url = { version = "2", features = ["serde"] }
+
+graph-error = { version = "0.3.0-beta.0", path = "../graph-error"  }
+
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
+brotli = ["reqwest/brotli"]
+deflate = ["reqwest/deflate"]
+trust-dns = ["reqwest/trust-dns"]

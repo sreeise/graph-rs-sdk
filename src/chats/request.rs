@@ -4,7 +4,7 @@ use crate::api_default_imports::*;
 use crate::chats::*;
 use crate::teams::*;
 
-resource_api_client!(ChatsApiClient, ChatsIdApiClient, ResourceIdentity::Chats);
+api_client!(ChatsApiClient, ChatsIdApiClient, ResourceIdentity::Chats);
 
 impl ChatsApiClient {
     post!(

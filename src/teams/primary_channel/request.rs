@@ -4,7 +4,7 @@ use crate::api_default_imports::*;
 use crate::chats::*;
 use crate::teams::*;
 
-resource_api_client!(PrimaryChannelApiClient, ResourceIdentity::PrimaryChannel);
+api_client!(PrimaryChannelApiClient, ResourceIdentity::PrimaryChannel);
 
 impl PrimaryChannelApiClient {
     api_client_link!(members, TeamsMembersApiClient);

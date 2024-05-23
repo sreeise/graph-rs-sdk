@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(AuditLogsApiClient, ResourceIdentity::AuditLogs);
+api_client!(AuditLogsApiClient, ResourceIdentity::AuditLogs);
 
 impl AuditLogsApiClient {
     get!(

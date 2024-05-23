@@ -6,6 +6,6 @@ use test_tools::oauth_request::OAuthTestClient;
 #[test]
 fn client_credentials_test() {
     if let Some(token) = OAuthTestClient::ClientCredentials.request_access_token() {
-        assert!(!token.1.bearer_token().is_empty());
+        assert!(!token.1.access_token.is_empty());
     }
 }

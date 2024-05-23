@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::identity_governance::{AssignmentPoliciesApiClient, AssignmentPoliciesIdApiClient};
 
-resource_api_client!(
+api_client!(
     AccessPackagesApiClient,
     AccessPackagesIdApiClient,
     ResourceIdentity::AccessPackages

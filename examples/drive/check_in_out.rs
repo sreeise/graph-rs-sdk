@@ -12,7 +12,7 @@ static ITEM_ID: &str = "ITEM_ID";
 // For more information on checking out a drive item see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkout?view=odsp-graph-online
 async fn check_out_item() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -31,7 +31,7 @@ async fn check_out_item() {
 // For more information on checking in a drive item see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_checkin?view=odsp-graph-online
 async fn check_in_item() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     // checkInAs: Optional. The desired status of the document after the check-in
     // operation is complete. Can be 'published' or 'unspecified'.

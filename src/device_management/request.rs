@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::device_management::*;
 
-resource_api_client!(
+api_client!(
     DeviceManagementApiClient,
     ResourceIdentity::DeviceManagement
 );

@@ -25,7 +25,7 @@ static RESOURCE_ID: &str = "RESOURCE_ID";
 
 // Uploading a file using the drive id and parent id.
 async fn upload_file() -> GraphResult<()> {
-    let graph = Graph::new(ACCESS_TOKEN);
+    let graph = GraphClient::new(ACCESS_TOKEN);
     let response = graph
         .me()
         .drive()
@@ -44,7 +44,7 @@ async fn upload_file() -> GraphResult<()> {
 
 // Uploading a file using the drive id and parent id.
 async fn upload_file_reqwest_body() -> GraphResult<()> {
-    let graph = Graph::new(ACCESS_TOKEN);
+    let graph = GraphClient::new(ACCESS_TOKEN);
 
     let file = tokio::fs::File::open(LOCAL_FILE_PATH).await?;
     let body = reqwest::Body::from(file);
@@ -66,7 +66,7 @@ async fn upload_file_reqwest_body() -> GraphResult<()> {
 }
 
 async fn upload_using_read() -> GraphResult<()> {
-    let graph = Graph::new(ACCESS_TOKEN);
+    let graph = GraphClient::new(ACCESS_TOKEN);
 
     let file = OpenOptions::new().read(true).open(LOCAL_FILE_PATH)?;
 
@@ -88,7 +88,7 @@ async fn upload_using_read() -> GraphResult<()> {
 }
 
 async fn upload_using_async_read() -> GraphResult<()> {
-    let graph = Graph::new(ACCESS_TOKEN);
+    let graph = GraphClient::new(ACCESS_TOKEN);
 
     let file = tokio::fs::File::open(LOCAL_FILE_PATH).await?;
     let reader = BodyRead::from_async_read(file).await?;
@@ -110,7 +110,7 @@ async fn upload_using_async_read() -> GraphResult<()> {
 }
 
 async fn upload_file_bytes_mut(bytes_mut: BytesMut) -> GraphResult<()> {
-    let graph = Graph::new(ACCESS_TOKEN);
+    let graph = GraphClient::new(ACCESS_TOKEN);
     let reader = BodyRead::try_from(bytes_mut)?;
 
     let response = graph
@@ -132,7 +132,7 @@ async fn upload_file_bytes_mut(bytes_mut: BytesMut) -> GraphResult<()> {
 // Upload a file using a ParentReference.
 // This example uses the Documents folder of a users OneDrive.
 async fn drive_upload() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .drive(RESOURCE_ID)
@@ -152,7 +152,7 @@ async fn drive_upload() -> GraphResult<()> {
 // Upload a file using a ParentReference.
 // This example uses the Documents folder of a users OneDrive.
 async fn user_upload() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .user(RESOURCE_ID)
@@ -174,7 +174,7 @@ async fn user_upload() -> GraphResult<()> {
 // This example uses the Documents folder of a users OneDrive.
 async fn sites_upload() -> GraphResult<()> {
     // Get the latest metadata for the root drive folder items.
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .site(RESOURCE_ID)

@@ -30,7 +30,7 @@ static CONFLICT_BEHAVIOR: &str = "rename";
 /// Use [`while let Some(result) = upload_session.next()`] when using Iterator impl.
 /// DO NOT use [`for result in upload_session.next()`] when using Iterator impl.
 pub async fn upload_file(file: std::fs::File) -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let upload = serde_json::json!({
         "@microsoft.graph.conflictBehavior": Some(CONFLICT_BEHAVIOR.to_string())
@@ -56,7 +56,7 @@ pub async fn upload_file(file: std::fs::File) -> GraphResult<()> {
 }
 
 pub async fn upload_file_async_read() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let upload = serde_json::json!({
         "@microsoft.graph.conflictBehavior": Some(CONFLICT_BEHAVIOR.to_string())
