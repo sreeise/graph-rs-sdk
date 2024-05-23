@@ -13,7 +13,7 @@ use url::Url;
 // If you are listening on a server use the response mod ResponseMode::FormPost.
 // Servers do not get sent the URL query and so in order to get what would normally be in
 // the query of URL use a form post which sends the data as a POST http request.
-// Furthermore openid does not support the query response mode but does support fragment.
+// Furthermore, openid does not support the query response mode but does support fragment.
 
 // The URL builder below will create the full URL with the query that you will
 // need to send the user to such as redirecting the page they are on when using
@@ -23,7 +23,7 @@ use url::Url;
 
 // Use the form post response mode when listening on a server instead
 // of the URL query because the the query does not get sent to servers.
-fn openid_authorization_url3(
+fn openid_authorization_url(
     client_id: &str,
     tenant: &str,
     redirect_uri: &str,

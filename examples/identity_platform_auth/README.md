@@ -1,15 +1,19 @@
 # Identity Overview
 
+The following provides a brief overview of the credential types. For more comprehensive examples
+see the individual code examples in this directory.
+
 There are two main types for building your chosen OAuth or OpenId Connect Flow.
 
 - `PublicClientApplication`
 - `ConfidentialClientApplication`
 
 
-## Table Of Contents
+## Overview Of Credential Types
 
 * [Credentials](#credentials)
   * [Authorization Code Grant](#authorization-code-grant)
+  * [OpenId](#openid)
   * [Client Credentials](#client-credentials)
     * [Client Secret Credential](#client-secret-credential)
   * [Environment Credentials](#environment-credentials)
@@ -23,6 +27,9 @@ There are two main types for building your chosen OAuth or OpenId Connect Flow.
 The authorization code grant is considered a confidential client (except in the hybrid flow)
 and we can get an access token by using the authorization code returned in the query of the URL 
 on redirect after sign in is performed by the user.
+
+For more information see [Authorization Code Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+documentation from Microsoft.
 
 ```rust
 use graph_rs_sdk::{
@@ -50,6 +57,41 @@ async fn build_client(
 }
 ```
 
+### OpenId
+
+OpenID Connect (OIDC) extends the OAuth 2.0 authorization protocol for use as an additional authentication protocol. 
+You can use OIDC to enable single sign-on (SSO) between your OAuth-enabled applications by using a security token 
+called an ID token. 
+
+For more information see [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
+documentation from Microsoft.
+
+```rust
+use graph_rs_sdk::{
+  Graph,
+  oauth::ConfidentialClientApplication,
+};
+
+fn build_client(
+    tenant_id: &str,
+    client_id: &str,
+    client_secret: &str,
+    redirect_uri: Url,
+    scope: Vec<&str>,
+    id_token: IdToken,
+) -> GraphClient {
+    let mut confidential_client = ConfidentialClientApplication::builder(client_id)
+        .with_openid(id_token.code.unwrap(), client_secret)
+        .with_tenant(tenant_id)
+        .with_redirect_uri(redirect_uri)
+        .with_scope(scope)
+        .build();
+
+    GraphClient::from(&confidential_client)
+}
+
+```
+
 ## Client Credentials
 
 The OAuth 2.0 client credentials grant flow permits a web service (confidential client) to use its own credentials,
@@ -61,6 +103,9 @@ interaction with a user, and is often referred to as daemons or service accounts
 Client credentials flow requires a one time administrator acceptance
 of the permissions for your apps scopes. To see an example of building the URL to sign in and accept permissions
 as an administrator see [Admin Consent Example](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth/client_credentials/client_credentials_admin_consent.rs)
+
+For more information see [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+documentation from Microsoft.
 
 ### Client Secret Credential
 

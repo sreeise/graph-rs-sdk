@@ -5,16 +5,16 @@
 
 ### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.4) - v2.0.0 - Latest Stable Version
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/2.0.0) - v2.0.0 - Latest Stable Version
 
 #### Features:
 
-Microsoft Graph V1 and Beta API Client
+[Microsoft Graph V1 and Beta API Client](#graph-client)
   - Wide support for Graph APIs
   - Paging using Streaming, Channels, or Iterators
   - Upload Sessions, OData Queries, and File Downloads
 
-Microsoft Identity Platform (Getting Access Tokens)
+[Microsoft Identity Platform (Getting Access Tokens)](#oauth-and-openid)
 - Auth Code, Client Credentials, Device Code, OpenId
 - In Memory Token Cache
 - Automatic Token Refresh
@@ -60,9 +60,9 @@ is enabled so feel free to stop by there with any questions or feature requests 
 an issue first. Features can be requested through issues or discussions. Either way works.
 Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
 
-## Table Of Contents
+## Features
 
-Graph Client
+### Graph Client
 
 * [Usage](#usage)
   * [Async and Blocking Client](#async-and-blocking-client)
@@ -78,7 +78,7 @@ Graph Client
   * [Wiki](#wiki)
   * [Feature Requests for Bug Reports](#feature-requests-or-bug-reports)
 
-OAuth and Openid
+### OAuth and Openid
 
 * [OAuth - Getting Access Tokens](#oauth---getting-access-tokens)
   * [Identity Platform Support](#identity-platform-support)
@@ -92,16 +92,16 @@ OAuth and Openid
       * [Client Secret Environment Credential](#client-secret-environment-credential)
       * [Resource Owner Password Credential](#resource-owner-password-credential)
   * [Automatic Token Refresh](#automatic-token-refresh)
-  * [Interactive Authentication](#interactive-authentication)
+  * [Interactive Authentication (WebView)](#interactive-authentication)
 
 
-[Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
-- [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
-- [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/openid))
-- [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/client_credentials))
-- [Url Builders For Flows Using Sign In To Get Authorization Code - Build Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/authorization_sign_in)
-- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/identity_platform_auth))
-- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0/examples/certificate_auth)
+[Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth)
+- [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/auth_code_grant)
+- [OpenId](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/openid)
+- [Client Credentials](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/client_credentials)
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Build Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth)
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/certificate_auth)
 
 ### What APIs are available
 
@@ -1027,13 +1027,13 @@ Support for:
 
 #### Detailed Examples:
 
-- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
-  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
-  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/openid))
-  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/client_credentials))
-- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/authorization_sign_in)
-- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth))
-- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/certificate_auth)
+- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth)
+  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/auth_code_grant)
+  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/openid))
+  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/client_credentials))
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth))
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/certificate_auth)
 
 There are two main types for building your chosen OAuth or OpenId Connect Flow.
 
@@ -1277,7 +1277,9 @@ async fn build_client(
 
 Requires Feature `interactive-auth`
 
-NOTE: Device code interactive auth does not currently work in async code.
+**NOTE:** Running interactive-auth in an asynchronous context may lead to crashes. 
+Additionally, Device code interactive auth does not currently work in async code. 
+We are working to address these issues in a release after version 2.0.0
 
 ```toml
 [dependencies]
