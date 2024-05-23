@@ -614,15 +614,15 @@ impl DeviceCodeInteractiveAuth {
             }
         };
 
-        let (sender, receiver) = std::sync::mpsc::channel();
+        let (sender, _receiver) = std::sync::mpsc::channel();
 
         let options = self.options.clone();
         std::thread::spawn(move || {
             DeviceCodeCredential::run(url, vec![], options, sender).unwrap();
         });
 
-        let mut credential = self.credential.clone();
-        let mut interval = self.interval;
+        let credential = self.credential.clone();
+        let interval = self.interval;
         DeviceCodeInteractiveAuth::poll_internal(interval, credential)
     }
 

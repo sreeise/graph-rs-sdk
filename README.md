@@ -21,6 +21,8 @@
 - Interactive WebView Auth (feature = `interactive-auth`)
 - X509 Certificate (feature = `openssl`) and Proof Key Code Exchange (PKCE) Support
 
+Currently only an in-memory token cache is available for token persistence.
+The following persistence mechanisms are being actively developed and will be in a post-2.0.0 release
 
 ```toml
 graph-rs-sdk = "2.0.0"
@@ -1277,9 +1279,10 @@ async fn build_client(
 
 Requires Feature `interactive-auth`
 
-**NOTE:** Running interactive-auth in an asynchronous context may lead to crashes. 
-Additionally, Device code interactive auth does not currently work in async code. 
-We are working to address these issues in a release after version 2.0.0
+**WARNING:** Running interactive-auth in an asynchronous context may lead to crashes in some scenarios.
+We recommend thoroughly testing in order to ensure you are able to use interactive-auth for your use case.
+Additionally, Device code interactive auth does not currently work in async code.
+We are working to address these issues in a post 2.0.0 release.
 
 ```toml
 [dependencies]

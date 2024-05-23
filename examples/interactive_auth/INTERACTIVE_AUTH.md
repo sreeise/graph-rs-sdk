@@ -1,5 +1,10 @@
 # Interactive Authentication
 
+**WARNING:** Running interactive-auth in an asynchronous context may lead to crashes in some scenarios.
+We recommend thoroughly testing in order to ensure you are able to use interactive-auth for your use case.
+Additionally, Device code interactive auth does not currently work in async code.
+We are working to address these issues in a post 2.0.0 release.
+
 Interactive Authentication uses a webview to perform sign in and handle the redirect
 uri making it easy for you to integrate the sdk into your application.
 
