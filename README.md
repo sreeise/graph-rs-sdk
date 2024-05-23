@@ -21,9 +21,6 @@
 - Interactive WebView Auth (feature = `interactive-auth`)
 - X509 Certificate (feature = `openssl`) and Proof Key Code Exchange (PKCE) Support
 
-Currently only an in-memory token cache is available for token persistence.
-The following persistence mechanisms are being actively developed and will be in a post-2.0.0 release
-
 ```toml
 graph-rs-sdk = "2.0.0"
 tokio = { version = "1.25.0", features = ["full"] }
@@ -94,6 +91,8 @@ Other than that feel free to ask questions, provide tips to others, and talk abo
       * [Client Secret Environment Credential](#client-secret-environment-credential)
       * [Resource Owner Password Credential](#resource-owner-password-credential)
   * [Automatic Token Refresh](#automatic-token-refresh)
+    * Currently only an in-memory token cache is available for token persistence. Development for other persistence mechanisms such as Azure Key Vault and Desktop mechanisms, such as MacOS KeyChain, are being actively developed and will be in a post-2.0.0 release.
+      You can track this progress in https://github.com/sreeise/graph-rs-sdk/issues/432  
   * [Interactive Authentication (WebView)](#interactive-authentication)
 
 
@@ -1223,7 +1222,7 @@ pub fn username_password() -> anyhow::Result<GraphClient> {
 
 ### Automatic Token Refresh
 
-The client stores tokens using an in memory cache.
+The client stores tokens using an in memory cache. For other persistence mechanisms see [Token Persistence Mechanism Development](#token-persistence-mechanism-development)
 
 Using automatic token refresh requires getting a refresh token as part of the token response.
 To get a refresh token you must include the `offline_access` scope.
@@ -1273,6 +1272,12 @@ async fn build_client(
   Ok(graph_client)
 }
 ```
+
+#### Token Persistence Mechanism Development
+
+Currently only an in-memory token cache is available for token persistence. 
+Development for other persistence mechanisms such as Azure Key Vault and Desktop mechanisms, such as MacOS KeyChain, are being actively developed and will be in a post-2.0.0 release.
+You can track this progress in https://github.com/sreeise/graph-rs-sdk/issues/432  
 
 
 ### Interactive Authentication
