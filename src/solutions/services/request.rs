@@ -10,36 +10,36 @@ resource_api_client!(
 
 impl ServicesApiClient {
     post!(
-        doc: "Create new navigation property to services for solutions",
+        doc: "Create bookingService",
         name: create_services,
         path: "/services",
         body: true
     );
     get!(
-        doc: "Get services from solutions",
+        doc: "List services",
         name: list_services,
         path: "/services"
     );
     get!(
         doc: "Get the number of the resource",
-        name: services,
+        name: get_services_count,
         path: "/services/$count"
     );
 }
 
 impl ServicesIdApiClient {
     delete!(
-        doc: "Delete navigation property services for solutions",
+        doc: "Delete bookingService",
         name: delete_services,
         path: "/services/{{RID}}"
     );
     get!(
-        doc: "Get services from solutions",
+        doc: "Get bookingService",
         name: get_services,
         path: "/services/{{RID}}"
     );
     patch!(
-        doc: "Update the navigation property services in solutions",
+        doc: "Update bookingservice",
         name: update_services,
         path: "/services/{{RID}}",
         body: true

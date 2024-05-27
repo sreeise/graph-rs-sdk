@@ -10,36 +10,36 @@ resource_api_client!(
 
 impl CustomersApiClient {
     post!(
-        doc: "Create new navigation property to customers for solutions",
+        doc: "Create bookingCustomer",
         name: create_customers,
         path: "/customers",
         body: true
     );
     get!(
-        doc: "Get customers from solutions",
+        doc: "List customers",
         name: list_customers,
         path: "/customers"
     );
     get!(
         doc: "Get the number of the resource",
-        name: customers,
+        name: get_customers_count,
         path: "/customers/$count"
     );
 }
 
 impl CustomersIdApiClient {
     delete!(
-        doc: "Delete navigation property customers for solutions",
+        doc: "Delete bookingCustomer",
         name: delete_customers,
         path: "/customers/{{RID}}"
     );
     get!(
-        doc: "Get customers from solutions",
+        doc: "Get bookingCustomer",
         name: get_customers,
         path: "/customers/{{RID}}"
     );
     patch!(
-        doc: "Update the navigation property customers in solutions",
+        doc: "Update bookingCustomer",
         name: update_customers,
         path: "/customers/{{RID}}",
         body: true

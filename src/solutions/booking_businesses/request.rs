@@ -11,47 +11,47 @@ resource_api_client!(
 
 impl BookingBusinessesApiClient {
     post!(
-        doc: "Create new navigation property to bookingBusinesses for solutions",
+        doc: "Create bookingBusiness",
         name: create_booking_businesses,
         path: "/bookingBusinesses",
         body: true
     );
     get!(
-        doc: "Get bookingBusinesses from solutions",
+        doc: "List bookingBusinesses",
         name: list_booking_businesses,
         path: "/bookingBusinesses"
     );
     get!(
         doc: "Get the number of the resource",
-        name: booking_businesses,
+        name: get_booking_businesses_count,
         path: "/bookingBusinesses/$count"
     );
 }
 
 impl BookingBusinessesIdApiClient {
-    api_client_link_id!(staff_member, StaffMembersIdApiClient);
     api_client_link_id!(customer, CustomersIdApiClient);
-    api_client_link!(appointments, AppointmentsApiClient);
     api_client_link!(services, ServicesApiClient);
-    api_client_link_id!(appointment, AppointmentsIdApiClient);
     api_client_link_id!(service, ServicesIdApiClient);
-    api_client_link!(custom_questions, CustomQuestionsApiClient);
-    api_client_link!(customers, CustomersApiClient);
+    api_client_link!(appointments, AppointmentsApiClient);
     api_client_link_id!(custom_question, CustomQuestionsIdApiClient);
+    api_client_link!(custom_questions, CustomQuestionsApiClient);
     api_client_link!(staff_members, StaffMembersApiClient);
+    api_client_link_id!(staff_member, StaffMembersIdApiClient);
+    api_client_link!(customers, CustomersApiClient);
+    api_client_link_id!(appointment, AppointmentsIdApiClient);
 
     delete!(
-        doc: "Delete navigation property bookingBusinesses for solutions",
+        doc: "Delete bookingBusiness",
         name: delete_booking_businesses,
         path: "/bookingBusinesses/{{RID}}"
     );
     get!(
-        doc: "Get bookingBusinesses from solutions",
+        doc: "Get bookingBusiness",
         name: get_booking_businesses,
         path: "/bookingBusinesses/{{RID}}"
     );
     patch!(
-        doc: "Update the navigation property bookingBusinesses in solutions",
+        doc: "Update bookingbusiness",
         name: update_booking_businesses,
         path: "/bookingBusinesses/{{RID}}",
         body: true
@@ -63,7 +63,7 @@ impl BookingBusinessesIdApiClient {
         body: true
     );
     get!(
-        doc: "Get calendarView from solutions",
+        doc: "List business calendarView",
         name: list_calendar_view,
         path: "/bookingBusinesses/{{RID}}/calendarView"
     );

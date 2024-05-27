@@ -10,36 +10,36 @@ resource_api_client!(
 
 impl CustomQuestionsApiClient {
     post!(
-        doc: "Create new navigation property to customQuestions for solutions",
+        doc: "Create bookingCustomQuestion",
         name: create_custom_questions,
         path: "/customQuestions",
         body: true
     );
     get!(
-        doc: "Get customQuestions from solutions",
+        doc: "List customQuestions",
         name: list_custom_questions,
         path: "/customQuestions"
     );
     get!(
         doc: "Get the number of the resource",
-        name: custom_questions,
+        name: get_custom_questions_count,
         path: "/customQuestions/$count"
     );
 }
 
 impl CustomQuestionsIdApiClient {
     delete!(
-        doc: "Delete navigation property customQuestions for solutions",
+        doc: "Delete bookingCustomQuestion",
         name: delete_custom_questions,
         path: "/customQuestions/{{RID}}"
     );
     get!(
-        doc: "Get customQuestions from solutions",
+        doc: "Get bookingCustomQuestion",
         name: get_custom_questions,
         path: "/customQuestions/{{RID}}"
     );
     patch!(
-        doc: "Update the navigation property customQuestions in solutions",
+        doc: "Update bookingCustomQuestion",
         name: update_custom_questions,
         path: "/customQuestions/{{RID}}",
         body: true

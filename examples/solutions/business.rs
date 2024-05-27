@@ -23,8 +23,7 @@ async fn create_business(){
         .booking_businesses()
         .create_booking_businesses(body)
         .send()
-        .await
-        ;
+        .await;
 
     println!("{:#?}", resp);
 }

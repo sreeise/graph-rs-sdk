@@ -10,13 +10,13 @@ resource_api_client!(
 
 impl StaffMembersApiClient {
     post!(
-        doc: "Create new navigation property to staffMembers for solutions",
+        doc: "Create bookingStaffMember",
         name: create_staff_members,
         path: "/staffMembers",
         body: true
     );
     get!(
-        doc: "Get staffMembers from solutions",
+        doc: "List staffMembers",
         name: list_staff_members,
         path: "/staffMembers"
     );
@@ -29,17 +29,17 @@ impl StaffMembersApiClient {
 
 impl StaffMembersIdApiClient {
     delete!(
-        doc: "Delete navigation property staffMembers for solutions",
+        doc: "Delete bookingStaffMember",
         name: delete_staff_members,
         path: "/staffMembers/{{RID}}"
     );
     get!(
-        doc: "Get staffMembers from solutions",
+        doc: "Get bookingStaffMember",
         name: get_staff_members,
         path: "/staffMembers/{{RID}}"
     );
     patch!(
-        doc: "Update the navigation property staffMembers in solutions",
+        doc: "Update bookingstaffmember",
         name: update_staff_members,
         path: "/staffMembers/{{RID}}",
         body: true

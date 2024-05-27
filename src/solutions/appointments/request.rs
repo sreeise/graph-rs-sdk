@@ -10,36 +10,36 @@ resource_api_client!(
 
 impl AppointmentsApiClient {
     post!(
-        doc: "Create new navigation property to appointments for solutions",
+        doc: "Create bookingAppointment",
         name: create_appointments,
         path: "/appointments",
         body: true
     );
     get!(
-        doc: "Get appointments from solutions",
+        doc: "List appointments",
         name: list_appointments,
         path: "/appointments"
     );
     get!(
         doc: "Get the number of the resource",
-        name: appointments,
+        name: get_appointments_count,
         path: "/appointments/$count"
     );
 }
 
 impl AppointmentsIdApiClient {
     delete!(
-        doc: "Delete navigation property appointments for solutions",
+        doc: "Delete bookingAppointment",
         name: delete_appointments,
         path: "/appointments/{{RID}}"
     );
     get!(
-        doc: "Get appointments from solutions",
+        doc: "Get bookingAppointment",
         name: get_appointments,
         path: "/appointments/{{RID}}"
     );
     patch!(
-        doc: "Update the navigation property appointments in solutions",
+        doc: "Update bookingAppointment",
         name: update_appointments,
         path: "/appointments/{{RID}}",
         body: true

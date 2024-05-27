@@ -1067,6 +1067,36 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				GeneratedMacroType::FnName("bin_20_ct")
 			),
 		],
-		_ => vec![],
-	}
+        ResourceIdentity::Appointments => vec![
+		MethodMacroModifier::fn_name_and_path(
+			"appointments", "/appointments/$count",
+			GeneratedMacroType::FnName("get_appointments_count")
+		)],
+        ResourceIdentity::CustomQuestions => vec![
+		MethodMacroModifier::fn_name_and_path(
+			"custom_questions", "/customQuestions/$count",
+			GeneratedMacroType::FnName("get_custom_questions_count")
+		)],
+        ResourceIdentity::Customers => vec![
+		MethodMacroModifier::fn_name_and_path(
+			"customers", "/customers/$count",
+			GeneratedMacroType::FnName("get_customers_count")
+		)],
+        ResourceIdentity::Services => vec![
+		MethodMacroModifier::fn_name_and_path(
+			"services", "/services/$count",
+			GeneratedMacroType::FnName("get_services_count")
+		)],
+        ResourceIdentity::BookingBusinesses => vec![
+		MethodMacroModifier::fn_name_and_path(
+			"booking_businesses", "/bookingBusinesses/$count",
+			GeneratedMacroType::FnName("get_booking_businesses_count")
+		)],
+        ResourceIdentity::StaffMembers => vec![
+		MethodMacroModifier::fn_name_and_path(
+			"staff_members", "/staff_members/$count",
+			GeneratedMacroType::FnName("get_staff_members_count")
+		)],
+	_ => vec![],
+    }
 }
