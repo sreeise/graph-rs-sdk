@@ -1198,7 +1198,7 @@ impl ResourceSettings {
 				.build()
 				.unwrap(),
 			ResourceIdentity::BookingBusinesses => ResourceSettings::builder(path_name, ri)
-				.imports(vec!["crate::solutions::*"])
+				.imports(vec!["crate::solutions::*", "crate::users::*"])
 				.api_client_links(vec![
 					ApiClientLinkSettings(Some("BookingBusinessesIdApiClient"), 
 					vec![
@@ -1212,6 +1212,8 @@ impl ResourceSettings {
 						ApiClientLink::StructId("customer", "CustomersIdApiClient"),
 						ApiClientLink::Struct("staff_members", "StaffMembersApiClient"),
 						ApiClientLink::StructId("staff_member", "StaffMembersIdApiClient"),
+						ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
+						ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
 					]
 					)
 				])
@@ -2703,17 +2705,8 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::BookingBusinesses => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
-			// look at ~ 2506
 			.trim_path_start("/solutions")
 			.filter_path(vec!["appointments", "calendarView", "customQuestions", "customers", "services", "staffMembers"])
-			.imports(vec!["crate::users::*"])
-			.api_client_links(vec![
-				ApiClientLinkSettings(Some("BookingBusinessesIdApiClient"), vec![
-				//ApiClientLinkSettings(None, vec![
-					ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
-					ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
-				])
-			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::Appointments => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
