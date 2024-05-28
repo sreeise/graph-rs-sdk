@@ -2703,8 +2703,17 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 			.build()
 			.unwrap(),
 		ResourceIdentity::BookingBusinesses => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
-			.filter_path(vec!["appointments", "customQuestions", "customers", "services", "staffMembers"])
+			// look at ~ 2506
 			.trim_path_start("/solutions")
+			.filter_path(vec!["appointments", "calendarView", "customQuestions", "customers", "services", "staffMembers"])
+			.imports(vec!["crate::users::*"])
+			.api_client_links(vec![
+				ApiClientLinkSettings(Some("BookingBusinessesIdApiClient"), vec![
+				//ApiClientLinkSettings(None, vec![
+					ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
+					ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
+				])
+			])
 			.build()
 			.unwrap(),
 		ResourceIdentity::Appointments => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
