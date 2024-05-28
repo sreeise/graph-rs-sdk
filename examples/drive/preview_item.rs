@@ -12,7 +12,7 @@ static ONEDRIVE_FILE_PATH: &str = ":/Documents/file.txt:";
 // zoom 	    number 	        Optional. Zoom level to start at, if applicable.
 
 pub async fn get_drive_item(item_id: &str) {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let body = serde_json::json!({
         "viewer": null,

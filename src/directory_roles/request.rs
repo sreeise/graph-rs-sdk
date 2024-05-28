@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::directory::*;
 
-resource_api_client!(
+api_client!(
     DirectoryRolesApiClient,
     DirectoryRolesIdApiClient,
     ResourceIdentity::DirectoryRoles

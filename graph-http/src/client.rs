@@ -1,7 +1,5 @@
 use crate::blocking::BlockingClient;
-use crate::traits::ODataQuery;
-
-use graph_error::GraphResult;
+use graph_core::identity::{ClientApplication, ForceTokenRefresh};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
@@ -9,11 +7,15 @@ use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
 use std::time::Duration;
-use url::Url;
+
+fn user_agent_header_from_env() -> Option<HeaderValue> {
+    let header = std::option_env!("GRAPH_CLIENT_USER_AGENT")?;
+    HeaderValue::from_str(header).ok()
+}
 
 #[derive(Clone)]
 struct ClientConfiguration {
-    access_token: Option<String>,
+    client_application: Option<Box<dyn ClientApplication>>,
     headers: HeaderMap,
     referer: bool,
     timeout: Option<Duration>,
@@ -30,8 +32,12 @@ impl ClientConfiguration {
         let mut headers: HeaderMap<HeaderValue> = HeaderMap::with_capacity(2);
         headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
 
+        if let Some(user_agent) = user_agent_header_from_env() {
+            headers.insert(USER_AGENT, user_agent);
+        }
+
         ClientConfiguration {
-            access_token: None,
+            client_application: None,
             headers,
             referer: true,
             timeout: None,
@@ -69,7 +75,12 @@ impl GraphClientConfiguration {
     }
 
     pub fn access_token<AT: ToString>(mut self, access_token: AT) -> GraphClientConfiguration {
-        self.config.access_token = Some(access_token.to_string());
+        self.config.client_application = Some(Box::new(access_token.to_string()));
+        self
+    }
+
+    pub fn client_application<CA: ClientApplication + 'static>(mut self, client_app: CA) -> Self {
+        self.config.client_application = Some(Box::new(client_app));
         self
     }
 
@@ -128,6 +139,8 @@ impl GraphClientConfiguration {
         self
     }
 
+    /// TLS 1.2 required to support all features in Microsoft Graph
+    /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     pub fn min_tls_version(mut self, version: Version) -> GraphClientConfiguration {
         self.config.min_tls_version = version;
         self
@@ -143,12 +156,12 @@ impl GraphClientConfiguration {
         let config = self.clone();
         let headers = self.config.headers.clone();
         let mut builder = reqwest::ClientBuilder::new()
-            .default_headers(self.config.headers)
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
             .min_tls_version(self.config.min_tls_version)
-            .redirect(Policy::limited(2));
+            .redirect(Policy::limited(2))
+            .default_headers(self.config.headers);
 
         if let Some(timeout) = self.config.timeout {
             builder = builder.timeout(timeout);
@@ -158,23 +171,32 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
-        Client {
-            access_token: self.config.access_token.unwrap_or_default(),
-            inner: builder.build().unwrap(),
-            headers,
-            builder: config,
+        if let Some(client_application) = self.config.client_application {
+            Client {
+                client_application,
+                inner: builder.build().unwrap(),
+                headers,
+                builder: config,
+            }
+        } else {
+            Client {
+                client_application: Box::<String>::default(),
+                inner: builder.build().unwrap(),
+                headers,
+                builder: config,
+            }
         }
     }
 
     pub(crate) fn build_blocking(self) -> BlockingClient {
         let headers = self.config.headers.clone();
         let mut builder = reqwest::blocking::ClientBuilder::new()
-            .default_headers(self.config.headers)
             .referer(self.config.referer)
             .connection_verbose(self.config.connection_verbose)
             .https_only(self.config.https_only)
             .min_tls_version(self.config.min_tls_version)
-            .redirect(Policy::limited(2));
+            .redirect(Policy::limited(2))
+            .default_headers(self.config.headers);
 
         if let Some(timeout) = self.config.timeout {
             builder = builder.timeout(timeout);
@@ -184,10 +206,18 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
-        BlockingClient {
-            access_token: self.config.access_token.unwrap_or_default(),
-            inner: builder.build().unwrap(),
-            headers,
+        if let Some(client_application) = self.config.client_application {
+            BlockingClient {
+                client_application,
+                inner: builder.build().unwrap(),
+                headers,
+            }
+        } else {
+            BlockingClient {
+                client_application: Box::<String>::default(),
+                inner: builder.build().unwrap(),
+                headers,
+            }
         }
     }
 }
@@ -200,16 +230,22 @@ impl Default for GraphClientConfiguration {
 
 #[derive(Clone)]
 pub struct Client {
-    pub(crate) access_token: String,
+    pub(crate) client_application: Box<dyn ClientApplication>,
     pub(crate) inner: reqwest::Client,
     pub(crate) headers: HeaderMap,
     pub(crate) builder: GraphClientConfiguration,
 }
 
 impl Client {
-    pub fn new<AT: ToString>(access_token: AT) -> Client {
+    pub fn new<CA: ClientApplication + 'static>(client_app: CA) -> Self {
         GraphClientConfiguration::new()
-            .access_token(access_token)
+            .client_application(client_app)
+            .build()
+    }
+
+    pub fn from_access_token<T: AsRef<str>>(access_token: T) -> Self {
+        GraphClientConfiguration::new()
+            .access_token(access_token.as_ref())
             .build()
     }
 
@@ -227,6 +263,11 @@ impl Client {
 
     pub fn headers(&self) -> &HeaderMap {
         &self.headers
+    }
+
+    pub fn with_force_token_refresh(&mut self, force_token_refresh: ForceTokenRefresh) {
+        self.client_application
+            .with_force_token_refresh(force_token_refresh);
     }
 }
 
@@ -246,27 +287,34 @@ impl Debug for Client {
     }
 }
 
-pub trait ApiClientImpl: ODataQuery + Sized {
-    fn url(&self) -> Url;
+impl From<GraphClientConfiguration> for Client {
+    fn from(value: GraphClientConfiguration) -> Self {
+        value.build()
+    }
+}
 
-    fn render_path<S: AsRef<str>>(
-        &self,
-        path: S,
-        path_params_map: &serde_json::Value,
-    ) -> GraphResult<String>;
+#[cfg(test)]
+mod test {
+    use super::*;
 
-    fn build_url<S: AsRef<str>>(
-        &self,
-        path: S,
-        path_params_map: &serde_json::Value,
-    ) -> GraphResult<Url> {
-        let path = self.render_path(path.as_ref(), path_params_map)?;
-        let mut vec: Vec<&str> = path.split('/').collect();
-        vec.retain(|s| !s.is_empty());
-        let mut url = self.url();
-        if let Ok(mut p) = url.path_segments_mut() {
-            p.extend(&vec);
-        }
-        Ok(url)
+    #[test]
+    fn compile_time_user_agent_header() {
+        let client = GraphClientConfiguration::new()
+            .access_token("access_token")
+            .build();
+
+        assert!(client.builder.config.headers.contains_key(USER_AGENT));
+    }
+
+    #[test]
+    fn update_user_agent_header() {
+        let client = GraphClientConfiguration::new()
+            .access_token("access_token")
+            .user_agent(HeaderValue::from_static("user_agent"))
+            .build();
+
+        assert!(client.builder.config.headers.contains_key(USER_AGENT));
+        let user_agent_header = client.builder.config.headers.get(USER_AGENT).unwrap();
+        assert_eq!("user_agent", user_agent_header.to_str().unwrap());
     }
 }

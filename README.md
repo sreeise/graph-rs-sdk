@@ -1,15 +1,28 @@
 # graph-rs-sdk
 
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
-[![Static Badge](https://img.shields.io/badge/crates.io-1.1.4-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
-[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
+[![Static Badge](https://img.shields.io/badge/crates.io-2.0.0-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
 
-### Rust SDK Client for Microsoft Graph and the Microsoft Graph Api
+### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/1.1.4) - v1.1.4 - Latest Stable Version
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/2.0.0) - v2.0.0 - Latest Stable Version
+
+#### Features:
+
+[Microsoft Graph V1 and Beta API Client](#graph-client)
+  - Wide support for Graph APIs
+  - Paging using Streaming, Channels, or Iterators
+  - Upload Sessions, OData Queries, and File Downloads
+
+[Microsoft Identity Platform (Getting Access Tokens)](#oauth-and-openid)
+- Auth Code, Client Credentials, Device Code, OpenId
+- In Memory Token Cache
+- Automatic Token Refresh
+- Interactive WebView Auth (feature = `interactive-auth`)
+- X509 Certificate (feature = `openssl`) and Proof Key Code Exchange (PKCE) Support
 
 ```toml
-graph-rs-sdk = "1.1.4"
+graph-rs-sdk = "2.0.0"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -33,31 +46,6 @@ use futures::StreamExt;
 use graph_rs_sdk::*;
 ```
 
-### Pre Release Version (May Be Unstable)
-
-[![crates.io](https://img.shields.io/crates/v/graph-rs-sdk.svg?style=for-the-badge&color=%23778aab)](https://crates.io/crates/graph-rs-sdk/2.0.0-beta.0)
-
-- Complete rewrite of SDK Client for the Microsoft Identity Platform
-- In Memory Token Cache
-- Automatic Token Refresh
-- Interactive Auth Using WebView
-- X509 Certificate Support
-
-See https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0 for examples and docs.
-
-On **Pre-Release** Only:
-- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth)
-  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/auth_code_grant)
-  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/openid))
-  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth/client_credentials))
-- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/authorization_sign_in)
-- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/identity_platform_auth))
-- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/v2.0.0-beta.0/examples/certificate_auth)
-
-```
-graph-rs-sdk = "2.0.0-beta.0"
-```
-
 Contributing and Wiki:
 - [Contributions](https://github.com/sreeise/graph-rs-sdk/wiki/Contributing)
 - [Wiki](https://github.com/sreeise/graph-rs-sdk/wiki)
@@ -71,10 +59,11 @@ is enabled so feel free to stop by there with any questions or feature requests 
 an issue first. Features can be requested through issues or discussions. Either way works.
 Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
 
-## Table Of Contents
+## Features
+
+### Graph Client
 
 * [Usage](#usage)
-  * [Authentication and Authorization](#authentication-and-authorization-in-active-development) 
   * [Async and Blocking Client](#async-and-blocking-client)
     * [Async Client](#async-client-default)
     * [Blocking Client](#blocking-client)
@@ -84,7 +73,36 @@ Other than that feel free to ask questions, provide tips to others, and talk abo
     * [Channels](#channels)
   * [API Usage](#api-usage)
   * [Id vs Non-Id methods](#id-vs-non-id-methods-such-as-useruser-id-vs-users)
-  * [Information about the project itself (contributor section coming soon)](#for-those-interested-in-the-code-itself-contributor-section-coming-soon)
+  * [Contributing](#contributing)
+  * [Wiki](#wiki)
+  * [Feature Requests for Bug Reports](#feature-requests-or-bug-reports)
+
+### OAuth and Openid
+
+* [OAuth - Getting Access Tokens](#oauth---getting-access-tokens)
+  * [Identity Platform Support](#identity-platform-support)
+  * [Credentials](#credentials)
+    * [Auth Code Grant](#authorization-code-grant)
+      * [Authorization Code Grant Secret](#authorization-code-secret)
+      * [Authorization Code With Proof Key Code Exchange](#authorization-code-secret-with-proof-key-code-exchange)
+    * [Client Credentials](#client-credentials)
+      * [Client Secret Credential](#client-secret-credential)
+    * [Environment Credentials](#environment-credentials)
+      * [Client Secret Environment Credential](#client-secret-environment-credential)
+      * [Resource Owner Password Credential](#resource-owner-password-credential)
+  * [Automatic Token Refresh](#automatic-token-refresh)
+    * Currently only an in-memory token cache is available for token persistence. Development for other persistence mechanisms such as Azure Key Vault and Desktop mechanisms, such as MacOS KeyChain, are being actively developed and will be in a post-2.0.0 release.
+      You can track this progress in https://github.com/sreeise/graph-rs-sdk/issues/432  
+  * [Interactive Authentication (WebView)](#interactive-authentication)
+
+
+[Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth)
+- [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/auth_code_grant)
+- [OpenId](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/openid)
+- [Client Credentials](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/client_credentials)
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Build Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth)
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/certificate_auth)
 
 ### What APIs are available
 
@@ -96,24 +114,13 @@ config but in general most of them are implemented.
 
 For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs-sdk/tree/master/examples)
 
-### Authentication and Authorization (In Active Development)
-
-The crate is undergoing major development in order to support all or most scenarios in the Microsoft Identity Platform
-where its possible to do so. Another goal is to make the authentication/authorization impl much easier to use
-by providing easy to use clients that follow similar designs to other sdks for the Identity Platform.
-
-This includes token caches, automatic refresh of tokens, interactive web view authentication, and much more. 
-The development is well underway - as of right now no merge has gone into master but changes will be there soon
-and they will almost certainly be unstable in some respects while we continue to work on this. However, the crate
-on crates.io is currently only updated on stable version releases.
-
 ### Async and Blocking Client
 
 The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "1.1.4"
+    graph-rs-sdk = "2.0.0"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -145,7 +152,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "1.1.4"
+    graph-rs-sdk = "2.0.0"
 
 #### Example
 use graph_rs_sdk::*;
@@ -176,7 +183,8 @@ fn main() -> GraphResult<()> {
 - `brotli`: Enables reqwest feature brotli. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
 - `deflate`: Enables reqwest feature deflate. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
 - `trust-dns`: Enables reqwest feature trust-dns. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
-- `test-util`: Enables testing features. Currently only enables setting https-only to false for use in mocking frameworks.
+- `test-util`: Enables testing features. Adds the ability to set a custom endpoint for mocking frameworks using the `use_test_endpoint` method on the `GraphClient`. 
+  - Also allow http (disable https only)
 
 Default features: `default=["native-tls"]`
 
@@ -1004,3 +1012,336 @@ async fn get_user() -> GraphResult<()> {
     Ok(())
 }
 ```
+
+## OAuth - Getting Access Tokens
+
+Use application builders to store your auth configuration and have the client
+handle the access token requests for you.
+
+Support for:
+
+- OpenId, Auth Code Grant, Client Credentials, Device Code, Certificate Auth
+- Automatic Token Refresh
+- Interactive Authentication | features = [`interactive-auth`]
+- Device Code Polling
+- Authorization Using Certificates | features = [`openssl`]
+
+#### Detailed Examples:
+
+- [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth)
+  - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/auth_code_grant)
+  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/openid))
+  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/client_credentials))
+- [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/authorization_sign_in)
+- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth))
+- [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/certificate_auth)
+
+There are two main types for building your chosen OAuth or OpenId Connect Flow.
+
+- `PublicClientApplication`
+- `ConfidentialClientApplication`
+
+Once you have built a `ConfidentialClientApplication` or a `PublicClientApplication`
+you can pass these to the graph client.
+
+Automatic token refresh is also done by passing the `ConfidentialClientApplication` or the
+`PublicClientApplication` to the `Graph` client.
+
+For more extensive examples see the
+[OAuth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth) in the examples/oauth
+directory on [GitHub](https://github.com/sreeise/graph-rs-sdk).
+
+
+```rust
+fn build_client(confidential_client: ConfidentialClientApplication<ClientSecretCredential>) {
+  let graph_client = GraphClient::from(&confidential_client);
+}
+```
+
+### Identity Platform Support
+
+The following flows from the Microsoft Identity Platform are supported:
+
+- [Authorization Code Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+- [Authorization Code Grant PKCE](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
+- [Authorization Code Grant Certificate](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#request-an-access-token-with-a-certificate-credential)
+- [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
+- [Device Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
+- [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
+- [Client Credentials With Certificate](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate)
+- [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
+
+You can use the url builders for those flows that require an authorization code using a redirect after sign in you can use 
+
+## Credentials
+
+
+### Authorization Code Grant
+
+The authorization code grant is considered a confidential client (except in the hybrid flow)
+and we can get an access token by using the authorization code returned in the query of the URL
+on redirect after sign in is performed by the user.
+
+Once you have the authorization code you can pass this to the client and the client
+will perform the request to get an access token on the first graph api call that you make.
+
+
+#### Authorization Code Secret
+
+```rust
+use graph_rs_sdk::{
+  Graph,
+  oauth::ConfidentialClientApplication,
+};
+
+async fn build_client(
+  authorization_code: &str,
+  client_id: &str,
+  client_secret: &str,
+  redirect_uri: url::Url,
+  scope: Vec<&str>
+) -> anyhow::Result<GraphClient> {
+  let mut confidential_client = ConfidentialClientApplication::builder(client_id)
+          .with_authorization_code(authorization_code) // returns builder type for AuthorizationCodeCredential
+          .with_client_secret(client_secret)
+          .with_scope(scope)
+          .with_redirect_uri(redirect_uri)
+          .build();
+
+  let graph_client = Graph::from(confidential_client);
+  
+  Ok(graph_client)
+}
+```
+
+#### Authorization Code Secret With Proof Key Code Exchange
+
+```rust
+use graph_rs_sdk::identity::{
+  AuthorizationCodeCredential, ConfidentialClientApplication, GenPkce,
+  ProofKeyCodeExchange, TokenCredentialExecutor,
+};
+use lazy_static::lazy_static;
+use url::Url;
+
+// You can also pass your own values for PKCE instead of automatic generation by
+// calling ProofKeyCodeExchange::new(code_verifier, code_challenge, code_challenge_method)
+lazy_static! {
+    static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
+}
+
+fn authorization_sign_in_url(client_id: &str, redirect_uri: url::Url, scope: Vec<String>) -> anyhow::Result<Url> {
+  Ok(AuthorizationCodeCredential::authorization_url_builder(client_id)
+          .with_scope(scope)
+          .with_redirect_uri(redirect_uri)
+          .with_pkce(&PKCE)
+          .url()?)
+}
+
+fn build_confidential_client(
+  authorization_code: &str,
+  client_id: &str,
+  client_secret: &str,
+  redirect_uri: url::Url,
+  scope: Vec<String>,
+) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCredential>> {
+  Ok(ConfidentialClientApplication::builder(client_id)
+          .with_auth_code(authorization_code)
+          .with_client_secret(client_secret)
+          .with_scope(scope)
+          .with_redirect_uri(redirect_uri)
+          .with_pkce(&PKCE)
+          .build())
+}
+```
+
+### Client Credentials
+
+The OAuth 2.0 client credentials grant flow permits a web service (confidential client) to use its own credentials,
+instead of impersonating a user, to authenticate when calling another web service. The grant specified in RFC 6749, 
+sometimes called two-legged OAuth, can be used to access web-hosted resources by using the identity of an application. 
+This type is commonly used for server-to-server interactions that must run in the background, without immediate 
+interaction with a user, and is often referred to as daemons or service accounts.
+
+Client credentials flow requires a one time administrator acceptance
+of the permissions for your apps scopes. To see an example of building the URL to sign in and accept permissions
+as an administrator see [Admin Consent Example](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth/client_credentials/client_credentials_admin_consent.rs)
+
+
+#### Client Secret Credential
+
+```rust
+use graph_rs_sdk::{
+  oauth::ConfidentialClientApplication, Graph
+};
+
+pub async fn get_graph_client(tenant: &str, client_id: &str, client_secret: &str) -> Graph {
+  let mut confidential_client_application = ConfidentialClientApplication::builder(client_id)
+          .with_client_secret(client_secret)
+          .with_tenant(tenant)
+          .build();
+
+  Graph::from(&confidential_client_application)
+}
+```
+
+
+### Environment Credentials
+
+#### Client Secret Environment Credential
+
+Environment Variables:
+
+- AZURE_TENANT_ID (Optional/Recommended - puts the tenant id in the authorization url)
+- AZURE_CLIENT_ID (Required)
+- AZURE_CLIENT_SECRET (Required)
+
+```rust
+pub fn client_secret_credential() -> anyhow::Result<GraphClient> {
+    let confidential_client = EnvironmentCredential::client_secret_credential()?;
+    Ok(GraphClient::from(&confidential_client))
+}
+```
+
+#### Resource Owner Password Credential
+
+Environment Variables:
+
+- AZURE_TENANT_ID (Optional - puts the tenant id in the authorization url)
+- AZURE_CLIENT_ID (Required)
+- AZURE_USERNAME (Required)
+- AZURE_PASSWORD (Required)
+
+```rust
+pub fn username_password() -> anyhow::Result<GraphClient> {
+    let public_client = EnvironmentCredential::resource_owner_password_credential()?;
+    Ok(GraphClient::from(&public_client))
+}
+```
+
+
+### Automatic Token Refresh
+
+The client stores tokens using an in memory cache. For other persistence mechanisms see [Token Persistence Mechanism Development](#token-persistence-mechanism-development)
+
+Using automatic token refresh requires getting a refresh token as part of the token response.
+To get a refresh token you must include the `offline_access` scope.
+
+Automatic token refresh is done by passing the `ConfidentialClientApplication` or the
+`PublicClientApplication` to the `Graph` client.
+
+If you are using the `client credentials` grant you do not need the `offline_access` scope.
+Tokens will still be automatically refreshed as this flow does not require using a refresh token to get
+a new access token.
+
+The example below uses the auth code grant.
+
+First create the url where the user will sign in. After sign in the user will be redirected back to your app and
+the authentication code will be in the query of the uri.
+```rust
+pub fn authorization_sign_in_url(client_id: &str, tenant: &str, redirect_uri: url::Url) -> Url {
+  let scope = vec!["offline_access"];
+
+  AuthorizationCodeCredential::authorization_url_builder(client_id)
+          .with_redirect_uri(redirect_uri)
+          .with_scope(scope)
+          .url()
+          .unwrap()
+}
+```
+
+Once you have the authorization code you can build a confidential client and pass it to the graph client.
+
+```rust
+async fn build_client(
+  authorization_code: &str,
+  client_id: &str,
+  client_secret: &str,
+  scope: Vec<String>, // with offline_access
+  redirect_uri: url::Url,
+) -> anyhow::Result<GraphClient> {
+  let mut confidential_client = ConfidentialClientApplication::builder(client_id)
+          .with_auth_code(authorization_code) // returns builder type for AuthorizationCodeCredential
+          .with_client_secret(client_secret)
+          .with_scope(scope)
+          .with_redirect_uri(redirect_uri)
+          .build();
+
+  let graph_client = GraphClient::from(&confidential_client);
+
+  Ok(graph_client)
+}
+```
+
+#### Token Persistence Mechanism Development
+
+Currently only an in-memory token cache is available for token persistence. 
+Development for other persistence mechanisms such as Azure Key Vault and Desktop mechanisms, such as MacOS KeyChain, are being actively developed and will be in a post-2.0.0 release.
+You can track this progress in https://github.com/sreeise/graph-rs-sdk/issues/432  
+
+
+### Interactive Authentication
+
+Requires Feature `interactive-auth`
+
+**WARNING:** Running interactive-auth in an asynchronous context may lead to crashes in some scenarios.
+We recommend thoroughly testing in order to ensure you are able to use interactive-auth for your use case.
+Additionally, Device code interactive auth does not currently work in async code.
+We are working to address these issues in a post 2.0.0 release.
+
+```toml
+[dependencies]
+graph-rs-sdk = { version = "...", features = ["interactive-auth"] }
+```
+
+Interactive Authentication uses the [wry](https://github.com/tauri-apps/wry) crate to run web view on 
+platforms that support it such as on a desktop.
+
+```rust
+use graph_rs_sdk::{identity::{AuthorizationCodeCredential, Secret}, GraphClient};
+
+async fn authenticate(
+  tenant_id: &str,
+  client_id: &str,
+  client_secret: &str,
+  redirect_uri: url::Url,
+  scope: Vec<&str>,
+) -> anyhow::Result<GraphClient> {
+  std::env::set_var("RUST_LOG", "debug");
+  pretty_env_logger::init();
+
+  let (authorization_query_response, mut credential_builder) =
+          AuthorizationCodeCredential::authorization_url_builder(client_id)
+                  .with_tenant(tenant_id)
+                  .with_scope(scope) // Adds offline_access as a scope which is needed to get a refresh token.
+                  .with_redirect_uri(redirect_uri)
+                  .with_interactive_auth(Secret("client-secret".to_string()), Default::default())
+                  .unwrap();
+
+  debug!("{authorization_query_response:#?}");
+
+  let mut confidential_client = credential_builder.with_client_secret(client_secret).build();
+
+  Ok(GraphClient::from(&confidential_client))
+}
+```
+
+
+## Contributing
+
+See the [Contributions](https://github.com/sreeise/graph-rs-sdk/wiki/Contributing) guide on GitHub
+
+
+## Wiki:
+
+See the [GitHub Wiki](https://github.com/sreeise/graph-rs-sdk/wiki)
+
+
+## Feature requests or Bug reports
+
+For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
+
+The [Discussions](https://github.com/sreeise/graph-rs-sdk/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs-sdk/discussions)
+is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
+an issue first. Features can be requested through issues or discussions. Either way works.
+Other than that feel free to ask questions, provide tips to others, and talk about the project in general.

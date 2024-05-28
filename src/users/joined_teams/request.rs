@@ -4,7 +4,7 @@ use crate::api_default_imports::*;
 use crate::teams::*;
 use crate::users::*;
 
-resource_api_client!(
+api_client!(
     JoinedTeamsApiClient,
     JoinedTeamsIdApiClient,
     ResourceIdentity::JoinedTeams

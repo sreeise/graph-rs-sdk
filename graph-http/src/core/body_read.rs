@@ -1,5 +1,6 @@
 use crate::api_impl::FileConfig;
-use crate::internal::{AsyncTryFrom, BodyExt};
+use crate::internal::AsyncTryFrom;
+use crate::traits::BodyExt;
 use async_trait::async_trait;
 use bytes::{Buf, BytesMut};
 use graph_error::{GraphFailure, GraphResult};
@@ -9,7 +10,7 @@ use std::io::{BufReader, Read};
 pub struct BodyRead {
     buf: String,
     blocking_body: Option<reqwest::blocking::Body>,
-    async_body: Option<reqwest::Body>,
+    async_body: Option<Body>,
 }
 
 impl BodyRead {
@@ -41,7 +42,7 @@ impl BodyRead {
     }
 }
 
-impl From<BodyRead> for reqwest::Body {
+impl From<BodyRead> for Body {
     fn from(upload: BodyRead) -> Self {
         if let Some(body) = upload.async_body {
             return body;
@@ -108,7 +109,7 @@ impl TryFrom<bytes::Bytes> for BodyRead {
     }
 }
 
-impl From<reqwest::Body> for BodyRead {
+impl From<Body> for BodyRead {
     fn from(body: Body) -> Self {
         BodyRead {
             buf: Default::default(),

@@ -3,7 +3,7 @@ use graph_http::traits::ODataNextLink;
 use graph_rs_sdk::*;
 use serde::Deserialize;
 use serde::Serialize;
-use test_tools::oauth_request::{OAuthTestClient, ASYNC_THROTTLE_MUTEX};
+use test_tools::oauth_request::{OAuthTestClient, ASYNC_THROTTLE_MUTEX2};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserResponse {
@@ -34,7 +34,7 @@ pub struct LicenseDetail {
 
 #[tokio::test]
 async fn buffered_requests() {
-    let _ = ASYNC_THROTTLE_MUTEX.lock().await;
+    let _ = ASYNC_THROTTLE_MUTEX2.lock().await;
     if let Some((_id, client)) = OAuthTestClient::ClientCredentials.graph_async().await {
         let mut stream = client
             .users()

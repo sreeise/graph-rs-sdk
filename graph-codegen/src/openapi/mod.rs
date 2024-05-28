@@ -139,7 +139,7 @@ pub struct OpenApi {
     /// declared. The tags that are not declared MAY be organized randomly
     /// or based on the tools' logic. Each tag name in the list MUST be unique.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tags: Option<serde_json::Value>,
+    pub tags: Option<Value>,
 
     /// Additional external documentation.
     #[serde(skip_serializing_if = "Option::is_none")]

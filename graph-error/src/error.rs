@@ -1,8 +1,6 @@
 use serde::Serialize;
 use std::fmt::{Display, Formatter};
 
-use std::string::ToString;
-
 #[derive(Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct InnerError {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -33,6 +31,16 @@ pub struct ErrorStatus {
     #[serde(rename = "innerError")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inner_error: Option<InnerError>,
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum HttpResponseErrorMessage {
+    #[error("{0:#?}")]
+    GraphErrorMessage(#[from] ErrorMessage),
+    #[error("{0:#?}")]
+    SerdeJsonError(#[from] serde_json::error::Error),
+    #[error("{0:#?}")]
+    ReqwestError(#[from] reqwest::Error),
 }
 
 #[derive(thiserror::Error, Default, Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]

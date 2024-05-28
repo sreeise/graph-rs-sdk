@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::sites::*;
 
-resource_api_client!(
+api_client!(
     SitesListsApiClient,
     SitesListsIdApiClient,
     ResourceIdentity::SitesLists

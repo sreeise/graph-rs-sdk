@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::identity_governance::*;
 
-resource_api_client!(
+api_client!(
     ConnectedOrganizationsApiClient,
     ConnectedOrganizationsIdApiClient,
     ResourceIdentity::ConnectedOrganizations

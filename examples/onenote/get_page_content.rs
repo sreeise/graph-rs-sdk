@@ -19,7 +19,7 @@ static DOWNLOAD_PATH: &str = "DOWNLOAD_PATH";
 static FILE_NAME: &str = "FILE_NAME";
 
 pub async fn get_page_html_content() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .user(USER_ID)
@@ -35,7 +35,7 @@ pub async fn get_page_html_content() {
 }
 
 pub async fn download_page_as_html() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .user(USER_ID)

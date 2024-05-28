@@ -35,7 +35,7 @@ async fn upload_new_file(
     parent_reference_id: &str,
     file_name: &str,
     local_file: &str,
-    client: &Graph,
+    client: &GraphClient,
 ) -> GraphResult<reqwest::Response> {
     client
         .drive(user_id)
@@ -49,7 +49,7 @@ async fn update_file(
     user_id: &str,
     onedrive_file_path: &str,
     local_file: &str,
-    client: &Graph,
+    client: &GraphClient,
 ) -> GraphResult<reqwest::Response> {
     client
         .user(user_id)
@@ -63,7 +63,7 @@ async fn update_file(
 async fn delete_file(
     user_id: &str,
     item_id: &str,
-    client: &Graph,
+    client: &GraphClient,
 ) -> GraphResult<reqwest::Response> {
     client
         .user(user_id)
@@ -75,7 +75,7 @@ async fn delete_file(
 }
 
 async fn upload_and_update_item() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     // Get the id for the Documents folder where the file will be uploaded.
     let parent_reference_id =

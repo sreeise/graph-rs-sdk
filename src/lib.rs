@@ -10,6 +10,9 @@
 //! Graph API. There may be some requests and/or API not yet included in this project but in general most of them are
 //! implemented.
 //!
+//! For any APIs missing you can make a feature request on GitHub or you can create a PR
+//! to add the APIs. Contributions welcome.
+//!
 //! ## Feature requests or Bug reports.
 //!
 //! For bug reports please file an issue on [GitHub](https://github.com/sreeise/graph-rs-sdk)
@@ -21,9 +24,6 @@
 //! than that feel free to ask questions, provide tips to others, and talk about the project in general.
 //!
 //! ## Use
-//! The client is async by default and it is recommended to use
-//! tokio as the runtime. Tokio is what is used internally and what the project
-//! is tested with.
 //!
 //! ```rust,ignore
 //! use graph_rs_sdk::*;
@@ -149,7 +149,7 @@
 //!
 //! - For more information and examples please see the repository on
 //! [GitHub](https://github.com/sreeise/graph-rs-sdk)
-//! - If you run into issues related to graph-rs specifically please
+//! - If you run into issues related to graph-rs-sdk specifically please
 //! file an issue on [GitHub](https://github.com/sreeise/graph-rs-sdk)
 //!
 //! # OAuth
@@ -162,13 +162,6 @@
 //!
 //! ### Supported Authorization Flows
 //!
-//! #### Microsoft OneDrive and SharePoint
-//!
-//! - [Token Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#token-flow)
-//! - [Code Flow](https://learn.microsoft.com/en-us/onedrive/developer/rest-api/getting-started/graph-oauth?view=odsp-graph-online#code-flow)
-//!
-//! #### Microsoft Identity Platform
-//!
 //! - [Authorization Code Grant](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
 //! - [Authorization Code Grant PKCE](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)
 //! - [Open ID Connect](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc)
@@ -176,68 +169,6 @@
 //! - [Device Code Flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-device-code)
 //! - [Client Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow)
 //! - [Resource Owner Password Credentials](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth-ropc)
-//!
-//! # Example
-//! ```
-//! use graph_rs_sdk::oauth::OAuth;
-//! let mut oauth = OAuth::new();
-//! oauth
-//!     .client_id("<YOUR_CLIENT_ID>")
-//!     .client_secret("<YOUR_CLIENT_SECRET>")
-//!     .add_scope("files.read")
-//!     .add_scope("files.readwrite")
-//!     .add_scope("files.read.all")
-//!     .add_scope("files.readwrite.all")
-//!     .add_scope("offline_access")
-//!     .redirect_uri("http://localhost:8000/redirect")
-//!     .authorize_url("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
-//!     .access_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-//!     .refresh_token_url("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-//!     .response_type("code")
-//!     .logout_url("https://login.microsoftonline.com/common/oauth2/v2.0/logout")
-//!     .post_logout_redirect_uri("http://localhost:8000/redirect");
-//! ```
-//! Get the access code for the authorization code grant by sending the user to
-//! log in using their browser.
-//! ```rust,ignore
-//! # use graph_rs_sdk::oauth::OAuth;
-//! # let mut oauth = OAuth::new();
-//! let mut request = oauth.build().authorization_code_grant();
-//! let _ = request.browser_authorization().open();
-//! ```
-//!
-//! The access code will be appended to the url on redirect. Pass
-//! this code to the OAuth instance:
-//! ```rust,ignore
-//! # use graph_rs_sdk::oauth::OAuth;
-//! # let mut oauth = OAuth::new();
-//! oauth.access_code("<ACCESS CODE>");
-//! ```
-//!
-//! Perform an authorization code grant request for an access token:
-//! ```rust,ignore
-//! # use graph_rs_sdk::oauth::{AccessToken, OAuth};
-//! # let mut oauth = OAuth::new();
-//! let mut request = oauth.build().authorization_code_grant();
-//!
-//! let response = request.access_token().send()?;
-//! println!("{:#?}", access_token);
-//!
-//! if response.status().is_success() {
-//!     let mut access_token: AccessToken = response.json()?;
-//!
-//!     let jwt = access_token.jwt();
-//!     println!("{jwt:#?}");
-//!
-//!     // Store in OAuth to make requests for refresh tokens.
-//!     oauth.access_token(access_token);
-//! } else {
-//!     // See if Microsoft Graph returned an error in the Response body
-//!     let result: reqwest::Result<serde_json::Value> = response.json();
-//!     println!("{:#?}", result);
-//! }
-//!
-//! ```
 
 // mod client needs to stay on top of all other
 // client mod declarations for macro use.
@@ -273,7 +204,8 @@ pub mod education;
 pub mod extended_properties;
 pub mod group_lifecycle_policies;
 pub mod groups;
-pub mod identity;
+/// The main identity APIs with starting path `identity/`
+pub mod identity_access;
 pub mod identity_governance;
 pub mod identity_providers;
 pub mod invitations;
@@ -299,32 +231,32 @@ pub mod users;
 pub static GRAPH_URL: &str = "https://graph.microsoft.com/v1.0";
 pub static GRAPH_URL_BETA: &str = "https://graph.microsoft.com/beta";
 
-pub use crate::client::Graph;
+pub use crate::client::{Graph, GraphClient};
 pub use graph_error::{GraphFailure, GraphResult};
 pub use graph_http::api_impl::{GraphClientConfiguration, ODataQuery};
 
 /// Reexport of graph-oauth crate.
-pub mod oauth {
-    pub use graph_oauth::jwt;
-    pub use graph_oauth::oauth::*;
+pub mod identity {
+    pub use graph_core::identity::ClientApplication;
+    pub use graph_oauth::*;
 }
 
 pub mod http {
-    pub use graph_http::api_impl::{
-        BodyRead, FileConfig, PagingResponse, PagingResult, UploadSession,
-    };
+    pub use graph_core::http::{HttpResponseBuilderExt, HttpResponseExt};
+    pub use graph_http::api_impl::{BodyRead, FileConfig, UploadSession};
     pub use graph_http::traits::{
-        AsyncIterator, HttpResponseBuilderExt, HttpResponseExt, ODataDeltaLink, ODataDownloadLink,
-        ODataMetadataLink, ODataNextLink, ODataQuery, ResponseBlockingExt, ResponseExt,
-        UploadSessionLink,
+        AsyncIterator, ODataDeltaLink, ODataDownloadLink, ODataMetadataLink, ODataNextLink,
+        ODataQuery, ResponseBlockingExt, ResponseExt, UploadSessionLink,
     };
-    pub use reqwest::tls::Version;
-    pub use reqwest::{Body, Method};
 
     pub mod blocking {
         pub use graph_http::api_impl::UploadSessionBlocking;
         pub use reqwest::blocking::Body;
     }
+
+    pub use reqwest::tls::Version;
+    pub use reqwest::{Body, Method};
+    pub use url::Url;
 }
 
 /// Reexport of graph-error crate.
@@ -339,14 +271,12 @@ pub mod header {
 
 pub(crate) mod api_default_imports {
     pub(crate) use handlebars::*;
-    pub use reqwest::Method;
-    pub use url::Url;
+    pub(crate) use reqwest::Method;
+    pub(crate) use url::Url;
 
-    pub use graph_core::resource::ResourceIdentity;
-    pub use graph_error::*;
+    pub(crate) use graph_core::resource::ResourceIdentity;
+    pub(crate) use graph_error::*;
     pub(crate) use graph_http::api_impl::*;
 
-    #[allow(unused_imports)]
-    pub use crate::client::Graph;
     pub(crate) use crate::client::{map_errors, map_parameters, ResourceProvisioner};
 }

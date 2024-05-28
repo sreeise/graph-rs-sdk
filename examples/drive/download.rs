@@ -20,7 +20,7 @@ pub async fn download_files() {
 }
 
 pub async fn download() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -43,7 +43,7 @@ pub async fn download() {
 }
 
 pub async fn download_file_as_bytes() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -59,7 +59,7 @@ pub async fn download_file_as_bytes() {
 }
 
 pub async fn download_file_as_string() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -82,7 +82,7 @@ pub async fn download_file_as_string() {
 // For more info on download formats see:
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_get_content_format?view=odsp-graph-online
 pub async fn download_and_format(format: &str) {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -110,7 +110,7 @@ pub async fn download_and_format(format: &str) {
 }
 
 pub async fn download_and_rename(name: &str) {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -139,7 +139,7 @@ pub async fn download_and_rename(name: &str) {
 // The path should always start with :/ and end with :
 // such as :/Documents/item.txt:
 pub async fn download_by_path(path: &str) {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -169,7 +169,7 @@ pub async fn download_by_path(path: &str) {
 /// You can change this by setting FileConfig with create directories to true.
 /// Any missing directory when this is not true will cause the request to fail.
 pub async fn download_with_config() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()

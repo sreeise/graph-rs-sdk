@@ -5,7 +5,7 @@ static ACCESS_TOKEN: &str = "<ACCESS_TOKEN>";
 static GROUP_ID: &str = "<GROUP_ID>";
 
 pub async fn get_groups() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client.group(GROUP_ID).get_group().send().await?;
 
@@ -15,7 +15,7 @@ pub async fn get_groups() -> GraphResult<()> {
 }
 
 pub async fn list_groups() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client.groups().list_group().send().await.unwrap();
 

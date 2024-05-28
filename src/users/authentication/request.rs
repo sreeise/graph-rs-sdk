@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(AuthenticationApiClient, ResourceIdentity::Authentication);
+api_client!(AuthenticationApiClient, ResourceIdentity::Authentication);
 
 impl AuthenticationApiClient {
     delete!(

@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(CallsApiClient, CallsIdApiClient, ResourceIdentity::Calls);
+api_client!(CallsApiClient, CallsIdApiClient, ResourceIdentity::Calls);
 
 impl CallsApiClient {
     post!(

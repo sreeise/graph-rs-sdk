@@ -10,7 +10,7 @@ static ATTACHMENT_ID: &str = "ATTACHMENT_ID";
 static USER_ID: &str = "USER_ID";
 
 pub async fn add_attachment() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -29,7 +29,7 @@ pub async fn add_attachment() {
 }
 
 pub async fn get_attachment() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -47,7 +47,7 @@ pub async fn get_attachment() {
 }
 
 pub async fn get_attachment_content() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -67,7 +67,7 @@ pub async fn get_attachment_content() {
 static MAIL_FOLDER_ID: &str = "MAIL_FOLDER_ID";
 
 pub async fn add_mail_folder_message_attachment() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
