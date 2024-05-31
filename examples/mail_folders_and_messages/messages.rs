@@ -95,7 +95,7 @@ pub async fn update_message() {
 }
 
 pub async fn send_message() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()

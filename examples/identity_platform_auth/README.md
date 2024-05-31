@@ -33,7 +33,7 @@ documentation from Microsoft.
 
 ```rust
 use graph_rs_sdk::{
-  Graph,
+  GraphClient,
   oauth::ConfidentialClientApplication,
 };
 
@@ -51,7 +51,7 @@ async fn build_client(
           .with_redirect_uri(redirect_uri)?
           .build();
 
-  let graph_client = Graph::from(confidential_client);
+  let graph_client = GraphClient::from(confidential_client);
   
   Ok(graph_client)
 }
@@ -68,7 +68,7 @@ documentation from Microsoft.
 
 ```rust
 use graph_rs_sdk::{
-  Graph,
+  GraphClient,
   oauth::ConfidentialClientApplication,
 };
 
