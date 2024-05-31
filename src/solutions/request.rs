@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::solutions::*;
 
-resource_api_client!(SolutionsApiClient, ResourceIdentity::Solutions);
+api_client!(SolutionsApiClient, ResourceIdentity::Solutions);
 
 impl SolutionsApiClient {
     api_client_link!(booking_businesses, BookingBusinessesApiClient);
