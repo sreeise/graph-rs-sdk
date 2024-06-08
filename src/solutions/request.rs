@@ -7,6 +7,7 @@ api_client!(SolutionsApiClient, ResourceIdentity::Solutions);
 
 impl SolutionsApiClient {
     api_client_link!(booking_businesses, BookingBusinessesApiClient);
+    api_client_link!(virtual_events, VirtualEventsApiClient);
     api_client_link_id!(booking_business, BookingBusinessesIdApiClient);
 
     get!(

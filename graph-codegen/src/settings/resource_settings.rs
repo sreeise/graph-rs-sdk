@@ -1192,6 +1192,7 @@ impl ResourceSettings {
 					vec![
 						ApiClientLink::Struct("booking_businesses", "BookingBusinessesApiClient"),
 						ApiClientLink::StructId("booking_business", "BookingBusinessesIdApiClient"),
+						ApiClientLink::Struct("virtual_events", "VirtualEventsApiClient"),
 					]
 					)
 				])
@@ -1214,9 +1215,49 @@ impl ResourceSettings {
 						ApiClientLink::StructId("staff_member", "StaffMembersIdApiClient"),
 						ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
 						ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
-					]
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::VirtualEvents => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("VirtualEventsApiClient"),
+										  vec![
+											  ApiClientLink::Struct("events", "VirtualEventsEventsApiClient"),
+											  ApiClientLink::Struct("webinars", "VirtualEventsWebinarsApiClient"),
+											  ApiClientLink::StructId("event", "VirtualEventsEventsIdApiClient"),
+											  ApiClientLink::StructId("webinar", "VirtualEventsWebinarsIdApiClient"),
+										  ]
 					)
 				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::VirtualEventsEvents => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("VirtualEventsEventsIdApiClient"),
+										  vec![
+											  ApiClientLink::Struct("sessions", "VirtualEventsSessionsApiClient"),
+											  ApiClientLink::StructId("session", "VirtualEventsSessionsIdApiClient"),
+										  ]
+					)
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::VirtualEventsWebinars => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("VirtualEventsWebinarsIdApiClient"),
+										  vec![
+											  ApiClientLink::Struct("sessions", "VirtualEventsSessionsApiClient"),
+											  ApiClientLink::StructId("session", "VirtualEventsSessionsIdApiClient"),
+										  ]
+					)
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::VirtualEventsSessions => ResourceSettings::builder(path_name, ri)
 				.build()
 				.unwrap(),
 			_ => ResourceSettings::default(path_name, ri),
@@ -2701,9 +2742,28 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 				get_write_configuration(ResourceIdentity::CustomQuestions),
 				get_write_configuration(ResourceIdentity::Customers),
 				get_write_configuration(ResourceIdentity::StaffMembers),
+				get_write_configuration(ResourceIdentity::VirtualEvents),
+				get_write_configuration(ResourceIdentity::VirtualEventsEvents),
+				get_write_configuration(ResourceIdentity::VirtualEventsWebinars),
+				get_write_configuration(ResourceIdentity::VirtualEventsSessions),
 			])
 			.build()
 			.unwrap(),
+		ResourceIdentity::VirtualEvents => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions")
+			.filter_path(vec!["sessions", "webinars", "events"])
+			.build().unwrap(),
+		ResourceIdentity::VirtualEventsEvents => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/virtualEvents")
+			.filter_path(vec!["sessions", "webinars"])
+			.build().unwrap(),
+		ResourceIdentity::VirtualEventsWebinars => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/virtualEvents")
+			.filter_path(vec!["sessions", "events"])
+			.build().unwrap(),
+		ResourceIdentity::VirtualEventsSessions => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/virtualEvents/events/{virtualEvent-id}")
+			.build().unwrap(),
 		ResourceIdentity::BookingBusinesses => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
 			.trim_path_start("/solutions")
 			.filter_path(vec!["appointments", "calendarView", "customQuestions", "customers", "services", "staffMembers"])

@@ -1097,6 +1097,33 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 			"staff_members", "/staff_members/$count",
 			GeneratedMacroType::FnName("get_staff_members_count")
 		)],
+		ResourceIdentity::VirtualEventsSessions => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"attendance_records", "/sessions/{{RID}}/attendanceReports/{{id}}/attendanceRecords/$count",
+				GeneratedMacroType::FnName("get_attendance_records_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"sessions", "/sessions/$count",
+				GeneratedMacroType::FnName("get_sessions_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"attendance_reports", "/sessions/{{RID}}/attendanceReports/$count",
+				GeneratedMacroType::FnName("get_attendance_reports_count")
+			)],
+		ResourceIdentity::VirtualEventsWebinars => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"webinars", "/webinars/$count",
+				GeneratedMacroType::FnName("get_webinars_count")
+			),
+			MethodMacroModifier::fn_name_and_path(
+				"registrations", "/webinars/{{RID}}/registrations/$count",
+				GeneratedMacroType::FnName("get_registrations_count")
+			)],
+		ResourceIdentity::VirtualEventsEvents => vec![
+			MethodMacroModifier::fn_name_and_path(
+				"events", "/events/$count",
+				GeneratedMacroType::FnName("get_events_count")
+			)],
 	_ => vec![],
     }
 }
