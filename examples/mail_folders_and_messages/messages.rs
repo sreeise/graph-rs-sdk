@@ -1,5 +1,5 @@
-use graph_rs_sdk::*;
 use graph_rs_sdk::header::{HeaderValue, CONTENT_LENGTH};
+use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
