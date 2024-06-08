@@ -30,18 +30,18 @@ impl BookingBusinessesApiClient {
 }
 
 impl BookingBusinessesIdApiClient {
-    api_client_link_id!(service, ServicesIdApiClient);
-    api_client_link!(customers, CustomersApiClient);
-    api_client_link_id!(staff_member, StaffMembersIdApiClient);
-    api_client_link!(staff_members, StaffMembersApiClient);
-    api_client_link_id!(appointment, AppointmentsIdApiClient);
-    api_client_link_id!(customer, CustomersIdApiClient);
-    api_client_link!(custom_questions, CustomQuestionsApiClient);
-    api_client_link!(appointments, AppointmentsApiClient);
-    api_client_link!(calendar_views, CalendarViewApiClient);
     api_client_link!(services, ServicesApiClient);
-    api_client_link_id!(calendar_view, CalendarViewIdApiClient);
+    api_client_link!(customers, CustomersApiClient);
+    api_client_link_id!(appointment, AppointmentsIdApiClient);
     api_client_link_id!(custom_question, CustomQuestionsIdApiClient);
+    api_client_link!(staff_members, StaffMembersApiClient);
+    api_client_link!(calendar_views, CalendarViewApiClient);
+    api_client_link_id!(calendar_view, CalendarViewIdApiClient);
+    api_client_link_id!(staff_member, StaffMembersIdApiClient);
+    api_client_link!(appointments, AppointmentsApiClient);
+    api_client_link_id!(service, ServicesIdApiClient);
+    api_client_link!(custom_questions, CustomQuestionsApiClient);
+    api_client_link_id!(customer, CustomersIdApiClient);
 
     delete!(
         doc: "Delete bookingBusiness",

@@ -12,7 +12,10 @@ use std::{
 pub struct Response {
     /// REQUIRED. A short description of the response. CommonMark syntax MAY be
     /// used for rich text representation.
-    pub description: String,
+    /// Despite being required the description field still may not be included and so
+    /// must be wrapped in an Option.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 
     #[serde(default)]
     #[serde(skip_serializing_if = "HashMap::is_empty")]
