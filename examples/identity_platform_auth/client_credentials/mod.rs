@@ -13,4 +13,4 @@
 mod client_credentials_secret;
 mod server_examples;
 
-use graph_rs_sdk::{identity::ConfidentialClientApplication, Graph};
+use graph_rs_sdk::{identity::ConfidentialClientApplication, GraphClient};
