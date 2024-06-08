@@ -448,7 +448,7 @@ pub trait MacroImplWriter {
         }
 
         let resource_api_client_impl = format!(
-            "resource_api_client!({}, {});\n",
+            "api_client!({}, {});\n",
             client_impl_string,
             settings[0].ri.enum_string()
         );
