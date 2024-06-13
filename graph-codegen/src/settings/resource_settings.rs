@@ -1185,6 +1185,81 @@ impl ResourceSettings {
 				.api_client_links(get_users_api_client_links(ri))
 				.build()
 				.unwrap(),
+			ResourceIdentity::Solutions => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("SolutionsApiClient"), 
+					vec![
+						ApiClientLink::Struct("booking_businesses", "BookingBusinessesApiClient"),
+						ApiClientLink::StructId("booking_business", "BookingBusinessesIdApiClient"),
+						ApiClientLink::Struct("virtual_events", "VirtualEventsApiClient"),
+					]
+					)
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::BookingBusinesses => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*", "crate::users::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("BookingBusinessesIdApiClient"), 
+					vec![
+						ApiClientLink::Struct("appointments", "AppointmentsApiClient"),
+						ApiClientLink::StructId("appointment", "AppointmentsIdApiClient"),
+						ApiClientLink::Struct("services", "ServicesApiClient"),
+						ApiClientLink::StructId("service", "ServicesIdApiClient"),
+						ApiClientLink::Struct("custom_questions", "CustomQuestionsApiClient"),
+						ApiClientLink::StructId("custom_question", "CustomQuestionsIdApiClient"),
+						ApiClientLink::Struct("customers", "CustomersApiClient"),
+						ApiClientLink::StructId("customer", "CustomersIdApiClient"),
+						ApiClientLink::Struct("staff_members", "StaffMembersApiClient"),
+						ApiClientLink::StructId("staff_member", "StaffMembersIdApiClient"),
+						ApiClientLink::Struct("calendar_views", "CalendarViewApiClient"),
+						ApiClientLink::StructId("calendar_view", "CalendarViewIdApiClient"),
+					])
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::VirtualEvents => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("VirtualEventsApiClient"),
+										  vec![
+											  ApiClientLink::Struct("events", "VirtualEventsEventsApiClient"),
+											  ApiClientLink::Struct("webinars", "VirtualEventsWebinarsApiClient"),
+											  ApiClientLink::StructId("event", "VirtualEventsEventsIdApiClient"),
+											  ApiClientLink::StructId("webinar", "VirtualEventsWebinarsIdApiClient"),
+										  ]
+					)
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::VirtualEventsEvents => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("VirtualEventsEventsIdApiClient"),
+										  vec![
+											  ApiClientLink::Struct("sessions", "VirtualEventsSessionsApiClient"),
+											  ApiClientLink::StructId("session", "VirtualEventsSessionsIdApiClient"),
+										  ]
+					)
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::VirtualEventsWebinars => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::solutions::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("VirtualEventsWebinarsIdApiClient"),
+										  vec![
+											  ApiClientLink::Struct("sessions", "VirtualEventsSessionsApiClient"),
+											  ApiClientLink::StructId("session", "VirtualEventsSessionsIdApiClient"),
+										  ]
+					)
+				])
+				.build()
+				.unwrap(),
+			ResourceIdentity::VirtualEventsSessions => ResourceSettings::builder(path_name, ri)
+				.build()
+				.unwrap(),
 			_ => ResourceSettings::default(path_name, ri),
 		}
     }
@@ -2656,6 +2731,62 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 		ResourceIdentity::MailFolders => WriteConfiguration::second_level_builder(ResourceIdentity::Users, resource_identity)
 			.filter_path(vec!["childFolders", "messages", "singleValueExtendedProperties", "multiValueExtendedProperties"])
 			.trim_path_start("/users/{user-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::Solutions => WriteConfiguration::builder(resource_identity)
+			.filter_path(vec!["bookingBusinesses", "virtualEvents", "bookingCurrencies"])
+			.children(vec![
+				get_write_configuration(ResourceIdentity::BookingBusinesses),
+				get_write_configuration(ResourceIdentity::Appointments),
+				get_write_configuration(ResourceIdentity::Services),
+				get_write_configuration(ResourceIdentity::CustomQuestions),
+				get_write_configuration(ResourceIdentity::Customers),
+				get_write_configuration(ResourceIdentity::StaffMembers),
+				get_write_configuration(ResourceIdentity::VirtualEvents),
+				get_write_configuration(ResourceIdentity::VirtualEventsEvents),
+				get_write_configuration(ResourceIdentity::VirtualEventsWebinars),
+				get_write_configuration(ResourceIdentity::VirtualEventsSessions),
+			])
+			.build()
+			.unwrap(),
+		ResourceIdentity::VirtualEvents => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions")
+			.filter_path(vec!["sessions", "webinars", "events"])
+			.build().unwrap(),
+		ResourceIdentity::VirtualEventsEvents => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/virtualEvents")
+			.filter_path(vec!["sessions", "webinars"])
+			.build().unwrap(),
+		ResourceIdentity::VirtualEventsWebinars => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/virtualEvents")
+			.filter_path(vec!["sessions", "events"])
+			.build().unwrap(),
+		ResourceIdentity::VirtualEventsSessions => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/virtualEvents/events/{virtualEvent-id}")
+			.build().unwrap(),
+		ResourceIdentity::BookingBusinesses => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions")
+			.filter_path(vec!["appointments", "calendarView", "customQuestions", "customers", "services", "staffMembers"])
+			.build()
+			.unwrap(),
+		ResourceIdentity::Appointments => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::Services => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::CustomQuestions => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::Customers=> WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
+			.build()
+			.unwrap(),
+		ResourceIdentity::StaffMembers => WriteConfiguration::second_level_builder(ResourceIdentity::Solutions, resource_identity)
+			.trim_path_start("/solutions/bookingBusinesses/{bookingBusiness-id}")
 			.build()
 			.unwrap(),
 		_ => WriteConfiguration::builder(resource_identity)

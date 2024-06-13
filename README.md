@@ -130,7 +130,7 @@ use graph_rs_sdk::*;
 
 #[tokio::main]
 async fn main() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
   let response = client
       .users()
@@ -155,11 +155,11 @@ use `tokio` when using the blocking client.
     graph-rs-sdk = "2.0.0"
 
 #### Example
+```rust
 use graph_rs_sdk::*;
 
-```rust
 fn main() -> GraphResult<()> {
-    let client = Graph::new("ACCESS_TOKEN");
+    let client = GraphClient::new("ACCESS_TOKEN");
 
     let response = client
         .users()
@@ -196,7 +196,7 @@ The send() method is the main method for sending a request and returns a `Result
 use graph_rs_sdk::*;
 
 pub async fn get_drive_item() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
   let response = client
       .me()
@@ -229,7 +229,7 @@ use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Graph::new("token");
+    let client = GraphClient::new("token");
     let response = client.users().list_user().send().await?;
 
     if !response.status().is_success() {
@@ -268,7 +268,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static ITEM_ID: &str = "ITEM_ID";
 
 pub async fn get_drive_item() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
   
   let drive_item = DriveItem {
         id: None,
@@ -348,7 +348,7 @@ pub struct Users {
 }
 
 async fn paging() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
 
   let deque = client
       .users()
@@ -378,7 +378,7 @@ use graph_rs_sdk::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 pub async fn stream_next_links() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let mut stream = client
         .users()
@@ -399,7 +399,7 @@ pub async fn stream_next_links() -> GraphResult<()> {
 }
 
 pub async fn stream_delta() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
   let mut stream = client
           .users()
           .delta()
@@ -426,7 +426,7 @@ use graph_rs_sdk::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 async fn channel_next_links() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
   let mut receiver = client
       .users()
       .list_user()
@@ -464,7 +464,7 @@ users, and groups.
 use graph_rs_sdk::*;
 
 async fn drives() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
   let response = client
       .drives()
@@ -497,7 +497,7 @@ async fn drives() -> GraphResult<()> {
 #### Me API
 ```rust
 async fn drive_me() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
   let response = client
       .me()
@@ -520,7 +520,7 @@ async fn drive_me() -> GraphResult<()> {
 #### Users API
 ```RUST
 async fn drive_users() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
   let response = client
       .user("USER_ID")
@@ -542,7 +542,7 @@ async fn drive_users() -> GraphResult<()> {
 #### Sites API
 ```RUST
 async fn drive_users() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
   let response = client
       .site("SITE_ID")
@@ -575,7 +575,7 @@ static PARENT_ID: &str = "PARENT_ID";
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_post_children?view=odsp-graph-online
 
 pub async fn create_new_folder() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
   let folder: HashMap<String, serde_json::Value> = HashMap::new();
 
   let response = client
@@ -604,7 +604,7 @@ Path based addressing for drive.
 // Start the path with :/ and end with :
 
 async fn get_item_by_path() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
   let response = client
           .me()
@@ -631,7 +631,7 @@ use graph_rs_sdk::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 async fn get_mail_folder() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
 
   let response = client.me()
       .mail_folder(MAIL_FOLDER_ID)
@@ -656,7 +656,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static MAIL_FOLDER_ID: &str = "MAIL_FOLDER_ID";
 
 async fn create_message() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
   
   let response = client
       .me()
@@ -694,7 +694,7 @@ use graph_rs_sdk::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 async fn send_mail() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .me()
@@ -741,7 +741,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static MAIL_FOLDER_ID: &str = "MAIL_FOLDER_ID";
 
 async fn create_mail_folder_message() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
   
     let response = client
         .me()
@@ -778,7 +778,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static USER_ID: &str = "USER_ID";
 
 async fn get_user_inbox_messages() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
   
   let response = client
       .user(USER_ID)
@@ -829,7 +829,7 @@ struct EmailAddress {
 }
 
 async fn create_message() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
   let mut body: HashMap<String, String> = HashMap::new();
   body.insert("contentType".to_string(), "HTML".to_string());
@@ -870,7 +870,7 @@ async fn create_message() -> GraphResult<()> {
 use graph_rs_sdk::*;
 
 async fn create_message() -> GraphResult<()> {
-  let client = Graph::new("ACCESS_TOKEN");
+  let client = GraphClient::new("ACCESS_TOKEN");
 
 // Get all files in the root of the drive
 // and select only specific properties.
@@ -903,7 +903,7 @@ static USER_ID: &str = "USER_ID";
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 async fn batch() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
 
   let json = serde_json::json!({
         "requests": [
@@ -966,7 +966,7 @@ use graph_rs_sdk::*;
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 
 async fn list_users() -> GraphResult<()> {
-  let client = Graph::new(ACCESS_TOKEN);
+  let client = GraphClient::new(ACCESS_TOKEN);
 
   let response = client
       .users()
@@ -996,7 +996,7 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static USER_ID: &str = "USER_ID";
 
 async fn get_user() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client
         .user(USER_ID)
@@ -1045,7 +1045,7 @@ Once you have built a `ConfidentialClientApplication` or a `PublicClientApplicat
 you can pass these to the graph client.
 
 Automatic token refresh is also done by passing the `ConfidentialClientApplication` or the
-`PublicClientApplication` to the `Graph` client.
+`PublicClientApplication` to the `GraphClient` client.
 
 For more extensive examples see the
 [OAuth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/oauth) in the examples/oauth
@@ -1090,7 +1090,7 @@ will perform the request to get an access token on the first graph api call that
 
 ```rust
 use graph_rs_sdk::{
-  Graph,
+  GraphClient,
   oauth::ConfidentialClientApplication,
 };
 
@@ -1108,7 +1108,7 @@ async fn build_client(
           .with_redirect_uri(redirect_uri)
           .build();
 
-  let graph_client = Graph::from(confidential_client);
+  let graph_client = GraphClient::from(confidential_client);
   
   Ok(graph_client)
 }
@@ -1172,16 +1172,16 @@ as an administrator see [Admin Consent Example](https://github.com/sreeise/graph
 
 ```rust
 use graph_rs_sdk::{
-  oauth::ConfidentialClientApplication, Graph
+  oauth::ConfidentialClientApplication, GraphClient
 };
 
-pub async fn get_graph_client(tenant: &str, client_id: &str, client_secret: &str) -> Graph {
+pub async fn get_graph_client(tenant: &str, client_id: &str, client_secret: &str) -> GraphClient {
   let mut confidential_client_application = ConfidentialClientApplication::builder(client_id)
           .with_client_secret(client_secret)
           .with_tenant(tenant)
           .build();
 
-  Graph::from(&confidential_client_application)
+  GraphClient::from(&confidential_client_application)
 }
 ```
 
@@ -1228,7 +1228,7 @@ Using automatic token refresh requires getting a refresh token as part of the to
 To get a refresh token you must include the `offline_access` scope.
 
 Automatic token refresh is done by passing the `ConfidentialClientApplication` or the
-`PublicClientApplication` to the `Graph` client.
+`PublicClientApplication` to the `GraphClient` client.
 
 If you are using the `client credentials` grant you do not need the `offline_access` scope.
 Tokens will still be automatically refreshed as this flow does not require using a refresh token to get

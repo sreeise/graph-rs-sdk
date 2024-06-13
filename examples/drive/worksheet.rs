@@ -1,12 +1,12 @@
 use graph_rs_sdk::http::Body;
-use graph_rs_sdk::Graph;
+use graph_rs_sdk::GraphClient;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static DRIVE_ID: &str = "DRIVE_ID";
 static ITEM_ID: &str = "ITEM_ID";
 
 pub async fn update_range_by_address() {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     //update single cell
     let range_address = "A1";
