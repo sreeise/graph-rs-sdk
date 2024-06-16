@@ -152,7 +152,7 @@ pub enum AadAuthorityAudience {
     ///
     /// # Using Tenant Id
     /// ```rust
-    /// # use graph_oauth::oauth::AadAuthorityAudience;
+    /// use graph_oauth::AadAuthorityAudience;
     /// let authority_audience = AadAuthorityAudience::AzureAdMyOrg("tenant_id".into());
     /// ```
     AzureAdMyOrg(String),
