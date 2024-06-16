@@ -259,10 +259,10 @@ impl Token {
     ///
     /// # Example
     /// ```
-    /// # use graph_oauth::oauth::{Token, IdToken};
+    /// # use graph_oauth::{Token, IdToken};
     ///
     /// let mut access_token = Token::default();
-    /// access_token.with_id_token(IdToken::new("id_token", "code", "state", "session_state"));
+    /// access_token.with_id_token(IdToken::new("id_token", Some("code"), Some("state"), Some("session_state")));
     /// ```
     pub fn with_id_token(&mut self, id_token: IdToken) {
         self.id_token = Some(id_token);
