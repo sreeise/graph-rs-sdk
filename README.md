@@ -7,7 +7,7 @@
 
 ### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/2.0.0) - v2.0.0 - Latest Stable Version
 
-#### Features:
+#### Feature Overview:
 
 [Microsoft Graph V1 and Beta API Client](#graph-client)
   - Wide support for Graph APIs
@@ -20,6 +20,8 @@
 - Automatic Token Refresh
 - Interactive WebView Auth (feature = `interactive-auth`)
 - X509 Certificate (feature = `openssl`) and Proof Key Code Exchange (PKCE) Support
+
+And much more. See [Features](#features) for a more comprehensive list of features. 
 
 ```toml
 graph-rs-sdk = "2.0.0"
@@ -46,19 +48,6 @@ use futures::StreamExt;
 use graph_rs_sdk::*;
 ```
 
-Contributing and Wiki:
-- [Contributions](https://github.com/sreeise/graph-rs-sdk/wiki/Contributing)
-- [Wiki](https://github.com/sreeise/graph-rs-sdk/wiki)
-
-### Feature requests or Bug reports.
-
-For bug reports please file an issue on GitHub and a response or fix will be given as soon as possible.
-
-The [Discussions](https://github.com/sreeise/graph-rs-sdk/discussions) tab on [GitHub](https://github.com/sreeise/graph-rs-sdk/discussions)
-is enabled so feel free to stop by there with any questions or feature requests as well. For bugs, please file
-an issue first. Features can be requested through issues or discussions. Either way works.
-Other than that feel free to ask questions, provide tips to others, and talk about the project in general.
-
 ## Features
 
 ### Graph Client
@@ -72,6 +61,7 @@ Other than that feel free to ask questions, provide tips to others, and talk abo
     * [Streaming](#streaming)
     * [Channels](#channels)
   * [API Usage](#api-usage)
+  * [Batch Requests](#batch-requests)
   * [Id vs Non-Id methods](#id-vs-non-id-methods-such-as-useruser-id-vs-users)
   * [Contributing](#contributing)
   * [Wiki](#wiki)
@@ -175,18 +165,6 @@ fn main() -> GraphResult<()> {
     Ok(())
 }
 ```
-
-## Cargo Feature Flags
-
-- `native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS). 
-- `rustls-tls`: Use the `rustls-tls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
-- `brotli`: Enables reqwest feature brotli. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
-- `deflate`: Enables reqwest feature deflate. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
-- `trust-dns`: Enables reqwest feature trust-dns. For more info see the [reqwest](https://crates.io/crates/reqwest) crate.
-- `test-util`: Enables testing features. Adds the ability to set a custom endpoint for mocking frameworks using the `use_test_endpoint` method on the `GraphClient`. 
-  - Also allow http (disable https only)
-
-Default features: `default=["native-tls"]`
 
 #### The send method
 The send() method is the main method for sending a request and returns a `Result<rewest::Response, GraphFailure>`. See the
@@ -893,8 +871,7 @@ async fn create_message() -> GraphResult<()> {
    
 ### Batch Requests
 
-Batch requests use a mpsc::channel and return the receiver
-for responses.
+Call multiple Graph APIs in a single request.
 
 ```rust
 use graph_rs_sdk::*;
@@ -1030,10 +1007,10 @@ Support for:
 
 - [Identity Platform Auth Examples](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth)
   - [Auth Code Grant](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/auth_code_grant)
-  - [OpenId]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/openid))
-  - [Client Credentials]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/client_credentials))
+  - [OpenId](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/openid)
+  - [Client Credentials](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth/client_credentials)
 - [Url Builders For Flows Using Sign In To Get Authorization Code - Building Sign In Url](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/authorization_sign_in)
-- [Interactive Auth Examples (feature = `interactive-auth`)]((https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth))
+- [Interactive Auth Examples (feature = `interactive-auth`)](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/identity_platform_auth)
 - [Certificate Auth (feature = `openssl`)](https://github.com/sreeise/graph-rs-sdk/tree/master/examples/certificate_auth)
 
 There are two main types for building your chosen OAuth or OpenId Connect Flow.
