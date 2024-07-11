@@ -1124,6 +1124,48 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				"events", "/events/$count",
 				GeneratedMacroType::FnName("get_events_count")
 			)],
+		ResourceIdentity::Devices => vec![
+			MethodMacroModifier::fn_name_and_path("devices_get_count_3489", "/devices/$count",
+				GeneratedMacroType::FnName("get_devices_count")
+			),
+			MethodMacroModifier::fn_name_and_path("extensions", "/devices/{{RID}}/extensions/$count",
+												  GeneratedMacroType::FnName("get_extensions_count")
+			)
+		],
+		ResourceIdentity::DevicesRegisteredOwners => vec![
+			MethodMacroModifier::fn_name_and_path("registered_owners", "/registeredOwners/$count",
+												  GeneratedMacroType::FnName("get_devices_registered_owners_count")
+			),
+			MethodMacroModifier::fn_name_and_path("get_count", "/registeredOwners/graph.user/$count",
+												  GeneratedMacroType::FnName("get_user_count")
+			),
+			MethodMacroModifier::fn_name_and_path("get_count", "/registeredOwners/graph.servicePrincipal/$count",
+												  GeneratedMacroType::FnName("get_service_principal_count")
+			),
+			MethodMacroModifier::fn_name_and_path("get_count", "/registeredOwners/graph.endpoint/$count",
+												  GeneratedMacroType::FnName("get_endpoint_count")
+			),
+			MethodMacroModifier::fn_name_and_path("get_count", "/registeredOwners/graph.appRoleAssignment/$count",
+												  GeneratedMacroType::FnName("get_app_role_assignment_count")
+			)
+		],
+		ResourceIdentity::DevicesRegisteredUsers => vec![
+			MethodMacroModifier::fn_name_and_path("registered_users", "/registeredUsers/$count",
+												  GeneratedMacroType::FnName("get_devices_registered_owners_count")
+			),
+			MethodMacroModifier::fn_name_and_path("get_count", "/registeredUsers/graph.user/$count",
+												  GeneratedMacroType::FnName("get_user_count")
+			),
+			MethodMacroModifier::fn_name_and_path("get_count", "/registeredUsers/graph.servicePrincipal/$count",
+												  GeneratedMacroType::FnName("get_service_principal_count")
+			),
+			MethodMacroModifier::fn_name_and_path("get_count", "/registeredUsers/graph.endpoint/$count",
+												  GeneratedMacroType::FnName("get_endpoint_count")
+			),
+			MethodMacroModifier::fn_name_and_path("get_count", "/registeredUsers/graph.appRoleAssignment/$count",
+												  GeneratedMacroType::FnName("get_app_role_assignment_count")
+			)
+		],
 	_ => vec![],
     }
 }

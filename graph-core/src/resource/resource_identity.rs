@@ -96,6 +96,8 @@ pub enum ResourceIdentity {
     DeviceManagementManagedDevices,
     DeviceManagementReports,
     Devices,
+    DevicesRegisteredOwners,
+    DevicesRegisteredUsers,
     Directory,
     DirectoryMembers,
     DirectoryObjects,
@@ -401,6 +403,8 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::WorksheetsChartsAxesCategoryAxis => "categoryAxis".into(),
             ResourceIdentity::WorksheetsChartsAxesSeriesAxis => "seriesAxis".into(),
             ResourceIdentity::WorksheetsChartsAxesValueAxis => "valueAxis".into(),
+            ResourceIdentity::DevicesRegisteredOwners => "registeredOwners".into(),
+            ResourceIdentity::DevicesRegisteredUsers => "registeredUsers".into(),
             ResourceIdentity::Custom => "".into(),
 
             _ => self.as_ref().to_camel_case(),

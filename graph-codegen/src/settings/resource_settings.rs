@@ -1260,7 +1260,23 @@ impl ResourceSettings {
 			ResourceIdentity::VirtualEventsSessions => ResourceSettings::builder(path_name, ri)
 				.build()
 				.unwrap(),
+			ResourceIdentity::Devices => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::users::TransitiveMemberOfApiClient", "crate::users::MemberOfApiClient", "crate::users::TransitiveMemberOfIdApiClient", "crate::users::MemberOfIdApiClient", "crate::devices::*"])
+				.api_client_links(vec![ApiClientLinkSettings(Some("DevicesIdApiClient"), vec![
+					ApiClientLink::StructId("registered_user", "DevicesRegisteredUsersIdApiClient"),
+					ApiClientLink::Struct("registered_users", "DevicesRegisteredUsersApiClient"),
+					ApiClientLink::StructId("registered_owner", "DevicesRegisteredOwnersIdApiClient"),
+					ApiClientLink::Struct("registered_owners", "DevicesRegisteredOwnersApiClient"),
+					ApiClientLink::StructId("transitive_member_of", "TransitiveMemberOfIdApiClient"),
+					ApiClientLink::StructId("member_of", "MemberOfIdApiClient"),
+					ApiClientLink::Struct("transitive_members_of", "TransitiveMemberOfApiClient"),
+					ApiClientLink::Struct("members_of", "MemberOfApiClient"),
+				]
+				)
+				])
+				.build().unwrap(),
 			_ => ResourceSettings::default(path_name, ri),
+
 		}
     }
 }
@@ -2099,6 +2115,32 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 
 		ResourceIdentity::DomainDnsRecords => WriteConfiguration::from(resource_identity),
 
+		ResourceIdentity::Devices => WriteConfiguration::builder(resource_identity)
+			.filter_path(vec!["registeredOwners", "registeredUsers", "memberOf", "transitiveMemberOf"])
+			.imports(vec!["crate::users::TransitiveMemberOfApiClient", "crate::users::MemberOfApiClient", "crate::users::TransitiveMemberOfIdApiClient", "crate::users::MemberOfIdApiClient", "crate::devices::*"])
+			.children(vec![
+				get_write_configuration(ResourceIdentity::DevicesRegisteredOwners),
+				get_write_configuration(ResourceIdentity::DevicesRegisteredUsers),
+			])
+			.api_client_links(vec![ApiClientLinkSettings(Some("DevicesIdApiClient"), vec![
+					ApiClientLink::StructId("registered_user", "DevicesRegisteredUsersIdApiClient"),
+					ApiClientLink::Struct("registered_users", "DevicesRegisteredUsersApiClient"),
+					ApiClientLink::StructId("registered_owner", "DevicesRegisteredOwnersIdApiClient"),
+					ApiClientLink::Struct("registered_owners", "DevicesRegisteredOwnersApiClient"),
+					ApiClientLink::StructId("transitive_member_of", "TransitiveMemberOfIdApiClient"),
+					ApiClientLink::StructId("member_of", "MemberOfIdApiClient"),
+					ApiClientLink::Struct("transitive_members_of", "TransitiveMemberOfApiClient"),
+					ApiClientLink::Struct("members_of", "MemberOfApiClient"),
+					]
+				)
+			])
+			.build()
+			.unwrap(),
+
+		ResourceIdentity::DevicesRegisteredUsers | ResourceIdentity::DevicesRegisteredOwners => WriteConfiguration::second_level_builder(ResourceIdentity::Devices, resource_identity)
+			.trim_path_start("/devices/{device-id}")
+			.build()
+			.unwrap(),
 
 		// Identity Governance
 		ResourceIdentity::EntitlementManagement => WriteConfiguration::second_level_builder(ResourceIdentity::Directory, resource_identity)

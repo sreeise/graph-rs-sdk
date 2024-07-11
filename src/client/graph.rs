@@ -23,6 +23,7 @@ use crate::data_policy_operations::DataPolicyOperationsApiClient;
 use crate::default_drive::DefaultDriveApiClient;
 use crate::device_app_management::DeviceAppManagementApiClient;
 use crate::device_management::DeviceManagementApiClient;
+use crate::devices::{DevicesApiClient, DevicesIdApiClient};
 use crate::directory::DirectoryApiClient;
 use crate::directory_objects::{DirectoryObjectsApiClient, DirectoryObjectsIdApiClient};
 use crate::directory_role_templates::{
@@ -363,6 +364,8 @@ impl GraphClient {
     api_client_impl!(device_app_management, DeviceAppManagementApiClient);
 
     api_client_impl!(device_management, DeviceManagementApiClient);
+
+    api_client_impl!(devices, DevicesApiClient, device, DevicesIdApiClient);
 
     api_client_impl!(directory, DirectoryApiClient);
 
