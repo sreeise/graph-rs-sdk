@@ -193,6 +193,7 @@ pub mod data_policy_operations;
 pub mod default_drive;
 pub mod device_app_management;
 pub mod device_management;
+pub mod devices;
 pub mod directory;
 pub mod directory_objects;
 pub mod directory_role_templates;
