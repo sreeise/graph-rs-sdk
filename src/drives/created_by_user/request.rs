@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(CreatedByUserApiClient, ResourceIdentity::CreatedByUser);
+api_client!(CreatedByUserApiClient, ResourceIdentity::CreatedByUser);
 
 impl CreatedByUserApiClient {
     get!(

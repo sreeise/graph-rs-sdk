@@ -6,7 +6,7 @@ use crate::identity_governance::{
     AccessReviewsDefinitionsInstancesStagesIdApiClient,
 };
 
-resource_api_client!(
+api_client!(
     AccessReviewsDefinitionsInstancesApiClient,
     AccessReviewsDefinitionsInstancesIdApiClient,
     ResourceIdentity::AccessReviewsDefinitionsInstances

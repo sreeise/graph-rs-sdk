@@ -5,7 +5,7 @@ static ACCESS_TOKEN: &str = "<SITE_ID>";
 static SITE_ID: &str = "<SITE_ID>";
 
 pub async fn get_site() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client.site(SITE_ID).get_site().send().await?;
 
@@ -18,7 +18,7 @@ pub async fn get_site() -> GraphResult<()> {
 }
 
 pub async fn list_sites() -> GraphResult<()> {
-    let client = Graph::new(ACCESS_TOKEN);
+    let client = GraphClient::new(ACCESS_TOKEN);
 
     let response = client.site(SITE_ID).list_sites().send().await?;
 

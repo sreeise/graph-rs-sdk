@@ -4,7 +4,7 @@ use crate::api_default_imports::*;
 use crate::extended_properties::*;
 use crate::users::*;
 
-resource_api_client!(DefaultCalendarApiClient, ResourceIdentity::DefaultCalendar);
+api_client!(DefaultCalendarApiClient, ResourceIdentity::DefaultCalendar);
 
 impl DefaultCalendarApiClient {
     api_client_link_id!(event, EventsIdApiClient);

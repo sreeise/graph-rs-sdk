@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::teams::*;
 
-resource_api_client!(
+api_client!(
     TeamsTagsApiClient,
     TeamsTagsIdApiClient,
     ResourceIdentity::TeamsTags

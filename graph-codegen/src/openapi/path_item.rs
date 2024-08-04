@@ -136,7 +136,7 @@ impl PathItem {
     }
 
     pub fn operations(&self) -> VecDeque<Operation> {
-        vec![
+        [
             self.get.as_ref(),
             self.put.as_ref(),
             self.post.as_ref(),

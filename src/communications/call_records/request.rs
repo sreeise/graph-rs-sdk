@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::communications::*;
 
-resource_api_client!(
+api_client!(
     CallRecordsApiClient,
     CallRecordsIdApiClient,
     ResourceIdentity::CallRecords

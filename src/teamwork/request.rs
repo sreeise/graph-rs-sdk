@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::teamwork::*;
 
-resource_api_client!(TeamworkApiClient, ResourceIdentity::Teamwork);
+api_client!(TeamworkApiClient, ResourceIdentity::Teamwork);
 
 impl TeamworkApiClient {
     api_client_link_id!(deleted_team, DeletedTeamsIdApiClient);

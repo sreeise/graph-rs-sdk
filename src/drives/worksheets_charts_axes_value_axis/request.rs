@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::drives::*;
 
-resource_api_client!(
+api_client!(
     WorksheetsChartsAxesValueAxisApiClient,
     ResourceIdentity::WorksheetsChartsAxesValueAxis
 );

@@ -1,35 +1,59 @@
 [package]
 name = "graph-oauth"
-version = "1.0.3"
+version = "2.0.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/sreeise/graph-rs-sdk"
-description = "OAuth client implementing the OAuth 2.0 and OpenID Connect protocols for Microsoft Identity Platform"
+description = "Rust SDK Client for Microsoft Identity Platform"
+homepage = "https://github.com/sreeise/graph-rs-sdk"
 
 keywords = ["microsoft", "oauth", "authentication", "authorization"]
 categories = ["authentication", "web-programming::http-client"]
 
+exclude = [
+    "src/identity/credentials/test/*"
+]
+
 [dependencies]
+anyhow = { version = "1.0.69", features = ["backtrace"]}
+async-trait = "0.1.35"
 base64 = "0.21.0"
-chrono = { version = "0.4.23", features = ["serde"] }
-chrono-humanize = "0.2.2"
-reqwest = { version = "0.11.16", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
-ring = "0.16.15"
+dyn-clone = "1.0.14"
+hex = "0.4.3"
+http = { workspace = true }
+jsonwebtoken = "9.1.0"
+lazy_static = "1.4.0"
+openssl = { version = "0.10", optional=true }
+reqwest = { workspace = true, default-features=false, features = ["json", "gzip", "blocking", "stream"] }
 serde = { version = "1", features = ["derive"] }
 serde-aux = "4.1.2"
 serde_json = "1"
-strum = { version = "0.24.1", features = ["derive"] }
-url = "2"
-webbrowser = "0.8.7"
+serde_urlencoded = "0.7.1"
+strum = { version = "0.25.0", features = ["derive"] }
+tao = { version = "0.26.1", features = ["serde"], optional = true }
+url = { version = "2", features = ["serde"] }
+time = { version = "0.3.10", features = ["local-offset", "serde"] }
+wry = { version = "0.37.0", optional = true }
+uuid = { version = "1.3.1", features = ["v4", "serde"] }
+tokio = { version = "1.27.0", features = ["full"] }
+tracing = "0.1.37"
 
 graph-error = { path = "../graph-error" }
+graph-core = { path = "../graph-core", default-features = false }
 
 [features]
 default = ["native-tls"]
-native-tls = ["reqwest/native-tls"]
-rustls-tls = ["reqwest/rustls-tls"]
-brotli = ["reqwest/brotli"]
-deflate = ["reqwest/deflate"]
-trust-dns = ["reqwest/trust-dns"]
+native-tls = ["reqwest/native-tls", "graph-core/native-tls"]
+rustls-tls = ["reqwest/rustls-tls", "graph-core/rustls-tls"]
+brotli = ["reqwest/brotli", "graph-core/brotli"]
+deflate = ["reqwest/deflate", "graph-core/deflate"]
+trust-dns = ["reqwest/trust-dns", "graph-core/trust-dns"]
+openssl = ["dep:openssl"]
+interactive-auth = ["dep:wry", "dep:tao"]
+
+[[test]]
+name = "x509_certificate_tests"
+path = "src/identity/credentials/x509_certificate.rs"
+required-features = ["openssl"]

@@ -24,14 +24,11 @@ use std::str::FromStr;
 ///
 /// # Example Macro
 /// ```rust,ignore
-/// get!({
-///     doc: "# Get historyItems from me",
-///     name: get_activity_history,
-///     response: serde_json::Value,
-///     path: "/activities/{{id}}/historyItems/{{id1}}}",
-///     params: [ user_activity_id history_items_id ],
-///     has_body: false
-/// });
+/// get!(
+///     doc: "Get solutions",
+///     name: get_solutions_root,
+///     path: "/solutions"
+/// );
 /// ```
 pub trait MacroQueueWriter {
     type Metadata: Metadata;
@@ -447,12 +444,12 @@ pub trait MacroImplWriter {
             ));
         }
 
-        let resource_api_client_impl = format!(
-            "resource_api_client!({}, {});\n",
+        let api_client_impl = format!(
+            "api_client!({}, {});\n",
             client_impl_string,
             settings[0].ri.enum_string()
         );
-        buf.put(resource_api_client_impl.as_bytes());
+        buf.put(api_client_impl.as_bytes());
 
         for (name, path_metadata_queue) in path_metadata_map.iter() {
             let api_client_name = format!("{name}ApiClient");

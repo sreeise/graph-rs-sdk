@@ -4,7 +4,7 @@ use crate::api_default_imports::*;
 use crate::chats::*;
 use crate::teams::*;
 
-resource_api_client!(
+api_client!(
     ChannelsApiClient,
     ChannelsIdApiClient,
     ResourceIdentity::Channels

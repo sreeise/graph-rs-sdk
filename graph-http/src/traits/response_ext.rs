@@ -1,4 +1,3 @@
-use crate::core::BodyRead;
 use crate::internal::{
     copy_async, create_dir_async, FileConfig, HttpResponseBuilderExt, RangeIter, UploadSession,
 };
@@ -710,36 +709,5 @@ impl ResponseExt for reqwest::Response {
     fn graph_error_type(&self) -> Option<ErrorType> {
         let status = self.status();
         ErrorType::from_u16(status.as_u16())
-    }
-}
-
-pub trait BodyExt<RHS = Self> {
-    fn into_body(self) -> GraphResult<BodyRead>;
-}
-
-impl<U> BodyExt for &U
-where
-    U: serde::Serialize,
-{
-    fn into_body(self) -> GraphResult<BodyRead> {
-        BodyRead::from_serialize(self)
-    }
-}
-
-impl BodyExt for &FileConfig {
-    fn into_body(self) -> GraphResult<BodyRead> {
-        BodyRead::try_from(self)
-    }
-}
-
-impl BodyExt for reqwest::Body {
-    fn into_body(self) -> GraphResult<BodyRead> {
-        Ok(BodyRead::from(self))
-    }
-}
-
-impl BodyExt for reqwest::blocking::Body {
-    fn into_body(self) -> GraphResult<BodyRead> {
-        Ok(BodyRead::from(self))
     }
 }

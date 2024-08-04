@@ -2,7 +2,7 @@
 
 use crate::api_default_imports::*;
 
-resource_api_client!(AppConsentApiClient, ResourceIdentity::AppConsent);
+api_client!(AppConsentApiClient, ResourceIdentity::AppConsent);
 
 impl AppConsentApiClient {
     delete!(

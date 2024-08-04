@@ -1,12 +1,13 @@
 [package]
 name = "graph-rs-sdk"
-version = "1.1.4"
+version = "2.0.0"
 authors = ["sreeise"]
 edition = "2021"
 readme = "README.md"
 license = "MIT"
 repository = "https://github.com/sreeise/graph-rs-sdk"
-description = "Rust SDK Client for Microsoft Graph and the Microsoft Graph Api"
+description = "Rust SDK Client for Microsoft Graph and Microsoft Identity Platform"
+homepage = "https://github.com/sreeise/graph-rs-sdk"
 
 exclude = [
     "test_files/*",
@@ -25,41 +26,71 @@ members = [
     "test-tools",
     "graph-codegen",
     "graph-http",
-    "graph-core",
+    "graph-core"
 ]
 
 [dependencies]
 handlebars = "2.0.4" # TODO: Update to 4
-reqwest = { version = "0.11.16", default-features=false, features = ["json", "gzip", "blocking", "stream"] }
+lazy_static = "1.4.0"
+reqwest = { workspace = true, default-features=false, features = ["json", "gzip", "blocking", "stream"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 url = "2"
-lazy_static = "1.4.0"
 
-graph-oauth = { path = "./graph-oauth", version = "1.0.3", default-features=false }
-graph-http = { path = "./graph-http", version = "1.1.3", default-features=false }
-graph-error = { path = "./graph-error", version = "0.2.2" }
-graph-core = { path = "./graph-core", version = "0.4.2" }
+graph-oauth = { path = "./graph-oauth", version = "2.0.0", default-features=false }
+graph-http = { path = "./graph-http", version = "2.0.0", default-features=false }
+graph-error = { path = "./graph-error", version = "0.3.0" }
+graph-core = { path = "./graph-core", version = "2.0.0", default-features=false }
+
+# When updating or adding new features to this or dependent crates run
+# cargo tree -e features -i graph-rs-sdk
+# Use this command verify that the dependency is not
+# enabled by default due to another package having it as a dependency
+# without default-features=false.
+
 
 [features]
 default = ["native-tls"]
-native-tls = ["reqwest/native-tls", "graph-http/native-tls", "graph-oauth/native-tls"]
-rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls-tls"]
-brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli"]
-deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate"]
-trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns"]
+native-tls = ["reqwest/native-tls", "graph-http/native-tls", "graph-oauth/native-tls", "graph-core/native-tls"]
+rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls-tls", "graph-core/rustls-tls"]
+brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli", "graph-core/brotli"]
+deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate", "graph-core/deflate"]
+trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns", "graph-core/trust-dns"]
+openssl = ["graph-oauth/openssl"]
+interactive-auth = ["graph-oauth/interactive-auth"]
 test-util = ["graph-http/test-util"]
+
+[workspace.dependencies]
+reqwest = { version = "0.12", default-features = false}
+http = { version = "1", default-features = false }
 
 [dev-dependencies]
 bytes = { version = "1.4.0" }
 futures = "0.3"
+http = { workspace = true }
 lazy_static = "1.4"
 tokio = { version = "1.27.0", features = ["full"] }
-warp = "0.3.3"
+warp = { version = "0.3.5" }
+webbrowser = "0.8.7"
+anyhow = "1.0.69"
+log = "0.4"
+pretty_env_logger = "0.5.0"
+base64 = "0.21.0"
 wiremock = "0.5.22"
+
 
 graph-codegen = { path = "./graph-codegen", version = "0.0.1" }
 test-tools = { path = "./test-tools", version = "0.0.1" }
 
 [profile.release]
 debug = false
+
+[[example]]
+name = "oauth_certificate"
+path = "examples/certificate_auth/main.rs"
+required-features = ["interactive-auth", "openssl"]
+
+[[example]]
+name = "interactive_auth"
+path = "examples/interactive_auth/main.rs"
+required-features = ["interactive-auth"]

@@ -3,7 +3,7 @@
 use crate::api_default_imports::*;
 use crate::planner::*;
 
-resource_api_client!(PlansApiClient, PlansIdApiClient, ResourceIdentity::Plans);
+api_client!(PlansApiClient, PlansIdApiClient, ResourceIdentity::Plans);
 
 impl PlansApiClient {
     post!(
