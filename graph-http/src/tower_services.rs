@@ -10,7 +10,7 @@ use http::StatusCode;
 use reqwest::{Request, Response};
 
 #[derive(Clone)]
-pub struct Attempts(pub usize);
+pub(crate) struct Attempts(pub usize);
 
 impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send + Sync + 'static)>>
     for Attempts
@@ -26,13 +26,10 @@ impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send +
             Ok(response) => {
                 if response.status().is_server_error() {
                     if self.0 > 0 {
-                        Some(future::ready(Attempts(self.0 - 1)))
-                    } else {
-                        None
+                        return Some(future::ready(Attempts(self.0 - 1)));
                     }
-                } else {
-                    None
                 }
+                None
             }
             Err(_) => {
                 if self.0 > 0 {

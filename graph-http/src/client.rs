@@ -154,22 +154,27 @@ impl GraphClientConfiguration {
         self
     }
 
-    /// Enable a request retry in case of failure and how many times we should retry before giving up
+    /// Enable a request retry for a failed request. The retry parameter can be used to
+    /// change how many times the request should be retried.
     ///
-    /// Some requests may fail on GraphAPI side and should be retried. Only server errors (HTTP code between 500 and 599) with be retried.
+    /// Some requests may fail on GraphAPI side and should be retried.
+    /// Only server errors (HTTP code between 500 and 599) will be retried.
     ///
-    /// Default is no retry
+    /// Default is no retry.
     pub fn retry(mut self, retry: Option<usize>) -> GraphClientConfiguration {
         self.config.service_layers_configuration.retry = retry;
         self
     }
 
-    /// Enable a request retry if we reach the throttling limits and GraphAPI returns a 429 Too Many Requests with a Retry-After header
+    /// Enable a request retry if we reach the throttling limits and GraphAPI returns a
+    /// 429 Too Many Requests with a Retry-After header
     ///
-    /// Be careful with this parameter as some API endpoints have quite low limits (reports for example) and the request may hang for hundreds of seconds.
-    /// For maximum throughput you may want to not respect the Retry-After header as hitting another server thanks to load-balancing may lead to a successful response.
+    /// Be careful with this parameter as some API endpoints have quite
+    /// low limits (reports for example) and the request may hang for hundreds of seconds.
+    /// For maximum throughput you may want to not respect the Retry-After header as hitting
+    /// another server thanks to load-balancing may lead to a successful response.
     ///
-    /// Default is no retry
+    /// Default is no retry.
     pub fn wait_for_retry_after_headers(mut self, retry: bool) -> GraphClientConfiguration {
         self.config
             .service_layers_configuration
@@ -180,11 +185,12 @@ impl GraphClientConfiguration {
         self
     }
 
-    /// Enable a concurrency limit on the client
+    /// Enable a concurrency limit on the client.
     ///
-    /// Every request through this client will be subject to a concurrency limit. Can be useful to stay under the API limits set by GraphAPI
+    /// Every request through this client will be subject to a concurrency limit.
+    /// Can be useful to stay under the API limits set by GraphAPI.
     ///
-    /// Default is no concurrency limit
+    /// Default is no concurrency limit.
     pub fn concurrency_limit(
         mut self,
         concurrency_limit: Option<usize>,
