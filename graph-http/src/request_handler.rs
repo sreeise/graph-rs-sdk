@@ -1,7 +1,7 @@
 use crate::blocking::BlockingRequestHandler;
 use crate::internal::{
-    BodyRead, Client, GraphClientConfiguration, HttpResponseBuilderExt,
-    ODataNextLink, ODataQuery, RequestComponents,
+    BodyRead, Client, GraphClientConfiguration, HttpResponseBuilderExt, ODataNextLink, ODataQuery,
+    RequestComponents,
 };
 use async_stream::try_stream;
 use futures::Stream;

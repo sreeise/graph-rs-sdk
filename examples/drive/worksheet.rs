@@ -5,7 +5,6 @@ static ACCESS_TOKEN: &str = "ACCESS_TOKEN";
 static DRIVE_ID: &str = "DRIVE_ID";
 static ITEM_ID: &str = "ITEM_ID";
 
-
 pub async fn update_range_by_address() {
     let client = Graph::new(ACCESS_TOKEN);
 
@@ -26,9 +25,7 @@ pub async fn update_range_by_address() {
         .await
         .unwrap();
 
-
     let workbook_json: serde_json::Value = resp.json().await.unwrap();
 
     println!("workbook {:#?}", workbook_json);
-
 }

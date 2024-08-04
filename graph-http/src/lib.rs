@@ -7,8 +7,8 @@ mod core;
 mod request_components;
 mod request_handler;
 mod resource_identifier;
-mod upload_session;
 mod tower_services;
+mod upload_session;
 
 pub mod url;
 
@@ -27,10 +27,10 @@ pub(crate) mod internal {
     pub use crate::request_components::*;
     pub use crate::request_handler::*;
     pub use crate::resource_identifier::*;
+    pub use crate::tower_services::*;
     pub use crate::traits::*;
     pub use crate::upload_session::*;
     pub use crate::url::*;
-    pub use crate::tower_services::*;
 }
 
 pub mod api_impl {

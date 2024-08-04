@@ -1,9 +1,9 @@
-use std::{sync::Mutex, task::Waker, thread};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll};
 use std::time::Duration;
+use std::{sync::Mutex, task::Waker, thread};
 
 use futures_util::future;
 use http::StatusCode;
