@@ -148,10 +148,17 @@ impl BlockingRequestHandler {
             .headers(self.request_components.headers.clone());
 
         if let Some(body) = self.body.take() {
-            self.request_components
-                .headers
-                .entry(CONTENT_TYPE)
-                .or_insert(HeaderValue::from_static("application/json"));
+            if body.has_byte_buf() {
+                self.request_components
+                    .headers
+                    .entry(CONTENT_TYPE)
+                    .or_insert(HeaderValue::from_static("application/octet-stream"));
+            } else if body.has_string_buf() {
+                self.request_components
+                    .headers
+                    .entry(CONTENT_TYPE)
+                    .or_insert(HeaderValue::from_static("application/json"));
+            }
             return Ok(request_builder
                 .body::<reqwest::blocking::Body>(body.into())
                 .headers(self.request_components.headers.clone()));
