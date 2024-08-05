@@ -1,3 +1,4 @@
+use graph_http::api_impl::BodyRead;
 use graph_rs_sdk::{
     error::GraphResult,
     header::{HeaderValue, CONTENT_LENGTH},
@@ -6,7 +7,6 @@ use graph_rs_sdk::{
 };
 use std::fs::OpenOptions;
 use std::io::Write;
-
 use std::time::Duration;
 use test_tools::oauth_request::{
     Environment, DEFAULT_CLIENT_CREDENTIALS_MUTEX, DEFAULT_CLIENT_CREDENTIALS_MUTEX3,
@@ -165,7 +165,7 @@ async fn upload_new_file(
         .await
 }
 
-async fn update_file(
+async fn update_file_using_file_config(
     user_id: &str,
     onedrive_file_path: &str,
     local_file: &str,
@@ -176,6 +176,22 @@ async fn update_file(
         .drive()
         .item_by_path(onedrive_file_path)
         .update_items_content(&FileConfig::new(local_file))
+        .send()
+        .await
+}
+
+async fn update_file_using_async_reader(
+    user_id: &str,
+    onedrive_file_path: &str,
+    local_file: &str,
+    client: &Graph,
+) -> GraphResult<reqwest::Response> {
+    let file = tokio::fs::File::open(local_file).await.unwrap();
+    client
+        .user(user_id)
+        .drive()
+        .item_by_path(onedrive_file_path)
+        .update_items_content(BodyRead::from_async_read(file).await.unwrap())
         .send()
         .await
 }
@@ -229,7 +245,74 @@ async fn drive_upload_item() {
 
         tokio::time::sleep(Duration::from_millis(500)).await;
 
-        let update_res = update_file(
+        let update_res = update_file_using_file_config(
+            test_client.user_id.as_str(),
+            onedrive_file_path,
+            local_file,
+            &test_client.client,
+        )
+        .await;
+
+        if let Ok(response2) = update_res {
+            assert!(response2.status().is_success());
+            let body: serde_json::Value = response2.json().await.unwrap();
+            let item_id2 = body["id"].as_str().unwrap();
+            assert_eq!(item_id, item_id2);
+        } else if let Err(err) = update_res {
+            panic!("Request Error. Method: update item. Error: {err:#?}");
+        }
+
+        tokio::time::sleep(Duration::from_millis(500)).await;
+
+        let delete_res =
+            delete_file(test_client.user_id.as_str(), item_id, &test_client.client).await;
+
+        if let Ok(response) = delete_res {
+            assert!(response.status().is_success());
+        } else if let Err(err) = delete_res {
+            panic!("Request Error. Method: drive delete. Error: {err:#?}");
+        }
+    } else if let Err(err) = upload_res {
+        panic!("Request Error. Method: drive upload. Error: {err:#?}");
+    }
+}
+
+#[tokio::test]
+async fn drive_upload_item_using_async_reader() {
+    let test_client = DEFAULT_CLIENT_CREDENTIALS_MUTEX.lock().await;
+    let local_file = "./test_files/upload_file_by_async_reader.html";
+    let file_name = ":/upload_file_by_async_reader.html:";
+    let onedrive_file_path = ":/Documents/upload_file_by_async_reader.html:";
+
+    let parent_reference_id = get_special_folder_id(
+        test_client.user_id.as_str(),
+        "Documents",
+        &test_client.client,
+    )
+    .await
+    .unwrap();
+    let upload_res = upload_new_file(
+        test_client.user_id.as_str(),
+        parent_reference_id.as_str(),
+        file_name,
+        local_file,
+        &test_client.client,
+    )
+    .await;
+
+    if let Ok(response) = upload_res {
+        assert!(response.status().is_success());
+        let body: serde_json::Value = response.json().await.unwrap();
+        assert!(body["id"].as_str().is_some());
+        let item_id = body["id"].as_str().unwrap();
+
+        let mut file = OpenOptions::new().write(true).open(local_file).unwrap();
+        file.write_all("Test Update File".as_bytes()).unwrap();
+        file.sync_all().unwrap();
+
+        tokio::time::sleep(Duration::from_millis(500)).await;
+
+        let update_res = update_file_using_async_reader(
             test_client.user_id.as_str(),
             onedrive_file_path,
             local_file,
