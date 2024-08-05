@@ -1,3 +1,4 @@
+use graph_http::api_impl::BodyRead;
 use graph_rs_sdk::{
     error::GraphResult,
     header::{HeaderValue, CONTENT_LENGTH},
@@ -5,16 +6,12 @@ use graph_rs_sdk::{
     Graph,
 };
 use std::fs::OpenOptions;
-use std::io::{BufReader, Write};
-
-use graph_http::api_impl::BodyRead;
-use log::debug;
+use std::io::Write;
 use std::time::Duration;
 use test_tools::oauth_request::{
-    Environment, GraphTestClient, DEFAULT_CLIENT_CREDENTIALS_MUTEX,
-    DEFAULT_CLIENT_CREDENTIALS_MUTEX3, DEFAULT_CLIENT_CREDENTIALS_MUTEX4,
+    Environment, DEFAULT_CLIENT_CREDENTIALS_MUTEX, DEFAULT_CLIENT_CREDENTIALS_MUTEX3,
+    DEFAULT_CLIENT_CREDENTIALS_MUTEX4,
 };
-use tokio::sync::Mutex;
 
 #[tokio::test]
 async fn list_versions_get_item() {
