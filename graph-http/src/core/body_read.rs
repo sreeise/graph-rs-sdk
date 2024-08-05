@@ -173,6 +173,16 @@ impl TryFrom<&FileConfig> for BodyRead {
     }
 }
 
+impl TryFrom<&mut std::fs::File> for BodyRead {
+    type Error = GraphFailure;
+
+    fn try_from(file: &mut std::fs::File) -> Result<Self, Self::Error> {
+        let mut buf = Vec::new();
+        file.read_to_end(&mut buf)?;
+        Ok(BodyRead::from(buf))
+    }
+}
+
 impl BodyExt for BodyRead {
     fn into_body(self) -> GraphResult<BodyRead> {
         Ok(self)
