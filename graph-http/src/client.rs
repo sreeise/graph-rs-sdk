@@ -3,6 +3,7 @@ use graph_core::identity::{ClientApplication, ForceTokenRefresh};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
+use reqwest::Proxy;
 use std::env::VarError;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Formatter};
@@ -25,6 +26,7 @@ struct ClientConfiguration {
     /// TLS 1.2 required to support all features in Microsoft Graph
     /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     min_tls_version: Version,
+    proxy: Option<Proxy>,
 }
 
 impl ClientConfiguration {
@@ -45,6 +47,7 @@ impl ClientConfiguration {
             connection_verbose: false,
             https_only: true,
             min_tls_version: Version::TLS_1_2,
+            proxy: None,
         }
     }
 }
@@ -58,6 +61,7 @@ impl Debug for ClientConfiguration {
             .field("connect_timeout", &self.connect_timeout)
             .field("https_only", &self.https_only)
             .field("min_tls_version", &self.min_tls_version)
+            .field("proxy", &self.proxy)
             .finish()
     }
 }
@@ -146,6 +150,14 @@ impl GraphClientConfiguration {
         self
     }
 
+    /// Set [`Proxy`] for all network operations.
+    ///
+    /// Default is no proxy.
+    pub fn proxy(mut self, proxy: Proxy) -> GraphClientConfiguration {
+        self.config.proxy = Some(proxy);
+        self
+    }
+
     #[cfg(feature = "test-util")]
     pub fn https_only(mut self, https_only: bool) -> GraphClientConfiguration {
         self.config.https_only = https_only;
@@ -169,6 +181,10 @@ impl GraphClientConfiguration {
 
         if let Some(connect_timeout) = self.config.connect_timeout {
             builder = builder.connect_timeout(connect_timeout);
+        }
+
+        if let Some(proxy) = self.config.proxy {
+            builder = builder.proxy(proxy);
         }
 
         if let Some(client_application) = self.config.client_application {
@@ -204,6 +220,10 @@ impl GraphClientConfiguration {
 
         if let Some(connect_timeout) = self.config.connect_timeout {
             builder = builder.connect_timeout(connect_timeout);
+        }
+
+        if let Some(proxy) = self.config.proxy {
+            builder = builder.proxy(proxy);
         }
 
         if let Some(client_application) = self.config.client_application {
