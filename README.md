@@ -22,6 +22,7 @@
 - X509 Certificate (feature = `openssl`) and Proof Key Code Exchange (PKCE) Support
 
 And much more. See [Features](#features) for a more comprehensive list of features. 
+See [Crate Features](#crate-features) for features that can be enabled in the crate.
 
 ```toml
 graph-rs-sdk = "2.0.0"
@@ -99,6 +100,21 @@ use graph_rs_sdk::*;
 The APIs available are generated from OpenApi configs that are stored in Microsoft's msgraph-metadata repository
 for the Graph Api. There may be some requests and/or APIs not yet included in this project that are in the OpenApi
 config but in general most of them are implemented.
+
+### Crate Features
+
+* `interactive-auth`: Interactive Authentication using web view on platforms that support it such as on a desktop. Uses the [wry](https://github.com/tauri-apps/wry) 
+and [tao](https://github.com/tauri-apps/tao) crates for webview support. Supports Linux and Windows platforms. Currently, does not support MacOS - work for this is in progress.
+* `openssl`: Enables support for using certificates in Client Credentials and Authorization Code auth flows. Additionally, enables related types such as X509Certificate
+  for building/running certificate based auth flows.
+* `test-util`: Enables test only features. Currently, this just enables the ability to turn off https only in the http client in order to use mocking frameworks with the crate.
+Other test related features may be added in the future.
+* `native-tls`: Enables feature native-tls in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `rustls-tls`: Enables feature rustls-tls in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `brotli`: Enables feature brotli in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `deflate`: Enables feature deflate in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `trust-dns`: Enables feature trust-dns in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `socks`: Enables feature socks (socks proxy support) in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
 
 # Usage
 
