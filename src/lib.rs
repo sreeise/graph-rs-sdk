@@ -257,6 +257,7 @@ pub mod http {
 
     pub use reqwest::tls::Version;
     pub use reqwest::{Body, Method};
+    pub use reqwest::{NoProxy, Proxy};
     pub use url::Url;
 }
 
