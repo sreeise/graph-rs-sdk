@@ -463,7 +463,7 @@ fn use_file_directly(file: File) -> anyhow::Result<()> {
   let client = GraphClient::new("token");
   let _ = client
           .drive("drive-id")
-          .item_by_path("/drive/path")
+          .item_by_path(":/drive/path:")
           .update_items_content(file)
           .into_blocking()
           .send()?;
@@ -475,7 +475,7 @@ async fn use_async_file_directly(file: tokio::fs::File) -> anyhow::Result<()> {
   let client = GraphClient::new("token");
   let _ = client
           .drive("drive-id")
-          .item_by_path("/drive/path")
+          .item_by_path(":/drive/path:")
           .update_items_content(file)
           .send()
           .await?;
@@ -521,7 +521,7 @@ fn use_reqwest_for_files(file: File) -> anyhow::Result<()> {
   let client = GraphClient::new("token");
   let _ = client
           .drive("drive-id")
-          .item_by_path("/drive/path")
+          .item_by_path(":/drive/path:")
           .update_items_content(reqwest::blocking::Body::from(file))
           .into_blocking()
           .send()?;
@@ -533,7 +533,7 @@ async fn use_reqwest_for_tokio_files(file: tokio::fs::File) -> anyhow::Result<()
   let client = GraphClient::new("token");
   let _ = client
           .drive("drive-id")
-          .item_by_path("/drive/path")
+          .item_by_path(":/drive/path:")
           .update_items_content(reqwest::Body::from(file))
           .send()
           .await?;
