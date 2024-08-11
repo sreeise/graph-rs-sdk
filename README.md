@@ -22,7 +22,7 @@
 - X509 Certificate (feature = `openssl`) and Proof Key Code Exchange (PKCE) Support
 
 And much more. See [Features](#features) for a more comprehensive list of features. 
-See [Crate Features](#crate-features) for features that can be enabled in the crate.
+See [Cargo Feature Flags](#cargo-feature-flags) for features that can be enabled in the crate.
 
 ```toml
 graph-rs-sdk = "2.0.0"
@@ -61,6 +61,9 @@ use graph_rs_sdk::*;
   * [Paging (Delta, Next Links)](#paging)
     * [Streaming](#streaming)
     * [Channels](#channels)
+  * [Using types that implement Read or AsyncReadExt](#using-types-that-implement-stdioread-or-tokioioasyncreadext)
+    * [File Types](#file-types)
+    * [Other types that implement Read or AsyncReadExt](#other-types-that-implement-stdioread-or-tokioioasyncreadext)
   * [API Usage](#api-usage)
   * [Batch Requests](#batch-requests)
   * [Id vs Non-Id methods](#id-vs-non-id-methods-such-as-useruser-id-vs-users)
@@ -101,7 +104,7 @@ The APIs available are generated from OpenApi configs that are stored in Microso
 for the Graph Api. There may be some requests and/or APIs not yet included in this project that are in the OpenApi
 config but in general most of them are implemented.
 
-### Crate Features
+### Cargo Feature Flags
 
 * `interactive-auth`: Interactive Authentication using web view on platforms that support it such as on a desktop. Uses the [wry](https://github.com/tauri-apps/wry) 
 and [tao](https://github.com/tauri-apps/tao) crates for webview support. Supports Linux and Windows platforms. Currently, does not support MacOS - work for this is in progress.
@@ -443,6 +446,141 @@ async fn channel_next_links() -> GraphResult<()> {
   Ok(())
 }
 
+```
+
+## Using types that implement std::io::Read or tokio::io::AsyncReadExt
+
+### File Types
+If your familiar with using the `reqwest` crate you can use the `reqwest::Body` and `reqwest::blocking::Body`
+for working with files.
+
+1. You can pass `std::fs::File` and `tokio::fs::File` directly:
+
+```rust
+use graph_rs_sdk::GraphClient;
+
+fn use_file_directly(file: File) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  let _ = client
+          .drive("drive-id")
+          .item_by_path("/drive/path")
+          .update_items_content(file)
+          .into_blocking()
+          .send()?;
+
+  Ok(())
+}
+
+async fn use_async_file_directly(file: tokio::fs::File) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  let _ = client
+          .drive("drive-id")
+          .item_by_path("/drive/path")
+          .update_items_content(file)
+          .send()
+          .await?;
+
+  Ok(())
+}
+```
+
+2. The `reqwest::Body` type is reexported as `graph_rs_sdk::http::Body` and the `reqwest::blocking::Body` type is
+reexported as `graph_rs_sdk::http::blocking::Body`.
+
+```rust
+use graph_rs_sdk::GraphClient;
+use graph_rs_sdk::http::{Body, blocking};
+
+fn use_reqwest_for_files(file: std::fs::File) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client.drive("drive-id")
+        .item_by_path(":/drive/path:")
+        .update_items_content(blocking::Body::from(file))
+        .into_blocking()
+        .send()?;
+  
+  Ok(())
+}
+
+async fn use_reqwest_for_async_files(file: tokio::fs::File) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client.drive("drive-id")
+        .item_by_path(":/drive/path:")
+        .update_items_content(Body::from(file))
+        .send()
+        .await?;
+  
+  Ok(())
+}
+```
+
+3. If you want to use the reqwest crate directly:
+
+```rust
+fn use_reqwest_for_files(file: File) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  let _ = client
+          .drive("drive-id")
+          .item_by_path("/drive/path")
+          .update_items_content(reqwest::blocking::Body::from(file))
+          .into_blocking()
+          .send()?;
+
+  Ok(())
+}
+
+async fn use_reqwest_for_tokio_files(file: tokio::fs::File) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  let _ = client
+          .drive("drive-id")
+          .item_by_path("/drive/path")
+          .update_items_content(reqwest::Body::from(file))
+          .send()
+          .await?;
+
+  Ok(())
+}
+```
+
+### Other types that implement std::io::Read or tokio::io::AsyncReadExt
+
+You can use the helper type `BodyRead`:
+
+```rust
+use graph_rs_sdk::http::BodyRead;
+use graph_rs_sdk::GraphClient;
+
+fn use_read(reader: impl std::io::Read) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+
+  let body_read = BodyRead::from_read(reader)?;
+
+  let _ = client
+      .drive("drive-id")
+      .item_by_path(":/drive/path:")
+      .update_items_content(body_read)
+      .into_blocking()
+      .send()?;
+
+  Ok(())
+}
+
+async fn use_async_read(
+    async_reader: impl tokio::io::AsyncReadExt + Unpin,
+) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  
+  let async_body_read = BodyRead::from_async_read(async_reader).await?;
+  
+  let _ = client
+      .drive("drive-id")
+      .item_by_path(":/drive/path:")
+      .update_items_content(async_body_read)
+      .send()
+      .await?;
+
+  Ok(())
+}
 ```
 
 ## API Usage

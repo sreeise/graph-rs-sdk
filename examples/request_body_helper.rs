@@ -51,15 +51,83 @@ async fn use_reqwest_async_body() {
     client.user("id").get_mail_tips(body).send().await.unwrap();
 }
 
-// Using BodyRead
+// You can pass file types directly to the API method:
+
+fn use_file_directly(file: File) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client
+        .drive("drive-id")
+        .item_by_path("/drive/path")
+        .update_items_content(file)
+        .into_blocking()
+        .send()?;
+
+    Ok(())
+}
+
+async fn use_async_file_directly(file: tokio::fs::File) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client
+        .drive("drive-id")
+        .item_by_path("/drive/path")
+        .update_items_content(file)
+        .send()
+        .await?;
+
+    Ok(())
+}
+
+// Or use reqwest::Body and reqwest::blocking::Body
+
+fn use_reqwest_for_files(file: File) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client
+        .drive("drive-id")
+        .item_by_path("/drive/path")
+        .update_items_content(reqwest::blocking::Body::from(file))
+        .into_blocking()
+        .send()?;
+
+    Ok(())
+}
+
+async fn use_reqwest_for_tokio_files(file: tokio::fs::File) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client
+        .drive("drive-id")
+        .item_by_path("/drive/path")
+        .update_items_content(reqwest::Body::from(file))
+        .send()
+        .await?;
+
+    Ok(())
+}
+
+// Using BodyRead for types that implement Read or AsyncRead
 
 // BodyRead is a helper struct for using many different types
 // as the body of a request.
 
-fn use_body_read(file: File) {
-    let _ = BodyRead::from_read(file).unwrap();
+fn use_read(reader: impl std::io::Read) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client
+        .drive("drive-id")
+        .item_by_path(":/drive/path:")
+        .update_items_content(BodyRead::from_read(reader)?)
+        .into_blocking()
+        .send()?;
+
+    Ok(())
 }
 
-async fn use_async_body_read(file: tokio::fs::File) {
-    let _ = BodyRead::from_async_read(file).await.unwrap();
+async fn use_async_read(async_reader: impl tokio::io::AsyncReadExt + Unpin) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client
+        .drive("drive-id")
+        .item_by_path(":/drive/path:")
+        .update_items_content(BodyRead::from_async_read(async_reader).await?)
+        .send()
+        .await?;
+
+    Ok(())
 }

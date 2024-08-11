@@ -31,3 +31,15 @@ impl BodyExt for reqwest::blocking::Body {
         Ok(BodyRead::from(self))
     }
 }
+
+impl BodyExt for std::fs::File {
+    fn into_body(self) -> GraphResult<BodyRead> {
+        BodyRead::from_read(self)
+    }
+}
+
+impl BodyExt for tokio::fs::File {
+    fn into_body(self) -> GraphResult<BodyRead> {
+        Ok(BodyRead::from(self))
+    }
+}
