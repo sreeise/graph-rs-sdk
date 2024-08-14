@@ -3,6 +3,7 @@ use graph_core::identity::{ClientApplication, ForceTokenRefresh};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest::redirect::Policy;
 use reqwest::tls::Version;
+use reqwest::Proxy;
 use reqwest::{Request, Response};
 use std::env::VarError;
 use std::ffi::OsStr;
@@ -38,6 +39,7 @@ struct ClientConfiguration {
     /// See [Reliability and Support](https://learn.microsoft.com/en-us/graph/best-practices-concept#reliability-and-support)
     min_tls_version: Version,
     service_layers_configuration: ServiceLayersConfiguration,
+    proxy: Option<Proxy>,
 }
 
 impl ClientConfiguration {
@@ -59,6 +61,7 @@ impl ClientConfiguration {
             https_only: true,
             min_tls_version: Version::TLS_1_2,
             service_layers_configuration: ServiceLayersConfiguration::default(),
+            proxy: None,
         }
     }
 }
@@ -72,6 +75,7 @@ impl Debug for ClientConfiguration {
             .field("connect_timeout", &self.connect_timeout)
             .field("https_only", &self.https_only)
             .field("min_tls_version", &self.min_tls_version)
+            .field("proxy", &self.proxy)
             .finish()
     }
 }
@@ -160,6 +164,14 @@ impl GraphClientConfiguration {
         self
     }
 
+    /// Set [`Proxy`] for all network operations.
+    ///
+    /// Default is no proxy.
+    pub fn proxy(mut self, proxy: Proxy) -> GraphClientConfiguration {
+        self.config.proxy = Some(proxy);
+        self
+    }
+
     #[cfg(feature = "test-util")]
     pub fn https_only(mut self, https_only: bool) -> GraphClientConfiguration {
         self.config.https_only = https_only;
@@ -234,6 +246,10 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
+        if let Some(proxy) = self.config.proxy {
+            builder = builder.proxy(proxy);
+        }
+
         let client = builder.build().unwrap();
 
         let service = tower::ServiceBuilder::new()
@@ -295,7 +311,12 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
+        if let Some(proxy) = self.config.proxy {
+            builder = builder.proxy(proxy);
+        }
+
         let client = builder.build().unwrap();
+
         if let Some(client_application) = self.config.client_application {
             BlockingClient {
                 client_application,

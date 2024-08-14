@@ -24,10 +24,8 @@ impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send +
     ) -> Option<Self::Future> {
         match result {
             Ok(response) => {
-                if response.status().is_server_error() {
-                    if self.0 > 0 {
-                        return Some(future::ready(Attempts(self.0 - 1)));
-                    }
+                if response.status().is_server_error() && self.0 > 0 {
+                    return Some(future::ready(Attempts(self.0 - 1)));
                 }
                 None
             }

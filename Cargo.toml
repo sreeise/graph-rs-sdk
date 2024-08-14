@@ -1,6 +1,6 @@
 [package]
 name = "graph-rs-sdk"
-version = "2.0.0"
+version = "2.0.1"
 authors = ["sreeise"]
 edition = "2021"
 readme = "README.md"
@@ -37,10 +37,10 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 url = "2"
 
-graph-oauth = { path = "./graph-oauth", version = "2.0.0", default-features=false }
-graph-http = { path = "./graph-http", version = "2.0.0", default-features=false }
-graph-error = { path = "./graph-error", version = "0.3.0" }
-graph-core = { path = "./graph-core", version = "2.0.0", default-features=false }
+graph-oauth = { path = "./graph-oauth", version = "2.0.1", default-features=false }
+graph-http = { path = "./graph-http", version = "2.0.1", default-features=false }
+graph-error = { path = "./graph-error", version = "0.3.1" }
+graph-core = { path = "./graph-core", version = "2.0.1", default-features=false }
 
 # When updating or adding new features to this or dependent crates run
 # cargo tree -e features -i graph-rs-sdk
@@ -56,6 +56,7 @@ rustls-tls = ["reqwest/rustls-tls", "graph-http/rustls-tls", "graph-oauth/rustls
 brotli = ["reqwest/brotli", "graph-http/brotli", "graph-oauth/brotli", "graph-core/brotli"]
 deflate = ["reqwest/deflate", "graph-http/deflate", "graph-oauth/deflate", "graph-core/deflate"]
 trust-dns = ["reqwest/trust-dns", "graph-http/trust-dns", "graph-oauth/trust-dns", "graph-core/trust-dns"]
+socks = ["reqwest/socks", "graph-http/socks", "graph-oauth/socks", "graph-core/socks"]
 openssl = ["graph-oauth/openssl"]
 interactive-auth = ["graph-oauth/interactive-auth"]
 test-util = ["graph-http/test-util"]
