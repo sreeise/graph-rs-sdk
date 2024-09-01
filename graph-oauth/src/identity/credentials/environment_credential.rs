@@ -105,7 +105,7 @@ impl EnvironmentCredential {
         ))
     }
 
-    fn username_password_env(
+    pub fn username_password_env(
         tenant_id: Option<String>,
         azure_client_id: String,
         azure_username: String,
