@@ -7,7 +7,6 @@ mod core;
 mod request_components;
 mod request_handler;
 mod resource_identifier;
-mod tower_services;
 mod upload_session;
 
 pub mod url;
@@ -28,7 +27,6 @@ pub(crate) mod internal {
     pub use crate::request_handler::*;
     #[allow(unused_imports)]
     pub use crate::resource_identifier::*;
-    pub use crate::tower_services::*;
     pub use crate::traits::*;
     pub use crate::upload_session::*;
     pub use graph_core::http::*;

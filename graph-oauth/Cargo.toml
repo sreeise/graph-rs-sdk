@@ -50,7 +50,6 @@ rustls-tls = ["reqwest/rustls-tls", "graph-core/rustls-tls"]
 brotli = ["reqwest/brotli", "graph-core/brotli"]
 deflate = ["reqwest/deflate", "graph-core/deflate"]
 trust-dns = ["reqwest/trust-dns", "graph-core/trust-dns"]
-socks = ["reqwest/socks", "graph-core/socks"]
 openssl = ["dep:openssl"]
 interactive-auth = ["dep:wry", "dep:tao"]
 

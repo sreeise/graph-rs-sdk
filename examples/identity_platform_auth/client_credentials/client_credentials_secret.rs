@@ -5,7 +5,7 @@
 
 use graph_rs_sdk::{identity::ConfidentialClientApplication, GraphClient};
 
-pub fn build_client(client_id: &str, client_secret: &str, tenant: &str) -> GraphClient {
+pub async fn build_client(client_id: &str, client_secret: &str, tenant: &str) -> GraphClient {
     let mut confidential_client_application = ConfidentialClientApplication::builder(client_id)
         .with_client_secret(client_secret)
         .with_tenant(tenant)

@@ -23,8 +23,6 @@ serde_urlencoded = "0.7.1"
 thiserror = "1"
 tokio = { version = "1.27.0", features = ["full", "tracing"] }
 url = { version = "2", features = ["serde"] }
-tower = { version = "0.4.13", features = ["limit", "retry", "timeout", "util"] }
-futures-util = "0.3.30"
 
 graph-error = { path = "../graph-error"  }
 graph-core = { path = "../graph-core", default-features = false }
@@ -36,5 +34,5 @@ rustls-tls = ["reqwest/rustls-tls", "graph-core/rustls-tls"]
 brotli = ["reqwest/brotli", "graph-core/brotli"]
 deflate = ["reqwest/deflate", "graph-core/deflate"]
 trust-dns = ["reqwest/trust-dns", "graph-core/trust-dns"]
-socks = ["reqwest/socks", "graph-core/socks"]
+socks = ["reqwest/socks"]
 test-util = []

@@ -1,5 +1,4 @@
 #![allow(dead_code, unused, unused_imports, clippy::module_inception)]
-use graph_oauth::ConfidentialClientApplication;
 use graph_rs_sdk::{header::HeaderMap, header::HeaderValue, GraphClient, GraphClientConfiguration};
 use http::header::ACCEPT;
 use http::HeaderName;
@@ -11,28 +10,7 @@ fn main() {
     let client_config = GraphClientConfiguration::new()
         .access_token(ACCESS_TOKEN)
         .timeout(Duration::from_secs(30))
-        .default_headers(HeaderMap::default())
-        .retry(Some(10)) // retry 10 times if the request is not successful
-        .concurrency_limit(Some(10)) // limit the number of concurrent requests on this client to 10
-        .wait_for_retry_after_headers(true); // wait the amount of seconds specified by the Retry-After header of the response when we reach the throttling limits (429 Too Many Requests)
-
-    let _ = GraphClient::from(client_config);
-}
-
-// Using Identity Platform Clients
-fn configure_graph_client(client_id: &str, client_secret: &str, tenant: &str) {
-    let mut confidential_client_application = ConfidentialClientApplication::builder(client_id)
-        .with_client_secret(client_secret)
-        .with_tenant(tenant)
-        .build();
-
-    let client_config = GraphClientConfiguration::new()
-        .client_application(confidential_client_application)
-        .timeout(Duration::from_secs(30))
-        .default_headers(HeaderMap::default())
-        .retry(Some(10)) // retry 10 times if the request is not successful
-        .concurrency_limit(Some(10)) // limit the number of concurrent requests on this client to 10
-        .wait_for_retry_after_headers(true); // wait the amount of seconds specified by the Retry-After header of the response when we reach the throttling limits (429 Too Many Requests)
+        .default_headers(HeaderMap::default());
 
     let _ = GraphClient::from(client_config);
 }
