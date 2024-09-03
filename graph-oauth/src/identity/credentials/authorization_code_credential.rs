@@ -387,10 +387,6 @@ impl TokenCredentialExecutor for AuthorizationCodeCredential {
             return AF::result(AuthParameter::ClientId.alias());
         }
 
-        if self.client_secret.trim().is_empty() {
-            return AF::result(AuthParameter::ClientSecret.alias());
-        }
-
         serializer
             .client_id(client_id.as_str())
             .client_secret(self.client_secret.as_str())
