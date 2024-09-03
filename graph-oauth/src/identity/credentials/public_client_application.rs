@@ -38,7 +38,7 @@ impl<Credential: Clone + Debug + Send + Sync + TokenCredentialExecutor>
         PublicClientApplication { credential }
     }
 
-    pub(crate) fn credential(credential: Credential) -> PublicClientApplication<Credential> {
+    pub fn credential(credential: Credential) -> PublicClientApplication<Credential> {
         PublicClientApplication { credential }
     }
 }
