@@ -7,19 +7,23 @@ use async_stream::try_stream;
 use futures::Stream;
 use graph_error::{AuthExecutionResult, ErrorMessage, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
+use reqwest::{Request, Response};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
 use std::fmt::Debug;
 use std::time::Duration;
+use tower::util::BoxCloneService;
+use tower::{Service, ServiceExt};
 use url::Url;
 
-#[derive(Default)]
 pub struct RequestHandler {
     pub(crate) inner: Client,
     pub(crate) request_components: RequestComponents,
     pub(crate) error: Option<GraphFailure>,
     pub(crate) body: Option<BodyRead>,
     pub(crate) client_builder: GraphClientConfiguration,
+    pub(crate) service:
+        BoxCloneService<Request, Response, Box<dyn std::error::Error + Send + Sync>>,
 }
 
 impl RequestHandler {
@@ -29,6 +33,7 @@ impl RequestHandler {
         err: Option<GraphFailure>,
         body: Option<BodyRead>,
     ) -> RequestHandler {
+        let service = inner.service.clone();
         let client_builder = inner.builder.clone();
         let mut original_headers = inner.headers.clone();
         original_headers.extend(request_components.headers.clone());
@@ -51,6 +56,7 @@ impl RequestHandler {
             error,
             body,
             client_builder,
+            service,
         }
     }
 
@@ -242,8 +248,16 @@ impl RequestHandler {
 
     #[inline]
     pub async fn send(self) -> GraphResult<reqwest::Response> {
+        let mut service = self.service.clone();
         let request_builder = self.build().await?;
-        request_builder.send().await.map_err(GraphFailure::from)
+        let request = request_builder.build()?;
+        service
+            .ready()
+            .await
+            .map_err(GraphFailure::from)?
+            .call(request)
+            .await
+            .map_err(GraphFailure::from)
     }
 }
 
