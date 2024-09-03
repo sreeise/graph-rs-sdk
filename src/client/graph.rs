@@ -626,6 +626,12 @@ impl From<&PublicClientApplication<ResourceOwnerPasswordCredential>> for GraphCl
     }
 }
 
+impl From<&PublicClientApplication<AuthorizationCodeCredential>> for GraphClient {
+    fn from(value: &PublicClientApplication<AuthorizationCodeCredential>) -> Self {
+        GraphClient::from_client_app(value.clone())
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
