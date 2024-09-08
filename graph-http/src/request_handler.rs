@@ -240,6 +240,9 @@ impl RequestHandler {
     /// Builds the request and returns a [`reqwest::RequestBuilder`].
     #[inline]
     pub async fn build(mut self) -> GraphResult<reqwest::RequestBuilder> {
+        if let Some(err) = self.error {
+            return Err(err);
+        }
         self.default_request_builder().await
     }
 
