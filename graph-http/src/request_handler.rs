@@ -33,7 +33,7 @@ impl RequestHandler {
         err: Option<GraphFailure>,
         body: Option<BodyRead>,
     ) -> RequestHandler {
-        let service = inner.service.clone();
+        let service = inner.builder.build_tower_service(&inner.inner);
         let client_builder = inner.builder.clone();
         let mut original_headers = inner.headers.clone();
         original_headers.extend(request_components.headers.clone());
