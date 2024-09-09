@@ -227,6 +227,33 @@ impl GraphClientConfiguration {
         self
     }
 
+    pub(crate) fn build_tower_service(
+        &self,
+        client: &reqwest::Client,
+    ) -> BoxCloneService<Request, Response, Box<dyn std::error::Error + Send + Sync>> {
+        tower::ServiceBuilder::new()
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .retry
+                    .map(|num| RetryLayer::new(crate::tower_services::Attempts(num))),
+            )
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .wait_for_retry_after_headers
+                    .map(|_| RetryLayer::new(crate::tower_services::WaitFor())),
+            )
+            .option_layer(
+                self.config
+                    .service_layers_configuration
+                    .concurrency_limit
+                    .map(ConcurrencyLimitLayer::new),
+            )
+            .service(client.clone())
+            .boxed_clone()
+    }
+
     pub fn build(self) -> Client {
         let config = self.clone();
         let headers = self.config.headers.clone();
@@ -252,35 +279,12 @@ impl GraphClientConfiguration {
 
         let client = builder.build().unwrap();
 
-        let service = tower::ServiceBuilder::new()
-            .option_layer(
-                self.config
-                    .service_layers_configuration
-                    .retry
-                    .map(|num| RetryLayer::new(crate::tower_services::Attempts(num))),
-            )
-            .option_layer(
-                self.config
-                    .service_layers_configuration
-                    .wait_for_retry_after_headers
-                    .map(|_| RetryLayer::new(crate::tower_services::WaitFor())),
-            )
-            .option_layer(
-                self.config
-                    .service_layers_configuration
-                    .concurrency_limit
-                    .map(ConcurrencyLimitLayer::new),
-            )
-            .service(client.clone())
-            .boxed_clone();
-
         if let Some(client_application) = self.config.client_application {
             Client {
                 client_application,
                 inner: client,
                 headers,
                 builder: config,
-                service,
             }
         } else {
             Client {
@@ -288,7 +292,6 @@ impl GraphClientConfiguration {
                 inner: client,
                 headers,
                 builder: config,
-                service,
             }
         }
     }
@@ -345,8 +348,6 @@ pub struct Client {
     pub(crate) inner: reqwest::Client,
     pub(crate) headers: HeaderMap,
     pub(crate) builder: GraphClientConfiguration,
-    pub(crate) service:
-        BoxCloneService<Request, Response, Box<dyn std::error::Error + Send + Sync>>,
 }
 
 impl Client {
