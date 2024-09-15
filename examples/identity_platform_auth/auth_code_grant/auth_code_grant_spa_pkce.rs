@@ -1,5 +1,5 @@
 use graph_rs_sdk::identity::{
-    AuthorizationCodeCredential, ConfidentialClientApplication, GenPkce, ProofKeyCodeExchange,
+    AuthorizationCodeSpaCredential, GenPkce, ProofKeyCodeExchange, PublicClientApplication,
     TokenCredentialExecutor,
 };
 use lazy_static::lazy_static;
@@ -11,9 +11,11 @@ lazy_static! {
     static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
 }
 
-// This example shows how to use a code_challenge and code_verifier
+// This example shows how Spa applications can use a code_challenge and code_verifier
 // to perform the authorization code grant flow with proof key for
 // code exchange (PKCE).
+//
+// Spa applications do not use a client secret.
 //
 // For more info see: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
 // And the PKCE RFC: https://tools.ietf.org/html/rfc7636
@@ -28,7 +30,7 @@ fn authorization_sign_in_url(
     scope: Vec<String>,
 ) -> anyhow::Result<Url> {
     Ok(
-        AuthorizationCodeCredential::authorization_url_builder(client_id)
+        AuthorizationCodeSpaCredential::authorization_url_builder(client_id)
             .with_scope(scope)
             .with_redirect_uri(Url::parse(redirect_uri)?)
             .with_pkce(&PKCE)
@@ -39,13 +41,11 @@ fn authorization_sign_in_url(
 fn build_confidential_client(
     authorization_code: &str,
     client_id: &str,
-    client_secret: &str,
     redirect_uri: &str,
     scope: Vec<String>,
-) -> anyhow::Result<ConfidentialClientApplication<AuthorizationCodeCredential>> {
-    Ok(ConfidentialClientApplication::builder(client_id)
+) -> anyhow::Result<PublicClientApplication<AuthorizationCodeSpaCredential>> {
+    Ok(PublicClientApplication::builder(client_id)
         .with_auth_code(authorization_code)
-        .with_client_secret(client_secret)
         .with_scope(scope)
         .with_redirect_uri(Url::parse(redirect_uri)?)
         .with_pkce(&PKCE)

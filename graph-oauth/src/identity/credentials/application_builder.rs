@@ -8,17 +8,17 @@ use crate::identity::{
     OpenIdAuthorizationUrlParameterBuilder, OpenIdCredentialBuilder, PublicClientApplication,
     ResourceOwnerPasswordCredential, ResourceOwnerPasswordCredentialBuilder,
 };
-use graph_error::{IdentityResult, AF};
-use http::{HeaderMap, HeaderName, HeaderValue};
-use std::collections::HashMap;
-use std::env::VarError;
-use uuid::Uuid;
-
 #[cfg(feature = "openssl")]
 use crate::identity::{
     AuthorizationCodeCertificateCredentialBuilder, ClientCertificateCredentialBuilder,
     X509Certificate,
 };
+use crate::AuthorizationCodeSpaCredentialBuilder;
+use graph_error::{IdentityResult, AF};
+use http::{HeaderMap, HeaderName, HeaderValue};
+use std::collections::HashMap;
+use std::env::VarError;
+use uuid::Uuid;
 
 pub struct ConfidentialClientApplicationBuilder {
     pub(crate) app_config: AppConfig,
@@ -349,6 +349,16 @@ impl PublicClientApplicationBuilder {
     pub fn with_username_password_from_environment(
     ) -> Result<PublicClientApplication<ResourceOwnerPasswordCredential>, VarError> {
         EnvironmentCredential::resource_owner_password_credential()
+    }
+
+    pub fn with_auth_code(
+        &mut self,
+        authorization_code: impl AsRef<str>,
+    ) -> AuthorizationCodeSpaCredentialBuilder {
+        AuthorizationCodeSpaCredentialBuilder::new_with_auth_code(
+            authorization_code,
+            self.app_config.clone(),
+        )
     }
 }
 

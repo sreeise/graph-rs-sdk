@@ -71,6 +71,7 @@ use crate::teamwork::TeamworkApiClient;
 use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_core::identity::ForceTokenRefresh;
+use graph_oauth::AuthorizationCodeSpaCredential;
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -622,6 +623,12 @@ impl From<&PublicClientApplication<DeviceCodeCredential>> for GraphClient {
 
 impl From<&PublicClientApplication<ResourceOwnerPasswordCredential>> for GraphClient {
     fn from(value: &PublicClientApplication<ResourceOwnerPasswordCredential>) -> Self {
+        GraphClient::from_client_app(value.clone())
+    }
+}
+
+impl From<&PublicClientApplication<AuthorizationCodeSpaCredential>> for GraphClient {
+    fn from(value: &PublicClientApplication<AuthorizationCodeSpaCredential>) -> Self {
         GraphClient::from_client_app(value.clone())
     }
 }
