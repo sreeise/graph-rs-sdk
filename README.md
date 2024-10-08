@@ -79,6 +79,7 @@ use graph_rs_sdk::*;
     * [Auth Code Grant](#authorization-code-grant)
       * [Authorization Code Grant Secret](#authorization-code-secret)
       * [Authorization Code With Proof Key Code Exchange](#authorization-code-secret-with-proof-key-code-exchange)
+      * [Spa Authorization Code With Proof Key Code Exchange](#spa-authorization-code-with-proof-key-code-exchange)
     * [Client Credentials](#client-credentials)
       * [Client Secret Credential](#client-secret-credential)
     * [Environment Credentials](#environment-credentials)
@@ -1284,6 +1285,52 @@ fn build_confidential_client(
           .with_pkce(&PKCE)
           .build())
 }
+```
+
+#### Spa Authorization Code With Proof Key Code Exchange
+
+For use with Spa applications which does not use a client secret.
+
+```rust
+use graph_rs_sdk::identity::{
+  AuthorizationCodeSpaCredential, PublicClientApplication, GenPkce, ProofKeyCodeExchange,
+  TokenCredentialExecutor,
+};
+use lazy_static::lazy_static;
+use url::Url;
+
+lazy_static! {
+    static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
+}
+
+fn authorization_sign_in_url(
+  client_id: &str,
+  redirect_uri: &str,
+  scope: Vec<String>,
+) -> anyhow::Result<Url> {
+  Ok(
+    AuthorizationCodeSpaCredential::authorization_url_builder(client_id)
+          .with_scope(scope)
+          .with_redirect_uri(Url::parse(redirect_uri)?)
+          .with_pkce(&PKCE)
+          .url()?,
+  )
+}
+
+fn build_confidential_client(
+  authorization_code: &str,
+  client_id: &str,
+  redirect_uri: &str,
+  scope: Vec<String>,
+) -> anyhow::Result<PublicClientApplication<AuthorizationCodeSpaCredential>> {
+  Ok(PublicClientApplication::builder(client_id)
+        .with_auth_code(authorization_code)
+        .with_scope(scope)
+        .with_redirect_uri(Url::parse(redirect_uri)?)
+        .with_pkce(&PKCE)
+        .build())
+}
+
 ```
 
 ### Client Credentials
