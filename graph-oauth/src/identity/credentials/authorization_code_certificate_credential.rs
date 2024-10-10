@@ -415,8 +415,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         Ok(builder)
     }
 
-    #[cfg(feature = "interactive-auth")]
-    #[cfg(feature = "openssl")]
+    #[cfg(any(feature = "openssl", feature = "interactive-auth"))]
     pub(crate) fn new_with_token(
         token: Token,
         x509: &X509Certificate,

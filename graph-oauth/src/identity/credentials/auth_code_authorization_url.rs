@@ -23,8 +23,8 @@ use crate::identity::X509Certificate;
 #[cfg(feature = "interactive-auth")]
 use {
     crate::identity::{
-        tracing_targets::INTERACTIVE_AUTH, AuthorizationCodeCertificateCredentialBuilder,
-        AuthorizationResponse, Token,
+        tracing_targets::INTERACTIVE_AUTH,
+        AuthorizationResponse, Token, AuthorizationCodeSpaCredentialBuilder
     },
     crate::interactive::{
         HostOptions, InteractiveAuthEvent, UserEvents, WebViewAuth, WebViewAuthorizationEvent,
@@ -35,6 +35,9 @@ use {
     tao::{event_loop::EventLoopProxy, window::Window},
     wry::{WebView, WebViewBuilder},
 };
+
+#[cfg(any(feature = "interactive-auth", feature = "openssl"))]
+use crate::identity::AuthorizationCodeCertificateCredentialBuilder;
 
 credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 
