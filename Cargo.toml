@@ -1,6 +1,6 @@
 [package]
 name = "graph-rs-sdk"
-version = "2.0.2"
+version = "2.0.3"
 authors = ["sreeise"]
 edition = "2021"
 readme = "README.md"
