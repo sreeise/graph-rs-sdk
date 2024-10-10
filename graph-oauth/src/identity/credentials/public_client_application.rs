@@ -1,8 +1,8 @@
 use crate::identity::credentials::app_config::AppConfig;
 use crate::identity::credentials::application_builder::PublicClientApplicationBuilder;
 use crate::identity::{
-    Authority, AzureCloudInstance, DeviceCodeCredential, ResourceOwnerPasswordCredential,
-    TokenCredentialExecutor,
+    Authority, AuthorizationCodeSpaCredential, AzureCloudInstance, DeviceCodeCredential,
+    ResourceOwnerPasswordCredential, TokenCredentialExecutor,
 };
 use async_trait::async_trait;
 use graph_core::cache::{AsBearer, TokenCache};
@@ -110,6 +110,14 @@ impl From<ResourceOwnerPasswordCredential>
 
 impl From<DeviceCodeCredential> for PublicClientApplication<DeviceCodeCredential> {
     fn from(value: DeviceCodeCredential) -> Self {
+        PublicClientApplication::credential(value)
+    }
+}
+
+impl From<AuthorizationCodeSpaCredential>
+    for PublicClientApplication<AuthorizationCodeSpaCredential>
+{
+    fn from(value: AuthorizationCodeSpaCredential) -> Self {
         PublicClientApplication::credential(value)
     }
 }

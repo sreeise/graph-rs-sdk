@@ -1,11 +1,11 @@
 # graph-rs-sdk
 
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
-[![Static Badge](https://img.shields.io/badge/crates.io-2.0.0-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
+[![Static Badge](https://img.shields.io/badge/crates.io-2.0.1-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
 
 ### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/2.0.0) - v2.0.0 - Latest Stable Version
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/2.0.1) - v2.0.1 - Latest Stable Version
 
 #### Feature Overview:
 
@@ -22,9 +22,10 @@
 - X509 Certificate (feature = `openssl`) and Proof Key Code Exchange (PKCE) Support
 
 And much more. See [Features](#features) for a more comprehensive list of features. 
+See [Cargo Feature Flags](#cargo-feature-flags) for features that can be enabled in the crate.
 
 ```toml
-graph-rs-sdk = "2.0.0"
+graph-rs-sdk = "2.0.1"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -60,6 +61,9 @@ use graph_rs_sdk::*;
   * [Paging (Delta, Next Links)](#paging)
     * [Streaming](#streaming)
     * [Channels](#channels)
+  * [Using types that implement Read or AsyncReadExt](#using-types-that-implement-stdioread-or-tokioioasyncreadext)
+    * [File Types](#file-types)
+    * [Other types that implement Read or AsyncReadExt](#other-types-that-implement-stdioread-or-tokioioasyncreadext)
   * [API Usage](#api-usage)
   * [Batch Requests](#batch-requests)
   * [Id vs Non-Id methods](#id-vs-non-id-methods-such-as-useruser-id-vs-users)
@@ -75,6 +79,7 @@ use graph_rs_sdk::*;
     * [Auth Code Grant](#authorization-code-grant)
       * [Authorization Code Grant Secret](#authorization-code-secret)
       * [Authorization Code With Proof Key Code Exchange](#authorization-code-secret-with-proof-key-code-exchange)
+      * [Spa Authorization Code With Proof Key Code Exchange](#spa-authorization-code-with-proof-key-code-exchange)
     * [Client Credentials](#client-credentials)
       * [Client Secret Credential](#client-secret-credential)
     * [Environment Credentials](#environment-credentials)
@@ -100,6 +105,21 @@ The APIs available are generated from OpenApi configs that are stored in Microso
 for the Graph Api. There may be some requests and/or APIs not yet included in this project that are in the OpenApi
 config but in general most of them are implemented.
 
+### Cargo Feature Flags
+
+* `interactive-auth`: Interactive Authentication using web view on platforms that support it such as on a desktop. Uses the [wry](https://github.com/tauri-apps/wry) 
+and [tao](https://github.com/tauri-apps/tao) crates for webview support. Supports Linux and Windows platforms. Currently, does not support MacOS - work for this is in progress.
+* `openssl`: Enables support for using certificates in Client Credentials and Authorization Code auth flows. Additionally, enables related types such as X509Certificate
+  for building/running certificate based auth flows.
+* `test-util`: Enables test only features. Currently, this just enables the ability to turn off https only in the http client in order to use mocking frameworks with the crate.
+Other test related features may be added in the future.
+* `native-tls`: Enables feature native-tls in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `rustls-tls`: Enables feature rustls-tls in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `brotli`: Enables feature brotli in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `deflate`: Enables feature deflate in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `trust-dns`: Enables feature trust-dns in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `socks`: Enables feature socks (socks proxy support) in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+
 # Usage
 
 For extensive examples see the [examples directory on GitHub](https://github.com/sreeise/graph-rs-sdk/tree/master/examples)
@@ -110,7 +130,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "2.0.0"
+    graph-rs-sdk = "2.0.1"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -142,7 +162,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "2.0.0"
+    graph-rs-sdk = "2.0.1"
 
 #### Example
 ```rust
@@ -427,6 +447,141 @@ async fn channel_next_links() -> GraphResult<()> {
   Ok(())
 }
 
+```
+
+## Using types that implement std::io::Read or tokio::io::AsyncReadExt
+
+### File Types
+If your familiar with using the `reqwest` crate you can use the `reqwest::Body` and `reqwest::blocking::Body`
+for working with files.
+
+1. You can pass `std::fs::File` and `tokio::fs::File` directly:
+
+```rust
+use graph_rs_sdk::GraphClient;
+
+fn use_file_directly(file: File) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  let _ = client
+          .drive("drive-id")
+          .item_by_path(":/drive/path:")
+          .update_items_content(file)
+          .into_blocking()
+          .send()?;
+
+  Ok(())
+}
+
+async fn use_async_file_directly(file: tokio::fs::File) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  let _ = client
+          .drive("drive-id")
+          .item_by_path(":/drive/path:")
+          .update_items_content(file)
+          .send()
+          .await?;
+
+  Ok(())
+}
+```
+
+2. The `reqwest::Body` type is reexported as `graph_rs_sdk::http::Body` and the `reqwest::blocking::Body` type is
+reexported as `graph_rs_sdk::http::blocking::Body`.
+
+```rust
+use graph_rs_sdk::GraphClient;
+use graph_rs_sdk::http::{Body, blocking};
+
+fn use_reqwest_for_files(file: std::fs::File) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client.drive("drive-id")
+        .item_by_path(":/drive/path:")
+        .update_items_content(blocking::Body::from(file))
+        .into_blocking()
+        .send()?;
+  
+  Ok(())
+}
+
+async fn use_reqwest_for_async_files(file: tokio::fs::File) -> anyhow::Result<()> {
+    let client = GraphClient::new("token");
+    let _ = client.drive("drive-id")
+        .item_by_path(":/drive/path:")
+        .update_items_content(Body::from(file))
+        .send()
+        .await?;
+  
+  Ok(())
+}
+```
+
+3. If you want to use the reqwest crate directly:
+
+```rust
+fn use_reqwest_for_files(file: File) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  let _ = client
+          .drive("drive-id")
+          .item_by_path(":/drive/path:")
+          .update_items_content(reqwest::blocking::Body::from(file))
+          .into_blocking()
+          .send()?;
+
+  Ok(())
+}
+
+async fn use_reqwest_for_tokio_files(file: tokio::fs::File) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  let _ = client
+          .drive("drive-id")
+          .item_by_path(":/drive/path:")
+          .update_items_content(reqwest::Body::from(file))
+          .send()
+          .await?;
+
+  Ok(())
+}
+```
+
+### Other types that implement std::io::Read or tokio::io::AsyncReadExt
+
+You can use the helper type `BodyRead`:
+
+```rust
+use graph_rs_sdk::http::BodyRead;
+use graph_rs_sdk::GraphClient;
+
+fn use_read(reader: impl std::io::Read) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+
+  let body_read = BodyRead::from_read(reader)?;
+
+  let _ = client
+      .drive("drive-id")
+      .item_by_path(":/drive/path:")
+      .update_items_content(body_read)
+      .into_blocking()
+      .send()?;
+
+  Ok(())
+}
+
+async fn use_async_read(
+    async_reader: impl tokio::io::AsyncReadExt + Unpin,
+) -> anyhow::Result<()> {
+  let client = GraphClient::new("token");
+  
+  let async_body_read = BodyRead::from_async_read(async_reader).await?;
+  
+  let _ = client
+      .drive("drive-id")
+      .item_by_path(":/drive/path:")
+      .update_items_content(async_body_read)
+      .send()
+      .await?;
+
+  Ok(())
+}
 ```
 
 ## API Usage
@@ -1130,6 +1285,52 @@ fn build_confidential_client(
           .with_pkce(&PKCE)
           .build())
 }
+```
+
+#### Spa Authorization Code With Proof Key Code Exchange
+
+For use with Spa applications which does not use a client secret.
+
+```rust
+use graph_rs_sdk::identity::{
+  AuthorizationCodeSpaCredential, PublicClientApplication, GenPkce, ProofKeyCodeExchange,
+  TokenCredentialExecutor,
+};
+use lazy_static::lazy_static;
+use url::Url;
+
+lazy_static! {
+    static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
+}
+
+fn authorization_sign_in_url(
+  client_id: &str,
+  redirect_uri: &str,
+  scope: Vec<String>,
+) -> anyhow::Result<Url> {
+  Ok(
+    AuthorizationCodeSpaCredential::authorization_url_builder(client_id)
+          .with_scope(scope)
+          .with_redirect_uri(Url::parse(redirect_uri)?)
+          .with_pkce(&PKCE)
+          .url()?,
+  )
+}
+
+fn build_confidential_client(
+  authorization_code: &str,
+  client_id: &str,
+  redirect_uri: &str,
+  scope: Vec<String>,
+) -> anyhow::Result<PublicClientApplication<AuthorizationCodeSpaCredential>> {
+  Ok(PublicClientApplication::builder(client_id)
+        .with_auth_code(authorization_code)
+        .with_scope(scope)
+        .with_redirect_uri(Url::parse(redirect_uri)?)
+        .with_pkce(&PKCE)
+        .build())
+}
+
 ```
 
 ### Client Credentials

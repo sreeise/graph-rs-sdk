@@ -3,8 +3,10 @@ use crate::internal::GraphRsError;
 use crate::{AuthExecutionError, AuthorizationFailure, ErrorMessage};
 use reqwest::header::HeaderMap;
 use std::cell::BorrowMutError;
+use std::error::Error;
 use std::io;
 use std::io::ErrorKind;
+use std::num::ParseIntError;
 use std::str::Utf8Error;
 use std::sync::mpsc;
 
@@ -73,6 +75,12 @@ pub enum GraphFailure {
 
     #[error("{0:#?}")]
     ErrorMessage(#[from] ErrorMessage),
+
+    #[error("Temporary Graph API Error")]
+    TemporaryError,
+
+    #[error("Parse Int error:\n{0:#?}")]
+    ParseIntError(#[from] ParseIntError),
 
     #[error("message: {0:#?}, response: {1:#?}", message, response)]
     SilentTokenAuth {
@@ -158,5 +166,11 @@ impl From<AuthExecutionError> for GraphFailure {
             }
             AuthExecutionError::JsonWebToken(error) => GraphFailure::JsonWebToken(error),
         }
+    }
+}
+
+impl From<Box<dyn Error + Send + Sync>> for GraphFailure {
+    fn from(value: Box<dyn Error + Send + Sync>) -> Self {
+        value.into()
     }
 }

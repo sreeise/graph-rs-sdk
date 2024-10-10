@@ -23,8 +23,8 @@ use crate::identity::X509Certificate;
 #[cfg(feature = "interactive-auth")]
 use {
     crate::identity::{
-        tracing_targets::INTERACTIVE_AUTH, AuthorizationCodeCertificateCredentialBuilder,
-        AuthorizationResponse, Token,
+        tracing_targets::INTERACTIVE_AUTH,
+        AuthorizationResponse, Token, AuthorizationCodeSpaCredentialBuilder
     },
     crate::interactive::{
         HostOptions, InteractiveAuthEvent, UserEvents, WebViewAuth, WebViewAuthorizationEvent,
@@ -35,6 +35,9 @@ use {
     tao::{event_loop::EventLoopProxy, window::Window},
     wry::{WebView, WebViewBuilder},
 };
+
+#[cfg(any(feature = "interactive-auth", feature = "openssl"))]
+use crate::identity::AuthorizationCodeCertificateCredentialBuilder;
 
 credential_builder_base!(AuthCodeAuthorizationUrlParameterBuilder);
 
@@ -741,6 +744,50 @@ impl WithInteractiveAuth<Secret> for AuthCodeAuthorizationUrlParameterBuilder {
         };
 
         credential_builder.with_client_secret(auth_type.0);
+        Ok(WebViewAuthorizationEvent::Authorized {
+            authorization_response,
+            credential_builder,
+        })
+    }
+}
+
+#[cfg(feature = "interactive-auth")]
+impl WithInteractiveAuth<ProofKeyCodeExchange> for AuthCodeAuthorizationUrlParameterBuilder {
+    type CredentialBuilder = AuthorizationCodeSpaCredentialBuilder;
+
+    fn with_interactive_auth(
+        &self,
+        auth_type: ProofKeyCodeExchange,
+        options: WebViewOptions,
+    ) -> WebViewResult<WebViewAuthorizationEvent<Self::CredentialBuilder>> {
+        let authorization_response = self
+            .credential
+            .interactive_webview_authentication(options)?;
+
+        if authorization_response.is_err() {
+            tracing::debug!(target: INTERACTIVE_AUTH, "error in authorization query or fragment from redirect uri");
+            return Ok(WebViewAuthorizationEvent::Unauthorized(
+                authorization_response,
+            ));
+        }
+
+        tracing::debug!(target: INTERACTIVE_AUTH, "parsed authorization query or fragment from redirect uri");
+
+        let mut credential_builder = {
+            if let Some(authorization_code) = authorization_response.code.as_ref() {
+                AuthorizationCodeSpaCredentialBuilder::new_with_auth_code(
+                    authorization_code,
+                    self.credential.app_config.clone(),
+                )
+            } else {
+                AuthorizationCodeSpaCredentialBuilder::new_with_token(
+                    self.credential.app_config.clone(),
+                    Token::try_from(authorization_response.clone())?,
+                )
+            }
+        };
+
+        credential_builder.with_pkce(&auth_type);
         Ok(WebViewAuthorizationEvent::Authorized {
             authorization_response,
             credential_builder,

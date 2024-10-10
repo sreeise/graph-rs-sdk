@@ -1,6 +1,6 @@
 [package]
 name = "graph-oauth"
-version = "2.0.0"
+version = "2.0.1"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
@@ -50,6 +50,7 @@ rustls-tls = ["reqwest/rustls-tls", "graph-core/rustls-tls"]
 brotli = ["reqwest/brotli", "graph-core/brotli"]
 deflate = ["reqwest/deflate", "graph-core/deflate"]
 trust-dns = ["reqwest/trust-dns", "graph-core/trust-dns"]
+socks = ["reqwest/socks", "graph-core/socks"]
 openssl = ["dep:openssl"]
 interactive-auth = ["dep:wry", "dep:tao"]
 
