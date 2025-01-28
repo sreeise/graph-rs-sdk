@@ -482,7 +482,7 @@ impl AuthSerializer {
         self.insert(AuthParameter::ClientAssertionType, value)
     }
 
-    /// Set the redirect uri that user will be redirected to after logging out.
+    /// Set the client username
     ///
     /// # Example
     /// ```
@@ -495,7 +495,7 @@ impl AuthSerializer {
         self.insert(AuthParameter::Username, value)
     }
 
-    /// Set the redirect uri that user will be redirected to after logging out.
+    /// Set the client password
     ///
     /// # Example
     /// ```
