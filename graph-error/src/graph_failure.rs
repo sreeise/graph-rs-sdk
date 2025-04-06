@@ -90,6 +90,9 @@ pub enum GraphFailure {
 
     #[error("{0:#?}")]
     JsonWebToken(#[from] jsonwebtoken::errors::Error),
+
+    #[error("{0:#?}")]
+    Other(#[from] Box<dyn Error + Send + Sync>),
 }
 
 impl GraphFailure {
@@ -166,11 +169,5 @@ impl From<AuthExecutionError> for GraphFailure {
             }
             AuthExecutionError::JsonWebToken(error) => GraphFailure::JsonWebToken(error),
         }
-    }
-}
-
-impl From<Box<dyn Error + Send + Sync>> for GraphFailure {
-    fn from(value: Box<dyn Error + Send + Sync>) -> Self {
-        value.into()
     }
 }
