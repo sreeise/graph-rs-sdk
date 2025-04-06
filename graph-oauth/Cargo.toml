@@ -58,3 +58,6 @@ interactive-auth = ["dep:wry", "dep:tao"]
 name = "x509_certificate_tests"
 path = "src/identity/credentials/x509_certificate.rs"
 required-features = ["openssl"]
+
+[package.metadata.docs.rs]
+all-features = true

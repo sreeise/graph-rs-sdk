@@ -38,3 +38,6 @@ deflate = ["reqwest/deflate", "graph-core/deflate"]
 trust-dns = ["reqwest/trust-dns", "graph-core/trust-dns"]
 socks = ["reqwest/socks", "graph-core/socks"]
 test-util = []
+
+[package.metadata.docs.rs]
+all-features = true

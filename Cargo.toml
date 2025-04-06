@@ -95,3 +95,6 @@ required-features = ["interactive-auth", "openssl"]
 name = "interactive_auth"
 path = "examples/interactive_auth/main.rs"
 required-features = ["interactive-auth"]
+
+[package.metadata.docs.rs]
+all-features = true
