@@ -10,7 +10,7 @@ use test_tools::support::cleanup::AsyncCleanUp;
 
 #[tokio::test]
 async fn list_get_notebooks_and_sections() {
-    if Environment::is_appveyor() || Environment::is_local() {
+    if Environment::is_appveyor() || Environment::is_github() {
         return;
     }
 
