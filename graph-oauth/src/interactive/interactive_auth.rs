@@ -10,8 +10,12 @@ use tao::window::{Window, WindowBuilder};
 use url::Url;
 use wry::WebView;
 
+#[cfg(not(target_os = "macos"))]
 #[cfg(target_family = "unix")]
 use tao::platform::unix::EventLoopBuilderExtUnix;
+
+#[cfg(target_os = "macos")]
+use tao::platform::macos::{EventLoopWindowTargetExtMacOS, WindowBuilderExtMacOS, WindowExtMacOS};
 
 #[cfg(target_family = "windows")]
 use tao::platform::windows::EventLoopBuilderExtWindows;
@@ -180,6 +184,7 @@ where
             .with_theme(options.theme)
     }
 
+    #[cfg(not(target_os = "macos"))]
     #[cfg(target_family = "unix")]
     fn window_builder(options: &WebViewOptions) -> WindowBuilder {
         WindowBuilder::new()
@@ -192,9 +197,28 @@ where
             .with_resizable(true)
     }
 
+    #[cfg(target_family = "macos")]
+    fn window_builder(options: &WebViewOptions) -> WindowBuilder {
+        WindowBuilder::new()
+            .with_title(options.window_title.clone())
+            .with_closable(true)
+            .with_content_protection(true)
+            .with_minimizable(true)
+            .with_maximizable(true)
+            .with_focused(true)
+            .with_resizable(true)
+    }
+
+    #[cfg(any(target_family = "windows", target_family = "unix"))]
+    #[cfg(not(target_os = "macos"))]
     fn event_loop() -> EventLoop<UserEvents> {
         EventLoopBuilder::with_user_event()
             .with_any_thread(true)
             .build()
+    }
+
+    #[cfg(target_os = "macos")]
+    fn event_loop() -> EventLoop<UserEvents> {
+        EventLoopBuilder::with_user_event().build()
     }
 }
