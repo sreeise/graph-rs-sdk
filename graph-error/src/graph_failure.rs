@@ -12,6 +12,7 @@ use std::sync::mpsc;
 
 #[derive(Debug, thiserror::Error)]
 #[allow(clippy::large_enum_variant)]
+#[non_exhaustive]
 pub enum GraphFailure {
     #[error("{0:#?}")]
     Io(#[from] io::Error),
@@ -90,6 +91,9 @@ pub enum GraphFailure {
 
     #[error("{0:#?}")]
     JsonWebToken(#[from] jsonwebtoken::errors::Error),
+
+    #[error("{0:#?}")]
+    Other(#[from] Box<dyn Error + Send + Sync>),
 }
 
 impl GraphFailure {
@@ -165,12 +169,7 @@ impl From<AuthExecutionError> for GraphFailure {
                 GraphFailure::SilentTokenAuth { message, response }
             }
             AuthExecutionError::JsonWebToken(error) => GraphFailure::JsonWebToken(error),
+            AuthExecutionError::Other(e) => GraphFailure::Other(e),
         }
-    }
-}
-
-impl From<Box<dyn Error + Send + Sync>> for GraphFailure {
-    fn from(value: Box<dyn Error + Send + Sync>) -> Self {
-        value.into()
     }
 }

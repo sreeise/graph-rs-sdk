@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use inflector::Inflector;
 
 /// Comprises both top level and second level resources.
@@ -21,6 +22,7 @@ use inflector::Inflector;
 )]
 #[strum(serialize_all = "camelCase")]
 #[derive(Default)]
+#[non_exhaustive]
 pub enum ResourceIdentity {
     AccessPackageAssignmentApprovals,
     AccessPackages,
@@ -274,9 +276,9 @@ pub enum ResourceIdentity {
     WorksheetsChartsTitle,
 }
 
-impl ToString for ResourceIdentity {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for ResourceIdentity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
             ResourceIdentity::AccessPackages => "accessPackages".to_string(),
             ResourceIdentity::AccessReviewsDefinitions => "definitions".to_string(),
             ResourceIdentity::AccessReviewsDefinitionsInstances => "instances".to_string(),
@@ -408,7 +410,8 @@ impl ToString for ResourceIdentity {
             ResourceIdentity::Custom => "".into(),
 
             _ => self.as_ref().to_camel_case(),
-        }
+        };
+        write!(f, "{}", str)
     }
 }
 
@@ -418,7 +421,7 @@ impl ResourceIdentity {
     }
 
     pub fn to_path_start(&self) -> String {
-        format!("/{}", self.to_string())
+        format!("/{}", self)
     }
 
     pub fn replace(&self, from: &str, to: &str) -> String {
@@ -528,8 +531,8 @@ pub enum TopLevelResource {
     Users,
 }
 
-impl ToString for TopLevelResource {
-    fn to_string(&self) -> String {
-        self.as_ref().to_camel_case()
+impl Display for TopLevelResource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_ref().to_camel_case())
     }
 }

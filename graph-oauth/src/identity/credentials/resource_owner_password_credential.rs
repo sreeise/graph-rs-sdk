@@ -171,11 +171,18 @@ impl TokenCredentialExecutor for ResourceOwnerPasswordCredential {
         serializer
             .client_id(client_id.as_str())
             .grant_type("password")
-            .set_scope(self.app_config.scope.clone());
+            .set_scope(self.app_config.scope.clone())
+            .username(&self.username)
+            .password(&self.password);
 
         serializer.as_credential_map(
             vec![AuthParameter::Scope],
-            vec![AuthParameter::ClientId, AuthParameter::GrantType],
+            vec![
+                AuthParameter::ClientId,
+                AuthParameter::GrantType,
+                AuthParameter::Username,
+                AuthParameter::Password,
+            ],
         )
     }
 

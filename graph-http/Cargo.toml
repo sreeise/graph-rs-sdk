@@ -1,6 +1,6 @@
 [package]
 name = "graph-http"
-version = "2.0.1"
+version = "2.0.2"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
@@ -38,3 +38,6 @@ deflate = ["reqwest/deflate", "graph-core/deflate"]
 trust-dns = ["reqwest/trust-dns", "graph-core/trust-dns"]
 socks = ["reqwest/socks", "graph-core/socks"]
 test-util = []
+
+[package.metadata.docs.rs]
+all-features = true

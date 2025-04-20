@@ -35,12 +35,12 @@ pub struct ImplicitCredential {
     /// Supported values:
     ///
     /// - query: Default when requesting an access token. Provides the code as a query string
-    /// parameter on your redirect URI. The query parameter isn't supported when requesting an
-    /// ID token by using the implicit flow.
+    ///   parameter on your redirect URI. The query parameter isn't supported when requesting an
+    ///   ID token by using the implicit flow.
     /// - fragment: Default when requesting an ID token by using the implicit flow.
-    /// Also supported if requesting only a code.
+    ///   Also supported if requesting only a code.
     /// - form_post: Executes a POST containing the code to your redirect URI.
-    /// Supported when requesting a code.
+    ///   Supported when requesting a code.
     pub(crate) response_mode: ResponseMode,
     /// Optional
     /// A value included in the request that will also be returned in the token response.
@@ -240,12 +240,12 @@ impl ImplicitCredentialBuilder {
     /// Supported values:
     ///
     /// - **query**: Default when requesting an access token. Provides the code as a query string
-    ///     parameter on your redirect URI. The query parameter is not supported when requesting an
-    ///     ID token by using the implicit flow.
+    ///   parameter on your redirect URI. The query parameter is not supported when requesting an
+    ///   ID token by using the implicit flow.
     /// - **fragment**: Default when requesting an ID token by using the implicit flow.
-    ///     Also supported if requesting only a code.
+    ///   Also supported if requesting only a code.
     /// - **form_post**: Executes a POST containing the code to your redirect URI.
-    ///     Supported when requesting a code.
+    ///   Supported when requesting a code.
     pub fn with_response_mode(&mut self, response_mode: ResponseMode) -> &mut Self {
         self.credential.response_mode = response_mode;
         self
@@ -282,7 +282,7 @@ impl ImplicitCredentialBuilder {
     ///
     /// - **prompt=login** forces the user to enter their credentials on that request, negating single-sign on.
     /// - **prompt=none** is the opposite. It ensures that the user isn't presented with any interactive prompt.
-    ///     If the request can't be completed silently by using single-sign on, the Microsoft identity platform returns an interaction_required error.
+    ///   If the request can't be completed silently by using single-sign on, the Microsoft identity platform returns an interaction_required error.
     /// - **prompt=consent** triggers the OAuth consent dialog after the user signs in, asking the user to
     ///     grant permissions to the app.
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience

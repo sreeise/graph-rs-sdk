@@ -14,7 +14,7 @@ use graph_core::identity::ForceTokenRefresh;
 use graph_error::{AuthExecutionError, AuthExecutionResult, IdentityResult, AF};
 
 #[cfg(feature = "openssl")]
-use crate::identity::{AuthorizationResponse, X509Certificate};
+use crate::identity::X509Certificate;
 
 use crate::identity::{
     AppConfig, AuthCodeAuthorizationUrlParameterBuilder, Authority, AzureCloudInstance,
@@ -415,7 +415,7 @@ impl AuthorizationCodeCertificateCredentialBuilder {
         Ok(builder)
     }
 
-    #[cfg(any(feature = "openssl", feature = "interactive-auth"))]
+    #[cfg(all(feature = "openssl", feature = "interactive-auth"))]
     pub(crate) fn new_with_token(
         token: Token,
         x509: &X509Certificate,
@@ -439,27 +439,6 @@ impl AuthorizationCodeCertificateCredentialBuilder {
 
         builder.with_x509(x509)?;
         Ok(builder)
-    }
-
-    #[allow(unused)]
-    #[cfg(feature = "openssl")]
-    pub(crate) fn new_authorization_response(
-        value: (AppConfig, AuthorizationResponse, &X509Certificate),
-    ) -> IdentityResult<AuthorizationCodeCertificateCredentialBuilder> {
-        let (app_config, authorization_response, x509) = value;
-        if let Some(authorization_code) = authorization_response.code.as_ref() {
-            AuthorizationCodeCertificateCredentialBuilder::new_with_auth_code_and_x509(
-                authorization_code,
-                x509,
-                app_config,
-            )
-        } else {
-            AuthorizationCodeCertificateCredentialBuilder::new_with_token(
-                Token::try_from(authorization_response.clone())?,
-                x509,
-                app_config,
-            )
-        }
     }
 
     pub fn with_authorization_code<T: AsRef<str>>(&mut self, authorization_code: T) -> &mut Self {
