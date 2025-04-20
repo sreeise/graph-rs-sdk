@@ -1,6 +1,6 @@
 [package]
 name = "graph-http"
-version = "2.0.2"
+version = "3.0.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
@@ -41,3 +41,6 @@ test-util = []
 
 [package.metadata.docs.rs]
 all-features = true
+
+[lints]
+workspace = true

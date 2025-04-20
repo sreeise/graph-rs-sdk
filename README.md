@@ -1,11 +1,11 @@
 # graph-rs-sdk
 
 ![Build](https://github.com/sreeise/graph-rs-sdk/actions/workflows/build.yml/badge.svg)
-[![Static Badge](https://img.shields.io/badge/crates.io-2.0.3-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
+[![Static Badge](https://img.shields.io/badge/crates.io-3.0.1-blue?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fgraph-rs-sdk)](https://crates.io/crates/graph-rs-sdk)
 
 ### Rust SDK Client for Microsoft Graph and Microsoft Identity Platform
 
-### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/2.0.3) - v2.0.3 - Latest Stable Version
+### Available on [crates.io](https://crates.io/crates/graph-rs-sdk/3.0.1) - v3.0.1 - Latest Stable Version
 
 #### Feature Overview:
 
@@ -25,7 +25,7 @@ And much more. See [Features](#features) for a more comprehensive list of featur
 See [Cargo Feature Flags](#cargo-feature-flags) for features that can be enabled in the crate.
 
 ```toml
-graph-rs-sdk = "2.0.3"
+graph-rs-sdk = "3.0.1"
 tokio = { version = "1.25.0", features = ["full"] }
 ```
 
@@ -130,7 +130,7 @@ The crate can do both an async and blocking requests.
 
 #### Async Client (default)
 
-    graph-rs-sdk = "2.0.3"
+    graph-rs-sdk = "3.0.1"
     tokio = { version = "1.25.0", features = ["full"] }
 
 #### Example
@@ -162,7 +162,7 @@ async fn main() -> GraphResult<()> {
 To use the blocking client use the `into_blocking()` method. You should not
 use `tokio` when using the blocking client.
 
-    graph-rs-sdk = "2.0.3"
+    graph-rs-sdk = "3.0.1"
 
 #### Example
 ```rust

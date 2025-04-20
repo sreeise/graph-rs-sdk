@@ -1,6 +1,6 @@
 [package]
 name = "graph-oauth"
-version = "2.0.2"
+version = "3.0.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
@@ -63,3 +63,6 @@ required-features = ["openssl"]
 
 [package.metadata.docs.rs]
 all-features = true
+
+[lints]
+workspace = true
