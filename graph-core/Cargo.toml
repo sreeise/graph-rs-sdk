@@ -1,6 +1,6 @@
 [package]
 name = "graph-core"
-version = "2.0.2"
+version = "3.0.0"
 authors = ["sreeise"]
 edition = "2021"
 license = "MIT"
@@ -27,7 +27,7 @@ remain = "0.2.6"
 tracing = "0.1.37"
 url = { version = "2", features = ["serde"] }
 
-graph-error = { version = "0.3.2", path = "../graph-error"  }
+graph-error = { version = "1.0.0", path = "../graph-error"  }
 
 [features]
 default = ["native-tls"]
@@ -40,3 +40,6 @@ socks = ["reqwest/socks"]
 
 [package.metadata.docs.rs]
 all-features = true
+
+[lints]
+workspace = true
