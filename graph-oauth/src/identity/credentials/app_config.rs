@@ -247,7 +247,7 @@ impl AppConfig {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq)]
 pub struct AppConfigBuilder {
     app_config: AppConfig,
 }
