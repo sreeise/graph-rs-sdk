@@ -179,6 +179,54 @@ impl Debug for IdToken {
     }
 }
 
+impl<'de> Visitor<'de> for IdTokenVisitor {
+    type Value = IdToken;
+
+    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+        formatter.write_str("`code`, `id_token`, `state`, and `session_state`")
+    }
+
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: Error,
+    {
+        let d = serde_urlencoded::Deserializer::new(parse(v.as_bytes()));
+        d.deserialize_str(IdTokenVisitor)
+            .map_err(|err| Error::custom(err))
+    }
+
+    fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        let d = serde_urlencoded::Deserializer::new(parse(v));
+        d.deserialize_bytes(IdTokenVisitor)
+            .map_err(|err| Error::custom(err))
+    }
+
+    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+    where
+        A: MapAccess<'de>,
+    {
+        let mut id_token = IdToken::default();
+        while let Ok(Some((key, value))) = map.next_entry::<String, String>() {
+            match key.as_bytes() {
+                b"code" => id_token.code = Some(value),
+                b"id_token" => id_token.id_token = value,
+                b"state" => id_token.state = Some(value),
+                b"session_state" => id_token.session_state = Some(value),
+                _ => {
+                    id_token
+                        .additional_fields
+                        .insert(key.to_string(), Value::String(value.to_string()));
+                }
+            }
+        }
+
+        Ok(id_token)
+    }
+}
+
 struct IdTokenVisitor;
 
 impl<'de> Deserialize<'de> for IdToken {
@@ -186,53 +234,6 @@ impl<'de> Deserialize<'de> for IdToken {
     where
         D: Deserializer<'de>,
     {
-        impl<'de> Visitor<'de> for IdTokenVisitor {
-            type Value = IdToken;
-
-            fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-                formatter.write_str("`code`, `id_token`, `state`, and `session_state`")
-            }
-
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-            where
-                E: Error,
-            {
-                let d = serde_urlencoded::Deserializer::new(parse(v.as_bytes()));
-                d.deserialize_str(IdTokenVisitor)
-                    .map_err(|err| Error::custom(err))
-            }
-
-            fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                let d = serde_urlencoded::Deserializer::new(parse(v));
-                d.deserialize_bytes(IdTokenVisitor)
-                    .map_err(|err| Error::custom(err))
-            }
-
-            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
-            where
-                A: MapAccess<'de>,
-            {
-                let mut id_token = IdToken::default();
-                while let Ok(Some((key, value))) = map.next_entry::<String, String>() {
-                    match key.as_bytes() {
-                        b"code" => id_token.code = Some(value),
-                        b"id_token" => id_token.id_token = value,
-                        b"state" => id_token.state = Some(value),
-                        b"session_state" => id_token.session_state = Some(value),
-                        _ => {
-                            id_token
-                                .additional_fields
-                                .insert(key.to_string(), Value::String(value.to_string()));
-                        }
-                    }
-                }
-
-                Ok(id_token)
-            }
-        }
         deserializer.deserialize_identifier(IdTokenVisitor)
     }
 }

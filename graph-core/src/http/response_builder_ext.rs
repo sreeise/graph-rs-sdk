@@ -3,6 +3,7 @@ use url::Url;
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct HttpExtUrl(pub Url);
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct HttpExtSerdeJsonValue(pub serde_json::Value);
 

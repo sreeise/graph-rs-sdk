@@ -1,4 +1,5 @@
 use crate::{ErrorMessage, IdentityResult, WebViewDeviceCodeError};
+use std::error::Error;
 use tokio::sync::mpsc::error::SendTimeoutError;
 use url::ParseError;
 
@@ -7,6 +8,7 @@ pub type AF = AuthorizationFailure;
 /// Errors typically from missing or invalid configuration using one of the
 /// identity platform clients such as AuthorizationCodeCredential.
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum AuthorizationFailure {
     #[error("Required value missing:\n{0:#?}", name)]
     RequiredValue {
@@ -109,6 +111,9 @@ pub enum AuthExecutionError {
 
     #[error("{0:#?}")]
     JsonWebToken(#[from] jsonwebtoken::errors::Error),
+
+    #[error("{0:#?}")]
+    Other(#[from] Box<dyn Error + Send + Sync>),
 }
 
 impl AuthExecutionError {

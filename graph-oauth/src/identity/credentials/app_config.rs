@@ -3,16 +3,16 @@ use http::{HeaderName, HeaderValue};
 use std::collections::{BTreeSet, HashMap};
 use std::fmt::{Debug, Formatter};
 
+use crate::identity::{Authority, AzureCloudInstance, IdToken};
+use crate::ApplicationOptions;
 use graph_core::identity::ForceTokenRefresh;
 use graph_error::AF;
+use graph_http::api_impl::GraphClientConfiguration;
 use reqwest::header::HeaderMap;
 use url::Url;
 use uuid::Uuid;
 
-use crate::identity::{Authority, AzureCloudInstance, IdToken};
-use crate::ApplicationOptions;
-
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default)]
 pub struct AppConfig {
     /// The directory tenant that you want to request permission from.
     /// This can be in GUID or friendly name format.
@@ -66,6 +66,7 @@ pub struct AppConfig {
     pub(crate) force_token_refresh: ForceTokenRefresh,
     pub(crate) id_token: Option<IdToken>,
     pub(crate) log_pii: bool,
+    pub(crate) config: GraphClientConfiguration,
 }
 
 impl TryFrom<ApplicationOptions> for AppConfig {
@@ -94,6 +95,7 @@ impl TryFrom<ApplicationOptions> for AppConfig {
             force_token_refresh: Default::default(),
             id_token: Default::default(),
             log_pii: false,
+            config: Default::default(),
         })
     }
 }
@@ -170,6 +172,7 @@ impl AppConfig {
             force_token_refresh: Default::default(),
             id_token: Default::default(),
             log_pii: Default::default(),
+            config: Default::default(),
         }
     }
 
@@ -238,9 +241,13 @@ impl AppConfig {
     pub(crate) fn with_id_token(&mut self, id_token: IdToken) {
         self.id_token = Some(id_token);
     }
+
+    pub(crate) fn with_config(&mut self, config: GraphClientConfiguration) {
+        self.config = config;
+    }
 }
 
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default)]
 pub struct AppConfigBuilder {
     app_config: AppConfig,
 }
@@ -275,6 +282,11 @@ impl AppConfigBuilder {
 
     pub fn scope<T: ToString, I: IntoIterator<Item = T>>(mut self, scope: I) -> Self {
         self.app_config.scope = scope.into_iter().map(|s| s.to_string()).collect();
+        self
+    }
+
+    pub fn graph_client_configuration(mut self, config: GraphClientConfiguration) -> Self {
+        self.app_config.config = config;
         self
     }
 

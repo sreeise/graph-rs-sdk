@@ -83,6 +83,14 @@ macro_rules! credential_builder_base {
                 self.credential.app_config.with_scope(scope);
                 self
             }
+
+            pub fn with_config(
+                &mut self,
+                config: &graph_http::api_impl::GraphClientConfiguration,
+            ) -> &mut Self {
+                self.credential.app_config.with_config(config.clone());
+                self
+            }
         }
     };
 }
