@@ -114,7 +114,7 @@ impl Default for WebViewOptions {
     }
 }
 
-#[cfg(unix)]
+#[cfg(any(target_family = "macos", target_family = "unix"))]
 impl Default for WebViewOptions {
     fn default() -> Self {
         WebViewOptions {
