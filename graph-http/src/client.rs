@@ -254,8 +254,7 @@ impl GraphClientConfiguration {
             .boxed_clone()
     }
 
-    pub fn build(self) -> Client {
-        let config = self.clone();
+    fn build_http_client(&self) -> reqwest::Client {
         let headers = self.config.headers.clone();
         let mut builder = reqwest::ClientBuilder::new()
             .referer(self.config.referer)
@@ -263,7 +262,7 @@ impl GraphClientConfiguration {
             .https_only(self.config.https_only)
             .min_tls_version(self.config.min_tls_version)
             .redirect(Policy::limited(2))
-            .default_headers(self.config.headers);
+            .default_headers(headers);
 
         if let Some(timeout) = self.config.timeout {
             builder = builder.timeout(timeout);
@@ -273,11 +272,42 @@ impl GraphClientConfiguration {
             builder = builder.connect_timeout(connect_timeout);
         }
 
-        if let Some(proxy) = self.config.proxy {
-            builder = builder.proxy(proxy);
+        if let Some(proxy) = &self.config.proxy {
+            builder = builder.proxy(proxy.clone());
         }
 
-        let client = builder.build().unwrap();
+        builder.build().unwrap()
+    }
+
+    fn build_blocking_http_client(&self) -> reqwest::blocking::Client {
+        let headers = self.config.headers.clone();
+        let mut builder = reqwest::blocking::ClientBuilder::new()
+            .referer(self.config.referer)
+            .connection_verbose(self.config.connection_verbose)
+            .https_only(self.config.https_only)
+            .min_tls_version(self.config.min_tls_version)
+            .redirect(Policy::limited(2))
+            .default_headers(headers);
+
+        if let Some(timeout) = self.config.timeout {
+            builder = builder.timeout(timeout);
+        }
+
+        if let Some(connect_timeout) = self.config.connect_timeout {
+            builder = builder.connect_timeout(connect_timeout);
+        }
+
+        if let Some(proxy) = &self.config.proxy {
+            builder = builder.proxy(proxy.clone());
+        }
+
+        builder.build().unwrap()
+    }
+
+    pub(crate) fn build(self) -> Client {
+        let config = self.clone();
+        let headers = self.config.headers.clone();
+        let client = self.build_http_client();
 
         if let Some(client_application) = self.config.client_application {
             Client {
@@ -298,27 +328,7 @@ impl GraphClientConfiguration {
 
     pub(crate) fn build_blocking(self) -> BlockingClient {
         let headers = self.config.headers.clone();
-        let mut builder = reqwest::blocking::ClientBuilder::new()
-            .referer(self.config.referer)
-            .connection_verbose(self.config.connection_verbose)
-            .https_only(self.config.https_only)
-            .min_tls_version(self.config.min_tls_version)
-            .redirect(Policy::limited(2))
-            .default_headers(self.config.headers);
-
-        if let Some(timeout) = self.config.timeout {
-            builder = builder.timeout(timeout);
-        }
-
-        if let Some(connect_timeout) = self.config.connect_timeout {
-            builder = builder.connect_timeout(connect_timeout);
-        }
-
-        if let Some(proxy) = self.config.proxy {
-            builder = builder.proxy(proxy);
-        }
-
-        let client = builder.build().unwrap();
+        let client = self.build_blocking_http_client();
 
         if let Some(client_application) = self.config.client_application {
             BlockingClient {
@@ -332,6 +342,26 @@ impl GraphClientConfiguration {
                 inner: client,
                 headers,
             }
+        }
+    }
+
+    pub(crate) fn build_minimal_async_client(self) -> MinimalAsyncClient {
+        let config = self.clone();
+        let client = self.build_http_client();
+        let service = self.build_tower_service(&client);
+        MinimalAsyncClient {
+            inner: client,
+            builder: config,
+            service,
+        }
+    }
+
+    pub(crate) fn build_minimal_blocking_client(self) -> MinimalBlockingClient {
+        let config = self.clone();
+        let client = self.build_blocking();
+        MinimalBlockingClient {
+            inner: client.inner,
+            builder: config,
         }
     }
 }
@@ -404,6 +434,47 @@ impl Debug for Client {
 impl From<GraphClientConfiguration> for Client {
     fn from(value: GraphClientConfiguration) -> Self {
         value.build()
+    }
+}
+
+#[derive(Clone)]
+pub struct MinimalAsyncClient {
+    pub inner: reqwest::Client,
+    pub builder: GraphClientConfiguration,
+    pub service: BoxCloneService<Request, Response, Box<dyn std::error::Error + Send + Sync>>,
+}
+
+/*
+let service = inner.builder.build_tower_service(&inner.inner);
+ */
+
+impl From<GraphClientConfiguration> for MinimalAsyncClient {
+    fn from(value: GraphClientConfiguration) -> Self {
+        value.build_minimal_async_client()
+    }
+}
+
+impl Default for MinimalAsyncClient {
+    fn default() -> Self {
+        GraphClientConfiguration::new().build_minimal_async_client()
+    }
+}
+
+#[derive(Clone)]
+pub struct MinimalBlockingClient {
+    pub inner: reqwest::blocking::Client,
+    pub builder: GraphClientConfiguration,
+}
+
+impl From<GraphClientConfiguration> for MinimalBlockingClient {
+    fn from(value: GraphClientConfiguration) -> Self {
+        value.build_minimal_blocking_client()
+    }
+}
+
+impl Default for MinimalBlockingClient {
+    fn default() -> Self {
+        GraphClientConfiguration::new().build_minimal_blocking_client()
     }
 }
 

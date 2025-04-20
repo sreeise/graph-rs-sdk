@@ -18,6 +18,7 @@ extern crate serde;
 extern crate log;
 
 mod auth_code_grant;
+mod client_configuration_oauth;
 mod client_credentials;
 mod device_code;
 mod environment_credential;
