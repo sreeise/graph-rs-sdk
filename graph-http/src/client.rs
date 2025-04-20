@@ -66,6 +66,17 @@ impl ClientConfiguration {
     }
 }
 
+impl PartialEq for ClientConfiguration {
+    fn eq(&self, other: &Self) -> bool {
+        self.headers == other.headers
+            && self.referer == other.referer
+            && self.connect_timeout == other.connect_timeout
+            && self.connection_verbose == other.connection_verbose
+            && self.https_only == other.https_only
+            && self.min_tls_version == other.min_tls_version
+    }
+}
+
 impl Debug for ClientConfiguration {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ClientConfiguration")
@@ -80,7 +91,7 @@ impl Debug for ClientConfiguration {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GraphClientConfiguration {
     config: ClientConfiguration,
 }
