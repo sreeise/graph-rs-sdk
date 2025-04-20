@@ -12,7 +12,7 @@ use reqwest::header::HeaderMap;
 use url::Url;
 use uuid::Uuid;
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq)]
 pub struct AppConfig {
     /// The directory tenant that you want to request permission from.
     /// This can be in GUID or friendly name format.
@@ -247,7 +247,7 @@ impl AppConfig {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq)]
 pub struct AppConfigBuilder {
     app_config: AppConfig,
 }
