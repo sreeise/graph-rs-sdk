@@ -24,9 +24,9 @@ pub struct AppConfig {
     /// to your app
     pub(crate) client_id: Uuid,
     /// Specifies which Microsoft accounts can be used for sign-in with a given application.
-    /// See https://aka.ms/msal-net-application-configuration
+    /// See <https://aka.ms/msal-net-application-configuration>
     pub(crate) authority: Authority,
-    /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
+    /// STS instance (for instance <https://login.microsoftonline.com> for the Azure public cloud).
     /// Maps to the instance url string.
     pub(crate) azure_cloud_instance: AzureCloudInstance,
     pub(crate) extra_query_parameters: HashMap<String, String>,
@@ -44,11 +44,11 @@ pub struct AppConfig {
     /// the .default suffix. All scopes included must be for a single resource.
     /// Including scopes for multiple resources will result in an error.
     ///
-    /// For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
+    /// For the Microsoft Graph example, the value is <https://graph.microsoft.com/.default>.
     /// This value tells the Microsoft identity platform that of all the direct application
     /// permissions you have configured for your app, the endpoint should issue a token for the
     /// ones associated with the resource you want to use. To learn more about the /.default scope,
-    /// see the [consent documentation](https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview#the-default-scope).
+    /// see the [consent documentation](<https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview#the-default-scope>).
     ///
     /// This https://graph.microsoft.com/.default scope is automatically set for
     /// [ClientCredentialsAuthorizationUrlParameters](crate::identity::ClientCredentialsAuthorizationUrlParameters),

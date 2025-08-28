@@ -8,9 +8,10 @@ use test_tools::oauth_request::Environment;
 use test_tools::oauth_request::DEFAULT_ONENOTE_CREDENTIALS_MUTEX;
 use test_tools::support::cleanup::AsyncCleanUp;
 
+// TEST NOW REQUIRES DELEGATED ACCESS (such as auth code flow) CHANGED BY MICROSOFT ON March 31st 2025
 #[tokio::test]
 async fn list_get_notebooks_and_sections() {
-    if Environment::is_appveyor() || Environment::is_github() {
+    if Environment::is_github() {
         return;
     }
 
@@ -77,9 +78,10 @@ async fn list_get_notebooks_and_sections() {
     }
 }
 
+// TEST NOW REQUIRES DELEGATED ACCESS (such as auth code flow) CHANGED BY MICROSOFT ON March 31st 2025
 #[tokio::test]
 async fn create_delete_page_from_file() {
-    if Environment::is_appveyor() || Environment::is_github() {
+    if Environment::is_github() {
         return;
     }
 
@@ -116,9 +118,10 @@ async fn create_delete_page_from_file() {
     }
 }
 
+// TEST NOW REQUIRES DELEGATED ACCESS (such as auth code flow) CHANGED BY MICROSOFT ON March 31st 2025
 #[tokio::test]
 async fn download_page() {
-    if Environment::is_appveyor() || Environment::is_github() {
+    if Environment::is_github() {
         return;
     }
 

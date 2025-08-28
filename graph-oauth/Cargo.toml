@@ -62,7 +62,7 @@ path = "src/identity/credentials/x509_certificate.rs"
 required-features = ["openssl"]
 
 [package.metadata.docs.rs]
-all-features = true
+features = ["openssl", "native-tls", "deflate"]
 
 [lints]
 workspace = true
