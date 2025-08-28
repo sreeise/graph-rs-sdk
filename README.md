@@ -1467,6 +1467,8 @@ We recommend thoroughly testing in order to ensure you are able to use interacti
 Additionally, Device code interactive auth does not currently work in async code.
 We are working to address these issues in a post 2.0.0 release.
 
+Windows, Linux, and macOS is supported but testing for each platform is reccomended. 
+
 ```toml
 [dependencies]
 graph-rs-sdk = { version = "...", features = ["interactive-auth"] }

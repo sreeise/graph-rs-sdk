@@ -18,7 +18,7 @@
 //! The following features can be enabled in the crate:
 //!
 //! * `interactive-auth`: Interactive Authentication using web view on platforms that support it such as on a desktop. Uses the [wry](https://github.com/tauri-apps/wry)
-//! and [tao](https://github.com/tauri-apps/tao) crates for webview support. Supports Linux and Windows platforms. Currently, does not support MacOS - work for this is in progress.
+//! and [tao](https://github.com/tauri-apps/tao) crates for webview support. Supports Windows, Linux, and macOS but testing for each platform is reccomended.
 //! * `openssl`: Enables support for using certificates in Client Credentials and Authorization Code auth flows. Additionally, enables related types such as X509Certificate
 //!   for building/running certificate based auth flows.
 //! * `test-util`: Enables test only features. Currently, this just enables the ability to turn off https only in the http client in order to use mocking frameworks with the crate.
