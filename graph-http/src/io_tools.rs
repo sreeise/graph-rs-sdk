@@ -1,4 +1,4 @@
-use futures::StreamExt;
+use futures_util::StreamExt;
 use graph_error::io_error::{AsyncIoError, ThreadedIoError};
 use std::{
     fs,

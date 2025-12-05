@@ -1,4 +1,4 @@
-use futures::StreamExt;
+use futures_util::StreamExt;
 use graph_error::{GraphFailure, GraphResult};
 use graph_http::api_impl::UploadSession;
 use graph_http::traits::ResponseExt;

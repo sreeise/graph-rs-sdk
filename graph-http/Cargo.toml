@@ -12,7 +12,6 @@ homepage = "https://github.com/sreeise/graph-rs-sdk"
 async-stream = "0.3"
 async-trait = "0.1.35"
 bytes = { version = "1.4.0", features = ["serde"] }
-futures = "0.3.28"
 http = { workspace = true }
 percent-encoding = "2"
 reqwest = { workspace = true, default-features=false, features = ["json", "gzip", "blocking", "stream"] }
@@ -22,7 +21,7 @@ serde_urlencoded = "0.7.1"
 tokio = { version = "1.27.0", features = ["full", "tracing"] }
 url = { version = "2", features = ["serde"] }
 tower = { version = "0.4.13", features = ["limit", "retry", "timeout", "util"] }
-futures-util = "0.3.30"
+futures-util = { version = "0.3.30", default-features = false }
 
 graph-error = { path = "../graph-error"  }
 graph-core = { path = "../graph-core", default-features = false }

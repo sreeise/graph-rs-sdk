@@ -1,4 +1,4 @@
-use futures::StreamExt;
+use futures_util::StreamExt;
 use std::collections::VecDeque;
 use test_tools::oauth_request::{Environment, DEFAULT_CLIENT_CREDENTIALS_MUTEX4};
 

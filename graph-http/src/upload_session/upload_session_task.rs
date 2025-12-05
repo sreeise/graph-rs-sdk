@@ -2,7 +2,7 @@ use crate::traits::AsyncIterator;
 use crate::upload_session::RangeIter;
 use async_stream::try_stream;
 use async_trait::async_trait;
-use futures::Stream;
+use futures_util::Stream;
 use graph_error::{GraphFailure, GraphResult};
 use reqwest::header::HeaderMap;
 use reqwest::RequestBuilder;
@@ -107,7 +107,7 @@ impl UploadSession {
     /// # Example
     /// ```rust,ignore
     /// use graph_rs_sdk::*;
-    /// use futures::stream::StreamExt;
+    /// use futures_util::stream::StreamExt;
     /// use std::fs::OpenOptions;
     ///
     /// static ACCESS_TOKEN: &str = "ACCESS_TOKEN";

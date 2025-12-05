@@ -4,7 +4,7 @@ use crate::internal::{
     RequestComponents,
 };
 use async_stream::try_stream;
-use futures::Stream;
+use futures_util::Stream;
 use graph_error::{AuthExecutionResult, ErrorMessage, GraphFailure, GraphResult};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
 use reqwest::{Request, Response};

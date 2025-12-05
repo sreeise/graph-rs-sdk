@@ -36,16 +36,16 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ```
 
-To use [stream](#streaming) features add the [futures](https://crates.io/crates/futures) crate:
+To use [stream](#streaming) features add the [futures-util](https://crates.io/crates/futures-util) crate:
 
 ```toml
-futures = "0.3"
+futures_util = { version = "0.3", default-features = false }
 ```
 
-And import `futures::StreamExt`.
+And import `futures_util::StreamExt`.
 
 ```rust
-use futures::StreamExt;
+use futures_util::StreamExt;
 use graph_rs_sdk::*;
 ```
 
@@ -370,7 +370,7 @@ stream the next link responses or use a channel receiver to get the responses.
 Streaming is only available using the async client.
 
 ```rust
-use futures::StreamExt;
+use futures_util::StreamExt;
 use graph_rs_sdk::*;
 
 static ACCESS_TOKEN: &str = "ACCESS_TOKEN";

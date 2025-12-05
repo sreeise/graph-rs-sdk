@@ -49,7 +49,7 @@ impl AsyncCleanUp {
     pub fn new_remove_existing(path: &str) -> AsyncCleanUp {
         let path = Path::new(path);
         if path.exists() {
-            futures::executor::block_on(tokio::fs::remove_file(path)).unwrap();
+            std::fs::remove_file(path).unwrap();
         }
         AsyncCleanUp::default()
     }
@@ -64,7 +64,7 @@ impl Drop for AsyncCleanUp {
         for s in &self.rm_f {
             let path = Path::new(s.as_str());
             if path.exists() {
-                futures::executor::block_on(tokio::fs::remove_file(path)).unwrap();
+                std::fs::remove_file(path).unwrap();
             }
         }
     }

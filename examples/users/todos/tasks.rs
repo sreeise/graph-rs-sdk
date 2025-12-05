@@ -1,4 +1,4 @@
-use futures::StreamExt;
+use futures_util::StreamExt;
 use graph_rs_sdk::error::GraphResult;
 use graph_rs_sdk::GraphClient;
 use std::collections::VecDeque;

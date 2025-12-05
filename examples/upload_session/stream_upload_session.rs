@@ -2,7 +2,7 @@ use bytes::{Buf, BytesMut};
 use graph_rs_sdk::http::ResponseExt;
 use graph_rs_sdk::*;
 
-use futures::StreamExt;
+use futures_util::StreamExt;
 
 // Stream bytes to a file in OneDrive
 // See https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession?view=odsp-graph-online

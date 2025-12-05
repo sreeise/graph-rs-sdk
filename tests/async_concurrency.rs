@@ -1,4 +1,4 @@
-use futures::stream::{self, StreamExt};
+use futures_util::stream::{self, StreamExt};
 use graph_http::traits::ODataNextLink;
 use graph_rs_sdk::*;
 use serde::Deserialize;
