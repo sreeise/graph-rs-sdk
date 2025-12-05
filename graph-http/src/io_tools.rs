@@ -30,6 +30,7 @@ pub fn copy(
     let handle = thread::spawn::<_, Result<(), ThreadedIoError>>(move || {
         let mut file_writer = fs::OpenOptions::new()
             .create(true)
+            .truncate(true)
             .write(true)
             .read(true)
             .open(&path)?;
@@ -48,6 +49,7 @@ pub async fn copy_async(
 ) -> Result<PathBuf, AsyncIoError> {
     let mut file = tokio::fs::OpenOptions::new()
         .create(true)
+        .truncate(true)
         .write(true)
         .read(true)
         .open(&path)

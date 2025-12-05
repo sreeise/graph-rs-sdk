@@ -1,5 +1,6 @@
 use graph_error::GraphFailure;
 use std::ffi::OsStr;
+use std::fmt::{self, Display};
 use std::ops::{Deref, Index, Range, RangeFrom, RangeFull, RangeTo};
 use std::str::FromStr;
 use url::form_urlencoded::Serializer;
@@ -58,7 +59,7 @@ impl GraphUrl {
     }
 
     #[allow(clippy::result_unit_err)]
-    pub fn path_segments_mutable(&mut self) -> Result<PathSegmentsMut, ()> {
+    pub fn path_segments_mutable(&mut self) -> Result<PathSegmentsMut<'_>, ()> {
         self.url.path_segments_mut()
     }
 
@@ -77,7 +78,7 @@ impl GraphUrl {
         Url::parse(self.as_str()).unwrap()
     }
 
-    pub fn query_pairs_mutable(&mut self) -> Serializer<UrlQuery> {
+    pub fn query_pairs_mutable(&mut self) -> Serializer<'_, UrlQuery<'_>> {
         self.url.query_pairs_mut()
     }
 
@@ -235,9 +236,9 @@ impl AsMut<Url> for GraphUrl {
     }
 }
 
-impl ToString for GraphUrl {
-    fn to_string(&self) -> String {
-        self.url[..].to_string()
+impl Display for GraphUrl {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.url)
     }
 }
 

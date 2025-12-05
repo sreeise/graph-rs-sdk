@@ -536,7 +536,7 @@ impl OpenIdAuthorizationUrlParameterBuilder {
     /// - **prompt=select_account** interrupts single sign-on providing account selection experience
     ///     listing all the accounts either in session or any remembered account or an option to choose to use a different account altogether.
     pub fn with_prompt<I: IntoIterator<Item = Prompt>>(&mut self, prompt: I) -> &mut Self {
-        self.credential.prompt.extend(prompt.into_iter());
+        self.credential.prompt.extend(prompt);
         self
     }
 

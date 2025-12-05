@@ -11,7 +11,7 @@ pub(crate) fn map_parameters(params: &[&str]) -> serde_json::Value {
         if i == 0 {
             map.entry("id").or_insert(serde_json::json!(param));
         } else {
-            map.entry(&format!("id{}", i + 1))
+            map.entry(format!("id{}", i + 1))
                 .or_insert(serde_json::json!(param));
         }
     }

@@ -181,7 +181,7 @@ impl AuthSerializer {
     /// This `enum` is constructed from the [`entry`] method on [`BTreeMap`].
     ///
     /// [`entry`]: BTreeMap::entry
-    pub fn entry<V: ToString>(&mut self, oac: AuthParameter) -> Entry<String, String> {
+    pub fn entry<V: ToString>(&mut self, oac: AuthParameter) -> Entry<'_, String, String> {
         self.parameters.entry(oac.alias().to_string())
     }
 

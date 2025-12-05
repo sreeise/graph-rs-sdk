@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use std::hash::Hash;
+use std::{collections::HashSet, slice};
 
 use url::{Host, Url};
 
@@ -84,7 +84,7 @@ impl AllowedHostValidator {
     }
 
     pub fn validate_url(&self, url: &Url) -> HostIs {
-        self.validate_hosts(&[url.clone()])
+        self.validate_hosts(slice::from_ref(url))
     }
 }
 

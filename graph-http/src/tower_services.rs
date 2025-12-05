@@ -12,7 +12,7 @@ use reqwest::{Request, Response};
 #[derive(Clone)]
 pub(crate) struct Attempts(pub usize);
 
-impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send + Sync + 'static)>>
+impl tower::retry::Policy<Request, Response, Box<dyn std::error::Error + Send + Sync + 'static>>
     for Attempts
 {
     type Future = future::Ready<Self>;
@@ -20,7 +20,7 @@ impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send +
     fn retry(
         &self,
         _req: &Request,
-        result: Result<&Response, &Box<(dyn std::error::Error + Send + Sync + 'static)>>,
+        result: Result<&Response, &Box<dyn std::error::Error + Send + Sync + 'static>>,
     ) -> Option<Self::Future> {
         match result {
             Ok(response) => {
@@ -47,7 +47,7 @@ impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send +
 #[derive(Clone)]
 pub(crate) struct WaitFor();
 
-impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send + Sync + 'static)>>
+impl tower::retry::Policy<Request, Response, Box<dyn std::error::Error + Send + Sync + 'static>>
     for WaitFor
 {
     type Future = future::Either<future::Ready<Self>, WaitBeforeRetry<Self>>;
@@ -55,7 +55,7 @@ impl tower::retry::Policy<Request, Response, Box<(dyn std::error::Error + Send +
     fn retry(
         &self,
         _req: &Request,
-        result: Result<&Response, &Box<(dyn std::error::Error + Send + Sync + 'static)>>,
+        result: Result<&Response, &Box<dyn std::error::Error + Send + Sync + 'static>>,
     ) -> Option<Self::Future> {
         match result {
             Ok(response) => match response.status() {
