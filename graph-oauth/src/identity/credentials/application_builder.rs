@@ -15,11 +15,11 @@ use crate::identity::{
 };
 use crate::AuthorizationCodeSpaCredentialBuilder;
 use graph_error::{IdentityResult, AF};
+use graph_http::api_impl::GraphClientConfiguration;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use std::env::VarError;
 use uuid::Uuid;
-use graph_http::api_impl::GraphClientConfiguration;
 
 pub struct ConfidentialClientApplicationBuilder {
     pub(crate) app_config: AppConfig,
@@ -101,7 +101,10 @@ impl ConfidentialClientApplicationBuilder {
     }
 
     /// Configure http client settings using GraphClientConfiguration
-    pub fn with_config(&mut self, graph_client_configuration: GraphClientConfiguration) -> &mut Self {
+    pub fn with_config(
+        &mut self,
+        graph_client_configuration: GraphClientConfiguration,
+    ) -> &mut Self {
         self.app_config.with_config(graph_client_configuration);
         self
     }
@@ -328,7 +331,10 @@ impl PublicClientApplicationBuilder {
     }
 
     /// Configure http client settings using GraphClientConfiguration
-    pub fn with_config(&mut self, graph_client_configuration: GraphClientConfiguration) -> &mut Self {
+    pub fn with_config(
+        &mut self,
+        graph_client_configuration: GraphClientConfiguration,
+    ) -> &mut Self {
         self.app_config.with_config(graph_client_configuration);
         self
     }

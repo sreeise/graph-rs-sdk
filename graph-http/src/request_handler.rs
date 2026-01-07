@@ -6,7 +6,8 @@ use crate::internal::{
 use async_stream::try_stream;
 use futures::Stream;
 use graph_error::{AuthExecutionResult, ErrorMessage, GraphFailure, GraphResult};
-use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
+use http::Method;
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_LENGTH, CONTENT_TYPE};
 use reqwest::{Request, Response};
 use serde::de::DeserializeOwned;
 use std::collections::VecDeque;
@@ -196,6 +197,18 @@ impl RequestHandler {
                     .body::<reqwest::Body>(body.into())
                     .headers(self.request_components.headers.clone()),
             ));
+        } else if matches!(
+            self.request_components.method,
+            Method::POST | Method::PUT | Method::PATCH
+        ) {
+            self.request_components
+                .headers
+                .entry(CONTENT_LENGTH)
+                .or_insert(HeaderValue::from_static("0"));
+            return Ok((
+                access_token,
+                request_builder.headers(self.request_components.headers.clone()),
+            ));
         }
         Ok((access_token, request_builder))
     }
@@ -232,6 +245,15 @@ impl RequestHandler {
             return Ok(request_builder
                 .body::<reqwest::Body>(body.into())
                 .headers(self.request_components.headers.clone()));
+        } else if matches!(
+            self.request_components.method,
+            Method::POST | Method::PUT | Method::PATCH
+        ) {
+            self.request_components
+                .headers
+                .entry(CONTENT_LENGTH)
+                .or_insert(HeaderValue::from_static("0"));
+            return Ok(request_builder.headers(self.request_components.headers.clone()));
         }
 
         Ok(request_builder)
