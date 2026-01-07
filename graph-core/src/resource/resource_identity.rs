@@ -1,5 +1,5 @@
-use std::fmt::Display;
 use inflector::Inflector;
+use std::fmt::Display;
 
 /// Comprises both top level and second level resources.
 /// These are not generated from OpenApi, except for top level resources,
