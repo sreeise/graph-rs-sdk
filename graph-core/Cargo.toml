@@ -10,7 +10,7 @@ homepage = "https://github.com/sreeise/graph-rs-sdk"
 
 [dependencies]
 async-trait = "0.1.35"
-base64 = "0.21.0"
+base64 = "0.22.0"
 dyn-clone = "1.0.14"
 Inflector = "0.11.4"
 http = { workspace = true }
