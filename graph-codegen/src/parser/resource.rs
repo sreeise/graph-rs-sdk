@@ -1,6 +1,6 @@
 use crate::parser::RequestSet;
 use from_as::*;
-use inflector::Inflector;
+use heck::ToLowerCamelCase;
 use std::{
     collections::{BTreeSet, HashMap, VecDeque},
     convert::TryFrom,
@@ -23,7 +23,7 @@ impl ResourceNames {
 
     pub fn sort(&mut self) {
         let mut v: Vec<String> = self.to_vec();
-        v = v.iter().map(|s| s.to_camel_case()).collect();
+        v = v.iter().map(|s| s.to_lower_camel_case()).collect();
         v.sort();
         self.names = v.into_iter().collect();
     }
@@ -39,7 +39,7 @@ impl From<Vec<String>> for ResourceNames {
             vec.retain(|s| !s.is_empty());
             if let Some(name) = vec.pop_front() {
                 if !name.is_empty() {
-                    names.push(name.to_camel_case());
+                    names.push(name.to_lower_camel_case());
                 }
             }
         }
@@ -73,7 +73,7 @@ impl From<HashMap<String, RequestSet>> for ResourceNames {
     fn from(map: HashMap<String, RequestSet>) -> Self {
         let mut resource_names = ResourceNames::default();
         for (name, _request_set) in map.iter() {
-            resource_names.names.insert(name.to_camel_case());
+            resource_names.names.insert(name.to_lower_camel_case());
         }
         resource_names
     }

@@ -62,7 +62,7 @@ use crate::traits::RequestParser;
 use from_as::*;
 use graph_error::GraphFailure;
 use graph_http::url::GraphUrl;
-use inflector::Inflector;
+use heck::ToUpperCamelCase;
 use rayon::prelude::*;
 use reqwest::Url;
 use serde_json::Value;
@@ -305,7 +305,7 @@ impl OpenApi {
             .map(|(path, _path_item)| {
                 path.split('/')
                     .filter(|s| !s.trim().is_empty())
-                    .map(|s| s.to_pascal_case())
+                    .map(|s| s.to_upper_camel_case())
                     .take(1)
                     .collect()
             })

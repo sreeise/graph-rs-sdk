@@ -3,7 +3,7 @@ use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_error::{GraphFailure, GraphResult};
 use graph_http::io_tools::create_dir;
-use inflector::Inflector;
+use heck::ToSnakeCase;
 use std::collections::HashSet;
 use std::fs::OpenOptions;
 use std::io::{Read, Write};

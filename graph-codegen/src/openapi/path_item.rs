@@ -3,7 +3,7 @@ use crate::openapi::{EitherT, Operation, Parameter, Reference, Server};
 use crate::parser::HttpMethod;
 use crate::traits::{PathMatcher, RequestParser};
 use from_as::*;
-use inflector::Inflector;
+use heck::ToSnakeCase;
 use std::collections::{HashMap, HashSet};
 use std::{
     collections::VecDeque,

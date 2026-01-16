@@ -2,7 +2,7 @@ use crate::api_types::RequestTask;
 use crate::parser::HttpMethod;
 use crate::settings::{GeneratedMacroType, MethodMacroModifier};
 use from_as::*;
-use inflector::Inflector;
+use heck::ToSnakeCase;
 use std::io::{Read, Write};
 
 /// Represents the macro used for describing requests. This is the outer

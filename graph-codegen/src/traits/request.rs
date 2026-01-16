@@ -2,7 +2,7 @@ use crate::parser::error::ParseError;
 use crate::parser::{HttpMethod, Request};
 use crate::traits::HashMapExt;
 use from_as::*;
-use inflector::Inflector;
+use heck::{ToSnakeCase, ToUpperCamelCase};
 use regex::Regex;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::io::{Read, Write};
@@ -511,9 +511,9 @@ impl RequestParser for &str {
                 vec.retain(|l| !l.is_empty());
                 let first = vec.pop_front().unwrap();
                 let last = vec.pop_front().unwrap();
-                map.entry_modify_insert(first.to_pascal_case(), last.to_pascal_case());
+                map.entry_modify_insert(first.to_upper_camel_case(), last.to_upper_camel_case());
             } else {
-                map.insert(link.to_pascal_case(), vec![]);
+                map.insert(link.to_upper_camel_case(), vec![]);
             }
         }
 

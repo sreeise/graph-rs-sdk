@@ -3,7 +3,6 @@ use crate::api_types::{
     RequestTask,
 };
 use crate::api_types::{ModWriteConfiguration, WriteConfiguration};
-use crate::inflector::Inflector;
 use crate::openapi::OpenApi;
 use crate::settings::{get_method_macro_modifiers, ResourceSettings};
 use anyhow::anyhow;
@@ -11,6 +10,7 @@ use bytes::{BufMut, BytesMut};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
 use graph_http::io_tools::create_dir;
+use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::fmt::Debug;
 use std::fmt::Write as _;
@@ -360,9 +360,9 @@ pub trait MacroImplWriter {
         let ris: VecDeque<(String, ResourceIdentity)> = keys
             .iter()
             .map(|key| {
-                let key_id = key.to_pascal_case();
+                let key_id = key.to_upper_camel_case();
                 if key_id.ends_with("Id") {
-                    let key_id_stripped = key.to_camel_case()[..key.len() - 2].to_string();
+                    let key_id_stripped = key.to_lower_camel_case()[..key.len() - 2].to_string();
                     (
                         key_id.clone(),
                         ResourceIdentity::from_str(key_id_stripped.as_str())
@@ -371,7 +371,7 @@ pub trait MacroImplWriter {
                 } else {
                     (
                         key_id.clone(),
-                        ResourceIdentity::from_str(&key.to_camel_case())
+                        ResourceIdentity::from_str(&key.to_lower_camel_case())
                             .unwrap_or_else(|_| panic!("Unable to find variant for {key_id}")),
                     )
                 }
@@ -402,13 +402,13 @@ pub trait MacroImplWriter {
 
         let client_names: Vec<String> = keys
             .iter()
-            .map(|name| format!("{}ApiClient", name.to_pascal_case()))
+            .map(|name| format!("{}ApiClient", name.to_upper_camel_case()))
             .collect();
 
         // Build ApiClientLink enum to add the client being generated as a method link from one client
         // to another. This is for ease of use and doesnt always work for ever client name.
         for (name, _) in ris.iter() {
-            let client_name = format!("{}ApiClient", name.to_pascal_case());
+            let client_name = format!("{}ApiClient", name.to_upper_camel_case());
             if client_name.contains("Id") {
                 let mut method_name = name.to_snake_case();
                 if method_name.ends_with("s_id") && !method_name.ends_with("es_id") {

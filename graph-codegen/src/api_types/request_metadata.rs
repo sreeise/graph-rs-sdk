@@ -2,13 +2,13 @@ use crate::api_types::metadata_modifier::ModifierMap;
 use crate::api_types::WriteConfiguration;
 use crate::api_types::{Metadata, MetadataModifier, MethodMacro, RequestClientList, RequestTask};
 use crate::filter::Filter;
-use crate::inflector::Inflector;
 use crate::macros::{MacroImplWriter, MacroQueueWriter};
 use crate::openapi::{OpenApi, PathItem};
 use crate::parser::HttpMethod;
 use crate::traits::{FilterMetadata, RequestParser, INTERNAL_PATH_ID};
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
+use heck::{ToSnakeCase, ToUpperCamelCase};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::io::{Read, Write};
 use std::str::FromStr;
@@ -75,16 +75,16 @@ impl RequestMetadata {
             self.parent = format!("{resource_id_string}Id");
             self.original_parent = resource_id_string;
         } else {
-            self.parent = format!("{}Id", original_parent.to_pascal_case());
-            self.original_parent = original_parent.to_pascal_case();
+            self.parent = format!("{}Id", original_parent.to_upper_camel_case());
+            self.original_parent = original_parent.to_upper_camel_case();
             self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
         }
     }
 
     pub fn transform_secondary_request(&mut self, operation_mapping: &str, original_parent: &str) {
         self.operation_mapping = operation_mapping.to_string();
-        self.parent = original_parent.to_pascal_case();
-        self.original_parent = original_parent.to_pascal_case();
+        self.parent = original_parent.to_upper_camel_case();
+        self.original_parent = original_parent.to_upper_camel_case();
         self.resource_identity = ResourceIdentity::from_str(&self.original_parent).ok();
     }
 
@@ -150,7 +150,7 @@ impl Metadata for RequestMetadata {
 impl MetadataModifier for RequestMetadata {
     fn replace_operation_mapping(&mut self, replacement: &str) {
         self.operation_mapping = replacement.to_string();
-        self.parent = replacement.to_pascal_case();
+        self.parent = replacement.to_upper_camel_case();
     }
 
     fn replace_operation_id(&mut self, replacement: &str) {

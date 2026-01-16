@@ -1,6 +1,6 @@
 #![recursion_limit = "1024"]
 #![allow(deprecated)]
-pub extern crate inflector;
+pub extern crate heck;
 #[macro_use]
 extern crate derive_builder;
 #[macro_use]

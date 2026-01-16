@@ -3,7 +3,7 @@ use crate::{
     traits::{HashMapExt, RequestParser},
 };
 use from_as::*;
-use inflector::Inflector;
+use heck::ToLowerCamelCase;
 use std::{
     collections::{
         hash_set::{Difference, Iter},
@@ -366,7 +366,7 @@ impl RequestSet {
             vec.retain(|s| !s.is_empty());
             if let Some(name) = vec.pop_front() {
                 if !name.is_empty() {
-                    names.push(name.to_camel_case());
+                    names.push(name.to_lower_camel_case());
                 }
             }
         }

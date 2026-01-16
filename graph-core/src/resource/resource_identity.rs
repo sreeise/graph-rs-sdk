@@ -1,5 +1,5 @@
 use std::fmt::Display;
-use inflector::Inflector;
+use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 
 /// Comprises both top level and second level resources.
 /// These are not generated from OpenApi, except for top level resources,
@@ -409,7 +409,7 @@ impl Display for ResourceIdentity {
             ResourceIdentity::DevicesRegisteredUsers => "registeredUsers".into(),
             ResourceIdentity::Custom => "".into(),
 
-            _ => self.as_ref().to_camel_case(),
+            _ => self.as_ref().to_lower_camel_case(),
         };
         write!(f, "{}", str)
     }
@@ -429,11 +429,11 @@ impl ResourceIdentity {
     }
 
     pub fn exact_camel_case(&self) -> String {
-        self.as_ref().to_camel_case()
+        self.as_ref().to_lower_camel_case()
     }
 
     pub fn exact_pascal_case(&self) -> String {
-        self.as_ref().to_pascal_case()
+        self.as_ref().to_upper_camel_case()
     }
 
     pub fn exact_snake_case(&self) -> String {
@@ -533,6 +533,6 @@ pub enum TopLevelResource {
 
 impl Display for TopLevelResource {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.as_ref().to_camel_case())
+        write!(f, "{}", self.as_ref().to_lower_camel_case())
     }
 }

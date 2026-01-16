@@ -1,5 +1,4 @@
 use crate::api_types::RequestMetadata;
-use crate::inflector::Inflector;
 use crate::parser::HttpMethod;
 use crate::{
     openapi::{
@@ -10,6 +9,7 @@ use crate::{
 };
 use from_as::*;
 use graph_core::resource::ResourceIdentity;
+use heck::{ToLowerCamelCase, ToUpperCamelCase};
 use std::str::FromStr;
 use std::{
     collections::{HashMap, VecDeque},
@@ -158,13 +158,17 @@ impl Operation {
 
         if operation_mapping.contains('.') {
             let v: Vec<&str> = operation_mapping.split('.').collect();
-            parent = v.last().map(|s| s.to_pascal_case()).unwrap_or_default();
+            parent = v
+                .last()
+                .map(|s| s.to_upper_camel_case())
+                .unwrap_or_default();
         } else {
-            parent = operation_mapping.to_pascal_case();
+            parent = operation_mapping.to_upper_camel_case();
         }
 
         let original_parent = parent.clone();
-        let resource_identity = ResourceIdentity::from_str(&original_parent.to_camel_case()).ok();
+        let resource_identity =
+            ResourceIdentity::from_str(&original_parent.to_lower_camel_case()).ok();
 
         RequestMetadata {
             has_body: self.has_body(),
