@@ -1249,18 +1249,17 @@ async fn build_client(
 #### Authorization Code Secret With Proof Key Code Exchange
 
 ```rust
+use std::sync::LazyLock;
+
 use graph_rs_sdk::identity::{
   AuthorizationCodeCredential, ConfidentialClientApplication, GenPkce,
   ProofKeyCodeExchange, TokenCredentialExecutor,
 };
-use lazy_static::lazy_static;
 use url::Url;
 
 // You can also pass your own values for PKCE instead of automatic generation by
 // calling ProofKeyCodeExchange::new(code_verifier, code_challenge, code_challenge_method)
-lazy_static! {
-    static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
-}
+static PKCE: LazyLock<ProofKeyCodeExchange> = LazyLock::new(|| ProofKeyCodeExchange::oneshot().unwrap());
 
 fn authorization_sign_in_url(client_id: &str, redirect_uri: url::Url, scope: Vec<String>) -> anyhow::Result<Url> {
   Ok(AuthorizationCodeCredential::authorization_url_builder(client_id)
@@ -1292,16 +1291,15 @@ fn build_confidential_client(
 For use with Spa applications which does not use a client secret.
 
 ```rust
+use std::sync::LazyLock;
+
 use graph_rs_sdk::identity::{
   AuthorizationCodeSpaCredential, PublicClientApplication, GenPkce, ProofKeyCodeExchange,
   TokenCredentialExecutor,
 };
-use lazy_static::lazy_static;
 use url::Url;
 
-lazy_static! {
-    static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
-}
+static PKCE: LazyLock<ProofKeyCodeExchange> = LazyLock::new(|| ProofKeyCodeExchange::oneshot().unwrap());
 
 fn authorization_sign_in_url(
   client_id: &str,

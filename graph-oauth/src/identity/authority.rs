@@ -1,24 +1,22 @@
-use std::fmt::Display;
+use std::{fmt::Display, sync::LazyLock};
 use url::{ParseError, Url};
 
-lazy_static! {
-    pub static ref AZURE_PUBLIC_CLOUD_INSTANCE: Url = {
-        Url::parse(AzureCloudInstance::AzurePublic.as_ref())
-            .expect("Unable to create Azure Public Cloud Instance Url")
-    };
-    pub static ref AZURE_CHINA_CLOUD_INSTANCE: Url = {
-        Url::parse(AzureCloudInstance::AzureChina.as_ref())
-            .expect("Unable to create Azure China Cloud Instance Url")
-    };
-    pub static ref AZURE_GERMANY_CLOUD_INSTANCE: Url = {
-        Url::parse(AzureCloudInstance::AzureGermany.as_ref())
-            .expect("Unable to create Azure Germany Cloud Instance Url")
-    };
-    pub static ref AZURE_US_GOVERNMENT: Url = {
-        Url::parse(AzureCloudInstance::AzureUsGovernment.as_ref())
-            .expect("Unable to create Azure Us Government Cloud Instance Url")
-    };
-}
+pub static AZURE_PUBLIC_CLOUD_INSTANCE: LazyLock<Url> = LazyLock::new(|| {
+    Url::parse(AzureCloudInstance::AzurePublic.as_ref())
+        .expect("Unable to create Azure Public Cloud Instance Url")
+});
+pub static AZURE_CHINA_CLOUD_INSTANCE: LazyLock<Url> = LazyLock::new(|| {
+    Url::parse(AzureCloudInstance::AzureChina.as_ref())
+        .expect("Unable to create Azure China Cloud Instance Url")
+});
+pub static AZURE_GERMANY_CLOUD_INSTANCE: LazyLock<Url> = LazyLock::new(|| {
+    Url::parse(AzureCloudInstance::AzureGermany.as_ref())
+        .expect("Unable to create Azure Germany Cloud Instance Url")
+});
+pub static AZURE_US_GOVERNMENT: LazyLock<Url> = LazyLock::new(|| {
+    Url::parse(AzureCloudInstance::AzureUsGovernment.as_ref())
+        .expect("Unable to create Azure Us Government Cloud Instance Url")
+});
 
 /// STS instance (for instance https://login.microsoftonline.com for the Azure public cloud).
 /// Maps to the instance url string.

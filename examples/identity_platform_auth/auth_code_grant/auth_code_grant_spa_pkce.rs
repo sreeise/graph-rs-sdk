@@ -1,15 +1,15 @@
+use std::sync::LazyLock;
+
 use graph_rs_sdk::identity::{
     AuthorizationCodeSpaCredential, GenPkce, ProofKeyCodeExchange, PublicClientApplication,
     TokenCredentialExecutor,
 };
-use lazy_static::lazy_static;
 use url::Url;
 
 // You can also pass your own values for PKCE instead of automatic generation by
 // calling ProofKeyCodeExchange::new(code_verifier, code_challenge, code_challenge_method)
-lazy_static! {
-    static ref PKCE: ProofKeyCodeExchange = ProofKeyCodeExchange::oneshot().unwrap();
-}
+static PKCE: LazyLock<ProofKeyCodeExchange> =
+    LazyLock::new(|| ProofKeyCodeExchange::oneshot().unwrap());
 
 // This example shows how Spa applications can use a code_challenge and code_verifier
 // to perform the authorization code grant flow with proof key for

@@ -7,8 +7,6 @@ extern crate derive_builder;
 extern crate serde;
 extern crate from_as;
 extern crate serde_json;
-#[macro_use]
-extern crate lazy_static;
 extern crate strum;
 
 pub mod api_types;

@@ -1,12 +1,9 @@
-#[macro_use]
-extern crate lazy_static;
+use std::sync::LazyLock;
 
 use graph_rs_sdk::*;
 use test_tools::common::TestTools;
 
-lazy_static! {
-    static ref ID_VEC: Vec<String> = TestTools::random_strings(4, 20);
-}
+static ID_VEC: LazyLock<Vec<String>> = LazyLock::new(|| TestTools::random_strings(4, 20));
 
 #[test]
 fn communications_calls() {

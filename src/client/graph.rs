@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use crate::admin::AdminApiClient;
 use crate::agreement_acceptances::{
     AgreementAcceptancesApiClient, AgreementAcceptancesIdApiClient,
@@ -72,13 +74,11 @@ use crate::users::{UsersApiClient, UsersIdApiClient};
 use crate::{GRAPH_URL, GRAPH_URL_BETA};
 use graph_core::identity::ForceTokenRefresh;
 use graph_oauth::AuthorizationCodeSpaCredential;
-use lazy_static::lazy_static;
 
-lazy_static! {
-    static ref PARSED_GRAPH_URL: Url = Url::parse(GRAPH_URL).expect("Unable to set v1 endpoint");
-    static ref PARSED_GRAPH_URL_BETA: Url =
-        Url::parse(GRAPH_URL_BETA).expect("Unable to set beta endpoint");
-}
+static PARSED_GRAPH_URL: LazyLock<Url> =
+    LazyLock::new(|| Url::parse(GRAPH_URL).expect("Unable to set v1 endpoint"));
+static PARSED_GRAPH_URL_BETA: LazyLock<Url> =
+    LazyLock::new(|| Url::parse(GRAPH_URL_BETA).expect("Unable to set beta endpoint"));
 
 // For backwards compatibility.
 pub type Graph = GraphClient;

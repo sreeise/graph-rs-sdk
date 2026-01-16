@@ -11,6 +11,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 use std::env;
 use std::io::{Read, Write};
+use std::sync::LazyLock;
 
 use graph_core::identity::ClientApplication;
 
@@ -49,25 +50,26 @@ impl GraphTestClient {
 
 // static mutex's that are used for preventing test failures
 // due to too many concurrent requests (throttling) for Microsoft Graph.
-lazy_static! {
-    pub static ref ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
-    pub static ref ASYNC_THROTTLE_MUTEX2: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
-    pub static ref DRIVE_ASYNC_THROTTLE_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::new(());
-    pub static ref DRIVE_ASYNC_THROTTLE_MUTEX2: tokio::sync::Mutex<()> =
-        tokio::sync::Mutex::new(());
-    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX: tokio::sync::Mutex<GraphTestClient> =
-        GraphTestClient::new_mutex();
-    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX2: tokio::sync::Mutex<GraphTestClient> =
-        GraphTestClient::new_mutex();
-    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX3: tokio::sync::Mutex<GraphTestClient> =
-        GraphTestClient::new_mutex();
-    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX4: tokio::sync::Mutex<GraphTestClient> =
-        GraphTestClient::new_mutex();
-    pub static ref DEFAULT_CLIENT_CREDENTIALS_MUTEX5: tokio::sync::Mutex<GraphTestClient> =
-        GraphTestClient::new_mutex();
-    pub static ref DEFAULT_ONENOTE_CREDENTIALS_MUTEX: tokio::sync::Mutex<GraphTestClient> =
-        GraphTestClient::new_mutex_from_identity(ResourceIdentity::Onenote);
-}
+pub static ASYNC_THROTTLE_MUTEX: LazyLock<tokio::sync::Mutex<()>> =
+    LazyLock::new(|| tokio::sync::Mutex::new(()));
+pub static ASYNC_THROTTLE_MUTEX2: LazyLock<tokio::sync::Mutex<()>> =
+    LazyLock::new(|| tokio::sync::Mutex::new(()));
+pub static DRIVE_ASYNC_THROTTLE_MUTEX: LazyLock<tokio::sync::Mutex<()>> =
+    LazyLock::new(|| tokio::sync::Mutex::new(()));
+pub static DRIVE_ASYNC_THROTTLE_MUTEX2: LazyLock<tokio::sync::Mutex<()>> =
+    LazyLock::new(|| tokio::sync::Mutex::new(()));
+pub static DEFAULT_CLIENT_CREDENTIALS_MUTEX: LazyLock<tokio::sync::Mutex<GraphTestClient>> =
+    LazyLock::new(|| GraphTestClient::new_mutex());
+pub static DEFAULT_CLIENT_CREDENTIALS_MUTEX2: LazyLock<tokio::sync::Mutex<GraphTestClient>> =
+    LazyLock::new(|| GraphTestClient::new_mutex());
+pub static DEFAULT_CLIENT_CREDENTIALS_MUTEX3: LazyLock<tokio::sync::Mutex<GraphTestClient>> =
+    LazyLock::new(|| GraphTestClient::new_mutex());
+pub static DEFAULT_CLIENT_CREDENTIALS_MUTEX4: LazyLock<tokio::sync::Mutex<GraphTestClient>> =
+    LazyLock::new(|| GraphTestClient::new_mutex());
+pub static DEFAULT_CLIENT_CREDENTIALS_MUTEX5: LazyLock<tokio::sync::Mutex<GraphTestClient>> =
+    LazyLock::new(|| GraphTestClient::new_mutex());
+pub static DEFAULT_ONENOTE_CREDENTIALS_MUTEX: LazyLock<tokio::sync::Mutex<GraphTestClient>> =
+    LazyLock::new(|| GraphTestClient::new_mutex_from_identity(ResourceIdentity::Onenote));
 
 //pub const APPLICATIONS_CLIENT: Mutex<Option<(String, Graph)>> = Mutex::new(OAuthTestClient::graph_by_rid(ResourceIdentity::Applications));
 

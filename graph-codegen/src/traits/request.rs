@@ -7,44 +7,55 @@ use regex::Regex;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::io::{Read, Write};
 use std::str::FromStr;
+use std::sync::LazyLock;
 
-lazy_static! {
-    /// Matches any number. Some of the graph request data has
-    /// numbers in the name of the operation id such as
-    /// groups.users.get.23a. This becomes an issue when parsing
-    /// the resource id. For instance, the method name for an
-    /// individual request is taken from the last part of the resource id
-    /// and method names really should not be named 23a.
-    static ref NUM_REG: Regex = Regex::new(r"[0-9]").unwrap();
+/// Matches any number. Some of the graph request data has
+/// numbers in the name of the operation id such as
+/// groups.users.get.23a. This becomes an issue when parsing
+/// the resource id. For instance, the method name for an
+/// individual request is taken from the last part of the resource id
+/// and method names really should not be named 23a.
+static NUM_REG: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[0-9]").unwrap());
 
-    /// matches ids attached to the resource name such as groups({id}).
-    static ref PATH_ID_REG: Regex = Regex::new(r"(\(\{)(\w+)(}\))").unwrap();
+/// matches ids attached to the resource name such as groups({id}).
+static PATH_ID_REG: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(\(\{)(\w+)(}\))").unwrap());
 
-    /// Matches named ids such as {group-id}.
-    pub static ref PATH_ID_NAMED_REG: Regex = Regex::new(r"(\{)(\w+-\w+)(})").unwrap();
+/// Matches named ids such as {group-id}.
+pub static PATH_ID_NAMED_REG: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(\{)(\w+-\w+)(})").unwrap());
 
-    pub static ref INTERNAL_PATH_ID: Regex = Regex::new(r"(\{\{)(\w+)(}})").unwrap();
+pub static INTERNAL_PATH_ID: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(\{\{)(\w+)(}})").unwrap());
 
-    pub static ref KEY_VALUE_PAIR: Regex = Regex::new(r"(\w+)(=\{)(\w+)(})").unwrap();
+pub static KEY_VALUE_PAIR: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(\w+)(=\{)(\w+)(})").unwrap());
 
-    pub static ref KEY_VALUE_PAIR_RAW_QUOTED: Regex = Regex::new(r#"(\w+)(='\{)(\w+)(}')"#).unwrap();
+pub static KEY_VALUE_PAIR_RAW_QUOTED: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"(\w+)(='\{)(\w+)(}')"#).unwrap());
 
-    pub static ref KEY_VALUE_PAIR_SET: Regex = Regex::new(
-        r#"(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#
-    ).unwrap();
+pub static KEY_VALUE_PAIR_SET: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#,
+    )
+    .unwrap()
+});
 
-    pub static ref PATH_REGEX_SET: Regex = Regex::new(
+pub static PATH_REGEX_SET: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r#"(?P<PATH_ID>\{)(\w+-\w+)(})|(?P<PATH_ID_NAMED>\{\{)(\w+)(}})|(?P<KEY_VALUE_PAIR>\w+)(=\{)(\w+)(})|(?P<KEY_VALUE_PAIR_QUOTED>\w+)(='\{)(\w+)(}')"#
-    ).unwrap();
+    ).unwrap()
+});
 
-    pub static ref OPERATION_ID_DUPLICATE_COUNT_METHODS: Regex = Regex::new(
-        r#"(?P<GET_COUNT>Get.Count.)(?P<RESOURCE_NAME>\w+)(?P<ARBITRARY_CHARS>-\w+[0-9])"#
-    ).unwrap();
+pub static OPERATION_ID_DUPLICATE_COUNT_METHODS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r#"(?P<GET_COUNT>Get.Count.)(?P<RESOURCE_NAME>\w+)(?P<ARBITRARY_CHARS>-\w+[0-9])"#)
+        .unwrap()
+});
 
-    pub static ref RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING: Regex = Regex::new(r#"(?P<RESOURCE_NAME>\w+)(-\w*[0-9]*)"#).unwrap();
+pub static RESOURCE_NAME_WITH_ARBITRARY_CHAR_ENDING: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"(?P<RESOURCE_NAME>\w+)(-\w*[0-9]*)"#).unwrap());
 
-    pub static ref API_METHOD_MACRO: Regex = Regex::new(r#"(doc: "\#)"#).unwrap();
-}
+pub static API_METHOD_MACRO: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"(doc: "\#)"#).unwrap());
 
 // (doc: \"#\w*\",) (\w+\(\{)
 /*
