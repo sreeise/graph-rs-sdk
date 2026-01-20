@@ -44,12 +44,6 @@ pub enum GraphFailure {
     #[error("{0:#?}")]
     GraphRsError(#[from] GraphRsError),
 
-    #[error("{0:#?}")]
-    HandlebarsRenderError(#[from] handlebars::RenderError),
-
-    #[error("{0:?}")]
-    HandlebarsTemplateRenderError(#[from] handlebars::TemplateRenderError),
-
     #[error("Crypto Error (Unknown)")]
     CryptoError,
 

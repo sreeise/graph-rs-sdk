@@ -36,7 +36,6 @@ workspace = true
 unsafe_code = "forbid"
 
 [dependencies]
-handlebars = "2.0.4" # TODO: Update to 4
 lazy_static = "1.4.0"
 reqwest = { workspace = true, default-features=false, features = ["json", "gzip", "blocking", "stream"] }
 serde = { version = "1", features = ["derive"] }

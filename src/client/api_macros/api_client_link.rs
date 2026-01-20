@@ -19,7 +19,7 @@ macro_rules! api_client_impl_link {
                     self.endpoint.clone(),
                     resource_identity,
                 ),
-                Handlebars::new(),
+                PathRenderer::new(),
             )
         }
     };
@@ -32,7 +32,7 @@ macro_rules! api_client_impl_link {
                     self.endpoint.clone(),
                     $resource_identity,
                 ),
-                Handlebars::new(),
+                PathRenderer::new(),
             )
         }
     };
@@ -42,25 +42,25 @@ macro_rules! api_client_id_impl_link {
     ($name:ident, $return_type:ty) => {
         pub fn $name<S: AsRef<str>>(&self, id: S) -> $return_type {
             let resource_identity = <$return_type as ResourceIdentifier>::resource_identifier();
-            let (resource_config, registry) =
-                ResourceProvisioner::config_and_registry_with_id_and_url(
+            let (resource_config, path_renderer) =
+                ResourceProvisioner::config_and_renderer_with_id_and_url(
                     id.as_ref(),
                     self.endpoint.clone(),
                     resource_identity,
                 );
-            <$return_type>::new(self.client.clone(), resource_config, registry)
+            <$return_type>::new(self.client.clone(), resource_config, path_renderer)
         }
     };
 
     ($name:ident, $return_type:ty, $resource_identity:expr) => {
         pub fn $name<S: AsRef<str>>(&self, id: S) -> $return_type {
-            let (resource_config, registry) =
-                ResourceProvisioner::config_and_registry_with_id_and_url(
+            let (resource_config, path_renderer) =
+                ResourceProvisioner::config_and_renderer_with_id_and_url(
                     id.as_ref(),
                     self.endpoint.clone(),
                     $resource_identity,
                 );
-            <$return_type>::new(self.client.clone(), resource_config, registry)
+            <$return_type>::new(self.client.clone(), resource_config, path_renderer)
         }
     };
 }
@@ -82,7 +82,7 @@ macro_rules! api_client_link {
 
             resource_config.resource_identity_id = None;
             resource_config.resource_identity = resource_identity;
-            <$return_type>::new(self.client.clone(), resource_config, Handlebars::new())
+            <$return_type>::new(self.client.clone(), resource_config, PathRenderer::new())
         }
     };
 
@@ -101,7 +101,7 @@ macro_rules! api_client_link {
 
             resource_config.resource_identity_id = None;
             resource_config.resource_identity = $resource_identity;
-            <$return_type>::new(self.client.clone(), resource_config, Handlebars::new())
+            <$return_type>::new(self.client.clone(), resource_config, PathRenderer::new())
         }
     };
 
@@ -118,7 +118,7 @@ macro_rules! api_client_link {
 
             resource_config.resource_identity_id = None;
             resource_config.resource_identity = $resource_identity;
-            <$return_type>::new(self.client.clone(), resource_config, Handlebars::new())
+            <$return_type>::new(self.client.clone(), resource_config, PathRenderer::new())
         }
     };
 
@@ -149,7 +149,7 @@ macro_rules! api_client_link_id {
             <$return_type>::new(
                 self.client.clone(),
                 resource_config,
-                ResourceProvisioner::registry_with_id(id_str),
+                ResourceProvisioner::path_renderer_with_id(id_str),
             )
         }
     };
@@ -173,7 +173,7 @@ macro_rules! api_client_link_id {
             <$return_type>::new(
                 self.client.clone(),
                 resource_config,
-                ResourceProvisioner::registry_with_id(id_str),
+                ResourceProvisioner::path_renderer_with_id(id_str),
             )
         }
     };
@@ -195,7 +195,7 @@ macro_rules! api_client_link_id {
             <$return_type>::new(
                 self.client.clone(),
                 resource_config,
-                ResourceProvisioner::registry_with_id(id_str),
+                ResourceProvisioner::path_renderer_with_id(id_str),
             )
         }
     };
@@ -209,7 +209,7 @@ macro_rules! resource_id_tunnel {
             <$return_type>::new(
                 self.client.clone(),
                 resource_config,
-                ResourceProvisioner::registry_with_id(id.as_ref()),
+                ResourceProvisioner::path_renderer_with_id(id.as_ref()),
             )
         }
     };
@@ -223,7 +223,7 @@ macro_rules! resource_id_tunnel {
             <$return_type>::new(
                 self.client.clone(),
                 resource_config,
-                ResourceProvisioner::registry_with_id(id_str),
+                ResourceProvisioner::path_renderer_with_id(id_str),
             )
         }
     };
@@ -247,7 +247,7 @@ macro_rules! resource_id_tunnel {
             <$return_type>::new(
                 self.client.clone(),
                 resource_config,
-                ResourceProvisioner::registry_with_id(id_str),
+                ResourceProvisioner::path_renderer_with_id(id_str),
             )
         }
     };

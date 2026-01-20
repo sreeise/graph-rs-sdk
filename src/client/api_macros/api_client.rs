@@ -13,7 +13,7 @@ macro_rules! api_client {
         pub struct $name {
             pub(crate) client: graph_http::api_impl::Client,
             pub(crate) resource_config: graph_http::api_impl::ResourceConfig,
-            registry: handlebars::Handlebars,
+            path_renderer: crate::client::common::PathRenderer,
         }
 
         impl $name {
@@ -21,12 +21,12 @@ macro_rules! api_client {
             pub(crate) fn new(
                 client: graph_http::api_impl::Client,
                 resource_config: graph_http::api_impl::ResourceConfig,
-                registry: handlebars::Handlebars,
+                path_renderer: crate::client::common::PathRenderer,
             ) -> $name {
                 $name {
                     client,
                     resource_config,
-                    registry,
+                    path_renderer,
                 }
             }
         }
@@ -41,9 +41,7 @@ macro_rules! api_client {
                 path: S,
                 path_params_map: &serde_json::Value,
             ) -> GraphResult<String> {
-                self.registry
-                    .render_template(path.as_ref(), path_params_map)
-                    .map_err(GraphFailure::from)
+                Ok(self.path_renderer.render(path.as_ref(), path_params_map))
             }
         }
 

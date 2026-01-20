@@ -539,7 +539,7 @@ impl GraphClient {
                 self.endpoint.clone(),
                 ResourceIdentity::Batch,
             ),
-            Handlebars::new(),
+            PathRenderer::new(),
         )
         .batch(batch)
     }

@@ -13,7 +13,6 @@ categories = ["authentication", "web-programming::http-client"]
 
 [dependencies]
 base64 = "0.21.0"
-handlebars = "2.0.2"
 http = { workspace = true }
 jsonwebtoken = "9.1.0"
 reqwest = { workspace = true, default-features=false, features = ["json", "gzip", "blocking", "stream"] }
