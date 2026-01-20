@@ -19,7 +19,7 @@ reqwest = { workspace = true, default-features=false, features = ["json", "gzip"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_urlencoded = "0.7.1"
-tokio = { version = "1.27.0", features = ["full", "tracing"] }
+tokio = { version = "1.27.0", features = ["rt", "sync", "time", "fs", "io-util"] }
 url = { version = "2", features = ["serde"] }
 tower = { version = "0.4.13", features = ["limit", "retry", "timeout", "util"] }
 futures-util = "0.3.30"
