@@ -668,6 +668,92 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				update: GeneratedMacroType::FnName("move_child_folders"),
 			},
 		],
+		ResourceIdentity::ServicePrincipals => vec![
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("service_principals_get_count_da_6d", "/servicePrincipals/$count")
+				],
+				update: GeneratedMacroType::FnName("get_service_principals_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("app_management_policies", "/servicePrincipals/{{RID}}/appManagementPolicies/$count")
+				],
+				update: GeneratedMacroType::FnName("count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("app_role_assigned_to", "/servicePrincipals/{{RID}}/appRoleAssignedTo/$count")
+				],
+				update: GeneratedMacroType::FnName("get_app_role_assigned_to_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("app_role_assignments", "/servicePrincipals/{{RID}}/appRoleAssignments/$count")
+				],
+				update: GeneratedMacroType::FnName("get_app_role_assignments_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("claims_mapping_policies", "/servicePrincipals/{{RID}}/claimsMappingPolicies/$count")
+				],
+				update: GeneratedMacroType::FnName("get_claims_mapping_policies_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("delegated_permission_classifications", "/servicePrincipals/{{RID}}/delegatedPermissionClassifications/$count")
+				],
+				update: GeneratedMacroType::FnName("get_delegated_permission_classifications_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("endpoints", "/servicePrincipals/{{RID}}/endpoints/$count")
+				],
+				update: GeneratedMacroType::FnName("get_endpoints_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("federated_identity_credentials", "/servicePrincipals/{{RID}}/federatedIdentityCredentials/$count")
+				],
+				update: GeneratedMacroType::FnName("get_federated_identity_credentials_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("home_realm_discovery_policies", "/servicePrincipals/{{RID}}/homeRealmDiscoveryPolicies/$count")
+				],
+				update: GeneratedMacroType::FnName("get_home_realm_discovery_policies_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("token_issuance_policies", "/servicePrincipals/{{RID}}/tokenIssuancePolicies/$count")
+				],
+				update: GeneratedMacroType::FnName("get_token_issuance_policies_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("token_lifetime_policies", "/servicePrincipals/{{RID}}/tokenLifetimePolicies/$count")
+				],
+				update: GeneratedMacroType::FnName("get_token_lifetime_policies_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("delete_by_name", "/servicePrincipals/{{RID}}/federatedIdentityCredentials(name='{{id}}')")
+				],
+				update: GeneratedMacroType::FnName("delete_federated_identity_credentials_by_name"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("get_by_name", "/servicePrincipals/{{RID}}/federatedIdentityCredentials(name='{{id}}')")
+				],
+				update: GeneratedMacroType::FnName("get_federated_identity_credentials_by_name"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("update_by_name", "/servicePrincipals/{{RID}}/federatedIdentityCredentials(name='{{id}}')")
+				],
+				update: GeneratedMacroType::FnName("update_federated_identity_credentials_by_name"),
+			},
+		],
 		ResourceIdentity::ServicePrincipalsOwners => vec![
 			MethodMacroModifier {
 				matching: vec![
@@ -705,6 +791,111 @@ pub fn get_method_macro_modifiers(resource_identity: ResourceIdentity) -> Vec<Me
 				],
 				update: GeneratedMacroType::FnName("get_directory_object_items_as_endpoint_type"),
 			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("get_count", "/owners/graph.endpoint/$count")
+				],
+				update: GeneratedMacroType::FnName("get_endpoint_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("get_count", "/owners/graph.servicePrincipal/$count")
+				],
+				update: GeneratedMacroType::FnName("get_service_principal_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("get_count", "/owners/graph.user/$count")
+				],
+				update: GeneratedMacroType::FnName("get_user_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("owners", "/owners/$count")
+				],
+				update: GeneratedMacroType::FnName("get_owners_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_app_role_assignment", "/owners/graph.appRoleAssignment/$count")
+				],
+				update: GeneratedMacroType::FnName("get_app_role_assignments_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_app_role_assignment", "/owners/graph.appRoleAssignment")
+				],
+				update: GeneratedMacroType::FnName("get_app_role_assignments"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_app_role_assignment_abce", "/owners/graph.appRoleAssignment/$count")
+				],
+				update: GeneratedMacroType::FnName("get_app_role_assignments_count"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_app_role_assignment", "/owners/{{RID}}/graph.appRoleAssignment")
+				],
+				update: GeneratedMacroType::FnName("get_app_role_assignments"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_endpoint", "/owners/graph.endpoint")
+				],
+				update: GeneratedMacroType::FnName("get_directory_object_items_as_endpoint_type"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_service_principal", "/owners/graph.servicePrincipal")
+				],
+				update: GeneratedMacroType::FnName("get_directory_object_items_as_service_principal_type"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_user", "/owners/graph.user")
+				],
+				update: GeneratedMacroType::FnName("get_directory_object_items_as_user_type"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("delete_ref_directory_object", "/owners/{{RID}}/$ref")
+				],
+				update: GeneratedMacroType::FnName("delete_ref_owners"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_endpoint", "/owners/{{RID}}/graph.endpoint")
+				],
+				update: GeneratedMacroType::FnName("get_directory_object_item_as_endpoint_type"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_service_principal", "/owners/{{RID}}/graph.servicePrincipal")
+				],
+				update: GeneratedMacroType::FnName("get_directory_object_item_as_service_principal_type"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("as_user", "/owners/{{RID}}/graph.user")
+				],
+				update: GeneratedMacroType::FnName("get_directory_object_item_as_user_type"),
+			},
+
+		],
+		ResourceIdentity::ServicePrincipalsSynchronization => vec![
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("validate_credentials", "/synchronization/jobs/validateCredentials")
+				],
+				update: GeneratedMacroType::FnName("validate_jobs_credentials"),
+			},
+			MethodMacroModifier {
+				matching: vec![
+					GeneratedMacroType::FnNameAndPath("validate_credentials", "/synchronization/jobs/{{RID}}/validateCredentials")
+				],
+				update: GeneratedMacroType::FnName("validate_job_credentials"),
+			}
 		],
 		ResourceIdentity::DirectReports => vec![
 			MethodMacroModifier {

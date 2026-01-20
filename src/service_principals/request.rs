@@ -22,6 +22,25 @@ impl ServicePrincipalsApiClient {
         name: list_service_principal,
         path: "/servicePrincipals"
     );
+    delete!(
+        doc: "Delete servicePrincipal",
+        name: delete_service_principal_by_app_id,
+        path: "/servicePrincipals(appId='{{id}}')",
+        params: app_id
+    );
+    get!(
+        doc: "Get servicePrincipal",
+        name: get_service_principal_by_app_id,
+        path: "/servicePrincipals(appId='{{id}}')",
+        params: app_id
+    );
+    patch!(
+        doc: "Upsert servicePrincipal",
+        name: update_service_principal_by_app_id,
+        path: "/servicePrincipals(appId='{{id}}')",
+        body: true,
+        params: app_id
+    );
     get!(
         doc: "Get the number of the resource",
         name: get_service_principals_count,
@@ -53,9 +72,10 @@ impl ServicePrincipalsApiClient {
 }
 
 impl ServicePrincipalsIdApiClient {
-    api_client_link_id!(owner, ServicePrincipalsOwnersIdApiClient);
     api_client_link!(member_of, MemberOfApiClient);
+    api_client_link_id!(owner, ServicePrincipalsOwnersIdApiClient);
     api_client_link!(transitive_member_of, TransitiveMemberOfApiClient);
+    api_client_link!(synchronization, ServicePrincipalsSynchronizationApiClient);
     api_client_link!(owners, ServicePrincipalsOwnersApiClient);
 
     delete!(
@@ -214,6 +234,11 @@ impl ServicePrincipalsIdApiClient {
     delete!(
         doc: "Delete ref of navigation property claimsMappingPolicies for servicePrincipals",
         name: delete_ref_claims_mapping_policies,
+        path: "/servicePrincipals/{{RID}}/claimsMappingPolicies/$ref"
+    );
+    delete!(
+        doc: "Delete ref of navigation property claimsMappingPolicies for servicePrincipals",
+        name: delete_ref_claims_mapping_policy,
         path: "/servicePrincipals/{{RID}}/claimsMappingPolicies/{{id}}/$ref",
         params: claims_mapping_policy_id
     );
@@ -298,6 +323,25 @@ impl ServicePrincipalsIdApiClient {
         name: list_federated_identity_credentials,
         path: "/servicePrincipals/{{RID}}/federatedIdentityCredentials"
     );
+    delete!(
+        doc: "Delete navigation property federatedIdentityCredentials for servicePrincipals",
+        name: delete_federated_identity_credentials_by_name,
+        path: "/servicePrincipals/{{RID}}/federatedIdentityCredentials(name='{{id}}')",
+        params: name
+    );
+    get!(
+        doc: "Get federatedIdentityCredentials from servicePrincipals",
+        name: get_federated_identity_credentials_by_name,
+        path: "/servicePrincipals/{{RID}}/federatedIdentityCredentials(name='{{id}}')",
+        params: name
+    );
+    patch!(
+        doc: "Update the navigation property federatedIdentityCredentials in servicePrincipals",
+        name: update_federated_identity_credentials_by_name,
+        path: "/servicePrincipals/{{RID}}/federatedIdentityCredentials(name='{{id}}')",
+        body: true,
+        params: name
+    );
     get!(
         doc: "Get the number of the resource",
         name: get_federated_identity_credentials_count,
@@ -358,6 +402,11 @@ impl ServicePrincipalsIdApiClient {
     delete!(
         doc: "Delete ref of navigation property homeRealmDiscoveryPolicies for servicePrincipals",
         name: delete_ref_home_realm_discovery_policies,
+        path: "/servicePrincipals/{{RID}}/homeRealmDiscoveryPolicies/$ref"
+    );
+    delete!(
+        doc: "Delete ref of navigation property homeRealmDiscoveryPolicies for servicePrincipals",
+        name: delete_ref_home_realm_discovery_policy,
         path: "/servicePrincipals/{{RID}}/homeRealmDiscoveryPolicies/{{id}}/$ref",
         params: home_realm_discovery_policy_id
     );
@@ -388,10 +437,26 @@ impl ServicePrincipalsIdApiClient {
         name: get_token_issuance_policies_count,
         path: "/servicePrincipals/{{RID}}/tokenIssuancePolicies/$count"
     );
+    post!(
+        doc: "Create new navigation property ref to tokenIssuancePolicies for servicePrincipals",
+        name: create_ref_token_issuance_policies,
+        path: "/servicePrincipals/{{RID}}/tokenIssuancePolicies/$ref",
+        body: true
+    );
+    delete!(
+        doc: "Delete ref of navigation property tokenIssuancePolicies for servicePrincipals",
+        name: delete_ref_token_issuance_policies,
+        path: "/servicePrincipals/{{RID}}/tokenIssuancePolicies/$ref"
+    );
     get!(
-        doc: "Get tokenIssuancePolicies from servicePrincipals",
-        name: get_token_issuance_policies,
-        path: "/servicePrincipals/{{RID}}/tokenIssuancePolicies/{{id}}",
+        doc: "Get ref of tokenIssuancePolicies from servicePrincipals",
+        name: list_ref_token_issuance_policies,
+        path: "/servicePrincipals/{{RID}}/tokenIssuancePolicies/$ref"
+    );
+    delete!(
+        doc: "Delete ref of navigation property tokenIssuancePolicies for servicePrincipals",
+        name: delete_ref_token_issuance_policy,
+        path: "/servicePrincipals/{{RID}}/tokenIssuancePolicies/{{id}}/$ref",
         params: token_issuance_policy_id
     );
     get!(
@@ -404,10 +469,26 @@ impl ServicePrincipalsIdApiClient {
         name: get_token_lifetime_policies_count,
         path: "/servicePrincipals/{{RID}}/tokenLifetimePolicies/$count"
     );
+    post!(
+        doc: "Add tokenLifetimePolicy",
+        name: create_ref_token_lifetime_policies,
+        path: "/servicePrincipals/{{RID}}/tokenLifetimePolicies/$ref",
+        body: true
+    );
     get!(
-        doc: "Get tokenLifetimePolicies from servicePrincipals",
-        name: get_token_lifetime_policies,
-        path: "/servicePrincipals/{{RID}}/tokenLifetimePolicies/{{id}}",
+        doc: "List assigned tokenLifetimePolicies",
+        name: list_ref_token_lifetime_policies,
+        path: "/servicePrincipals/{{RID}}/tokenLifetimePolicies/$ref"
+    );
+    delete!(
+        doc: "Remove tokenLifetimePolicies",
+        name: delete_ref_token_lifetime_policies,
+        path: "/servicePrincipals/{{RID}}/tokenLifetimePolicies/$ref"
+    );
+    delete!(
+        doc: "Remove tokenLifetimePolicies",
+        name: delete_ref_token_lifetime_policy,
+        path: "/servicePrincipals/{{RID}}/tokenLifetimePolicies/{{id}}/$ref",
         params: token_lifetime_policy_id
     );
 }
