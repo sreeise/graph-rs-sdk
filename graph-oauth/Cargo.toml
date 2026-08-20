@@ -12,21 +12,24 @@ homepage = "https://github.com/sreeise/graph-rs-sdk"
 keywords = ["microsoft", "oauth", "authentication", "authorization"]
 categories = ["authentication", "web-programming::http-client"]
 
-exclude = [
-    "src/identity/credentials/test/*"
-]
+exclude = ["src/identity/credentials/test/*"]
 
 [dependencies]
-anyhow = { version = "1.0.69", features = ["backtrace"]}
+anyhow = { version = "1.0.69", features = ["backtrace"] }
 async-trait = "0.1.35"
 base64 = "0.21.0"
 dyn-clone = "1.0.14"
 hex = "0.4.3"
 http = { workspace = true }
-jsonwebtoken = "9.1.0"
+jsonwebtoken = { version = "10.3.0", default-features = false }
 lazy_static = "1.4.0"
-openssl = { version = "0.10", optional=true }
-reqwest = { workspace = true, default-features=false, features = ["json", "gzip", "blocking", "stream"] }
+openssl = { version = "0.10", optional = true }
+reqwest = { workspace = true, default-features = false, features = [
+    "json",
+    "gzip",
+    "blocking",
+    "stream",
+] }
 serde = { version = "1", features = ["derive"] }
 serde-aux = "4.1.2"
 serde_json = "1"
@@ -46,7 +49,7 @@ graph-core = { path = "../graph-core", default-features = false }
 graph-http = { path = "../graph-http", default-features = false }
 
 [features]
-default = ["native-tls"]
+default = ["native-tls", "jwt-rust-crypto"]
 native-tls = ["reqwest/native-tls", "graph-core/native-tls"]
 rustls-tls = ["reqwest/rustls-tls", "graph-core/rustls-tls"]
 brotli = ["reqwest/brotli", "graph-core/brotli"]
@@ -56,13 +59,18 @@ socks = ["reqwest/socks", "graph-core/socks"]
 openssl = ["dep:openssl"]
 interactive-auth = ["dep:wry", "dep:tao"]
 
+# jsonwebtoken (id_token verification) requires choosing exactly one crypto backend.
+# Enable exactly one of these - see the compile_error! guards in src/lib.rs.
+jwt-rust-crypto = ["jsonwebtoken/rust_crypto"]
+jwt-aws-lc-rs = ["jsonwebtoken/aws_lc_rs"]
+
 [[test]]
 name = "x509_certificate_tests"
 path = "src/identity/credentials/x509_certificate.rs"
 required-features = ["openssl"]
 
 [package.metadata.docs.rs]
-features = ["openssl", "native-tls", "deflate"]
+features = ["openssl", "native-tls", "deflate", "jwt-rust-crypto"]
 
 [lints]
 workspace = true

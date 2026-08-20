@@ -46,6 +46,22 @@ extern crate strum;
 #[macro_use]
 extern crate lazy_static;
 
+// jsonwebtoken >= 10 requires selecting exactly one crypto backend for verifying/signing
+// JWTs (id_tokens). Without one, `jsonwebtoken::decode`/`encode` compile fine but panic
+// the first time they're actually called. Fail at compile time instead - see the
+// `jwt-aws-lc-rs` / `jwt-rust-crypto` features in Cargo.toml.
+#[cfg(not(any(feature = "jwt-aws-lc-rs", feature = "jwt-rust-crypto")))]
+compile_error!(
+    "graph-oauth requires exactly one jsonwebtoken crypto backend feature: enable either \
+     \"jwt-aws-lc-rs\" or \"jwt-rust-crypto\" (on graph-rs-sdk, graph-oauth, or graph-core \
+     depending on which crate you depend on directly)."
+);
+#[cfg(all(feature = "jwt-aws-lc-rs", feature = "jwt-rust-crypto"))]
+compile_error!(
+    "graph-oauth: enable only one of \"jwt-aws-lc-rs\" or \"jwt-rust-crypto\", not both - \
+     jsonwebtoken cannot pick a default when both are present."
+);
+
 pub(crate) mod oauth_serializer;
 
 pub(crate) mod identity;
