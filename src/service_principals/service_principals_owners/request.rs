@@ -30,6 +30,11 @@ impl ServicePrincipalsOwnersApiClient {
         name: list_ref_owners,
         path: "/owners/$ref"
     );
+    delete!(
+        doc: "Remove service principal owner",
+        name: delete_ref_owners,
+        path: "/owners/$ref"
+    );
     get!(
         doc: "Get the items of type microsoft.graph.appRoleAssignment in the microsoft.graph.directoryObject collection",
         name: get_app_role_assignments,

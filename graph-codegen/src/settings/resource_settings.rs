@@ -56,8 +56,26 @@ impl ResourceSettings {
 							ApiClientLink::StructId("owner", "ServicePrincipalsOwnersIdApiClient"),
 							ApiClientLink::Struct("transitive_member_of", "TransitiveMemberOfApiClient"),
 							ApiClientLink::Struct("member_of", "MemberOfApiClient"),
+							ApiClientLink::Struct("synchronization", "ServicePrincipalsSynchronizationApiClient"),
 						]
 					),
+				]).build().unwrap(),
+			ResourceIdentity::ServicePrincipalsSynchronization => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::service_principals::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("ServicePrincipalsSynchronizationApiClient"), vec![
+						ApiClientLink::Struct("jobs", "ServicePrincipalsSynchronizationJobsApiClient"),
+						ApiClientLink::StructId("job", "ServicePrincipalsSynchronizationJobsIdApiClient"),
+						ApiClientLink::Struct("templates", "ServicePrincipalsSynchronizationTemplatesApiClient"),
+						ApiClientLink::StructId("template", "ServicePrincipalsSynchronizationTemplatesIdApiClient"),
+					])
+				]).build().unwrap(),
+			ResourceIdentity::ServicePrincipalsSynchronizationJobs => ResourceSettings::builder(path_name, ri)
+				.imports(vec!["crate::service_principals::*"])
+				.api_client_links(vec![
+					ApiClientLinkSettings(Some("ServicePrincipalsSynchronizationJobsIdApiClient"), vec![
+						ApiClientLink::StructId("job", "ServicePrincipalsSynchronizationJobsIdApiClient"),
+					])
 				]).build().unwrap(),
 			ResourceIdentity::AuthenticationMethodsPolicy => ResourceSettings::builder(path_name, ri)
 				.imports(vec!["crate::authentication_method_configurations::*"])
@@ -2617,14 +2635,36 @@ pub fn get_write_configuration(resource_identity: ResourceIdentity) -> WriteConf
 
 		// Service Principals
 		ResourceIdentity::ServicePrincipals => WriteConfiguration::builder(resource_identity)
-			.filter_path(vec!["owners", "transitiveMemberOf", "oauth2PermissionGrants", "memberOf", "createdObjects", "ownedObjects"])
-			.children(vec![get_write_configuration(ResourceIdentity::ServicePrincipalsOwners)])
-			.build()
-			.unwrap(),
+			.filter_path(vec![
+				"owners",
+				"transitiveMemberOf",
+				"oauth2PermissionGrants",
+				"memberOf",
+				"createdObjects",
+				"ownedObjects",
+				"remoteDesktopSecurityConfiguration",
+				"synchronization"
+			])
+			.children(vec![
+				get_write_configuration(ResourceIdentity::ServicePrincipalsOwners),
+				get_write_configuration(ResourceIdentity::ServicePrincipalsSynchronization),
+				get_write_configuration(ResourceIdentity::ServicePrincipalsSynchronizationJobs),
+				get_write_configuration(ResourceIdentity::ServicePrincipalsSynchronizationTemplates),
+			])
+			.build().unwrap(),
 		ResourceIdentity::ServicePrincipalsOwners => WriteConfiguration::second_level_builder(ResourceIdentity::ServicePrincipals, resource_identity)
 			.trim_path_start("/servicePrincipals/{servicePrincipal-id}")
 			.build().unwrap(),
-
+		ResourceIdentity::ServicePrincipalsSynchronization => WriteConfiguration::second_level_builder(ResourceIdentity::ServicePrincipals, resource_identity)
+			.trim_path_start("/servicePrincipals/{servicePrincipal-id}")
+			.filter_path(vec!["jobs", "templates"])
+			.build().unwrap(),
+		ResourceIdentity::ServicePrincipalsSynchronizationJobs => WriteConfiguration::second_level_builder(ResourceIdentity::ServicePrincipals, resource_identity)
+			.trim_path_start("/servicePrincipals/{servicePrincipal-id}/synchronization")
+			.build().unwrap(),
+		ResourceIdentity::ServicePrincipalsSynchronizationTemplates => WriteConfiguration::second_level_builder(ResourceIdentity::ServicePrincipals, resource_identity)
+			.trim_path_start("/servicePrincipals/{servicePrincipal-id}/synchronization")
+			.build().unwrap(),
 
 		// Groups
 		ResourceIdentity::Groups => WriteConfiguration::builder(resource_identity)
