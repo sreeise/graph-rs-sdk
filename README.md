@@ -119,6 +119,11 @@ Other test related features may be added in the future.
 * `deflate`: Enables feature deflate in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
 * `trust-dns`: Enables feature trust-dns in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
 * `socks`: Enables feature socks (socks proxy support) in the reqwest http-client. See the [reqwest crate](https://crates.io/crates/reqwest) for more details.
+* `jwt-rust-crypto` (default): Uses the pure-Rust [RustCrypto](https://github.com/RustCrypto) backend for verifying id_tokens. No native toolchain required.
+* `jwt-aws-lc-rs`: Uses the [aws-lc-rs](https://github.com/aws/aws-lc-rs) backend for verifying id_tokens instead. Builds `aws-lc-sys` from source, which requires `cmake` and a C compiler.
+
+Exactly one `jwt-*` feature must be enabled - if you disable default features, re-enable one of them
+along with a TLS backend, e.g. `default-features = false, features = ["native-tls", "jwt-rust-crypto"]`.
 
 # Usage
 
